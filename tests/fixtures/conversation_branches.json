@@ -1,0 +1,14 @@
+[
+  {
+    "name": "new_block_from_product_discussion",
+    "block_id": "b.docs",
+    "note": "branch semantic ingestion",
+    "conversation_text": "Обсуждаем новый блок b.realtime-ingestion, нужен статус wip и связь с ingestion pipeline"
+  },
+  {
+    "name": "status_update_existing_block",
+    "block_id": "b.core-sync",
+    "note": "branch semantic ingestion",
+    "conversation_text": "По блоку b.core-sync фиксируем done после проверки acceptance"
+  }
+]

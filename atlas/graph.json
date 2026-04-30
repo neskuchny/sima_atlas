@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "blocks": [
+    {
+      "id": "b.ui-control",
+      "title": "UI Control Plane",
+      "status": "done",
+      "depends_on": [
+        "b.core-sync",
+        "b.agent-orchestrator"
+      ]
+    },
+    {
+      "id": "b.core-sync",
+      "title": "Sync Engine",
+      "status": "done",
+      "depends_on": [
+        "b.db"
+      ]
+    },
+    {
+      "id": "b.db",
+      "title": "Atlas Database",
+      "status": "wip",
+      "depends_on": []
+    },
+    {
+      "id": "b.agent-orchestrator",
+      "title": "Agent Orchestrator",
+      "status": "done",
+      "depends_on": [
+        "b.db",
+        "b.core-sync"
+      ]
+    },
+    {
+      "id": "b.docs",
+      "title": "Docs Builder",
+      "status": "wip",
+      "depends_on": []
+    },
+    {
+      "id": "b.semantic-llm",
+      "title": "Auto: b.semantic-llm",
+      "status": "wip",
+      "depends_on": []
+    },
+    {
+      "id": "b.realtime-ingestion",
+      "title": "Auto: b.realtime-ingestion",
+      "status": "wip",
+      "depends_on": []
+    },
+    {
+      "id": "b.payments",
+      "title": "Auto: b.payments",
+      "status": "wip",
+      "depends_on": []
+    }
+  ]
+}
