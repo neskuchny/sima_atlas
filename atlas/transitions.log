@@ -3,3 +3,4 @@
 2026-04-30T12:49:54.250Z	b.agent-orchestrator	idea	wip	actor=system	note=start implementation
 2026-04-30T12:50:04.721Z	b.agent-orchestrator	wip	review	actor=system	note=handoff to review
 2026-04-30T12:53:19.652Z	b.agent-orchestrator	review	done	actor=system	note=approved after review
+2026-04-30T13:24:48.585Z	b.ui-control	wip	review	actor=system	note=ready for review

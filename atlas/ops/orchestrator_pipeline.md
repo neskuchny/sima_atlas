@@ -24,7 +24,12 @@ node scripts/advance_block_state.mjs <blockId> review <actor> "ready for review"
 node scripts/advance_block_state.mjs <blockId> done <actor> "approved"
 ```
 
-5. Пересобрать roadmap:
+5. Проверить block contracts:
+```bash
+node scripts/validate_block_contracts.mjs
+```
+
+6. Пересобрать roadmap:
 ```bash
 node scripts/rebuild_atlas_roadmap.mjs
 ```
