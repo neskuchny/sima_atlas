@@ -20,3 +20,5 @@
 - 2026-04-30T20:23:42.373Z: smoke e2e queued insight
 - 2026-04-30T20:30:24.805Z: branch semantic ingestion
 - 2026-04-30T20:30:30.127Z: smoke e2e queued insight
+- 2026-04-30T21:56:16.102Z: batch-ingest 1-2 / 4
+- 2026-04-30T21:56:16.275Z: batch-ingest 3-4 / 4

@@ -138,8 +138,14 @@ const LAYERS = [
 ];
 
 function AppV2(){
-  const data = window.SIMA_DATA_V2;
-  const [projId, setProjId] = useState(data.projects[0].id);
+  const bootstrapRaw = (() => {
+    try { return localStorage.getItem('sima_bootstrap'); } catch { return null; }
+  })();
+  const bootstrap = window.SIMA_BOOTSTRAP || (bootstrapRaw ? JSON.parse(bootstrapRaw) : null);
+  const data = bootstrap?.data || window.SIMA_DATA_V2;
+  const archByProject = bootstrap?.archByProject || window.ARCH_BY_PROJECT || {};
+  const urlProject = new URLSearchParams(window.location.search).get('project');
+  const [projId, setProjId] = useState(urlProject && data.projects.some(p => p.id === urlProject) ? urlProject : data.projects[0].id);
   const [layer, setLayer] = useState('canvas');
   const [selectedCanvasId, setSelectedCanvasId] = useState(null);
   const [selectedMapNode, setSelectedMapNode] = useState(null);
@@ -158,16 +164,17 @@ function AppV2(){
   const [syncReport, setSyncReport] = useState(null);
 
   React.useEffect(() => {
-    if (!window.SIMA_ATLAS_CORE || !window.ARCH_BY_PROJECT) return;
-    const arch = window.ARCH_BY_PROJECT[projId];
+    if (!window.SIMA_ATLAS_CORE || !archByProject) return;
+    const arch = archByProject[projId];
+    if (!arch) return;
     const loaded = window.SIMA_ATLAS_CORE.loadAtlas(projId, arch);
     setAtlasState(loaded);
     setSyncReport(window.SIMA_ATLAS_CORE.syncCheck(loaded, arch));
   }, [projId]);
 
   const runSyncCheck = () => {
-    if (!window.SIMA_ATLAS_CORE || !window.ARCH_BY_PROJECT || !atlasState) return;
-    const arch = window.ARCH_BY_PROJECT[projId];
+    if (!window.SIMA_ATLAS_CORE || !archByProject || !atlasState) return;
+    const arch = archByProject[projId];
     const saved = window.SIMA_ATLAS_CORE.saveAtlas(projId, atlasState);
     const report = window.SIMA_ATLAS_CORE.runSyncWithChecks(saved, arch, { source: "ui:manual-sync" });
     setAtlasState(saved);
@@ -177,8 +184,9 @@ function AppV2(){
 
 
   const commitAtlasPatch = (patch, toastMsg='') => {
-    if (!window.SIMA_ATLAS_CORE || !window.ARCH_BY_PROJECT) return;
-    const arch = window.ARCH_BY_PROJECT[projId];
+    if (!window.SIMA_ATLAS_CORE || !archByProject) return;
+    const arch = archByProject[projId];
+    if (!arch) return;
     const saved = window.SIMA_ATLAS_CORE.saveAtlas(projId, patch);
     const report = window.SIMA_ATLAS_CORE.runSyncWithChecks(saved, arch, { source: "ui:mutation" });
     setAtlasState(saved);
@@ -188,7 +196,7 @@ function AppV2(){
 
   const exportContextPack = (blockId) => {
     if (!blockId || !atlasState || !window.SIMA_ATLAS_CORE) return;
-    const arch = window.ARCH_BY_PROJECT[projId];
+    const arch = archByProject[projId];
     const pack = window.SIMA_ATLAS_CORE.buildContextPack(atlasState, arch, blockId);
     if (!pack) { showToast('Context-pack не собран: блок не найден в atlas'); return; }
     try {
@@ -267,7 +275,7 @@ function AppV2(){
   };
 
   const selectedId = selectedCanvasId;
-  const archBase = window.ARCH_BY_PROJECT?.[projId];
+  const archBase = archByProject?.[projId];
   const setSelectedId = setSelectedCanvasId;
 
   return (
@@ -502,7 +510,7 @@ function AppV2(){
                   const key = 'sima.arch.'+projId;
                   try {
                     const raw = localStorage.getItem(key);
-                    const s = raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(window.ARCH_BY_PROJECT[projId]));
+                    const s = raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(archByProject[projId]));
                     if (patch === '__delete'){
                       s.blocks = s.blocks.filter(b => b.id !== id);
                       s.links = s.links.filter(l => l.from !== id && l.to !== id);

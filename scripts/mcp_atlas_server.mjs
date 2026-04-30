@@ -36,6 +36,7 @@ function toolList(){
     { name:'build_context_pack', description:'Build deterministic context-pack json for block', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} }, required:['block_id'] } },
     { name:'enqueue_ingestion', description:'Queue distilled chat insight for nightly ingestion', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, note:{type:'string'}, apply_to_rules:{type:'boolean'}, conversation_text:{type:'string'} }, required:['block_id','note'] } },
     { name:'apply_ingestion_queue', description:'Apply queued distillates into block memory files', inputSchema:{ type:'object', properties:{} } },
+    { name:'ingest_chat_batches', description:'Batch-ingest transcript JSONL into queue and apply automatically', inputSchema:{ type:'object', properties:{ transcript_path:{type:'string'}, block_id:{type:'string'}, batch_size:{type:'number'} }, required:['transcript_path'] } },
 
   ];
 }
@@ -340,6 +341,15 @@ rl.on('line', (line) => {
       if (name === 'apply_ingestion_queue') {
         execSync('node scripts/apply_ingestion_queue.mjs', { cwd: root, stdio:'pipe' });
         return respond(id, { content:[{ type:'text', text: 'ingestion queue applied' }] });
+      }
+
+
+      if (name === 'ingest_chat_batches') {
+        const transcriptPath = String(args.transcript_path || '');
+        const blockId = String(args.block_id || 'b.docs');
+        const batchSize = Number(args.batch_size || 6);
+        execSync(`node scripts/ingest_chat_batches.mjs "${transcriptPath}" ${blockId} ${batchSize}`, { cwd: root, stdio:'pipe' });
+        return respond(id, { content:[{ type:'text', text: `chat batches ingested: ${transcriptPath}` }] });
       }
 
       return respondErr(id, `unknown tool: ${name}`);

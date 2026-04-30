@@ -3,3 +3,4 @@
 2026-04-30T19:48:03Z	semantic_ingestion	pass	queue supports conversation_text and graph updates
 2026-04-30T19:54:55Z	branch_semantic_smoke	pass	simulate_conversation_branches OK
 2026-04-30T20:10:27Z	production_audit	pass	audit_production_readiness 5/5
+2026-04-30T21:56:19Z	chat_batch_ingestion	pass	ingest_chat_batches + MCP tool

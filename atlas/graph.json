@@ -50,6 +50,12 @@
       "title": "Auto: b.realtime-ingestion",
       "status": "wip",
       "depends_on": []
+    },
+    {
+      "id": "b.payments",
+      "title": "Auto: b.payments",
+      "status": "wip",
+      "depends_on": []
     }
   ]
 }
