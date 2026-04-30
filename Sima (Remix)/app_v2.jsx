@@ -22,6 +22,7 @@ function computeArchSummary(arch, atlas){
 
 function AtlasSchemaPanel({ arch, atlasState, syncReport, selectedBlockId, onRunSync, onExportContext, onTransition }){
   const blocks = arch?.blocks || [];
+  const [filter, setFilter] = React.useState('all');
   const detailById = Object.fromEntries((syncReport?.details || []).map(d => [d.blockId, d]));
   return (
     <div className="side-sec" style={{flex:1,display:'flex',flexDirection:'column',minHeight:0}}>
@@ -34,6 +35,16 @@ function AtlasSchemaPanel({ arch, atlasState, syncReport, selectedBlockId, onRun
         <span className="chip">ok: {syncReport?.synchronized ?? 0}</span>
         <span className="chip">drift: {syncReport?.drift ?? 0}</span>
         <span className="chip">broken: {syncReport?.broken ?? 0}</span>
+      </div>
+      <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:10}}>
+        <span className="meta">filter:</span>
+        <select value={filter} onChange={(e)=>setFilter(e.target.value)} className="btn xs ghost" style={{height:24}}>
+          <option value="all">all</option>
+          <option value="broken">broken</option>
+          <option value="drift">drift</option>
+          <option value="review">review</option>
+          <option value="done">done</option>
+        </select>
       </div>
       <div style={{display:'flex',gap:6,marginBottom:10}}>
         <button className="btn xs ghost" onClick={onRunSync}>
@@ -51,9 +62,17 @@ function AtlasSchemaPanel({ arch, atlasState, syncReport, selectedBlockId, onRun
         <button className="btn xs" onClick={()=>onTransition && onTransition('review')} disabled={!selectedBlockId}>Review</button>
         <button className="btn xs" onClick={()=>onTransition && onTransition('done')} disabled={!selectedBlockId}>Done</button>
         <button className="btn xs ghost" onClick={()=>onTransition && onTransition('broken')} disabled={!selectedBlockId}>Broken</button>
+        <button className="btn xs ghost" onClick={()=>onTransition && onTransition('wip')} disabled={!selectedBlockId}>Rollback</button>
       </div>
       <div style={{overflow:'auto',border:'1px solid var(--line-2)',borderRadius:10,padding:8,background:'#fff'}}>
-        {blocks.map((b)=>{
+        {blocks.filter((b)=>{
+          const d = detailById[b.id];
+          const syncStatus = d?.status || "ok";
+          const lifecycle = atlasState?.blocks?.[b.id]?.status || "idea";
+          if (filter==="all") return true;
+          if (filter==="broken" || filter==="drift") return syncStatus===filter;
+          return lifecycle===filter;
+        }).map((b)=>{
           const d = detailById[b.id];
           const status = d?.status || 'ok';
           const lifecycle = atlasState?.blocks?.[b.id]?.status || 'idea';
@@ -61,6 +80,8 @@ function AtlasSchemaPanel({ arch, atlasState, syncReport, selectedBlockId, onRun
           const progress = atlasState?.blocks?.[b.id] && window.SIMA_ATLAS_CORE
             ? window.SIMA_ATLAS_CORE.blockProgress(atlasState.blocks[b.id])
             : {tasksDone:0,tasksTotal:0,kpiPassed:0,kpiTotal:0};
+          const checksText = (atlasState?.blocks?.[b.id]?.checks || []).map(c => `${c.kind||''} ${c.result||''}`.toLowerCase()).join(' ');
+          const readyToDone = status==='ok' && checksText.includes('acceptance pass') && checksText.includes('kpi pass');
           return (
             <div key={b.id} style={{padding:'8px 6px',borderBottom:'1px solid var(--line-1)'}}>
               <div style={{display:'flex',justifyContent:'space-between',gap:6}}>
@@ -70,6 +91,9 @@ function AtlasSchemaPanel({ arch, atlasState, syncReport, selectedBlockId, onRun
               <div style={{fontSize:11,color:'var(--ink-4)'}}>{b.id}</div>
               <div style={{fontSize:11,color:'var(--ink-3)'}}>
                 tasks {progress.tasksDone}/{progress.tasksTotal} · kpi {progress.kpiPassed}/{progress.kpiTotal}
+              </div>
+              <div style={{fontSize:10,color: readyToDone ? '#027a48' : '#b54708'}}>
+                {readyToDone ? 'ready_to_done ✓' : 'ready_to_done …'}
               </div>
               {d?.issues?.length ? <div style={{fontSize:11,color:'var(--ink-4)'}}>⚠ {d.issues[0]}</div> : null}
             </div>
@@ -185,6 +209,7 @@ function AppV2(){
     }
     setAtlasState(patch);
     const arch = window.ARCH_BY_PROJECT[projId];
+    window.SIMA_ATLAS_CORE.logCheck(patch, archSelectedId, { kind:'sync', result:'pass', note:`transition ${res.from}->${res.to}` });
     const report = window.SIMA_ATLAS_CORE.syncCheck(patch, arch);
     setSyncReport(report);
     showToast(`Block ${archSelectedId}: ${res.from} -> ${res.to}`);

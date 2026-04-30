@@ -20,10 +20,10 @@
 ## Что осталось по плану
 
 ### P1 (следующий приоритет)
-1. Добавить `Rollback` в UI lifecycle-кнопки.
-2. Добавить фильтры `broken/drift/review/done` в Atlas-панели.
-3. Автообновление `files.md` и `checks.log` после UI/agent actions без ручной правки.
-4. Визуальный индикатор «готово к done» (все gates pass).
+1. [x] Добавить `Rollback` в UI lifecycle-кнопки.
+2. [x] Добавить фильтры `broken/drift/review/done` в Atlas-панели.
+3. [~] Автообновление `files.md` и `checks.log` после UI/agent actions без ручной правки (частично: лог sync transition добавлен).
+4. [ ] Визуальный индикатор «готово к done» (все gates pass).
 
 ### P2
 1. Nightly consolidation job.
