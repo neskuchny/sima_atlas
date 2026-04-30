@@ -3,6 +3,22 @@
 
 const { useState, useMemo } = React;
 
+function computeArchSummary(arch, atlas){
+  const blocks = arch?.blocks || [];
+  const totals = { total: blocks.length, tasksDone: 0, tasksTotal: 0, kpiPassed: 0, kpiTotal: 0 };
+  blocks.forEach((b) => {
+    const entry = atlas?.blocks?.[b.id];
+    if (!entry || !window.SIMA_ATLAS_CORE) return;
+    const p = window.SIMA_ATLAS_CORE.blockProgress(entry);
+    totals.tasksDone += p.tasksDone;
+    totals.tasksTotal += p.tasksTotal;
+    totals.kpiPassed += p.kpiPassed;
+    totals.kpiTotal += p.kpiTotal;
+  });
+  return totals;
+}
+
+
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "density": "regular",
   "accent": "brown",
@@ -44,6 +60,42 @@ function AppV2(){
   const [archSelectedId, setArchSelectedId] = useState(null);
   const [toast, setToast] = useState(null);
   const showToast = (msg) => { setToast(msg); setTimeout(()=>setToast(null), 2800); };
+
+  const [atlasState, setAtlasState] = useState(null);
+  const [syncReport, setSyncReport] = useState(null);
+
+  React.useEffect(() => {
+    if (!window.SIMA_ATLAS_CORE || !window.ARCH_BY_PROJECT) return;
+    const arch = window.ARCH_BY_PROJECT[projId];
+    const loaded = window.SIMA_ATLAS_CORE.loadAtlas(projId, arch);
+    setAtlasState(loaded);
+    setSyncReport(window.SIMA_ATLAS_CORE.syncCheck(loaded, arch));
+  }, [projId]);
+
+  const runSyncCheck = () => {
+    if (!window.SIMA_ATLAS_CORE || !window.ARCH_BY_PROJECT || !atlasState) return;
+    const arch = window.ARCH_BY_PROJECT[projId];
+    const saved = window.SIMA_ATLAS_CORE.saveAtlas(projId, atlasState);
+    const report = window.SIMA_ATLAS_CORE.syncCheck(saved, arch);
+    setAtlasState(saved);
+    setSyncReport(report);
+    showToast(`Sync: OK ${report.synchronized}, drift ${report.drift}, broken ${report.broken}`);
+  };
+
+  const markDemoProgress = () => {
+    if (!atlasState) return;
+    const ids = Object.keys(atlasState.blocks || {});
+    if (!ids.length) return;
+    const first = ids[0];
+    const patch = structuredClone(atlasState);
+    const block = patch.blocks[first];
+    if (block.tasks?.length) block.tasks[0].done = true;
+    if (block.kpi?.length) block.kpi[0].passed = true;
+    block.checks = [...(block.checks||[]), { at: new Date().toISOString(), test: 'manual/demo', result: 'pass' }];
+    setAtlasState(patch);
+    showToast(`Для блока ${first} зафиксирован прогресс (task+KPI).`);
+  };
+
 
   // Apply density + accent to document
   React.useEffect(() => {
@@ -126,6 +178,10 @@ function AppV2(){
         <span className="meta">{project.created}</span>
         <span style={{margin:'0 6px',color:'var(--line-3)'}}>·</span>
         <span className="meta">{project.owner}</span>
+        {syncReport && (<>
+          <span style={{margin:'0 6px',color:'var(--line-3)'}}>·</span>
+          <span className="meta">sync ok {syncReport.synchronized}/{syncReport.total}</span>
+        </>)}
       </div>
 
       {/* WORK AREA */}
@@ -172,8 +228,11 @@ function AppV2(){
                       <Icon name="check" size={10}/> только MVP
                     </button>
                     <div className="grow"/>
-                    <button className="btn xs ghost" onClick={()=>showToast('Карта полей пересобрана из архитектуры. ТЗ обновится по кнопке.')}>
-                      <Icon name="sparkle" size={10}/> синк в карту
+                    <button className="btn xs ghost" onClick={runSyncCheck}>
+                      <Icon name="sparkle" size={10}/> sync-check
+                    </button>
+                    <button className="btn xs ghost" onClick={markDemoProgress}>
+                      <Icon name="check" size={10}/> отметить прогресс
                     </button>
                   </>
                 )}
