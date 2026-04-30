@@ -20,7 +20,7 @@ function computeArchSummary(arch, atlas){
 
 
 
-function AtlasSchemaPanel({ arch, atlasState, syncReport, onRunSync }){
+function AtlasSchemaPanel({ arch, atlasState, syncReport, selectedBlockId, onRunSync, onExportContext, onTransition }){
   const blocks = arch?.blocks || [];
   const detailById = Object.fromEntries((syncReport?.details || []).map(d => [d.blockId, d]));
   return (
@@ -35,13 +35,28 @@ function AtlasSchemaPanel({ arch, atlasState, syncReport, onRunSync }){
         <span className="chip">drift: {syncReport?.drift ?? 0}</span>
         <span className="chip">broken: {syncReport?.broken ?? 0}</span>
       </div>
-      <button className="btn xs ghost" onClick={onRunSync} style={{marginBottom:10}}>
-        <Icon name="sparkle" size={10}/> пересчитать sync
-      </button>
+      <div style={{display:'flex',gap:6,marginBottom:10}}>
+        <button className="btn xs ghost" onClick={onRunSync}>
+          <Icon name="sparkle" size={10}/> пересчитать sync
+        </button>
+        <button className="btn xs ghost" onClick={()=>onExportContext && onExportContext(selectedBlockId)} disabled={!selectedBlockId}>
+          <Icon name="upload" size={10}/> context-pack
+        </button>
+        <button className="btn xs ghost" onClick={()=>window.dispatchEvent(new CustomEvent('atlas-mark-dead'))} disabled={!selectedBlockId}>
+          <Icon name="trash" size={10}/> mark dead
+        </button>
+      </div>
+      <div style={{display:'flex',gap:6,marginBottom:10,flexWrap:'wrap'}}>
+        <button className="btn xs" onClick={()=>onTransition && onTransition('wip')} disabled={!selectedBlockId}>Implement</button>
+        <button className="btn xs" onClick={()=>onTransition && onTransition('review')} disabled={!selectedBlockId}>Review</button>
+        <button className="btn xs" onClick={()=>onTransition && onTransition('done')} disabled={!selectedBlockId}>Done</button>
+        <button className="btn xs ghost" onClick={()=>onTransition && onTransition('broken')} disabled={!selectedBlockId}>Broken</button>
+      </div>
       <div style={{overflow:'auto',border:'1px solid var(--line-2)',borderRadius:10,padding:8,background:'#fff'}}>
         {blocks.map((b)=>{
           const d = detailById[b.id];
           const status = d?.status || 'ok';
+          const lifecycle = atlasState?.blocks?.[b.id]?.status || 'idea';
           const color = status==='broken' ? '#b42318' : status==='drift' ? '#b54708' : '#027a48';
           const progress = atlasState?.blocks?.[b.id] && window.SIMA_ATLAS_CORE
             ? window.SIMA_ATLAS_CORE.blockProgress(atlasState.blocks[b.id])
@@ -50,7 +65,7 @@ function AtlasSchemaPanel({ arch, atlasState, syncReport, onRunSync }){
             <div key={b.id} style={{padding:'8px 6px',borderBottom:'1px solid var(--line-1)'}}>
               <div style={{display:'flex',justifyContent:'space-between',gap:6}}>
                 <b style={{fontSize:12}}>{b.title}</b>
-                <span style={{fontSize:11,color}}>{status}</span>
+                <span style={{fontSize:11,color}}>{status} · {lifecycle}</span>
               </div>
               <div style={{fontSize:11,color:'var(--ink-4)'}}>{b.id}</div>
               <div style={{fontSize:11,color:'var(--ink-3)'}}>
@@ -126,6 +141,53 @@ function AppV2(){
     setAtlasState(saved);
     setSyncReport(report);
     showToast(`Sync: OK ${report.synchronized}, drift ${report.drift}, broken ${report.broken}`);
+  };
+
+  const exportContextPack = (blockId) => {
+    if (!blockId || !atlasState || !window.SIMA_ATLAS_CORE) return;
+    const arch = window.ARCH_BY_PROJECT[projId];
+    const pack = window.SIMA_ATLAS_CORE.buildContextPack(atlasState, arch, blockId);
+    if (!pack) { showToast('Context-pack не собран: блок не найден в atlas'); return; }
+    try {
+      navigator.clipboard.writeText(JSON.stringify(pack, null, 2));
+      showToast(`Context-pack для ${blockId} скопирован в буфер`);
+    } catch (e) {
+      showToast('Не удалось скопировать context-pack');
+    }
+  };
+
+
+  const markSelectedFileDead = () => {
+    if (!archSelectedId || !atlasState || !window.SIMA_ATLAS_CORE) return;
+    const filePath = prompt('Укажи путь файла для пометки dead (пример: src/legacy/old.ts):');
+    if (!filePath) return;
+    const patch = structuredClone(atlasState);
+    window.SIMA_ATLAS_CORE.markFileStatus(patch, filePath, 'dead', 'manual from UI', archSelectedId);
+    window.SIMA_ATLAS_CORE.logCheck(patch, archSelectedId, { kind: 'sync', result: 'pass', note: `file ${filePath} -> dead` });
+    setAtlasState(patch);
+    showToast(`Файл ${filePath} помечен dead`);
+  };
+
+  React.useEffect(() => {
+    const h = () => markSelectedFileDead();
+    window.addEventListener('atlas-mark-dead', h);
+    return () => window.removeEventListener('atlas-mark-dead', h);
+  }, [archSelectedId, atlasState]);
+
+
+  const transitionSelectedBlock = (to) => {
+    if (!archSelectedId || !atlasState || !window.SIMA_ATLAS_CORE) return;
+    const patch = structuredClone(atlasState);
+    const res = window.SIMA_ATLAS_CORE.transitionBlock(patch, archSelectedId, to, { actor: 'ui' });
+    if (!res.ok) {
+      showToast(`Transition error: ${res.error}`);
+      return;
+    }
+    setAtlasState(patch);
+    const arch = window.ARCH_BY_PROJECT[projId];
+    const report = window.SIMA_ATLAS_CORE.syncCheck(patch, arch);
+    setSyncReport(report);
+    showToast(`Block ${archSelectedId}: ${res.from} -> ${res.to}`);
   };
 
   const markDemoProgress = () => {
@@ -442,7 +504,10 @@ function AppV2(){
               arch={archBase}
               atlasState={atlasState}
               syncReport={syncReport}
-              onRunSync={runSyncCheck}/>
+              selectedBlockId={archSelectedId}
+              onRunSync={runSyncCheck}
+              onExportContext={exportContextPack}
+              onTransition={transitionSelectedBlock}/>
           )}
           {layer==='tz' && (
             <div className="side-sec">
