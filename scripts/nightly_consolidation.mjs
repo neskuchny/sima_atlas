@@ -8,6 +8,7 @@ const atlas = path.join(root, 'atlas');
 const reportPath = path.join(atlas, 'nightly_report.md');
 
 const checks = [
+  ['ingestion_queue', 'node scripts/apply_ingestion_queue.mjs'],
   ['block_contracts', 'node scripts/validate_block_contracts.mjs'],
   ['dependency_contracts', 'node scripts/validate_dependency_contracts.mjs'],
   ['acceptance_assertions', 'node scripts/validate_acceptance_assertions.mjs'],
@@ -15,6 +16,8 @@ const checks = [
   ['generate_wiki', 'node scripts/generate_wiki.mjs'],
   ['generate_tz', 'node scripts/generate_tz_from_atlas.mjs'],
   ['rebuild_roadmap', 'node scripts/rebuild_atlas_roadmap.mjs'],
+  ['mcp_smoke_e2e', 'node scripts/mcp_smoke_e2e.mjs'],
+  ['intelligence_health', 'node scripts/calc_intelligence_health.mjs'],
 ];
 
 const lines = ['# Atlas Nightly Consolidation Report', '', `_Generated: ${new Date().toISOString()}_`, ''];

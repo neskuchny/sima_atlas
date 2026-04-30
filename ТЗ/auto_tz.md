@@ -1,7 +1,5 @@
 # AUTO ТЗ (из Atlas)
 
-_Сгенерировано автоматически из /atlas_
-
 ## b.ui-control (done)
 
 # b.ui-control — mission
@@ -63,7 +61,6 @@ _Сгенерировано автоматически из /atlas_
 
 # b.docs — tasks
 
-- [ ] Обновить wiki
-- [ ] Обновить ТЗ
+- [ ] nightly smoke e2e task
 
 

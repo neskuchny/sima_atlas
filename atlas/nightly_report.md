@@ -1,7 +1,9 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-04-30T14:53:28.197Z_
+_Generated: 2026-04-30T16:27:27.911Z_
 
+- ✅ ingestion_queue: ok
+  - output: ingestion_queue: empty
 - ✅ block_contracts: ok
   - output: Block contract validation: OK
 - ✅ dependency_contracts: ok
@@ -16,5 +18,9 @@ _Generated: 2026-04-30T14:53:28.197Z_
   - output: Generated /workspace/sima_atlas/ТЗ/auto_tz.md
 - ✅ rebuild_roadmap: ok
   - output: Rebuilt /workspace/sima_atlas/atlas/roadmap.md
+- ✅ mcp_smoke_e2e: ok
+  - output: mcp_smoke_e2e: OK
+- ✅ intelligence_health: ok
+  - output: Intelligence health: 1 (5/5)
 
-Summary: PASS (7/7)
+Summary: PASS (10/10)

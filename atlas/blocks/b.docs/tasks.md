@@ -1,4 +1,3 @@
 # b.docs — tasks
 
-- [ ] Обновить wiki
-- [ ] Обновить ТЗ
+- [ ] nightly smoke e2e task
