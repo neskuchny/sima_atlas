@@ -18,8 +18,8 @@
 5. Автопересборка `atlas/roadmap.md` из графа.
 
 ## Где именно остановились (следующий шаг)
-Следующая незакрытая задача по плану: **P0: deep contract sync**
-(проверка связей depends/provides и смысловых acceptance-assertions по каждому блоку).
+Следующая незакрытая задача по плану: **P0: acceptance assertions engine**
+(формализованные проверки "работает как задумано", а не только техническая валидность).
 
 ## Что осталось сделать
 
@@ -58,3 +58,5 @@ node scripts/rebuild_atlas_roadmap.mjs
 - Блок `b.agent-orchestrator` доведён до статуса `done` через pipeline.
 
 - Добавлена проверка block contracts: `scripts/validate_block_contracts.mjs` (включена в pipeline_step).
+
+- Добавлена проверка dependency contracts: `scripts/validate_dependency_contracts.mjs` (включена в pipeline_step).

@@ -29,7 +29,12 @@ node scripts/advance_block_state.mjs <blockId> done <actor> "approved"
 node scripts/validate_block_contracts.mjs
 ```
 
-6. Пересобрать roadmap:
+6. Проверить dependency contracts:
+```bash
+node scripts/validate_dependency_contracts.mjs
+```
+
+7. Пересобрать roadmap:
 ```bash
 node scripts/rebuild_atlas_roadmap.mjs
 ```

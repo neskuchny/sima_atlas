@@ -13,7 +13,7 @@
     {
       "id": "b.core-sync",
       "title": "Sync Engine",
-      "status": "wip",
+      "status": "review",
       "depends_on": [
         "b.db"
       ]
