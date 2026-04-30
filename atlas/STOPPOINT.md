@@ -62,3 +62,5 @@ node scripts/rebuild_atlas_roadmap.mjs
 - Добавлена проверка dependency contracts: `scripts/validate_dependency_contracts.mjs` (включена в pipeline_step).
 
 - Добавлен acceptance assertions gate: `scripts/validate_acceptance_assertions.mjs` (включен в pipeline_step).
+
+- Текущий прогресс и остаток работ зафиксированы в `atlas/STATUS_REPORT.md`.
