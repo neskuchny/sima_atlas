@@ -21,9 +21,12 @@ if (!text) {
 const graph = JSON.parse(fs.readFileSync(graphPath, 'utf8'));
 const blocks = graph.blocks || [];
 
-const matches = [...text.matchAll(/(?:block|блок)\s+([a-z0-9._-]+)/gi)].map(m => m[1]);
+const matches = [...text.matchAll(/(?:block|блок\p{L}*)\s+([a-z0-9._-]+)/giu)].map(m => m[1]);
 const inferred = new Set(matches);
-if (!inferred.size) inferred.add('b.docs');
+if (!inferred.size) {
+  console.log('semantic_ingestion: no block ids detected');
+  process.exit(0);
+}
 
 const statusMap = ['idea','wip','review','done','drift','broken'];
 const requestedStatus = statusMap.find(s => new RegExp(`\\b${s}\\b`, 'i').test(text));

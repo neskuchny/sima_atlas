@@ -1,2 +1,9 @@
 2026-04-30 13:39  kpi/sync_report_generated            pass
 2026-04-30 13:39  acceptance/contracts_validated       pass
+2026-04-30T19:54:08.006Z	ingestion	pass	queue applied
+2026-04-30T19:54:14.566Z	ingestion	pass	queue applied
+2026-04-30T19:54:40.301Z	ingestion	pass	queue applied
+2026-04-30T19:54:51.540Z	ingestion	pass	queue applied
+2026-04-30T19:54:51.660Z	semantic_ingestion	pass	conversation mapped to b.core-sync
+2026-04-30T19:55:17.135Z	ingestion	pass	queue applied
+2026-04-30T19:55:17.226Z	semantic_ingestion	pass	conversation mapped to b.core-sync

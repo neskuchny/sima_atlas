@@ -21,3 +21,12 @@
 2026-04-30T19:13:55.396Z	ingestion	pass	queue applied
 2026-04-30T20:00:00.000Z	dedup_block_memory	pass	node script + syntax check
 2026-04-30T19:48:09.055Z	ingestion	pass	queue applied
+2026-04-30T19:54:07.898Z	ingestion	pass	queue applied
+2026-04-30T19:54:08.095Z	semantic_ingestion	pass	conversation mapped to b.docs
+2026-04-30T19:54:14.439Z	ingestion	pass	queue applied
+2026-04-30T19:54:14.679Z	semantic_ingestion	pass	conversation mapped to b.docs
+2026-04-30T19:54:18.959Z	semantic_ingestion	pass	conversation mapped to b.docs
+2026-04-30T19:54:40.180Z	ingestion	pass	queue applied
+2026-04-30T19:54:40.399Z	semantic_ingestion	pass	conversation mapped to b.docs
+2026-04-30T19:54:51.428Z	ingestion	pass	queue applied
+2026-04-30T19:55:17.024Z	ingestion	pass	queue applied
