@@ -38,3 +38,9 @@
 - [x] Добавлен расчёт `intelligence_health` и его публикация в nightly (`scripts/calc_intelligence_health.mjs`).
 - [~] Старт P6 ingestion: добавлен distillate path (`ingest_chat_distillate`), MCP enqueue (`enqueue_ingestion`), nightly queue processor (`apply_ingestion_queue`) и gate `validate_ingestion_contracts`.
 - [x] P10 parity закрыт (2026-04-30): deterministic context-packs для всех блоков + unified contracts + gates `sync_context_packs`/`validate_agent_parity`/`validate_parity_matrix`.
+
+## Прогресс по semantic веткам общения
+- [x] Добавлен replay сценарий веток общения с ИИ (`scripts/simulate_conversation_branches.mjs`).
+- [x] Фиксируется факт изменений графа после ingestion (создание нового блока + смена статуса существующего).
+- [~] Семантический слой пока эвристический (regex), полноценный LLM extractor — в следующем этапе.
+- [x] Сводка "что реализовано / что нет" вынесена в `atlas/IMPLEMENTATION_PROGRESS.md`.

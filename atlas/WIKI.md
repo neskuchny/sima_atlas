@@ -9,7 +9,7 @@
 
 
 ## b.core-sync — Sync Engine
-- status: **review**
+- status: **done**
 
 # b.core-sync — mission
 
@@ -38,5 +38,21 @@
 # b.docs — mission
 
 Генерирует wiki и ТЗ по блокам.
+
+
+## b.semantic-llm — Auto: b.semantic-llm
+- status: **wip**
+
+# b.semantic-llm — mission
+
+Автосоздано из смыслов диалога.
+
+
+## b.realtime-ingestion — Auto: b.realtime-ingestion
+- status: **wip**
+
+# b.realtime-ingestion — mission
+
+Автосоздано из смыслов диалога.
 
 

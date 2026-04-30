@@ -13,7 +13,7 @@
 - [ ] Добавить checks.log по первичным тестам.
 
 
-## b.core-sync (review)
+## b.core-sync (done)
 
 # b.core-sync — mission
 
@@ -24,6 +24,8 @@
 
 - [ ] Описать контракты вход/выход.
 - [ ] Добавить checks.log по первичным тестам.
+
+- [ ] semantic-refine: подтвердить автогенерацию из диалога
 
 
 ## b.db (wip)
@@ -62,5 +64,29 @@
 # b.docs — tasks
 
 - [ ] nightly smoke e2e task
+
+
+## b.semantic-llm (wip)
+
+# b.semantic-llm — mission
+
+Автосоздано из смыслов диалога.
+
+
+# b.semantic-llm — tasks
+
+- [ ] semantic-refine: подтвердить автогенерацию из диалога
+
+
+## b.realtime-ingestion (wip)
+
+# b.realtime-ingestion — mission
+
+Автосоздано из смыслов диалога.
+
+
+# b.realtime-ingestion — tasks
+
+- [ ] semantic-refine: подтвердить автогенерацию из диалога
 
 

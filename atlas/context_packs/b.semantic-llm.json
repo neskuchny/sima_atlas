@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-04-30T20:30:28.725Z",
-  "block_id": "b.db",
+  "generated_at": "2026-04-30T20:30:29.043Z",
+  "block_id": "b.semantic-llm",
   "project": {
     "project": "# Sima Atlas\n\nЦель: единая визуально-документная система, которая устраняет рассинхрон между кодом, агентами и документацией.\n\n## North Star\n- Любой агент работает по одному и тому же block-context.\n- Человек видит статус реализации на схеме без чтения всего кода.\n",
     "rules": "# Rules\n\n1. Любое изменение блока фиксируется в его `tasks.md` и `checks.log`.\n2. Перед изменением кода агент читает: `project.md`, `tech_stack.md`, `rules.md`, `blocks/<id>/*`.\n3. Файлы без владельца-блока считаются out-of-scope.\n4. Блок `done` только при выполнении acceptance + KPI, а не только compile/runtime.\n",
@@ -8,15 +8,15 @@
   },
   "block": {
     "meta": {
-      "id": "b.db",
-      "title": "Atlas Database",
+      "id": "b.semantic-llm",
+      "title": "Auto: b.semantic-llm",
       "status": "wip",
       "depends_on": []
     },
-    "mission": "# b.db — mission\n\nКлючевая цель блока и его значение для устранения рассинхрона.\n",
-    "kpi": "# b.db — KPI\n\n- KPI-1: метрика готовности определена.\n- KPI-2: есть минимум одна автоматическая проверка.\n",
-    "acceptance": "# b.db — acceptance\n\n- [ ] Логика блока документирована.\n- [ ] Связи с зависимостями проверены.\n- [ ] Результат отражается в UI/отчёте sync.\n",
-    "tasks": "# b.db — tasks\n\n- [ ] Описать контракты вход/выход.\n- [ ] Добавить checks.log по первичным тестам.\n",
+    "mission": "# b.semantic-llm — mission\n\nАвтосоздано из смыслов диалога.\n",
+    "kpi": "# b.semantic-llm — KPI\n\n- KPI-1: semantic extraction quality >= baseline\n",
+    "acceptance": "# b.semantic-llm — acceptance\n\n- [ ] acceptance: mission/tasks/kpi confirmed after semantic ingestion\n",
+    "tasks": "# b.semantic-llm — tasks\n\n- [ ] semantic-refine: подтвердить автогенерацию из диалога\n",
     "patterns": "",
     "files": ""
   },

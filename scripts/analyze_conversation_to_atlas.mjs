@@ -48,10 +48,19 @@ for (const id of inferred) {
   const missionPath = path.join(dir, 'mission.md');
   const tasksPath = path.join(dir, 'tasks.md');
   const checksPath = path.join(dir, 'checks.log');
+
+  const kpiPath = path.join(dir, 'kpi.md');
+  const acceptancePath = path.join(dir, 'acceptance.md');
   const now = new Date().toISOString();
 
   if (!fs.existsSync(missionPath)) {
     fs.writeFileSync(missionPath, `# ${id} — mission\n\nАвтосоздано из смыслов диалога.\n`, 'utf8');
+  }
+  if (!fs.existsSync(kpiPath)) {
+    fs.writeFileSync(kpiPath, `# ${id} — KPI\n\n- KPI-1: semantic extraction quality >= baseline\n`, 'utf8');
+  }
+  if (!fs.existsSync(acceptancePath)) {
+    fs.writeFileSync(acceptancePath, `# ${id} — acceptance\n\n- [ ] acceptance: mission/tasks/kpi confirmed after semantic ingestion\n`, 'utf8');
   }
   if (!fs.existsSync(tasksPath)) {
     fs.writeFileSync(tasksPath, `# ${id} — tasks\n\n- [ ] semantic-refine: подтвердить автогенерацию из диалога\n`, 'utf8');
