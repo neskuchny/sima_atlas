@@ -34,7 +34,7 @@
 - [x] Углублены acceptance assertions: добавлены смысловые проверки checklist/semantic tokens в `scripts/validate_acceptance_assertions.mjs`.
 
 ## Ближайший next step
-- [x] Добавлен smoke-e2e сценарий MCP `update_block -> validated_bundle -> render_wiki_html` и включён в nightly consolidation.
+- [x] Добавлен smoke-e2e сценарий MCP `update_block -> enqueue_ingestion -> apply_ingestion_queue -> build_context_pack -> validated_bundle -> render_wiki_html` и включён в nightly consolidation.
 - [x] Добавлен расчёт `intelligence_health` и его публикация в nightly (`scripts/calc_intelligence_health.mjs`).
-- [~] Старт P6 ingestion: добавлен distillate path (`ingest_chat_distillate`) и nightly queue processor (`apply_ingestion_queue`).
-- [~] Старт P10 parity: добавлен deterministic context-pack builder (`build_context_pack`) и сгенерированы `AGENTS.md`/`CLAUDE.md` как единый агентный контракт.
+- [~] Старт P6 ingestion: добавлен distillate path (`ingest_chat_distillate`), MCP enqueue (`enqueue_ingestion`), nightly queue processor (`apply_ingestion_queue`) и gate `validate_ingestion_contracts`.
+- [~] Старт P10 parity: добавлен deterministic context-pack builder (`build_context_pack`), сгенерированы `AGENTS.md`/`CLAUDE.md` и добавлены nightly checks `sync_context_packs` и `validate_agent_parity`.

@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-04-30T17:49:43.005Z",
-  "block_id": "b.docs",
+  "generated_at": "2026-04-30T17:23:29.782Z",
+  "block_id": "b.db",
   "project": {
     "project": "# Sima Atlas\n\nЦель: единая визуально-документная система, которая устраняет рассинхрон между кодом, агентами и документацией.\n\n## North Star\n- Любой агент работает по одному и тому же block-context.\n- Человек видит статус реализации на схеме без чтения всего кода.\n",
     "rules": "# Rules\n\n1. Любое изменение блока фиксируется в его `tasks.md` и `checks.log`.\n2. Перед изменением кода агент читает: `project.md`, `tech_stack.md`, `rules.md`, `blocks/<id>/*`.\n3. Файлы без владельца-блока считаются out-of-scope.\n4. Блок `done` только при выполнении acceptance + KPI, а не только compile/runtime.\n",
@@ -8,23 +8,17 @@
   },
   "block": {
     "meta": {
-      "id": "b.docs",
-      "title": "Docs Builder",
+      "id": "b.db",
+      "title": "Atlas Database",
       "status": "wip",
       "depends_on": []
     },
-    "mission": "# b.docs — mission\n\nГенерирует wiki и ТЗ по блокам.\n",
-    "kpi": "# b.docs — KPI\n\n- KPI-1: wiki генерируется из atlas\n- KPI-2: auto_tz.md генерируется из atlas\n",
-    "acceptance": "# b.docs — acceptance\n\n- [x] Вики создается автоматически\n- [x] ТЗ создается автоматически\n",
-    "tasks": "# b.docs — tasks\n\n- [ ] nightly smoke e2e task\n",
-    "patterns": "# b.docs — patterns\n\n- 2026-04-30T15:37:16.336Z: nightly: distilled insight for P6\n- 2026-04-30T17:31:53.545Z: queue test insight\n- 2026-04-30T17:32:32.367Z: handler fix check\n- 2026-04-30T17:35:51.828Z: smoke e2e queued insight\n- 2026-04-30T17:36:17.484Z: smoke e2e queued insight\n- 2026-04-30T17:36:23.007Z: smoke e2e queued insight\n- 2026-04-30T17:49:42.754Z: smoke e2e queued insight\n",
+    "mission": "# b.db — mission\n\nКлючевая цель блока и его значение для устранения рассинхрона.\n",
+    "kpi": "# b.db — KPI\n\n- KPI-1: метрика готовности определена.\n- KPI-2: есть минимум одна автоматическая проверка.\n",
+    "acceptance": "# b.db — acceptance\n\n- [ ] Логика блока документирована.\n- [ ] Связи с зависимостями проверены.\n- [ ] Результат отражается в UI/отчёте sync.\n",
+    "tasks": "# b.db — tasks\n\n- [ ] Описать контракты вход/выход.\n- [ ] Добавить checks.log по первичным тестам.\n",
+    "patterns": "",
     "files": ""
   },
-  "dependencies": [
-    {
-      "id": "b.ui-control",
-      "mission": "# b.ui-control — mission\n\nКлючевая цель блока и его значение для устранения рассинхрона.\n",
-      "provides": "# b.ui-control — provides\n\n- visual_control_panel\n"
-    }
-  ]
+  "dependencies": []
 }

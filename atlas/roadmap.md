@@ -1,6 +1,6 @@
 # Roadmap (auto-generated)
 
-_Generated: 2026-04-30T16:27:30.423Z_
+_Generated: 2026-04-30T17:49:43.067Z_
 
 Приоритет: broken → drift → wip → idea → review → done.
 

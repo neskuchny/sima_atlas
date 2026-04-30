@@ -34,6 +34,8 @@ function toolList(){
     { name:'render_wiki_html', description:'Render atlas/WIKI.md to atlas/wiki.html', inputSchema:{ type:'object', properties:{} } },
     { name:'ingest_chat_distillate', description:'Append distilled chat insight to decisions/patterns/checks of block', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, note:{type:'string'} }, required:['block_id','note'] } },
     { name:'build_context_pack', description:'Build deterministic context-pack json for block', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} }, required:['block_id'] } },
+    { name:'enqueue_ingestion', description:'Queue distilled chat insight for nightly ingestion', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, note:{type:'string'}, apply_to_rules:{type:'boolean'} }, required:['block_id','note'] } },
+    { name:'apply_ingestion_queue', description:'Apply queued distillates into block memory files', inputSchema:{ type:'object', properties:{} } },
 
   ];
 }
@@ -317,6 +319,26 @@ rl.on('line', (line) => {
         const note = String(args.note || '').replace(/"/g, '\"');
         execSync(`node scripts/ingest_chat_distillate.mjs ${bid} "${note}"`, { cwd: root, stdio:'pipe' });
         return respond(id, { content:[{ type:'text', text: `distillate ingested: ${bid}` }] });
+      }
+
+
+      if (name === 'build_context_pack') {
+        const bid = args.block_id;
+        execSync(`node scripts/build_context_pack.mjs ${bid}`, { cwd: root, stdio:'pipe' });
+        return respond(id, { content:[{ type:'text', text: `context-pack built: ${bid}` }] });
+      }
+
+      if (name === 'enqueue_ingestion') {
+        const bid = args.block_id;
+        const note = String(args.note || '').replace(/"/g, '\"');
+        const apply = args.apply_to_rules ? 'true' : 'false';
+        execSync(`node scripts/enqueue_ingestion_item.mjs ${bid} "${note}" ${apply}`, { cwd: root, stdio:'pipe' });
+        return respond(id, { content:[{ type:'text', text: `ingestion queued: ${bid}` }] });
+      }
+
+      if (name === 'apply_ingestion_queue') {
+        execSync('node scripts/apply_ingestion_queue.mjs', { cwd: root, stdio:'pipe' });
+        return respond(id, { content:[{ type:'text', text: 'ingestion queue applied' }] });
       }
 
       return respondErr(id, `unknown tool: ${name}`);
