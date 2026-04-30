@@ -1,2 +1,3 @@
 2026-04-30 12:53  kpi/pipeline_execution               pass
 2026-04-30 12:53  acceptance/pipeline_lifecycle        pass
+2026-04-30T19:48:03Z	semantic_ingestion	pass	queue supports conversation_text and graph updates

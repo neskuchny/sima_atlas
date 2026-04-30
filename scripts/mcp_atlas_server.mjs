@@ -34,7 +34,7 @@ function toolList(){
     { name:'render_wiki_html', description:'Render atlas/WIKI.md to atlas/wiki.html', inputSchema:{ type:'object', properties:{} } },
     { name:'ingest_chat_distillate', description:'Append distilled chat insight to decisions/patterns/checks of block', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, note:{type:'string'} }, required:['block_id','note'] } },
     { name:'build_context_pack', description:'Build deterministic context-pack json for block', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} }, required:['block_id'] } },
-    { name:'enqueue_ingestion', description:'Queue distilled chat insight for nightly ingestion', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, note:{type:'string'}, apply_to_rules:{type:'boolean'} }, required:['block_id','note'] } },
+    { name:'enqueue_ingestion', description:'Queue distilled chat insight for nightly ingestion', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, note:{type:'string'}, apply_to_rules:{type:'boolean'}, conversation_text:{type:'string'} }, required:['block_id','note'] } },
     { name:'apply_ingestion_queue', description:'Apply queued distillates into block memory files', inputSchema:{ type:'object', properties:{} } },
 
   ];
@@ -332,7 +332,8 @@ rl.on('line', (line) => {
         const bid = args.block_id;
         const note = String(args.note || '').replace(/"/g, '\"');
         const apply = args.apply_to_rules ? 'true' : 'false';
-        execSync(`node scripts/enqueue_ingestion_item.mjs ${bid} "${note}" ${apply}`, { cwd: root, stdio:'pipe' });
+        const convo = String(args.conversation_text || '').replace(/"/g, '\"');
+        execSync(`node scripts/enqueue_ingestion_item.mjs ${bid} "${note}" ${apply} "${convo}"`, { cwd: root, stdio:'pipe' });
         return respond(id, { content:[{ type:'text', text: `ingestion queued: ${bid}` }] });
       }
 

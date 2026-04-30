@@ -38,6 +38,12 @@
       "title": "Docs Builder",
       "status": "wip",
       "depends_on": []
+    },
+    {
+      "id": "b.semantic-llm",
+      "title": "Auto: b.semantic-llm",
+      "status": "wip",
+      "depends_on": []
     }
   ]
 }

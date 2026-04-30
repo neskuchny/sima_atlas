@@ -7,3 +7,4 @@
 - 2026-04-30T17:36:17.484Z: smoke e2e queued insight
 - 2026-04-30T17:36:23.007Z: smoke e2e queued insight
 - 2026-04-30T19:13:55.396Z: smoke e2e queued insight
+- 2026-04-30T19:48:09.055Z: semantic test
