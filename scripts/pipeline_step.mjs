@@ -23,7 +23,10 @@ run('node', ['scripts/validate_block_contracts.mjs']);
 // 4) validate dependency contracts
 run('node', ['scripts/validate_dependency_contracts.mjs']);
 
-// 5) rebuild roadmap from updated graph
+// 5) validate acceptance assertions
+run('node', ['scripts/validate_acceptance_assertions.mjs']);
+
+// 6) rebuild roadmap from updated graph
 run('node', ['scripts/rebuild_atlas_roadmap.mjs']);
 
 console.log(`Pipeline step completed for ${blockId} -> ${to}`);

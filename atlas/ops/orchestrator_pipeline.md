@@ -34,7 +34,12 @@ node scripts/validate_block_contracts.mjs
 node scripts/validate_dependency_contracts.mjs
 ```
 
-7. Пересобрать roadmap:
+7. Проверить acceptance assertions:
+```bash
+node scripts/validate_acceptance_assertions.mjs
+```
+
+8. Пересобрать roadmap:
 ```bash
 node scripts/rebuild_atlas_roadmap.mjs
 ```
@@ -48,4 +53,4 @@ node scripts/rebuild_atlas_roadmap.mjs
 ```bash
 node scripts/pipeline_step.mjs <blockId> <to> <actor> "note"
 ```
-Выполняет transition + selftest + roadmap rebuild.
+Выполняет transition + selftest + contracts/deps/assertions validations + roadmap rebuild.

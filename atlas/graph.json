@@ -4,7 +4,7 @@
     {
       "id": "b.ui-control",
       "title": "UI Control Plane",
-      "status": "review",
+      "status": "done",
       "depends_on": [
         "b.core-sync",
         "b.agent-orchestrator"

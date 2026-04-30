@@ -5,3 +5,4 @@
 2026-04-30T12:53:19.652Z	b.agent-orchestrator	review	done	actor=system	note=approved after review
 2026-04-30T13:24:48.585Z	b.ui-control	wip	review	actor=system	note=ready for review
 2026-04-30T13:39:49.117Z	b.core-sync	wip	review	actor=system	note=sync contracts ready
+2026-04-30T13:43:58.629Z	b.ui-control	review	done	actor=system	note=ui accepted

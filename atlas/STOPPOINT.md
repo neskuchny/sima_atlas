@@ -18,8 +18,8 @@
 5. Автопересборка `atlas/roadmap.md` из графа.
 
 ## Где именно остановились (следующий шаг)
-Следующая незакрытая задача по плану: **P0: acceptance assertions engine**
-(формализованные проверки "работает как задумано", а не только техническая валидность).
+Следующая незакрытая задача по плану: **P1: UI lifecycle hardening**
+(rollback, фильтры broken/drift, автоматическое обновление files/checks после агентных правок).
 
 ## Что осталось сделать
 
@@ -60,3 +60,5 @@ node scripts/rebuild_atlas_roadmap.mjs
 - Добавлена проверка block contracts: `scripts/validate_block_contracts.mjs` (включена в pipeline_step).
 
 - Добавлена проверка dependency contracts: `scripts/validate_dependency_contracts.mjs` (включена в pipeline_step).
+
+- Добавлен acceptance assertions gate: `scripts/validate_acceptance_assertions.mjs` (включен в pipeline_step).
