@@ -1,9 +1,37 @@
 {
   "version": 1,
   "blocks": [
-    {"id":"b.ui-control","title":"UI Control Plane","status":"wip","depends_on":["b.core-sync","b.agent-orchestrator"]},
-    {"id":"b.core-sync","title":"Sync Engine","status":"wip","depends_on":["b.db"]},
-    {"id":"b.db","title":"Atlas Database","status":"wip","depends_on":[]},
-    {"id":"b.agent-orchestrator","title":"Agent Orchestrator","status":"idea","depends_on":["b.db","b.core-sync"]}
+    {
+      "id": "b.ui-control",
+      "title": "UI Control Plane",
+      "status": "wip",
+      "depends_on": [
+        "b.core-sync",
+        "b.agent-orchestrator"
+      ]
+    },
+    {
+      "id": "b.core-sync",
+      "title": "Sync Engine",
+      "status": "wip",
+      "depends_on": [
+        "b.db"
+      ]
+    },
+    {
+      "id": "b.db",
+      "title": "Atlas Database",
+      "status": "wip",
+      "depends_on": []
+    },
+    {
+      "id": "b.agent-orchestrator",
+      "title": "Agent Orchestrator",
+      "status": "review",
+      "depends_on": [
+        "b.db",
+        "b.core-sync"
+      ]
+    }
   ]
 }

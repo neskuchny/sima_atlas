@@ -1,2 +1,4 @@
 # ts\tblock_id\tfrom\tto\tmeta
 2026-04-30T12:40:23.670Z	b.core-sync	idea	wip	actor=system	note=init
+2026-04-30T12:49:54.250Z	b.agent-orchestrator	idea	wip	actor=system	note=start implementation
+2026-04-30T12:50:04.721Z	b.agent-orchestrator	wip	review	actor=system	note=handoff to review
