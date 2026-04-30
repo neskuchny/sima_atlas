@@ -1,11 +1,13 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-04-30T17:49:38.006Z_
+_Generated: 2026-04-30T19:13:50.280Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
 - ✅ ingestion_contracts: ok
   - output: Ingestion contracts validation: OK
+- ✅ ingestion_quality: ok
+  - output: Ingestion quality validation: OK
 - ✅ block_contracts: ok
   - output: Block contract validation: OK
 - ✅ dependency_contracts: ok
@@ -18,6 +20,8 @@ _Generated: 2026-04-30T17:49:38.006Z_
   - output: Context packs synced: 5
 - ✅ agent_parity: ok
   - output: Agent parity validation: OK
+- ✅ parity_matrix: ok
+  - output: Parity matrix validation: OK
 - ✅ generate_wiki: ok
   - output: Generated /workspace/sima_atlas/atlas/WIKI.md
 - ✅ generate_tz: ok
@@ -29,4 +33,4 @@ _Generated: 2026-04-30T17:49:38.006Z_
 - ✅ intelligence_health: ok
   - output: Intelligence health: 1 (5/5)
 
-Summary: PASS (13/13)
+Summary: PASS (15/15)

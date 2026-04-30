@@ -13,7 +13,7 @@
     {
       "id": "b.core-sync",
       "title": "Sync Engine",
-      "status": "review",
+      "status": "done",
       "depends_on": [
         "b.db"
       ]
@@ -36,6 +36,18 @@
     {
       "id": "b.docs",
       "title": "Docs Builder",
+      "status": "wip",
+      "depends_on": []
+    },
+    {
+      "id": "b.semantic-llm",
+      "title": "Auto: b.semantic-llm",
+      "status": "wip",
+      "depends_on": []
+    },
+    {
+      "id": "b.realtime-ingestion",
+      "title": "Auto: b.realtime-ingestion",
       "status": "wip",
       "depends_on": []
     }

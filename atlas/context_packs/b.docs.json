@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-30T17:49:43.005Z",
+  "generated_at": "2026-04-30T19:13:55.649Z",
   "block_id": "b.docs",
   "project": {
     "project": "# Sima Atlas\n\nЦель: единая визуально-документная система, которая устраняет рассинхрон между кодом, агентами и документацией.\n\n## North Star\n- Любой агент работает по одному и тому же block-context.\n- Человек видит статус реализации на схеме без чтения всего кода.\n",
@@ -17,7 +17,7 @@
     "kpi": "# b.docs — KPI\n\n- KPI-1: wiki генерируется из atlas\n- KPI-2: auto_tz.md генерируется из atlas\n",
     "acceptance": "# b.docs — acceptance\n\n- [x] Вики создается автоматически\n- [x] ТЗ создается автоматически\n",
     "tasks": "# b.docs — tasks\n\n- [ ] nightly smoke e2e task\n",
-    "patterns": "# b.docs — patterns\n\n- 2026-04-30T15:37:16.336Z: nightly: distilled insight for P6\n- 2026-04-30T17:31:53.545Z: queue test insight\n- 2026-04-30T17:32:32.367Z: handler fix check\n- 2026-04-30T17:35:51.828Z: smoke e2e queued insight\n- 2026-04-30T17:36:17.484Z: smoke e2e queued insight\n- 2026-04-30T17:36:23.007Z: smoke e2e queued insight\n- 2026-04-30T17:49:42.754Z: smoke e2e queued insight\n",
+    "patterns": "# b.docs — patterns\n\n- 2026-04-30T15:37:16.336Z: nightly: distilled insight for P6\n- 2026-04-30T17:31:53.545Z: queue test insight\n- 2026-04-30T17:32:32.367Z: handler fix check\n- 2026-04-30T17:35:51.828Z: smoke e2e queued insight\n- 2026-04-30T17:36:17.484Z: smoke e2e queued insight\n- 2026-04-30T17:36:23.007Z: smoke e2e queued insight\n- 2026-04-30T19:13:55.396Z: smoke e2e queued insight\n",
     "files": ""
   },
   "dependencies": [

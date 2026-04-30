@@ -10,7 +10,7 @@
    - checks.log (pass/fail + note)
    - при необходимости patterns.md / decisions.log
 4. Для агентного доступа использовать MCP tools:
-   - read_block, list_dependencies, update_block, sync_check, build_context_pack, ingest_chat_distillate
+   - read_block, list_dependencies, update_block, sync_check, build_context_pack, ingest_chat_distillate, enqueue_ingestion
 
 ## AGENTS.md specific
 - Для Codex/CLI работай через deterministic context-pack и не используй чат как источник правды.

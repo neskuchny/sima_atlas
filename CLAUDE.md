@@ -10,7 +10,7 @@
    - checks.log (pass/fail + note)
    - при необходимости patterns.md / decisions.log
 4. Для агентного доступа использовать MCP tools:
-   - read_block, list_dependencies, update_block, sync_check, build_context_pack, ingest_chat_distillate
+   - read_block, list_dependencies, update_block, sync_check, build_context_pack, ingest_chat_distillate, enqueue_ingestion
 
 ## CLAUDE.md specific
 - Запускать задачи с привязкой к block_id и проверять acceptance/kpi перед переводом в done.

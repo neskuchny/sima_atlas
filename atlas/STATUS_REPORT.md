@@ -37,4 +37,4 @@
 - [x] Добавлен smoke-e2e сценарий MCP `update_block -> enqueue_ingestion -> apply_ingestion_queue -> build_context_pack -> validated_bundle -> render_wiki_html` и включён в nightly consolidation.
 - [x] Добавлен расчёт `intelligence_health` и его публикация в nightly (`scripts/calc_intelligence_health.mjs`).
 - [~] Старт P6 ingestion: добавлен distillate path (`ingest_chat_distillate`), MCP enqueue (`enqueue_ingestion`), nightly queue processor (`apply_ingestion_queue`) и gate `validate_ingestion_contracts`.
-- [~] Старт P10 parity: добавлен deterministic context-pack builder (`build_context_pack`), сгенерированы `AGENTS.md`/`CLAUDE.md` и добавлены nightly checks `sync_context_packs` и `validate_agent_parity`.
+- [x] P10 parity закрыт (2026-04-30): deterministic context-packs для всех блоков + unified contracts + gates `sync_context_packs`/`validate_agent_parity`/`validate_parity_matrix`.

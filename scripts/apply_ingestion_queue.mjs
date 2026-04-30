@@ -2,6 +2,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+import os from 'node:os';
+import { execFileSync } from 'node:child_process';
+
 const root = process.cwd();
 const atlas = path.join(root, 'atlas');
 const queuePath = path.join(atlas, 'ingestion_queue.jsonl');
@@ -39,6 +42,15 @@ for (const raw of lines){
   append(checks, `${ts}\tingestion\tpass\tqueue applied`);
   if (e.apply_to_rules === true) {
     append(path.join(atlas,'rules.md'), `\n- [INGEST ${ts}] ${e.note}`);
+  }
+  if (e.conversation_text) {
+    const tmp = path.join(os.tmpdir(), `sima_conv_${Date.now()}.json`);
+    fs.writeFileSync(tmp, JSON.stringify({ text: e.conversation_text }), 'utf8');
+    try {
+      execFileSync('node', ['scripts/analyze_conversation_to_atlas.mjs', tmp], { stdio: 'inherit' });
+    } finally {
+      if (fs.existsSync(tmp)) fs.unlinkSync(tmp);
+    }
   }
   applied += 1;
 }
