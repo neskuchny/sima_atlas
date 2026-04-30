@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"/><title>Atlas Wiki</title>
+<style>body{font-family:Inter,system-ui,sans-serif;max-width:980px;margin:24px auto;padding:0 16px;line-height:1.5}h1,h2,h3{line-height:1.25}code{background:#f4f4f5;padding:1px 4px;border-radius:4px}</style>
+</head><body>
+<h1>Sima Atlas Wiki</h1>
+<h2>b.ui-control — UI Control Plane</h2>
+<ul>
+<li>status: **done**</li>
+<li>depends_on: b.core-sync, b.agent-orchestrator</li>
+</ul>
+<h1>b.ui-control — mission</h1>
+<p>Ключевая цель блока и его значение для устранения рассинхрона.</p>
+<h3>KPI</h3>
+<h1>b.ui-control — KPI</h1>
+<ul>
+<li>KPI-1: метрика готовности определена.</li>
+<li>KPI-2: есть минимум одна автоматическая проверка.</li>
+</ul>
+<h3>Acceptance</h3>
+<h1>b.ui-control — acceptance</h1>
+<ul>
+<li>[ ] Логика блока документирована.</li>
+<li>[ ] Связи с зависимостями проверены.</li>
+<li>[ ] Результат отражается в UI/отчёте sync.</li>
+</ul>
+<h2>b.core-sync — Sync Engine</h2>
+<ul>
+<li>status: **review**</li>
+<li>depends_on: b.db</li>
+</ul>
+<h1>b.core-sync — mission</h1>
+<p>Ключевая цель блока и его значение для устранения рассинхрона.</p>
+<h3>KPI</h3>
+<h1>b.core-sync — KPI</h1>
+<ul>
+<li>KPI-1: метрика готовности определена.</li>
+<li>KPI-2: есть минимум одна автоматическая проверка.</li>
+</ul>
+<h3>Acceptance</h3>
+<h1>b.core-sync — acceptance</h1>
+<ul>
+<li>[ ] Логика блока документирована.</li>
+<li>[ ] Связи с зависимостями проверены.</li>
+<li>[ ] Результат отражается в UI/отчёте sync.</li>
+</ul>
+<h2>b.db — Atlas Database</h2>
+<ul>
+<li>status: **wip**</li>
+<li>depends_on: none</li>
+</ul>
+<h1>b.db — mission</h1>
+<p>Ключевая цель блока и его значение для устранения рассинхрона.</p>
+<h3>KPI</h3>
+<h1>b.db — KPI</h1>
+<ul>
+<li>KPI-1: метрика готовности определена.</li>
+<li>KPI-2: есть минимум одна автоматическая проверка.</li>
+</ul>
+<h3>Acceptance</h3>
+<h1>b.db — acceptance</h1>
+<ul>
+<li>[ ] Логика блока документирована.</li>
+<li>[ ] Связи с зависимостями проверены.</li>
+<li>[ ] Результат отражается в UI/отчёте sync.</li>
+</ul>
+<h2>b.agent-orchestrator — Agent Orchestrator</h2>
+<ul>
+<li>status: **done**</li>
+<li>depends_on: b.db, b.core-sync</li>
+</ul>
+<h1>b.agent-orchestrator — mission</h1>
+<p>Ключевая цель блока и его значение для устранения рассинхрона.</p>
+<h3>KPI</h3>
+<h1>b.agent-orchestrator — KPI</h1>
+<ul>
+<li>KPI-1: метрика готовности определена.</li>
+<li>KPI-2: есть минимум одна автоматическая проверка.</li>
+</ul>
+<h3>Acceptance</h3>
+<h1>b.agent-orchestrator — acceptance</h1>
+<ul>
+<li>[ ] Логика блока документирована.</li>
+<li>[ ] Связи с зависимостями проверены.</li>
+<li>[ ] Результат отражается в UI/отчёте sync.</li>
+</ul>
+<h2>b.docs — Docs Builder</h2>
+<ul>
+<li>status: **wip**</li>
+<li>depends_on: none</li>
+</ul>
+<h1>b.docs — mission</h1>
+<p>Генерирует wiki и ТЗ по блокам.</p>
+<h3>KPI</h3>
+<h1>b.docs — KPI</h1>
+<ul>
+<li>KPI-1: wiki генерируется из atlas</li>
+<li>KPI-2: auto_tz.md генерируется из atlas</li>
+</ul>
+<h3>Acceptance</h3>
+<h1>b.docs — acceptance</h1>
+<ul>
+<li>[x] Вики создается автоматически</li>
+<li>[x] ТЗ создается автоматически</li>
+</ul>
+</body></html>
