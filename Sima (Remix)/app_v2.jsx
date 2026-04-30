@@ -3,6 +3,115 @@
 
 const { useState, useMemo } = React;
 
+function computeArchSummary(arch, atlas){
+  const blocks = arch?.blocks || [];
+  const totals = { total: blocks.length, tasksDone: 0, tasksTotal: 0, kpiPassed: 0, kpiTotal: 0 };
+  blocks.forEach((b) => {
+    const entry = atlas?.blocks?.[b.id];
+    if (!entry || !window.SIMA_ATLAS_CORE) return;
+    const p = window.SIMA_ATLAS_CORE.blockProgress(entry);
+    totals.tasksDone += p.tasksDone;
+    totals.tasksTotal += p.tasksTotal;
+    totals.kpiPassed += p.kpiPassed;
+    totals.kpiTotal += p.kpiTotal;
+  });
+  return totals;
+}
+
+
+
+function AtlasSchemaPanel({ arch, atlasState, syncReport, selectedBlockId, onRunSync, onExportContext, onTransition }){
+  const blocks = arch?.blocks || [];
+  const [filter, setFilter] = React.useState('all');
+  const detailById = Object.fromEntries((syncReport?.details || []).map(d => [d.blockId, d]));
+
+  function isReadyToDone(blockId){
+    const d = detailById[blockId];
+    const status = d?.status || 'ok';
+    const checksText = (atlasState?.blocks?.[blockId]?.checks || []).map(c => `${c.kind||''} ${c.result||''}`.toLowerCase()).join(' ');
+    return status==='ok' && checksText.includes('acceptance pass') && checksText.includes('kpi pass');
+  }
+
+  const selectedReadyToDone = selectedBlockId ? isReadyToDone(selectedBlockId) : false;
+  return (
+    <div className="side-sec" style={{flex:1,display:'flex',flexDirection:'column',minHeight:0}}>
+      <h4 className="sec-ttl">Atlas · схема</h4>
+      <div style={{fontSize:11,color:'var(--ink-4)',marginBottom:8}}>
+        Статус синхронизации архитектурных блоков
+      </div>
+      <div style={{display:'flex',gap:6,marginBottom:10,flexWrap:'wrap'}}>
+        <span className="chip">всего: {syncReport?.total ?? blocks.length}</span>
+        <span className="chip">ok: {syncReport?.synchronized ?? 0}</span>
+        <span className="chip">drift: {syncReport?.drift ?? 0}</span>
+        <span className="chip">broken: {syncReport?.broken ?? 0}</span>
+      </div>
+      <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:10}}>
+        <span className="meta">filter:</span>
+        <select value={filter} onChange={(e)=>setFilter(e.target.value)} className="btn xs ghost" style={{height:24}}>
+          <option value="all">all</option>
+          <option value="broken">broken</option>
+          <option value="drift">drift</option>
+          <option value="review">review</option>
+          <option value="done">done</option>
+        </select>
+      </div>
+      <div style={{display:'flex',gap:6,marginBottom:10}}>
+        <button className="btn xs ghost" onClick={onRunSync}>
+          <Icon name="sparkle" size={10}/> пересчитать sync
+        </button>
+        <button className="btn xs ghost" onClick={()=>onExportContext && onExportContext(selectedBlockId)} disabled={!selectedBlockId}>
+          <Icon name="upload" size={10}/> context-pack
+        </button>
+        <button className="btn xs ghost" onClick={()=>window.dispatchEvent(new CustomEvent('atlas-mark-dead'))} disabled={!selectedBlockId}>
+          <Icon name="trash" size={10}/> mark dead
+        </button>
+      </div>
+      <div style={{display:'flex',gap:6,marginBottom:10,flexWrap:'wrap'}}>
+        <button className="btn xs" onClick={()=>onTransition && onTransition('wip')} disabled={!selectedBlockId}>Implement</button>
+        <button className="btn xs" onClick={()=>onTransition && onTransition('review')} disabled={!selectedBlockId}>Review</button>
+        <button className="btn xs" onClick={()=>onTransition && onTransition('done')} disabled={!selectedBlockId || !selectedReadyToDone}>Done</button>
+        <button className="btn xs ghost" onClick={()=>onTransition && onTransition('broken')} disabled={!selectedBlockId}>Broken</button>
+        <button className="btn xs ghost" onClick={()=>onTransition && onTransition('wip')} disabled={!selectedBlockId}>Rollback</button>
+      </div>
+      <div style={{overflow:'auto',border:'1px solid var(--line-2)',borderRadius:10,padding:8,background:'#fff'}}>
+        {blocks.filter((b)=>{
+          const d = detailById[b.id];
+          const syncStatus = d?.status || "ok";
+          const lifecycle = atlasState?.blocks?.[b.id]?.status || "idea";
+          if (filter==="all") return true;
+          if (filter==="broken" || filter==="drift") return syncStatus===filter;
+          return lifecycle===filter;
+        }).map((b)=>{
+          const d = detailById[b.id];
+          const status = d?.status || 'ok';
+          const lifecycle = atlasState?.blocks?.[b.id]?.status || 'idea';
+          const color = status==='broken' ? '#b42318' : status==='drift' ? '#b54708' : '#027a48';
+          const progress = atlasState?.blocks?.[b.id] && window.SIMA_ATLAS_CORE
+            ? window.SIMA_ATLAS_CORE.blockProgress(atlasState.blocks[b.id])
+            : {tasksDone:0,tasksTotal:0,kpiPassed:0,kpiTotal:0};
+          const readyToDone = isReadyToDone(b.id);
+          return (
+            <div key={b.id} style={{padding:'8px 6px',borderBottom:'1px solid var(--line-1)'}}>
+              <div style={{display:'flex',justifyContent:'space-between',gap:6}}>
+                <b style={{fontSize:12}}>{b.title}</b>
+                <span style={{fontSize:11,color}}>{status} · {lifecycle}</span>
+              </div>
+              <div style={{fontSize:11,color:'var(--ink-4)'}}>{b.id}</div>
+              <div style={{fontSize:11,color:'var(--ink-3)'}}>
+                tasks {progress.tasksDone}/{progress.tasksTotal} · kpi {progress.kpiPassed}/{progress.kpiTotal}
+              </div>
+              <div style={{fontSize:10,color: readyToDone ? '#027a48' : '#b54708'}}>
+                {readyToDone ? 'ready_to_done ✓' : 'ready_to_done …'}
+              </div>
+              {d?.issues?.length ? <div style={{fontSize:11,color:'var(--ink-4)'}}>⚠ {d.issues[0]}</div> : null}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "density": "regular",
   "accent": "brown",
@@ -45,6 +154,96 @@ function AppV2(){
   const [toast, setToast] = useState(null);
   const showToast = (msg) => { setToast(msg); setTimeout(()=>setToast(null), 2800); };
 
+  const [atlasState, setAtlasState] = useState(null);
+  const [syncReport, setSyncReport] = useState(null);
+
+  React.useEffect(() => {
+    if (!window.SIMA_ATLAS_CORE || !window.ARCH_BY_PROJECT) return;
+    const arch = window.ARCH_BY_PROJECT[projId];
+    const loaded = window.SIMA_ATLAS_CORE.loadAtlas(projId, arch);
+    setAtlasState(loaded);
+    setSyncReport(window.SIMA_ATLAS_CORE.syncCheck(loaded, arch));
+  }, [projId]);
+
+  const runSyncCheck = () => {
+    if (!window.SIMA_ATLAS_CORE || !window.ARCH_BY_PROJECT || !atlasState) return;
+    const arch = window.ARCH_BY_PROJECT[projId];
+    const saved = window.SIMA_ATLAS_CORE.saveAtlas(projId, atlasState);
+    const report = window.SIMA_ATLAS_CORE.runSyncWithChecks(saved, arch, { source: "ui:manual-sync" });
+    setAtlasState(saved);
+    setSyncReport(report);
+    showToast(`Sync: OK ${report.synchronized}, drift ${report.drift}, broken ${report.broken}`);
+  };
+
+
+  const commitAtlasPatch = (patch, toastMsg='') => {
+    if (!window.SIMA_ATLAS_CORE || !window.ARCH_BY_PROJECT) return;
+    const arch = window.ARCH_BY_PROJECT[projId];
+    const saved = window.SIMA_ATLAS_CORE.saveAtlas(projId, patch);
+    const report = window.SIMA_ATLAS_CORE.runSyncWithChecks(saved, arch, { source: "ui:mutation" });
+    setAtlasState(saved);
+    setSyncReport(report);
+    if (toastMsg) showToast(toastMsg);
+  };
+
+  const exportContextPack = (blockId) => {
+    if (!blockId || !atlasState || !window.SIMA_ATLAS_CORE) return;
+    const arch = window.ARCH_BY_PROJECT[projId];
+    const pack = window.SIMA_ATLAS_CORE.buildContextPack(atlasState, arch, blockId);
+    if (!pack) { showToast('Context-pack не собран: блок не найден в atlas'); return; }
+    try {
+      navigator.clipboard.writeText(JSON.stringify(pack, null, 2));
+      showToast(`Context-pack для ${blockId} скопирован в буфер`);
+    } catch (e) {
+      showToast('Не удалось скопировать context-pack');
+    }
+  };
+
+
+  const markSelectedFileDead = () => {
+    if (!archSelectedId || !atlasState || !window.SIMA_ATLAS_CORE) return;
+    const filePath = prompt('Укажи путь файла для пометки dead (пример: src/legacy/old.ts):');
+    if (!filePath) return;
+    const patch = structuredClone(atlasState);
+    window.SIMA_ATLAS_CORE.markFileStatus(patch, filePath, 'dead', 'manual from UI', archSelectedId);
+    window.SIMA_ATLAS_CORE.logCheck(patch, archSelectedId, { kind: 'sync', result: 'pass', note: `file ${filePath} -> dead` });
+    commitAtlasPatch(patch, `Файл ${filePath} помечен dead`);
+  };
+
+  React.useEffect(() => {
+    const h = () => markSelectedFileDead();
+    window.addEventListener('atlas-mark-dead', h);
+    return () => window.removeEventListener('atlas-mark-dead', h);
+  }, [archSelectedId, atlasState]);
+
+
+  const transitionSelectedBlock = (to) => {
+    if (!archSelectedId || !atlasState || !window.SIMA_ATLAS_CORE) return;
+    const patch = structuredClone(atlasState);
+    const res = window.SIMA_ATLAS_CORE.transitionBlock(patch, archSelectedId, to, { actor: 'ui' });
+    if (!res.ok) {
+      showToast(`Transition error: ${res.error}`);
+      return;
+    }
+    window.SIMA_ATLAS_CORE.logCheck(patch, archSelectedId, { kind:'sync', result:'pass', note:`transition ${res.from}->${res.to}` });
+    commitAtlasPatch(patch, `Block ${archSelectedId}: ${res.from} -> ${res.to}`);
+  };
+
+  const markDemoProgress = () => {
+    if (!atlasState) return;
+    const ids = Object.keys(atlasState.blocks || {});
+    if (!ids.length) return;
+    const first = ids[0];
+    const patch = structuredClone(atlasState);
+    const block = patch.blocks[first];
+    if (block.tasks?.length) block.tasks[0].done = true;
+    if (block.kpi?.length) block.kpi[0].passed = true;
+    block.checks = [...(block.checks||[]), { at: new Date().toISOString(), test: 'manual/demo', result: 'pass' }];
+    window.SIMA_ATLAS_CORE.logCheck(patch, first, { kind:'progress', result:'pass', note:'task+KPI updated from UI demo action' });
+    commitAtlasPatch(patch, `Для блока ${first} зафиксирован прогресс (task+KPI).`);
+  };
+
+
   // Apply density + accent to document
   React.useEffect(() => {
     document.body.setAttribute('data-density', t.density);
@@ -68,6 +267,7 @@ function AppV2(){
   };
 
   const selectedId = selectedCanvasId;
+  const archBase = window.ARCH_BY_PROJECT?.[projId];
   const setSelectedId = setSelectedCanvasId;
 
   return (
@@ -126,6 +326,10 @@ function AppV2(){
         <span className="meta">{project.created}</span>
         <span style={{margin:'0 6px',color:'var(--line-3)'}}>·</span>
         <span className="meta">{project.owner}</span>
+        {syncReport && (<>
+          <span style={{margin:'0 6px',color:'var(--line-3)'}}>·</span>
+          <span className="meta">sync ok {syncReport.synchronized}/{syncReport.total}</span>
+        </>)}
       </div>
 
       {/* WORK AREA */}
@@ -172,8 +376,11 @@ function AppV2(){
                       <Icon name="check" size={10}/> только MVP
                     </button>
                     <div className="grow"/>
-                    <button className="btn xs ghost" onClick={()=>showToast('Карта полей пересобрана из архитектуры. ТЗ обновится по кнопке.')}>
-                      <Icon name="sparkle" size={10}/> синк в карту
+                    <button className="btn xs ghost" onClick={runSyncCheck}>
+                      <Icon name="sparkle" size={10}/> sync-check
+                    </button>
+                    <button className="btn xs ghost" onClick={markDemoProgress}>
+                      <Icon name="check" size={10}/> отметить прогресс
                     </button>
                   </>
                 )}
@@ -330,6 +537,16 @@ function AppV2(){
                 )}
               </div>
             </div>
+          )}
+          {layer==='map' && mapView==='arch' && (
+            <AtlasSchemaPanel
+              arch={archBase}
+              atlasState={atlasState}
+              syncReport={syncReport}
+              selectedBlockId={archSelectedId}
+              onRunSync={runSyncCheck}
+              onExportContext={exportContextPack}
+              onTransition={transitionSelectedBlock}/>
           )}
           {layer==='tz' && (
             <div className="side-sec">
