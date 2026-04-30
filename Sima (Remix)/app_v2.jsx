@@ -3,6 +3,68 @@
 
 const { useState, useMemo } = React;
 
+function computeArchSummary(arch, atlas){
+  const blocks = arch?.blocks || [];
+  const totals = { total: blocks.length, tasksDone: 0, tasksTotal: 0, kpiPassed: 0, kpiTotal: 0 };
+  blocks.forEach((b) => {
+    const entry = atlas?.blocks?.[b.id];
+    if (!entry || !window.SIMA_ATLAS_CORE) return;
+    const p = window.SIMA_ATLAS_CORE.blockProgress(entry);
+    totals.tasksDone += p.tasksDone;
+    totals.tasksTotal += p.tasksTotal;
+    totals.kpiPassed += p.kpiPassed;
+    totals.kpiTotal += p.kpiTotal;
+  });
+  return totals;
+}
+
+
+
+function AtlasSchemaPanel({ arch, atlasState, syncReport, onRunSync }){
+  const blocks = arch?.blocks || [];
+  const detailById = Object.fromEntries((syncReport?.details || []).map(d => [d.blockId, d]));
+  return (
+    <div className="side-sec" style={{flex:1,display:'flex',flexDirection:'column',minHeight:0}}>
+      <h4 className="sec-ttl">Atlas · схема</h4>
+      <div style={{fontSize:11,color:'var(--ink-4)',marginBottom:8}}>
+        Статус синхронизации архитектурных блоков
+      </div>
+      <div style={{display:'flex',gap:6,marginBottom:10,flexWrap:'wrap'}}>
+        <span className="chip">всего: {syncReport?.total ?? blocks.length}</span>
+        <span className="chip">ok: {syncReport?.synchronized ?? 0}</span>
+        <span className="chip">drift: {syncReport?.drift ?? 0}</span>
+        <span className="chip">broken: {syncReport?.broken ?? 0}</span>
+      </div>
+      <button className="btn xs ghost" onClick={onRunSync} style={{marginBottom:10}}>
+        <Icon name="sparkle" size={10}/> пересчитать sync
+      </button>
+      <div style={{overflow:'auto',border:'1px solid var(--line-2)',borderRadius:10,padding:8,background:'#fff'}}>
+        {blocks.map((b)=>{
+          const d = detailById[b.id];
+          const status = d?.status || 'ok';
+          const color = status==='broken' ? '#b42318' : status==='drift' ? '#b54708' : '#027a48';
+          const progress = atlasState?.blocks?.[b.id] && window.SIMA_ATLAS_CORE
+            ? window.SIMA_ATLAS_CORE.blockProgress(atlasState.blocks[b.id])
+            : {tasksDone:0,tasksTotal:0,kpiPassed:0,kpiTotal:0};
+          return (
+            <div key={b.id} style={{padding:'8px 6px',borderBottom:'1px solid var(--line-1)'}}>
+              <div style={{display:'flex',justifyContent:'space-between',gap:6}}>
+                <b style={{fontSize:12}}>{b.title}</b>
+                <span style={{fontSize:11,color}}>{status}</span>
+              </div>
+              <div style={{fontSize:11,color:'var(--ink-4)'}}>{b.id}</div>
+              <div style={{fontSize:11,color:'var(--ink-3)'}}>
+                tasks {progress.tasksDone}/{progress.tasksTotal} · kpi {progress.kpiPassed}/{progress.kpiTotal}
+              </div>
+              {d?.issues?.length ? <div style={{fontSize:11,color:'var(--ink-4)'}}>⚠ {d.issues[0]}</div> : null}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "density": "regular",
   "accent": "brown",
@@ -45,6 +107,42 @@ function AppV2(){
   const [toast, setToast] = useState(null);
   const showToast = (msg) => { setToast(msg); setTimeout(()=>setToast(null), 2800); };
 
+  const [atlasState, setAtlasState] = useState(null);
+  const [syncReport, setSyncReport] = useState(null);
+
+  React.useEffect(() => {
+    if (!window.SIMA_ATLAS_CORE || !window.ARCH_BY_PROJECT) return;
+    const arch = window.ARCH_BY_PROJECT[projId];
+    const loaded = window.SIMA_ATLAS_CORE.loadAtlas(projId, arch);
+    setAtlasState(loaded);
+    setSyncReport(window.SIMA_ATLAS_CORE.syncCheck(loaded, arch));
+  }, [projId]);
+
+  const runSyncCheck = () => {
+    if (!window.SIMA_ATLAS_CORE || !window.ARCH_BY_PROJECT || !atlasState) return;
+    const arch = window.ARCH_BY_PROJECT[projId];
+    const saved = window.SIMA_ATLAS_CORE.saveAtlas(projId, atlasState);
+    const report = window.SIMA_ATLAS_CORE.syncCheck(saved, arch);
+    setAtlasState(saved);
+    setSyncReport(report);
+    showToast(`Sync: OK ${report.synchronized}, drift ${report.drift}, broken ${report.broken}`);
+  };
+
+  const markDemoProgress = () => {
+    if (!atlasState) return;
+    const ids = Object.keys(atlasState.blocks || {});
+    if (!ids.length) return;
+    const first = ids[0];
+    const patch = structuredClone(atlasState);
+    const block = patch.blocks[first];
+    if (block.tasks?.length) block.tasks[0].done = true;
+    if (block.kpi?.length) block.kpi[0].passed = true;
+    block.checks = [...(block.checks||[]), { at: new Date().toISOString(), test: 'manual/demo', result: 'pass' }];
+    setAtlasState(patch);
+    showToast(`Для блока ${first} зафиксирован прогресс (task+KPI).`);
+  };
+
+
   // Apply density + accent to document
   React.useEffect(() => {
     document.body.setAttribute('data-density', t.density);
@@ -68,6 +166,7 @@ function AppV2(){
   };
 
   const selectedId = selectedCanvasId;
+  const archBase = window.ARCH_BY_PROJECT?.[projId];
   const setSelectedId = setSelectedCanvasId;
 
   return (
@@ -126,6 +225,10 @@ function AppV2(){
         <span className="meta">{project.created}</span>
         <span style={{margin:'0 6px',color:'var(--line-3)'}}>·</span>
         <span className="meta">{project.owner}</span>
+        {syncReport && (<>
+          <span style={{margin:'0 6px',color:'var(--line-3)'}}>·</span>
+          <span className="meta">sync ok {syncReport.synchronized}/{syncReport.total}</span>
+        </>)}
       </div>
 
       {/* WORK AREA */}
@@ -172,8 +275,11 @@ function AppV2(){
                       <Icon name="check" size={10}/> только MVP
                     </button>
                     <div className="grow"/>
-                    <button className="btn xs ghost" onClick={()=>showToast('Карта полей пересобрана из архитектуры. ТЗ обновится по кнопке.')}>
-                      <Icon name="sparkle" size={10}/> синк в карту
+                    <button className="btn xs ghost" onClick={runSyncCheck}>
+                      <Icon name="sparkle" size={10}/> sync-check
+                    </button>
+                    <button className="btn xs ghost" onClick={markDemoProgress}>
+                      <Icon name="check" size={10}/> отметить прогресс
                     </button>
                   </>
                 )}
@@ -330,6 +436,13 @@ function AppV2(){
                 )}
               </div>
             </div>
+          )}
+          {layer==='map' && mapView==='arch' && (
+            <AtlasSchemaPanel
+              arch={archBase}
+              atlasState={atlasState}
+              syncReport={syncReport}
+              onRunSync={runSyncCheck}/>
           )}
           {layer==='tz' && (
             <div className="side-sec">
