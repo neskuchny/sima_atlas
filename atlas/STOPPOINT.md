@@ -18,8 +18,8 @@
 5. Автопересборка `atlas/roadmap.md` из графа.
 
 ## Где именно остановились (следующий шаг)
-Следующая незакрытая задача по плану: **P0: Agent Orchestrator pipeline**
-`implement -> sync-check -> review -> done` с единым state-transition журналом.
+Следующая незакрытая задача по плану: **P0: contract-level sync checks**
+(миссия/логика/acceptance на уровне блоков + обязательные поля docs).
 
 ## Что осталось сделать
 
@@ -51,3 +51,8 @@ node scripts/rebuild_atlas_roadmap.mjs
 1. Прочитать `atlas/progress_tz_checklist.md`.
 2. Прочитать этот `atlas/STOPPOINT.md`.
 3. Начать с реализации state machine переходов блока (P0).
+
+
+## Новое (в этой итерации)
+- Добавлен one-shot CLI `scripts/pipeline_step.mjs` (transition + selftest + roadmap rebuild).
+- Блок `b.agent-orchestrator` доведён до статуса `done` через pipeline.

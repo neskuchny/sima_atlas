@@ -32,3 +32,10 @@ node scripts/rebuild_atlas_roadmap.mjs
 ## Артефакты
 - `atlas/graph.json` — источник текущих статусов блоков.
 - `atlas/transitions.log` — журнал переходов (audit trail).
+
+
+## One-shot команда
+```bash
+node scripts/pipeline_step.mjs <blockId> <to> <actor> "note"
+```
+Выполняет transition + selftest + roadmap rebuild.
