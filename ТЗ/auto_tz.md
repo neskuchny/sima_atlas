@@ -1,5 +1,7 @@
 # AUTO ТЗ (из Atlas)
 
+_Сгенерировано автоматически из /atlas_
+
 ## b.ui-control (done)
 
 # b.ui-control — mission

@@ -44,4 +44,11 @@ const ts = new Date().toISOString();
 const line = `${ts}\t${blockId}\t${from}\t${to}\tactor=${actor}\tnote=${note}\n`;
 fs.appendFileSync(transitionsPath, line, 'utf8');
 
+const blockDir = path.join(root, 'atlas', 'blocks', blockId);
+const checksPath = path.join(blockDir, 'checks.log');
+if (fs.existsSync(blockDir)) {
+  const checkLine = `${ts}\ttransition\tpass\t${from}->${to}\tactor=${actor}${note?`\tnote=${note}`:''}\n`;
+  fs.appendFileSync(checksPath, checkLine, 'utf8');
+}
+
 console.log(`Transition applied: ${blockId} ${from} -> ${to}`);

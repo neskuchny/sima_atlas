@@ -116,12 +116,32 @@
     return atlas;
   }
 
+  function renderFilesMd(atlas, blockId){
+    const block = ensureBlock(atlas, blockId);
+    const rows = (block.files || []).map((f) => {
+      const meta = atlas.filesRegistry?.[f] || {};
+      const status = meta.status || 'unknown';
+      const reason = meta.reason ? ` — ${meta.reason}` : '';
+      return `- ${f} [${status}]${reason}`;
+    });
+    return `# ${blockId} — files
+
+${rows.length ? rows.join('\n') : '- none'}\n`;
+  }
+
+  function refreshBlockFilesMd(atlas, blockId){
+    const block = ensureBlock(atlas, blockId);
+    block.filesMd = renderFilesMd(atlas, blockId);
+    return block.filesMd;
+  }
+
   function markFileStatus(atlas, filePath, status, reason='', blockId=null){
     atlas.filesRegistry = atlas.filesRegistry || {};
     atlas.filesRegistry[filePath] = { status, reason, blockId, at: nowIso() };
     if (blockId) {
       const block = ensureBlock(atlas, blockId);
       block.files = Array.from(new Set([...(block.files||[]), filePath]));
+      refreshBlockFilesMd(atlas, blockId);
     }
     return atlas;
   }
@@ -214,6 +234,7 @@
   global.SIMA_ATLAS_CORE = {
     loadAtlas, saveAtlas, syncCheck, blockProgress,
     ensureBlock, logCheck, markFileStatus, buildContextPack,
+    renderFilesMd, refreshBlockFilesMd,
     validateDependencyContracts, validateFilesRegistry,
     canTransition, transitionBlock,
     runSyncWithChecks

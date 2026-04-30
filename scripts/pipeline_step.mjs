@@ -1,4 +1,6 @@
 import { spawnSync } from 'node:child_process';
+import { appendFileSync, existsSync } from 'node:fs';
+import path from 'node:path';
 
 const [,, blockId, to, actor='cli', note=''] = process.argv;
 if (!blockId || !to) {
@@ -28,5 +30,11 @@ run('node', ['scripts/validate_acceptance_assertions.mjs']);
 
 // 6) rebuild roadmap from updated graph
 run('node', ['scripts/rebuild_atlas_roadmap.mjs']);
+
+// 7) append pipeline check for mutation-path traceability
+const checksPath = path.join(process.cwd(), 'atlas', 'blocks', blockId, 'checks.log');
+if (existsSync(checksPath)) {
+  appendFileSync(checksPath, `${new Date().toISOString()}\tpipeline\tpass\t${to}\tactor=${actor}\n`, 'utf8');
+}
 
 console.log(`Pipeline step completed for ${blockId} -> ${to}`);

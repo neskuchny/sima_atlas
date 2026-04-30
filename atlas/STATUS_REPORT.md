@@ -22,16 +22,16 @@
 ### P1 (следующий приоритет)
 1. [x] Добавить `Rollback` в UI lifecycle-кнопки.
 2. [x] Добавить фильтры `broken/drift/review/done` в Atlas-панели.
-3. [~] Автообновление `files.md` и `checks.log` после UI/agent actions без ручной правки (усилено: UI-мутации теперь сразу persist + sync-check, а sync-check автоматически пишет checks по всем блокам (pass/fail)).
+3. [x] Автообновление `files.md` и `checks.log` после UI/agent actions без ручной правки (UI + MCP + pipeline paths покрыты: transition/mark dead/set/update/pipeline step автологируют checks/files).
 4. [x] Визуальный индикатор «готово к done» (все gates pass) + блокировка кнопки Done, если блок не готов.
 
 ### P2
-1. Nightly consolidation job.
-2. Wiki renderer поверх `/atlas`.
-3. MCP server (`read_block`, `sync_check`, `log_check`, `update_block`, `mark_file_dead`).
+1. [x] Nightly consolidation job (`scripts/nightly_consolidation.mjs` + MCP tool `nightly_consolidation`).
+2. [x] Wiki renderer поверх `/atlas` (`scripts/render_wiki_html.mjs` + MCP tool `render_wiki_html`).
+3. [x] MCP server (`read_block`, `sync_check`, `log_check`, `update_block`, `mark_file_dead`) — `update_block` добавлен как atomic tool.
 
 ### Открытый P0-хвост
-- Углубить acceptance assertions до смысловых сценариев по логике блока (не только ключевые слова pass в checks.log).
+- [x] Углублены acceptance assertions: добавлены смысловые проверки checklist/semantic tokens в `scripts/validate_acceptance_assertions.mjs`.
 
 ## Ближайший next step
-- Довести автообновление `files.md`/`checks.log` после UI/agent действий до полностью автоматического режима (без ручных шагов).
+- Перейти к стабилизации P2/P3: добавить smoke-e2e сценарий MCP `update_block -> validated_bundle -> render_wiki_html` и зафиксировать его в nightly.

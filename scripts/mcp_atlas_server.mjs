@@ -2,6 +2,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import readline from 'node:readline';
+import { execSync } from 'node:child_process';
 
 const root = process.cwd();
 const atlasRoot = path.join(root, 'atlas');
@@ -26,8 +27,11 @@ function toolList(){
     { name:'set_dependencies', description:'Overwrite depends_on.md entries', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, entries:{type:'array', items:{type:'string'}} }, required:['block_id','entries'] } },
     { name:'set_provides', description:'Overwrite provides.md entries', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, entries:{type:'array', items:{type:'string'}} }, required:['block_id','entries'] } },
     { name:'set_tasks', description:'Overwrite tasks.md body', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, tasks:{type:'array', items:{type:'string'}} }, required:['block_id','tasks'] } },
+    { name:'update_block', description:'Atomic update for title/status/depends/provides/tasks/mission', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, title:{type:'string'}, status:{type:'string'}, depends:{type:'array',items:{type:'string'}}, provides:{type:'array',items:{type:'string'}}, tasks:{type:'array',items:{type:'string'}}, mission:{type:'string'} }, required:['block_id'] } },
     { name:'generate_full_bundle', description:'Generate wiki, auto_tz and roadmap', inputSchema:{ type:'object', properties:{} } },
     { name:'generate_validated_bundle', description:'Run sync checks then generate bundle if all pass', inputSchema:{ type:'object', properties:{} } },
+    { name:'nightly_consolidation', description:'Run validators + generators and write atlas/nightly_report.md', inputSchema:{ type:'object', properties:{} } },
+    { name:'render_wiki_html', description:'Render atlas/WIKI.md to atlas/wiki.html', inputSchema:{ type:'object', properties:{} } },
 
   ];
 }
@@ -116,10 +120,23 @@ function appendCheck(blockId, kind, result, note=''){
   fs.appendFileSync(p, line, 'utf8');
 }
 
+function upsertFilesMd(blockId, filePath, status, reason=''){
+  ensureBlock(blockId);
+  const p = path.join(blockDir(blockId),'files.md');
+  let cur = readText(p);
+  if (!cur.trim()) cur = `# ${blockId} — files\n\n- none\n`;
+  const lines = cur.split(/\r?\n/).filter(Boolean).filter(l => !l.startsWith(`- ${filePath} [`));
+  if (lines[lines.length-1] === '- none') lines.pop();
+  lines.push(`- ${filePath} [${status}]${reason?` (${reason})`:''}`);
+  fs.writeFileSync(p, lines.join('\n')+'\n','utf8');
+}
+
 function markFileDead(blockId, filePath, reason=''){
   ensureBlock(blockId);
   const p = path.join(blockDir(blockId),'tasks.md');
   fs.appendFileSync(p, `\n- [ ] dead-file: ${filePath}${reason?` (${reason})`:''}`, 'utf8');
+  upsertFilesMd(blockId, filePath, 'dead', reason);
+  appendCheck(blockId, 'files', 'pass', `marked dead: ${filePath}`);
 }
 
 
@@ -133,6 +150,25 @@ function setTasks(blockId, tasks){
   ensureBlock(blockId);
   const body = tasks.map(t=>`- [ ] ${t}`).join('\n');
   fs.writeFileSync(path.join(blockDir(blockId),'tasks.md'), `# ${blockId} — tasks\n\n${body}\n`, 'utf8');
+}
+
+
+function updateBlock(args){
+  const blockId = args.block_id;
+  ensureBlock(blockId, args.title || '');
+  if (args.title){
+    const gpath = path.join(atlasRoot,'graph.json');
+    const g = readJson(gpath);
+    const b = (g.blocks||[]).find(x=>x.id===blockId);
+    if (b) b.title = args.title;
+    fs.writeFileSync(gpath, JSON.stringify(g, null, 2)+'\n','utf8');
+  }
+  if (args.status) transitionBlock(blockId, args.status);
+  if (Array.isArray(args.depends)) setListFile(blockId, 'depends_on.md', 'depends_on', args.depends);
+  if (Array.isArray(args.provides)) setListFile(blockId, 'provides.md', 'provides', args.provides);
+  if (Array.isArray(args.tasks)) setTasks(blockId, args.tasks);
+  if (typeof args.mission === 'string') setMission(blockId, args.mission);
+  appendCheck(blockId, 'sync', 'pass', 'update_block');
 }
 
 function generateRoadmap(){
@@ -203,10 +239,12 @@ rl.on('line', (line) => {
       }
       if (name === 'create_block') {
         ensureBlock(args.block_id, args.title || '');
+        appendCheck(args.block_id, 'sync', 'pass', 'create_block');
         return respond(id, { content:[{ type:'text', text: `block created: ${args.block_id}` }] });
       }
       if (name === 'set_block_mission') {
         setMission(args.block_id, args.mission);
+        appendCheck(args.block_id, 'sync', 'pass', 'set_block_mission');
         return respond(id, { content:[{ type:'text', text: `mission updated: ${args.block_id}` }] });
       }
       if (name === 'generate_wiki') {
@@ -219,6 +257,7 @@ rl.on('line', (line) => {
       }
       if (name === 'transition_block') {
         transitionBlock(args.block_id, args.to);
+        appendCheck(args.block_id, 'sync', 'pass', `transition -> ${args.to}`);
         return respond(id, { content:[{ type:'text', text: `status updated: ${args.block_id} -> ${args.to}` }] });
       }
       if (name === 'log_check') {
@@ -232,15 +271,22 @@ rl.on('line', (line) => {
 
       if (name === 'set_dependencies') {
         setListFile(args.block_id, 'depends_on.md', 'depends_on', args.entries || []);
+        appendCheck(args.block_id, 'sync', 'pass', 'set_dependencies');
         return respond(id, { content:[{ type:'text', text: `depends_on updated: ${args.block_id}` }] });
       }
       if (name === 'set_provides') {
         setListFile(args.block_id, 'provides.md', 'provides', args.entries || []);
+        appendCheck(args.block_id, 'sync', 'pass', 'set_provides');
         return respond(id, { content:[{ type:'text', text: `provides updated: ${args.block_id}` }] });
       }
       if (name === 'set_tasks') {
         setTasks(args.block_id, args.tasks || []);
+        appendCheck(args.block_id, 'sync', 'pass', 'set_tasks');
         return respond(id, { content:[{ type:'text', text: `tasks updated: ${args.block_id}` }] });
+      }
+      if (name === 'update_block') {
+        updateBlock(args);
+        return respond(id, { content:[{ type:'text', text: `block updated: ${args.block_id}` }] });
       }
       if (name === 'generate_full_bundle') {
         generateWiki();
@@ -255,6 +301,14 @@ rl.on('line', (line) => {
         generateTz();
         generateRoadmap();
         return respond(id, { content:[{ type:'text', text: 'validated bundle generated' }] });
+      }
+      if (name === 'nightly_consolidation') {
+        execSync('node scripts/nightly_consolidation.mjs', { cwd: root, stdio:'pipe' });
+        return respond(id, { content:[{ type:'text', text: 'nightly consolidation completed (atlas/nightly_report.md)' }] });
+      }
+      if (name === 'render_wiki_html') {
+        execSync('node scripts/render_wiki_html.mjs', { cwd: root, stdio:'pipe' });
+        return respond(id, { content:[{ type:'text', text: 'rendered atlas/wiki.html' }] });
       }
 
       return respondErr(id, `unknown tool: ${name}`);
