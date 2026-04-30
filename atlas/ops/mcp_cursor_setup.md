@@ -21,6 +21,7 @@
 - `set_provides { block_id, entries[] }`
 - `set_tasks { block_id, tasks[] }`
 - `generate_full_bundle {}`
+- `generate_validated_bundle {}`
 
 ## 3) Проверка локально
 ```bash

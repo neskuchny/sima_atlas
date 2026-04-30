@@ -198,10 +198,24 @@
     return report;
   }
 
+
+  function runSyncWithChecks(atlas, arch, meta = {}){
+    const report = syncCheck(atlas, arch);
+    const detailsById = Object.fromEntries((report.details || []).map(d => [d.blockId, d]));
+    Object.keys(atlas.blocks || {}).forEach((blockId) => {
+      const detail = detailsById[blockId];
+      const result = detail ? 'fail' : 'pass';
+      const note = detail?.issues?.[0] || `sync ok (${meta.source || 'runtime'})`;
+      logCheck(atlas, blockId, { kind:'sync', result, note, source: meta.source || 'runtime' });
+    });
+    return report;
+  }
+
   global.SIMA_ATLAS_CORE = {
     loadAtlas, saveAtlas, syncCheck, blockProgress,
     ensureBlock, logCheck, markFileStatus, buildContextPack,
     validateDependencyContracts, validateFilesRegistry,
-    canTransition, transitionBlock
+    canTransition, transitionBlock,
+    runSyncWithChecks
   };
 })(window);

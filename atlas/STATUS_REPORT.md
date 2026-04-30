@@ -22,8 +22,8 @@
 ### P1 (следующий приоритет)
 1. [x] Добавить `Rollback` в UI lifecycle-кнопки.
 2. [x] Добавить фильтры `broken/drift/review/done` в Atlas-панели.
-3. [~] Автообновление `files.md` и `checks.log` после UI/agent actions без ручной правки (частично: лог sync transition добавлен).
-4. [ ] Визуальный индикатор «готово к done» (все gates pass).
+3. [~] Автообновление `files.md` и `checks.log` после UI/agent actions без ручной правки (усилено: UI-мутации теперь сразу persist + sync-check, а sync-check автоматически пишет checks по всем блокам (pass/fail)).
+4. [x] Визуальный индикатор «готово к done» (все gates pass) + блокировка кнопки Done, если блок не готов.
 
 ### P2
 1. Nightly consolidation job.
@@ -34,4 +34,4 @@
 - Углубить acceptance assertions до смысловых сценариев по логике блока (не только ключевые слова pass в checks.log).
 
 ## Ближайший next step
-- Реализовать `Rollback` кнопку и transition `done/review -> wip` в UI с записью причины в transitions.log.
+- Довести автообновление `files.md`/`checks.log` после UI/agent действий до полностью автоматического режима (без ручных шагов).

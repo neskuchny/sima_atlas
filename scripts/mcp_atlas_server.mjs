@@ -27,6 +27,7 @@ function toolList(){
     { name:'set_provides', description:'Overwrite provides.md entries', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, entries:{type:'array', items:{type:'string'}} }, required:['block_id','entries'] } },
     { name:'set_tasks', description:'Overwrite tasks.md body', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, tasks:{type:'array', items:{type:'string'}} }, required:['block_id','tasks'] } },
     { name:'generate_full_bundle', description:'Generate wiki, auto_tz and roadmap', inputSchema:{ type:'object', properties:{} } },
+    { name:'generate_validated_bundle', description:'Run sync checks then generate bundle if all pass', inputSchema:{ type:'object', properties:{} } },
 
   ];
 }
@@ -158,6 +159,12 @@ function generateTz(){
   fs.writeFileSync(path.join(tzDir,'auto_tz.md'), md,'utf8');
 }
 
+
+function validateAllStrict(){
+  const report = runSync();
+  return report.contracts && report.dependencies && report.acceptance;
+}
+
 function respond(id, result){
   process.stdout.write(JSON.stringify({ jsonrpc:'2.0', id, result })+'\n');
 }
@@ -240,6 +247,14 @@ rl.on('line', (line) => {
         generateTz();
         generateRoadmap();
         return respond(id, { content:[{ type:'text', text: 'generated wiki + auto_tz + roadmap' }] });
+      }
+      if (name === 'generate_validated_bundle') {
+        const ok = validateAllStrict();
+        if (!ok) return respondErr(id, 'validation failed; bundle not generated');
+        generateWiki();
+        generateTz();
+        generateRoadmap();
+        return respond(id, { content:[{ type:'text', text: 'validated bundle generated' }] });
       }
 
       return respondErr(id, `unknown tool: ${name}`);

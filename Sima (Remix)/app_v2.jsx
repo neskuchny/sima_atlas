@@ -24,6 +24,15 @@ function AtlasSchemaPanel({ arch, atlasState, syncReport, selectedBlockId, onRun
   const blocks = arch?.blocks || [];
   const [filter, setFilter] = React.useState('all');
   const detailById = Object.fromEntries((syncReport?.details || []).map(d => [d.blockId, d]));
+
+  function isReadyToDone(blockId){
+    const d = detailById[blockId];
+    const status = d?.status || 'ok';
+    const checksText = (atlasState?.blocks?.[blockId]?.checks || []).map(c => `${c.kind||''} ${c.result||''}`.toLowerCase()).join(' ');
+    return status==='ok' && checksText.includes('acceptance pass') && checksText.includes('kpi pass');
+  }
+
+  const selectedReadyToDone = selectedBlockId ? isReadyToDone(selectedBlockId) : false;
   return (
     <div className="side-sec" style={{flex:1,display:'flex',flexDirection:'column',minHeight:0}}>
       <h4 className="sec-ttl">Atlas · схема</h4>
@@ -60,7 +69,7 @@ function AtlasSchemaPanel({ arch, atlasState, syncReport, selectedBlockId, onRun
       <div style={{display:'flex',gap:6,marginBottom:10,flexWrap:'wrap'}}>
         <button className="btn xs" onClick={()=>onTransition && onTransition('wip')} disabled={!selectedBlockId}>Implement</button>
         <button className="btn xs" onClick={()=>onTransition && onTransition('review')} disabled={!selectedBlockId}>Review</button>
-        <button className="btn xs" onClick={()=>onTransition && onTransition('done')} disabled={!selectedBlockId}>Done</button>
+        <button className="btn xs" onClick={()=>onTransition && onTransition('done')} disabled={!selectedBlockId || !selectedReadyToDone}>Done</button>
         <button className="btn xs ghost" onClick={()=>onTransition && onTransition('broken')} disabled={!selectedBlockId}>Broken</button>
         <button className="btn xs ghost" onClick={()=>onTransition && onTransition('wip')} disabled={!selectedBlockId}>Rollback</button>
       </div>
@@ -80,8 +89,7 @@ function AtlasSchemaPanel({ arch, atlasState, syncReport, selectedBlockId, onRun
           const progress = atlasState?.blocks?.[b.id] && window.SIMA_ATLAS_CORE
             ? window.SIMA_ATLAS_CORE.blockProgress(atlasState.blocks[b.id])
             : {tasksDone:0,tasksTotal:0,kpiPassed:0,kpiTotal:0};
-          const checksText = (atlasState?.blocks?.[b.id]?.checks || []).map(c => `${c.kind||''} ${c.result||''}`.toLowerCase()).join(' ');
-          const readyToDone = status==='ok' && checksText.includes('acceptance pass') && checksText.includes('kpi pass');
+          const readyToDone = isReadyToDone(b.id);
           return (
             <div key={b.id} style={{padding:'8px 6px',borderBottom:'1px solid var(--line-1)'}}>
               <div style={{display:'flex',justifyContent:'space-between',gap:6}}>
@@ -161,10 +169,21 @@ function AppV2(){
     if (!window.SIMA_ATLAS_CORE || !window.ARCH_BY_PROJECT || !atlasState) return;
     const arch = window.ARCH_BY_PROJECT[projId];
     const saved = window.SIMA_ATLAS_CORE.saveAtlas(projId, atlasState);
-    const report = window.SIMA_ATLAS_CORE.syncCheck(saved, arch);
+    const report = window.SIMA_ATLAS_CORE.runSyncWithChecks(saved, arch, { source: "ui:manual-sync" });
     setAtlasState(saved);
     setSyncReport(report);
     showToast(`Sync: OK ${report.synchronized}, drift ${report.drift}, broken ${report.broken}`);
+  };
+
+
+  const commitAtlasPatch = (patch, toastMsg='') => {
+    if (!window.SIMA_ATLAS_CORE || !window.ARCH_BY_PROJECT) return;
+    const arch = window.ARCH_BY_PROJECT[projId];
+    const saved = window.SIMA_ATLAS_CORE.saveAtlas(projId, patch);
+    const report = window.SIMA_ATLAS_CORE.runSyncWithChecks(saved, arch, { source: "ui:mutation" });
+    setAtlasState(saved);
+    setSyncReport(report);
+    if (toastMsg) showToast(toastMsg);
   };
 
   const exportContextPack = (blockId) => {
@@ -188,8 +207,7 @@ function AppV2(){
     const patch = structuredClone(atlasState);
     window.SIMA_ATLAS_CORE.markFileStatus(patch, filePath, 'dead', 'manual from UI', archSelectedId);
     window.SIMA_ATLAS_CORE.logCheck(patch, archSelectedId, { kind: 'sync', result: 'pass', note: `file ${filePath} -> dead` });
-    setAtlasState(patch);
-    showToast(`Файл ${filePath} помечен dead`);
+    commitAtlasPatch(patch, `Файл ${filePath} помечен dead`);
   };
 
   React.useEffect(() => {
@@ -207,12 +225,8 @@ function AppV2(){
       showToast(`Transition error: ${res.error}`);
       return;
     }
-    setAtlasState(patch);
-    const arch = window.ARCH_BY_PROJECT[projId];
     window.SIMA_ATLAS_CORE.logCheck(patch, archSelectedId, { kind:'sync', result:'pass', note:`transition ${res.from}->${res.to}` });
-    const report = window.SIMA_ATLAS_CORE.syncCheck(patch, arch);
-    setSyncReport(report);
-    showToast(`Block ${archSelectedId}: ${res.from} -> ${res.to}`);
+    commitAtlasPatch(patch, `Block ${archSelectedId}: ${res.from} -> ${res.to}`);
   };
 
   const markDemoProgress = () => {
@@ -225,8 +239,8 @@ function AppV2(){
     if (block.tasks?.length) block.tasks[0].done = true;
     if (block.kpi?.length) block.kpi[0].passed = true;
     block.checks = [...(block.checks||[]), { at: new Date().toISOString(), test: 'manual/demo', result: 'pass' }];
-    setAtlasState(patch);
-    showToast(`Для блока ${first} зафиксирован прогресс (task+KPI).`);
+    window.SIMA_ATLAS_CORE.logCheck(patch, first, { kind:'progress', result:'pass', note:'task+KPI updated from UI demo action' });
+    commitAtlasPatch(patch, `Для блока ${first} зафиксирован прогресс (task+KPI).`);
   };
 
 
