@@ -1,0 +1,167 @@
+<h2 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">Мокап композитора СИМА: слева библиотека кубиков, справа активная композиция из пяти слоёв. Один кубик перетаскивается из библиотеки в слой Нарратив.</h2>
+<style>
+.cmp{font-size:13px;line-height:1.5;padding:4px 0}
+.intent{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.intent-label{font-size:10px;color:var(--color-text-tertiary);text-transform:lowercase;letter-spacing:0.04em}
+.intent-text{flex:1;font-size:14px;color:var(--color-text-primary);font-weight:500}
+.libcol{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px}
+.libhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.libttl{font-size:11px;font-weight:500;color:var(--color-text-primary)}
+.libcnt{font-size:10px;color:var(--color-text-tertiary)}
+.libsearch{width:100%;font-size:11px;margin-bottom:8px}
+.bitem{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:6px;padding:7px 9px;cursor:grab;transition:all 0.2s}
+.bitem+.bitem{margin-top:5px}
+.bitem:hover{border-color:var(--color-border-secondary)}
+.bitem.used{background:transparent;border-style:dashed}
+.bitem.dragging{opacity:0.32}
+.btype{font-size:9px;padding:1px 6px;border-radius:8px;font-weight:500;display:inline-block;line-height:1.5}
+.btitle{font-size:11px;font-weight:500;line-height:1.3;color:var(--color-text-primary);margin-top:3px}
+.bmeta{font-size:9px;color:var(--color-text-tertiary);margin-top:2px}
+.buse{font-size:9px;color:var(--color-text-tertiary);margin-left:4px}
+.layer{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 12px;margin-bottom:7px}
+.layer.drop{background:var(--color-background-info);border:1px dashed var(--color-border-info);position:relative}
+.layer.empty-layer{background:transparent;border-style:dashed}
+.lhead{display:flex;align-items:center;gap:7px;margin-bottom:7px}
+.lnum{font-size:10px;color:var(--color-text-tertiary);font-variant-numeric:tabular-nums;min-width:10px}
+.lname{font-size:12px;font-weight:500;color:var(--color-text-primary)}
+.lkind{font-size:10px;color:var(--color-text-tertiary)}
+.lstatus{font-size:10px;margin-left:auto}
+.pinned{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:4px;padding:5px 8px;display:flex;align-items:center;gap:8px}
+.pdot{width:5px;height:5px;border-radius:50%;display:inline-block;flex-shrink:0}
+.pttl{font-size:11px;color:var(--color-text-primary);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pmode{font-size:9px;color:var(--color-text-tertiary);font-weight:500}
+.empty-note{font-size:11px;color:var(--color-text-tertiary);font-style:italic;padding:2px 0}
+.ghost{position:absolute;top:8px;right:50px;background:var(--color-background-primary);border:1px solid var(--color-border-info);border-radius:6px;padding:7px 10px;transform:rotate(-1.5deg);min-width:140px}
+.ghost .btitle{margin-top:2px}
+</style>
+
+<div class="cmp">
+
+<div class="intent">
+  <span class="intent-label">намерение</span>
+  <div class="intent-text">Собираю ТЗ лендинга для новой СИМА</div>
+  <svg width="14" height="14" viewBox="0 0 14 14" style="opacity:0.4"><rect x="5" y="1" width="4" height="8" rx="2" stroke="currentColor" stroke-width="1" fill="none"/><path d="M3 7a4 4 0 0 0 8 0" stroke="currentColor" stroke-width="1" fill="none"/><line x1="7" y1="11" x2="7" y2="13" stroke="currentColor" stroke-width="1"/></svg>
+  <button onclick="sendPrompt('Запусти синтез композиции и покажи как появляется результат')" style="font-size:12px;padding:6px 14px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);border-radius:var(--border-radius-md);cursor:pointer;font-weight:500">Синтезировать ↗</button>
+</div>
+
+<div style="display:grid;grid-template-columns:200px minmax(0,1fr);gap:12px">
+
+<div class="libcol">
+  <div class="libhead">
+    <span class="libttl">Библиотека</span>
+    <span class="libcnt">127</span>
+  </div>
+  <input class="libsearch" type="text" placeholder="найти кубик..." value="нарратив">
+
+  <div class="bitem used">
+    <span class="btype" style="background:#FAECE7;color:#712B13">слой</span><span class="buse">используется в L1</span>
+    <div class="btitle">Меморандум СИМА</div>
+  </div>
+
+  <div class="bitem dragging">
+    <span class="btype" style="background:#EEEDFE;color:#26215C">концепт</span>
+    <div class="btitle">Vibe-coding</div>
+    <div class="bmeta">перетаскивается →</div>
+  </div>
+
+  <div class="bitem used">
+    <span class="btype" style="background:#EEEDFE;color:#26215C">концепт</span><span class="buse">используется в L3</span>
+    <div class="btitle">ForkEngine</div>
+  </div>
+
+  <div class="bitem">
+    <span class="btype" style="background:#F1EFE8;color:#2C2C2A">документ</span>
+    <div class="btitle">Karpathy wiki</div>
+    <div class="bmeta">близок по смыслу</div>
+  </div>
+
+  <div class="bitem">
+    <span class="btype" style="background:#FAEEDA;color:#633806">извлечение</span>
+    <div class="btitle">Claude SDK путь</div>
+    <div class="bmeta">решение · подтверждено</div>
+  </div>
+
+  <div style="font-size:10px;color:var(--color-text-tertiary);text-align:center;margin-top:8px">+ ещё 122</div>
+</div>
+
+<div>
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:10px;color:var(--color-text-tertiary)">
+    <span style="background:var(--color-background-info);color:var(--color-text-info);padding:2px 8px;border-radius:10px;font-weight:500">IntentLayer</span>
+    <span>предложил каркас «ТЗ лендинга»: 5 слоёв</span>
+    <span style="margin-left:auto">2/5 заполнено</span>
+  </div>
+
+  <div class="layer">
+    <div class="lhead">
+      <span class="lnum">1</span>
+      <span class="lname">Позиционирование</span>
+      <span class="lkind">· для кого, зачем, чем лучше</span>
+      <span class="lstatus" style="color:var(--color-success,#1D9E75)">готов</span>
+    </div>
+    <div class="pinned">
+      <span class="pdot" style="background:#1D9E75"></span>
+      <span class="pttl">Меморандум СИМА</span>
+      <span class="pmode">live</span>
+    </div>
+  </div>
+
+  <div class="layer drop">
+    <div class="lhead">
+      <span class="lnum">2</span>
+      <span class="lname">Нарратив</span>
+      <span class="lkind">· главный месседж и hook</span>
+      <span class="lstatus" style="color:var(--color-text-info)">отпустите чтобы добавить</span>
+    </div>
+    <div class="empty-note">слой ожидает содержательный вклад</div>
+    <div class="ghost">
+      <span class="btype" style="background:#EEEDFE;color:#26215C">концепт</span>
+      <div class="btitle">Vibe-coding</div>
+    </div>
+  </div>
+
+  <div class="layer">
+    <div class="lhead">
+      <span class="lnum">3</span>
+      <span class="lname">Структура страницы</span>
+      <span class="lkind">· разделы по порядку</span>
+      <span class="lstatus" style="color:var(--color-text-tertiary)">частично</span>
+    </div>
+    <div class="pinned">
+      <span class="pdot" style="background:#1D9E75"></span>
+      <span class="pttl">ForkEngine — развилка как инсайт</span>
+      <span class="pmode">live</span>
+    </div>
+  </div>
+
+  <div class="layer empty-layer">
+    <div class="lhead">
+      <span class="lnum">4</span>
+      <span class="lname">Контент-блоки</span>
+      <span class="lkind">· тексты и визуалы</span>
+      <span class="lstatus" style="color:var(--color-text-tertiary)">пусто</span>
+    </div>
+    <div class="empty-note">перетащите кубик или напишите с нуля</div>
+  </div>
+
+  <div class="layer empty-layer">
+    <div class="lhead">
+      <span class="lnum">5</span>
+      <span class="lname">CTA и метрики</span>
+      <span class="lkind">· конверсия, воронка</span>
+      <span class="lstatus" style="color:var(--color-text-tertiary)">пусто</span>
+    </div>
+    <div class="empty-note">СИМА предлагает: Метрики М-25 ForkEngine · принять</div>
+  </div>
+</div>
+
+</div>
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:12px;border-top:0.5px solid var(--color-border-tertiary);gap:12px;flex-wrap:wrap">
+  <div style="font-size:11px;color:var(--color-text-tertiary)">
+    <span style="display:inline-flex;align-items:center;gap:4px;margin-right:12px"><span class="pdot" style="background:#1D9E75"></span>live · обновляется при правке источника</span>
+    <span style="display:inline-flex;align-items:center;gap:4px"><span class="pdot" style="background:#888780"></span>snapshot · заморожен</span>
+  </div>
+  <div style="font-size:11px;color:var(--color-text-tertiary);font-style:italic">результат синтеза автоматически станет кубиком в библиотеке</div>
+</div>
+
+</div>

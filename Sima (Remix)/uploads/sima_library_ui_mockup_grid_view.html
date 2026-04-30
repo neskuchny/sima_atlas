@@ -1,0 +1,143 @@
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">Мокап интерфейса библиотеки кубиков СИМА: сетка плиток с обложками разных типов — документы, слои, концепты, извлечения — с фильтрами по типу и зрелости.</h2>
+<style>
+.lib{font-size:13px;line-height:1.5;padding:4px 0}
+.tile{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px;display:flex;flex-direction:column;min-height:190px}
+.tile:hover{border-color:var(--color-border-secondary)}
+.badge{display:inline-block;padding:2px 8px;font-size:10px;border-radius:10px;font-weight:500;line-height:1.5}
+.chip{padding:4px 10px;font-size:12px;border:0.5px solid var(--color-border-tertiary);background:transparent;border-radius:12px;cursor:pointer;color:var(--color-text-secondary);font-weight:400}
+.chip.active{background:var(--color-background-secondary);color:var(--color-text-primary);border-color:var(--color-border-secondary);font-weight:500}
+.mdot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:4px;vertical-align:middle}
+.meta{font-size:10px;color:var(--color-text-tertiary)}
+.ttitle{font-size:13px;font-weight:500;margin-bottom:6px;color:var(--color-text-primary);line-height:1.35}
+.tbody{font-size:11px;color:var(--color-text-secondary);line-height:1.5;flex:1}
+</style>
+
+<div class="lib">
+
+<div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:14px;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:14px">
+  <div>
+    <div style="font-size:17px;font-weight:500">Библиотека</div>
+    <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">127 кубиков · 43 связи · 4 канонических</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <input type="text" placeholder="поиск по смыслу" style="width:170px;font-size:12px">
+    <div style="display:flex;gap:2px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:2px">
+      <button title="сетка" style="width:26px;height:24px;padding:0;background:var(--color-background-secondary);border:none;border-radius:4px;color:var(--color-text-primary);cursor:pointer">
+        <svg width="12" height="12" viewBox="0 0 12 12" style="display:block;margin:auto"><rect x="1" y="1" width="4" height="4" rx="0.5" fill="currentColor"/><rect x="7" y="1" width="4" height="4" rx="0.5" fill="currentColor"/><rect x="1" y="7" width="4" height="4" rx="0.5" fill="currentColor"/><rect x="7" y="7" width="4" height="4" rx="0.5" fill="currentColor"/></svg>
+      </button>
+      <button title="список" style="width:26px;height:24px;padding:0;background:transparent;border:none;border-radius:4px;color:var(--color-text-tertiary);cursor:pointer">
+        <svg width="12" height="12" viewBox="0 0 12 12" style="display:block;margin:auto"><line x1="2" y1="3" x2="10" y2="3" stroke="currentColor" stroke-width="1.2"/><line x1="2" y1="6" x2="10" y2="6" stroke="currentColor" stroke-width="1.2"/><line x1="2" y1="9" x2="10" y2="9" stroke="currentColor" stroke-width="1.2"/></svg>
+      </button>
+      <button title="граф" style="width:26px;height:24px;padding:0;background:transparent;border:none;border-radius:4px;color:var(--color-text-tertiary);cursor:pointer">
+        <svg width="12" height="12" viewBox="0 0 12 12" style="display:block;margin:auto"><circle cx="3" cy="6" r="1.6" stroke="currentColor" stroke-width="1" fill="none"/><circle cx="9.5" cy="3" r="1.2" stroke="currentColor" stroke-width="1" fill="none"/><circle cx="9.5" cy="9" r="1.2" stroke="currentColor" stroke-width="1" fill="none"/><line x1="4.5" y1="5.2" x2="8.5" y2="3.5" stroke="currentColor" stroke-width="0.7"/><line x1="4.5" y1="6.8" x2="8.5" y2="8.5" stroke="currentColor" stroke-width="0.7"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div style="display:flex;gap:6px;margin-bottom:16px;align-items:center;flex-wrap:wrap">
+  <button class="chip active">все · 127</button>
+  <button class="chip">документ · 34</button>
+  <button class="chip">слой · 52</button>
+  <button class="chip">концепт · 18</button>
+  <button class="chip">извлечение · 23</button>
+  <div style="flex:1;min-width:12px"></div>
+  <span style="font-size:11px;color:var(--color-text-tertiary)">зрелость ▾</span>
+  <span style="font-size:11px;color:var(--color-text-tertiary);margin-left:8px">источник ▾</span>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px">
+
+  <div class="tile">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <span class="badge" style="background:#F1EFE8;color:#2C2C2A">документ · встреча</span>
+      <span class="meta"><span class="mdot" style="background:#888780"></span>проверен</span>
+    </div>
+    <div class="ttitle">Планёрка 12 марта</div>
+    <div class="tbody">Обсуждали позиционирование СИМА, договорились о пути Claude Agent SDK, решили отложить шаблоны...</div>
+    <div style="margin-top:8px"><span class="meta">meetflow · март · 6 извлечений</span></div>
+  </div>
+
+  <div class="tile">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <span class="badge" style="background:#F1EFE8;color:#2C2C2A">документ · статья</span>
+      <span class="meta"><span class="mdot" style="background:#D3D1C7"></span>черновик</span>
+    </div>
+    <div class="ttitle">Karpathy — Build Your Own Wiki</div>
+    <div class="tbody">Личная вики как побочный продукт обучения. Не потребление, а превращение контента в структурированные атомы...</div>
+    <div style="margin-top:8px"><span class="meta">ai · знания · эссе</span></div>
+  </div>
+
+  <div class="tile" style="border-color:rgba(153,60,29,0.22)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <span class="badge" style="background:#FAECE7;color:#712B13">слой · меморандум</span>
+      <span class="meta"><span class="mdot" style="background:#BA7517"></span>канонический</span>
+    </div>
+    <div class="ttitle">Меморандум СИМА v2</div>
+    <svg width="100%" height="62" viewBox="0 0 200 62" style="margin:4px 0;flex:1" preserveAspectRatio="xMidYMid meet">
+      <rect x="6" y="4" width="188" height="14" rx="2" fill="#FAECE7" stroke="#993C1D" stroke-width="0.5"/>
+      <rect x="6" y="24" width="90" height="12" rx="2" fill="#F1EFE8" stroke="#888780" stroke-width="0.4"/>
+      <rect x="104" y="24" width="90" height="12" rx="2" fill="#F1EFE8" stroke="#888780" stroke-width="0.4"/>
+      <rect x="6" y="42" width="188" height="12" rx="2" fill="#F1EFE8" stroke="#888780" stroke-width="0.4"/>
+      <line x1="100" y1="18" x2="51" y2="24" stroke="#B4B2A9" stroke-width="0.5"/>
+      <line x1="100" y1="18" x2="149" y2="24" stroke="#B4B2A9" stroke-width="0.5"/>
+      <line x1="51" y1="36" x2="100" y2="42" stroke="#B4B2A9" stroke-width="0.5"/>
+      <line x1="149" y1="36" x2="100" y2="42" stroke="#B4B2A9" stroke-width="0.5"/>
+    </svg>
+    <div><span class="meta">использован в 4 композициях</span></div>
+  </div>
+
+  <div class="tile" style="border-color:rgba(60,52,137,0.22)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <span class="badge" style="background:#EEEDFE;color:#26215C">концепт</span>
+      <span class="meta"><span class="mdot" style="background:#7F77DD"></span>проверен</span>
+    </div>
+    <div style="font-family:var(--font-serif);font-size:14px;font-style:italic;line-height:1.4;color:var(--color-text-primary);flex:1;display:flex;align-items:center">«ForkEngine показывает развилки как инсайты, а не как блокеры»</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px">
+      <span class="meta">ux · принципы · сима</span>
+      <span class="meta">4 применения</span>
+    </div>
+  </div>
+
+  <div class="tile" style="border-color:rgba(153,60,29,0.22)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <span class="badge" style="background:#FAECE7;color:#712B13">слой · метрики</span>
+      <span class="meta"><span class="mdot" style="background:#888780"></span>проверен</span>
+    </div>
+    <div class="ttitle">Метрики М-25 ForkEngine</div>
+    <svg width="100%" height="62" viewBox="0 0 200 62" style="margin:4px 0;flex:1" preserveAspectRatio="xMidYMid meet">
+      <rect x="10" y="40" width="20" height="18" fill="#FAECE7" stroke="#993C1D" stroke-width="0.4"/>
+      <rect x="38" y="30" width="20" height="28" fill="#FAECE7" stroke="#993C1D" stroke-width="0.4"/>
+      <rect x="66" y="20" width="20" height="38" fill="#FAECE7" stroke="#993C1D" stroke-width="0.4"/>
+      <rect x="94" y="34" width="20" height="24" fill="#FAECE7" stroke="#993C1D" stroke-width="0.4"/>
+      <rect x="122" y="14" width="20" height="44" fill="#FAECE7" stroke="#993C1D" stroke-width="0.4"/>
+      <rect x="150" y="24" width="20" height="34" fill="#FAECE7" stroke="#993C1D" stroke-width="0.4"/>
+      <line x1="4" y1="58" x2="196" y2="58" stroke="#B4B2A9" stroke-width="0.4"/>
+    </svg>
+    <div><span class="meta">использован в 1 композиции</span></div>
+  </div>
+
+  <div class="tile" style="border-color:rgba(133,79,11,0.25)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <span class="badge" style="background:#FAEEDA;color:#633806">извлечение · решение</span>
+      <span class="meta">12.03</span>
+    </div>
+    <div class="ttitle">Идём по пути Claude Agent SDK</div>
+    <div style="font-family:var(--font-serif);font-size:11px;font-style:italic;color:var(--color-text-secondary);line-height:1.5;border-left:2px solid var(--color-border-secondary);padding-left:8px;flex:1">...из путей 1 и 2 выбираем первый — подписка пользователя, никаких API-ключей в СИМА...</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
+      <span class="meta">встреча · 2 участника</span>
+      <span style="font-size:10px;padding:1px 6px;background:#EAF3DE;color:#27500A;border-radius:4px;font-weight:500">подтверждено</span>
+    </div>
+  </div>
+
+</div>
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding-top:12px;border-top:0.5px solid var(--color-border-tertiary)">
+  <div class="meta">показано 6 из 127</div>
+  <div style="display:flex;gap:6px">
+    <button onclick="sendPrompt('Покажи как выглядит раскрытый кубик в боковой панели со связями и родословной')" style="font-size:12px;padding:6px 12px;border:0.5px solid var(--color-border-secondary);background:transparent;border-radius:var(--border-radius-md);cursor:pointer">Раскрыть кубик ↗</button>
+    <button onclick="sendPrompt('Покажи графовый режим библиотеки — сетевой вид кубиков со связями')" style="font-size:12px;padding:6px 12px;border:0.5px solid var(--color-border-secondary);background:transparent;border-radius:var(--border-radius-md);cursor:pointer">Граф-вид ↗</button>
+  </div>
+</div>
+
+</div>
