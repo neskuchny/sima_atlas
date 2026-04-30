@@ -56,6 +56,7 @@ function AtlasSchemaPanel({ arch, atlasState, syncReport, selectedBlockId, onRun
         {blocks.map((b)=>{
           const d = detailById[b.id];
           const status = d?.status || 'ok';
+          const lifecycle = atlasState?.blocks?.[b.id]?.status || 'idea';
           const color = status==='broken' ? '#b42318' : status==='drift' ? '#b54708' : '#027a48';
           const progress = atlasState?.blocks?.[b.id] && window.SIMA_ATLAS_CORE
             ? window.SIMA_ATLAS_CORE.blockProgress(atlasState.blocks[b.id])
@@ -64,7 +65,7 @@ function AtlasSchemaPanel({ arch, atlasState, syncReport, selectedBlockId, onRun
             <div key={b.id} style={{padding:'8px 6px',borderBottom:'1px solid var(--line-1)'}}>
               <div style={{display:'flex',justifyContent:'space-between',gap:6}}>
                 <b style={{fontSize:12}}>{b.title}</b>
-                <span style={{fontSize:11,color}}>{status}</span>
+                <span style={{fontSize:11,color}}>{status} · {lifecycle}</span>
               </div>
               <div style={{fontSize:11,color:'var(--ink-4)'}}>{b.id}</div>
               <div style={{fontSize:11,color:'var(--ink-3)'}}>
@@ -183,6 +184,9 @@ function AppV2(){
       return;
     }
     setAtlasState(patch);
+    const arch = window.ARCH_BY_PROJECT[projId];
+    const report = window.SIMA_ATLAS_CORE.syncCheck(patch, arch);
+    setSyncReport(report);
     showToast(`Block ${archSelectedId}: ${res.from} -> ${res.to}`);
   };
 
