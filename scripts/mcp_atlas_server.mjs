@@ -37,9 +37,6 @@ function toolList(){
     { name:'enqueue_ingestion', description:'Queue distilled chat insight for nightly ingestion', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, note:{type:'string'}, apply_to_rules:{type:'boolean'}, conversation_text:{type:'string'} }, required:['block_id','note'] } },
     { name:'apply_ingestion_queue', description:'Apply queued distillates into block memory files', inputSchema:{ type:'object', properties:{} } },
     { name:'ingest_chat_batches', description:'Batch-ingest transcript JSONL into queue and apply automatically', inputSchema:{ type:'object', properties:{ transcript_path:{type:'string'}, block_id:{type:'string'}, batch_size:{type:'number'} }, required:['transcript_path'] } },
-    { name:'run_block_process', description:'Run sync/audit/context process for a selected block and persist report', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, process:{type:'string'} }, required:['block_id'] } },
-    { name:'finalize_iteration', description:'One-command ritual: ingest->process->nightly->wiki->tz', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, transcript_path:{type:'string'} }, required:['block_id'] } },
-    { name:'auto_sync_iteration', description:'No-manual-files flow: notes text -> ingest -> finalize -> bootstrap regenerate', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, notes:{type:'string'} }, required:['block_id','notes'] } },
 
   ];
 }
@@ -353,30 +350,6 @@ rl.on('line', (line) => {
         const batchSize = Number(args.batch_size || 6);
         execSync(`node scripts/ingest_chat_batches.mjs "${transcriptPath}" ${blockId} ${batchSize}`, { cwd: root, stdio:'pipe' });
         return respond(id, { content:[{ type:'text', text: `chat batches ingested: ${transcriptPath}` }] });
-      }
-
-
-      if (name === 'run_block_process') {
-        const bid = String(args.block_id || '');
-        const proc = String(args.process || 'sync_audit_context');
-        execSync(`node scripts/run_block_process.mjs ${bid} ${proc}`, { cwd: root, stdio:'pipe' });
-        return respond(id, { content:[{ type:'text', text: `block process executed: ${bid}` }] });
-      }
-
-
-      if (name === 'finalize_iteration') {
-        const bid = String(args.block_id || 'b.docs');
-        const transcriptPath = String(args.transcript_path || '');
-        execSync(`node scripts/finalize_cursor_iteration.mjs ${bid} "${transcriptPath}"`, { cwd: root, stdio:'pipe' });
-        return respond(id, { content:[{ type:'text', text: `iteration finalized: ${bid}` }] });
-      }
-
-
-      if (name === 'auto_sync_iteration') {
-        const bid = String(args.block_id || 'b.docs');
-        const notes = String(args.notes || '').replace(/"/g, '\"');
-        execSync(`node scripts/auto_sync_iteration.mjs ${bid} "${notes}"`, { cwd: root, stdio:'pipe' });
-        return respond(id, { content:[{ type:'text', text: `auto sync iteration complete: ${bid}` }] });
       }
 
       return respondErr(id, `unknown tool: ${name}`);

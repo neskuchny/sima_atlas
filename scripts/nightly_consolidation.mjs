@@ -18,8 +18,6 @@ const checks = [
   ['sync_context_packs', 'node scripts/sync_context_packs.mjs'],
   ['agent_parity', 'node scripts/validate_agent_parity.mjs'],
   ['parity_matrix', 'node scripts/validate_parity_matrix.mjs'],
-  ['bootstrap_projection', 'node scripts/validate_bootstrap_projection.mjs'],
-  ['bootstrap_regeneration', 'node scripts/validate_bootstrap_regeneration.mjs'],
   ['generate_wiki', 'node scripts/generate_wiki.mjs'],
   ['generate_tz', 'node scripts/generate_tz_from_atlas.mjs'],
   ['rebuild_roadmap', 'node scripts/rebuild_atlas_roadmap.mjs'],
