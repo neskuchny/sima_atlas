@@ -1,0 +1,37 @@
+{
+  "generated_at": "2026-05-01T10:00:53.032Z",
+  "block_id": "b.core-sync",
+  "project": {
+    "project": "# Sima Atlas\n\nЦель: единая визуально-документная система, которая устраняет рассинхрон между кодом, агентами и документацией.\n\n## North Star\n- Любой агент работает по одному и тому же block-context.\n- Человек видит статус реализации на схеме без чтения всего кода.\n",
+    "rules": "# Rules\n\n1. Любое изменение блока фиксируется в его `tasks.md` и `checks.log`.\n2. Перед изменением кода агент читает: `project.md`, `tech_stack.md`, `rules.md`, `blocks/<id>/*`.\n3. Файлы без владельца-блока считаются out-of-scope.\n4. Блок `done` только при выполнении acceptance + KPI, а не только compile/runtime.\n",
+    "tech_stack": "# Tech Stack (MVP lock)\n\n- Frontend: React (Babel standalone в текущем прототипе)\n- Runtime storage: localStorage (MVP)\n- Atlas storage: Markdown + JSON (`/atlas`)\n- Automation: CLI agents (Cursor/Claude/Codex) через hooks/адаптеры\n\n## Запреты MVP\n- Не смешивать второй фронтенд-фреймворк в активных блоках.\n- Не использовать альтернативные «источники правды» вне `/atlas`.\n"
+  },
+  "block": {
+    "meta": {
+      "id": "b.core-sync",
+      "title": "Sync Engine",
+      "status": "done",
+      "depends_on": [
+        "b.db"
+      ]
+    },
+    "mission": "# b.core-sync — mission\n\nКлючевая цель блока и его значение для устранения рассинхрона.\n",
+    "kpi": "# b.core-sync — KPI\n\n- KPI-1: метрика готовности определена.\n- KPI-2: есть минимум одна автоматическая проверка.\n",
+    "acceptance": "# b.core-sync — acceptance\n\n- [x] Логика блока документирована.\n- [x] Связи с зависимостями проверены.\n- [x] Результат отражается в UI/отчёте sync.\n",
+    "tasks": "# b.core-sync — tasks\n\n- [ ] Описать контракты вход/выход.\n- [ ] Добавить checks.log по первичным тестам.\n\n- [ ] semantic-refine: подтвердить автогенерацию из диалога\n",
+    "patterns": "# b.core-sync — patterns\n\n- 2026-04-30T19:54:08.006Z: branch semantic ingestion\n- 2026-04-30T19:54:14.566Z: branch semantic ingestion\n- 2026-04-30T19:54:40.301Z: branch semantic ingestion\n- 2026-04-30T19:54:51.540Z: branch semantic ingestion\n- 2026-04-30T19:55:17.135Z: branch semantic ingestion\n- 2026-04-30T20:04:36.976Z: branch semantic ingestion\n- 2026-04-30T20:10:07.400Z: branch semantic ingestion\n- 2026-04-30T20:10:24.409Z: branch semantic ingestion\n- 2026-04-30T20:23:39.501Z: branch semantic ingestion\n- 2026-04-30T20:30:24.920Z: branch semantic ingestion\n- 2026-04-30T22:57:32.592Z: branch semantic ingestion\n- 2026-05-01T00:06:25.483Z: branch semantic ingestion\n",
+    "files": ""
+  },
+  "dependencies": [
+    {
+      "id": "b.db",
+      "mission": "# b.db — mission\n\nКлючевая цель блока и его значение для устранения рассинхрона.\n",
+      "provides": "# b.db — provides\n\n- atlas_state_store\n- file_registry\n"
+    },
+    {
+      "id": "b.db",
+      "mission": "# b.db — mission\n\nКлючевая цель блока и его значение для устранения рассинхрона.\n",
+      "provides": "# b.db — provides\n\n- atlas_state_store\n- file_registry\n"
+    }
+  ]
+}
