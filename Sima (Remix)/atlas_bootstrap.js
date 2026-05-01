@@ -30,7 +30,7 @@ window.SIMA_BOOTSTRAP = {
               "source": "status: done",
               "title": "UI Control Plane",
               "meta": "b.ui-control",
-              "take": "Ключевая цель блока и его значение для устранения рассинхрона.",
+              "take": "что делаем: Описать контракты вход/выход. · как поймем готовность: KPI-1: метрика готовности определена. · что отдает: visual_control_panel",
               "tags": [
                 "#done",
                 "#atlas"
@@ -46,7 +46,7 @@ window.SIMA_BOOTSTRAP = {
               "source": "status: done",
               "title": "Sync Engine",
               "meta": "b.core-sync",
-              "take": "Ключевая цель блока и его значение для устранения рассинхрона.",
+              "take": "что делаем: Описать контракты вход/выход. · как поймем готовность: KPI-1: метрика готовности определена. · что отдает: sync_report",
               "tags": [
                 "#done",
                 "#atlas"
@@ -62,7 +62,7 @@ window.SIMA_BOOTSTRAP = {
               "source": "status: wip",
               "title": "Atlas Database",
               "meta": "b.db",
-              "take": "Ключевая цель блока и его значение для устранения рассинхрона.",
+              "take": "что делаем: Описать контракты вход/выход. · как поймем готовность: KPI-1: метрика готовности определена. · что отдает: atlas_state_store",
               "tags": [
                 "#wip",
                 "#atlas"
@@ -78,7 +78,7 @@ window.SIMA_BOOTSTRAP = {
               "source": "status: done",
               "title": "Agent Orchestrator",
               "meta": "b.agent-orchestrator",
-              "take": "Ключевая цель блока и его значение для устранения рассинхрона.",
+              "take": "что делаем: Описать контракты вход/выход. · как поймем готовность: KPI-1: метрика готовности определена. · что отдает: pipeline_execution",
               "tags": [
                 "#done",
                 "#atlas"
@@ -94,7 +94,7 @@ window.SIMA_BOOTSTRAP = {
               "source": "status: wip",
               "title": "Docs Builder",
               "meta": "b.docs",
-              "take": "Генерирует wiki и ТЗ по блокам.",
+              "take": "Генерирует wiki и ТЗ по блокам. · что делаем: nightly smoke e2e task · как поймем готовность: KPI-1: wiki генерируется из atlas · что отдает: wiki_bundle",
               "tags": [
                 "#wip",
                 "#atlas"
@@ -110,7 +110,7 @@ window.SIMA_BOOTSTRAP = {
               "source": "status: wip",
               "title": "Auto: b.semantic-llm",
               "meta": "b.semantic-llm",
-              "take": "Автосоздано из смыслов диалога.",
+              "take": "Автосоздано из смыслов диалога. · что делаем: semantic-refine: подтвердить автогенерацию из диалога · как поймем готовность: KPI-1: semantic extraction quality >= baseline",
               "tags": [
                 "#wip",
                 "#atlas"
@@ -126,7 +126,7 @@ window.SIMA_BOOTSTRAP = {
               "source": "status: wip",
               "title": "Auto: b.realtime-ingestion",
               "meta": "b.realtime-ingestion",
-              "take": "Автосоздано из смыслов диалога.",
+              "take": "Автосоздано из смыслов диалога. · что делаем: semantic-refine: подтвердить автогенерацию из диалога · как поймем готовность: KPI-1: semantic extraction quality >= baseline",
               "tags": [
                 "#wip",
                 "#atlas"
@@ -142,7 +142,7 @@ window.SIMA_BOOTSTRAP = {
               "source": "status: wip",
               "title": "Auto: b.payments",
               "meta": "b.payments",
-              "take": "Автосоздано из смыслов диалога.",
+              "take": "Автосоздано из смыслов диалога. · что делаем: semantic-refine: подтвердить автогенерацию из диалога · как поймем готовность: KPI-1: semantic extraction quality >= baseline",
               "tags": [
                 "#wip",
                 "#atlas"
@@ -158,7 +158,7 @@ window.SIMA_BOOTSTRAP = {
               "source": "status: wip",
               "title": "Auto: b.crm",
               "meta": "b.crm",
-              "take": "Автосоздано из смыслов диалога.",
+              "take": "Автосоздано из смыслов диалога. · что делаем: semantic-refine: подтвердить автогенерацию из диалога · как поймем готовность: KPI-1: semantic extraction quality >= baseline",
               "tags": [
                 "#wip",
                 "#atlas"
@@ -170,35 +170,35 @@ window.SIMA_BOOTSTRAP = {
               "id": "b.ui-control_b.core-sync_0",
               "from": "b.ui-control",
               "to": "b.core-sync",
-              "label": "b.ui-control depends on b.core-sync",
+              "label": "b.ui-control -> b.core-sync: b.core-sync: sync_report (получаем: sync_report)",
               "direction": "to-task"
             },
             {
               "id": "b.ui-control_b.agent-orchestrator_1",
               "from": "b.ui-control",
               "to": "b.agent-orchestrator",
-              "label": "b.ui-control depends on b.agent-orchestrator",
+              "label": "b.ui-control -> b.agent-orchestrator: b.agent-orchestrator: pipeline_execution (получаем: pipeline_execution)",
               "direction": "to-task"
             },
             {
               "id": "b.core-sync_b.db_0",
               "from": "b.core-sync",
               "to": "b.db",
-              "label": "b.core-sync depends on b.db",
+              "label": "b.core-sync -> b.db: b.db: atlas_state_store (получаем: atlas_state_store)",
               "direction": "to-task"
             },
             {
               "id": "b.agent-orchestrator_b.db_0",
               "from": "b.agent-orchestrator",
               "to": "b.db",
-              "label": "b.agent-orchestrator depends on b.db",
+              "label": "b.agent-orchestrator -> b.db: b.db: atlas_state_store (получаем: atlas_state_store)",
               "direction": "to-task"
             },
             {
               "id": "b.agent-orchestrator_b.core-sync_1",
               "from": "b.agent-orchestrator",
               "to": "b.core-sync",
-              "label": "b.agent-orchestrator depends on b.core-sync",
+              "label": "b.agent-orchestrator -> b.core-sync: b.core-sync: sync_report (получаем: sync_report)",
               "direction": "to-task"
             }
           ]
@@ -273,7 +273,7 @@ window.SIMA_BOOTSTRAP = {
                 "title": "UI Control Plane",
                 "kind": "блок",
                 "filled": true,
-                "body": "Ключевая цель блока и его значение для устранения рассинхрона. · исать контракты вход/выход. · бавить checks.log по первичным тестам. · KPI-1: метрика готовности определена. · KPI-2: есть минимум одна автоматическая проверка.",
+                "body": "задача: Описать контракты вход/выход. · KPI: KPI-1: метрика готовности определена. · вход: b.core-sync: sync_report · выход: visual_control_panel",
                 "hasSubschema": false,
                 "sources": []
               },
@@ -282,7 +282,7 @@ window.SIMA_BOOTSTRAP = {
                 "title": "Sync Engine",
                 "kind": "блок",
                 "filled": true,
-                "body": "Ключевая цель блока и его значение для устранения рассинхрона. · исать контракты вход/выход. · бавить checks.log по первичным тестам. · KPI-1: метрика готовности определена. · KPI-2: есть минимум одна автоматическая проверка.",
+                "body": "задача: Описать контракты вход/выход. · KPI: KPI-1: метрика готовности определена. · вход: b.db: atlas_state_store · выход: sync_report",
                 "hasSubschema": false,
                 "sources": []
               },
@@ -291,7 +291,7 @@ window.SIMA_BOOTSTRAP = {
                 "title": "Atlas Database",
                 "kind": "блок",
                 "filled": true,
-                "body": "Ключевая цель блока и его значение для устранения рассинхрона. · исать контракты вход/выход. · бавить checks.log по первичным тестам. · KPI-1: метрика готовности определена. · KPI-2: есть минимум одна автоматическая проверка.",
+                "body": "задача: Описать контракты вход/выход. · KPI: KPI-1: метрика готовности определена. · вход: none · выход: atlas_state_store",
                 "hasSubschema": false,
                 "sources": []
               },
@@ -300,7 +300,7 @@ window.SIMA_BOOTSTRAP = {
                 "title": "Agent Orchestrator",
                 "kind": "блок",
                 "filled": true,
-                "body": "Ключевая цель блока и его значение для устранения рассинхрона. · исать контракты вход/выход. · бавить checks.log по первичным тестам. · KPI-1: метрика готовности определена. · KPI-2: есть минимум одна автоматическая проверка.",
+                "body": "задача: Описать контракты вход/выход. · KPI: KPI-1: метрика готовности определена. · вход: b.db: atlas_state_store · выход: pipeline_execution",
                 "hasSubschema": false,
                 "sources": []
               },
@@ -309,7 +309,7 @@ window.SIMA_BOOTSTRAP = {
                 "title": "Docs Builder",
                 "kind": "блок",
                 "filled": true,
-                "body": "Генерирует wiki и ТЗ по блокам. · ghtly smoke e2e task · KPI-1: wiki генерируется из atlas · KPI-2: auto_tz.md генерируется из atlas",
+                "body": "Генерирует wiki и ТЗ по блокам. · задача: nightly smoke e2e task · KPI: KPI-1: wiki генерируется из atlas · вход: b.ui-control: visual_control_panel · выход: wiki_bundle",
                 "hasSubschema": false,
                 "sources": []
               },
@@ -318,7 +318,7 @@ window.SIMA_BOOTSTRAP = {
                 "title": "Auto: b.semantic-llm",
                 "kind": "блок",
                 "filled": true,
-                "body": "Автосоздано из смыслов диалога. · mantic-refine: подтвердить автогенерацию из диалога · KPI-1: semantic extraction quality >= baseline",
+                "body": "Автосоздано из смыслов диалога. · задача: semantic-refine: подтвердить автогенерацию из диалога · KPI: KPI-1: semantic extraction quality >= baseline",
                 "hasSubschema": false,
                 "sources": []
               },
@@ -327,7 +327,7 @@ window.SIMA_BOOTSTRAP = {
                 "title": "Auto: b.realtime-ingestion",
                 "kind": "блок",
                 "filled": true,
-                "body": "Автосоздано из смыслов диалога. · mantic-refine: подтвердить автогенерацию из диалога · KPI-1: semantic extraction quality >= baseline",
+                "body": "Автосоздано из смыслов диалога. · задача: semantic-refine: подтвердить автогенерацию из диалога · KPI: KPI-1: semantic extraction quality >= baseline",
                 "hasSubschema": false,
                 "sources": []
               },
@@ -336,7 +336,7 @@ window.SIMA_BOOTSTRAP = {
                 "title": "Auto: b.payments",
                 "kind": "блок",
                 "filled": true,
-                "body": "Автосоздано из смыслов диалога. · mantic-refine: подтвердить автогенерацию из диалога · KPI-1: semantic extraction quality >= baseline",
+                "body": "Автосоздано из смыслов диалога. · задача: semantic-refine: подтвердить автогенерацию из диалога · KPI: KPI-1: semantic extraction quality >= baseline",
                 "hasSubschema": false,
                 "sources": []
               },
@@ -345,7 +345,7 @@ window.SIMA_BOOTSTRAP = {
                 "title": "Auto: b.crm",
                 "kind": "блок",
                 "filled": true,
-                "body": "Автосоздано из смыслов диалога. · mantic-refine: подтвердить автогенерацию из диалога · KPI-1: semantic extraction quality >= baseline",
+                "body": "Автосоздано из смыслов диалога. · задача: semantic-refine: подтвердить автогенерацию из диалога · KPI: KPI-1: semantic extraction quality >= baseline",
                 "hasSubschema": false,
                 "sources": []
               }
