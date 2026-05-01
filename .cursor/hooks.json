@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "generatedAt": "2026-04-30T22:50:13.165Z",
+  "atlas": {
+    "root": "/atlas",
+    "blocks": [
+      "b.ui-control",
+      "b.core-sync",
+      "b.db",
+      "b.agent-orchestrator",
+      "b.docs",
+      "b.semantic-llm",
+      "b.realtime-ingestion",
+      "b.payments"
+    ],
+    "rules": "/atlas/rules.md",
+    "techStack": "/atlas/tech_stack.md"
+  },
+  "hooks": [
+    {
+      "name": "beforePromptSent",
+      "purpose": "Inject atlas context-pack hints before agent prompt",
+      "action": {
+        "type": "prepend_text",
+        "text": "Read /atlas/project.md, /atlas/rules.md, /atlas/tech_stack.md and selected /atlas/blocks/<id> before coding."
+      }
+    },
+    {
+      "name": "afterPromptSent",
+      "purpose": "Buffer chat and periodically ingest to Atlas memory/schema",
+      "action": {
+        "type": "run_command",
+        "command": "node scripts/hook_ingest_recent_chat.mjs",
+        "note": "Uses SIMA_CHAT_TEXT/SIMA_BLOCK_ID/SIMA_INGEST_EVERY env vars."
+      }
+    },
+    {
+      "name": "afterFileEdit",
+      "purpose": "Remind updating files registry and checks",
+      "action": {
+        "type": "append_text",
+        "text": "Update atlas block files.md + checks.log and keep files_registry in sync."
+      }
+    },
+    {
+      "name": "beforeShellExecution",
+      "purpose": "Guard against stack/rules drift",
+      "action": {
+        "type": "validate_text",
+        "text": "Command must not violate /atlas/rules.md and /atlas/tech_stack.md."
+      }
+    }
+  ]
+}

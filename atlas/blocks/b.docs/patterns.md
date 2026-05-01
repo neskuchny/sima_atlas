@@ -1,0 +1,31 @@
+# b.docs — patterns
+
+- 2026-04-30T15:37:16.336Z: nightly: distilled insight for P6
+- 2026-04-30T17:31:53.545Z: queue test insight
+- 2026-04-30T17:32:32.367Z: handler fix check
+- 2026-04-30T17:35:51.828Z: smoke e2e queued insight
+- 2026-04-30T17:36:17.484Z: smoke e2e queued insight
+- 2026-04-30T17:36:23.007Z: smoke e2e queued insight
+- 2026-04-30T19:13:55.396Z: smoke e2e queued insight
+- 2026-04-30T19:48:09.055Z: semantic test
+- 2026-04-30T19:54:07.898Z: branch semantic ingestion
+- 2026-04-30T19:54:14.439Z: branch semantic ingestion
+- 2026-04-30T19:54:40.180Z: branch semantic ingestion
+- 2026-04-30T19:54:51.428Z: branch semantic ingestion
+- 2026-04-30T19:55:17.024Z: branch semantic ingestion
+- 2026-04-30T20:04:36.862Z: branch semantic ingestion
+- 2026-04-30T20:10:07.285Z: branch semantic ingestion
+- 2026-04-30T20:10:24.293Z: branch semantic ingestion
+- 2026-04-30T20:23:39.393Z: branch semantic ingestion
+- 2026-04-30T20:23:42.373Z: smoke e2e queued insight
+- 2026-04-30T20:30:24.805Z: branch semantic ingestion
+- 2026-04-30T20:30:30.127Z: smoke e2e queued insight
+- 2026-04-30T21:56:16.102Z: batch-ingest 1-2 / 4
+- 2026-04-30T21:56:16.275Z: batch-ingest 3-4 / 4
+- 2026-04-30T22:50:17.114Z: batch-ingest 1-2 / 2
+- 2026-04-30T22:57:32.437Z: branch semantic ingestion
+- 2026-05-01T00:06:21.926Z: batch-ingest 1-4 / 4
+- 2026-05-01T00:06:25.246Z: branch semantic ingestion
+- 2026-05-01T00:06:32.200Z: smoke e2e queued insight
+- 2026-05-01T10:00:55.846Z: smoke e2e queued insight
+- 2026-05-01T10:21:44.399Z: smoke e2e queued insight
