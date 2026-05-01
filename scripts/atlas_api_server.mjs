@@ -42,15 +42,6 @@ const server = http.createServer((req, res) => {
         const tz = runNode(['scripts/generate_tz_from_atlas.mjs']);
         return json(res, 200, { ok: true, wiki, tz });
       }
-
-      if (req.url === '/auto-sync') {
-        const blockId = String(body.block_id || 'b.docs');
-        const notes = String(body.notes || '');
-        if (!notes.trim()) return json(res, 400, { ok: false, error: 'notes required' });
-        const out = runNode(['scripts/auto_sync_iteration.mjs', blockId, notes]);
-        return json(res, 200, { ok: true, out });
-      }
-
       if (req.url === '/ingest-chat-batches') {
         const transcriptPath = String(body.transcript_path || '');
         const blockId = String(body.block_id || 'b.docs');

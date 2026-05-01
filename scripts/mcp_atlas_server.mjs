@@ -2,7 +2,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import readline from 'node:readline';
-import { execSync, execFileSync } from 'node:child_process';
+import { execSync } from 'node:child_process';
 
 const root = process.cwd();
 const atlasRoot = path.join(root, 'atlas');
@@ -37,10 +37,6 @@ function toolList(){
     { name:'enqueue_ingestion', description:'Queue distilled chat insight for nightly ingestion', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, note:{type:'string'}, apply_to_rules:{type:'boolean'}, conversation_text:{type:'string'} }, required:['block_id','note'] } },
     { name:'apply_ingestion_queue', description:'Apply queued distillates into block memory files', inputSchema:{ type:'object', properties:{} } },
     { name:'ingest_chat_batches', description:'Batch-ingest transcript JSONL into queue and apply automatically', inputSchema:{ type:'object', properties:{ transcript_path:{type:'string'}, block_id:{type:'string'}, batch_size:{type:'number'} }, required:['transcript_path'] } },
-    { name:'run_block_process', description:'Run sync/audit/context process for a selected block and persist report', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, process:{type:'string'} }, required:['block_id'] } },
-    { name:'finalize_iteration', description:'One-command ritual: ingest->process->nightly->wiki->tz', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, transcript_path:{type:'string'} }, required:['block_id'] } },
-    { name:'auto_sync_iteration', description:'No-manual-files flow: notes text -> ingest -> finalize -> bootstrap regenerate', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, notes:{type:'string'} }, required:['block_id','notes'] } },
-    { name:'describe_block_brief', description:'Build a rich brief (for Cursor/Claude/Codex LLM) to evaluate block against TZ, neighbors and quality criteria', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} }, required:['block_id'] } },
 
   ];
 }
@@ -354,61 +350,6 @@ rl.on('line', (line) => {
         const batchSize = Number(args.batch_size || 6);
         execSync(`node scripts/ingest_chat_batches.mjs "${transcriptPath}" ${blockId} ${batchSize}`, { cwd: root, stdio:'pipe' });
         return respond(id, { content:[{ type:'text', text: `chat batches ingested: ${transcriptPath}` }] });
-      }
-
-
-      if (name === 'run_block_process') {
-        const bid = String(args.block_id || '');
-        const proc = String(args.process || 'sync_audit_context');
-        execSync(`node scripts/run_block_process.mjs ${bid} ${proc}`, { cwd: root, stdio:'pipe' });
-        return respond(id, { content:[{ type:'text', text: `block process executed: ${bid}` }] });
-      }
-
-
-      if (name === 'finalize_iteration') {
-        const bid = String(args.block_id || 'b.docs');
-        const transcriptPath = String(args.transcript_path || '');
-        execSync(`node scripts/finalize_cursor_iteration.mjs ${bid} "${transcriptPath}"`, { cwd: root, stdio:'pipe' });
-        return respond(id, { content:[{ type:'text', text: `iteration finalized: ${bid}` }] });
-      }
-
-
-
-      if (name === 'describe_block_brief') {
-        const bid = String(args.block_id || '').trim();
-        if (!bid) return respondErr(id, 'block_id required');
-        execSync(`node scripts/build_context_pack.mjs ${bid}`, { cwd: root, stdio:'pipe' });
-        const packPath = path.join(atlasRoot, 'context_packs', `${bid}.json`);
-        const pack = readJson(packPath);
-        const tz = readText(path.join(root, 'ТЗ', 'auto_tz.md')).slice(0, 4000);
-        const brief = {
-          mode: 'llm-brief',
-          block_id: bid,
-          meta: pack.block?.meta || {},
-          dependencies: (pack.dependencies || []).map((d) => ({ id: d.id, provides: d.provides })),
-          sections: {
-            mission: pack.block?.mission || '',
-            tasks: pack.block?.tasks || '',
-            kpi: pack.block?.kpi || '',
-            acceptance: pack.block?.acceptance || '',
-            patterns: pack.block?.patterns || ''
-          },
-          prompt_template: [
-            'Оцени блок по 7 пунктам: цель, вклад в продукт, связи с зависимостями, полнота задач, KPI, acceptance, риски/дрейф.',
-            'Сверь блок с ТЗ и соседними блоками. Дай verdict: green/yellow/red с причинами.',
-            'Верни output в структуре: summary, gaps[], actions_now[], actions_next[], update_patch_suggestion{mission,tasks,kpi,acceptance}.',
-            'Пиши по-русски, конкретно, без воды.'
-          ].join(' '),
-          tz_excerpt: tz
-        };
-        return respond(id, { content:[{ type:'text', text: JSON.stringify(brief, null, 2) }] });
-      }
-
-      if (name === 'auto_sync_iteration') {
-        const bid = String(args.block_id || 'b.docs');
-        const notes = String(args.notes || '').replace(/"/g, '\"');
-        execFileSync('node', ['scripts/auto_sync_iteration.mjs', bid, notes], { cwd: root, stdio:'pipe' });
-        return respond(id, { content:[{ type:'text', text: `auto sync iteration complete: ${bid}` }] });
       }
 
       return respondErr(id, `unknown tool: ${name}`);
