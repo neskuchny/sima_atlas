@@ -1,0 +1,2 @@
+2026-04-30T19:48:03Z	architecture	semantic conversation ingestion path via queue->analyzer->graph
+2026-05-01T11:30:37Z	scope-note	Updated scripts/* (cross-block runtime) justified by b.agent-orchestrator ownership over automation entrypoints.
