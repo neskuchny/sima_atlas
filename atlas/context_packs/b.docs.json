@@ -1,0 +1,30 @@
+{
+  "generated_at": "2026-05-01T00:06:32.426Z",
+  "block_id": "b.docs",
+  "project": {
+    "project": "# Sima Atlas\n\nЦель: единая визуально-документная система, которая устраняет рассинхрон между кодом, агентами и документацией.\n\n## North Star\n- Любой агент работает по одному и тому же block-context.\n- Человек видит статус реализации на схеме без чтения всего кода.\n",
+    "rules": "# Rules\n\n1. Любое изменение блока фиксируется в его `tasks.md` и `checks.log`.\n2. Перед изменением кода агент читает: `project.md`, `tech_stack.md`, `rules.md`, `blocks/<id>/*`.\n3. Файлы без владельца-блока считаются out-of-scope.\n4. Блок `done` только при выполнении acceptance + KPI, а не только compile/runtime.\n",
+    "tech_stack": "# Tech Stack (MVP lock)\n\n- Frontend: React (Babel standalone в текущем прототипе)\n- Runtime storage: localStorage (MVP)\n- Atlas storage: Markdown + JSON (`/atlas`)\n- Automation: CLI agents (Cursor/Claude/Codex) через hooks/адаптеры\n\n## Запреты MVP\n- Не смешивать второй фронтенд-фреймворк в активных блоках.\n- Не использовать альтернативные «источники правды» вне `/atlas`.\n"
+  },
+  "block": {
+    "meta": {
+      "id": "b.docs",
+      "title": "Docs Builder",
+      "status": "wip",
+      "depends_on": []
+    },
+    "mission": "# b.docs — mission\n\nГенерирует wiki и ТЗ по блокам.\n",
+    "kpi": "# b.docs — KPI\n\n- KPI-1: wiki генерируется из atlas\n- KPI-2: auto_tz.md генерируется из atlas\n",
+    "acceptance": "# b.docs — acceptance\n\n- [x] Вики создается автоматически\n- [x] ТЗ создается автоматически\n",
+    "tasks": "# b.docs — tasks\n\n- [ ] nightly smoke e2e task\n",
+    "patterns": "# b.docs — patterns\n\n- 2026-04-30T15:37:16.336Z: nightly: distilled insight for P6\n- 2026-04-30T17:31:53.545Z: queue test insight\n- 2026-04-30T17:32:32.367Z: handler fix check\n- 2026-04-30T17:35:51.828Z: smoke e2e queued insight\n- 2026-04-30T17:36:17.484Z: smoke e2e queued insight\n- 2026-04-30T17:36:23.007Z: smoke e2e queued insight\n- 2026-04-30T19:13:55.396Z: smoke e2e queued insight\n- 2026-04-30T19:48:09.055Z: semantic test\n- 2026-04-30T19:54:07.898Z: branch semantic ingestion\n- 2026-04-30T19:54:14.439Z: branch semantic ingestion\n- 2026-04-30T19:54:40.180Z: branch semantic ingestion\n- 2026-04-30T19:54:51.428Z: branch semantic ingestion\n- 2026-04-30T19:55:17.024Z: branch semantic ingestion\n- 2026-04-30T20:04:36.862Z: branch semantic ingestion\n- 2026-04-30T20:10:07.285Z: branch semantic ingestion\n- 2026-04-30T20:10:24.293Z: branch semantic ingestion\n- 2026-04-30T20:23:39.393Z: branch semantic ingestion\n- 2026-04-30T20:23:42.373Z: smoke e2e queued insight\n- 2026-04-30T20:30:24.805Z: branch semantic ingestion\n- 2026-04-30T20:30:30.127Z: smoke e2e queued insight\n- 2026-04-30T21:56:16.102Z: batch-ingest 1-2 / 4\n- 2026-04-30T21:56:16.275Z: batch-ingest 3-4 / 4\n- 2026-04-30T22:50:17.114Z: batch-ingest 1-2 / 2\n- 2026-04-30T22:57:32.437Z: branch semantic ingestion\n- 2026-05-01T00:06:21.926Z: batch-ingest 1-4 / 4\n- 2026-05-01T00:06:25.246Z: branch semantic ingestion\n- 2026-05-01T00:06:32.200Z: smoke e2e queued insight\n",
+    "files": ""
+  },
+  "dependencies": [
+    {
+      "id": "b.ui-control",
+      "mission": "# b.ui-control — mission\n\nКлючевая цель блока и его значение для устранения рассинхрона.\n",
+      "provides": "# b.ui-control — provides\n\n- visual_control_panel\n"
+    }
+  ]
+}

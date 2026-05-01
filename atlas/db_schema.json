@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "entities": {
+    "block": {
+      "id": "string",
+      "title": "string",
+      "status": "idea|wip|drift|broken|done",
+      "depends_on": "string[]",
+      "provides": "string[]"
+    },
+    "task": {
+      "id": "string",
+      "block_id": "string",
+      "title": "string",
+      "priority": "P0|P1|P2",
+      "state": "todo|doing|done"
+    },
+    "check": {
+      "id": "string",
+      "block_id": "string",
+      "kind": "unit|e2e|kpi|acceptance|sync",
+      "result": "pass|fail",
+      "ts": "iso-datetime"
+    },
+    "file_registry": {
+      "path": "string",
+      "block_id": "string|null",
+      "status": "alive|dead|archived",
+      "reason": "string"
+    }
+  }
+}
