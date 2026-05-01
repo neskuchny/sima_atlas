@@ -1,7 +1,5 @@
 # AUTO ТЗ (из Atlas)
 
-_Сгенерировано автоматически из /atlas_
-
 ## b.ui-control (done)
 
 # b.ui-control — mission
@@ -88,30 +86,6 @@ _Сгенерировано автоматически из /atlas_
 
 
 # b.realtime-ingestion — tasks
-
-- [ ] semantic-refine: подтвердить автогенерацию из диалога
-
-
-## b.payments (wip)
-
-# b.payments — mission
-
-Автосоздано из смыслов диалога.
-
-
-# b.payments — tasks
-
-- [ ] semantic-refine: подтвердить автогенерацию из диалога
-
-
-## b.crm (wip)
-
-# b.crm — mission
-
-Автосоздано из смыслов диалога.
-
-
-# b.crm — tasks
 
 - [ ] semantic-refine: подтвердить автогенерацию из диалога
 
