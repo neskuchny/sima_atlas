@@ -56,12 +56,6 @@
       "title": "Auto: b.payments",
       "status": "wip",
       "depends_on": []
-    },
-    {
-      "id": "b.crm",
-      "title": "Auto: b.crm",
-      "status": "wip",
-      "depends_on": []
     }
   ]
 }

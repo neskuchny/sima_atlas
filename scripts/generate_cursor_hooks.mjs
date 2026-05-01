@@ -30,16 +30,6 @@ const hooks = {
         text: 'Read /atlas/project.md, /atlas/rules.md, /atlas/tech_stack.md and selected /atlas/blocks/<id> before coding.'
       }
     },
-
-    {
-      name: 'afterPromptSent',
-      purpose: 'Buffer chat and periodically ingest to Atlas memory/schema',
-      action: {
-        type: 'run_command',
-        command: 'node scripts/hook_ingest_recent_chat.mjs',
-        note: 'Uses SIMA_CHAT_TEXT/SIMA_BLOCK_ID/SIMA_INGEST_EVERY env vars.'
-      }
-    },
     {
       name: 'afterFileEdit',
       purpose: 'Remind updating files registry and checks',

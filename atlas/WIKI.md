@@ -56,19 +56,3 @@
 Автосоздано из смыслов диалога.
 
 
-## b.payments — Auto: b.payments
-- status: **wip**
-
-# b.payments — mission
-
-Автосоздано из смыслов диалога.
-
-
-## b.crm — Auto: b.crm
-- status: **wip**
-
-# b.crm — mission
-
-Автосоздано из смыслов диалога.
-
-

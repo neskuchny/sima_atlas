@@ -10,5 +10,3 @@
 - 2026-04-30T20:10:24.409Z: branch semantic ingestion
 - 2026-04-30T20:23:39.501Z: branch semantic ingestion
 - 2026-04-30T20:30:24.920Z: branch semantic ingestion
-- 2026-04-30T22:57:32.592Z: branch semantic ingestion
-- 2026-05-01T00:06:25.483Z: branch semantic ingestion

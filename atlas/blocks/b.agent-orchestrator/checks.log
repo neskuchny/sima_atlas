@@ -4,8 +4,3 @@
 2026-04-30T19:54:55Z	branch_semantic_smoke	pass	simulate_conversation_branches OK
 2026-04-30T20:10:27Z	production_audit	pass	audit_production_readiness 5/5
 2026-04-30T21:56:19Z	chat_batch_ingestion	pass	ingest_chat_batches + MCP tool
-2026-04-30T22:50:20Z	chat_hook_auto_ingest	pass	hook_ingest_recent_chat threshold ingestion
-2026-04-30T22:57:36Z	block_process_runner	pass	run_block_process + MCP tool
-2026-04-30T23:00:58Z	bootstrap_generator	pass	generate_atlas_bootstrap_js from atlas/graph
-2026-05-01T00:06:37Z	finalize_iteration	pass	one-command ritual ingest->process->nightly->wiki->tz
-2026-05-01T10:01:00Z	nightly_gate_update	pass	nightly includes bootstrap_projection check

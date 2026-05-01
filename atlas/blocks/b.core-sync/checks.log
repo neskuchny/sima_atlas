@@ -18,7 +18,3 @@
 2026-04-30T20:30:23Z  acceptance/checklist  pass  all acceptance items checked for done status
 2026-04-30T20:30:24.920Z	ingestion	pass	queue applied
 2026-04-30T20:30:25.013Z	semantic_ingestion	pass	conversation mapped to b.core-sync
-2026-04-30T22:57:32.592Z	ingestion	pass	queue applied
-2026-04-30T22:57:32.711Z	semantic_ingestion	pass	conversation mapped to b.core-sync
-2026-05-01T00:06:25.483Z	ingestion	pass	queue applied
-2026-05-01T00:06:25.696Z	semantic_ingestion	pass	conversation mapped to b.core-sync
