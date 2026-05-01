@@ -1,0 +1,13 @@
+{
+  "name": "default",
+  "preferred_stack": ["React", "Node.js", "MCP"],
+  "work_style": {
+    "context_first": true,
+    "requires_sync_gate": true,
+    "preferred_block_scope": true
+  },
+  "products": [
+    "atlas-live"
+  ],
+  "updated_at": "2026-05-01T00:00:00Z"
+}
