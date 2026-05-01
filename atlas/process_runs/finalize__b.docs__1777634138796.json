@@ -1,0 +1,34 @@
+{
+  "block_id": "b.docs",
+  "transcript": "/workspace/sima_atlas/atlas/ingestion_scratch/auto_1777634124728.jsonl",
+  "finished_at": "2026-05-01T11:15:26.012Z",
+  "profile": "atlas/operator_profile.json",
+  "steps": [
+    {
+      "name": "ingest_chat_batches",
+      "ok": true,
+      "out": "ingest_chat_batches: queued 1 chunks, applied queue"
+    },
+    {
+      "name": "run_block_process",
+      "ok": true,
+      "out": "run_block_process: PASS -> atlas/process_runs/b.docs__1777634130061.json"
+    },
+    {
+      "name": "nightly_consolidation",
+      "ok": true,
+      "out": "Nightly consolidation complete: /workspace/sima_atlas/atlas/nightly_report.md"
+    },
+    {
+      "name": "generate_wiki",
+      "ok": true,
+      "out": "Generated /workspace/sima_atlas/atlas/WIKI.md"
+    },
+    {
+      "name": "generate_tz",
+      "ok": true,
+      "out": "Generated /workspace/sima_atlas/ТЗ/auto_tz.md"
+    }
+  ],
+  "status": "pass"
+}
