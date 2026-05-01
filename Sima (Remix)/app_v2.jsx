@@ -142,7 +142,15 @@ function AppV2(){
     try { return localStorage.getItem('sima_bootstrap'); } catch { return null; }
   })();
   const bootstrap = window.SIMA_BOOTSTRAP || (bootstrapRaw ? JSON.parse(bootstrapRaw) : null);
-  const data = bootstrap?.data || window.SIMA_DATA_V2;
+  const defaultData = window.SIMA_DATA_V2;
+  const templateProject = defaultData.projects[0];
+  const normalizedProjects = (bootstrap?.data?.projects || []).map((p) => ({
+    ...JSON.parse(JSON.stringify(templateProject)),
+    ...p,
+    id: p.id,
+    name: p.name || p.id,
+  }));
+  const data = normalizedProjects.length ? { ...defaultData, projects: normalizedProjects } : defaultData;
   const archByProject = bootstrap?.archByProject || window.ARCH_BY_PROJECT || {};
   const urlProject = new URLSearchParams(window.location.search).get('project');
   const [projId, setProjId] = useState(urlProject && data.projects.some(p => p.id === urlProject) ? urlProject : data.projects[0].id);
