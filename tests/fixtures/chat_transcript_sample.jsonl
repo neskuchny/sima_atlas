@@ -1,0 +1,4 @@
+{"role":"user","text":"Нужен блок b.payments status wip"}
+{"role":"assistant","text":"Ок, фиксирую payments pipeline"}
+{"role":"user","text":"Добавь связь с b.db"}
+{"role":"assistant","text":"Сделаю после проверки"}
