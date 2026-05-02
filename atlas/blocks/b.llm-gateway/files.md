@@ -1,6 +1,7 @@
 # b.llm-gateway — files
 
-- scripts/llm_gateway.mjs [alive] (PR3 — main implementation)
+- scripts/llm_gateway.mjs [alive] (PR3 — main implementation, PR4.2 inline-comment-safe .env parser)
+- scripts/llm_check.mjs [alive] (PR4.1 — diagnostic for env + provider ping)
 - tests/llm_gateway.selftest.mjs [alive] (4 cases: schema validation, extractBlockSchema, trace write, no-schema fallback)
 - tests/llm_extraction.eval.mjs [alive] (5-case golden eval, target precision >= 0.7)
 - tests/fixtures/extraction_golden.json [alive]

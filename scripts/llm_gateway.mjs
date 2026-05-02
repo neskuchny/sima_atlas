@@ -43,10 +43,18 @@ function loadEnvFile() {
     const [, k, v] = m;
     if (process.env[k] !== undefined) continue;
     let value = v;
+    // Strip inline comments (`KEY=value  # tail comment`) when not inside quotes.
+    const isQuoted =
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"));
+    if (!isQuoted) {
+      const hash = value.indexOf('#');
+      if (hash >= 0) value = value.slice(0, hash);
+    }
     if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
       value = value.slice(1, -1);
     }
-    process.env[k] = value;
+    process.env[k] = value.trim();
   }
 }
 loadEnvFile();
@@ -80,9 +88,21 @@ function pickProvider(requested) {
     console.warn(`[llm-gateway] requested provider "${requested}" has no key; falling back to mock`);
     return 'mock';
   }
+  if (requested && !PROVIDERS[requested]) {
+    console.warn(`[llm-gateway] unknown provider "${requested}" (allowed: ${Object.keys(PROVIDERS).join(', ')}); ignoring`);
+  }
   const order = ['anthropic', 'google', 'mock'];
-  const dflt = process.env.LLM_DEFAULT_PROVIDER;
-  if (dflt && PROVIDERS[dflt] && PROVIDERS[dflt].available()) return dflt;
+  const dfltRaw = process.env.LLM_DEFAULT_PROVIDER;
+  const dflt = typeof dfltRaw === 'string' ? dfltRaw.trim() : dfltRaw;
+  if (dflt) {
+    if (!PROVIDERS[dflt]) {
+      console.warn(`[llm-gateway] LLM_DEFAULT_PROVIDER="${dfltRaw}" is not one of ${Object.keys(PROVIDERS).join(', ')}; check your .env (do not put inline comments without a # at column 0).`);
+    } else if (PROVIDERS[dflt].available()) {
+      return dflt;
+    } else {
+      console.warn(`[llm-gateway] LLM_DEFAULT_PROVIDER=${dflt} but its API key env var is empty; will fall back according to availability order.`);
+    }
+  }
   for (const p of order) if (PROVIDERS[p].available()) return p;
   return 'mock';
 }

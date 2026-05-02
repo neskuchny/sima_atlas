@@ -329,6 +329,14 @@ LLM_DEFAULT_PROVIDER=anthropic
 LLM_MAX_USD_PER_RUN=0.05
 ```
 
+⚠ **Важно**: после значения **не пиши inline-комменты с `#`**. Например, **так нельзя**:
+
+```env
+LLM_DEFAULT_PROVIDER=google   # или anthropic
+```
+
+В PR4.2 парсер уже умеет такие строки чинить (обрезает всё после `#` если значение не в кавычках), но более ранние версии превращали значение в `'google   # или anthropic'` и игнорировали pin. Если сомневаешься — запусти `node scripts/llm_check.mjs` и убедись, что в выводе `LLM_DEFAULT_PROVIDER : "google"` без хвоста.
+
 Если хочешь использовать **только** Google и не давать gateway лезть в Anthropic — поставь `LLM_DEFAULT_PROVIDER=google` (gateway не будет cascade'ить на anthropic, даже если ANTHROPIC_API_KEY тоже задан).
 
 Проверить:

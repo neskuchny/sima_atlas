@@ -17,15 +17,29 @@ const len = (k) => (has(k) ? process.env[k].length : 0);
 const ANTHROPIC = has('ANTHROPIC_API_KEY');
 const GOOGLE = has('GOOGLE_API_KEY');
 const PINNED = process.env.LLM_DEFAULT_PROVIDER || '(not set)';
+const KNOWN_PROVIDERS = new Set(['anthropic', 'google', 'mock']);
+const ANTHROPIC_LEN_OK = !ANTHROPIC || (process.env.ANTHROPIC_API_KEY.startsWith('sk-ant-') && len('ANTHROPIC_API_KEY') >= 80);
+const GOOGLE_LEN_OK = !GOOGLE || (process.env.GOOGLE_API_KEY.startsWith('AIza') && len('GOOGLE_API_KEY') >= 35);
 
 console.log('Sima Atlas LLM diagnostic');
-console.log('─'.repeat(50));
-console.log(`ANTHROPIC_API_KEY      : ${ANTHROPIC ? `present (${len('ANTHROPIC_API_KEY')} chars)` : 'MISSING'}`);
-console.log(`GOOGLE_API_KEY         : ${GOOGLE ? `present (${len('GOOGLE_API_KEY')} chars)` : 'MISSING'}`);
-console.log(`LLM_DEFAULT_PROVIDER   : ${PINNED}`);
+console.log('─'.repeat(60));
+console.log(`ANTHROPIC_API_KEY      : ${ANTHROPIC ? `present (${len('ANTHROPIC_API_KEY')} chars)${ANTHROPIC_LEN_OK ? '' : ' ⚠ looks too short / wrong prefix'}` : 'MISSING'}`);
+console.log(`GOOGLE_API_KEY         : ${GOOGLE ? `present (${len('GOOGLE_API_KEY')} chars)${GOOGLE_LEN_OK ? '' : ' ⚠ looks too short / wrong prefix'}` : 'MISSING'}`);
+console.log(`LLM_DEFAULT_PROVIDER   : "${PINNED}"${KNOWN_PROVIDERS.has(PINNED) || PINNED === '(not set)' ? '' : ' ⚠ not one of anthropic/google/mock — check .env for inline comments'}`);
 console.log(`LLM_DEFAULT_MODEL      : ${process.env.LLM_DEFAULT_MODEL || '(provider default)'}`);
 console.log(`LLM_MAX_USD_PER_RUN    : ${process.env.LLM_MAX_USD_PER_RUN || '0.05 (default)'}`);
 console.log('');
+
+// Hard-stop hints before pinging.
+if (PINNED !== '(not set)' && !KNOWN_PROVIDERS.has(PINNED)) {
+  console.error('✗ LLM_DEFAULT_PROVIDER value is malformed.');
+  console.error(`  Got: "${PINNED}"`);
+  console.error('  Hint: in .env do NOT use inline comments after the value, e.g.');
+  console.error('     BAD :  LLM_DEFAULT_PROVIDER=google   # or anthropic');
+  console.error('     OK  :  LLM_DEFAULT_PROVIDER=google');
+  console.error('  (.env parser as of PR4.2 strips inline comments — pull the latest branch and try again.)');
+  process.exit(3);
+}
 
 if (!ANTHROPIC && !GOOGLE) {
   console.log('No API keys present → gateway will use the mock provider.');
