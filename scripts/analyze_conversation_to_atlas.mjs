@@ -101,20 +101,69 @@ if (!proposed.length) {
 }
 
 let createdNew = 0;
-let updatedExisting = 0;
+let proposalsWritten = 0;
 const touched = [];
+const writtenProposals = [];
+
+const PROPOSALS_DIR = path.join(ATLAS, 'proposals');
+fs.mkdirSync(PROPOSALS_DIR, { recursive: true });
+
+function diffFields(existing, proposal) {
+  // Compute the structural-field changes the LLM is suggesting against the
+  // current graph.json block. We never propose to overwrite mission/kpi/etc.;
+  // only structural fields go through Accept/Reject.
+  const changes = {};
+  if (proposal.layer && proposal.layer !== existing.layer) changes.layer = { from: existing.layer || null, to: proposal.layer };
+  if (proposal.type && proposal.type !== existing.type) changes.type = { from: existing.type || null, to: proposal.type };
+  if (typeof proposal.mvp === 'boolean' && proposal.mvp !== existing.mvp) changes.mvp = { from: !!existing.mvp, to: proposal.mvp };
+  if (proposal.status && proposal.status !== existing.status) changes.status = { from: existing.status || null, to: proposal.status };
+  const newDeps = (proposal.depends_on || []).filter((d) => !(existing.depends_on || []).includes(d));
+  if (newDeps.length) changes.depends_on_add = newDeps;
+  const newProvides = (proposal.provides || []).filter((p) => !(existing.provides || []).includes(p));
+  if (newProvides.length) changes.provides_add = newProvides;
+  const newStack = (proposal.tech_stack || []).filter((s) => !(existing.tech_stack || []).includes(s));
+  if (newStack.length) changes.tech_stack_add = newStack;
+  if (proposal.mission) {
+    changes.mission_preview = proposal.mission.length > 240 ? proposal.mission.slice(0, 240) + '…' : proposal.mission;
+  }
+  return changes;
+}
 
 for (const proposal of proposed) {
   const existing = blocks.find((b) => b.id === proposal.id);
   if (existing) {
-    // Only update structured fields if they were missing; never overwrite mission/kpi/etc.
-    if (!existing.layer && proposal.layer) existing.layer = proposal.layer;
-    if (!existing.type && proposal.type) existing.type = proposal.type;
-    if (existing.mvp === undefined && typeof proposal.mvp === 'boolean') existing.mvp = proposal.mvp;
-    const newDeps = (proposal.depends_on || []).filter((d) => !(existing.depends_on || []).includes(d));
-    if (newDeps.length) existing.depends_on = [...(existing.depends_on || []), ...newDeps];
-    if (!existing.tech_stack && proposal.tech_stack) existing.tech_stack = proposal.tech_stack;
-    updatedExisting += 1;
+    // PR3.5: write a Proposal file instead of silently mutating graph.json.
+    const changes = diffFields(existing, proposal);
+    if (!Object.keys(changes).length) continue;
+    const ts = new Date().toISOString().replace(/[:.]/g, '-');
+    const proposalId = `${ts}__${proposal.id}`;
+    const filePath = path.join(PROPOSALS_DIR, `${proposalId}.json`);
+    fs.writeFileSync(filePath, JSON.stringify({
+      id: proposalId,
+      block_id: proposal.id,
+      kind: 'block_update',
+      created_at: new Date().toISOString(),
+      source: {
+        provider: extraction.trace?.provider,
+        model: extraction.trace?.model,
+        prompt_hash: extraction.trace?.prompt_hash,
+        confidence: proposal.confidence ?? null,
+      },
+      current: {
+        layer: existing.layer,
+        type: existing.type,
+        mvp: existing.mvp,
+        status: existing.status,
+        depends_on: existing.depends_on,
+        provides: existing.provides,
+        tech_stack: existing.tech_stack,
+      },
+      proposed: proposal,
+      changes,
+      verdict: 'pending',
+    }, null, 2) + '\n', 'utf8');
+    proposalsWritten += 1;
+    writtenProposals.push(proposalId);
   } else {
     blocks.push({
       id: proposal.id,
@@ -150,7 +199,7 @@ for (const id of touched) {
 appendOrchestratorTrace('applied', extraction.trace, touched.length);
 
 console.log(
-  `semantic_ingestion: applied ${touched.length} blocks (new=${createdNew}, updated=${updatedExisting}, provider=${extraction.trace?.provider})`
+  `semantic_ingestion: applied ${touched.length} blocks (new=${createdNew}, proposals=${proposalsWritten}, provider=${extraction.trace?.provider})`
 );
 
 // ─────────────────────────────────────────────────────────── helpers

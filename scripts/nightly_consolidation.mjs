@@ -24,6 +24,8 @@ const checks = [
   ['simulate_conversation_branches', 'node scripts/simulate_conversation_branches.mjs'],
   ['validate_cursor_hooks', 'node scripts/validate_cursor_hooks.mjs'],
   ['cursor_hooks_actions', 'node tests/cursor_hooks_actions.test.mjs'],
+  ['proposals_flow_smoke', 'node tests/proposals_flow.smoke.mjs'],
+  ['list_proposals_index', 'node scripts/list_proposals.mjs --write-index --json'],
   ['sync_context_packs', 'node scripts/sync_context_packs.mjs'],
   ['agent_parity', 'node scripts/validate_agent_parity.mjs'],
   ['parity_matrix', 'node scripts/validate_parity_matrix.mjs'],

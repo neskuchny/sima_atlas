@@ -569,14 +569,17 @@ function AppV2(){
             </div>
           )}
           {layer==='map' && mapView==='arch' && (
-            <AtlasSchemaPanel
-              arch={archBase}
-              atlasState={atlasState}
-              syncReport={syncReport}
-              selectedBlockId={archSelectedId}
-              onRunSync={runSyncCheck}
-              onExportContext={exportContextPack}
-              onTransition={transitionSelectedBlock}/>
+            <React.Fragment>
+              <AtlasSchemaPanel
+                arch={archBase}
+                atlasState={atlasState}
+                syncReport={syncReport}
+                selectedBlockId={archSelectedId}
+                onRunSync={runSyncCheck}
+                onExportContext={exportContextPack}
+                onTransition={transitionSelectedBlock}/>
+              {window.ProposalsPanel ? <ProposalsPanel/> : null}
+            </React.Fragment>
           )}
           {layer==='tz' && (
             <div className="side-sec">

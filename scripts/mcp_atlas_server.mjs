@@ -37,6 +37,9 @@ function toolList(){
     { name:'enqueue_ingestion', description:'Queue distilled chat insight for nightly ingestion', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, note:{type:'string'}, apply_to_rules:{type:'boolean'}, conversation_text:{type:'string'} }, required:['block_id','note'] } },
     { name:'apply_ingestion_queue', description:'Apply queued distillates into block memory files', inputSchema:{ type:'object', properties:{} } },
     { name:'ingest_chat_batches', description:'Batch-ingest transcript JSONL into queue and apply automatically', inputSchema:{ type:'object', properties:{ transcript_path:{type:'string'}, block_id:{type:'string'}, batch_size:{type:'number'} }, required:['transcript_path'] } },
+    { name:'list_proposals', description:'PR3.5: list pending LLM proposals for existing blocks', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} } } },
+    { name:'accept_proposal', description:'PR3.5: accept a pending LLM proposal — applies structural changes to graph.json + checks.log trace', inputSchema:{ type:'object', properties:{ proposal_id:{type:'string'} }, required:['proposal_id'] } },
+    { name:'reject_proposal', description:'PR3.5: reject a pending LLM proposal with a reason', inputSchema:{ type:'object', properties:{ proposal_id:{type:'string'}, reason:{type:'string'} }, required:['proposal_id'] } },
 
   ];
 }
@@ -350,6 +353,26 @@ rl.on('line', (line) => {
         const batchSize = Number(args.batch_size || 6);
         execSync(`node scripts/ingest_chat_batches.mjs "${transcriptPath}" ${blockId} ${batchSize}`, { cwd: root, stdio:'pipe' });
         return respond(id, { content:[{ type:'text', text: `chat batches ingested: ${transcriptPath}` }] });
+      }
+
+      // PR3.5 — proposals (Accept/Reject flow for LLM-suggested updates)
+      if (name === 'list_proposals') {
+        const blockArg = args.block_id ? ['--block', String(args.block_id)] : [];
+        const out = execSync(`node scripts/list_proposals.mjs --json ${blockArg.join(' ')}`, { cwd: root, stdio:'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out || '[]' }] });
+      }
+      if (name === 'accept_proposal') {
+        const pid = String(args.proposal_id || '');
+        if (!pid) return respondErr(id, 'accept_proposal: proposal_id required');
+        const out = execSync(`node scripts/accept_proposal.mjs ${JSON.stringify(pid)}`, { cwd: root, stdio:'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'reject_proposal') {
+        const pid = String(args.proposal_id || '');
+        if (!pid) return respondErr(id, 'reject_proposal: proposal_id required');
+        const reason = String(args.reason || '').replace(/"/g, '\\"');
+        const out = execSync(`node scripts/reject_proposal.mjs ${JSON.stringify(pid)} "${reason}"`, { cwd: root, stdio:'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
       }
 
       return respondErr(id, `unknown tool: ${name}`);

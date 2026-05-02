@@ -16,3 +16,4 @@
 2026-05-02T11:09:54Z	pr4_cursor_hooks	pass	valid Cursor hooks (4 events) + observe/guard/inject scripts + 9-case test
 2026-05-02T11:33:33.752Z	llm_extraction	pass	skipped touched=0 provider=mock model=mock-1 cost_usd=0.000000 hash=329695684fbe4372
 2026-05-02T11:34:35Z	pr4_1_windows_fixes	pass	provider cascade respects LLM_DEFAULT_PROVIDER pin; llm_check.mjs diag; index.html for http.server; analyze --text/--stdin for PowerShell; HOWTO Windows section
+2026-05-02T17:36:33.441Z	llm_extraction	pass	skipped touched=0 provider=mock model=mock-1 cost_usd=0.000000 hash=bede3583cb6ed106
