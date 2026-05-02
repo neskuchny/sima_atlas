@@ -151,6 +151,141 @@
 <li>Streaming.</li>
 <li>Fine-tuning или local-inference (vLLM и т.п.) — оставлено на enterprise mode.</li>
 </ul>
+<h2>b.operator-profile-learner — Operator Profile Learner</h2>
+<ul>
+<li>status: <strong>idea</strong></li>
+</ul>
+<h1>b.operator-profile-learner — mission</h1>
+<p>Адаптивный модуль, который наблюдает за тем, <strong>как именно</strong> работает конкретный пользователь Атласа, запоминает его рабочие паттерны / стек / запреты / уроки из неудач, и адаптирует под них:</p>
+<ul>
+<li>что подмешивает в context-pack для агента (<code>inject<em>context</em>pack.mjs</code>)</li>
+<li>что предлагает при создании нового блока / нового проекта</li>
+<li>что блокирует через <code>guard<em>against</em>drift.mjs</code> (запрещённые фреймворки)</li>
+<li>что подсвечивает в sync-check как «warning: ты обычно делаешь иначе»</li>
+<li>какие шаблоны (backend / frontend / testing-stack) предлагает по умолчанию</li>
+</ul>
+<p>Без этого блока Атлас одинаковый для всех — а должен быть <strong>личным</strong>.</p>
+<h2>Layer</h2>
+<p>ai</p>
+<h2>North Star</h2>
+<p>&gt; При создании нового блока пользователь видит «персональный совет» (стек / агент / шаги работы), основанный на его собственной истории, а не на дефолтных шаблонах. И когда он отклоняется от своих успешных паттернов — Атлас об этом тихо говорит, не диктует.</p>
+<hr/>
+<h2>Что наблюдается (источники данных)</h2>
+<p>Все источники уже существуют в репо благодаря PR1–PR-Live; этот блок — read-only потребитель + агрегатор:</p>
+<p>| Источник | Что вытягивается |</p>
+<p>|---|---|</p>
+<p>| <code>atlas/blocks/&lt;id&gt;/checks.log</code> | время на блок до <code>done</code>, частота <code>broken</code>, кто двигал статус |</p>
+<p>| <code>atlas/transitions.log</code> | rollback rate (как часто <code>done → broken → wip</code> происходит у конкретных блоков) |</p>
+<p>| <code>atlas/proposals/*.json</code> | accept-rate / reject-rate / topic-распределение LLM-предложений |</p>
+<p>| <code>atlas/agent_invocations/*.txt</code> | какому агенту и сколько раз шёл prompt; success-summary в checks.log |</p>
+<p>| <code>atlas/llm<em>traces/*.json</code> | какой провайдер, model, fallback</em>to_mock частота |</p>
+<p>| <code>atlas/process<em>runs/cursor</em>observations/*.json</code> | какие файлы редактируются часто; типичный диаметр коммита |</p>
+<p>| <code>atlas/blocks/&lt;id&gt;/decisions.log</code> | архитектурные решения и причины |</p>
+<p>| <code>atlas/blocks/&lt;id&gt;/patterns.md</code> | формализованный «что работало / что не работало» |</p>
+<p>| <code>atlas/projects/&lt;proj&gt;/tech_stack.md</code> | какой стек выбрал каждый раз |</p>
+<p>| <code>atlas/transitions.log + checks.log</code> cross-ref | время между «принят план» и «появился первый код» |</p>
+<h2>Что сохраняется (output, файлы)</h2>
+<pre><code class="lang-">atlas/operator_profile/
+  profile.json                ← главная карточка пользователя
+  patterns/
+    work_style.json           ← spec_size_preference, test_each_step, ...
+    agents.json               ← claude/openai/gemini статистика
+    tech_stack.json           ← frequency × satisfaction по фреймворкам
+    environment.json          ← os/node/python/shell
+    failures.json             ← повторяющиеся проблемы
+  templates/
+    backend-mvp.json          ← готовый шаблон для нового MVP-бэка
+    backend-prod.json
+    frontend-spa.json
+    testing-stack.json
+  dont_use.json               ← жёсткий список запретов («никогда не предлагай vue»)
+  lessons.json                ← уроки из неудач, могут устаревать
+  history/&lt;UTC&gt;.json          ← snapshot каждой пере-агрегации (как eval_history)</code></pre>
+<p><code>profile.json</code> — пример shape:</p>
+<pre><code class="lang-json">{
+  "operator_id": "default",
+  "updated_at": "2026-05-02T...",
+  "work_style": {
+    "spec_size_preference": "big_first",
+    "test_each_step": false,
+    "common_failure_modes": ["шаг недотестирован", "framework not scaling"],
+    "median_time_idea_to_done_h": 6.5
+  },
+  "agents_used": {
+    "claude": { "count": 142, "success_rate": 0.78, "best_for": ["architecture", "schema"] },
+    "openai": { "count":  23, "success_rate": 0.81, "best_for": ["debug", "specific_implementation"] },
+    "gemini": { "count":  51, "success_rate": 0.62, "best_for": ["batch_extraction"] }
+  },
+  "tech_stack_history": {
+    "frontend": [{ "name": "react",   "uses": 12, "satisfaction": "high" }],
+    "backend":  [{ "name": "fastify", "uses":  4, "satisfaction": "medium" }]
+  },
+  "dont_use":   ["mongo", "vue", "django"],
+  "always_use": [{ "category": "language", "value": "typescript" }],
+  "environment": { "os": "windows", "node": "22.x", "shell": "powershell" },
+  "scale_preference": "MVP_then_grow",
+  "lessons_learned": [
+    { "id": "L-001",
+      "lesson": "Большое ТЗ + delegate-without-checks → 2 раза получили нерабочий код. Перепроверять каждые 30 мин.",
+      "evidence": ["b.payments@2026-04-12", "b.search@2026-04-19"],
+      "expires_at": null }
+  ]
+}</code></pre>
+<hr/>
+<h2>Когда работает (триггеры)</h2>
+<p>| Тип | Когда | Что делает |</p>
+<p>|---|---|---|</p>
+<p>| <strong>Real-time point-update</strong> | После каждого <code>accept<em>proposal</code> / <code>reject</em>proposal</code> / <code>agent<em>invocation</code> / <code>transition</em>block</code> (done/broken) | мутирует один counter в нужной патч-секции profile.json (10–50ms работа, без LLM) |</p>
+<p>| <strong>Nightly aggregation</strong> | В составе <code>nightly_consolidation.mjs</code> | пере-агрегирует все источники с нуля, пишет <code>history/&lt;UTC&gt;.json</code>, обновляет <code>profile.json</code> |</p>
+<p>| <strong>On-demand LLM analysis</strong> | По MCP-tool <code>recompute<em>operator</em>profile {analyze_failures: true}</code> или по кнопке в UI | через <code>b.llm-gateway</code> достаёт уроки из <code>decisions.log + checks.log fail</code> записей, кладёт в <code>lessons.json</code> |</p>
+<p>| <strong>Project-start hint</strong> | Когда в <code>analyze<em>conversation</em>to<em>atlas</code> появляется новый блок без <code>tech</em>stack</code> | подбирает шаблон из <code>templates/</code> и пишет в proposal <code>suggested_template: backend-mvp</code> |</p>
+<p><strong>Минимум данных для запуска</strong>: ≥ 5 transitions <code>done</code> ИЛИ ≥ 10 <code>agent_invocations</code> за всю историю. Иначе модуль просто молчит — никаких advice.</p>
+<hr/>
+<h2>Где применяется (потребители)</h2>
+<p>| Потребитель | Как использует profile |</p>
+<p>|---|---|</p>
+<p>| <code>inject<em>context</em>pack.mjs</code> | Добавляет секцию <code>## Operator profile (likely preferences)</code>: «Этот оператор предпочитает ... никогда не использует ... в прошлом был bad case с ...». Агент видит эти подсказки прямо в промпте. |</p>
+<p>| <code>analyze<em>conversation</em>to<em>atlas.mjs</code> | При создании нового блока в <code>proposed.tech</em>stack</code> подставляет <code>templates/&lt;scope&gt;.json</code> если LLM ничего конкретного не предложил. |</p>
+<p>| <code>guard<em>against</em>drift.mjs</code> | Дополняет <code>forbidden<em>substrings</code> из <code>tech</em>stack.md</code> файлами из <code>dont_use.json</code> оператора (личные запреты). |</p>
+<p>| <code>validate<em>*</code> валидаторы | Раз в nightly выкидывают <code>warning</code> если в активном блоке используется фреймворк, помеченный <code>dont</em>use</code>. Не fail, только warn. |</p>
+<p>| UI (PR3.5 ProposalsPanel + Inspector) | На карточке предложения показывает badge <code>соответствует/противоречит профилю</code> рядом с Accept/Reject. |</p>
+<p>| UI (Layer 2 Inspector) | Под mission блока — секция <code>Подсказки от профиля</code>: «попробуй заменить fastify на express — у тебя 12 успешных запусков на нём». |</p>
+<p>| <code>run<em>block</em>implementation.mjs</code> | Если у пользователя есть строка <code>agents<em>used.claude.best</em>for: ["architecture"]</code> и блок касается архитектуры — выбирает claude по умолчанию. |</p>
+<p>| MCP-tools | <code>read<em>operator</em>profile</code>, <code>recompute<em>operator</em>profile</code>, <code>set<em>dont</em>use</code>, <code>set<em>always</em>use</code>, <code>add_lesson</code> |</p>
+<hr/>
+<h2>UX-принципы</h2>
+<p>1. <strong>Тихо, не громко.</strong> Профиль — это <strong>подсказки</strong> в context-pack агента и тёплые badge'и в UI. Не модальные окна, не блокировки (кроме явных <code>dont_use</code>).</p>
+<p>2. <strong>Ревёрсивно.</strong> Любая запись в profile может быть откатана через UI «забыть этот паттерн» / <code>revoke_lesson</code>.</p>
+<p>3. <strong>Прозрачно.</strong> Каждое поле в <code>profile.json</code> имеет <code>evidence: [block_id]</code> — пользователь видит <strong>на основе чего</strong> Атлас сделал вывод.</p>
+<p>4. <strong>Не auto-применяется к коду.</strong> Профиль — это *совет*, не *патч*. Чтобы изменить блок, нужен явный Accept (через PR3.5 proposals flow).</p>
+<p>5. <strong>Privacy by default.</strong> <code>atlas/operator_profile/</code> локально, <code>.gitignore</code> опционально для multi-user сценариев. PII не собирается.</p>
+<hr/>
+<h2>Out of scope</h2>
+<ul>
+<li>Cross-user / team-wide profile — это позже (<code>b.team-profile-learner</code> как наследник).</li>
+<li>Реальные ML-модели на профиле — только counters и rule-based аналитика. Если нужно умнее — через <code>b.llm-gateway</code> по запросу, не как hot path.</li>
+<li>Авто-fine-tuning LLM на пользователе — нет, мы остаёмся на context-pack уровне.</li>
+</ul>
+<hr/>
+<h2>Интеграция с уже существующими блоками</h2>
+<ul>
+<li><strong>depends_on</strong>: <code>b.db</code> (read), <code>b.core-sync</code> (read checks.log), <code>b.agent-orchestrator</code> (read invocations + write context-pack hints), <code>b.llm-gateway</code> (для on-demand failure analysis), <code>b.docs</code> (для рендеринга в wiki «карточка пользователя»).</li>
+<li><strong>provides</strong>: <code>operator<em>profile</code> (для inject</em>context<em>pack), <code>personal</em>templates</code> (для analyze<em>conversation</em>to<em>atlas), <code>personal</em>dont<em>use</code> (для guard</em>against_drift).</li>
+</ul>
+<hr/>
+<h2>Backlog priority</h2>
+<ul>
+<li><strong>Position</strong>: один из последних milestone-ов. Текущая Sima Atlas (PR1–PR-Live) — это «инфраструктура для одного пользователя без личной памяти». PR-OperatorProfile — это «персонализация поверх инфраструктуры». Делается <strong>после</strong> того, как хоть один пользователь реально пройдёт 10+ блоков done и накопит данных, иначе наблюдать нечего.</li>
+</ul>
+<ul>
+<li><strong>Estimate</strong>: 4–6 PR-ов по образцу PR3 (LLM gateway) и PR3.5 (proposals flow):</li>
+<p>  1. <code>data collector</code> — пакет агрегаторов из источников в profile.json (без LLM)</p>
+<p>  2. <code>templates set</code> — backend/frontend/testing JSON-шаблоны + UI выбор</p>
+<p>  3. <code>dont-use list</code> — UI и guard-интеграция</p>
+<p>  4. <code>lessons LLM analyser</code> — periodic LLM-обзор decisions.log + checks.log</p>
+<p>  5. <code>inject<em>context</em>pack hook</code> — добавление секции «Operator profile»</p>
+<p>  6. <code>UI hints</code> — badge'и в Inspector / ProposalsPanel</p>
+</ul>
 <h2>b.smoke-sandbox — Smoke Sandbox (test target)</h2>
 <ul>
 <li>status: <strong>idea</strong></li>

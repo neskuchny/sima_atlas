@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-05-02T23:24:29.244Z_
+_Generated: 2026-05-02T23:34:50.053Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -11,9 +11,9 @@ _Generated: 2026-05-02T23:24:29.244Z_
 - ✅ block_contracts: ok
   - output: Block contract validation: OK
 - ✅ no_template_placeholders: ok
-  - output: Template-placeholder validation: OK (7 blocks scanned)
+  - output: Template-placeholder validation: OK (8 blocks scanned)
 - ✅ files_registry: ok
-  - output: Files registry validation: OK (alive=127, archived=4, dead=0)
+  - output: Files registry validation: OK (alive=135, archived=4, dead=0)
 - ✅ projects_contracts: ok
   - output: validate_projects: OK (1 projects, 5 blocks)
 - ✅ subschemas_contracts: ok
@@ -25,7 +25,7 @@ _Generated: 2026-05-02T23:24:29.244Z_
 - ✅ atlas_selftest: ok
   - output: atlas_sync.selftest: OK
 - ✅ bootstrap_layered_smoke: ok
-  - output: atlas_bootstrap smoke: OK (layers=6, blocks=7, links=8)
+  - output: atlas_bootstrap smoke: OK (layers=6, blocks=8, links=13)
 - ✅ llm_gateway_selftest: ok
   - output: llm_gateway.selftest: OK (4 cases)
 - ✅ seed_llm_mocks: ok
@@ -43,13 +43,13 @@ _Generated: 2026-05-02T23:24:29.244Z_
 - ✅ list_proposals_index: ok
   - output: [
 - ✅ agent_parity_real: ok
-  - output: agent_parity_real.smoke: OK (7 blocks, MCP pack ≡ disk)
+  - output: agent_parity_real.smoke: OK (8 blocks, MCP pack ≡ disk)
 - ✅ connection_drift: ok
   - output: connection_drift.smoke: OK (broken capability link detected and propagated to archByProject.links)
 - ✅ atlas_live_polling: ok
   - output: atlas_live_polling.smoke: OK (state hash changes on disk mutation; payload returns bootstrap shape)
 - ✅ sync_context_packs: ok
-  - output: Context packs synced: 7
+  - output: Context packs synced: 8
 - ✅ agent_parity: ok
   - output: Agent parity validation: OK
 - ✅ parity_matrix: ok
@@ -63,6 +63,6 @@ _Generated: 2026-05-02T23:24:29.244Z_
 - ✅ mcp_smoke_e2e: ok
   - output: mcp_smoke_e2e: OK
 - ✅ intelligence_health: ok
-  - output: Intelligence health: 1 (7/7)
+  - output: Intelligence health: 1 (8/8)
 
 Summary: PASS (31/31)

@@ -1,6 +1,6 @@
 # Roadmap (auto-generated)
 
-_Generated: 2026-05-02T23:24:33.078Z_
+_Generated: 2026-05-02T23:34:54.064Z_
 
 Приоритет: broken → drift → wip → idea → review → done.
 
@@ -8,6 +8,7 @@ _Generated: 2026-05-02T23:24:33.078Z_
 2. **b.core-sync** (wip) — Sync Engine
 3. **b.docs** (wip) — Docs Builder
 4. **b.db** (idea) — Atlas Database
-5. **b.smoke-sandbox** (idea) — Smoke Sandbox (test target)
-6. **b.agent-orchestrator** (review) — Agent Orchestrator
-7. **b.llm-gateway** (review) — LLM Gateway
+5. **b.operator-profile-learner** (idea) — Operator Profile Learner
+6. **b.smoke-sandbox** (idea) — Smoke Sandbox (test target)
+7. **b.agent-orchestrator** (review) — Agent Orchestrator
+8. **b.llm-gateway** (review) — LLM Gateway

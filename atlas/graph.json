@@ -235,6 +235,31 @@
       ]
     },
     {
+      "id": "b.operator-profile-learner",
+      "title": "Operator Profile Learner",
+      "status": "idea",
+      "status_reason": "PR-Backlog: design-only milestone; one of the LAST PRs. Реальная имплементация (PR-1…PR-6) делается после того, как реальный пользователь пройдёт ≥10 done и накопит данные — иначе наблюдать нечего. Сейчас зарегистрирован как карта будущей работы.",
+      "layer": "ai",
+      "type": "module",
+      "mvp": false,
+      "subschema_id": null,
+      "depends_on": [
+        "b.db",
+        "b.core-sync",
+        "b.agent-orchestrator",
+        "b.llm-gateway",
+        "b.docs"
+      ],
+      "tech_stack": [
+        "nodejs",
+        "esm",
+        "json"
+      ],
+      "files": [
+        "atlas/blocks/b.operator-profile-learner/mission.md"
+      ]
+    },
+    {
       "id": "b.smoke-sandbox",
       "title": "Smoke Sandbox (test target)",
       "status": "idea",

@@ -87,9 +87,25 @@ window.SIMA_BOOTSTRAP = {
               ]
             },
             {
-              "id": "b.db",
+              "id": "b.operator-profile-learner",
               "type": "artifact",
               "x": 120,
+              "y": 360,
+              "w": 220,
+              "h": 130,
+              "source": "ai · idea",
+              "title": "Operator Profile Learner",
+              "meta": "b.operator-profile-learner",
+              "take": "Адаптивный модуль, который наблюдает за тем, **как именно** работает конкретный пользователь Атласа, запоминает его рабочие паттерны / стек / запреты / уроки из неудач, и адаптируе",
+              "tags": [
+                "#idea",
+                "#ai"
+              ]
+            },
+            {
+              "id": "b.db",
+              "type": "artifact",
+              "x": 350,
               "y": 360,
               "w": 220,
               "h": 130,
@@ -105,7 +121,7 @@ window.SIMA_BOOTSTRAP = {
             {
               "id": "b.docs",
               "type": "artifact",
-              "x": 350,
+              "x": 580,
               "y": 360,
               "w": 220,
               "h": 130,
@@ -121,7 +137,7 @@ window.SIMA_BOOTSTRAP = {
             {
               "id": "b.smoke-sandbox",
               "type": "artifact",
-              "x": 580,
+              "x": 810,
               "y": 360,
               "w": 220,
               "h": 130,
@@ -190,6 +206,41 @@ window.SIMA_BOOTSTRAP = {
               "from": "b.docs",
               "to": "b.core-sync",
               "label": "b.docs → b.core-sync",
+              "direction": "to-task"
+            },
+            {
+              "id": "b.operator-profile-learner__b.db",
+              "from": "b.operator-profile-learner",
+              "to": "b.db",
+              "label": "b.operator-profile-learner → b.db",
+              "direction": "to-task"
+            },
+            {
+              "id": "b.operator-profile-learner__b.core-sync",
+              "from": "b.operator-profile-learner",
+              "to": "b.core-sync",
+              "label": "b.operator-profile-learner → b.core-sync",
+              "direction": "to-task"
+            },
+            {
+              "id": "b.operator-profile-learner__b.agent-orchestrator",
+              "from": "b.operator-profile-learner",
+              "to": "b.agent-orchestrator",
+              "label": "b.operator-profile-learner → b.agent-orchestrator",
+              "direction": "to-task"
+            },
+            {
+              "id": "b.operator-profile-learner__b.llm-gateway",
+              "from": "b.operator-profile-learner",
+              "to": "b.llm-gateway",
+              "label": "b.operator-profile-learner → b.llm-gateway",
+              "direction": "to-task"
+            },
+            {
+              "id": "b.operator-profile-learner__b.docs",
+              "from": "b.operator-profile-learner",
+              "to": "b.docs",
+              "label": "b.operator-profile-learner → b.docs",
               "direction": "to-task"
             }
           ]
@@ -320,6 +371,21 @@ window.SIMA_BOOTSTRAP = {
                 ]
               },
               {
+                "id": "b.operator-profile-learner",
+                "title": "Operator Profile Learner",
+                "kind": "блок · ai",
+                "filled": true,
+                "body": "Адаптивный модуль, который наблюдает за тем, **как именно** работает конкретный пользователь Атласа, запоминает его рабочие паттерны / стек / запреты / уроки из неудач, и адаптируе",
+                "hasSubschema": false,
+                "sources": [
+                  "scripts/aggregate_operator_profile.mjs [pending] (PR-1: read-only агрегатор всех 10 источников)",
+                  "atlas/operator_profile/profile.json [pending] (PR-1: главная карточка оператора)",
+                  "atlas/operator_profile/patterns/work_style.json [pending] (PR-1)",
+                  "atlas/operator_profile/patterns/agents.json [pending] (PR-1)",
+                  "atlas/operator_profile/patterns/tech_stack.json [pending] (PR-1)"
+                ]
+              },
+              {
                 "id": "b.db",
                 "title": "Atlas Database",
                 "kind": "блок · data",
@@ -394,6 +460,26 @@ window.SIMA_BOOTSTRAP = {
               [
                 "b.docs",
                 "b.core-sync"
+              ],
+              [
+                "b.operator-profile-learner",
+                "b.db"
+              ],
+              [
+                "b.operator-profile-learner",
+                "b.core-sync"
+              ],
+              [
+                "b.operator-profile-learner",
+                "b.agent-orchestrator"
+              ],
+              [
+                "b.operator-profile-learner",
+                "b.llm-gateway"
+              ],
+              [
+                "b.operator-profile-learner",
+                "b.docs"
               ]
             ],
             "links": [
@@ -435,6 +521,31 @@ window.SIMA_BOOTSTRAP = {
               {
                 "from": "b.docs",
                 "to": "b.core-sync",
+                "label": "depends_on"
+              },
+              {
+                "from": "b.operator-profile-learner",
+                "to": "b.db",
+                "label": "depends_on"
+              },
+              {
+                "from": "b.operator-profile-learner",
+                "to": "b.core-sync",
+                "label": "depends_on"
+              },
+              {
+                "from": "b.operator-profile-learner",
+                "to": "b.agent-orchestrator",
+                "label": "depends_on"
+              },
+              {
+                "from": "b.operator-profile-learner",
+                "to": "b.llm-gateway",
+                "label": "depends_on"
+              },
+              {
+                "from": "b.operator-profile-learner",
+                "to": "b.docs",
                 "label": "depends_on"
               }
             ]
@@ -493,6 +604,12 @@ window.SIMA_BOOTSTRAP = {
               "id": "b.llm-gateway",
               "title": "LLM Gateway",
               "status": "review",
+              "layer": "ai"
+            },
+            {
+              "id": "b.operator-profile-learner",
+              "title": "Operator Profile Learner",
+              "status": "idea",
               "layer": "ai"
             },
             {
@@ -1369,6 +1486,31 @@ window.SIMA_BOOTSTRAP = {
           ]
         },
         {
+          "id": "b.operator-profile-learner",
+          "title": "Operator Profile Learner",
+          "layer": "ai",
+          "type": "module",
+          "status": "idea",
+          "status_reason": "PR-Backlog: design-only milestone; one of the LAST PRs. Реальная имплементация (PR-1…PR-6) делается после того, как реальный пользователь пройдёт ≥10 done и накопит данные — иначе наблюдать нечего. Сейчас зарегистрирован как карта будущей работы.",
+          "mvp": false,
+          "subschema": null,
+          "x": 500,
+          "w": 210,
+          "note": "Адаптивный модуль, который наблюдает за тем, **как именно** работает конкретный пользователь Атласа, запоминает его рабочие паттерны / стек / запреты / уроки из неудач, и адаптируе",
+          "sources": [
+            "scripts/aggregate_operator_profile.mjs [pending] (PR-1: read-only агрегатор всех 10 источников)",
+            "atlas/operator_profile/profile.json [pending] (PR-1: главная карточка оператора)",
+            "atlas/operator_profile/patterns/work_style.json [pending] (PR-1)",
+            "atlas/operator_profile/patterns/agents.json [pending] (PR-1)",
+            "atlas/operator_profile/patterns/tech_stack.json [pending] (PR-1)"
+          ],
+          "tech_stack": [
+            "nodejs",
+            "esm",
+            "json"
+          ]
+        },
+        {
           "id": "b.db",
           "title": "Atlas Database",
           "layer": "data",
@@ -1507,6 +1649,51 @@ window.SIMA_BOOTSTRAP = {
           "type": "dep",
           "label": "sync_report",
           "capability": "sync_report",
+          "broken": false,
+          "broken_reason": null
+        },
+        {
+          "from": "b.operator-profile-learner",
+          "to": "b.db",
+          "type": "dep",
+          "label": "atlas_state_store",
+          "capability": "atlas_state_store",
+          "broken": false,
+          "broken_reason": null
+        },
+        {
+          "from": "b.operator-profile-learner",
+          "to": "b.core-sync",
+          "type": "dep",
+          "label": "sync_report",
+          "capability": "sync_report",
+          "broken": false,
+          "broken_reason": null
+        },
+        {
+          "from": "b.operator-profile-learner",
+          "to": "b.agent-orchestrator",
+          "type": "dep",
+          "label": "pipeline_execution",
+          "capability": "pipeline_execution",
+          "broken": false,
+          "broken_reason": null
+        },
+        {
+          "from": "b.operator-profile-learner",
+          "to": "b.llm-gateway",
+          "type": "dep",
+          "label": "llm_call_structured",
+          "capability": "llm_call_structured",
+          "broken": false,
+          "broken_reason": null
+        },
+        {
+          "from": "b.operator-profile-learner",
+          "to": "b.docs",
+          "type": "dep",
+          "label": "wiki_bundle",
+          "capability": "wiki_bundle",
           "broken": false,
           "broken_reason": null
         }
