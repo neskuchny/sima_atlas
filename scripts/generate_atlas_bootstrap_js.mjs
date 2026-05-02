@@ -230,6 +230,43 @@ if (fs.existsSync(projectsDir)) {
   }
 }
 
+// 3) PR-Sub: subschemas. Any block with subschema_id pointing at
+// <projectRoot>/blocks/<block_id>/subschemas/<sub_name>/graph.json
+// becomes its own project entry, addressable as
+// "<parentProjectId>:<block_id>:<sub_name>".
+const subschemaProjects = [];
+function discoverSubschemasFor(parentBuilt, parentProjectRoot) {
+  for (const b of parentBuilt.archEntry.blocks) {
+    if (!b.subschema) continue;
+    const subRoot = path.join(parentProjectRoot, 'blocks', b.id, 'subschemas', b.subschema);
+    const subGraph = path.join(subRoot, 'graph.json');
+    if (!fs.existsSync(subGraph)) continue;
+    const subBuilt = buildProject({
+      id: `${parentBuilt.archEntry.projectId}:${b.id}:${b.subschema}`,
+      name: `${b.title} → ${b.subschema}`,
+      taskTitle: `Подсхема блока ${b.id}`,
+      taskNote: `Subschema "${b.subschema}" of ${parentBuilt.archEntry.projectId}/${b.id}`,
+      ownerLabel: parentBuilt.project.owner,
+      projectRoot: subRoot,
+    });
+    if (subBuilt) {
+      subBuilt.parent = { projectId: parentBuilt.archEntry.projectId, blockId: b.id, subId: b.subschema };
+      subBuilt.project.parent = subBuilt.parent;
+      subBuilt.archEntry.parent = subBuilt.parent;
+      subschemaProjects.push(subBuilt);
+      // Recurse: a subschema can itself have subschemas.
+      discoverSubschemasFor(subBuilt, subRoot);
+    }
+  }
+}
+for (const b of [...built]) {
+  const projectRoot = b.archEntry.projectId === 'atlas-live'
+    ? atlasRoot
+    : path.join(projectsDir, b.archEntry.projectId);
+  discoverSubschemasFor(b, projectRoot);
+}
+for (const sb of subschemaProjects) built.push(sb);
+
 if (!built.length) {
   console.error('No projects found. Expected at least atlas/graph.json.');
   process.exit(1);

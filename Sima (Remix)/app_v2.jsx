@@ -184,6 +184,35 @@ function AppV2(){
   const [archView, setArchView] = useState('layers'); // layers | flow | status
   const [archMvpOnly, setArchMvpOnly] = useState(false);
   const [archSelectedId, setArchSelectedId] = useState(null);
+  // PR-Sub: stack of parent projIds so "← back" can pop us out of nested subschemas.
+  const [subschemaStack, setSubschemaStack] = useState([]);
+
+  // PR-Sub: when ArchCanvas double-clicks a block carrying a subschema, switch
+  // to the synthetic "<parent>:<blockId>:<subId>" project entry (emitted by the
+  // bootstrap generator) and remember the parent so we can pop back.
+  const openArchSubschema = (blockId, subId) => {
+    const targetId = `${projId}:${blockId}:${subId}`;
+    const targetProject = data.projects.find((p) => p.id === targetId)
+      || (window.SIMA_DATA_V2 && window.SIMA_DATA_V2.projects && window.SIMA_DATA_V2.projects.find((p) => p.id === targetId));
+    if (!targetProject) {
+      // No subschema graph generated yet → fall back to the legacy modal.
+      setSubschemaId(blockId);
+      return;
+    }
+    setSubschemaStack((stack) => [...stack, projId]);
+    setProjId(targetId);
+    setArchSelectedId(null);
+  };
+  const popSubschema = () => {
+    setSubschemaStack((stack) => {
+      if (!stack.length) return stack;
+      const next = [...stack];
+      const prev = next.pop();
+      setProjId(prev);
+      setArchSelectedId(null);
+      return next;
+    });
+  };
   const [toast, setToast] = useState(null);
   const showToast = (msg) => { setToast(msg); setTimeout(()=>setToast(null), 2800); };
 
@@ -369,8 +398,21 @@ function AppV2(){
       {/* SUB — breadcrumb */}
       <div className="l2-sub">
         <div className="path">
+          {subschemaStack.length > 0 && (
+            <button className="btn xs ghost"
+              style={{marginRight:6}}
+              onClick={popSubschema}
+              title="Вернуться в родительскую схему">
+              ← back
+            </button>
+          )}
           <Icon name="layers" size={11}/>
           <b>{project.name}</b>
+          {subschemaStack.length > 0 && (
+            <span style={{color:'var(--orange-ink)',marginLeft:6,fontSize:10,padding:'2px 6px',background:'var(--orange-bg)',borderRadius:4}}>
+              подсхема · уровень {subschemaStack.length}
+            </span>
+          )}
           <span style={{color:'var(--ink-5)'}}>→</span>
           <span>{LAYERS.find(L=>L.id===layer).name}</span>
           {layer==='canvas' && <span style={{color:'var(--ink-5)'}}>· 1 задача + {project.canvas.sources.length} источников · {project.canvas.links.length} связей</span>}
@@ -470,7 +512,7 @@ function AppV2(){
                   mvpOnly={archMvpOnly}
                   selectedBlockId={archSelectedId}
                   onSelectBlock={setArchSelectedId}
-                  onOpenSubschema={setSubschemaId}
+                  onOpenSubschema={openArchSubschema}
                   onNote={showToast}
                   syncReport={syncReport}/>
               )}

@@ -265,7 +265,7 @@ window.SIMA_BOOTSTRAP = {
                 "kind": "блок · front",
                 "filled": true,
                 "body": "Визуальная control plane Симы: один React-канвас, в котором человек видит схему продукта (слои, блоки, связи), статус каждого блока (idea/wip/review/done/broken/drift), запускает д",
-                "hasSubschema": false,
+                "hasSubschema": true,
                 "sources": [
                   "Sima (Remix)/Сима - универсальный конструктор.html [alive]",
                   "Sima (Remix)/index.html [alive] (PR4.1: ASCII alias for python http.server compatibility)",
@@ -867,6 +867,394 @@ window.SIMA_BOOTSTRAP = {
             }
           ]
         }
+      },
+      {
+        "id": "atlas-live:b.ui-control:components",
+        "name": "UI Control Plane → components",
+        "taskKind": "продукт",
+        "taskTitle": "Подсхема блока b.ui-control",
+        "taskNote": "Subschema \"components\" of atlas-live/b.ui-control",
+        "created": "2026-05-02",
+        "owner": "Cursor / Claude / Codex",
+        "canvas": {
+          "task": {
+            "id": "t1",
+            "x": 540,
+            "y": 40,
+            "w": 420,
+            "h": 100,
+            "title": "UI Control Plane → components",
+            "subtitle": "Подсхема блока b.ui-control"
+          },
+          "sources": [
+            {
+              "id": "b.canvas",
+              "type": "artifact",
+              "x": 120,
+              "y": 200,
+              "w": 220,
+              "h": 130,
+              "source": "front · review",
+              "title": "Arch Canvas",
+              "meta": "b.canvas",
+              "take": "SVG-канвас архитектурной схемы: рисует горизонтальные слои, блоки с портами, связи depends_on/data/path.",
+              "tags": [
+                "#review",
+                "#front"
+              ]
+            },
+            {
+              "id": "b.inspector",
+              "type": "artifact",
+              "x": 350,
+              "y": 200,
+              "w": 220,
+              "h": 130,
+              "source": "front · review",
+              "title": "Arch Inspector",
+              "meta": "b.inspector",
+              "take": "Правая панель инспектора блока: показывает mission/kpi/acceptance + lifecycle-кнопки (Implement/Review/Done/Rollback) + Run agent (PR4.",
+              "tags": [
+                "#review",
+                "#front"
+              ]
+            },
+            {
+              "id": "b.tweaks-panel",
+              "type": "artifact",
+              "x": 580,
+              "y": 200,
+              "w": 220,
+              "h": 130,
+              "source": "front · done",
+              "title": "Tweaks Panel",
+              "meta": "b.tweaks-panel",
+              "take": "Pop-up панель настроек UI: density / accent / canvas grid / artefacts view.",
+              "tags": [
+                "#done",
+                "#front"
+              ]
+            },
+            {
+              "id": "b.composer",
+              "type": "artifact",
+              "x": 810,
+              "y": 200,
+              "w": 220,
+              "h": 130,
+              "source": "front · idea",
+              "title": "Composer",
+              "meta": "b.composer",
+              "take": "Композитор задач для агентов: composer.",
+              "tags": [
+                "#idea",
+                "#front"
+              ]
+            },
+            {
+              "id": "b.proposals-panel",
+              "type": "artifact",
+              "x": 120,
+              "y": 360,
+              "w": 220,
+              "h": 130,
+              "source": "front · review",
+              "title": "Proposals Panel",
+              "meta": "b.proposals-panel",
+              "take": "Sidecol-панель PR3.5: рисует pending LLM-предложения по существующим блокам с цветным diff'ом и кнопками Accept/Reject.",
+              "tags": [
+                "#review",
+                "#front"
+              ]
+            },
+            {
+              "id": "b.atlas-sync",
+              "type": "artifact",
+              "x": 350,
+              "y": 360,
+              "w": 220,
+              "h": 130,
+              "source": "logic · review",
+              "title": "Atlas Sync (client)",
+              "meta": "b.atlas-sync",
+              "take": "Клиентская state machine: загружает atlas/<projId>/ из bootstrap, делает syncCheck (issues для drift/broken), persists в localStorage.",
+              "tags": [
+                "#review",
+                "#logic"
+              ]
+            }
+          ],
+          "links": [
+            {
+              "id": "b.canvas__b.atlas-sync",
+              "from": "b.canvas",
+              "to": "b.atlas-sync",
+              "label": "b.canvas → b.atlas-sync",
+              "direction": "to-task"
+            },
+            {
+              "id": "b.inspector__b.canvas",
+              "from": "b.inspector",
+              "to": "b.canvas",
+              "label": "b.inspector → b.canvas",
+              "direction": "to-task"
+            },
+            {
+              "id": "b.inspector__b.atlas-sync",
+              "from": "b.inspector",
+              "to": "b.atlas-sync",
+              "label": "b.inspector → b.atlas-sync",
+              "direction": "to-task"
+            },
+            {
+              "id": "b.proposals-panel__b.atlas-sync",
+              "from": "b.proposals-panel",
+              "to": "b.atlas-sync",
+              "label": "b.proposals-panel → b.atlas-sync",
+              "direction": "to-task"
+            }
+          ]
+        },
+        "map": {
+          "mission": {
+            "id": "m.mission",
+            "title": "Миссия",
+            "value": "Subschema \"components\" of atlas-live/b.ui-control",
+            "filled": true
+          },
+          "idea": {
+            "id": "m.idea",
+            "title": "Идея",
+            "value": "Подсхема блока b.ui-control",
+            "filled": true
+          },
+          "goal": {
+            "id": "m.goal",
+            "title": "JTBD",
+            "value": "Subschema \"components\" of atlas-live/b.ui-control",
+            "filled": true
+          },
+          "audience": {
+            "id": "m.audience",
+            "title": "Для кого",
+            "value": "Cursor / Claude / Codex",
+            "filled": true
+          },
+          "value": {
+            "id": "m.value",
+            "title": "Ценность",
+            "value": "См. project.md и user-stories блока",
+            "filled": true
+          },
+          "important": {
+            "id": "m.important",
+            "title": "Должно быть",
+            "items": [
+              {
+                "label": "Arch Canvas (front · review)",
+                "filled": true
+              },
+              {
+                "label": "Arch Inspector (front · review)",
+                "filled": true
+              },
+              {
+                "label": "Proposals Panel (front · review)",
+                "filled": true
+              },
+              {
+                "label": "Atlas Sync (client) (logic · review)",
+                "filled": true
+              }
+            ]
+          },
+          "userstory": {
+            "id": "m.us",
+            "title": "User Story (по слоям)",
+            "nodes": [
+              {
+                "id": "b.canvas",
+                "title": "Arch Canvas",
+                "kind": "блок · front",
+                "filled": true,
+                "body": "SVG-канвас архитектурной схемы: рисует горизонтальные слои, блоки с портами, связи depends_on/data/path.",
+                "hasSubschema": false,
+                "sources": [
+                  "Sima (Remix)/arch_canvas.jsx [alive]"
+                ]
+              },
+              {
+                "id": "b.inspector",
+                "title": "Arch Inspector",
+                "kind": "блок · front",
+                "filled": true,
+                "body": "Правая панель инспектора блока: показывает mission/kpi/acceptance + lifecycle-кнопки (Implement/Review/Done/Rollback) + Run agent (PR4.",
+                "hasSubschema": false,
+                "sources": [
+                  "Sima (Remix)/arch_canvas.jsx [alive]"
+                ]
+              },
+              {
+                "id": "b.tweaks-panel",
+                "title": "Tweaks Panel",
+                "kind": "блок · front",
+                "filled": true,
+                "body": "Pop-up панель настроек UI: density / accent / canvas grid / artefacts view.",
+                "hasSubschema": false,
+                "sources": [
+                  "Sima (Remix)/tweaks-panel.jsx [alive]"
+                ]
+              },
+              {
+                "id": "b.composer",
+                "title": "Composer",
+                "kind": "блок · front",
+                "filled": true,
+                "body": "Композитор задач для агентов: composer.",
+                "hasSubschema": false,
+                "sources": [
+                  "Sima (Remix)/composer.jsx [alive]"
+                ]
+              },
+              {
+                "id": "b.proposals-panel",
+                "title": "Proposals Panel",
+                "kind": "блок · front",
+                "filled": true,
+                "body": "Sidecol-панель PR3.5: рисует pending LLM-предложения по существующим блокам с цветным diff'ом и кнопками Accept/Reject.",
+                "hasSubschema": false,
+                "sources": [
+                  "Sima (Remix)/proposals_panel.jsx [alive]"
+                ]
+              },
+              {
+                "id": "b.atlas-sync",
+                "title": "Atlas Sync (client)",
+                "kind": "блок · logic",
+                "filled": true,
+                "body": "Клиентская state machine: загружает atlas/<projId>/ из bootstrap, делает syncCheck (issues для drift/broken), persists в localStorage.",
+                "hasSubschema": false,
+                "sources": [
+                  "Sima (Remix)/atlas_sync.js [alive]"
+                ]
+              }
+            ],
+            "edges": [
+              [
+                "b.canvas",
+                "b.atlas-sync"
+              ],
+              [
+                "b.inspector",
+                "b.canvas"
+              ],
+              [
+                "b.inspector",
+                "b.atlas-sync"
+              ],
+              [
+                "b.proposals-panel",
+                "b.atlas-sync"
+              ]
+            ],
+            "links": [
+              {
+                "from": "b.canvas",
+                "to": "b.atlas-sync",
+                "label": "depends_on"
+              },
+              {
+                "from": "b.inspector",
+                "to": "b.canvas",
+                "label": "depends_on"
+              },
+              {
+                "from": "b.inspector",
+                "to": "b.atlas-sync",
+                "label": "depends_on"
+              },
+              {
+                "from": "b.proposals-panel",
+                "to": "b.atlas-sync",
+                "label": "depends_on"
+              }
+            ]
+          }
+        },
+        "tz": {
+          "sections": [
+            {
+              "id": "s1",
+              "num": "1",
+              "title": "Миссия и цели"
+            },
+            {
+              "id": "s2",
+              "num": "2",
+              "title": "Архитектура (по слоям)"
+            },
+            {
+              "id": "s3",
+              "num": "3",
+              "title": "Блоки и контракты"
+            },
+            {
+              "id": "s4",
+              "num": "4",
+              "title": "Roadmap и зависимости"
+            },
+            {
+              "id": "s5",
+              "num": "5",
+              "title": "Sync-check и валидаторы"
+            }
+          ]
+        },
+        "impl": {
+          "blocks": [
+            {
+              "id": "b.canvas",
+              "title": "Arch Canvas",
+              "status": "review",
+              "layer": "front"
+            },
+            {
+              "id": "b.inspector",
+              "title": "Arch Inspector",
+              "status": "review",
+              "layer": "front"
+            },
+            {
+              "id": "b.tweaks-panel",
+              "title": "Tweaks Panel",
+              "status": "done",
+              "layer": "front"
+            },
+            {
+              "id": "b.composer",
+              "title": "Composer",
+              "status": "idea",
+              "layer": "front"
+            },
+            {
+              "id": "b.proposals-panel",
+              "title": "Proposals Panel",
+              "status": "review",
+              "layer": "front"
+            },
+            {
+              "id": "b.atlas-sync",
+              "title": "Atlas Sync (client)",
+              "status": "review",
+              "layer": "logic"
+            }
+          ]
+        },
+        "parent": {
+          "projectId": "atlas-live",
+          "blockId": "b.ui-control",
+          "subId": "components"
+        }
       }
     ]
   },
@@ -890,7 +1278,7 @@ window.SIMA_BOOTSTRAP = {
           "status": "wip",
           "status_reason": "HTML loses references to components.jsx/sidecol.jsx/canvas_tools.jsx — UI does not boot in production; multi-layer rendering depends on PR2 (this PR)",
           "mvp": true,
-          "subschema": null,
+          "subschema": "components",
           "x": 40,
           "w": 210,
           "note": "Визуальная control plane Симы: один React-канвас, в котором человек видит схему продукта (слои, блоки, связи), статус каждого блока (idea/wip/review/done/broken/drift), запускает д",
@@ -1241,6 +1629,162 @@ window.SIMA_BOOTSTRAP = {
         }
       ],
       "groups": []
+    },
+    "atlas-live:b.ui-control:components": {
+      "projectId": "atlas-live:b.ui-control:components",
+      "layers": [
+        "front",
+        "logic"
+      ],
+      "blocks": [
+        {
+          "id": "b.canvas",
+          "title": "Arch Canvas",
+          "layer": "front",
+          "type": "module",
+          "status": "review",
+          "status_reason": "PR2.5 added drift visualization; needs subschema double-click + zoom-to-fit (PR-Sub2)",
+          "mvp": true,
+          "subschema": null,
+          "x": 40,
+          "w": 210,
+          "note": "SVG-канвас архитектурной схемы: рисует горизонтальные слои, блоки с портами, связи depends_on/data/path.",
+          "sources": [
+            "Sima (Remix)/arch_canvas.jsx [alive]"
+          ],
+          "tech_stack": [
+            "react",
+            "babel-standalone"
+          ]
+        },
+        {
+          "id": "b.inspector",
+          "title": "Arch Inspector",
+          "layer": "front",
+          "type": "module",
+          "status": "review",
+          "status_reason": "PR2.5 surfaces drift issues; PR3.5 needs richer Accept/Reject layout for proposals",
+          "mvp": true,
+          "subschema": null,
+          "x": 270,
+          "w": 210,
+          "note": "Правая панель инспектора блока: показывает mission/kpi/acceptance + lifecycle-кнопки (Implement/Review/Done/Rollback) + Run agent (PR4.",
+          "sources": [
+            "Sima (Remix)/arch_canvas.jsx [alive]"
+          ],
+          "tech_stack": [
+            "react"
+          ]
+        },
+        {
+          "id": "b.tweaks-panel",
+          "title": "Tweaks Panel",
+          "layer": "front",
+          "type": "module",
+          "status": "done",
+          "status_reason": "Density/accent toggles working; no live regressions",
+          "mvp": false,
+          "subschema": null,
+          "x": 500,
+          "w": 210,
+          "note": "Pop-up панель настроек UI: density / accent / canvas grid / artefacts view.",
+          "sources": [
+            "Sima (Remix)/tweaks-panel.jsx [alive]"
+          ],
+          "tech_stack": [
+            "react"
+          ]
+        },
+        {
+          "id": "b.composer",
+          "title": "Composer",
+          "layer": "front",
+          "type": "module",
+          "status": "idea",
+          "status_reason": "Composer.jsx exists but not yet wired to /run-block — PR4.5 wires Run-agent button instead",
+          "mvp": false,
+          "subschema": null,
+          "x": 730,
+          "w": 210,
+          "note": "Композитор задач для агентов: composer.",
+          "sources": [
+            "Sima (Remix)/composer.jsx [alive]"
+          ],
+          "tech_stack": [
+            "react"
+          ]
+        },
+        {
+          "id": "b.proposals-panel",
+          "title": "Proposals Panel",
+          "layer": "front",
+          "type": "module",
+          "status": "review",
+          "status_reason": "PR3.5 ready; needs live test against atlas_api_server to confirm Accept/Reject buttons fully round-trip",
+          "mvp": true,
+          "subschema": null,
+          "x": 960,
+          "w": 210,
+          "note": "Sidecol-панель PR3.5: рисует pending LLM-предложения по существующим блокам с цветным diff'ом и кнопками Accept/Reject.",
+          "sources": [
+            "Sima (Remix)/proposals_panel.jsx [alive]"
+          ],
+          "tech_stack": [
+            "react"
+          ]
+        },
+        {
+          "id": "b.atlas-sync",
+          "title": "Atlas Sync (client)",
+          "layer": "logic",
+          "type": "module",
+          "status": "review",
+          "status_reason": "Client-side state machine + syncCheck; PR3.6 hardened against undefined-JSON crash",
+          "mvp": true,
+          "subschema": null,
+          "x": 40,
+          "w": 210,
+          "note": "Клиентская state machine: загружает atlas/<projId>/ из bootstrap, делает syncCheck (issues для drift/broken), persists в localStorage.",
+          "sources": [
+            "Sima (Remix)/atlas_sync.js [alive]"
+          ],
+          "tech_stack": [
+            "javascript"
+          ]
+        }
+      ],
+      "links": [
+        {
+          "from": "b.canvas",
+          "to": "b.atlas-sync",
+          "type": "dep",
+          "label": ""
+        },
+        {
+          "from": "b.inspector",
+          "to": "b.canvas",
+          "type": "dep",
+          "label": ""
+        },
+        {
+          "from": "b.inspector",
+          "to": "b.atlas-sync",
+          "type": "dep",
+          "label": ""
+        },
+        {
+          "from": "b.proposals-panel",
+          "to": "b.atlas-sync",
+          "type": "dep",
+          "label": ""
+        }
+      ],
+      "groups": [],
+      "parent": {
+        "projectId": "atlas-live",
+        "blockId": "b.ui-control",
+        "subId": "components"
+      }
     }
   }
 };

@@ -104,7 +104,7 @@ function curve(pa, pb){
 }
 
 // ---- Block component -----
-function ArchBlock({ b, layerTop, density, selected, onSelect, onMove, onRename, onStartConnect, onChangeLayer, dim, highlight, syncStatus, syncIssues }){
+function ArchBlock({ b, layerTop, density, selected, onSelect, onMove, onRename, onStartConnect, onChangeLayer, dim, highlight, syncStatus, syncIssues, onOpenSubschema }){
   // PR2.5: syncStatus is one of 'ok' | 'drift' | 'broken' | undefined.
   // We render an overlay border + a corner badge so the user sees at a glance
   // which blocks are out of sync, and a native title-tooltip lists the issues.
@@ -139,7 +139,17 @@ function ArchBlock({ b, layerTop, density, selected, onSelect, onMove, onRename,
     window.addEventListener('mouseup', up);
   };
 
-  const onDoubleClick = (e) => { e.stopPropagation(); setEditing(true); };
+  const onDoubleClick = (e) => {
+    e.stopPropagation();
+    // PR-Sub: if this block carries a subschema, double-click opens it
+    // instead of starting in-place rename. The user can still rename
+    // through the inspector input.
+    if (b.subschema && typeof onOpenSubschema === 'function') {
+      onOpenSubschema(b.id, b.subschema);
+      return;
+    }
+    setEditing(true);
+  };
 
   const STATUS = window.ARCH_STATUS[b.status] || window.ARCH_STATUS.idea;
 
@@ -446,7 +456,8 @@ function ArchCanvas({ projectId, density, view, mvpOnly, onSelectBlock, selected
                     onRename={renameBlock}
                     onStartConnect={startConnect}
                     syncStatus={syncDetailsById[b.id]?.status}
-                    syncIssues={syncDetailsById[b.id]?.issues || []}/>
+                    syncIssues={syncDetailsById[b.id]?.issues || []}
+                    onOpenSubschema={onOpenSubschema}/>
                 </div>
               );
             })}

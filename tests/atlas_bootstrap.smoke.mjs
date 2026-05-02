@@ -29,6 +29,24 @@ const win = ctx.window;
 if (!win.ARCH_LAYERS || typeof win.ARCH_LAYERS !== 'object') errors.push('ARCH_LAYERS not loaded');
 if (!win.ARCH_BY_PROJECT || !win.ARCH_BY_PROJECT['atlas-live']) errors.push('atlas-live not registered in ARCH_BY_PROJECT');
 
+// PR-Sub: every block in atlas-live with subschema_id="X" must produce a
+// synthetic project "atlas-live:<blockId>:X" in archByProject, with the same
+// non-empty layers/blocks shape as a top-level project.
+const archAtlasLive = win.ARCH_BY_PROJECT && win.ARCH_BY_PROJECT['atlas-live'];
+if (archAtlasLive && Array.isArray(archAtlasLive.blocks)) {
+  for (const b of archAtlasLive.blocks) {
+    if (!b.subschema) continue;
+    const subId = `atlas-live:${b.id}:${b.subschema}`;
+    const sub = win.ARCH_BY_PROJECT[subId];
+    if (!sub) {
+      errors.push(`PR-Sub: subschema project "${subId}" missing from ARCH_BY_PROJECT`);
+      continue;
+    }
+    if (!Array.isArray(sub.layers) || !sub.layers.length) errors.push(`PR-Sub: ${subId} has no layers`);
+    if (!Array.isArray(sub.blocks) || !sub.blocks.length) errors.push(`PR-Sub: ${subId} has no blocks`);
+  }
+}
+
 // PR5: multi-project smoke — every project under atlas/projects/<id>/ that
 // has a graph.json must show up in window.SIMA_DATA_V2.projects AND in
 // window.ARCH_BY_PROJECT, with non-empty layers/blocks.

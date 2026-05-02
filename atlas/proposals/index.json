@@ -157,5 +157,58 @@
       "mission_preview": "Sync Engine — движок проверки синхронизации блоков продукта; подтверждаем переход в done после прохождения acceptance."
     },
     "verdict": "pending"
+  },
+  {
+    "id": "2026-05-02T18-23-06-755Z__b.core-sync",
+    "block_id": "b.core-sync",
+    "kind": "block_update",
+    "created_at": "2026-05-02T18:23:06.755Z",
+    "source": {
+      "provider": "mock",
+      "model": "mock-1",
+      "prompt_hash": "29294553c70f1fe0",
+      "confidence": 0.85
+    },
+    "current": {
+      "layer": "logic",
+      "type": "module",
+      "mvp": true,
+      "status": "wip",
+      "depends_on": [
+        "b.db"
+      ],
+      "tech_stack": [
+        "nodejs",
+        "esm"
+      ]
+    },
+    "proposed": {
+      "id": "b.core-sync",
+      "title": "Sync Engine",
+      "mission": "Sync Engine — движок проверки синхронизации блоков продукта; подтверждаем переход в done после прохождения acceptance.",
+      "layer": "logic",
+      "type": "module",
+      "mvp": true,
+      "status": "done",
+      "depends_on": [
+        "b.db"
+      ],
+      "provides": [
+        "sync_report"
+      ],
+      "tech_stack": [],
+      "confidence": 0.85
+    },
+    "changes": {
+      "status": {
+        "from": "wip",
+        "to": "done"
+      },
+      "provides_add": [
+        "sync_report"
+      ],
+      "mission_preview": "Sync Engine — движок проверки синхронизации блоков продукта; подтверждаем переход в done после прохождения acceptance."
+    },
+    "verdict": "pending"
   }
 ]

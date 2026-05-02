@@ -52,7 +52,7 @@
       "layer": "front",
       "type": "module",
       "mvp": true,
-      "subschema_id": null,
+      "subschema_id": "components",
       "depends_on": [
         "b.core-sync",
         "b.agent-orchestrator"
