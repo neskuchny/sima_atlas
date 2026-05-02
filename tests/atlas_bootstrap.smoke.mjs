@@ -29,6 +29,28 @@ const win = ctx.window;
 if (!win.ARCH_LAYERS || typeof win.ARCH_LAYERS !== 'object') errors.push('ARCH_LAYERS not loaded');
 if (!win.ARCH_BY_PROJECT || !win.ARCH_BY_PROJECT['atlas-live']) errors.push('atlas-live not registered in ARCH_BY_PROJECT');
 
+// PR5: multi-project smoke — every project under atlas/projects/<id>/ that
+// has a graph.json must show up in window.SIMA_DATA_V2.projects AND in
+// window.ARCH_BY_PROJECT, with non-empty layers/blocks.
+const PROJECTS_DIR = path.join(root, 'atlas', 'projects');
+if (fs.existsSync(PROJECTS_DIR)) {
+  for (const entry of fs.readdirSync(PROJECTS_DIR)) {
+    const projRoot = path.join(PROJECTS_DIR, entry);
+    if (!fs.statSync(projRoot).isDirectory()) continue;
+    if (!fs.existsSync(path.join(projRoot, 'graph.json'))) continue;
+    if (!win.ARCH_BY_PROJECT[entry]) {
+      errors.push(`PR5: project "${entry}" found on disk but missing from ARCH_BY_PROJECT`);
+      continue;
+    }
+    const a = win.ARCH_BY_PROJECT[entry];
+    if (!Array.isArray(a.layers) || !a.layers.length) errors.push(`PR5: project "${entry}" has no layers in archByProject`);
+    if (!Array.isArray(a.blocks) || !a.blocks.length) errors.push(`PR5: project "${entry}" has no blocks in archByProject`);
+    if (!(win.SIMA_DATA_V2.projects || []).find((p) => p.id === entry)) {
+      errors.push(`PR5: project "${entry}" missing from SIMA_DATA_V2.projects`);
+    }
+  }
+}
+
 const arch = win.ARCH_BY_PROJECT['atlas-live'];
 if (arch) {
   if (!Array.isArray(arch.layers) || arch.layers.length < 2) errors.push(`atlas-live layers must contain at least 2 layers; got ${JSON.stringify(arch.layers)}`);

@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-05-02T12:43:03.408Z_
+_Generated: 2026-05-02T13:03:15.834Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -14,6 +14,8 @@ _Generated: 2026-05-02T12:43:03.408Z_
   - output: Template-placeholder validation: OK (7 blocks scanned)
 - ✅ files_registry: ok
   - output: Files registry validation: OK (alive=116, archived=4, dead=0)
+- ✅ projects_contracts: ok
+  - output: validate_projects: OK (1 projects, 5 blocks)
 - ✅ dependency_contracts: ok
   - output: Dependency contract validation: OK
 - ✅ acceptance_assertions: ok
@@ -49,4 +51,4 @@ _Generated: 2026-05-02T12:43:03.408Z_
 - ✅ intelligence_health: ok
   - output: Intelligence health: 1 (7/7)
 
-Summary: PASS (23/23)
+Summary: PASS (24/24)
