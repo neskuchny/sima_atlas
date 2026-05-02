@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-02T08:49:09.822Z",
+  "generated_at": "2026-05-02T09:25:46.032Z",
   "block_id": "b.llm-gateway",
   "project": {
     "project": "# Sima Atlas\n\nЦель: единая визуально-документная система, которая устраняет рассинхрон между кодом, агентами и документацией.\n\n## North Star\n- Любой агент работает по одному и тому же block-context.\n- Человек видит статус реализации на схеме без чтения всего кода.\n",
@@ -12,14 +12,24 @@
       "title": "LLM Gateway (PR3)",
       "status": "idea",
       "status_reason": "Not implemented yet; PR3 will add Claude/Gemini gateway with structured output",
-      "depends_on": []
+      "layer": "ai",
+      "type": "module",
+      "mvp": true,
+      "subschema_id": null,
+      "depends_on": [],
+      "tech_stack": [
+        "nodejs",
+        "anthropic-sdk",
+        "google-genai"
+      ],
+      "files": []
     },
     "mission": "# b.llm-gateway — mission\n\nТонкий слой к LLM-провайдерам (Claude / Gemini / OpenAI) с единым интерфейсом для всех движков Атласа: `extractBlockSchema(text) → BlockSchema`, `validateMissionMatch(mission, code) → DriftReport`, `summarizeChat(messages) → distillate`, `rerank(chunks, query) → ranked`. Без этого блока никакая «авто-генерация смыслов» в Атласе невозможна — сейчас всё делается regex-эвристиками, и поэтому система сейчас не соответствует ТЗ.\n\nЭтот блок — **критический gate для PR3**. До его done-версии любой блок с автозаполненными полями должен быть помечен `confidence: 0` и не пропускаться в roadmap/wiki.\n\n## Layer\nai\n\n## Что должен делать в done-версии\n1. `scripts/llm_gateway.mjs` экспортирует `callLLM({ provider, model, prompt, schema, max_tokens })` с structured-output (JSON Schema).\n2. ENV-конфиг через `.env`: `ANTHROPIC_API_KEY`, `GOOGLE_API_KEY`, `OPENAI_API_KEY` + `LLM_DEFAULT_PROVIDER`.\n3. Mock-режим (без ключей): возвращает фиксированный JSON, чтобы тесты в CI работали без сети.\n4. Token budget guard: если запрос > 30k токенов на input — отклонить с понятной ошибкой.\n5. Retry с exponential backoff на 429 / 5xx.\n6. Trace: каждый вызов пишет в `atlas/llm_traces/<timestamp>.json` (provider, model, in/out tokens, cost-estimate, prompt hash).\n\n## Out of scope\n- Embeddings / vector search (в PR3 не нужно, остаётся backup-памятью на будущее).\n- Streaming (Атлас работает по запрос-ответ).\n",
     "kpi": "# b.llm-gateway — KPI\n\n- **KPI-1 (structured output)**: `callLLM({ schema })` гарантирует, что ответ — валидный JSON по `schema`; при невалидном ответе — 1 ретрай + понятная ошибка. Сейчас: ✗ (блока нет).\n- **KPI-2 (mock parity)**: тестовый прогон с `LLM_PROVIDER=mock` и реальный с `LLM_PROVIDER=anthropic` дают одинаковую форму ответа (одна схема). Сейчас: ✗.\n- **KPI-3 (cost cap)**: `LLM_MAX_USD_PER_RUN=0.05` (по умолчанию) — превышение стоп. Сейчас: ✗.\n- **KPI-4 (latency)**: p95 < 6 секунд на 4k токенов входа Claude Haiku. Сейчас: n/a.\n- **KPI-5 (provider fallback)**: при 429 от primary → автоматический fallback на secondary провайдера, если оба ключа есть. Сейчас: ✗.\n",
     "acceptance": "# b.llm-gateway — acceptance\n\n- [ ] **A1.** `node scripts/llm_gateway.mjs --self-test` (с mock-провайдером) возвращает валидный JSON по тестовой схеме.\n- [ ] **A2.** Подключение в `analyze_conversation_to_atlas.mjs`: при подаче транскрипта реального диалога возвращает структуру `{ blocks: [{ id, mission, layer, depends_on, provides, kpi }] }` с заполненными полями (не шаблоны, не пустые).\n- [ ] **A3.** При отсутствии API-ключей и без флага `--mock` скрипт падает с понятной ошибкой `LLM key not configured`.\n- [ ] **A4.** В `atlas/llm_traces/` появляется trace-запись на каждый вызов с input_tokens / output_tokens / cost_usd.\n- [ ] **A5.** Smoke-eval на 5 эталонных диалогах: precision извлечения mission ≥ 0.7 (LLM-as-judge на golden output).\n\n## Не считается acceptance:\n- факт того, что `llm_gateway.mjs` существует.\n- успешный fetch — нужен валидный structured output.\n",
     "tasks": "# b.llm-gateway — tasks\n\n- [ ] T1: Спроектировать единый интерфейс `callLLM({provider, model, prompt, schema, max_tokens, temperature})`\n- [ ] T2: Реализовать adapter для Anthropic (Claude) с structured output через tool-use\n- [ ] T3: Реализовать adapter для Google (Gemini) с responseSchema\n- [ ] T4: Mock-режим (детерминированные ответы из `tests/llm_mocks/`)\n- [ ] T5: Trace-логирование в `atlas/llm_traces/`\n- [ ] T6: Cost-guard и fallback между провайдерами\n- [ ] T7: CLI `llm_gateway.mjs --self-test` с mock-данными\n- [ ] T8: Замена regex в `analyze_conversation_to_atlas.mjs` на `extractBlockSchema`\n- [ ] T9: Eval на golden set из 5 диалогов (precision >= 0.7)\n",
     "patterns": "",
-    "files": ""
+    "files": "# b.llm-gateway — files\n\n- (none yet — PR3 will create scripts/llm_gateway.mjs and tests/llm_mocks/*)\n"
   },
   "dependencies": []
 }

@@ -1,0 +1,27 @@
+# b.db — files
+
+- atlas/graph.json [alive] (v2 — main schema source of truth)
+- atlas/db_schema.json [alive]
+- atlas/project.md [alive]
+- atlas/rules.md [alive]
+- atlas/tech_stack.md [alive] (project-wide stack lock)
+- atlas/operator_profile.json [alive]
+- atlas/transitions.log [alive]
+- atlas/ingestion_queue.jsonl [alive]
+- atlas/intelligence_health.json [alive]
+- atlas/intelligence_health.md [alive]
+- atlas/STATUS_REPORT.md [alive]
+- atlas/STOPPOINT.md [alive]
+- atlas/progress_tz_checklist.md [alive]
+- atlas/IMPLEMENTATION_PROGRESS.md [alive]
+- atlas/production_audit_report.md [alive]
+- atlas/tasks_master.md [alive]
+- scripts/log_transition.mjs [alive]
+- scripts/manage_block.mjs [alive]
+- scripts/advance_block_state.mjs [alive]
+- scripts/dedup_block_memory.mjs [alive]
+- scripts/enqueue_ingestion_item.mjs [alive]
+- scripts/apply_ingestion_queue.mjs [alive]
+- scripts/ingest_chat_distillate.mjs [alive]
+- scripts/ingest_chat_batches.mjs [alive]
+- scripts/hook_ingest_recent_chat.mjs [alive] (waiting for PR4 valid hooks)

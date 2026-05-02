@@ -1,4 +1,4 @@
-# Sima Atlas — статус (PR1 honest reset)
+# Sima Atlas — статус (PR1 honest reset → PR2 multi-layer schema)
 
 Дата: 2026-05-02
 
@@ -30,7 +30,24 @@ PR1 (этот) — Honest Reset. Не добавляет новых фич, то
   - игнорирует фразы внутри кавычек/backticks (чтобы можно было документировать анти-паттерны).
 - [x] Валидатор подключён в `nightly_consolidation.mjs` как gate.
 
-## Что НЕ сделано (по дизайну PR1)
+## Сделано в PR2 (multi-layer schema)
+
+- [x] `atlas/graph.json` v2: вверху декларация `layers` (8 слоёв с порядком), у каждого блока появились поля `layer`, `type`, `mvp`, `subschema_id`, `tech_stack`, `files`.
+- [x] Каждый блок получил `layer`: front (b.ui-control), logic (b.core-sync), ai (b.agent-orchestrator + b.llm-gateway), data (b.db), content (b.docs), testing (b.smoke-sandbox).
+- [x] `files.md` всех 7 блоков заполнены реальными путями (95 alive файлов привязаны к блокам, 4 archived с warnings).
+- [x] Новый валидатор `scripts/validate_files_registry.mjs`: проверяет существование `[alive]` файлов, варнит за `[archived]`/`[dead]` с висящими файлами и за `[pending]` файлы, которые уже есть.
+- [x] `scripts/generate_atlas_bootstrap_js.mjs` полностью переписан: блоки разносятся по horizontal layer-bands; bootstrap инжектит недостающие layer-определения в `window.ARCH_LAYERS`; 'atlas-live' проект мерджится в `SIMA_DATA_V2.projects` и появляется в табах UI.
+- [x] `Sima (Remix)/arch_data.js`: добавлен слой `testing`.
+- [x] Smoke-тест `tests/atlas_bootstrap.smoke.mjs`: подтверждает что bootstrap-output имеет валидную layered-структуру (layers ⊆ ARCH_LAYERS, blocks have layer/x/title/note/status, links валидны, atlas-live в SIMA_DATA_V2).
+- [x] `scripts/generate_wiki.mjs`: новая wiki содержит **Mermaid-диаграмму** графа продукта, секции по слоям с иконками статусов, детальные блоки с layer/type/tech_stack/files.
+- [x] `scripts/render_wiki_html.mjs`: HTML-рендер с Mermaid (через CDN) и code-fence support.
+- [x] `scripts/rebuild_atlas_roadmap.mjs`: **топологическая сортировка** по `depends_on` — Level 0 (без зависимостей) → Level 1 → ... — внутри уровня по приоритету статуса. Дополнительно сводка по слоям.
+
+### Результат
+- nightly_consolidation: **PASS 18/18** (добавлены 2 новых gate: files_registry, bootstrap_layered_smoke).
+- Bootstrap проверен headless: 6 layers, 7 blocks (по слоям), 7 links.
+
+## Что НЕ сделано (по дизайну PR2)
 
 - [ ] HTML uploads — не трогал. На текущем main все нужные JSX подключены через `atlas_bootstrap.js` и есть в `tweaks-panel.jsx` / `layer1_canvas.jsx`. Прежний диагноз «UI не загружается из-за пропавших скриптов» был основан на устаревшем срезе main, до добавления bootstrap. Реальная проблема UI — однослойность, и она лечится в PR2.
 - [ ] Расширение модели блока (`layer/type/mvp/subschema_id/files`) — это **PR2**.

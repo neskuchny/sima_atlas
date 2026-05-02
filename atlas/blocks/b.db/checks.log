@@ -1,2 +1,3 @@
 # checks
 2026-05-02T08:41:44Z	honest_reset	pass	PR1 cleared template mission/kpi/acceptance/tasks; honest status set in graph.json
+2026-05-02T09:27:08Z	pr2_layered_schema	pass	layer/files/tech_stack populated; bootstrap+wiki+roadmap layered

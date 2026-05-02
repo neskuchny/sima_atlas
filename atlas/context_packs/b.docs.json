@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-02T08:49:09.736Z",
+  "generated_at": "2026-05-02T09:25:45.952Z",
   "block_id": "b.docs",
   "project": {
     "project": "# Sima Atlas\n\nЦель: единая визуально-документная система, которая устраняет рассинхрон между кодом, агентами и документацией.\n\n## North Star\n- Любой агент работает по одному и тому же block-context.\n- Человек видит статус реализации на схеме без чтения всего кода.\n",
@@ -11,10 +11,29 @@
       "id": "b.docs",
       "title": "Docs Builder",
       "status": "wip",
-      "status_reason": "Generators run but feed on template missions; output is empty wiki",
+      "status_reason": "Generators run but feed on template missions; needs layer-aware wiki and mermaid (PR2)",
+      "layer": "content",
+      "type": "module",
+      "mvp": true,
+      "subschema_id": null,
       "depends_on": [
         "b.db",
         "b.core-sync"
+      ],
+      "tech_stack": [
+        "nodejs",
+        "esm",
+        "markdown"
+      ],
+      "files": [
+        "scripts/generate_wiki.mjs",
+        "scripts/generate_tz_from_atlas.mjs",
+        "scripts/render_wiki_html.mjs",
+        "scripts/rebuild_atlas_roadmap.mjs",
+        "atlas/WIKI.md",
+        "atlas/wiki.html",
+        "atlas/roadmap.md",
+        "ТЗ/auto_tz.md"
       ]
     },
     "mission": "# b.docs — mission\n\nДокумент-генератор Атласа: на каждый блок собирает живую страницу wiki из его `mission.md / kpi.md / acceptance.md / depends_on.md / provides.md / files.md / patterns.md`. На каждый проект собирает `auto_tz.md` (агрегированное ТЗ) и `roadmap.md` (приоритизированный список блоков по статусу и зависимостям).\n\nГлавное правило — **никакой генерации текста, не основанной на содержимом блоков**. Если у блока mission.md шаблонный или пустой, в wiki это блок попадает с явной пометкой `[требует заполнения]`, а не «Ключевая цель блока…».\n\nРеализация: `scripts/generate_wiki.mjs`, `scripts/generate_tz_from_atlas.mjs`, `scripts/render_wiki_html.mjs`, `scripts/rebuild_atlas_roadmap.mjs`.\n\n## Layer\ncontent\n\n## Что должен делать в done-версии\n1. Wiki содержит секции по слоям (front/back/ai/data/...) и навигацию между блоками по `depends_on`.\n2. Mermaid-диаграмма графа в `wiki.html` (по `graph.json`).\n3. ТЗ автогенерируется только из non-template mission/kpi (контракт `validate_no_template_placeholders`).\n4. Roadmap учитывает не только статус блока, но и `depends_on` (топологическая сортировка).\n5. Скриншоты блоков (когда `b.ui-control` дойдёт до этой фичи) встраиваются в wiki.\n\n## Out of scope\n- Извлечение содержимого блоков из чата (это `b.llm-gateway` + `b.agent-orchestrator`).\n",
@@ -22,7 +41,7 @@
     "acceptance": "# b.docs — acceptance\n\n- [ ] **A1.** При наличии в любом mission.md фразы «Ключевая цель блока…» или «Автосоздано из…» команда `node scripts/generate_wiki.mjs` падает с ненулевым exit-кодом. (Гейт против шаблонов.)\n- [ ] **A2.** В `wiki.html` присутствует `<div class=\"mermaid\">` с актуальным графом по `graph.json`.\n- [ ] **A3.** Если блок A `depends_on: [B]`, то в `roadmap.md` B появляется на меньшей позиции, чем A — независимо от статуса.\n- [ ] **A4.** `auto_tz.md` собран только из non-template mission/kpi и содержит ссылки на исходные `blocks/<id>/*.md`.\n- [ ] **A5.** При отсутствии у блока поля `layer` (старый формат) wiki показывает раздел «Без слоя», а не пихает в первый попавшийся.\n\n## Не считается acceptance:\n- наличие файлов `wiki.html`, `auto_tz.md`, `roadmap.md` (это smoke).\n",
     "tasks": "# b.docs — tasks\n\n- [ ] T1: Подключить `validate_no_template_placeholders` как gate в `generate_wiki.mjs` (PR1)\n- [ ] T2: Mermaid-диаграмма графа в `wiki.html` (по `graph.json`) — **PR2**\n- [ ] T3: Wiki-секции по слоям (front/logic/ai/data/...) — **PR2**\n- [ ] T4: Roadmap topo-sort по `depends_on` — **PR2**\n- [ ] T5: Skip blocks `idea+empty mission` в `auto_tz.md` — **PR1**\n- [ ] T6: Cross-link между блоками через ссылки в wiki — **PR2**\n",
     "patterns": "# b.docs — patterns\n\n- 2026-04-30T15:37:16.336Z: nightly: distilled insight for P6\n- 2026-04-30T17:31:53.545Z: queue test insight\n- 2026-04-30T17:32:32.367Z: handler fix check\n- 2026-04-30T17:35:51.828Z: smoke e2e queued insight\n- 2026-04-30T17:36:17.484Z: smoke e2e queued insight\n- 2026-04-30T17:36:23.007Z: smoke e2e queued insight\n- 2026-04-30T19:13:55.396Z: smoke e2e queued insight\n- 2026-04-30T19:48:09.055Z: semantic test\n- 2026-04-30T19:54:07.898Z: branch semantic ingestion\n- 2026-04-30T19:54:14.439Z: branch semantic ingestion\n- 2026-04-30T19:54:40.180Z: branch semantic ingestion\n- 2026-04-30T19:54:51.428Z: branch semantic ingestion\n- 2026-04-30T19:55:17.024Z: branch semantic ingestion\n- 2026-04-30T20:04:36.862Z: branch semantic ingestion\n- 2026-04-30T20:10:07.285Z: branch semantic ingestion\n- 2026-04-30T20:10:24.293Z: branch semantic ingestion\n- 2026-04-30T20:23:39.393Z: branch semantic ingestion\n- 2026-04-30T20:23:42.373Z: smoke e2e queued insight\n- 2026-04-30T20:30:24.805Z: branch semantic ingestion\n- 2026-04-30T20:30:30.127Z: smoke e2e queued insight\n- 2026-04-30T21:56:16.102Z: batch-ingest 1-2 / 4\n- 2026-04-30T21:56:16.275Z: batch-ingest 3-4 / 4\n- 2026-05-02T08:47:15.240Z: smoke e2e queued insight\n",
-    "files": ""
+    "files": "# b.docs — files\n\n- scripts/generate_wiki.mjs [alive]\n- scripts/generate_tz_from_atlas.mjs [alive]\n- scripts/render_wiki_html.mjs [alive]\n- scripts/rebuild_atlas_roadmap.mjs [alive]\n- scripts/generate_atlas_bootstrap_js.mjs [alive] (PR2 — emits layered bootstrap)\n- atlas/WIKI.md [alive] (auto-generated)\n- atlas/wiki.html [alive] (auto-generated)\n- atlas/roadmap.md [alive] (auto-generated)\n- atlas/nightly_report.md [alive] (auto-generated)\n- ТЗ/auto_tz.md [alive] (auto-generated)\n"
   },
   "dependencies": [
     {

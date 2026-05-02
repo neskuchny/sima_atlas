@@ -11,6 +11,7 @@ window.ARCH_LAYERS = {
   ext:     { id:'ext',     name:'Внешние интеграции',       hue:'#886F55', bg:'rgba(136,111,85,0.06)' },
   content: { id:'content', name:'Контент / контекст',       hue:'#B47A1F', bg:'rgba(180,122,31,0.07)' },
   market:  { id:'market',  name:'Маркетинг / каналы',       hue:'#7D3C3C', bg:'rgba(125,60,60,0.06)' },
+  testing: { id:'testing', name:'Тестирование / smoke',     hue:'#5F6F77', bg:'rgba(95,111,119,0.07)' },
 };
 
 // Connection types

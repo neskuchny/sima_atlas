@@ -1,15 +1,84 @@
 {
   "version": 2,
-  "_note": "PR1 honest reset 2026-05-02: removed auto-generated regex blocks; statuses reset to reality (UI doesn't load, sync only checks file presence, no LLM connected, hooks invalid). Block model will be extended with 'layer'/'type'/'mvp' in PR2.",
+  "_note": "v2 schema (PR2): blocks now carry layer/type/mvp/subschema_id/files. Layers are declared at the top so UI can render horizontal bands.",
+  "layers": [
+    {
+      "id": "user",
+      "name": "Пользователь / JTBD",
+      "order": 0
+    },
+    {
+      "id": "front",
+      "name": "Фронтенд",
+      "order": 1
+    },
+    {
+      "id": "logic",
+      "name": "Логика / бэкенд",
+      "order": 2
+    },
+    {
+      "id": "ai",
+      "name": "ИИ / агенты",
+      "order": 3
+    },
+    {
+      "id": "data",
+      "name": "Данные / хранилище",
+      "order": 4
+    },
+    {
+      "id": "ext",
+      "name": "Внешние интеграции",
+      "order": 5
+    },
+    {
+      "id": "content",
+      "name": "Контент / документация",
+      "order": 6
+    },
+    {
+      "id": "testing",
+      "name": "Тестирование",
+      "order": 7
+    }
+  ],
   "blocks": [
     {
       "id": "b.ui-control",
       "title": "UI Control Plane",
       "status": "wip",
-      "status_reason": "HTML loses references to components.jsx/sidecol.jsx/canvas_tools.jsx — UI does not boot",
+      "status_reason": "HTML loses references to components.jsx/sidecol.jsx/canvas_tools.jsx — UI does not boot in production; multi-layer rendering depends on PR2 (this PR)",
+      "layer": "front",
+      "type": "module",
+      "mvp": true,
+      "subschema_id": null,
       "depends_on": [
         "b.core-sync",
         "b.agent-orchestrator"
+      ],
+      "tech_stack": [
+        "react",
+        "babel-standalone"
+      ],
+      "files": [
+        "Sima (Remix)/Сима - универсальный конструктор.html",
+        "Sima (Remix)/app_v2.jsx",
+        "Sima (Remix)/arch_canvas.jsx",
+        "Sima (Remix)/layer1_canvas.jsx",
+        "Sima (Remix)/layer2_map.jsx",
+        "Sima (Remix)/layer3_tz.jsx",
+        "Sima (Remix)/layer4_impl.jsx",
+        "Sima (Remix)/gallery_v2.jsx",
+        "Sima (Remix)/landscape_view.jsx",
+        "Sima (Remix)/subschema.jsx",
+        "Sima (Remix)/tweaks-panel.jsx",
+        "Sima (Remix)/icons.jsx",
+        "Sima (Remix)/atlas_sync.js",
+        "Sima (Remix)/atlas_bootstrap.js",
+        "Sima (Remix)/styles.css",
+        "Sima (Remix)/styles_v2.css",
+        "Sima (Remix)/arch_styles.css"
       ]
     },
     {
@@ -17,8 +86,26 @@
       "title": "Sync Engine",
       "status": "wip",
       "status_reason": "syncCheck only validates file presence, not mission/KPI semantics",
+      "layer": "logic",
+      "type": "module",
+      "mvp": true,
+      "subschema_id": null,
       "depends_on": [
         "b.db"
+      ],
+      "tech_stack": [
+        "nodejs",
+        "esm"
+      ],
+      "files": [
+        "Sima (Remix)/atlas_sync.js",
+        "scripts/validate_block_contracts.mjs",
+        "scripts/validate_dependency_contracts.mjs",
+        "scripts/validate_acceptance_assertions.mjs",
+        "scripts/validate_no_template_placeholders.mjs",
+        "scripts/validate_files_registry.mjs",
+        "scripts/calc_intelligence_health.mjs",
+        "scripts/audit_production_readiness.mjs"
       ]
     },
     {
@@ -26,26 +113,93 @@
       "title": "Atlas Database",
       "status": "idea",
       "status_reason": "Storage is markdown + localStorage; no real DB layer yet",
-      "depends_on": []
+      "layer": "data",
+      "type": "module",
+      "mvp": true,
+      "subschema_id": null,
+      "depends_on": [],
+      "tech_stack": [
+        "filesystem",
+        "json",
+        "markdown"
+      ],
+      "files": [
+        "atlas/graph.json",
+        "atlas/db_schema.json",
+        "atlas/project.md",
+        "atlas/rules.md",
+        "atlas/tech_stack.md",
+        "atlas/operator_profile.json",
+        "atlas/transitions.log",
+        "atlas/ingestion_queue.jsonl",
+        "scripts/log_transition.mjs",
+        "scripts/manage_block.mjs",
+        "scripts/advance_block_state.mjs"
+      ]
     },
     {
       "id": "b.agent-orchestrator",
       "title": "Agent Orchestrator",
       "status": "wip",
       "status_reason": "No real Cursor SDK / Claude Code integration; hooks.json uses invented events",
+      "layer": "ai",
+      "type": "module",
+      "mvp": true,
+      "subschema_id": null,
       "depends_on": [
         "b.db",
         "b.core-sync"
+      ],
+      "tech_stack": [
+        "nodejs",
+        "esm",
+        "mcp"
+      ],
+      "files": [
+        "scripts/mcp_atlas_server.mjs",
+        "scripts/atlas_api_server.mjs",
+        "scripts/generate_cursor_hooks.mjs",
+        "scripts/generate_agent_contracts.mjs",
+        "scripts/build_context_pack.mjs",
+        "scripts/sync_context_packs.mjs",
+        "scripts/validate_agent_parity.mjs",
+        "scripts/validate_parity_matrix.mjs",
+        "scripts/finalize_cursor_iteration.mjs",
+        "scripts/run_block_process.mjs",
+        "scripts/pipeline_step.mjs",
+        ".cursor/hooks.json",
+        ".cursor/mcp.json",
+        "AGENTS.md",
+        "CLAUDE.md"
       ]
     },
     {
       "id": "b.docs",
       "title": "Docs Builder",
       "status": "wip",
-      "status_reason": "Generators run but feed on template missions; output is empty wiki",
+      "status_reason": "Generators run but feed on template missions; needs layer-aware wiki and mermaid (PR2)",
+      "layer": "content",
+      "type": "module",
+      "mvp": true,
+      "subschema_id": null,
       "depends_on": [
         "b.db",
         "b.core-sync"
+      ],
+      "tech_stack": [
+        "nodejs",
+        "esm",
+        "markdown"
+      ],
+      "files": [
+        "scripts/generate_wiki.mjs",
+        "scripts/generate_tz_from_atlas.mjs",
+        "scripts/render_wiki_html.mjs",
+        "scripts/rebuild_atlas_roadmap.mjs",
+        "atlas/WIKI.md",
+        "atlas/wiki.html",
+        "atlas/roadmap.md",
+        "ТЗ/auto_tz.md"
       ]
     },
     {
@@ -53,15 +207,34 @@
       "title": "LLM Gateway (PR3)",
       "status": "idea",
       "status_reason": "Not implemented yet; PR3 will add Claude/Gemini gateway with structured output",
-      "depends_on": []
+      "layer": "ai",
+      "type": "module",
+      "mvp": true,
+      "subschema_id": null,
+      "depends_on": [],
+      "tech_stack": [
+        "nodejs",
+        "anthropic-sdk",
+        "google-genai"
+      ],
+      "files": []
     },
     {
       "id": "b.smoke-sandbox",
       "title": "Smoke Sandbox (test target)",
       "status": "idea",
       "status_reason": "Reserved write-target for e2e/smoke scripts so they never touch real product blocks",
+      "layer": "testing",
+      "type": "test",
+      "mvp": false,
+      "subschema_id": null,
       "depends_on": [],
-      "test_only": true
+      "test_only": true,
+      "tech_stack": [],
+      "files": [
+        "scripts/mcp_smoke_e2e.mjs",
+        "tests/atlas_sync.selftest.mjs"
+      ]
     }
   ]
 }
