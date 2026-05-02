@@ -22,3 +22,4 @@
 2026-05-02T09:27:08Z	pr2_layered_schema	pass	layer/files/tech_stack populated; bootstrap+wiki+roadmap layered
 2026-05-02T10:02:24Z	pr3_llm_gateway	pass	extractBlockSchema replaces regex; golden eval 1.0/0.7 target; b.llm-gateway in review
 2026-05-02T11:09:54Z	pr4_cursor_hooks	pass	valid Cursor hooks (4 events) + observe/guard/inject scripts + 9-case test
+2026-05-02T18:28:54Z	pr_conn_drift	pass	bootstrap detects unsatisfied capability in depends_on/provides; arch_canvas paints broken links red dashed with diamond + tooltip; smoke covers detection round-trip

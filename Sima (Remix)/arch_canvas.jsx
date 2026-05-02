@@ -349,12 +349,31 @@ function ArchCanvas({ projectId, density, view, mvpOnly, onSelectBlock, selected
       const d = curve(att.a, att.b);
       const mid = { x: (att.a.x + att.b.x)/2, y: (att.a.y + att.b.y)/2 };
       const isEditing = editLinkId === i;
+      // PR-Conn: a link can be marked broken by the bootstrap generator when
+      // depends_on requests capability that target block does not provide.
+      // We paint such links red, dash them, and surface the reason via a
+      // native title-tooltip + a dedicated "!" diamond at the mid-point.
+      const linkStroke = l.broken ? '#dc2626' : t.stroke;
+      const linkWidth = l.broken ? Math.max(t.width || 1, 1.6) : t.width;
+      const linkDash = l.broken ? '6 4' : (t.dash || undefined);
+      const linkTooltip = l.broken
+        ? `BROKEN: ${l.broken_reason || 'capability mismatch'}`
+        : (l.label ? `→ ${l.label}` : undefined);
       return (
         <g key={i} style={{cursor:'pointer'}} onClick={(e)=>{e.stopPropagation(); setEditLinkId(i);}}>
+          {linkTooltip && <title>{linkTooltip}</title>}
           <path d={d} stroke="transparent" strokeWidth="10" fill="none" style={{pointerEvents:'stroke'}}/>
-          <path d={d} stroke={t.stroke} strokeWidth={t.width} fill="none"
-                strokeDasharray={t.dash || undefined}
+          <path d={d} stroke={linkStroke} strokeWidth={linkWidth} fill="none"
+                strokeDasharray={linkDash}
                 markerEnd={`url(#am-${l.type})`}/>
+          {l.broken && (
+            <g transform={`translate(${mid.x},${mid.y - 14})`}>
+              <rect x="-7" y="-7" width="14" height="14" rx="2"
+                    transform="rotate(45)"
+                    fill="#dc2626" stroke="#fff" strokeWidth="0.8"/>
+              <text textAnchor="middle" y="3.3" fontSize="9.5" fontWeight="700" fill="#fff">!</text>
+            </g>
+          )}
           {l.label && (
             <g transform={`translate(${mid.x},${mid.y})`}>
               <rect x="-28" y="-8" width="56" height="15" rx="3" fill="var(--paper)" stroke="var(--line-1)" strokeWidth="0.5" opacity="0.9"/>

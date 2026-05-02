@@ -99,14 +99,62 @@ function buildProject({ id, name, taskTitle, taskNote, ownerLabel, projectRoot }
     });
   }
 
+  // PR-Conn: collect provides per block id from <projectRoot>/blocks/<id>/provides.md.
+  // Each provides line is treated as a capability id this block exports.
+  const providesByBlock = {};
+  for (const b of graph.blocks || []) {
+    const dir = path.join(projectRoot, 'blocks', b.id);
+    providesByBlock[b.id] = new Set(listFromMd(readSafe(path.join(dir, 'provides.md'))));
+  }
+  // Parse depends_on.md too — each entry is "<block_id>" or "<block_id>: <cap>".
+  function parseDependsLine(s) {
+    const idx = s.indexOf(':');
+    if (idx < 0) return { blockId: s.trim(), capability: null };
+    return { blockId: s.slice(0, idx).trim(), capability: s.slice(idx + 1).trim() };
+  }
+  const dependsByBlock = {};
+  for (const b of graph.blocks || []) {
+    const dir = path.join(projectRoot, 'blocks', b.id);
+    dependsByBlock[b.id] = listFromMd(readSafe(path.join(dir, 'depends_on.md'))).map(parseDependsLine);
+  }
+
+  // Build links. Each gets {broken, broken_reason} so the UI can paint
+  // contract-violating connections in red.
   const links = [];
   const validIds = new Set(archBlocks.map((b) => b.id));
   for (const b of graph.blocks || []) {
+    const declaredDeps = dependsByBlock[b.id] || [];
+    // Index declared capability per parent by blockId (first occurrence wins).
+    const capByDepId = {};
+    for (const d of declaredDeps) {
+      if (d.blockId && !(d.blockId in capByDepId)) capByDepId[d.blockId] = d.capability;
+    }
+
     for (const dep of b.depends_on || []) {
       const depId = typeof dep === 'string' ? dep : dep.block_id;
-      if (validIds.has(depId)) {
-        links.push({ from: b.id, to: depId, type: 'dep', label: '' });
+      if (!validIds.has(depId)) continue;
+
+      // Cross-check: if the .md says "depId: capability", and target's provides
+      // does NOT include capability → flag the link as broken.
+      const cap = capByDepId[depId] || null;
+      let broken = false;
+      let broken_reason = null;
+      if (cap) {
+        const targetProvides = providesByBlock[depId] || new Set();
+        if (!targetProvides.has(cap)) {
+          broken = true;
+          broken_reason = `${depId} не предоставляет capability "${cap}"`;
+        }
       }
+      links.push({
+        from: b.id,
+        to: depId,
+        type: 'dep',
+        label: cap || '',
+        capability: cap,
+        broken,
+        broken_reason,
+      });
     }
   }
 

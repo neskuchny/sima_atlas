@@ -1442,49 +1442,73 @@ window.SIMA_BOOTSTRAP = {
           "from": "b.ui-control",
           "to": "b.core-sync",
           "type": "dep",
-          "label": ""
+          "label": "sync_report",
+          "capability": "sync_report",
+          "broken": false,
+          "broken_reason": null
         },
         {
           "from": "b.ui-control",
           "to": "b.agent-orchestrator",
           "type": "dep",
-          "label": ""
+          "label": "pipeline_execution",
+          "capability": "pipeline_execution",
+          "broken": false,
+          "broken_reason": null
         },
         {
           "from": "b.core-sync",
           "to": "b.db",
           "type": "dep",
-          "label": ""
+          "label": "atlas_state_store",
+          "capability": "atlas_state_store",
+          "broken": false,
+          "broken_reason": null
         },
         {
           "from": "b.agent-orchestrator",
           "to": "b.db",
           "type": "dep",
-          "label": ""
+          "label": "atlas_state_store",
+          "capability": "atlas_state_store",
+          "broken": false,
+          "broken_reason": null
         },
         {
           "from": "b.agent-orchestrator",
           "to": "b.core-sync",
           "type": "dep",
-          "label": ""
+          "label": "sync_report",
+          "capability": "sync_report",
+          "broken": false,
+          "broken_reason": null
         },
         {
           "from": "b.agent-orchestrator",
           "to": "b.llm-gateway",
           "type": "dep",
-          "label": ""
+          "label": "",
+          "capability": null,
+          "broken": false,
+          "broken_reason": null
         },
         {
           "from": "b.docs",
           "to": "b.db",
           "type": "dep",
-          "label": ""
+          "label": "atlas_state_store",
+          "capability": "atlas_state_store",
+          "broken": false,
+          "broken_reason": null
         },
         {
           "from": "b.docs",
           "to": "b.core-sync",
           "type": "dep",
-          "label": ""
+          "label": "sync_report",
+          "capability": "sync_report",
+          "broken": false,
+          "broken_reason": null
         }
       ],
       "groups": []
@@ -1607,25 +1631,37 @@ window.SIMA_BOOTSTRAP = {
           "from": "b.todo-ui",
           "to": "b.todo-api",
           "type": "dep",
-          "label": ""
+          "label": "todo_crud_endpoints",
+          "capability": "todo_crud_endpoints",
+          "broken": false,
+          "broken_reason": null
         },
         {
           "from": "b.todo-ui",
           "to": "b.user-stories",
           "type": "dep",
-          "label": ""
+          "label": "user_story_catalog",
+          "capability": "user_story_catalog",
+          "broken": false,
+          "broken_reason": null
         },
         {
           "from": "b.todo-api",
           "to": "b.todo-db",
           "type": "dep",
-          "label": ""
+          "label": "todos_table",
+          "capability": "todos_table",
+          "broken": false,
+          "broken_reason": null
         },
         {
           "from": "b.smart-categorizer",
           "to": "b.todo-api",
           "type": "dep",
-          "label": ""
+          "label": "todo_crud_endpoints",
+          "capability": "todo_crud_endpoints",
+          "broken": false,
+          "broken_reason": null
         }
       ],
       "groups": []
@@ -1758,25 +1794,37 @@ window.SIMA_BOOTSTRAP = {
           "from": "b.canvas",
           "to": "b.atlas-sync",
           "type": "dep",
-          "label": ""
+          "label": "arch_state",
+          "capability": "arch_state",
+          "broken": false,
+          "broken_reason": null
         },
         {
           "from": "b.inspector",
           "to": "b.canvas",
           "type": "dep",
-          "label": ""
+          "label": "selected_block_id",
+          "capability": "selected_block_id",
+          "broken": true,
+          "broken_reason": "b.canvas не предоставляет capability \"selected_block_id\""
         },
         {
           "from": "b.inspector",
           "to": "b.atlas-sync",
           "type": "dep",
-          "label": ""
+          "label": "arch_state",
+          "capability": "arch_state",
+          "broken": false,
+          "broken_reason": null
         },
         {
           "from": "b.proposals-panel",
           "to": "b.atlas-sync",
           "type": "dep",
-          "label": ""
+          "label": "arch_state",
+          "capability": "arch_state",
+          "broken": false,
+          "broken_reason": null
         }
       ],
       "groups": [],
