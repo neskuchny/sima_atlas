@@ -154,14 +154,19 @@ function AppV2(){
   const archByProject = bootstrap?.archByProject || window.ARCH_BY_PROJECT || {};
   const urlProject = new URLSearchParams(window.location.search).get('project');
   const [projId, setProjId] = useState(urlProject && data.projects.some(p => p.id === urlProject) ? urlProject : data.projects[0].id);
-  const [layer, setLayer] = useState('canvas');
+  // PR4.3: open the multi-layer architecture view by default so the user
+  // sees the 6 horizontal layer bands the moment the page loads, instead of
+  // having to dig through Layer-1 canvas → Layer-2 → "Архитектура" toggle.
+  const initialLayer = new URLSearchParams(window.location.search).get('layer') || 'map';
+  const initialMapView = new URLSearchParams(window.location.search).get('view') || 'arch';
+  const [layer, setLayer] = useState(initialLayer);
   const [selectedCanvasId, setSelectedCanvasId] = useState(null);
   const [selectedMapNode, setSelectedMapNode] = useState(null);
   const [subschemaId, setSubschemaId] = useState(null);
   const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
 
   // Layer 2 sub-view: 'fields' | 'arch'
-  const [mapView, setMapView] = useState('fields');
+  const [mapView, setMapView] = useState(initialMapView);
   const [archView, setArchView] = useState('layers'); // layers | flow | status
   const [archMvpOnly, setArchMvpOnly] = useState(false);
   const [archSelectedId, setArchSelectedId] = useState(null);
