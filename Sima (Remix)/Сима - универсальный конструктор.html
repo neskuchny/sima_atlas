@@ -43,6 +43,27 @@
 <div id="root"></div>
 
 <script>
+  // PR3.7: one-shot wipe of stale localStorage when the build changes.
+  (function () {
+    var SIMA_BUILD = 'pr3.7';
+    try {
+      if (localStorage.getItem('sima_app_build') !== SIMA_BUILD) {
+        var keys = [];
+        for (var i = 0; i < localStorage.length; i++) keys.push(localStorage.key(i));
+        for (var j = 0; j < keys.length; j++) {
+          var k = keys[j];
+          if (!k) continue;
+          if (k.indexOf('sima.') === 0 || k === 'sima_bootstrap') {
+            localStorage.removeItem(k);
+          }
+        }
+        localStorage.setItem('sima_app_build', SIMA_BUILD);
+      }
+    } catch (e) {}
+  })();
+</script>
+
+<script>
   (function () {
     var box = document.getElementById('sima-bootstatus');
     var body = document.getElementById('sima-bootstatus-body');
@@ -110,19 +131,66 @@
     var root = document.getElementById('root');
     if (root && root.children && root.children.length > 0) {
       if (window.__simaMarkBootOk) window.__simaMarkBootOk();
-    } else {
-      var box = document.getElementById('sima-bootstatus');
-      if (!box.classList.contains('hidden')) {
-        box.classList.remove('ok');
-        box.querySelector('.hdr').textContent = '⚠ Прошло 5 секунд, но React-дерево пустое.';
-        document.getElementById('sima-bootstatus-body').textContent =
-          'Возможные причины:\n' +
-          '  1) Babel ещё компилирует .jsx — подожди ещё пару секунд и обнови (Ctrl+Shift+R).\n' +
-          '  2) Один из .jsx файлов упал с syntax/runtime error — открой DevTools (F12) → Console.\n' +
-          '  3) Браузер заблокировал unpkg.com скрипты (privacy-extension, корпоративная сеть).\n' +
-          '  4) atlas_bootstrap.js не сгенерирован — запусти `node scripts/generate_atlas_bootstrap_js.mjs`.';
-      }
+      return;
     }
+    var box = document.getElementById('sima-bootstatus');
+    if (box.classList.contains('hidden')) return;
+    box.classList.remove('ok');
+    box.querySelector('.hdr').textContent = '⚠ Прошло 5 секунд, React-дерево пустое.';
+
+    function check(name) {
+      var v;
+      try { v = window[name]; } catch { v = undefined; }
+      if (v === undefined) return name + ' = undefined ✗';
+      if (typeof v === 'function') return name + ' = function ✓';
+      if (typeof v === 'object') {
+        var k = v ? Object.keys(v).slice(0, 3).join(',') : '(null)';
+        return name + ' = object{' + k + '...} ✓';
+      }
+      return name + ' = ' + (typeof v) + ' ✓';
+    }
+    var diag = [
+      'Возможные причины:',
+      '  1) Babel ещё компилирует .jsx — подожди ещё 2–5 секунд и обнови (Ctrl+Shift+R).',
+      '  2) .jsx-файл упал на компиляции — открой DevTools (F12) → Console и пришли первую красную строку.',
+      '  3) Браузер заблокировал unpkg.com (privacy-extension, корпоративная сеть).',
+      '  4) atlas_bootstrap.js не сгенерирован — запусти `node scripts/generate_atlas_bootstrap_js.mjs`.',
+      '',
+      'Состояние window.* глобалов:',
+      '  ' + check('React'),
+      '  ' + check('ReactDOM'),
+      '  ' + check('Babel'),
+      '  ' + check('SIMA_BOOTSTRAP'),
+      '  ' + check('SIMA_DATA_V2'),
+      '  ' + check('ARCH_LAYERS'),
+      '  ' + check('ARCH_BY_PROJECT'),
+      '  ' + check('SIMA_ATLAS_CORE'),
+      '  ' + check('Icon'),
+      '  ' + check('Layer1Canvas'),
+      '  ' + check('Layer2Map'),
+      '  ' + check('ArchCanvas'),
+    ];
+    var atlasLive = (window.ARCH_BY_PROJECT && window.ARCH_BY_PROJECT['atlas-live']) || null;
+    diag.push('  ARCH_BY_PROJECT["atlas-live"] = ' + (atlasLive ? ('blocks=' + (atlasLive.blocks || []).length) : 'undefined ✗'));
+    var demoTodo = (window.ARCH_BY_PROJECT && window.ARCH_BY_PROJECT['demo-todo']) || null;
+    diag.push('  ARCH_BY_PROJECT["demo-todo"]  = ' + (demoTodo ? ('blocks=' + (demoTodo.blocks || []).length) : 'undefined ✗'));
+
+    var body = document.getElementById('sima-bootstatus-body');
+    body.innerHTML = '';
+    var pre = document.createElement('pre');
+    pre.style.cssText = 'margin:4px 0 8px;font:inherit;white-space:pre-wrap';
+    pre.textContent = diag.join('\n');
+    body.appendChild(pre);
+
+    var btn = document.createElement('button');
+    btn.textContent = 'Очистить кэш страницы и перезагрузить';
+    btn.style.cssText = 'margin-top:6px;padding:6px 14px;background:#0f766e;color:#fff;border:0;border-radius:6px;cursor:pointer;font:inherit';
+    btn.onclick = function () {
+      try { localStorage.clear(); } catch {}
+      try { sessionStorage.clear(); } catch {}
+      location.reload();
+    };
+    body.appendChild(btn);
   }, 5000);
 </script>
 </body>

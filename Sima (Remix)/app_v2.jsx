@@ -681,5 +681,25 @@ function AppV2Root(){
   return <AppV2/>;
 }
 
-// Render — AppV2 hosts Tweaks + Subschema inside its tree
-ReactDOM.createRoot(document.getElementById('root')).render(<AppV2/>);
+// Render — AppV2 hosts Tweaks + Subschema inside its tree.
+// PR3.7: wrap mount in try/catch so any first-render crash surfaces in the
+// boot-status overlay (index.html) instead of silently leaving #root empty.
+try {
+  ReactDOM.createRoot(document.getElementById('root')).render(<AppV2/>);
+} catch (mountErr) {
+  console.error('[sima] AppV2 mount failed:', mountErr);
+  if (typeof window !== 'undefined') {
+    var rootEl = document.getElementById('root');
+    if (rootEl) {
+      rootEl.innerHTML =
+        '<div style="padding:60px 24px;font-family:system-ui,sans-serif;max-width:800px;margin:0 auto">' +
+        '<h2 style="color:#b91c1c">AppV2 mount failed</h2>' +
+        '<pre style="background:#fef2f2;border:1px solid #fecaca;padding:12px;border-radius:6px;white-space:pre-wrap">' +
+        String(mountErr && (mountErr.stack || mountErr.message || mountErr)).replace(/&/g, '&amp;').replace(/</g, '&lt;') +
+        '</pre>' +
+        '<p>Подробности — в баннере сверху и в DevTools console.</p></div>';
+    }
+  }
+  // Re-throw so window.error fires and the overlay can show a "clear cache" button.
+  throw mountErr;
+}

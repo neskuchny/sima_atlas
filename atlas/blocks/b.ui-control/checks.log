@@ -11,3 +11,4 @@
 2026-05-02T13:03:53Z	pr5_demo_project	pass	atlas/projects/demo-todo with 5 blocks; bootstrap multi-project; validate_projects gate; smoke checks both projects
 2026-05-02T14:38:07Z	pr3_5_visible_errors	pass	visible boot-status overlay in both index.html files; cache-control no-store; surfaces JS errors without DevTools
 2026-05-02T16:51:07Z	pr3_6_localstorage_undefined	pass	useArchState + ArchInspector + AppV2 defensive against 'undefined' literal in localStorage; one-click cache reset button
+2026-05-02T17:23:30Z	pr3_7_boot_diagnostics	pass	one-shot stale localStorage wipe on build change; window.* globals diagnostic in overlay; ReactDOM mount in try/catch with inline error report in #root
