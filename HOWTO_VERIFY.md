@@ -2,6 +2,17 @@
 
 Этот файл — единая точка входа для проверки PR1–PR4 на свежем клоне.
 
+> **Windows / PowerShell users**: команды macOS/Linux (`open`, `head`, `tail`, `cat *.json | head`, `SIMA_BLOCK_ID=… node …`) в PowerShell не работают. Соответствия — в секции 13 ниже.
+
+## ⚠ Если падает на LLM — диагностика одной командой
+
+```bash
+node scripts/llm_check.mjs
+```
+
+Покажет: какие ключи в env, какой провайдер выбран, делает ping и сообщает причину сбоя (401 = плохой ключ, 400 = плохой Google ключ, 429 = квота).
+Exit 0 — live-провайдер ответил. Exit 2 — fallback на mock (значит ключи не работают).
+
 ## 0. Подготовка
 
 ```bash
@@ -268,7 +279,68 @@ node scripts/guard_against_drift.mjs "pip install neo4j"
 
 ---
 
-## 12. Reset / откат
+## 13. Windows / PowerShell соответствия
+
+| Linux / macOS | Windows PowerShell |
+|---|---|
+| `open file.html` | `start file.html` или `Invoke-Item file.html` |
+| `xdg-open file.html` | `start file.html` |
+| `cat file` | `Get-Content file` |
+| `head -30 file` | `Get-Content file -TotalCount 30` |
+| `tail -1 file` | `Get-Content file -Tail 1` |
+| `cat *.json | head` | `Get-ChildItem *.json | Select-Object -First 1 | Get-Content` |
+| `SIMA_BLOCK_ID=b.docs node script.mjs` | `$env:SIMA_BLOCK_ID="b.docs"; node script.mjs` |
+| `LLM_DEFAULT_PROVIDER=google node …` | `$env:LLM_DEFAULT_PROVIDER="google"; node …` |
+| `echo '{"text":"…"}' > /tmp/d.json` | **избегайте** — `echo >` в PowerShell пишет UTF-16 BOM. Используйте `--text` вместо файла (см. ниже) |
+
+### Открыть UI на Windows
+
+```powershell
+# Из корня репо запустить простой http-сервер:
+python -m http.server 8080
+
+# Затем в браузере открыть:
+#   http://localhost:8080/                              ← редирект на UI
+#   http://localhost:8080/Sima%20%28Remix%29/index.html ← напрямую
+#   http://localhost:8080/atlas/wiki.html               ← Mermaid wiki
+```
+
+В корне репо лежит `index.html`-редирект, в `Sima (Remix)/index.html` — ASCII-алиас оригинального файла с кириллическим именем (Python http.server плохо отдаёт URL-encoded UTF-8 пути).
+
+### Передать диалог analyze без temp-файла
+
+`echo > /tmp/d.json` в PowerShell записывает **UTF-16 BOM** — JSON.parse сходит с ума на первом байте. Поэтому скрипт принимает inline:
+
+```powershell
+node scripts/analyze_conversation_to_atlas.mjs --text "Делаем блок b.search на logic — Postgres FTS, зависит от b.db"
+
+# Или через stdin:
+'{"text":"…"}' | node scripts/analyze_conversation_to_atlas.mjs --stdin
+```
+
+### Включить live-LLM на Windows
+
+Создать `.env` в корне репо (UTF-8 без BOM, любая редакторша справится):
+
+```env
+ANTHROPIC_API_KEY=sk-ant-...
+GOOGLE_API_KEY=AIza...
+LLM_DEFAULT_PROVIDER=anthropic
+LLM_MAX_USD_PER_RUN=0.05
+```
+
+Если хочешь использовать **только** Google и не давать gateway лезть в Anthropic — поставь `LLM_DEFAULT_PROVIDER=google` (gateway не будет cascade'ить на anthropic, даже если ANTHROPIC_API_KEY тоже задан).
+
+Проверить:
+```powershell
+node scripts/llm_check.mjs
+```
+
+Если exit code = 2 — gateway упал на mock. Внимательно прочитай attempts: 401 → плохой Anthropic ключ, 400 «API key not valid» → плохой Google ключ.
+
+---
+
+## 14. Reset / откат
 
 Если по ходу проверки что-то изменилось (smoke добавил блок и т.п.):
 

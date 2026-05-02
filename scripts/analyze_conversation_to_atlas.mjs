@@ -28,14 +28,50 @@ const GRAPH_PATH = path.join(ATLAS, 'graph.json');
 const TRACE_TARGET_BLOCK = 'b.agent-orchestrator';
 const MIN_CONFIDENCE = Number(process.env.SIMA_MIN_BLOCK_CONFIDENCE || 0.6);
 
-const [, , inputPath] = process.argv;
-if (!inputPath) {
-  console.error('Usage: node scripts/analyze_conversation_to_atlas.mjs <conversation_json_path>');
+// Accept input in three forms (Windows-friendly: no need for /tmp temp files):
+//   1) JSON file path:                  node analyze_conversation_to_atlas.mjs <path.json>
+//   2) Inline text via --text flag:     node analyze_conversation_to_atlas.mjs --text "your dialog"
+//   3) STDIN piped JSON or raw text:    echo '{"text":"..."}' | node analyze_conversation_to_atlas.mjs --stdin
+
+let text = '';
+const argv = process.argv.slice(2);
+const flagIndex = argv.indexOf('--text');
+if (flagIndex >= 0) {
+  text = String(argv.slice(flagIndex + 1).join(' ') || '').trim();
+} else if (argv.includes('--stdin')) {
+  const raw = fs.readFileSync(0, 'utf8');
+  try {
+    const j = JSON.parse(raw);
+    text = String(j.text || j.conversation_text || '').trim();
+  } catch {
+    text = raw.trim();
+  }
+} else if (argv[0]) {
+  // legacy: JSON file path (the simulate_conversation_branches flow uses this).
+  // Strip BOM the way Windows-PowerShell `>` redirection sometimes adds (UTF-8/16 LE).
+  let raw = fs.readFileSync(argv[0], 'utf8');
+  if (raw.charCodeAt(0) === 0xfeff) raw = raw.slice(1);
+  if (raw.charCodeAt(0) === 0xff && raw.charCodeAt(1) === 0xfe) {
+    // UTF-16 LE BOM → re-read as utf16le
+    raw = fs.readFileSync(argv[0], 'utf16le');
+    if (raw.charCodeAt(0) === 0xfeff) raw = raw.slice(1);
+  }
+  try {
+    const payload = JSON.parse(raw);
+    text = String(payload.text || payload.conversation_text || '').trim();
+  } catch (e) {
+    console.error(`Failed to parse JSON from ${argv[0]}: ${e.message}`);
+    console.error('Hint: on PowerShell use: node ... --text "your dialog"  (no file needed).');
+    process.exit(2);
+  }
+} else {
+  console.error('Usage:');
+  console.error('  node scripts/analyze_conversation_to_atlas.mjs <conversation.json>');
+  console.error('  node scripts/analyze_conversation_to_atlas.mjs --text "<dialog>"');
+  console.error('  echo \'{"text":"…"}\' | node scripts/analyze_conversation_to_atlas.mjs --stdin');
   process.exit(1);
 }
 
-const payload = JSON.parse(fs.readFileSync(inputPath, 'utf8'));
-const text = String(payload.text || payload.conversation_text || '').trim();
 if (!text) {
   console.error('Empty conversation text');
   process.exit(2);

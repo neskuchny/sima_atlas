@@ -334,33 +334,61 @@ export async function callLLM(opts = {}) {
     throw new Error(`callLLM: input ~${inputApprox} tokens exceeds LLM_MAX_INPUT_TOKENS=${inputBudget}`);
   }
 
-  const provider = pickProvider(providerReq);
-  if (strict && providerReq && providerReq !== 'mock' && provider !== providerReq) {
+  // Build the cascade of providers to try.
+  // Rule: a single live provider is chosen up-front. If the caller (or env) set
+  // a specific provider, ONLY that one is tried before falling back to mock.
+  // Cross-provider cascade is opt-in via `allow_provider_cascade: true` so that
+  // a user with both ANTHROPIC_API_KEY and GOOGLE_API_KEY who explicitly pinned
+  // LLM_DEFAULT_PROVIDER=google does NOT silently end up calling Anthropic.
+  const cascade = [];
+  const initial = pickProvider(providerReq);
+  if (strict && providerReq && providerReq !== 'mock' && initial !== providerReq) {
     throw new Error(`callLLM strict: requested provider "${providerReq}" not available`);
   }
+  cascade.push(initial);
+  const explicitlyPinned = !!providerReq || !!process.env.LLM_DEFAULT_PROVIDER;
+  if (!explicitlyPinned && opts.allow_provider_cascade) {
+    for (const p of ['anthropic', 'google']) {
+      if (p === initial) continue;
+      if (PROVIDERS[p] && PROVIDERS[p].available()) cascade.push(p);
+    }
+  }
+  if (!cascade.includes('mock') && !strict) cascade.push('mock');
 
-  const model = modelReq || process.env.LLM_DEFAULT_MODEL || PROVIDERS[provider].defaultModel;
-  const promptHash = hashPrompt(['v1', provider, model, system || '', prompt, schema || null]);
   const startedAt = new Date();
+  let value;
+  let usage = { input_tokens: inputApprox, output_tokens: 0 };
+  const attempts = [];
+  let chosenProvider = null;
+  let chosenModel = null;
+  let lastError = null;
 
-  let value, usage = { input_tokens: inputApprox, output_tokens: 0 };
-  let providerError = null;
-
-  try {
-    if (provider === 'anthropic') ({ value, usage } = await callAnthropic({ model, system, prompt, schema, max_tokens, temperature }));
-    else if (provider === 'google') ({ value, usage } = await callGoogle({ model, system, prompt, schema, max_tokens, temperature }));
-    else value = await callMock({ schema, promptHash, prompt });
-  } catch (err) {
-    providerError = err;
+  for (const provider of cascade) {
+    const model = modelReq || process.env.LLM_DEFAULT_MODEL || PROVIDERS[provider].defaultModel;
+    chosenProvider = provider;
+    chosenModel = model;
+    try {
+      if (provider === 'anthropic') ({ value, usage } = await callAnthropic({ model, system, prompt, schema, max_tokens, temperature }));
+      else if (provider === 'google') ({ value, usage } = await callGoogle({ model, system, prompt, schema, max_tokens, temperature }));
+      else value = await callMock({ schema, promptHash: hashPrompt(['v1', provider, model, system || '', prompt, schema || null]), prompt });
+      lastError = null;
+      break;
+    } catch (err) {
+      lastError = err;
+      attempts.push({ provider, model, error_status: err.status || 0, error_message: (err.message || '').slice(0, 200) });
+      // 4xx auth/quota → don't retry the same provider; cascade to next.
+      // 5xx → also cascade.
+      // (We don't have backoff here; retry-with-backoff lives in caller if needed.)
+      if (provider === 'mock') {
+        // mock provider should not throw, but if it did, this is a code bug.
+        throw err;
+      }
+      console.warn(`[llm-gateway] ${provider} failed (${(err.message || '').slice(0, 160)}); trying next in cascade [${cascade.slice(cascade.indexOf(provider) + 1).join(', ') || '∅'}]`);
+    }
   }
 
-  if (providerError && provider !== 'mock' && !strict) {
-    console.warn(`[llm-gateway] ${provider} failed (${providerError.message}); falling back to mock`);
-    value = await callMock({ schema, promptHash, prompt });
-    usage = { input_tokens: inputApprox, output_tokens: 0 };
-  } else if (providerError) {
-    throw providerError;
-  }
+  if (lastError && !value) throw lastError;
+  const promptHash = hashPrompt(['v1', chosenProvider, chosenModel, system || '', prompt, schema || null]);
 
   const schemaErrors = schema ? validateSchemaShape(schema, value) : [];
   if (schemaErrors.length && strict) {
@@ -368,8 +396,8 @@ export async function callLLM(opts = {}) {
   }
 
   const cost =
-    (usage.input_tokens * (PROVIDERS[provider].pricePerMTokenIn || 0)) / 1e6 +
-    (usage.output_tokens * (PROVIDERS[provider].pricePerMTokenOut || 0)) / 1e6;
+    (usage.input_tokens * (PROVIDERS[chosenProvider].pricePerMTokenIn || 0)) / 1e6 +
+    (usage.output_tokens * (PROVIDERS[chosenProvider].pricePerMTokenOut || 0)) / 1e6;
   const cap = Number(process.env.LLM_MAX_USD_PER_RUN || 0.05);
   if (cost > cap && strict) {
     throw new Error(`callLLM strict: estimated cost $${cost.toFixed(4)} exceeds cap $${cap.toFixed(4)}`);
@@ -378,8 +406,8 @@ export async function callLLM(opts = {}) {
   const trace = {
     at: startedAt.toISOString(),
     op,
-    provider,
-    model,
+    provider: chosenProvider,
+    model: chosenModel,
     prompt_hash: promptHash,
     input_tokens: usage.input_tokens,
     output_tokens: usage.output_tokens,
@@ -387,7 +415,9 @@ export async function callLLM(opts = {}) {
     schema_present: !!schema,
     schema_ok: schemaErrors.length === 0,
     schema_errors: schemaErrors,
-    fallback_to_mock: !!providerError && provider !== 'mock',
+    fallback_to_mock: chosenProvider === 'mock' && cascade.length > 1,
+    cascade,
+    attempts,
   };
   writeTrace(trace);
 

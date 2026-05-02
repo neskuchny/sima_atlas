@@ -19,3 +19,5 @@
 2026-05-02T11:09:54Z	pr4_cursor_hooks	pass	valid Cursor hooks (4 events) + observe/guard/inject scripts + 9-case test
 2026-05-02T11:09:57.033Z  sync  pass  update_block
 2026-05-02T11:09:57.121Z	ingestion	pass	queue applied
+2026-05-02T11:34:27.830Z  sync  pass  update_block
+2026-05-02T11:34:27.948Z	ingestion	pass	queue applied

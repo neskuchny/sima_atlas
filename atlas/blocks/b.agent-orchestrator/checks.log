@@ -14,3 +14,5 @@
 2026-05-02T11:06:50Z	kpi	pass	K1 hooks.json schema valid, K3 drift_guard tested, K5 distillate filter active
 2026-05-02T11:06:50Z	pr4_real_observation	pass	observe_file_edit + guard_against_drift + inject_context_pack wired into Cursor hooks
 2026-05-02T11:09:54Z	pr4_cursor_hooks	pass	valid Cursor hooks (4 events) + observe/guard/inject scripts + 9-case test
+2026-05-02T11:33:33.752Z	llm_extraction	pass	skipped touched=0 provider=mock model=mock-1 cost_usd=0.000000 hash=329695684fbe4372
+2026-05-02T11:34:35Z	pr4_1_windows_fixes	pass	provider cascade respects LLM_DEFAULT_PROVIDER pin; llm_check.mjs diag; index.html for http.server; analyze --text/--stdin for PowerShell; HOWTO Windows section

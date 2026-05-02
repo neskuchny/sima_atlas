@@ -1,6 +1,8 @@
 # b.ui-control — files
 
 - Sima (Remix)/Сима - универсальный конструктор.html [alive]
+- Sima (Remix)/index.html [alive] (PR4.1: ASCII alias for python http.server compatibility)
+- index.html [alive] (PR4.1: repo-root redirect to Sima (Remix)/index.html)
 - Sima (Remix)/app_v2.jsx [alive]
 - Sima (Remix)/arch_canvas.jsx [alive]
 - Sima (Remix)/layer1_canvas.jsx [alive]
