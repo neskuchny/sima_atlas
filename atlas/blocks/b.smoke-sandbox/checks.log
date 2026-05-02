@@ -1,0 +1,14 @@
+2026-05-02T08:48:38.486Z  sync  pass  update_block
+2026-05-02T08:48:38.676Z	ingestion	pass	queue applied
+2026-05-02T08:49:10.494Z  sync  pass  update_block
+2026-05-02T08:49:10.654Z	ingestion	pass	queue applied
+2026-05-02T09:25:46.551Z  sync  pass  update_block
+2026-05-02T09:25:46.679Z	ingestion	pass	queue applied
+2026-05-02T09:27:08Z	pr2_layered_schema	pass	layer/files/tech_stack populated; bootstrap+wiki+roadmap layered
+2026-05-02T10:00:14.716Z  sync  pass  update_block
+2026-05-02T10:00:14.861Z	ingestion	pass	queue applied
+2026-05-02T10:01:01.995Z  sync  pass  update_block
+2026-05-02T10:01:02.165Z	ingestion	pass	queue applied
+2026-05-02T10:01:09.187Z  sync  pass  update_block
+2026-05-02T10:01:09.348Z	ingestion	pass	queue applied
+2026-05-02T10:02:24Z	pr3_llm_gateway	pass	extractBlockSchema replaces regex; golden eval 1.0/0.7 target; b.llm-gateway in review

@@ -1,0 +1,17 @@
+{
+  "blocks": [
+    {
+      "id": "b.realtime-ingestion",
+      "title": "Realtime Ingestion",
+      "mission": "Конвейер приёма данных в реальном времени: подключается к ingestion pipeline и обновляет atlas-state на лету.",
+      "layer": "logic",
+      "type": "module",
+      "mvp": false,
+      "status": "wip",
+      "depends_on": [],
+      "provides": ["realtime_event_stream"],
+      "tech_stack": [],
+      "confidence": 0.85
+    }
+  ]
+}

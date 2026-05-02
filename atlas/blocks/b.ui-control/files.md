@@ -1,0 +1,32 @@
+# b.ui-control — files
+
+- Sima (Remix)/Сима - универсальный конструктор.html [alive]
+- Sima (Remix)/app_v2.jsx [alive]
+- Sima (Remix)/arch_canvas.jsx [alive]
+- Sima (Remix)/layer1_canvas.jsx [alive]
+- Sima (Remix)/layer2_map.jsx [alive]
+- Sima (Remix)/layer3_tz.jsx [alive]
+- Sima (Remix)/layer4_impl.jsx [alive]
+- Sima (Remix)/gallery_v2.jsx [alive]
+- Sima (Remix)/landscape_view.jsx [alive]
+- Sima (Remix)/subschema.jsx [alive]
+- Sima (Remix)/tweaks-panel.jsx [alive]
+- Sima (Remix)/icons.jsx [alive]
+- Sima (Remix)/atlas_sync.js [alive]
+- Sima (Remix)/atlas_bootstrap.js [alive] (auto-generated)
+- Sima (Remix)/styles.css [alive]
+- Sima (Remix)/styles_v2.css [alive]
+- Sima (Remix)/arch_styles.css [alive]
+- Sima (Remix)/landscape_assets.jsx [alive]
+- Sima (Remix)/landscape_styles.css [alive]
+- Sima (Remix)/data_v2.js [alive] (mock projects palette)
+- Sima (Remix)/components.jsx [alive] (referenced indirectly via window globals)
+- Sima (Remix)/sidecol.jsx [alive] (referenced indirectly via window globals)
+- Sima (Remix)/canvas_tools.jsx [alive]
+- Sima (Remix)/composer.jsx [alive] (PR3 will wire it for "Implement")
+- Sima (Remix)/library_view.jsx [alive] (PR4 will wire it for artifacts)
+- Sima (Remix)/graph_view.jsx [alive] (alternative graph view)
+- Sima (Remix)/result_view.jsx [archived] (legacy)
+- Sima (Remix)/schema_view.jsx [archived] (legacy)
+- Sima (Remix)/data.js [archived] (v1 data, replaced by data_v2.js)
+- Sima (Remix)/app.jsx [archived] (v1 root, replaced by app_v2.jsx)

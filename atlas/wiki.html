@@ -1,48 +1,164 @@
 <!doctype html>
-<html lang="ru"><head><meta charset="utf-8"/><title>Atlas Wiki</title>
-<style>body{font-family:Inter,system-ui,sans-serif;max-width:980px;margin:24px auto;padding:0 16px;line-height:1.5}h1,h2,h3{line-height:1.25}code{background:#f4f4f5;padding:1px 4px;border-radius:4px}</style>
+<html lang="ru"><head>
+<meta charset="utf-8"/>
+<title>Atlas Wiki</title>
+<style>
+  body{font-family:Inter,system-ui,sans-serif;max-width:1080px;margin:24px auto;padding:0 16px;line-height:1.55;color:#1f2937}
+  h1,h2,h3,h4{line-height:1.25;color:#111827}
+  h1{border-bottom:2px solid #e5e7eb;padding-bottom:.4em}
+  h2{border-bottom:1px solid #e5e7eb;padding-bottom:.3em;margin-top:2em}
+  code{background:#f4f4f5;padding:1px 6px;border-radius:4px;font-size:.92em}
+  pre{background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:12px;overflow:auto}
+  .mermaid{background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:16px;margin:1em 0}
+  hr{border:0;border-top:1px solid #e5e7eb;margin:2em 0}
+  ul{padding-left:1.4em}
+</style>
 </head><body>
 <h1>Sima Atlas Wiki</h1>
 <h2>b.ui-control — UI Control Plane</h2>
 <ul>
-<li>status: **done**</li>
+<li>status: <strong>wip</strong></li>
 </ul>
 <h1>b.ui-control — mission</h1>
-<p>Ключевая цель блока и его значение для устранения рассинхрона.</p>
+<p>Визуальная control plane Симы: один React-канвас, в котором человек видит схему продукта (слои, блоки, связи), статус каждого блока (idea/wip/review/done/broken/drift), запускает действия по блоку (Implement / Review / Done / Rollback / mark-dead) и собирает context-pack для агента.</p>
+<p>Главное назначение — заменить чтение кода и переключение между чатами Cursor/Claude/Codex на одну визуальную карту, где видно: что сделано, что сломано, что синхронизировано с миссией продукта, что нет.</p>
+<h2>Scope</h2>
+<ul>
+<li>4 layer switcher (Канвас источников / Карта продукта / ТЗ / Реализация) + Галерея.</li>
+<li>Архитектурный канвас (горизонтальные слои, блоки с портами, типизированные связи, drag&amp;drop).</li>
+<li>Inspector блока: mission/kpi/tasks/checks, кнопки lifecycle, экспорт context-pack.</li>
+<li>Подсветка рассинхрона и broken/drift-фильтры.</li>
+</ul>
+<h2>Out of scope (для PR1)</h2>
+<ul>
+<li>LLM-вызовы из UI (PR3).</li>
+<li>Watcher событий Cursor (PR4).</li>
+</ul>
 <h2>b.core-sync — Sync Engine</h2>
 <ul>
-<li>status: **done**</li>
+<li>status: <strong>wip</strong></li>
 </ul>
 <h1>b.core-sync — mission</h1>
-<p>Ключевая цель блока и его значение для устранения рассинхрона.</p>
+<p>Sync Engine — движок проверки синхронизации блоков продукта с миссией, KPI, стэком и кодом. Главная задача — детектить «рассинхрон»: код пишется в одном фреймворке, ТЗ говорит про другой; блок A объявляет, что зависит от capability X у блока B, а B такой capability не предоставляет; KPI задан, но в <code>checks.log</code> нет ни одной измеренной записи.</p>
+<p>Текущая реализация (<code>Sima (Remix)/atlas<em>sync.js</code> + <code>scripts/validate</em>*</code>) — каркас: проверяет наличие файлов, подсчитывает прогресс tasks/KPI, сравнивает <code>depends_on/provides</code>. Этого недостаточно для миссии «решить рассинхрон» — нужно семантическое сопоставление миссии блока с реализацией (требует LLM, PR3) и реальный анализ кода (PR4).</p>
+<h2>Layer</h2>
+<p>logic</p>
+<h2>Что должен делать в done-версии (роадмап)</h2>
+<p>1. Структурный sync (PR2): contract-валидация графа, layer/depends/provides консистентность.</p>
+<p>2. Семантический sync (PR3): LLM проверяет <code>code(impl) ↔ mission/kpi блока</code>, выдаёт <code>drift_reason</code>.</p>
+<p>3. Реальный sync с кодом (PR4): на каждый <code>git diff</code> сопоставляет изменённые файлы с <code>files.md</code> блоков и логирует факт изменения в <code>checks.log</code>.</p>
+<h2>Out of scope</h2>
+<ul>
+<li>Генерация документации (это <code>b.docs</code>).</li>
+<li>UI-визуализация sync-репорта (это <code>b.ui-control</code>).</li>
+</ul>
 <h2>b.db — Atlas Database</h2>
 <ul>
-<li>status: **wip**</li>
+<li>status: <strong>idea</strong></li>
 </ul>
 <h1>b.db — mission</h1>
-<p>Ключевая цель блока и его значение для устранения рассинхрона.</p>
+<p>Atlas storage слой: единый источник правды для графа продукта (<code>graph.json</code>), блоков (<code>blocks/&lt;id&gt;/*.md</code>), очереди ingestion (<code>ingestion_queue.jsonl</code>), журналов transitions/decisions/checks. Цель — предоставить детерминированный API для чтения/записи без дрейфа.</p>
+<p>В MVP — это plain markdown + JSON файлы на диске + localStorage-кеш на клиенте через <code>atlas_sync.js</code>. В production-варианте — миграция на SQLite или Postgres с тем же файловым API через MCP-сервер (атомарность, версии, multi-tenant).</p>
+<h2>Layer</h2>
+<p>data</p>
+<h2>Что должен делать в done-версии</h2>
+<p>1. Атомарные write-операции (block update = single transaction, не оставляем half-written файлы при сбое).</p>
+<p>2. Версионирование блока: каждое изменение mission/kpi/depends/provides пишется в <code>history/&lt;timestamp&gt;.diff</code>.</p>
+<p>3. Migration runner: если схема <code>graph.json</code> меняется (как в PR2 при добавлении <code>layer/type/mvp</code>), мигратор обновляет старые блоки.</p>
+<p>4. Read-API: <code>getBlock(id)</code>, <code>listBlocks(filter)</code>, <code>getDependencies(id)</code>, <code>getHistory(id)</code> — единый интерфейс для UI и MCP.</p>
+<h2>Out of scope</h2>
+<ul>
+<li>Векторный поиск (это backup-память, не основная).</li>
+<li>Multi-project namespacing (PR в стек после PR4).</li>
+</ul>
 <h2>b.agent-orchestrator — Agent Orchestrator</h2>
 <ul>
-<li>status: **done**</li>
+<li>status: <strong>wip</strong></li>
 </ul>
 <h1>b.agent-orchestrator — mission</h1>
-<p>Ключевая цель блока и его значение для устранения рассинхрона.</p>
+<p>Шина между Sima и любым coding-агентом (Cursor, Claude Code, Codex CLI, Antigravity). Главная задача — обеспечить, чтобы все агенты работали по <strong>одному и тому же</strong> context-pack, читали <code>/atlas/blocks/&lt;id&gt;/</code> перед написанием кода и пушили обратно реальные события (file edits, shell calls, status transitions), а не шаблонные «sync pass»-логи.</p>
+<p>Текущая реализация: MCP-сервер (<code>scripts/mcp<em>atlas</em>server.mjs</code> с 21+ tools), <code>.cursor/hooks.json</code>, <code>AGENTS.md</code> / <code>CLAUDE.md</code> контракты. Главные пропуски — <code>.cursor/hooks.json</code> использует выдуманное событие <code>afterPromptSent</code> и формат <code>action.run_command</code>, который Cursor не интерпретирует; нет наблюдения за реальными file edits и tool calls агентов.</p>
+<h2>Layer</h2>
+<p>ai</p>
+<h2>Что должен делать в done-версии</h2>
+<p>1. Валидные Cursor hooks: <code>beforeShellExecution</code>, <code>afterFileEdit</code>, <code>beforeSubmitPrompt</code> с реальным запуском node-скриптов.</p>
+<p>2. <code>observe<em>file</em>edit.mjs</code>: получает путь файла → ищет в <code>files.md</code> блоков → пишет в <code>checks.log</code> блока факт правки + <code>git diff --stat</code>.</p>
+<p>3. <code>guard<em>against</em>drift.mjs</code>: проверяет shell-команды против <code>tech_stack.md</code> (например, блокирует <code>pip install</code> если стек React).</p>
+<p>4. Adapter для Claude Code: <code>claude --print --add-dir /atlas/blocks/&lt;id&gt;</code> запускается из MCP-tool <code>run<em>block</em>implementation</code>.</p>
+<p>5. Multi-agent parity: один и тот же context-pack JSON отдаётся через Cursor (MCP) и Claude (CLI flag).</p>
+<h2>Out of scope</h2>
+<ul>
+<li>LLM-извлечение смысла из чата (это <code>b.llm-gateway</code>).</li>
+<li>UI-операции по блоку (это <code>b.ui-control</code>).</li>
+</ul>
 <h2>b.docs — Docs Builder</h2>
 <ul>
-<li>status: **wip**</li>
+<li>status: <strong>wip</strong></li>
 </ul>
 <h1>b.docs — mission</h1>
-<p>Генерирует wiki и ТЗ по блокам.</p>
-<h2>b.semantic-llm — Auto: b.semantic-llm</h2>
+<p>Документ-генератор Атласа: на каждый блок собирает живую страницу wiki из его <code>mission.md / kpi.md / acceptance.md / depends<em>on.md / provides.md / files.md / patterns.md</code>. На каждый проект собирает <code>auto</em>tz.md</code> (агрегированное ТЗ) и <code>roadmap.md</code> (приоритизированный список блоков по статусу и зависимостям).</p>
+<p>Главное правило — <strong>никакой генерации текста, не основанной на содержимом блоков</strong>. Если у блока mission.md шаблонный или пустой, в wiki это блок попадает с явной пометкой <code>[требует заполнения]</code>, а не «Ключевая цель блока…».</p>
+<p>Реализация: <code>scripts/generate<em>wiki.mjs</code>, <code>scripts/generate</em>tz<em>from</em>atlas.mjs</code>, <code>scripts/render<em>wiki</em>html.mjs</code>, <code>scripts/rebuild<em>atlas</em>roadmap.mjs</code>.</p>
+<h2>Layer</h2>
+<p>content</p>
+<h2>Что должен делать в done-версии</h2>
+<p>1. Wiki содержит секции по слоям (front/back/ai/data/...) и навигацию между блоками по <code>depends_on</code>.</p>
+<p>2. Mermaid-диаграмма графа в <code>wiki.html</code> (по <code>graph.json</code>).</p>
+<p>3. ТЗ автогенерируется только из non-template mission/kpi (контракт <code>validate<em>no</em>template_placeholders</code>).</p>
+<p>4. Roadmap учитывает не только статус блока, но и <code>depends_on</code> (топологическая сортировка).</p>
+<p>5. Скриншоты блоков (когда <code>b.ui-control</code> дойдёт до этой фичи) встраиваются в wiki.</p>
+<h2>Out of scope</h2>
 <ul>
-<li>status: **wip**</li>
+<li>Извлечение содержимого блоков из чата (это <code>b.llm-gateway</code> + <code>b.agent-orchestrator</code>).</li>
 </ul>
-<h1>b.semantic-llm — mission</h1>
-<p>Автосоздано из смыслов диалога.</p>
-<h2>b.realtime-ingestion — Auto: b.realtime-ingestion</h2>
+<h2>b.llm-gateway — LLM Gateway</h2>
 <ul>
-<li>status: **wip**</li>
+<li>status: <strong>review</strong></li>
 </ul>
-<h1>b.realtime-ingestion — mission</h1>
-<p>Автосоздано из смыслов диалога.</p>
+<h1>b.llm-gateway — mission</h1>
+<p>Единая точка входа для всех LLM-вызовов внутри Атласа. Реализовано в <code>scripts/llm_gateway.mjs</code>:</p>
+<ul>
+<li><strong>Provider-agnostic API</strong>: <code>callLLM({provider, model, system, prompt, schema, max_tokens, temperature, op, strict})</code> для anthropic / google / mock.</li>
+<li><strong>Structured output</strong> через JSON Schema: для Anthropic — через tool-use (<code>submit<em>structured</em>response</code>), для Gemini — через <code>responseSchema</code>.</li>
+<li><strong>Mock-провайдер</strong> с двумя уровнями lookup: точный hash (provider+model+prompt) и prompt-only hash. При отсутствии fixture — детерминированный пустой объект по schema. Используется в CI, golden-set eval'ах и при отсутствии API-ключей.</li>
+<li><strong>Trace-логирование</strong>: каждый вызов пишет <code>atlas/llm<em>traces/&lt;UTC&gt;</em><em>&lt;provider&gt;</em>_&lt;hash&gt;.json</code> с провайдером, моделью, в/о токенами, оценкой стоимости в USD, schema-валидностью и причинами ошибок. <code>.gitignore</code> отсекает шум, оставляя <code>.gitkeep</code>.</li>
+<li><strong>Token budget</strong> (<code>LLM<em>MAX</em>INPUT<em>TOKENS</code>) и <strong>per-run cost cap</strong> (<code>LLM</em>MAX<em>USD</em>PER_RUN</code>) — оба читаются из <code>.env</code>. Превышение → выброс при <code>strict: true</code>.</li>
+<li><strong>Provider fallback</strong>: если запрошенный провайдер недоступен или отвалился (5xx / timeout / auth), gateway без <code>strict</code> падает обратно на mock и логирует это в trace (<code>fallback<em>to</em>mock: true</code>).</li>
+<li><strong>Sugar-функция</strong> <code>extractBlockSchema(dialogText)</code> принимает диалог и возвращает <code>{ blocks: [{id, title, mission, layer, type, mvp, status, depends<em>on, provides, tech</em>stack, confidence}] }</code> — это и есть «извлечение блоков из чата», которое требует ТЗ.</li>
+</ul>
+<p>В PR3 заменён regex <code>/(?:block|блок)\s+([a-z0-9.<em>-]+)/giu</code> в <code>scripts/analyze</em>conversation<em>to</em>atlas.mjs</code> на вызов <code>extractBlockSchema()</code> через этот gateway. Результат: новый блок создаётся в <code>graph.json</code> со всеми структурными полями и заметкой о происхождении (LLM extraction, confidence). Для существующих блоков LLM-предложения <strong>не перезаписывают</strong> content — только дописывают <code>llm_extraction</code> запись в <code>checks.log</code> (это будущий human-in-loop accept/reject в UI).</p>
+<p>Golden eval: 5 эталонных диалогов, средняя точность ≥ 0.7 (на mock — 1.0).</p>
+<h2>Layer</h2>
+<p>ai</p>
+<h2>Что должен делать в done-версии (после review)</h2>
+<p>1. Live-test против реального Anthropic / Gemini API (нужен ключ в <code>.env</code>).</p>
+<p>2. UI confidence/diff flow (composer.jsx) — accept/reject предложенных LLM блоков.</p>
+<p>3. Eval на 30+ реальных диалогов вместо 5 синтетических.</p>
+<p>4. Persistent eval suite в nightly с историей точности.</p>
+<p>5. Подключить gateway во все остальные места, где имеет смысл LLM (sync semantic-check, distillate fact extraction).</p>
+<h2>Out of scope</h2>
+<ul>
+<li>Embeddings / vector search.</li>
+<li>Streaming.</li>
+<li>Fine-tuning или local-inference (vLLM и т.п.) — оставлено на enterprise mode.</li>
+</ul>
+<h2>b.smoke-sandbox — Smoke Sandbox (test target)</h2>
+<ul>
+<li>status: <strong>idea</strong></li>
+</ul>
+<h1>b.smoke-sandbox — mission</h1>
+<p>Целевой блок для всех e2e/smoke-тестов Атласа. Реальный код продукта на него не ссылается. MCP smoke-сценарии (<code>scripts/mcp<em>smoke</em>e2e.mjs</code>, future smoke harnesses) пишут сюда mission/tasks/ingestion-queue, чтобы не повреждать содержание реальных блоков (b.ui-control, b.core-sync, b.db, b.agent-orchestrator, b.docs, b.llm-gateway).</p>
+<p>Ожидаемый цикл жизни: блок постоянно в статусе <code>idea</code>, его tasks/checks log заполняются и затираются smoke-сценариями, что не считается дрейфом — это часть функции блока.</p>
+<h2>Layer</h2>
+<p>testing</p>
+<h2>Что должен делать в done-версии</h2>
+<p>Блок никогда не должен попадать в <code>done</code>. Это контейнер для тестов.</p>
+<h2>Out of scope</h2>
+<ul>
+<li>Любые продуктовые фичи.</li>
+</ul>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  if (window.mermaid) mermaid.initialize({ startOnLoad: true, theme: 'default', flowchart: { htmlLabels: true } });
+</script>
 </body></html>

@@ -1,0 +1,18 @@
+# b.core-sync — files
+
+- Sima (Remix)/atlas_sync.js [alive] (client-side syncCheck + transitions)
+- scripts/validate_block_contracts.mjs [alive]
+- scripts/validate_dependency_contracts.mjs [alive]
+- scripts/validate_acceptance_assertions.mjs [alive]
+- scripts/validate_no_template_placeholders.mjs [alive] (PR1)
+- scripts/validate_files_registry.mjs [alive] (PR2 — checks files in files.md exist on disk)
+- scripts/validate_ingestion_contracts.mjs [alive]
+- scripts/validate_ingestion_quality.mjs [alive]
+- scripts/validate_agent_parity.mjs [alive]
+- scripts/validate_parity_matrix.mjs [alive]
+- scripts/validate_bootstrap_projection.mjs [alive]
+- scripts/validate_bootstrap_regeneration.mjs [alive]
+- scripts/calc_intelligence_health.mjs [alive]
+- scripts/audit_production_readiness.mjs [alive]
+- scripts/log_transition.mjs [alive]
+- atlas/transitions.log [alive]

@@ -1,3 +1,5 @@
 # b.docs — depends_on
 
-- b.ui-control: visual_control_panel
+- b.db: atlas_state_store
+- b.db: file_registry
+- b.core-sync: sync_report

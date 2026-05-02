@@ -1,0 +1,17 @@
+{
+  "blocks": [
+    {
+      "id": "b.auth",
+      "title": "Auth",
+      "mission": "Сервис аутентификации с JWT, поддерживает email/password и OAuth Google, выдаёт auth_token.",
+      "layer": "ai",
+      "type": "module",
+      "mvp": true,
+      "status": "idea",
+      "depends_on": ["b.db"],
+      "provides": ["auth_token"],
+      "tech_stack": ["jwt", "oauth", "google-oauth"],
+      "confidence": 0.9
+    }
+  ]
+}

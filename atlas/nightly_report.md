@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-04-30T20:30:27.550Z_
+_Generated: 2026-05-02T10:01:06.377Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -10,12 +10,24 @@ _Generated: 2026-04-30T20:30:27.550Z_
   - output: Ingestion quality validation: OK
 - ✅ block_contracts: ok
   - output: Block contract validation: OK
+- ✅ no_template_placeholders: ok
+  - output: Template-placeholder validation: OK (7 blocks scanned)
+- ✅ files_registry: ok
+  - output: Files registry validation: OK (alive=108, archived=4, dead=0)
 - ✅ dependency_contracts: ok
   - output: Dependency contract validation: OK
 - ✅ acceptance_assertions: ok
   - output: Acceptance assertions validation: OK
 - ✅ atlas_selftest: ok
   - output: atlas_sync.selftest: OK
+- ✅ bootstrap_layered_smoke: ok
+  - output: atlas_bootstrap smoke: OK (layers=6, blocks=7, links=7)
+- ✅ llm_gateway_selftest: ok
+  - output: llm_gateway.selftest: OK (4 cases)
+- ✅ llm_extraction_eval: ok
+  - output: llm_extraction.eval: OK — avg 1.00 on 5 cases (target 0.70)
+- ✅ simulate_conversation_branches: ok
+  - output: PASS: created b.realtime-ingestion in graph.json
 - ✅ sync_context_packs: ok
   - output: Context packs synced: 7
 - ✅ agent_parity: ok
@@ -23,14 +35,14 @@ _Generated: 2026-04-30T20:30:27.550Z_
 - ✅ parity_matrix: ok
   - output: Parity matrix validation: OK
 - ✅ generate_wiki: ok
-  - output: Generated /workspace/sima_atlas/atlas/WIKI.md
+  - output: Generated /home/user/sima_atlas/atlas/WIKI.md
 - ✅ generate_tz: ok
-  - output: Generated /workspace/sima_atlas/ТЗ/auto_tz.md
+  - output: Generated /home/user/sima_atlas/ТЗ/auto_tz.md
 - ✅ rebuild_roadmap: ok
-  - output: Rebuilt /workspace/sima_atlas/atlas/roadmap.md
+  - output: Rebuilt /home/user/sima_atlas/atlas/roadmap.md
 - ✅ mcp_smoke_e2e: ok
   - output: mcp_smoke_e2e: OK
 - ✅ intelligence_health: ok
   - output: Intelligence health: 1 (7/7)
 
-Summary: PASS (15/15)
+Summary: PASS (21/21)
