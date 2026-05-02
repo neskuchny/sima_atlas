@@ -49,7 +49,24 @@
     function show(kind, msg) {
       box.classList.remove('ok'); box.classList.remove('hidden');
       box.querySelector('.hdr').textContent = '✗ ' + kind;
-      body.textContent = String(msg);
+      body.innerHTML = '';
+      var pre = document.createElement('pre');
+      pre.style.margin = '4px 0 8px';
+      pre.style.font = 'inherit';
+      pre.style.whiteSpace = 'pre-wrap';
+      pre.textContent = String(msg);
+      body.appendChild(pre);
+      if (/JSON|localStorage|undefined/.test(String(msg))) {
+        var btn = document.createElement('button');
+        btn.textContent = 'Очистить кэш страницы и перезагрузить';
+        btn.style.cssText = 'margin-top:6px;padding:6px 14px;background:#0f766e;color:#fff;border:0;border-radius:6px;cursor:pointer;font:inherit';
+        btn.onclick = function () {
+          try { localStorage.clear(); } catch {}
+          try { sessionStorage.clear(); } catch {}
+          location.reload();
+        };
+        body.appendChild(btn);
+      }
     }
     window.addEventListener('error', function (e) {
       var src = (e.filename || '') + (e.lineno ? ':' + e.lineno : '');

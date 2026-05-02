@@ -141,7 +141,14 @@ function AppV2(){
   const bootstrapRaw = (() => {
     try { return localStorage.getItem('sima_bootstrap'); } catch { return null; }
   })();
-  const bootstrap = window.SIMA_BOOTSTRAP || (bootstrapRaw ? JSON.parse(bootstrapRaw) : null);
+  // PR3.5 hardening: stale "undefined" / "null" strings would crash JSON.parse.
+  function safeParseStr(raw) {
+    if (typeof raw !== 'string') return null;
+    const t = raw.trim();
+    if (!t || t === 'undefined' || t === 'null') return null;
+    try { return JSON.parse(t); } catch { return null; }
+  }
+  const bootstrap = window.SIMA_BOOTSTRAP || safeParseStr(bootstrapRaw);
   const defaultData = window.SIMA_DATA_V2;
   const templateProject = defaultData.projects[0];
   const normalizedProjects = (bootstrap?.data?.projects || []).map((p) => ({
@@ -523,7 +530,9 @@ function AppV2(){
                   const key = 'sima.arch.'+projId;
                   try {
                     const raw = localStorage.getItem(key);
-                    const s = raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(archByProject[projId]));
+                    const baseProj = (archByProject && archByProject[projId]) || { layers: [], blocks: [], links: [], groups: [] };
+                    const parsed = safeParseStr(raw);
+                    const s = (parsed && Array.isArray(parsed.blocks)) ? parsed : JSON.parse(JSON.stringify(baseProj));
                     if (patch === '__delete'){
                       s.blocks = s.blocks.filter(b => b.id !== id);
                       s.links = s.links.filter(l => l.from !== id && l.to !== id);

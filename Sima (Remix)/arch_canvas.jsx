@@ -11,35 +11,47 @@ const BLOCK_H_COMPACT = 56;
 const BLOCK_H_LARGE = 96;
 
 function useArchState(projectId){
-  // localStorage-backed override per project so drags persist across reloads
+  // localStorage-backed override per project so drags persist across reloads.
+  // PR3.5 hardening: window.ARCH_BY_PROJECT[projectId] may be undefined if the
+  // bootstrap hasn't loaded yet or the projectId is unknown. Also a previous
+  // run could have written the literal string "undefined" into localStorage
+  // (JSON.stringify(undefined) === undefined → setItem stores "undefined"),
+  // which then crashes JSON.parse on next mount with
+  //   SyntaxError: "undefined" is not valid JSON
+  // This was the actual UI-blocking bug. Now both paths are safe.
   const key = 'sima.arch.'+projectId;
-  const base = window.ARCH_BY_PROJECT[projectId];
-  const [state, setState] = useState(() => {
+  const EMPTY = { projectId, layers: [], blocks: [], links: [], groups: [] };
+  const base = (window.ARCH_BY_PROJECT && window.ARCH_BY_PROJECT[projectId]) || EMPTY;
+  function safeClone(v) {
+    try { return JSON.parse(JSON.stringify(v)); } catch { return JSON.parse(JSON.stringify(EMPTY)); }
+  }
+  function safeParse(raw) {
+    if (typeof raw !== 'string') return null;
+    const t = raw.trim();
+    if (!t || t === 'undefined' || t === 'null') return null;
     try {
-      const raw = localStorage.getItem(key);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        return parsed;
-      }
-    } catch(e){}
-    return JSON.parse(JSON.stringify(base));
+      const parsed = JSON.parse(t);
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return null;
+      return parsed;
+    } catch { return null; }
+  }
+  const [state, setState] = useState(() => {
+    let fromStorage = null;
+    try { fromStorage = safeParse(localStorage.getItem(key)); } catch {}
+    return fromStorage || safeClone(base);
   });
   useEffect(() => {
     try { localStorage.setItem(key, JSON.stringify(state)); } catch(e){}
   }, [state, key]);
   // Reset if project changes
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(key);
-      if (raw) setState(JSON.parse(raw));
-      else setState(JSON.parse(JSON.stringify(base)));
-    } catch(e){
-      setState(JSON.parse(JSON.stringify(base)));
-    }
+    let next = null;
+    try { next = safeParse(localStorage.getItem(key)); } catch {}
+    setState(next || safeClone(base));
   }, [projectId]);
   const reset = () => {
     try { localStorage.removeItem(key); } catch(e){}
-    setState(JSON.parse(JSON.stringify(base)));
+    setState(safeClone(base));
   };
   return [state, setState, reset];
 }
@@ -414,15 +426,23 @@ function ArchCanvas({ projectId, density, view, mvpOnly, onSelectBlock, selected
 
 // ---- Inspector ----
 function ArchInspector({ projectId, selectedBlockId, onOpenSubschema, onPatch }){
-  const arch = (window.__simaArchRef && window.__simaArchRef[projectId]) || window.ARCH_BY_PROJECT[projectId];
-  // We read from localStorage because arch state lives in ArchCanvas
+  // PR3.5 hardening: tolerate missing project + corrupted localStorage value
+  // (the literal string "undefined" / "null" / non-JSON garbage).
+  const EMPTY = { projectId, layers: [], blocks: [], links: [], groups: [] };
+  const arch = (window.__simaArchRef && window.__simaArchRef[projectId])
+    || (window.ARCH_BY_PROJECT && window.ARCH_BY_PROJECT[projectId])
+    || EMPTY;
   const key = 'sima.arch.'+projectId;
   let live = arch;
   try {
     const raw = localStorage.getItem(key);
-    if (raw) live = JSON.parse(raw);
+    if (typeof raw === 'string' && raw.trim() && raw !== 'undefined' && raw !== 'null') {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) live = parsed;
+    }
   } catch(e){}
-  const block = selectedBlockId ? live.blocks.find(b => b.id === selectedBlockId) : null;
+  if (!live || !Array.isArray(live.blocks)) live = arch;
+  const block = selectedBlockId && Array.isArray(live.blocks) ? live.blocks.find(b => b.id === selectedBlockId) : null;
 
   if (!block){
     return (
