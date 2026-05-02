@@ -1,11 +1,52 @@
 #!/usr/bin/env node
 import http from 'node:http';
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
 import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const ROOT = path.resolve(path.dirname(__filename), '..');
+const ATLAS = path.join(ROOT, 'atlas');
 
 const port = Number(process.env.ATLAS_API_PORT || 8787);
 
 function runNode(args) {
   return execFileSync('node', args, { stdio: 'pipe' }).toString().trim();
+}
+
+// PR-Live: cheap content hash over the files that drive the UI. We do NOT walk
+// the whole atlas/ tree (that would include llm_traces and runtime checks.log
+// noise that triggers spurious reloads). We hash exactly the artefacts the
+// bootstrap generator reads.
+function computeAtlasStateHash() {
+  const h = crypto.createHash('sha256');
+  function add(p) {
+    if (!fs.existsSync(p)) return;
+    const stat = fs.statSync(p);
+    if (stat.isFile()) {
+      h.update(p);
+      h.update(fs.readFileSync(p));
+      return;
+    }
+    if (stat.isDirectory()) {
+      for (const f of fs.readdirSync(p).sort()) add(path.join(p, f));
+    }
+  }
+  // Top-level project files
+  for (const f of ['graph.json', 'project.md', 'rules.md', 'tech_stack.md']) add(path.join(ATLAS, f));
+  // All blocks under the main atlas
+  add(path.join(ATLAS, 'blocks'));
+  // User projects
+  add(path.join(ATLAS, 'projects'));
+  // Pending proposals (for the Proposals UI panel)
+  if (fs.existsSync(path.join(ATLAS, 'proposals'))) {
+    for (const f of fs.readdirSync(path.join(ATLAS, 'proposals')).sort()) {
+      if (f.endsWith('.json')) add(path.join(ATLAS, 'proposals', f));
+    }
+  }
+  return h.digest('hex').slice(0, 16);
 }
 
 function json(res, code, body) {
@@ -31,6 +72,34 @@ const server = http.createServer((req, res) => {
   }
   if (req.method === 'GET' && req.url === '/health') {
     return json(res, 200, { ok: true, service: 'atlas-api' });
+  }
+  // PR-Live: cheap polling endpoint. UI fetches /atlas/state every few seconds;
+  // when `hash` differs from the last value the UI knew, it pulls /atlas/payload
+  // (full bootstrap content) and re-renders. Hash-only path keeps the request
+  // tiny so polling is essentially free.
+  if (req.method === 'GET' && req.url === '/atlas/state') {
+    try {
+      const hash = computeAtlasStateHash();
+      return json(res, 200, { ok: true, hash, at: new Date().toISOString() });
+    } catch (e) {
+      return json(res, 500, { ok: false, error: String(e) });
+    }
+  }
+  if (req.method === 'GET' && req.url === '/atlas/payload') {
+    try {
+      // Re-run the bootstrap generator on demand so /atlas/payload always
+      // reflects on-disk truth (including newly created blocks / subschemas).
+      runNode(['scripts/generate_atlas_bootstrap_js.mjs']);
+      const bootstrapPath = path.join(ROOT, 'Sima (Remix)', 'atlas_bootstrap.js');
+      const src = fs.readFileSync(bootstrapPath, 'utf8');
+      const m = src.match(/window\.SIMA_BOOTSTRAP\s*=\s*(\{[\s\S]*?\});\s*\n\n\/\/ Inject/);
+      if (!m) return json(res, 500, { ok: false, error: 'bootstrap payload not parseable' });
+      const payload = JSON.parse(m[1]);
+      const hash = computeAtlasStateHash();
+      return json(res, 200, { ok: true, hash, payload });
+    } catch (e) {
+      return json(res, 500, { ok: false, error: String(e) });
+    }
   }
   if (req.method !== 'POST') return json(res, 404, { ok: false, error: 'not found' });
 

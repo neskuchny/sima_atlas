@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-05-02T23:15:30.852Z_
+_Generated: 2026-05-02T23:24:29.244Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -46,6 +46,8 @@ _Generated: 2026-05-02T23:15:30.852Z_
   - output: agent_parity_real.smoke: OK (7 blocks, MCP pack ≡ disk)
 - ✅ connection_drift: ok
   - output: connection_drift.smoke: OK (broken capability link detected and propagated to archByProject.links)
+- ✅ atlas_live_polling: ok
+  - output: atlas_live_polling.smoke: OK (state hash changes on disk mutation; payload returns bootstrap shape)
 - ✅ sync_context_packs: ok
   - output: Context packs synced: 7
 - ✅ agent_parity: ok
@@ -63,4 +65,4 @@ _Generated: 2026-05-02T23:15:30.852Z_
 - ✅ intelligence_health: ok
   - output: Intelligence health: 1 (7/7)
 
-Summary: PASS (30/30)
+Summary: PASS (31/31)

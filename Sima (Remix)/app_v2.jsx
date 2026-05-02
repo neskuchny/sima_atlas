@@ -218,6 +218,10 @@ function AppV2(){
 
   const [atlasState, setAtlasState] = useState(null);
   const [syncReport, setSyncReport] = useState(null);
+  // PR-Live: bumped each time the polling loop pulls fresh atlas content from
+  // the API server, so descendant components (ArchCanvas, AtlasSchemaPanel,
+  // ProposalsPanel) re-render without a full page reload.
+  const [liveTick, setLiveTick] = useState(0);
 
   React.useEffect(() => {
     if (!window.SIMA_ATLAS_CORE || !archByProject) return;
@@ -226,7 +230,51 @@ function AppV2(){
     const loaded = window.SIMA_ATLAS_CORE.loadAtlas(projId, arch);
     setAtlasState(loaded);
     setSyncReport(window.SIMA_ATLAS_CORE.syncCheck(loaded, arch));
-  }, [projId]);
+  }, [projId, liveTick]);
+
+  // PR-Live: poll atlas_api_server every N seconds. When the hash changes,
+  // pull /atlas/payload and overwrite window.SIMA_BOOTSTRAP / ARCH_BY_PROJECT
+  // / SIMA_DATA_V2.projects in place, then bump liveTick so React re-runs the
+  // layout effect above. If the server is offline we silently keep the last
+  // known state — live-update is nice-to-have, not a hard contract.
+  React.useEffect(() => {
+    let cancelled = false;
+    let lastHash = null;
+    let firstTickShown = false;
+    const intervalMs = Number(localStorage.getItem('sima_live_poll_ms') || 5000);
+    const apiBase = (window.SIMA_API_BASE || 'http://localhost:8787');
+    async function tick() {
+      if (cancelled) return;
+      try {
+        const r = await fetch(apiBase + '/atlas/state', { cache: 'no-store' });
+        if (!r.ok) return;
+        const data = await r.json();
+        if (!data.ok) return;
+        if (lastHash === null) { lastHash = data.hash; return; }
+        if (data.hash === lastHash) return;
+        const r2 = await fetch(apiBase + '/atlas/payload', { cache: 'no-store' });
+        if (!r2.ok) return;
+        const data2 = await r2.json();
+        if (!data2.ok || !data2.payload) return;
+        window.SIMA_BOOTSTRAP = data2.payload;
+        Object.assign(window.ARCH_BY_PROJECT || {}, data2.payload.archByProject || {});
+        if (window.SIMA_DATA_V2 && Array.isArray(window.SIMA_DATA_V2.projects)) {
+          for (const p of (data2.payload.data?.projects || [])) {
+            const idx = window.SIMA_DATA_V2.projects.findIndex(x => x.id === p.id);
+            if (idx >= 0) window.SIMA_DATA_V2.projects[idx] = p;
+            else window.SIMA_DATA_V2.projects.unshift(p);
+          }
+        }
+        lastHash = data.hash;
+        if (firstTickShown) showToast('🔄 Атлас обновился — схема перерисована');
+        firstTickShown = true;
+        setLiveTick((n) => n + 1);
+      } catch { /* server offline — silently skip */ }
+    }
+    tick();
+    const id = setInterval(tick, intervalMs);
+    return () => { cancelled = true; clearInterval(id); };
+  }, []);
 
   const runSyncCheck = () => {
     if (!window.SIMA_ATLAS_CORE || !archByProject || !atlasState) return;

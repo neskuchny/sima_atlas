@@ -30,6 +30,7 @@ const checks = [
   ['list_proposals_index', 'node scripts/list_proposals.mjs --write-index --json'],
   ['agent_parity_real', 'node tests/agent_parity_real.smoke.mjs'],
   ['connection_drift', 'node tests/connection_drift.smoke.mjs'],
+  ['atlas_live_polling', 'node tests/atlas_live_polling.smoke.mjs'],
   ['sync_context_packs', 'node scripts/sync_context_packs.mjs'],
   ['agent_parity', 'node scripts/validate_agent_parity.mjs'],
   ['parity_matrix', 'node scripts/validate_parity_matrix.mjs'],
