@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-05-02T13:03:15.834Z_
+_Generated: 2026-05-02T14:37:40.763Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty

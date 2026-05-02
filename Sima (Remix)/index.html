@@ -3,6 +3,10 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=1400"/>
+<!-- PR3.5: avoid aggressive browser caching while we are still iterating fast. -->
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
 <title>Sima Atlas — универсальный конструктор</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous">
@@ -11,6 +15,23 @@
 <link rel="stylesheet" href="styles_v2.css">
 <link rel="stylesheet" href="arch_styles.css">
 <link rel="stylesheet" href="landscape_styles.css">
+<style>
+  /* PR3.5: visible error / loading panel so the user sees what's happening
+     without opening DevTools. Any uncaught error gets dumped here. */
+  #sima-bootstatus {
+    position: fixed; top: 0; left: 0; right: 0;
+    background: #fff7ed; color: #7c2d12;
+    border-bottom: 1px solid #fed7aa;
+    padding: 10px 14px; font: 13px/1.45 system-ui, sans-serif;
+    z-index: 99999; max-height: 50vh; overflow: auto;
+    white-space: pre-wrap; word-break: break-word;
+  }
+  #sima-bootstatus.ok { background: #ecfdf5; color: #065f46; border-color: #a7f3d0; }
+  #sima-bootstatus.hidden { display: none; }
+  #sima-bootstatus .hdr { font-weight: 600; margin-bottom: 4px; }
+  #sima-bootstatus .x { float: right; cursor: pointer; opacity: .6; padding: 0 6px; }
+  #sima-bootstatus .x:hover { opacity: 1; }
+</style>
 </head>
 <body data-density="regular">
 <!--
@@ -21,7 +42,48 @@
   or, if the server is rooted inside Sima (Remix)/:
     http://localhost:8080/index.html
 -->
+
+<div id="sima-bootstatus">
+  <span class="x" onclick="document.getElementById('sima-bootstatus').classList.add('hidden')">×</span>
+  <div class="hdr">⏳ Sima Atlas — загрузка React + 12 JSX-файлов…</div>
+  <div id="sima-bootstatus-body">Если это сообщение не пропадёт через 5 секунд — что-то упало. Текст ошибки появится здесь же.</div>
+</div>
+
 <div id="root"></div>
+
+<script>
+  // PR3.5 visible error reporter. Catches:
+  //   - uncaught errors (e.g. SyntaxError in any <script type="text/babel">)
+  //   - unhandled promise rejections
+  //   - failed network loads of <script src=...>
+  // and prints them into #sima-bootstatus so the user sees them without F12.
+  (function () {
+    var box = document.getElementById('sima-bootstatus');
+    var body = document.getElementById('sima-bootstatus-body');
+    function show(kind, msg) {
+      box.classList.remove('ok'); box.classList.remove('hidden');
+      var hdr = box.querySelector('.hdr');
+      hdr.textContent = '✗ ' + kind;
+      body.textContent = String(msg);
+    }
+    window.addEventListener('error', function (e) {
+      var src = (e.filename || '') + (e.lineno ? ':' + e.lineno : '');
+      show('JS error: ' + (e.message || 'unknown'), src + '\n\n' + (e.error && e.error.stack || ''));
+    });
+    window.addEventListener('unhandledrejection', function (e) {
+      show('Promise rejection', (e.reason && (e.reason.message || e.reason)) + '\n\n' + (e.reason && e.reason.stack || ''));
+    });
+    // After Babel finishes compiling all type=text/babel scripts and React mounts,
+    // the AppV2 root call hides this panel.
+    window.__simaMarkBootOk = function () {
+      box.classList.add('ok');
+      var hdr = box.querySelector('.hdr');
+      hdr.textContent = '✓ Sima Atlas загружена';
+      body.textContent = 'Если что-то не так — обнови страницу с очисткой кэша (Ctrl+Shift+R).';
+      setTimeout(function () { box.classList.add('hidden'); }, 1500);
+    };
+  })();
+</script>
 
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
@@ -43,5 +105,30 @@
 <script type="text/babel" src="layer4_impl.jsx"></script>
 <script type="text/babel" src="gallery_v2.jsx"></script>
 <script type="text/babel" src="app_v2.jsx"></script>
+
+<script>
+  // PR3.5: a tiny "did anything render?" probe. After Babel processed all the
+  // <script type="text/babel"> blocks and AppV2 (or fallback) mounted into #root,
+  // we mark boot OK. If 5s elapse and #root is still empty, we surface that.
+  setTimeout(function () {
+    var root = document.getElementById('root');
+    if (root && root.children && root.children.length > 0) {
+      if (window.__simaMarkBootOk) window.__simaMarkBootOk();
+    } else {
+      var box = document.getElementById('sima-bootstatus');
+      if (!box.classList.contains('hidden')) {
+        box.classList.remove('ok');
+        var hdr = box.querySelector('.hdr');
+        hdr.textContent = '⚠ Прошло 5 секунд, но React-дерево пустое.';
+        document.getElementById('sima-bootstatus-body').textContent =
+          'Возможные причины:\n' +
+          '  1) Babel ещё компилирует .jsx — подожди ещё пару секунд и обнови (Ctrl+Shift+R).\n' +
+          '  2) Один из .jsx файлов упал с syntax/runtime error — открой DevTools (F12) → Console.\n' +
+          '  3) Браузер заблокировал unpkg.com скрипты (privacy-extension, корпоративная сеть).\n' +
+          '  4) atlas_bootstrap.js не сгенерирован — запусти `node scripts/generate_atlas_bootstrap_js.mjs`.';
+      }
+    }
+  }, 5000);
+</script>
 </body>
 </html>

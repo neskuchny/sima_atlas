@@ -9,3 +9,4 @@
 2026-05-02T12:37:49Z	pr4_3_default_view	pass	default layer=map mapView=arch so multilayer schema is visible on load; URL ?layer/?view overrides
 2026-05-02T12:43:27Z	pr4_4_userstory_shape	pass	bootstrap emits userstory.edges as [from,to] tuples + UserStoryMap defensive against missing fields + smoke validates shape
 2026-05-02T13:03:53Z	pr5_demo_project	pass	atlas/projects/demo-todo with 5 blocks; bootstrap multi-project; validate_projects gate; smoke checks both projects
+2026-05-02T14:38:07Z	pr3_5_visible_errors	pass	visible boot-status overlay in both index.html files; cache-control no-store; surfaces JS errors without DevTools
