@@ -2,7 +2,12 @@
 
 - scripts/mcp_atlas_server.mjs [alive] (21+ tools over JSON-RPC stdio)
 - scripts/atlas_api_server.mjs [alive] (HTTP facade for orchestration)
-- scripts/generate_cursor_hooks.mjs [alive] (currently emits invalid hook events — fix in PR4)
+- scripts/generate_cursor_hooks.mjs [alive] (PR4: emits valid Cursor format with real action scripts)
+- scripts/validate_cursor_hooks.mjs [alive] (PR4: gate; fails if hooks.json has wrong shape or missing scripts)
+- scripts/observe_file_edit.mjs [alive] (PR4: afterFileEdit action — files.md → block reverse-map)
+- scripts/guard_against_drift.mjs [alive] (PR4: beforeShellExecution action — tech_stack.md guard)
+- scripts/inject_context_pack.mjs [alive] (PR4: beforeSubmitPrompt action — block-scoped context)
+- tests/cursor_hooks_actions.test.mjs [alive] (PR4: 9-case integration test for the three actions)
 - scripts/generate_agent_contracts.mjs [alive] (writes AGENTS.md / CLAUDE.md)
 - scripts/build_context_pack.mjs [alive]
 - scripts/sync_context_packs.mjs [alive]

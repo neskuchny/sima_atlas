@@ -73,19 +73,28 @@
 </ul>
 <h2>b.agent-orchestrator — Agent Orchestrator</h2>
 <ul>
-<li>status: <strong>wip</strong></li>
+<li>status: <strong>review</strong></li>
 </ul>
 <h1>b.agent-orchestrator — mission</h1>
 <p>Шина между Sima и любым coding-агентом (Cursor, Claude Code, Codex CLI, Antigravity). Главная задача — обеспечить, чтобы все агенты работали по <strong>одному и тому же</strong> context-pack, читали <code>/atlas/blocks/&lt;id&gt;/</code> перед написанием кода и пушили обратно реальные события (file edits, shell calls, status transitions), а не шаблонные «sync pass»-логи.</p>
-<p>Текущая реализация: MCP-сервер (<code>scripts/mcp<em>atlas</em>server.mjs</code> с 21+ tools), <code>.cursor/hooks.json</code>, <code>AGENTS.md</code> / <code>CLAUDE.md</code> контракты. Главные пропуски — <code>.cursor/hooks.json</code> использует выдуманное событие <code>afterPromptSent</code> и формат <code>action.run_command</code>, который Cursor не интерпретирует; нет наблюдения за реальными file edits и tool calls агентов.</p>
 <h2>Layer</h2>
 <p>ai</p>
-<h2>Что должен делать в done-версии</h2>
-<p>1. Валидные Cursor hooks: <code>beforeShellExecution</code>, <code>afterFileEdit</code>, <code>beforeSubmitPrompt</code> с реальным запуском node-скриптов.</p>
-<p>2. <code>observe<em>file</em>edit.mjs</code>: получает путь файла → ищет в <code>files.md</code> блоков → пишет в <code>checks.log</code> блока факт правки + <code>git diff --stat</code>.</p>
-<p>3. <code>guard<em>against</em>drift.mjs</code>: проверяет shell-команды против <code>tech_stack.md</code> (например, блокирует <code>pip install</code> если стек React).</p>
-<p>4. Adapter для Claude Code: <code>claude --print --add-dir /atlas/blocks/&lt;id&gt;</code> запускается из MCP-tool <code>run<em>block</em>implementation</code>.</p>
-<p>5. Multi-agent parity: один и тот же context-pack JSON отдаётся через Cursor (MCP) и Claude (CLI flag).</p>
+<h2>Что реализовано (после PR4)</h2>
+<p>1. <strong>MCP-сервер</strong> <code>scripts/mcp<em>atlas</em>server.mjs</code> (21+ tools: read<em>block / list</em>dependencies / sync<em>check / build</em>context<em>pack / log</em>check / mark<em>file</em>dead / update<em>block / generate</em>validated<em>bundle / nightly</em>consolidation / render<em>wiki</em>html / ingest<em>chat</em>distillate / enqueue<em>ingestion / apply</em>ingestion_queue ...). Cursor подключает его через <code>.cursor/mcp.json</code>.</p>
+<p>2. <strong>Валидный <code>.cursor/hooks.json</code></strong> в формате Cursor (<code>{ version: 1, hooks: { event: [{ command }] } }</code>) с 4 событиями:</p>
+<p>   - <code>beforeSubmitPrompt</code> → <code>node scripts/inject<em>context</em>pack.mjs</code> (вкладывает block-scoped context).</p>
+<p>   - <code>afterFileEdit</code> → <code>node scripts/observe<em>file</em>edit.mjs</code> (записывает правку в <code>checks.log</code> блока через <code>files.md</code> reverse-mapping).</p>
+<p>   - <code>beforeShellExecution</code> → <code>node scripts/guard<em>against</em>drift.mjs</code> (отклоняет команды против <code>tech_stack.md</code>).</p>
+<p>   - <code>stop</code> → <code>node scripts/calc<em>intelligence</em>health.mjs</code> (обновляет дашборд).</p>
+<p>3. <strong><code>validate<em>cursor</em>hooks.mjs</code></strong> — gate в nightly: фейлится если формат не соответствует Cursor или command ссылается на несуществующий скрипт.</p>
+<p>4. <strong>9-case integration test</strong> <code>tests/cursor<em>hooks</em>actions.test.mjs</code>: known/unknown/empty path, pip-rejected / npm-approved / yarn-vue-rejected / empty-command, inject-by-env / inject-by-prompt-detection.</p>
+<p>5. <strong>AGENTS.md / CLAUDE.md</strong> генерируются <code>scripts/generate<em>agent</em>contracts.mjs</code> и одинаковы для всех агентов.</p>
+<h2>Что осталось до done</h2>
+<ul>
+<li>Live-проверка с реальным Cursor в IDE: запустить пример pip-команды, убедиться, что она блокируется в реальном окружении (а не только в наших тестах через CLI argv).</li>
+<li>Adapter для Claude Code CLI: MCP tool <code>run<em>block</em>implementation(block_id)</code> → <code>claude --print --add-dir atlas/blocks/&lt;id&gt;</code>.</li>
+<li>Real diff-парити между Cursor MCP и Claude CLI context-packs (PR4.5).</li>
+</ul>
 <h2>Out of scope</h2>
 <ul>
 <li>LLM-извлечение смысла из чата (это <code>b.llm-gateway</code>).</li>

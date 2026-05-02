@@ -1,4 +1,4 @@
-# Sima Atlas — статус (PR1 honest reset → PR2 multi-layer schema → PR3 LLM gateway)
+# Sima Atlas — статус (PR1 honest reset → PR2 multi-layer → PR3 LLM gateway → PR4 Cursor hooks)
 
 Дата: 2026-05-02
 
@@ -65,7 +65,26 @@ PR1 (этот) — Honest Reset. Не добавляет новых фич, то
 - intelligence_health: 1.0 (7/7 блоков).
 - Регекс-извлечение блоков из чата уничтожено; на его месте — schema-driven LLM extraction с confidence и провайдер-fallback.
 
-## Что НЕ сделано (по дизайну PR2 / PR3)
+## Сделано в PR4 (Real Cursor / Claude observation)
+
+- [x] `scripts/generate_cursor_hooks.mjs` переписан: emit'ит **валидный Cursor format** `{ version: 1, hooks: { event: [{command}] } }`. Выдуманное `afterPromptSent` удалено.
+- [x] 4 реальных hook-события: `beforeSubmitPrompt`, `afterFileEdit`, `beforeShellExecution`, `stop` — каждое запускает реальный node-скрипт.
+- [x] **`scripts/observe_file_edit.mjs`** (afterFileEdit): принимает путь файла → ищет в `files.md` всех блоков → пишет `cursor_edit pass <path> :: <git diff --stat>` в `checks.log` нужного блока. Unowned файлы → warn в `b.agent-orchestrator/checks.log`. Также записывает событие в `atlas/process_runs/cursor_observations/<UTC>.json` для будущей UI-визуализации.
+- [x] **`scripts/guard_against_drift.mjs`** (beforeShellExecution): читает `atlas/tech_stack.md` (новые fenced-блоки `forbidden` и `forbidden_substrings`) и блокирует команды против стэка. `pip install` / `yarn add vue` / `gem install` / `cargo add` → exit 1 + drift_blocked в trace. `npm install react` → пропускает.
+- [x] **`scripts/inject_context_pack.mjs`** (beforeSubmitPrompt): автодетектирует block-id (env → prompt → last observation → first block) и печатает на stdout markdown context-pack: project + rules + tech_stack + block.mission/kpi/acceptance/depends/provides/files. Размер ограничен `SIMA_CONTEXT_PACK_MAX_BYTES`.
+- [x] **`scripts/validate_cursor_hooks.mjs`** — gate в nightly: фейлится если формат не Cursor-совместимый, или если command ссылается на несуществующий script.
+- [x] **`tests/cursor_hooks_actions.test.mjs`** — 9-case integration-тест (известный/unowned/empty path; pip/yarn-vue rejected vs npm/empty approved; inject by env vs auto-detect from prompt). Идемпотентный, snapshot/restore.
+- [x] `atlas/tech_stack.md` расширен: декларация `forbidden` (regex) и `forbidden_substrings` для guard'a.
+- [x] `b.agent-orchestrator` поднят `wip → review` — есть live evidence в checks.log по A1–A4.
+
+### Результат PR4
+- nightly_consolidation: **PASS 23/23** (добавлены 2 новых gate: validate_cursor_hooks, cursor_hooks_actions).
+- `.cursor/hooks.json` теперь то, что Cursor реально умеет читать и исполнять.
+- При любой правке файла из IDE Cursor автоматически запишет факт в `checks.log` владельца-блока — больше не нужно «всё помнить».
+- При любой shell-команде агент сначала спросит guard (block кому-нибудь типа `pip install`, который противоречит стеку).
+- При новом prompt пользователь автоматически получит inline-контекст по нужному блоку.
+
+## Что НЕ сделано (по дизайну PR2 / PR3 / PR4)
 
 - [ ] HTML uploads — не трогал. На текущем main все нужные JSX подключены через `atlas_bootstrap.js` и есть в `tweaks-panel.jsx` / `layer1_canvas.jsx`. Прежний диагноз «UI не загружается из-за пропавших скриптов» был основан на устаревшем срезе main, до добавления bootstrap. Реальная проблема UI — однослойность, и она лечится в PR2.
 - [ ] Расширение модели блока (`layer/type/mvp/subschema_id/files`) — это **PR2**.

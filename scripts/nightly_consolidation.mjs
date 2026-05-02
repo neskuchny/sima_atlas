@@ -21,6 +21,8 @@ const checks = [
   ['llm_gateway_selftest', 'node tests/llm_gateway.selftest.mjs'],
   ['llm_extraction_eval', 'node tests/llm_extraction.eval.mjs'],
   ['simulate_conversation_branches', 'node scripts/simulate_conversation_branches.mjs'],
+  ['validate_cursor_hooks', 'node scripts/validate_cursor_hooks.mjs'],
+  ['cursor_hooks_actions', 'node tests/cursor_hooks_actions.test.mjs'],
   ['sync_context_packs', 'node scripts/sync_context_packs.mjs'],
   ['agent_parity', 'node scripts/validate_agent_parity.mjs'],
   ['parity_matrix', 'node scripts/validate_parity_matrix.mjs'],
