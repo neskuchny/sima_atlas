@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-02T09:25:45.884Z",
+  "generated_at": "2026-05-02T10:01:08.341Z",
   "block_id": "b.agent-orchestrator",
   "project": {
     "project": "# Sima Atlas\n\nЦель: единая визуально-документная система, которая устраняет рассинхрон между кодом, агентами и документацией.\n\n## North Star\n- Любой агент работает по одному и тому же block-context.\n- Человек видит статус реализации на схеме без чтения всего кода.\n",
@@ -11,14 +11,15 @@
       "id": "b.agent-orchestrator",
       "title": "Agent Orchestrator",
       "status": "wip",
-      "status_reason": "No real Cursor SDK / Claude Code integration; hooks.json uses invented events",
+      "status_reason": "No real Cursor SDK / Claude Code integration; hooks.json uses invented events. After PR3 the orchestrator now consumes b.llm-gateway for semantic ingestion.",
       "layer": "ai",
       "type": "module",
       "mvp": true,
       "subschema_id": null,
       "depends_on": [
         "b.db",
-        "b.core-sync"
+        "b.core-sync",
+        "b.llm-gateway"
       ],
       "tech_stack": [
         "nodejs",
@@ -48,7 +49,7 @@
     "acceptance": "# b.agent-orchestrator — acceptance\n\n- [ ] **A1.** Cursor реально срабатывает на `.cursor/hooks.json`: при ручном file-edit в репо появляется запись в `atlas/process_runs/cursor_observations/<timestamp>.json` (live-проверка, не моки).\n- [ ] **A2.** Запуск `claude --print --add-dir atlas/blocks/b.docs --prompt \"summarize mission\"` возвращает summary, основанный на mission.md этого блока (а не на чате).\n- [ ] **A3.** Команда `pip install neo4j` блокируется hook'ом на репо со стэком React+Node, в `decisions.log` `b.agent-orchestrator` появляется запись `blocked: stack_drift`.\n- [ ] **A4.** `validate_agent_parity.mjs` для каждого активного блока проверяет, что Cursor и Claude получают идентичный context-pack JSON (diff пустой).\n- [ ] **A5.** В чате с агентом 50 сообщений → в `decisions.log` блока — не более 5 distillate-записей (фильтрация работает).\n\n## Не считается acceptance:\n- наличие файла `.cursor/hooks.json`.\n- факт того, что MCP-сервер запускается.\n",
     "tasks": "# b.agent-orchestrator — tasks\n\n- [ ] T1: Заменить выдуманный `afterPromptSent` в `.cursor/hooks.json` на валидные Cursor события — **PR4**\n- [ ] T2: Реализовать `scripts/observe_file_edit.mjs`: на `afterFileEdit` пишет в `checks.log` блока с `git diff --stat` — **PR4**\n- [ ] T3: `scripts/guard_against_drift.mjs`: на `beforeShellExecution` сверяет команду с `tech_stack.md` — **PR4**\n- [ ] T4: Adapter для Claude Code CLI: MCP tool `run_block_implementation(block_id)` — **PR4**\n- [ ] T5: `validate_agent_parity.mjs` — нечестная проверка форматов; нужно сравнение реального context-pack diff между агентами — **PR4**\n- [ ] T6: Distillate генератор через `b.llm-gateway`: чат → factual notes → блок — **PR3**\n",
     "patterns": "",
-    "files": "# b.agent-orchestrator — files\n\n- scripts/mcp_atlas_server.mjs [alive] (21+ tools over JSON-RPC stdio)\n- scripts/atlas_api_server.mjs [alive] (HTTP facade for orchestration)\n- scripts/generate_cursor_hooks.mjs [alive] (currently emits invalid hook events — fix in PR4)\n- scripts/generate_agent_contracts.mjs [alive] (writes AGENTS.md / CLAUDE.md)\n- scripts/build_context_pack.mjs [alive]\n- scripts/sync_context_packs.mjs [alive]\n- scripts/finalize_cursor_iteration.mjs [alive]\n- scripts/run_block_process.mjs [alive]\n- scripts/pipeline_step.mjs [alive]\n- scripts/auto_sync_iteration.mjs [alive] (regex-only flow; replace via PR3 b.llm-gateway)\n- scripts/analyze_conversation_to_atlas.mjs [alive] (regex-only — PR3 must replace with LLM)\n- scripts/simulate_conversation_branches.mjs [alive] (smoke for the regex flow)\n- .cursor/hooks.json [alive] (current content uses invented Cursor events — PR4)\n- .cursor/mcp.json [alive]\n- AGENTS.md [alive]\n- CLAUDE.md [alive]\n"
+    "files": "# b.agent-orchestrator — files\n\n- scripts/mcp_atlas_server.mjs [alive] (21+ tools over JSON-RPC stdio)\n- scripts/atlas_api_server.mjs [alive] (HTTP facade for orchestration)\n- scripts/generate_cursor_hooks.mjs [alive] (currently emits invalid hook events — fix in PR4)\n- scripts/generate_agent_contracts.mjs [alive] (writes AGENTS.md / CLAUDE.md)\n- scripts/build_context_pack.mjs [alive]\n- scripts/sync_context_packs.mjs [alive]\n- scripts/finalize_cursor_iteration.mjs [alive]\n- scripts/run_block_process.mjs [alive]\n- scripts/pipeline_step.mjs [alive]\n- scripts/auto_sync_iteration.mjs [alive] (regex-only flow; will be replaced after PR3 wiring)\n- scripts/analyze_conversation_to_atlas.mjs [alive] (PR3: replaced regex with extractBlockSchema via b.llm-gateway)\n- scripts/simulate_conversation_branches.mjs [alive] (PR3: rewritten as smoke for the LLM extraction + safe-upsert flow)\n- .cursor/hooks.json [alive] (current content uses invented Cursor events — PR4)\n- .cursor/mcp.json [alive]\n- AGENTS.md [alive]\n- CLAUDE.md [alive]\n"
   },
   "dependencies": [
     {

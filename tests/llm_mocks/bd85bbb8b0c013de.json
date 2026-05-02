@@ -1,0 +1,17 @@
+{
+  "blocks": [
+    {
+      "id": "b.search",
+      "title": "Search",
+      "mission": "Полнотекстовый поиск по документам через Postgres FTS, читает из хранилища.",
+      "layer": "logic",
+      "type": "module",
+      "mvp": false,
+      "status": "idea",
+      "depends_on": ["b.db"],
+      "provides": ["search_results"],
+      "tech_stack": ["postgres", "fts"],
+      "confidence": 0.85
+    }
+  ]
+}

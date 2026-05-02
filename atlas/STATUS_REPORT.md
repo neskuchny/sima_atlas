@@ -1,4 +1,4 @@
-# Sima Atlas — статус (PR1 honest reset → PR2 multi-layer schema)
+# Sima Atlas — статус (PR1 honest reset → PR2 multi-layer schema → PR3 LLM gateway)
 
 Дата: 2026-05-02
 
@@ -47,7 +47,25 @@ PR1 (этот) — Honest Reset. Не добавляет новых фич, то
 - nightly_consolidation: **PASS 18/18** (добавлены 2 новых gate: files_registry, bootstrap_layered_smoke).
 - Bootstrap проверен headless: 6 layers, 7 blocks (по слоям), 7 links.
 
-## Что НЕ сделано (по дизайну PR2)
+## Сделано в PR3 (Real LLM extraction)
+
+- [x] `scripts/llm_gateway.mjs` — единая точка входа во все LLM-вызовы Атласа. Поддерживает Anthropic, Google и mock-провайдер; structured output через JSON Schema; trace в `atlas/llm_traces/`; token budget + per-run cost cap; provider fallback на mock при 5xx/timeout.
+- [x] Sugar `extractBlockSchema(dialogText)`: возвращает `{blocks:[{id, mission, layer, type, mvp, status, depends_on, provides, tech_stack, confidence}]}` через единую schema.
+- [x] `tests/llm_gateway.selftest.mjs` — 4 case-теста: schema validation, extractBlockSchema flow, trace write, no-schema fallback.
+- [x] `tests/llm_extraction.eval.mjs` — golden set из 5 эталонных диалогов; средняя точность ≥ 0.7 (mock = 1.0); проверяет id-recall, layer accuracy, mission-token overlap.
+- [x] `tests/llm_mocks/` — fixtures под точный hash и под prompt-only hash (для CI без ключей).
+- [x] `scripts/analyze_conversation_to_atlas.mjs` **полностью переписан**: убран regex `/(?:block|блок)\s+([a-z0-9._-]+)/`; вместо него вызов `extractBlockSchema()` с confidence-фильтром.
+- [x] Safe upsert: новые блоки создаются с шаблоном papercon (mission/kpi/acceptance), существующие блоки **не перезаписываются** — LLM-предложения дописываются только в `checks.log` для будущего human-in-loop confirm в UI.
+- [x] `scripts/simulate_conversation_branches.mjs` переписан как идемпотентный smoke новой LLM-семантики (создаёт новый блок, проверяет защиту существующего, восстанавливает state в конце).
+- [x] `b.llm-gateway` поднят `idea → review`; `b.agent-orchestrator.depends_on` обновлён, чтобы включать `b.llm-gateway`.
+- [x] `.gitignore` отсекает шум trace-логов (`atlas/llm_traces/*` кроме `.gitkeep`).
+
+### Результат PR3
+- nightly_consolidation: **PASS 21/21** (добавлено 3 новых gate: llm_gateway_selftest, llm_extraction_eval, simulate_conversation_branches).
+- intelligence_health: 1.0 (7/7 блоков).
+- Регекс-извлечение блоков из чата уничтожено; на его месте — schema-driven LLM extraction с confidence и провайдер-fallback.
+
+## Что НЕ сделано (по дизайну PR2 / PR3)
 
 - [ ] HTML uploads — не трогал. На текущем main все нужные JSX подключены через `atlas_bootstrap.js` и есть в `tweaks-panel.jsx` / `layer1_canvas.jsx`. Прежний диагноз «UI не загружается из-за пропавших скриптов» был основан на устаревшем срезе main, до добавления bootstrap. Реальная проблема UI — однослойность, и она лечится в PR2.
 - [ ] Расширение модели блока (`layer/type/mvp/subschema_id/files`) — это **PR2**.

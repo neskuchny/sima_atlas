@@ -1,0 +1,17 @@
+{
+  "blocks": [
+    {
+      "id": "b.core-sync",
+      "title": "Sync Engine",
+      "mission": "Sync Engine — движок проверки синхронизации блоков продукта; подтверждаем переход в done после прохождения acceptance.",
+      "layer": "logic",
+      "type": "module",
+      "mvp": true,
+      "status": "done",
+      "depends_on": ["b.db"],
+      "provides": ["sync_report"],
+      "tech_stack": [],
+      "confidence": 0.85
+    }
+  ]
+}

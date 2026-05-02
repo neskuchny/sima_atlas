@@ -111,26 +111,36 @@
 <ul>
 <li>Извлечение содержимого блоков из чата (это <code>b.llm-gateway</code> + <code>b.agent-orchestrator</code>).</li>
 </ul>
-<h2>b.llm-gateway — LLM Gateway (PR3)</h2>
+<h2>b.llm-gateway — LLM Gateway</h2>
 <ul>
-<li>status: <strong>idea</strong></li>
+<li>status: <strong>review</strong></li>
 </ul>
 <h1>b.llm-gateway — mission</h1>
-<p>Тонкий слой к LLM-провайдерам (Claude / Gemini / OpenAI) с единым интерфейсом для всех движков Атласа: <code>extractBlockSchema(text) → BlockSchema</code>, <code>validateMissionMatch(mission, code) → DriftReport</code>, <code>summarizeChat(messages) → distillate</code>, <code>rerank(chunks, query) → ranked</code>. Без этого блока никакая «авто-генерация смыслов» в Атласе невозможна — сейчас всё делается regex-эвристиками, и поэтому система сейчас не соответствует ТЗ.</p>
-<p>Этот блок — <strong>критический gate для PR3</strong>. До его done-версии любой блок с автозаполненными полями должен быть помечен <code>confidence: 0</code> и не пропускаться в roadmap/wiki.</p>
+<p>Единая точка входа для всех LLM-вызовов внутри Атласа. Реализовано в <code>scripts/llm_gateway.mjs</code>:</p>
+<ul>
+<li><strong>Provider-agnostic API</strong>: <code>callLLM({provider, model, system, prompt, schema, max_tokens, temperature, op, strict})</code> для anthropic / google / mock.</li>
+<li><strong>Structured output</strong> через JSON Schema: для Anthropic — через tool-use (<code>submit<em>structured</em>response</code>), для Gemini — через <code>responseSchema</code>.</li>
+<li><strong>Mock-провайдер</strong> с двумя уровнями lookup: точный hash (provider+model+prompt) и prompt-only hash. При отсутствии fixture — детерминированный пустой объект по schema. Используется в CI, golden-set eval'ах и при отсутствии API-ключей.</li>
+<li><strong>Trace-логирование</strong>: каждый вызов пишет <code>atlas/llm<em>traces/&lt;UTC&gt;</em><em>&lt;provider&gt;</em>_&lt;hash&gt;.json</code> с провайдером, моделью, в/о токенами, оценкой стоимости в USD, schema-валидностью и причинами ошибок. <code>.gitignore</code> отсекает шум, оставляя <code>.gitkeep</code>.</li>
+<li><strong>Token budget</strong> (<code>LLM<em>MAX</em>INPUT<em>TOKENS</code>) и <strong>per-run cost cap</strong> (<code>LLM</em>MAX<em>USD</em>PER_RUN</code>) — оба читаются из <code>.env</code>. Превышение → выброс при <code>strict: true</code>.</li>
+<li><strong>Provider fallback</strong>: если запрошенный провайдер недоступен или отвалился (5xx / timeout / auth), gateway без <code>strict</code> падает обратно на mock и логирует это в trace (<code>fallback<em>to</em>mock: true</code>).</li>
+<li><strong>Sugar-функция</strong> <code>extractBlockSchema(dialogText)</code> принимает диалог и возвращает <code>{ blocks: [{id, title, mission, layer, type, mvp, status, depends<em>on, provides, tech</em>stack, confidence}] }</code> — это и есть «извлечение блоков из чата», которое требует ТЗ.</li>
+</ul>
+<p>В PR3 заменён regex <code>/(?:block|блок)\s+([a-z0-9.<em>-]+)/giu</code> в <code>scripts/analyze</em>conversation<em>to</em>atlas.mjs</code> на вызов <code>extractBlockSchema()</code> через этот gateway. Результат: новый блок создаётся в <code>graph.json</code> со всеми структурными полями и заметкой о происхождении (LLM extraction, confidence). Для существующих блоков LLM-предложения <strong>не перезаписывают</strong> content — только дописывают <code>llm_extraction</code> запись в <code>checks.log</code> (это будущий human-in-loop accept/reject в UI).</p>
+<p>Golden eval: 5 эталонных диалогов, средняя точность ≥ 0.7 (на mock — 1.0).</p>
 <h2>Layer</h2>
 <p>ai</p>
-<h2>Что должен делать в done-версии</h2>
-<p>1. <code>scripts/llm<em>gateway.mjs</code> экспортирует <code>callLLM({ provider, model, prompt, schema, max</em>tokens })</code> с structured-output (JSON Schema).</p>
-<p>2. ENV-конфиг через <code>.env</code>: <code>ANTHROPIC<em>API</em>KEY</code>, <code>GOOGLE<em>API</em>KEY</code>, <code>OPENAI<em>API</em>KEY</code> + <code>LLM<em>DEFAULT</em>PROVIDER</code>.</p>
-<p>3. Mock-режим (без ключей): возвращает фиксированный JSON, чтобы тесты в CI работали без сети.</p>
-<p>4. Token budget guard: если запрос &gt; 30k токенов на input — отклонить с понятной ошибкой.</p>
-<p>5. Retry с exponential backoff на 429 / 5xx.</p>
-<p>6. Trace: каждый вызов пишет в <code>atlas/llm_traces/&lt;timestamp&gt;.json</code> (provider, model, in/out tokens, cost-estimate, prompt hash).</p>
+<h2>Что должен делать в done-версии (после review)</h2>
+<p>1. Live-test против реального Anthropic / Gemini API (нужен ключ в <code>.env</code>).</p>
+<p>2. UI confidence/diff flow (composer.jsx) — accept/reject предложенных LLM блоков.</p>
+<p>3. Eval на 30+ реальных диалогов вместо 5 синтетических.</p>
+<p>4. Persistent eval suite в nightly с историей точности.</p>
+<p>5. Подключить gateway во все остальные места, где имеет смысл LLM (sync semantic-check, distillate fact extraction).</p>
 <h2>Out of scope</h2>
 <ul>
-<li>Embeddings / vector search (в PR3 не нужно, остаётся backup-памятью на будущее).</li>
-<li>Streaming (Атлас работает по запрос-ответ).</li>
+<li>Embeddings / vector search.</li>
+<li>Streaming.</li>
+<li>Fine-tuning или local-inference (vLLM и т.п.) — оставлено на enterprise mode.</li>
 </ul>
 <h2>b.smoke-sandbox — Smoke Sandbox (test target)</h2>
 <ul>

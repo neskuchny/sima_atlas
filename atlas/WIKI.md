@@ -114,29 +114,39 @@ content
 - Извлечение содержимого блоков из чата (это `b.llm-gateway` + `b.agent-orchestrator`).
 
 
-## b.llm-gateway — LLM Gateway (PR3)
-- status: **idea**
+## b.llm-gateway — LLM Gateway
+- status: **review**
 
 # b.llm-gateway — mission
 
-Тонкий слой к LLM-провайдерам (Claude / Gemini / OpenAI) с единым интерфейсом для всех движков Атласа: `extractBlockSchema(text) → BlockSchema`, `validateMissionMatch(mission, code) → DriftReport`, `summarizeChat(messages) → distillate`, `rerank(chunks, query) → ranked`. Без этого блока никакая «авто-генерация смыслов» в Атласе невозможна — сейчас всё делается regex-эвристиками, и поэтому система сейчас не соответствует ТЗ.
+Единая точка входа для всех LLM-вызовов внутри Атласа. Реализовано в `scripts/llm_gateway.mjs`:
 
-Этот блок — **критический gate для PR3**. До его done-версии любой блок с автозаполненными полями должен быть помечен `confidence: 0` и не пропускаться в roadmap/wiki.
+- **Provider-agnostic API**: `callLLM({provider, model, system, prompt, schema, max_tokens, temperature, op, strict})` для anthropic / google / mock.
+- **Structured output** через JSON Schema: для Anthropic — через tool-use (`submit_structured_response`), для Gemini — через `responseSchema`.
+- **Mock-провайдер** с двумя уровнями lookup: точный hash (provider+model+prompt) и prompt-only hash. При отсутствии fixture — детерминированный пустой объект по schema. Используется в CI, golden-set eval'ах и при отсутствии API-ключей.
+- **Trace-логирование**: каждый вызов пишет `atlas/llm_traces/<UTC>__<provider>__<hash>.json` с провайдером, моделью, в/о токенами, оценкой стоимости в USD, schema-валидностью и причинами ошибок. `.gitignore` отсекает шум, оставляя `.gitkeep`.
+- **Token budget** (`LLM_MAX_INPUT_TOKENS`) и **per-run cost cap** (`LLM_MAX_USD_PER_RUN`) — оба читаются из `.env`. Превышение → выброс при `strict: true`.
+- **Provider fallback**: если запрошенный провайдер недоступен или отвалился (5xx / timeout / auth), gateway без `strict` падает обратно на mock и логирует это в trace (`fallback_to_mock: true`).
+- **Sugar-функция** `extractBlockSchema(dialogText)` принимает диалог и возвращает `{ blocks: [{id, title, mission, layer, type, mvp, status, depends_on, provides, tech_stack, confidence}] }` — это и есть «извлечение блоков из чата», которое требует ТЗ.
+
+В PR3 заменён regex `/(?:block|блок)\s+([a-z0-9._-]+)/giu` в `scripts/analyze_conversation_to_atlas.mjs` на вызов `extractBlockSchema()` через этот gateway. Результат: новый блок создаётся в `graph.json` со всеми структурными полями и заметкой о происхождении (LLM extraction, confidence). Для существующих блоков LLM-предложения **не перезаписывают** content — только дописывают `llm_extraction` запись в `checks.log` (это будущий human-in-loop accept/reject в UI).
+
+Golden eval: 5 эталонных диалогов, средняя точность ≥ 0.7 (на mock — 1.0).
 
 ## Layer
 ai
 
-## Что должен делать в done-версии
-1. `scripts/llm_gateway.mjs` экспортирует `callLLM({ provider, model, prompt, schema, max_tokens })` с structured-output (JSON Schema).
-2. ENV-конфиг через `.env`: `ANTHROPIC_API_KEY`, `GOOGLE_API_KEY`, `OPENAI_API_KEY` + `LLM_DEFAULT_PROVIDER`.
-3. Mock-режим (без ключей): возвращает фиксированный JSON, чтобы тесты в CI работали без сети.
-4. Token budget guard: если запрос > 30k токенов на input — отклонить с понятной ошибкой.
-5. Retry с exponential backoff на 429 / 5xx.
-6. Trace: каждый вызов пишет в `atlas/llm_traces/<timestamp>.json` (provider, model, in/out tokens, cost-estimate, prompt hash).
+## Что должен делать в done-версии (после review)
+1. Live-test против реального Anthropic / Gemini API (нужен ключ в `.env`).
+2. UI confidence/diff flow (composer.jsx) — accept/reject предложенных LLM блоков.
+3. Eval на 30+ реальных диалогов вместо 5 синтетических.
+4. Persistent eval suite в nightly с историей точности.
+5. Подключить gateway во все остальные места, где имеет смысл LLM (sync semantic-check, distillate fact extraction).
 
 ## Out of scope
-- Embeddings / vector search (в PR3 не нужно, остаётся backup-памятью на будущее).
-- Streaming (Атлас работает по запрос-ответ).
+- Embeddings / vector search.
+- Streaming.
+- Fine-tuning или local-inference (vLLM и т.п.) — оставлено на enterprise mode.
 
 
 ## b.smoke-sandbox — Smoke Sandbox (test target)

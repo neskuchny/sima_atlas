@@ -1,10 +1,20 @@
 # STOPPOINT — где мы остановились
 
-Обновлено: 2026-05-02 (после PR2 multi-layer schema)
+Обновлено: 2026-05-02 (после PR3 LLM gateway)
 
 ## Текущая точка
 
-Закрыт **PR2 — Multi-layer Schema**. Что добавлено сверх PR1:
+Закрыт **PR3 — Real LLM extraction**. Что добавлено сверх PR2:
+- `scripts/llm_gateway.mjs` (Anthropic + Google + mock; structured output; trace; cost cap; provider fallback).
+- `extractBlockSchema(dialogText)` через единый schema.
+- Golden eval из 5 диалогов: avg precision = 1.0 на mock (target 0.7).
+- `analyze_conversation_to_atlas.mjs` переписан — regex заменён на LLM с confidence-фильтром и safe-upsert (existing блоки защищены от перезаписи).
+- Smoke `simulate_conversation_branches.mjs` теперь идемпотентный (восстанавливает state) и проверяет правильную семантику safe-upsert.
+- `b.llm-gateway` → review, `b.agent-orchestrator` → depends_on b.llm-gateway.
+- `.gitignore` для шума trace-логов.
+- nightly: **PASS 21/21**.
+
+PR2 (`Multi-layer Schema`) был раньше:
 - graph.json v2 с decl `layers[]` и полями `layer/type/mvp/files/tech_stack` у блоков.
 - Все 7 блоков разнесены по 6 layer-полосам (front / logic / ai / data / content / testing).
 - `files.md` каждого блока заполнен реальными путями (95 alive файлов).
@@ -41,22 +51,21 @@ PR1 (`Honest Reset`) был раньше:
 | Sync пропускает «работает но не то» | sync смотрит только наличие файлов, не сравнивает mission ↔ реализацию | b.core-sync | PR3 (sem) + PR4 (code) |
 | Пользовательский продукт не описан | Атлас описывает сам себя | глобально | PR5 |
 
-## Следующий шаг — PR3 (Real LLM extraction)
+## Следующий шаг — PR4 (Real Cursor / Claude observation)
 
 Минимальный набор задач:
-1. Реализовать `scripts/llm_gateway.mjs` с структурированным выводом (Anthropic + Gemini + mock).
-2. ENV-конфиг через `.env`: `ANTHROPIC_API_KEY`, `GOOGLE_API_KEY`, `LLM_DEFAULT_PROVIDER`.
-3. Trace-логирование в `atlas/llm_traces/<timestamp>.json` (tokens, cost, prompt hash).
-4. Заменить regex в `scripts/analyze_conversation_to_atlas.mjs` на `extractBlockSchema(text) → BlockSchema` через LLM.
-5. UI: показывать `confidence` и diff перед записью в Atlas (accept/reject в `composer.jsx`).
-6. Eval на golden set из 5 диалогов: precision извлечения mission ≥ 0.7.
-7. `b.llm-gateway` → status `done` после прохождения eval.
+1. Заменить выдуманные хуки в `.cursor/hooks.json` (`afterPromptSent`) на валидные Cursor-события (`afterFileEdit`, `beforeShellExecution`, `beforeSubmitPrompt`).
+2. `scripts/observe_file_edit.mjs`: получает путь файла → ищет в `files.md` всех блоков → дописывает в `checks.log` блока запись `cursor_edit pass <git diff --stat>`.
+3. `scripts/guard_against_drift.mjs`: на `beforeShellExecution` сверяет команду с `tech_stack.md` (например, блокирует `pip install` если стек React+Node).
+4. Adapter Claude Code: MCP tool `run_block_implementation(block_id)` → `claude --print --add-dir atlas/blocks/<id>`.
+5. `validate_agent_parity.mjs` с настоящим diff-сравнением context-pack между Cursor (через MCP) и Claude (через CLI).
+6. После PR4 — `b.agent-orchestrator` поднимется в review.
 
-После PR3 PR4 (Real Cursor observation) станет осмысленным: реальные file-edits Cursor смогут писаться в `checks.log` нужного блока через LLM-классификатор «какой блок изменён».
+## Параллельные планы
 
-## Подсветка drift/broken на канвасе (перенесено в PR2.5)
-- arch_canvas получает блок-status и `status_reason` через bootstrap, но визуального tooltip пока нет.
-- Сделать в PR2.5 (полу-автоматически после первого визуального теста UI).
+- **PR3.5** (UI confidence/diff flow): когда `extractBlockSchema()` предлагает обновить существующий блок, UI должен показывать diff и кнопки Accept/Reject. Сейчас всё уходит только в `checks.log`.
+- **PR2.5** (Drift visualization): подсветка drift/broken блоков на канвасе с tooltip-причиной из `syncReport.details[].issues[]`.
+- **PR5** (Real-product example): один реальный пример пользовательского продукта в `/atlas/projects/<demo>/` (не сама Сима про себя).
 
 ## Команды для проверки текущего состояния
 

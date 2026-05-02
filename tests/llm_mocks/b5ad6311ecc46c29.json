@@ -1,0 +1,30 @@
+{
+  "blocks": [
+    {
+      "id": "b.notifications",
+      "title": "Notifications",
+      "mission": "Бэкенд-блок: рассылает email и push уведомления пользователям, принимает события от других блоков.",
+      "layer": "logic",
+      "type": "module",
+      "mvp": true,
+      "status": "idea",
+      "depends_on": [],
+      "provides": ["notification_dispatch"],
+      "tech_stack": ["email", "push"],
+      "confidence": 0.9
+    },
+    {
+      "id": "b.notifications-ui",
+      "title": "Notifications UI",
+      "mission": "Окошко настроек уведомлений на фронте: пользователь включает email и push для категорий событий.",
+      "layer": "front",
+      "type": "module",
+      "mvp": true,
+      "status": "idea",
+      "depends_on": ["b.notifications"],
+      "provides": ["notification_settings_screen"],
+      "tech_stack": ["react"],
+      "confidence": 0.9
+    }
+  ]
+}

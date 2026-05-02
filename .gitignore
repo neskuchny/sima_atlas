@@ -1,0 +1,9 @@
+# LLM trace logs (operational, written on every gateway call)
+atlas/llm_traces/*
+!atlas/llm_traces/.gitkeep
+
+# Misc
+node_modules/
+.env
+.env.local
+*.log.bak

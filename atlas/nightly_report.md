@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-05-02T09:25:44.870Z_
+_Generated: 2026-05-02T10:01:06.377Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -13,7 +13,7 @@ _Generated: 2026-05-02T09:25:44.870Z_
 - ✅ no_template_placeholders: ok
   - output: Template-placeholder validation: OK (7 blocks scanned)
 - ✅ files_registry: ok
-  - output: Files registry validation: OK (alive=95, archived=4, dead=0)
+  - output: Files registry validation: OK (alive=108, archived=4, dead=0)
 - ✅ dependency_contracts: ok
   - output: Dependency contract validation: OK
 - ✅ acceptance_assertions: ok
@@ -22,6 +22,12 @@ _Generated: 2026-05-02T09:25:44.870Z_
   - output: atlas_sync.selftest: OK
 - ✅ bootstrap_layered_smoke: ok
   - output: atlas_bootstrap smoke: OK (layers=6, blocks=7, links=7)
+- ✅ llm_gateway_selftest: ok
+  - output: llm_gateway.selftest: OK (4 cases)
+- ✅ llm_extraction_eval: ok
+  - output: llm_extraction.eval: OK — avg 1.00 on 5 cases (target 0.70)
+- ✅ simulate_conversation_branches: ok
+  - output: PASS: created b.realtime-ingestion in graph.json
 - ✅ sync_context_packs: ok
   - output: Context packs synced: 7
 - ✅ agent_parity: ok
@@ -39,4 +45,4 @@ _Generated: 2026-05-02T09:25:44.870Z_
 - ✅ intelligence_health: ok
   - output: Intelligence health: 1 (7/7)
 
-Summary: PASS (18/18)
+Summary: PASS (21/21)

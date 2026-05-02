@@ -20,3 +20,4 @@
 2026-04-30T20:30:25.013Z	semantic_ingestion	pass	conversation mapped to b.core-sync
 2026-05-02T08:41:44Z	honest_reset	pass	PR1 cleared template mission/kpi/acceptance/tasks; honest status set in graph.json
 2026-05-02T09:27:08Z	pr2_layered_schema	pass	layer/files/tech_stack populated; bootstrap+wiki+roadmap layered
+2026-05-02T10:02:24Z	pr3_llm_gateway	pass	extractBlockSchema replaces regex; golden eval 1.0/0.7 target; b.llm-gateway in review

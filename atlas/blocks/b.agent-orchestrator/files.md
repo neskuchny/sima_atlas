@@ -9,9 +9,9 @@
 - scripts/finalize_cursor_iteration.mjs [alive]
 - scripts/run_block_process.mjs [alive]
 - scripts/pipeline_step.mjs [alive]
-- scripts/auto_sync_iteration.mjs [alive] (regex-only flow; replace via PR3 b.llm-gateway)
-- scripts/analyze_conversation_to_atlas.mjs [alive] (regex-only — PR3 must replace with LLM)
-- scripts/simulate_conversation_branches.mjs [alive] (smoke for the regex flow)
+- scripts/auto_sync_iteration.mjs [alive] (regex-only flow; will be replaced after PR3 wiring)
+- scripts/analyze_conversation_to_atlas.mjs [alive] (PR3: replaced regex with extractBlockSchema via b.llm-gateway)
+- scripts/simulate_conversation_branches.mjs [alive] (PR3: rewritten as smoke for the LLM extraction + safe-upsert flow)
 - .cursor/hooks.json [alive] (current content uses invented Cursor events — PR4)
 - .cursor/mcp.json [alive]
 - AGENTS.md [alive]

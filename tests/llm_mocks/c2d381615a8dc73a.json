@@ -1,0 +1,17 @@
+{
+  "blocks": [
+    {
+      "id": "b.payments",
+      "title": "Payments",
+      "mission": "Принимает Stripe вебхуки, проверяет подпись, пишет события платежа в БД и публикует уведомление подписчикам.",
+      "layer": "logic",
+      "type": "module",
+      "mvp": true,
+      "status": "idea",
+      "depends_on": ["b.db"],
+      "provides": ["payment_event"],
+      "tech_stack": ["stripe", "nodejs"],
+      "confidence": 0.9
+    }
+  ]
+}

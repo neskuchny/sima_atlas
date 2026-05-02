@@ -141,14 +141,15 @@
       "id": "b.agent-orchestrator",
       "title": "Agent Orchestrator",
       "status": "wip",
-      "status_reason": "No real Cursor SDK / Claude Code integration; hooks.json uses invented events",
+      "status_reason": "No real Cursor SDK / Claude Code integration; hooks.json uses invented events. After PR3 the orchestrator now consumes b.llm-gateway for semantic ingestion.",
       "layer": "ai",
       "type": "module",
       "mvp": true,
       "subschema_id": null,
       "depends_on": [
         "b.db",
-        "b.core-sync"
+        "b.core-sync",
+        "b.llm-gateway"
       ],
       "tech_stack": [
         "nodejs",
@@ -204,9 +205,9 @@
     },
     {
       "id": "b.llm-gateway",
-      "title": "LLM Gateway (PR3)",
-      "status": "idea",
-      "status_reason": "Not implemented yet; PR3 will add Claude/Gemini gateway with structured output",
+      "title": "LLM Gateway",
+      "status": "review",
+      "status_reason": "PR3: gateway implemented (Anthropic + Google + mock), structured output via JSON schema, trace+cost cap, golden eval avg 1.0 in mock. Review needed: live providers untested without keys; UI confidence/diff flow pending PR3.5.",
       "layer": "ai",
       "type": "module",
       "mvp": true,
@@ -214,10 +215,24 @@
       "depends_on": [],
       "tech_stack": [
         "nodejs",
-        "anthropic-sdk",
-        "google-genai"
+        "anthropic-api",
+        "google-genai-api"
       ],
-      "files": []
+      "files": [
+        "scripts/llm_gateway.mjs",
+        "tests/llm_gateway.selftest.mjs",
+        "tests/llm_extraction.eval.mjs",
+        "tests/llm_mocks/_default.json",
+        "tests/llm_mocks/c2d381615a8dc73a.json",
+        "tests/llm_mocks/3b627c7e1be3704b.json",
+        "tests/llm_mocks/bd85bbb8b0c013de.json",
+        "tests/llm_mocks/b5ad6311ecc46c29.json",
+        "tests/llm_mocks/052b57272d7d7d4c.json",
+        "tests/llm_mocks/6a03ef6e33f5d57e.json",
+        "tests/llm_mocks/f0b0bb99c4c1a99f.json",
+        "tests/fixtures/extraction_golden.json",
+        ".env"
+      ]
     },
     {
       "id": "b.smoke-sandbox",
