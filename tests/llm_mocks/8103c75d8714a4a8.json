@@ -1,0 +1,32 @@
+{
+  "blocks": [
+    {
+      "id": "b.blog-editor",
+      "title": "Blog Editor",
+      "mission": "Редактор статей markdown preview",
+      "layer": "front",
+      "type": "module",
+      "mvp": false,
+      "status": "idea",
+      "depends_on": [
+        "b.blog-store"
+      ],
+      "provides": [],
+      "tech_stack": [],
+      "confidence": 0.9
+    },
+    {
+      "id": "b.blog-store",
+      "title": "Blog Store",
+      "mission": "Postgres со статьями",
+      "layer": "data",
+      "type": "module",
+      "mvp": false,
+      "status": "idea",
+      "depends_on": [],
+      "provides": [],
+      "tech_stack": [],
+      "confidence": 0.9
+    }
+  ]
+}

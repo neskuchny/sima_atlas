@@ -1,0 +1,17 @@
+{
+  "blocks": [
+    {
+      "id": "b.stripe-webhook",
+      "title": "Stripe Webhook",
+      "mission": "Приём вебхуков от Stripe и пересылка в внутреннюю очередь",
+      "layer": "ext",
+      "type": "module",
+      "mvp": false,
+      "status": "idea",
+      "depends_on": [],
+      "provides": [],
+      "tech_stack": [],
+      "confidence": 0.9
+    }
+  ]
+}

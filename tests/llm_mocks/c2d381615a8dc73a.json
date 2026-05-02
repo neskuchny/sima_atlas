@@ -3,14 +3,16 @@
     {
       "id": "b.payments",
       "title": "Payments",
-      "mission": "Принимает Stripe вебхуки, проверяет подпись, пишет события платежа в БД и публикует уведомление подписчикам.",
+      "mission": "Принимает Stripe вебхуки проверяет подпись пишет события платежа в БД публикует уведомление",
       "layer": "logic",
       "type": "module",
-      "mvp": true,
+      "mvp": false,
       "status": "idea",
-      "depends_on": ["b.db"],
-      "provides": ["payment_event"],
-      "tech_stack": ["stripe", "nodejs"],
+      "depends_on": [
+        "b.db"
+      ],
+      "provides": [],
+      "tech_stack": [],
       "confidence": 0.9
     }
   ]

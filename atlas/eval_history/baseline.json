@@ -1,0 +1,345 @@
+{
+  "at": "2026-05-02T23:14:48.483Z",
+  "total_cases": 30,
+  "overall_avg": 1,
+  "category_averages": {
+    "A_single_block": 1,
+    "B_multi_block": 1,
+    "C_no_block": 1,
+    "D_layer_classification": 1,
+    "E_dependency": 1,
+    "F_confidence": 1
+  },
+  "cases": [
+    {
+      "category": "A_single_block",
+      "name": "payments_stripe",
+      "score": 1,
+      "breakdown": {
+        "idRecall": 1,
+        "layerAcc": 1,
+        "missionAcc": 1,
+        "score": 1
+      }
+    },
+    {
+      "category": "A_single_block",
+      "name": "auth_jwt",
+      "score": 1,
+      "breakdown": {
+        "idRecall": 1,
+        "layerAcc": 1,
+        "missionAcc": 1,
+        "score": 1
+      }
+    },
+    {
+      "category": "A_single_block",
+      "name": "search_block",
+      "score": 1,
+      "breakdown": {
+        "idRecall": 1,
+        "layerAcc": 1,
+        "missionAcc": 1,
+        "score": 1
+      }
+    },
+    {
+      "category": "A_single_block",
+      "name": "billing_invoices",
+      "score": 1,
+      "breakdown": {
+        "idRecall": 1,
+        "layerAcc": 1,
+        "missionAcc": 1,
+        "score": 1
+      }
+    },
+    {
+      "category": "A_single_block",
+      "name": "metrics_collector",
+      "score": 1,
+      "breakdown": {
+        "idRecall": 1,
+        "layerAcc": 1,
+        "missionAcc": 1,
+        "score": 1
+      }
+    },
+    {
+      "category": "B_multi_block",
+      "name": "notifications_dual",
+      "score": 1,
+      "breakdown": {
+        "idRecall": 1,
+        "layerAcc": 1,
+        "missionAcc": 1,
+        "score": 1
+      }
+    },
+    {
+      "category": "B_multi_block",
+      "name": "chat_stack",
+      "score": 1,
+      "breakdown": {
+        "idRecall": 1,
+        "layerAcc": 1,
+        "missionAcc": 1,
+        "score": 1
+      }
+    },
+    {
+      "category": "B_multi_block",
+      "name": "blog_pair",
+      "score": 1,
+      "breakdown": {
+        "idRecall": 1,
+        "layerAcc": 1,
+        "missionAcc": 1,
+        "score": 1
+      }
+    },
+    {
+      "category": "B_multi_block",
+      "name": "analytics_two_tier",
+      "score": 1,
+      "breakdown": {
+        "idRecall": 1,
+        "layerAcc": 1,
+        "missionAcc": 1,
+        "score": 1
+      }
+    },
+    {
+      "category": "B_multi_block",
+      "name": "auth_pair",
+      "score": 1,
+      "breakdown": {
+        "idRecall": 1,
+        "layerAcc": 1,
+        "missionAcc": 1,
+        "score": 1
+      }
+    },
+    {
+      "category": "C_no_block",
+      "name": "no_block_chat_1",
+      "score": 1,
+      "breakdown": {
+        "idRecall": 1,
+        "layerAcc": 1,
+        "missionAcc": 1,
+        "score": 1
+      }
+    },
+    {
+      "category": "C_no_block",
+      "name": "no_block_chat_2",
+      "score": 1,
+      "breakdown": {
+        "idRecall": 1,
+        "layerAcc": 1,
+        "missionAcc": 1,
+        "score": 1
+      }
+    },
+    {
+      "category": "C_no_block",
+      "name": "no_block_pure_test",
+      "score": 1,
+      "breakdown": {
+        "idRecall": 1,
+        "layerAcc": 1,
+        "missionAcc": 1,
+        "score": 1
+      }
+    },
+    {
+      "category": "C_no_block",
+      "name": "no_block_admin",
+      "score": 1,
+      "breakdown": {
+        "idRecall": 1,
+        "layerAcc": 1,
+        "missionAcc": 1,
+        "score": 1
+      }
+    },
+    {
+      "category": "C_no_block",
+      "name": "no_block_news",
+      "score": 1,
+      "breakdown": {
+        "idRecall": 1,
+        "layerAcc": 1,
+        "missionAcc": 1,
+        "score": 1
+      }
+    },
+    {
+      "category": "D_layer_classification",
+      "name": "layer_user",
+      "score": 1,
+      "breakdown": {
+        "idRecall": 1,
+        "layerAcc": 1,
+        "missionAcc": 1,
+        "score": 1
+      }
+    },
+    {
+      "category": "D_layer_classification",
+      "name": "layer_front",
+      "score": 1,
+      "breakdown": {
+        "idRecall": 1,
+        "layerAcc": 1,
+        "missionAcc": 1,
+        "score": 1
+      }
+    },
+    {
+      "category": "D_layer_classification",
+      "name": "layer_ai",
+      "score": 1,
+      "breakdown": {
+        "idRecall": 1,
+        "layerAcc": 1,
+        "missionAcc": 1,
+        "score": 1
+      }
+    },
+    {
+      "category": "D_layer_classification",
+      "name": "layer_data",
+      "score": 1,
+      "breakdown": {
+        "idRecall": 1,
+        "layerAcc": 1,
+        "missionAcc": 1,
+        "score": 1
+      }
+    },
+    {
+      "category": "D_layer_classification",
+      "name": "layer_ext",
+      "score": 1,
+      "breakdown": {
+        "idRecall": 1,
+        "layerAcc": 1,
+        "missionAcc": 1,
+        "score": 1
+      }
+    },
+    {
+      "category": "E_dependency",
+      "name": "dep_chain_3",
+      "score": 1,
+      "breakdown": {
+        "idRecall": 1,
+        "layerAcc": 1,
+        "missionAcc": 1,
+        "score": 1
+      }
+    },
+    {
+      "category": "E_dependency",
+      "name": "dep_self_only",
+      "score": 1,
+      "breakdown": {
+        "idRecall": 1,
+        "layerAcc": 1,
+        "missionAcc": 1,
+        "score": 1
+      }
+    },
+    {
+      "category": "E_dependency",
+      "name": "dep_diamond",
+      "score": 1,
+      "breakdown": {
+        "idRecall": 1,
+        "layerAcc": 1,
+        "missionAcc": 1,
+        "score": 1
+      }
+    },
+    {
+      "category": "E_dependency",
+      "name": "dep_explicit_ext",
+      "score": 1,
+      "breakdown": {
+        "idRecall": 1,
+        "layerAcc": 1,
+        "missionAcc": 1,
+        "score": 1
+      }
+    },
+    {
+      "category": "E_dependency",
+      "name": "dep_bidirectional_ish",
+      "score": 1,
+      "breakdown": {
+        "idRecall": 1,
+        "layerAcc": 1,
+        "missionAcc": 1,
+        "score": 1
+      }
+    },
+    {
+      "category": "F_confidence",
+      "name": "ambiguous_short",
+      "score": 1,
+      "breakdown": {
+        "idRecall": 1,
+        "layerAcc": 1,
+        "missionAcc": 1,
+        "score": 1
+      }
+    },
+    {
+      "category": "F_confidence",
+      "name": "ambiguous_metaphor",
+      "score": 1,
+      "breakdown": {
+        "idRecall": 1,
+        "layerAcc": 1,
+        "missionAcc": 1,
+        "score": 1
+      }
+    },
+    {
+      "category": "F_confidence",
+      "name": "ambiguous_proper_noun",
+      "score": 1,
+      "breakdown": {
+        "idRecall": 1,
+        "layerAcc": 1,
+        "missionAcc": 1,
+        "score": 1
+      }
+    },
+    {
+      "category": "F_confidence",
+      "name": "definite_but_no_id",
+      "score": 1,
+      "breakdown": {
+        "idRecall": 1,
+        "layerAcc": 1,
+        "missionAcc": 1,
+        "score": 1
+      }
+    },
+    {
+      "category": "F_confidence",
+      "name": "definite_with_id",
+      "score": 1,
+      "breakdown": {
+        "idRecall": 1,
+        "layerAcc": 1,
+        "missionAcc": 1,
+        "score": 1
+      }
+    }
+  ]
+}

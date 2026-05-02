@@ -1,0 +1,47 @@
+{
+  "blocks": [
+    {
+      "id": "b.chat-ui",
+      "title": "Chat UI",
+      "mission": "Окно переписки",
+      "layer": "front",
+      "type": "module",
+      "mvp": false,
+      "status": "idea",
+      "depends_on": [
+        "b.chat-api"
+      ],
+      "provides": [],
+      "tech_stack": [],
+      "confidence": 0.9
+    },
+    {
+      "id": "b.chat-api",
+      "title": "Chat API",
+      "mission": "REST и WebSocket для чата",
+      "layer": "logic",
+      "type": "module",
+      "mvp": false,
+      "status": "idea",
+      "depends_on": [
+        "b.chat-db"
+      ],
+      "provides": [],
+      "tech_stack": [],
+      "confidence": 0.9
+    },
+    {
+      "id": "b.chat-db",
+      "title": "Chat DB",
+      "mission": "Хранение чатов и сообщений",
+      "layer": "data",
+      "type": "module",
+      "mvp": false,
+      "status": "idea",
+      "depends_on": [],
+      "provides": [],
+      "tech_stack": [],
+      "confidence": 0.9
+    }
+  ]
+}

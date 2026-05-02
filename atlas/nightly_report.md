@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-05-02T18:28:20.650Z_
+_Generated: 2026-05-02T23:15:30.852Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -13,7 +13,7 @@ _Generated: 2026-05-02T18:28:20.650Z_
 - ✅ no_template_placeholders: ok
   - output: Template-placeholder validation: OK (7 blocks scanned)
 - ✅ files_registry: ok
-  - output: Files registry validation: OK (alive=124, archived=4, dead=0)
+  - output: Files registry validation: OK (alive=127, archived=4, dead=0)
 - ✅ projects_contracts: ok
   - output: validate_projects: OK (1 projects, 5 blocks)
 - ✅ subschemas_contracts: ok
@@ -28,8 +28,10 @@ _Generated: 2026-05-02T18:28:20.650Z_
   - output: atlas_bootstrap smoke: OK (layers=6, blocks=7, links=8)
 - ✅ llm_gateway_selftest: ok
   - output: llm_gateway.selftest: OK (4 cases)
+- ✅ seed_llm_mocks: ok
+  - output: seed_llm_mocks: 0 written, 30 unchanged, 30 total
 - ✅ llm_extraction_eval: ok
-  - output: llm_extraction.eval: OK — avg 1.00 on 5 cases (target 0.70)
+  - output: llm_extraction.eval — overall avg=1.000 (cases=30/30)
 - ✅ simulate_conversation_branches: ok
   - output: PASS: created b.realtime-ingestion in graph.json
 - ✅ validate_cursor_hooks: ok
@@ -61,4 +63,4 @@ _Generated: 2026-05-02T18:28:20.650Z_
 - ✅ intelligence_health: ok
   - output: Intelligence health: 1 (7/7)
 
-Summary: PASS (29/29)
+Summary: PASS (30/30)

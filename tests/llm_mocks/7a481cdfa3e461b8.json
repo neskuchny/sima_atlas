@@ -1,16 +1,14 @@
 {
   "blocks": [
     {
-      "id": "b.auth",
-      "title": "Auth",
-      "mission": "Сервис аутентификации с JWT email password OAuth Google",
+      "id": "b.recommender",
+      "title": "Recommender",
+      "mission": "LLM категоризатор продуктов через OpenAI",
       "layer": "ai",
       "type": "module",
       "mvp": false,
       "status": "idea",
-      "depends_on": [
-        "b.db"
-      ],
+      "depends_on": [],
       "provides": [],
       "tech_stack": [],
       "confidence": 0.9

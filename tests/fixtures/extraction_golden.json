@@ -1,76 +1,212 @@
 [
   {
+    "category": "A_single_block",
     "name": "payments_stripe",
     "dialog": "Нам нужен блок b.payments. Он на слое logic. Принимает Stripe-вебхуки, проверяет подпись, пишет события платежа в БД (b.db) и публикует уведомление о факте оплаты подписчикам.",
-    "expected": {
-      "blocks": [
-        {
-          "id": "b.payments",
-          "title": "Payments",
-          "layer": "logic",
-          "mission": "Принимает Stripe вебхуки проверяет подпись пишет события платежа в БД публикует уведомление",
-          "depends_on": ["b.db"]
-        }
-      ]
-    }
+    "expected": { "blocks": [{ "id": "b.payments", "title": "Payments", "layer": "logic", "mission": "Принимает Stripe вебхуки проверяет подпись пишет события платежа в БД публикует уведомление", "depends_on": ["b.db"] }] }
   },
   {
+    "category": "A_single_block",
     "name": "auth_jwt",
     "dialog": "Делаем блок b.auth, layer ai. Это сервис аутентификации с JWT, поддерживает email/password и OAuth Google. Зависит от блока b.db и предоставляет capability auth_token.",
-    "expected": {
-      "blocks": [
-        {
-          "id": "b.auth",
-          "title": "Auth",
-          "layer": "ai",
-          "mission": "Сервис аутентификации с JWT email password OAuth Google",
-          "depends_on": ["b.db"]
-        }
-      ]
-    }
+    "expected": { "blocks": [{ "id": "b.auth", "title": "Auth", "layer": "ai", "mission": "Сервис аутентификации с JWT email password OAuth Google", "depends_on": ["b.db"] }] }
   },
   {
+    "category": "A_single_block",
     "name": "search_block",
     "dialog": "Добавим блок b.search на слое logic. Он реализует полнотекстовый поиск по документам. Использует Postgres FTS, зависит от хранилища (b.db). Status: idea.",
-    "expected": {
-      "blocks": [
-        {
-          "id": "b.search",
-          "title": "Search",
-          "layer": "logic",
-          "mission": "Полнотекстовый поиск по документам Postgres FTS",
-          "depends_on": ["b.db"]
-        }
-      ]
-    }
+    "expected": { "blocks": [{ "id": "b.search", "title": "Search", "layer": "logic", "mission": "Полнотекстовый поиск по документам Postgres FTS", "depends_on": ["b.db"] }] }
   },
   {
+    "category": "A_single_block",
+    "name": "billing_invoices",
+    "dialog": "Заведи блок b.billing на logic слое — генерация счетов и инвойсов в PDF, отправка по email. Зависит от b.db.",
+    "expected": { "blocks": [{ "id": "b.billing", "title": "Billing", "layer": "logic", "mission": "Генерация счетов и инвойсов PDF отправка по email", "depends_on": ["b.db"] }] }
+  },
+  {
+    "category": "A_single_block",
+    "name": "metrics_collector",
+    "dialog": "Нужен блок b.metrics на слое data: собирает product-метрики (DAU, MAU, retention) из логов событий и кладёт в Postgres.",
+    "expected": { "blocks": [{ "id": "b.metrics", "title": "Metrics", "layer": "data", "mission": "Собирает product метрики DAU MAU retention из логов и кладёт в Postgres", "depends_on": [] }] }
+  },
+
+  {
+    "category": "B_multi_block",
     "name": "notifications_dual",
     "dialog": "Заведи два блока. b.notifications на слое logic — рассылает email и push. b.notifications-ui на слое front — окошко настроек уведомлений. Notifications-ui зависит от notifications.",
-    "expected": {
-      "blocks": [
-        {
-          "id": "b.notifications",
-          "title": "Notifications",
-          "layer": "logic",
-          "mission": "Рассылает email и push",
-          "depends_on": []
-        },
-        {
-          "id": "b.notifications-ui",
-          "title": "Notifications UI",
-          "layer": "front",
-          "mission": "Окошко настроек уведомлений",
-          "depends_on": ["b.notifications"]
-        }
-      ]
-    }
+    "expected": { "blocks": [
+      { "id": "b.notifications", "title": "Notifications", "layer": "logic", "mission": "Рассылает email и push", "depends_on": [] },
+      { "id": "b.notifications-ui", "title": "Notifications UI", "layer": "front", "mission": "Окошко настроек уведомлений", "depends_on": ["b.notifications"] }
+    ] }
   },
   {
-    "name": "no_block_chat",
+    "category": "B_multi_block",
+    "name": "chat_stack",
+    "dialog": "Делаем чат: b.chat-ui (front) — окно переписки, b.chat-api (logic) — REST + WS, b.chat-db (data). UI зависит от api, api зависит от db.",
+    "expected": { "blocks": [
+      { "id": "b.chat-ui", "title": "Chat UI", "layer": "front", "mission": "Окно переписки", "depends_on": ["b.chat-api"] },
+      { "id": "b.chat-api", "title": "Chat API", "layer": "logic", "mission": "REST и WebSocket для чата", "depends_on": ["b.chat-db"] },
+      { "id": "b.chat-db", "title": "Chat DB", "layer": "data", "mission": "Хранение чатов и сообщений", "depends_on": [] }
+    ] }
+  },
+  {
+    "category": "B_multi_block",
+    "name": "blog_pair",
+    "dialog": "Описываем блог: b.blog-editor (front) — редактор статей с markdown-preview, b.blog-store (data) — postgres со статьями. Editor depends on store.",
+    "expected": { "blocks": [
+      { "id": "b.blog-editor", "title": "Blog Editor", "layer": "front", "mission": "Редактор статей markdown preview", "depends_on": ["b.blog-store"] },
+      { "id": "b.blog-store", "title": "Blog Store", "layer": "data", "mission": "Postgres со статьями", "depends_on": [] }
+    ] }
+  },
+  {
+    "category": "B_multi_block",
+    "name": "analytics_two_tier",
+    "dialog": "Аналитический pipeline: b.analytics-ingest (logic) — приём событий через Kafka, b.analytics-dwh (data) — Clickhouse как хранилище. Ingest зависит от dwh.",
+    "expected": { "blocks": [
+      { "id": "b.analytics-ingest", "title": "Analytics Ingest", "layer": "logic", "mission": "Приём событий через Kafka", "depends_on": ["b.analytics-dwh"] },
+      { "id": "b.analytics-dwh", "title": "Analytics DWH", "layer": "data", "mission": "Clickhouse как хранилище", "depends_on": [] }
+    ] }
+  },
+  {
+    "category": "B_multi_block",
+    "name": "auth_pair",
+    "dialog": "Делаем auth: b.auth-api (logic) выдаёт JWT, b.auth-ui (front) — формы login/signup. UI зависит от api.",
+    "expected": { "blocks": [
+      { "id": "b.auth-api", "title": "Auth API", "layer": "logic", "mission": "Выдаёт JWT login signup", "depends_on": [] },
+      { "id": "b.auth-ui", "title": "Auth UI", "layer": "front", "mission": "Формы login и signup", "depends_on": ["b.auth-api"] }
+    ] }
+  },
+
+  {
+    "category": "C_no_block",
+    "name": "no_block_chat_1",
     "dialog": "Привет! Как дела? Сегодня хорошая погода. Что будем делать на выходных?",
-    "expected": {
-      "blocks": []
-    }
+    "expected": { "blocks": [] }
+  },
+  {
+    "category": "C_no_block",
+    "name": "no_block_chat_2",
+    "dialog": "Спасибо за вчерашний разговор. У тебя есть свободная минута на созвон в среду в 14:00?",
+    "expected": { "blocks": [] }
+  },
+  {
+    "category": "C_no_block",
+    "name": "no_block_pure_test",
+    "dialog": "Прогон тестов прошёл с зелёным результатом, всё хорошо. Спасибо!",
+    "expected": { "blocks": [] }
+  },
+  {
+    "category": "C_no_block",
+    "name": "no_block_admin",
+    "dialog": "Перенесли встречу с команды на четверг. Вышлю обновлённый календарь.",
+    "expected": { "blocks": [] }
+  },
+  {
+    "category": "C_no_block",
+    "name": "no_block_news",
+    "dialog": "Прочитал интересную статью про производительность фронтов на React 19. Поделюсь ссылкой.",
+    "expected": { "blocks": [] }
+  },
+
+  {
+    "category": "D_layer_classification",
+    "name": "layer_user",
+    "dialog": "Опиши блок b.onboarding-flow на слое user — это JTBD-карта пользователя при первом входе.",
+    "expected": { "blocks": [{ "id": "b.onboarding-flow", "title": "Onboarding Flow", "layer": "user", "mission": "JTBD карта пользователя при первом входе", "depends_on": [] }] }
+  },
+  {
+    "category": "D_layer_classification",
+    "name": "layer_front",
+    "dialog": "Заведи b.dashboard-ui на слое front — react SPA с графиками.",
+    "expected": { "blocks": [{ "id": "b.dashboard-ui", "title": "Dashboard UI", "layer": "front", "mission": "React SPA с графиками", "depends_on": [] }] }
+  },
+  {
+    "category": "D_layer_classification",
+    "name": "layer_ai",
+    "dialog": "Создай блок b.recommender на слое ai — LLM-категоризатор продуктов через OpenAI API.",
+    "expected": { "blocks": [{ "id": "b.recommender", "title": "Recommender", "layer": "ai", "mission": "LLM категоризатор продуктов через OpenAI", "depends_on": [] }] }
+  },
+  {
+    "category": "D_layer_classification",
+    "name": "layer_data",
+    "dialog": "Нужен блок b.archive на слое data — холодное хранилище старых записей в S3 Glacier.",
+    "expected": { "blocks": [{ "id": "b.archive", "title": "Archive", "layer": "data", "mission": "Холодное хранилище старых записей S3 Glacier", "depends_on": [] }] }
+  },
+  {
+    "category": "D_layer_classification",
+    "name": "layer_ext",
+    "dialog": "Опиши b.stripe-webhook на слое ext — приём вебхуков от Stripe и пересылка в внутреннюю очередь.",
+    "expected": { "blocks": [{ "id": "b.stripe-webhook", "title": "Stripe Webhook", "layer": "ext", "mission": "Приём вебхуков от Stripe и пересылка в внутреннюю очередь", "depends_on": [] }] }
+  },
+
+  {
+    "category": "E_dependency",
+    "name": "dep_chain_3",
+    "dialog": "b.report (logic) зависит от b.metrics (data) и b.export-csv (logic). b.export-csv depends on b.metrics.",
+    "expected": { "blocks": [
+      { "id": "b.report", "title": "Report", "layer": "logic", "mission": "Отчёт", "depends_on": ["b.metrics", "b.export-csv"] },
+      { "id": "b.export-csv", "title": "Export CSV", "layer": "logic", "mission": "Экспорт CSV", "depends_on": ["b.metrics"] },
+      { "id": "b.metrics", "title": "Metrics", "layer": "data", "mission": "Метрики", "depends_on": [] }
+    ] }
+  },
+  {
+    "category": "E_dependency",
+    "name": "dep_self_only",
+    "dialog": "b.idempotency-key на logic — генерирует уникальные ключи для запросов, ни от чего не зависит.",
+    "expected": { "blocks": [{ "id": "b.idempotency-key", "title": "Idempotency Key", "layer": "logic", "mission": "Генерирует уникальные ключи для запросов", "depends_on": [] }] }
+  },
+  {
+    "category": "E_dependency",
+    "name": "dep_diamond",
+    "dialog": "Diamond: b.frontend (front) зависит от b.api-a (logic) и b.api-b (logic). Оба зависят от b.shared-db (data).",
+    "expected": { "blocks": [
+      { "id": "b.frontend", "title": "Frontend", "layer": "front", "mission": "Frontend", "depends_on": ["b.api-a", "b.api-b"] },
+      { "id": "b.api-a", "title": "API A", "layer": "logic", "mission": "API A", "depends_on": ["b.shared-db"] },
+      { "id": "b.api-b", "title": "API B", "layer": "logic", "mission": "API B", "depends_on": ["b.shared-db"] },
+      { "id": "b.shared-db", "title": "Shared DB", "layer": "data", "mission": "Shared database", "depends_on": [] }
+    ] }
+  },
+  {
+    "category": "E_dependency",
+    "name": "dep_explicit_ext",
+    "dialog": "b.crm-sync (ext) зависит от внешнего HubSpot API и от b.contacts-db.",
+    "expected": { "blocks": [{ "id": "b.crm-sync", "title": "CRM Sync", "layer": "ext", "mission": "Зависит от HubSpot API и от contacts db", "depends_on": ["b.contacts-db"] }] }
+  },
+  {
+    "category": "E_dependency",
+    "name": "dep_bidirectional_ish",
+    "dialog": "Блок b.event-bus на слое logic — общая шина событий, потребляется b.notifications, b.audit, b.analytics.",
+    "expected": { "blocks": [{ "id": "b.event-bus", "title": "Event Bus", "layer": "logic", "mission": "Общая шина событий", "depends_on": [] }] }
+  },
+
+  {
+    "category": "F_confidence",
+    "name": "ambiguous_short",
+    "dialog": "Может быть, что-то про API.",
+    "expected": { "blocks": [] }
+  },
+  {
+    "category": "F_confidence",
+    "name": "ambiguous_metaphor",
+    "dialog": "Знаешь, мне кажется, что у нас есть какой-то блок где данные обрабатываются. Не помню точно как его назвать.",
+    "expected": { "blocks": [] }
+  },
+  {
+    "category": "F_confidence",
+    "name": "ambiguous_proper_noun",
+    "dialog": "Видел сегодня крутую статью про React Server Components. Никаких новых блоков не нужно.",
+    "expected": { "blocks": [] }
+  },
+  {
+    "category": "F_confidence",
+    "name": "definite_but_no_id",
+    "dialog": "Нужен бэкенд сервис уведомлений. Слой logic. Делать пока не начинай — это для проработки.",
+    "expected": { "blocks": [{ "id": "b.notifications", "title": "Notifications", "layer": "logic", "mission": "Бэкенд сервис уведомлений", "depends_on": [] }] }
+  },
+  {
+    "category": "F_confidence",
+    "name": "definite_with_id",
+    "dialog": "Подтверждаем блок b.audit-log на слое data — все действия пользователей логируются для compliance.",
+    "expected": { "blocks": [{ "id": "b.audit-log", "title": "Audit Log", "layer": "data", "mission": "Все действия пользователей логируются для compliance", "depends_on": [] }] }
   }
 ]

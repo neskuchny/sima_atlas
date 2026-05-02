@@ -1,0 +1,63 @@
+{
+  "blocks": [
+    {
+      "id": "b.frontend",
+      "title": "Frontend",
+      "mission": "Frontend",
+      "layer": "front",
+      "type": "module",
+      "mvp": false,
+      "status": "idea",
+      "depends_on": [
+        "b.api-a",
+        "b.api-b"
+      ],
+      "provides": [],
+      "tech_stack": [],
+      "confidence": 0.9
+    },
+    {
+      "id": "b.api-a",
+      "title": "API A",
+      "mission": "API A",
+      "layer": "logic",
+      "type": "module",
+      "mvp": false,
+      "status": "idea",
+      "depends_on": [
+        "b.shared-db"
+      ],
+      "provides": [],
+      "tech_stack": [],
+      "confidence": 0.9
+    },
+    {
+      "id": "b.api-b",
+      "title": "API B",
+      "mission": "API B",
+      "layer": "logic",
+      "type": "module",
+      "mvp": false,
+      "status": "idea",
+      "depends_on": [
+        "b.shared-db"
+      ],
+      "provides": [],
+      "tech_stack": [],
+      "confidence": 0.9
+    },
+    {
+      "id": "b.shared-db",
+      "title": "Shared DB",
+      "mission": "Shared database",
+      "layer": "data",
+      "type": "module",
+      "mvp": false,
+      "status": "idea",
+      "depends_on": [],
+      "provides": [],
+      "tech_stack": [],
+      "confidence": 0.9
+    }
+  ]
+}

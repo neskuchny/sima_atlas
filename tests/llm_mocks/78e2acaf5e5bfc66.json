@@ -1,9 +1,9 @@
 {
   "blocks": [
     {
-      "id": "b.notifications",
-      "title": "Notifications",
-      "mission": "Рассылает email и push",
+      "id": "b.auth-api",
+      "title": "Auth API",
+      "mission": "Выдаёт JWT login signup",
       "layer": "logic",
       "type": "module",
       "mvp": false,
@@ -14,15 +14,15 @@
       "confidence": 0.9
     },
     {
-      "id": "b.notifications-ui",
-      "title": "Notifications UI",
-      "mission": "Окошко настроек уведомлений",
+      "id": "b.auth-ui",
+      "title": "Auth UI",
+      "mission": "Формы login и signup",
       "layer": "front",
       "type": "module",
       "mvp": false,
       "status": "idea",
       "depends_on": [
-        "b.notifications"
+        "b.auth-api"
       ],
       "provides": [],
       "tech_stack": [],

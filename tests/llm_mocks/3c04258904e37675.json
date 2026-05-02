@@ -1,16 +1,14 @@
 {
   "blocks": [
     {
-      "id": "b.search",
-      "title": "Search",
-      "mission": "Полнотекстовый поиск по документам Postgres FTS",
+      "id": "b.event-bus",
+      "title": "Event Bus",
+      "mission": "Общая шина событий",
       "layer": "logic",
       "type": "module",
       "mvp": false,
       "status": "idea",
-      "depends_on": [
-        "b.db"
-      ],
+      "depends_on": [],
       "provides": [],
       "tech_stack": [],
       "confidence": 0.9

@@ -2,6 +2,11 @@
 atlas/llm_traces/*
 !atlas/llm_traces/.gitkeep
 
+# Eval history snapshots — only keep first/baseline + .gitkeep; runtime ones are noise.
+atlas/eval_history/*
+!atlas/eval_history/.gitkeep
+!atlas/eval_history/baseline.json
+
 # Misc
 node_modules/
 .env

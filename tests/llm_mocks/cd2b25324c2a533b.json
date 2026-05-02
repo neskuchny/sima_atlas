@@ -1,0 +1,17 @@
+{
+  "blocks": [
+    {
+      "id": "b.metrics",
+      "title": "Metrics",
+      "mission": "Собирает product метрики DAU MAU retention из логов и кладёт в Postgres",
+      "layer": "data",
+      "type": "module",
+      "mvp": false,
+      "status": "idea",
+      "depends_on": [],
+      "provides": [],
+      "tech_stack": [],
+      "confidence": 0.9
+    }
+  ]
+}

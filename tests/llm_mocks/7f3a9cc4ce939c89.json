@@ -1,0 +1,17 @@
+{
+  "blocks": [
+    {
+      "id": "b.audit-log",
+      "title": "Audit Log",
+      "mission": "Все действия пользователей логируются для compliance",
+      "layer": "data",
+      "type": "module",
+      "mvp": false,
+      "status": "idea",
+      "depends_on": [],
+      "provides": [],
+      "tech_stack": [],
+      "confidence": 0.9
+    }
+  ]
+}

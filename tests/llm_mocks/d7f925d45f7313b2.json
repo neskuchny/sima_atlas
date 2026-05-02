@@ -1,15 +1,15 @@
 {
   "blocks": [
     {
-      "id": "b.auth",
-      "title": "Auth",
-      "mission": "Сервис аутентификации с JWT email password OAuth Google",
-      "layer": "ai",
+      "id": "b.crm-sync",
+      "title": "CRM Sync",
+      "mission": "Зависит от HubSpot API и от contacts db",
+      "layer": "ext",
       "type": "module",
       "mvp": false,
       "status": "idea",
       "depends_on": [
-        "b.db"
+        "b.contacts-db"
       ],
       "provides": [],
       "tech_stack": [],

@@ -1,0 +1,17 @@
+{
+  "blocks": [
+    {
+      "id": "b.dashboard-ui",
+      "title": "Dashboard UI",
+      "mission": "React SPA с графиками",
+      "layer": "front",
+      "type": "module",
+      "mvp": false,
+      "status": "idea",
+      "depends_on": [],
+      "provides": [],
+      "tech_stack": [],
+      "confidence": 0.9
+    }
+  ]
+}

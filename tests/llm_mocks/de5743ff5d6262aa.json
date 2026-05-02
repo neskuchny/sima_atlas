@@ -1,16 +1,14 @@
 {
   "blocks": [
     {
-      "id": "b.search",
-      "title": "Search",
-      "mission": "Полнотекстовый поиск по документам Postgres FTS",
+      "id": "b.idempotency-key",
+      "title": "Idempotency Key",
+      "mission": "Генерирует уникальные ключи для запросов",
       "layer": "logic",
       "type": "module",
       "mvp": false,
       "status": "idea",
-      "depends_on": [
-        "b.db"
-      ],
+      "depends_on": [],
       "provides": [],
       "tech_stack": [],
       "confidence": 0.9

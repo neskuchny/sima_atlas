@@ -1,0 +1,17 @@
+{
+  "blocks": [
+    {
+      "id": "b.onboarding-flow",
+      "title": "Onboarding Flow",
+      "mission": "JTBD карта пользователя при первом входе",
+      "layer": "user",
+      "type": "module",
+      "mvp": false,
+      "status": "idea",
+      "depends_on": [],
+      "provides": [],
+      "tech_stack": [],
+      "confidence": 0.9
+    }
+  ]
+}
