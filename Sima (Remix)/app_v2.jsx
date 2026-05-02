@@ -442,7 +442,8 @@ function AppV2(){
                   selectedBlockId={archSelectedId}
                   onSelectBlock={setArchSelectedId}
                   onOpenSubschema={setSubschemaId}
-                  onNote={showToast}/>
+                  onNote={showToast}
+                  syncReport={syncReport}/>
               )}
               {mapView==='landscape' && (
                 <LandscapeView projectId={projId}
@@ -526,6 +527,7 @@ function AppV2(){
               <ArchInspector projectId={projId}
                 selectedBlockId={archSelectedId}
                 onOpenSubschema={setSubschemaId}
+                syncReport={syncReport}
                 onPatch={(id, patch) => {
                   const key = 'sima.arch.'+projId;
                   try {

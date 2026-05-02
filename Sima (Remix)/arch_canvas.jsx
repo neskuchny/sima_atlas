@@ -104,7 +104,10 @@ function curve(pa, pb){
 }
 
 // ---- Block component -----
-function ArchBlock({ b, layerTop, density, selected, onSelect, onMove, onRename, onStartConnect, onChangeLayer, dim, highlight }){
+function ArchBlock({ b, layerTop, density, selected, onSelect, onMove, onRename, onStartConnect, onChangeLayer, dim, highlight, syncStatus, syncIssues }){
+  // PR2.5: syncStatus is one of 'ok' | 'drift' | 'broken' | undefined.
+  // We render an overlay border + a corner badge so the user sees at a glance
+  // which blocks are out of sync, and a native title-tooltip lists the issues.
   const [drag, setDrag] = useState(false);
   const [editing, setEditing] = useState(false);
   const startRef = useRef(null);
@@ -140,20 +143,42 @@ function ArchBlock({ b, layerTop, density, selected, onSelect, onMove, onRename,
 
   const STATUS = window.ARCH_STATUS[b.status] || window.ARCH_STATUS.idea;
 
+  // PR2.5: drift / broken visual overlay
+  const SYNC_STYLE = {
+    broken: { ring: '#dc2626', ringSoft: 'rgba(220,38,38,0.14)', label: '!', labelBg: '#dc2626' },
+    drift:  { ring: '#d97706', ringSoft: 'rgba(217,119,6,0.14)',  label: '⚠', labelBg: '#d97706' },
+  };
+  const syncCfg = SYNC_STYLE[syncStatus] || null;
+  const syncTooltip = syncIssues && syncIssues.length
+    ? `[${syncStatus.toUpperCase()}] ${syncIssues.join('\n• ')}`
+    : null;
+
   const style = {
     position:'absolute',
     left: b.x, top: layerTop + 24,
     width: b.w, height: h,
     cursor: drag ? 'grabbing' : 'grab',
     opacity: dim ? 0.35 : 1,
+    boxShadow: syncCfg ? `0 0 0 2px ${syncCfg.ring}, 0 0 0 6px ${syncCfg.ringSoft}` : undefined,
+    zIndex: syncCfg ? 2 : undefined,
   };
 
   return (
-    <div className={`ab ${selected?'sel':''} ${highlight?'hl':''}`} style={style}
+    <div className={`ab ${selected?'sel':''} ${highlight?'hl':''} ${syncStatus ? 'sync-'+syncStatus : ''}`} style={style}
          onMouseDown={onMouseDown}
          onDoubleClick={onDoubleClick}
          onClick={(e)=>{e.stopPropagation(); onSelect(b.id);}}
+         title={syncTooltip || undefined}
          data-block-id={b.id}>
+      {syncCfg && (
+        <div style={{
+          position: 'absolute', top: -8, right: -8,
+          width: 18, height: 18, borderRadius: '50%',
+          background: syncCfg.labelBg, color: '#fff',
+          fontSize: 11, fontWeight: 700, lineHeight: '18px', textAlign: 'center',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.25)', pointerEvents: 'none',
+        }}>{syncCfg.label}</div>
+      )}
       <div className="ab-hd">
         <span className="ab-dot" style={{background: STATUS.dot}}/>
         {editing ? (
@@ -178,7 +203,13 @@ function ArchBlock({ b, layerTop, density, selected, onSelect, onMove, onRename,
 }
 
 // ---- Main canvas ----
-function ArchCanvas({ projectId, density, view, mvpOnly, onSelectBlock, selectedBlockId, onOpenSubschema, onNote }){
+function ArchCanvas({ projectId, density, view, mvpOnly, onSelectBlock, selectedBlockId, onOpenSubschema, onNote, syncReport }){
+  // PR2.5: index sync details by blockId so the canvas can highlight drift/broken.
+  const syncDetailsById = React.useMemo(() => {
+    const m = {};
+    for (const d of (syncReport?.details || [])) m[d.blockId] = d;
+    return m;
+  }, [syncReport]);
   const [arch, setArch, reset] = useArchState(projectId);
   const stageRef = useRef(null);
   const [collapsed, setCollapsed] = useState({});
@@ -413,7 +444,9 @@ function ArchCanvas({ projectId, density, view, mvpOnly, onSelectBlock, selected
                     onSelect={onSelectBlock}
                     onMove={moveBlock}
                     onRename={renameBlock}
-                    onStartConnect={startConnect}/>
+                    onStartConnect={startConnect}
+                    syncStatus={syncDetailsById[b.id]?.status}
+                    syncIssues={syncDetailsById[b.id]?.issues || []}/>
                 </div>
               );
             })}
@@ -425,7 +458,7 @@ function ArchCanvas({ projectId, density, view, mvpOnly, onSelectBlock, selected
 }
 
 // ---- Inspector ----
-function ArchInspector({ projectId, selectedBlockId, onOpenSubschema, onPatch }){
+function ArchInspector({ projectId, selectedBlockId, onOpenSubschema, onPatch, syncReport }){
   // PR3.5 hardening: tolerate missing project + corrupted localStorage value
   // (the literal string "undefined" / "null" / non-JSON garbage).
   const EMPTY = { projectId, layers: [], blocks: [], links: [], groups: [] };
@@ -462,8 +495,30 @@ function ArchInspector({ projectId, selectedBlockId, onOpenSubschema, onPatch })
   const L = window.ARCH_LAYERS[block.layer];
   const STATUS = window.ARCH_STATUS;
 
+  // PR2.5: surface this block's sync issues if any
+  const blockSyncDetail = (syncReport && Array.isArray(syncReport.details))
+    ? syncReport.details.find(d => d.blockId === block.id)
+    : null;
+
   return (
     <div className="arch-inspect">
+      {blockSyncDetail && (
+        <div className="field" style={{
+          background: blockSyncDetail.status === 'broken' ? 'rgba(220,38,38,0.06)' : 'rgba(217,119,6,0.06)',
+          border: `1px solid ${blockSyncDetail.status === 'broken' ? '#fecaca' : '#fed7aa'}`,
+          borderRadius: 6, padding: '8px 10px', marginBottom: 8,
+        }}>
+          <label style={{
+            color: blockSyncDetail.status === 'broken' ? '#b91c1c' : '#9a3412',
+            fontWeight: 600,
+          }}>{blockSyncDetail.status === 'broken' ? '✗ broken' : '⚠ drift'} ({(blockSyncDetail.issues || []).length})</label>
+          <ul style={{margin: '4px 0 0 16px', padding: 0, fontSize: 11, lineHeight: 1.4}}>
+            {(blockSyncDetail.issues || []).map((issue, i) => (
+              <li key={i} style={{listStyle: 'disc'}}>{issue}</li>
+            ))}
+          </ul>
+        </div>
+      )}
       <div className="field">
         <label>Слой</label>
         <div style={{display:'flex',alignItems:'center',gap:6,fontSize:12}}>
