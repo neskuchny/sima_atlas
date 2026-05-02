@@ -63,9 +63,32 @@ const ImportantList = ({ field, onFill }) => (
 );
 
 const UserStoryMap = ({ field, onSelectNode, selectedId, onOpenSubschema }) => {
-  const { nodes, edges, title } = field;
+  // PR4.4: defensive defaults so the component never crashes when the bootstrap
+  // omits a field. Empty userstory → renders an empty flow with a hint.
+  const safe = field || {};
+  const nodes = Array.isArray(safe.nodes) ? safe.nodes : [];
+  // Some generators emit `edges: [[from,to]]`, others emit `links: [{from,to}]`.
+  // Accept both forms and normalize to [from, to] tuples.
+  const edges = Array.isArray(safe.edges)
+    ? safe.edges
+    : Array.isArray(safe.links)
+      ? safe.links.map((l) => [l.from, l.to])
+      : [];
+  const title = safe.title || 'User Story';
   const byId = {};
-  nodes.forEach(n => byId[n.id]=n);
+  nodes.forEach(n => { if (n && n.id) byId[n.id] = n; });
+  if (!nodes.length) {
+    return (
+      <div className="us-map">
+        <h3>{title}</h3>
+        <div style={{fontSize:12,color:'var(--ink-4)',padding:'18px 0'}}>
+          User-story для этого проекта пока не сгенерирована.
+          Перегенери bootstrap (<code>node scripts/generate_atlas_bootstrap_js.mjs</code>) или открой
+          вкладку «Архитектура» — там полная многослойная схема.
+        </div>
+      </div>
+    );
+  }
   // simple row rendering — we already have "sources" panel on right; nodes in order
   return (
     <div className="us-map">

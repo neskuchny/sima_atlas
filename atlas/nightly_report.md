@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-05-02T12:37:30.116Z_
+_Generated: 2026-05-02T12:43:03.408Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -21,7 +21,7 @@ _Generated: 2026-05-02T12:37:30.116Z_
 - ✅ atlas_selftest: ok
   - output: atlas_sync.selftest: OK
 - ✅ bootstrap_layered_smoke: ok
-  - output: atlas_bootstrap smoke: OK (layers=6, blocks=7, links=7)
+  - output: atlas_bootstrap smoke: OK (layers=6, blocks=7, links=8)
 - ✅ llm_gateway_selftest: ok
   - output: llm_gateway.selftest: OK (4 cases)
 - ✅ llm_extraction_eval: ok

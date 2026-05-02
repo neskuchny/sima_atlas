@@ -61,12 +61,12 @@ window.SIMA_BOOTSTRAP = {
               "y": 200,
               "w": 220,
               "h": 130,
-              "source": "ai · wip",
+              "source": "ai · review",
               "title": "Agent Orchestrator",
               "meta": "b.agent-orchestrator",
               "take": "Шина между Sima и любым coding-агентом (Cursor, Claude Code, Codex CLI, Antigravity).",
               "tags": [
-                "#wip",
+                "#review",
                 "#ai"
               ]
             },
@@ -77,12 +77,12 @@ window.SIMA_BOOTSTRAP = {
               "y": 200,
               "w": 220,
               "h": 130,
-              "source": "ai · idea",
-              "title": "LLM Gateway (PR3)",
+              "source": "ai · review",
+              "title": "LLM Gateway",
               "meta": "b.llm-gateway",
-              "take": "Тонкий слой к LLM-провайдерам (Claude / Gemini / OpenAI) с единым интерфейсом для всех движков Атласа: `extractBlockSchema(text) → BlockSchema`, `validateMissionMatch(mission, code",
+              "take": "Единая точка входа для всех LLM-вызовов внутри Атласа.",
               "tags": [
-                "#idea",
+                "#review",
                 "#ai"
               ]
             },
@@ -172,6 +172,13 @@ window.SIMA_BOOTSTRAP = {
               "direction": "to-task"
             },
             {
+              "id": "b.agent-orchestrator__b.llm-gateway",
+              "from": "b.agent-orchestrator",
+              "to": "b.llm-gateway",
+              "label": "b.agent-orchestrator → b.llm-gateway",
+              "direction": "to-task"
+            },
+            {
               "id": "b.docs__b.db",
               "from": "b.docs",
               "to": "b.db",
@@ -231,11 +238,11 @@ window.SIMA_BOOTSTRAP = {
                 "filled": true
               },
               {
-                "label": "Agent Orchestrator (ai · wip)",
+                "label": "Agent Orchestrator (ai · review)",
                 "filled": true
               },
               {
-                "label": "LLM Gateway (PR3) (ai · idea)",
+                "label": "LLM Gateway (ai · review)",
                 "filled": true
               },
               {
@@ -261,10 +268,10 @@ window.SIMA_BOOTSTRAP = {
                 "hasSubschema": false,
                 "sources": [
                   "Sima (Remix)/Сима - универсальный конструктор.html [alive]",
+                  "Sima (Remix)/index.html [alive] (PR4.1: ASCII alias for python http.server compatibility)",
+                  "index.html [alive] (PR4.1: repo-root redirect to Sima (Remix)/index.html)",
                   "Sima (Remix)/app_v2.jsx [alive]",
-                  "Sima (Remix)/arch_canvas.jsx [alive]",
-                  "Sima (Remix)/layer1_canvas.jsx [alive]",
-                  "Sima (Remix)/layer2_map.jsx [alive]"
+                  "Sima (Remix)/arch_canvas.jsx [alive]"
                 ]
               },
               {
@@ -292,20 +299,24 @@ window.SIMA_BOOTSTRAP = {
                 "sources": [
                   "scripts/mcp_atlas_server.mjs [alive] (21+ tools over JSON-RPC stdio)",
                   "scripts/atlas_api_server.mjs [alive] (HTTP facade for orchestration)",
-                  "scripts/generate_cursor_hooks.mjs [alive] (currently emits invalid hook events — fix in PR4)",
-                  "scripts/generate_agent_contracts.mjs [alive] (writes AGENTS.md / CLAUDE.md)",
-                  "scripts/build_context_pack.mjs [alive]"
+                  "scripts/generate_cursor_hooks.mjs [alive] (PR4: emits valid Cursor format with real action scripts)",
+                  "scripts/validate_cursor_hooks.mjs [alive] (PR4: gate; fails if hooks.json has wrong shape or missing scripts)",
+                  "scripts/observe_file_edit.mjs [alive] (PR4: afterFileEdit action — files.md → block reverse-map)"
                 ]
               },
               {
                 "id": "b.llm-gateway",
-                "title": "LLM Gateway (PR3)",
+                "title": "LLM Gateway",
                 "kind": "блок · ai",
                 "filled": true,
-                "body": "Тонкий слой к LLM-провайдерам (Claude / Gemini / OpenAI) с единым интерфейсом для всех движков Атласа: `extractBlockSchema(text) → BlockSchema`, `validateMissionMatch(mission, code",
+                "body": "Единая точка входа для всех LLM-вызовов внутри Атласа.",
                 "hasSubschema": false,
                 "sources": [
-                  "(none yet — PR3 will create scripts/llm_gateway.mjs and tests/llm_mocks/*)"
+                  "scripts/llm_gateway.mjs [alive] (PR3 — main implementation, PR4.2 inline-comment-safe .env parser)",
+                  "scripts/llm_check.mjs [alive] (PR4.1 — diagnostic for env + provider ping)",
+                  "tests/llm_gateway.selftest.mjs [alive] (4 cases: schema validation, extractBlockSchema, trace write, no-schema fallback)",
+                  "tests/llm_extraction.eval.mjs [alive] (5-case golden eval, target precision >= 0.7)",
+                  "tests/fixtures/extraction_golden.json [alive]"
                 ]
               },
               {
@@ -351,6 +362,40 @@ window.SIMA_BOOTSTRAP = {
                 ]
               }
             ],
+            "edges": [
+              [
+                "b.ui-control",
+                "b.core-sync"
+              ],
+              [
+                "b.ui-control",
+                "b.agent-orchestrator"
+              ],
+              [
+                "b.core-sync",
+                "b.db"
+              ],
+              [
+                "b.agent-orchestrator",
+                "b.db"
+              ],
+              [
+                "b.agent-orchestrator",
+                "b.core-sync"
+              ],
+              [
+                "b.agent-orchestrator",
+                "b.llm-gateway"
+              ],
+              [
+                "b.docs",
+                "b.db"
+              ],
+              [
+                "b.docs",
+                "b.core-sync"
+              ]
+            ],
             "links": [
               {
                 "from": "b.ui-control",
@@ -375,6 +420,11 @@ window.SIMA_BOOTSTRAP = {
               {
                 "from": "b.agent-orchestrator",
                 "to": "b.core-sync",
+                "label": "depends_on"
+              },
+              {
+                "from": "b.agent-orchestrator",
+                "to": "b.llm-gateway",
                 "label": "depends_on"
               },
               {
@@ -436,13 +486,13 @@ window.SIMA_BOOTSTRAP = {
             {
               "id": "b.agent-orchestrator",
               "title": "Agent Orchestrator",
-              "status": "wip",
+              "status": "review",
               "layer": "ai"
             },
             {
               "id": "b.llm-gateway",
-              "title": "LLM Gateway (PR3)",
-              "status": "idea",
+              "title": "LLM Gateway",
+              "status": "review",
               "layer": "ai"
             },
             {
@@ -494,10 +544,10 @@ window.SIMA_BOOTSTRAP = {
           "note": "Визуальная control plane Симы: один React-канвас, в котором человек видит схему продукта (слои, блоки, связи), статус каждого блока (idea/wip/review/done/broken/drift), запускает д",
           "sources": [
             "Sima (Remix)/Сима - универсальный конструктор.html [alive]",
+            "Sima (Remix)/index.html [alive] (PR4.1: ASCII alias for python http.server compatibility)",
+            "index.html [alive] (PR4.1: repo-root redirect to Sima (Remix)/index.html)",
             "Sima (Remix)/app_v2.jsx [alive]",
-            "Sima (Remix)/arch_canvas.jsx [alive]",
-            "Sima (Remix)/layer1_canvas.jsx [alive]",
-            "Sima (Remix)/layer2_map.jsx [alive]"
+            "Sima (Remix)/arch_canvas.jsx [alive]"
           ],
           "tech_stack": [
             "react",
@@ -533,8 +583,8 @@ window.SIMA_BOOTSTRAP = {
           "title": "Agent Orchestrator",
           "layer": "ai",
           "type": "module",
-          "status": "wip",
-          "status_reason": "No real Cursor SDK / Claude Code integration; hooks.json uses invented events",
+          "status": "review",
+          "status_reason": "PR4: .cursor/hooks.json now uses valid Cursor events (beforeSubmitPrompt/afterFileEdit/beforeShellExecution/stop) wired to real action scripts. Cursor edits write to checks.log of the right block via files.md mapping. Drift guard rejects pip/yarn-add-vue/etc. inject_context_pack provides per-block context. Live Cursor wiring (real env vars) needs UI test (PR4.5).",
           "mvp": true,
           "subschema": null,
           "x": 40,
@@ -543,9 +593,9 @@ window.SIMA_BOOTSTRAP = {
           "sources": [
             "scripts/mcp_atlas_server.mjs [alive] (21+ tools over JSON-RPC stdio)",
             "scripts/atlas_api_server.mjs [alive] (HTTP facade for orchestration)",
-            "scripts/generate_cursor_hooks.mjs [alive] (currently emits invalid hook events — fix in PR4)",
-            "scripts/generate_agent_contracts.mjs [alive] (writes AGENTS.md / CLAUDE.md)",
-            "scripts/build_context_pack.mjs [alive]"
+            "scripts/generate_cursor_hooks.mjs [alive] (PR4: emits valid Cursor format with real action scripts)",
+            "scripts/validate_cursor_hooks.mjs [alive] (PR4: gate; fails if hooks.json has wrong shape or missing scripts)",
+            "scripts/observe_file_edit.mjs [alive] (PR4: afterFileEdit action — files.md → block reverse-map)"
           ],
           "tech_stack": [
             "nodejs",
@@ -555,23 +605,27 @@ window.SIMA_BOOTSTRAP = {
         },
         {
           "id": "b.llm-gateway",
-          "title": "LLM Gateway (PR3)",
+          "title": "LLM Gateway",
           "layer": "ai",
           "type": "module",
-          "status": "idea",
-          "status_reason": "Not implemented yet; PR3 will add Claude/Gemini gateway with structured output",
+          "status": "review",
+          "status_reason": "PR3: gateway implemented (Anthropic + Google + mock), structured output via JSON schema, trace+cost cap, golden eval avg 1.0 in mock. Review needed: live providers untested without keys; UI confidence/diff flow pending PR3.5.",
           "mvp": true,
           "subschema": null,
           "x": 270,
           "w": 210,
-          "note": "Тонкий слой к LLM-провайдерам (Claude / Gemini / OpenAI) с единым интерфейсом для всех движков Атласа: `extractBlockSchema(text) → BlockSchema`, `validateMissionMatch(mission, code",
+          "note": "Единая точка входа для всех LLM-вызовов внутри Атласа.",
           "sources": [
-            "(none yet — PR3 will create scripts/llm_gateway.mjs and tests/llm_mocks/*)"
+            "scripts/llm_gateway.mjs [alive] (PR3 — main implementation, PR4.2 inline-comment-safe .env parser)",
+            "scripts/llm_check.mjs [alive] (PR4.1 — diagnostic for env + provider ping)",
+            "tests/llm_gateway.selftest.mjs [alive] (4 cases: schema validation, extractBlockSchema, trace write, no-schema fallback)",
+            "tests/llm_extraction.eval.mjs [alive] (5-case golden eval, target precision >= 0.7)",
+            "tests/fixtures/extraction_golden.json [alive]"
           ],
           "tech_stack": [
             "nodejs",
-            "anthropic-sdk",
-            "google-genai"
+            "anthropic-api",
+            "google-genai-api"
           ]
         },
         {
@@ -671,6 +725,12 @@ window.SIMA_BOOTSTRAP = {
         {
           "from": "b.agent-orchestrator",
           "to": "b.core-sync",
+          "type": "dep",
+          "label": ""
+        },
+        {
+          "from": "b.agent-orchestrator",
+          "to": "b.llm-gateway",
           "type": "dep",
           "label": ""
         },

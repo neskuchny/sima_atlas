@@ -55,6 +55,32 @@ if (arch) {
 const projects = win.SIMA_DATA_V2 && win.SIMA_DATA_V2.projects;
 if (!projects || !projects.find((p) => p.id === 'atlas-live')) errors.push('atlas-live not merged into SIMA_DATA_V2.projects');
 
+// PR4.4: validate the SIMA_DATA_V2 project shape that Layer1Canvas / Layer2Map need.
+const proj = projects && projects.find((p) => p.id === 'atlas-live');
+if (proj) {
+  if (!proj.canvas || !Array.isArray(proj.canvas.sources)) errors.push('atlas-live.canvas.sources missing or not an array');
+  if (!proj.map || typeof proj.map !== 'object') errors.push('atlas-live.map missing');
+  if (proj.map) {
+    const us = proj.map.userstory;
+    if (!us) errors.push('atlas-live.map.userstory missing');
+    else {
+      if (!Array.isArray(us.nodes)) errors.push('atlas-live.map.userstory.nodes must be an array');
+      // UserStoryMap accepts either `edges: [[a,b]]` or `links: [{from,to}]`. Require at least one.
+      const hasEdges = Array.isArray(us.edges);
+      const hasLinks = Array.isArray(us.links);
+      if (!hasEdges && !hasLinks) errors.push('atlas-live.map.userstory must have edges or links array');
+      if (hasEdges) {
+        for (const e of us.edges) {
+          if (!Array.isArray(e) || e.length !== 2 || typeof e[0] !== 'string' || typeof e[1] !== 'string') {
+            errors.push(`atlas-live.map.userstory.edges entries must be [from, to] string tuples; got ${JSON.stringify(e)}`);
+            break;
+          }
+        }
+      }
+    }
+  }
+}
+
 if (errors.length) {
   console.error('atlas_bootstrap smoke FAILED:');
   errors.forEach((e) => console.error(' ✗', e));

@@ -164,6 +164,9 @@ const project = {
         hasSubschema: !!b.subschema,
         sources: b.sources,
       })),
+      // UserStoryMap (layer2_map.jsx) expects `edges` as a list of [from, to] tuples.
+      edges: links.map((l) => [l.from, l.to]),
+      // Keep the richer object form for any downstream consumer that wants labels.
       links: links.map((l) => ({ from: l.from, to: l.to, label: 'depends_on' })),
     },
   },
