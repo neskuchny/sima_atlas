@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-30T20:30:28.834Z",
+  "generated_at": "2026-05-02T08:49:09.650Z",
   "block_id": "b.agent-orchestrator",
   "project": {
     "project": "# Sima Atlas\n\nЦель: единая визуально-документная система, которая устраняет рассинхрон между кодом, агентами и документацией.\n\n## North Star\n- Любой агент работает по одному и тому же block-context.\n- Человек видит статус реализации на схеме без чтения всего кода.\n",
@@ -10,28 +10,29 @@
     "meta": {
       "id": "b.agent-orchestrator",
       "title": "Agent Orchestrator",
-      "status": "done",
+      "status": "wip",
+      "status_reason": "No real Cursor SDK / Claude Code integration; hooks.json uses invented events",
       "depends_on": [
         "b.db",
         "b.core-sync"
       ]
     },
-    "mission": "# b.agent-orchestrator — mission\n\nКлючевая цель блока и его значение для устранения рассинхрона.\n",
-    "kpi": "# b.agent-orchestrator — KPI\n\n- KPI-1: метрика готовности определена.\n- KPI-2: есть минимум одна автоматическая проверка.\n",
-    "acceptance": "# b.agent-orchestrator — acceptance\n\n- [x] Логика блока документирована.\n- [x] Связи с зависимостями проверены.\n- [x] Результат отражается в UI/отчёте sync.\n",
-    "tasks": "# b.agent-orchestrator — tasks\n\n- [ ] Описать контракты вход/выход.\n- [ ] Добавить checks.log по первичным тестам.\n",
+    "mission": "# b.agent-orchestrator — mission\n\nШина между Sima и любым coding-агентом (Cursor, Claude Code, Codex CLI, Antigravity). Главная задача — обеспечить, чтобы все агенты работали по **одному и тому же** context-pack, читали `/atlas/blocks/<id>/` перед написанием кода и пушили обратно реальные события (file edits, shell calls, status transitions), а не шаблонные «sync pass»-логи.\n\nТекущая реализация: MCP-сервер (`scripts/mcp_atlas_server.mjs` с 21+ tools), `.cursor/hooks.json`, `AGENTS.md` / `CLAUDE.md` контракты. Главные пропуски — `.cursor/hooks.json` использует выдуманное событие `afterPromptSent` и формат `action.run_command`, который Cursor не интерпретирует; нет наблюдения за реальными file edits и tool calls агентов.\n\n## Layer\nai\n\n## Что должен делать в done-версии\n1. Валидные Cursor hooks: `beforeShellExecution`, `afterFileEdit`, `beforeSubmitPrompt` с реальным запуском node-скриптов.\n2. `observe_file_edit.mjs`: получает путь файла → ищет в `files.md` блоков → пишет в `checks.log` блока факт правки + `git diff --stat`.\n3. `guard_against_drift.mjs`: проверяет shell-команды против `tech_stack.md` (например, блокирует `pip install` если стек React).\n4. Adapter для Claude Code: `claude --print --add-dir /atlas/blocks/<id>` запускается из MCP-tool `run_block_implementation`.\n5. Multi-agent parity: один и тот же context-pack JSON отдаётся через Cursor (MCP) и Claude (CLI flag).\n\n## Out of scope\n- LLM-извлечение смысла из чата (это `b.llm-gateway`).\n- UI-операции по блоку (это `b.ui-control`).\n",
+    "kpi": "# b.agent-orchestrator — KPI\n\n- **KPI-1 (valid hooks)**: `.cursor/hooks.json` использует только реальные Cursor события и формат `action.run_command` соответствует Cursor SDK. Сейчас: ✗ (`afterPromptSent` не существует у Cursor).\n- **KPI-2 (real observation)**: после каждого `afterFileEdit` в `checks.log` соответствующего блока появляется запись с актуальным `git diff --stat`. Сейчас: ✗ (хук просто дописывает напоминание, не читает diff).\n- **KPI-3 (drift guard)**: shell-команда, противоречащая `tech_stack.md`, блокируется хуком и логируется в `decisions.log`. Сейчас: ✗ (validate_text без реальной проверки).\n- **KPI-4 (parity)**: `validate_agent_parity.mjs` подтверждает, что для любого блока context-pack одинаков для Cursor (через MCP `build_context_pack`) и для Claude Code (через CLI с `--add-dir`). Сейчас: △ (есть `validate_parity_matrix.mjs`, но проверка формальная).\n- **KPI-5 (no-chat-leak)**: чат с агентом не попадает в долгую память Atlas; в `decisions.log` блока — только distillate, не сырые сообщения. Сейчас: ✓ (есть, но distillate приходит через regex-grep, не LLM).\n",
+    "acceptance": "# b.agent-orchestrator — acceptance\n\n- [ ] **A1.** Cursor реально срабатывает на `.cursor/hooks.json`: при ручном file-edit в репо появляется запись в `atlas/process_runs/cursor_observations/<timestamp>.json` (live-проверка, не моки).\n- [ ] **A2.** Запуск `claude --print --add-dir atlas/blocks/b.docs --prompt \"summarize mission\"` возвращает summary, основанный на mission.md этого блока (а не на чате).\n- [ ] **A3.** Команда `pip install neo4j` блокируется hook'ом на репо со стэком React+Node, в `decisions.log` `b.agent-orchestrator` появляется запись `blocked: stack_drift`.\n- [ ] **A4.** `validate_agent_parity.mjs` для каждого активного блока проверяет, что Cursor и Claude получают идентичный context-pack JSON (diff пустой).\n- [ ] **A5.** В чате с агентом 50 сообщений → в `decisions.log` блока — не более 5 distillate-записей (фильтрация работает).\n\n## Не считается acceptance:\n- наличие файла `.cursor/hooks.json`.\n- факт того, что MCP-сервер запускается.\n",
+    "tasks": "# b.agent-orchestrator — tasks\n\n- [ ] T1: Заменить выдуманный `afterPromptSent` в `.cursor/hooks.json` на валидные Cursor события — **PR4**\n- [ ] T2: Реализовать `scripts/observe_file_edit.mjs`: на `afterFileEdit` пишет в `checks.log` блока с `git diff --stat` — **PR4**\n- [ ] T3: `scripts/guard_against_drift.mjs`: на `beforeShellExecution` сверяет команду с `tech_stack.md` — **PR4**\n- [ ] T4: Adapter для Claude Code CLI: MCP tool `run_block_implementation(block_id)` — **PR4**\n- [ ] T5: `validate_agent_parity.mjs` — нечестная проверка форматов; нужно сравнение реального context-pack diff между агентами — **PR4**\n- [ ] T6: Distillate генератор через `b.llm-gateway`: чат → factual notes → блок — **PR3**\n",
     "patterns": "",
     "files": ""
   },
   "dependencies": [
     {
       "id": "b.db",
-      "mission": "# b.db — mission\n\nКлючевая цель блока и его значение для устранения рассинхрона.\n",
+      "mission": "# b.db — mission\n\nAtlas storage слой: единый источник правды для графа продукта (`graph.json`), блоков (`blocks/<id>/*.md`), очереди ingestion (`ingestion_queue.jsonl`), журналов transitions/decisions/checks. Цель — предоставить детерминированный API для чтения/записи без дрейфа.\n\nВ MVP — это plain markdown + JSON файлы на диске + localStorage-кеш на клиенте через `atlas_sync.js`. В production-варианте — миграция на SQLite или Postgres с тем же файловым API через MCP-сервер (атомарность, версии, multi-tenant).\n\n## Layer\ndata\n\n## Что должен делать в done-версии\n1. Атомарные write-операции (block update = single transaction, не оставляем half-written файлы при сбое).\n2. Версионирование блока: каждое изменение mission/kpi/depends/provides пишется в `history/<timestamp>.diff`.\n3. Migration runner: если схема `graph.json` меняется (как в PR2 при добавлении `layer/type/mvp`), мигратор обновляет старые блоки.\n4. Read-API: `getBlock(id)`, `listBlocks(filter)`, `getDependencies(id)`, `getHistory(id)` — единый интерфейс для UI и MCP.\n\n## Out of scope\n- Векторный поиск (это backup-память, не основная).\n- Multi-project namespacing (PR в стек после PR4).\n",
       "provides": "# b.db — provides\n\n- atlas_state_store\n- file_registry\n"
     },
     {
       "id": "b.core-sync",
-      "mission": "# b.core-sync — mission\n\nКлючевая цель блока и его значение для устранения рассинхрона.\n",
+      "mission": "# b.core-sync — mission\n\nSync Engine — движок проверки синхронизации блоков продукта с миссией, KPI, стэком и кодом. Главная задача — детектить «рассинхрон»: код пишется в одном фреймворке, ТЗ говорит про другой; блок A объявляет, что зависит от capability X у блока B, а B такой capability не предоставляет; KPI задан, но в `checks.log` нет ни одной измеренной записи.\n\nТекущая реализация (`Sima (Remix)/atlas_sync.js` + `scripts/validate_*`) — каркас: проверяет наличие файлов, подсчитывает прогресс tasks/KPI, сравнивает `depends_on/provides`. Этого недостаточно для миссии «решить рассинхрон» — нужно семантическое сопоставление миссии блока с реализацией (требует LLM, PR3) и реальный анализ кода (PR4).\n\n## Layer\nlogic\n\n## Что должен делать в done-версии (роадмап)\n1. Структурный sync (PR2): contract-валидация графа, layer/depends/provides консистентность.\n2. Семантический sync (PR3): LLM проверяет `code(impl) ↔ mission/kpi блока`, выдаёт `drift_reason`.\n3. Реальный sync с кодом (PR4): на каждый `git diff` сопоставляет изменённые файлы с `files.md` блоков и логирует факт изменения в `checks.log`.\n\n## Out of scope\n- Генерация документации (это `b.docs`).\n- UI-визуализация sync-репорта (это `b.ui-control`).\n",
       "provides": "# b.core-sync — provides\n\n- sync_report\n- contract_validation\n"
     }
   ]

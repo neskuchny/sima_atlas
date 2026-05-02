@@ -3,10 +3,10 @@ import { spawnSync } from 'node:child_process';
 
 const payload = [
   { jsonrpc:'2.0', id:1, method:'initialize', params:{} },
-  { jsonrpc:'2.0', id:2, method:'tools/call', params:{ name:'update_block', arguments:{ block_id:'b.docs', tasks:['nightly smoke e2e task'] } } },
-  { jsonrpc:'2.0', id:3, method:'tools/call', params:{ name:'enqueue_ingestion', arguments:{ block_id:'b.docs', note:'smoke e2e queued insight', apply_to_rules:false } } },
+  { jsonrpc:'2.0', id:2, method:'tools/call', params:{ name:'update_block', arguments:{ block_id:'b.smoke-sandbox', tasks:['nightly smoke e2e task'] } } },
+  { jsonrpc:'2.0', id:3, method:'tools/call', params:{ name:'enqueue_ingestion', arguments:{ block_id:'b.smoke-sandbox', note:'smoke e2e queued insight', apply_to_rules:false } } },
   { jsonrpc:'2.0', id:4, method:'tools/call', params:{ name:'apply_ingestion_queue', arguments:{} } },
-  { jsonrpc:'2.0', id:5, method:'tools/call', params:{ name:'build_context_pack', arguments:{ block_id:'b.docs' } } },
+  { jsonrpc:'2.0', id:5, method:'tools/call', params:{ name:'build_context_pack', arguments:{ block_id:'b.smoke-sandbox' } } },
   { jsonrpc:'2.0', id:6, method:'tools/call', params:{ name:'generate_validated_bundle', arguments:{} } },
   { jsonrpc:'2.0', id:7, method:'tools/call', params:{ name:'render_wiki_html', arguments:{} } },
 ];

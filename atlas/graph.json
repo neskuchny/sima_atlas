@@ -1,10 +1,12 @@
 {
-  "version": 1,
+  "version": 2,
+  "_note": "PR1 honest reset 2026-05-02: removed auto-generated regex blocks; statuses reset to reality (UI doesn't load, sync only checks file presence, no LLM connected, hooks invalid). Block model will be extended with 'layer'/'type'/'mvp' in PR2.",
   "blocks": [
     {
       "id": "b.ui-control",
       "title": "UI Control Plane",
-      "status": "done",
+      "status": "wip",
+      "status_reason": "HTML loses references to components.jsx/sidecol.jsx/canvas_tools.jsx — UI does not boot",
       "depends_on": [
         "b.core-sync",
         "b.agent-orchestrator"
@@ -13,7 +15,8 @@
     {
       "id": "b.core-sync",
       "title": "Sync Engine",
-      "status": "done",
+      "status": "wip",
+      "status_reason": "syncCheck only validates file presence, not mission/KPI semantics",
       "depends_on": [
         "b.db"
       ]
@@ -21,13 +24,15 @@
     {
       "id": "b.db",
       "title": "Atlas Database",
-      "status": "wip",
+      "status": "idea",
+      "status_reason": "Storage is markdown + localStorage; no real DB layer yet",
       "depends_on": []
     },
     {
       "id": "b.agent-orchestrator",
       "title": "Agent Orchestrator",
-      "status": "done",
+      "status": "wip",
+      "status_reason": "No real Cursor SDK / Claude Code integration; hooks.json uses invented events",
       "depends_on": [
         "b.db",
         "b.core-sync"
@@ -37,25 +42,26 @@
       "id": "b.docs",
       "title": "Docs Builder",
       "status": "wip",
+      "status_reason": "Generators run but feed on template missions; output is empty wiki",
+      "depends_on": [
+        "b.db",
+        "b.core-sync"
+      ]
+    },
+    {
+      "id": "b.llm-gateway",
+      "title": "LLM Gateway (PR3)",
+      "status": "idea",
+      "status_reason": "Not implemented yet; PR3 will add Claude/Gemini gateway with structured output",
       "depends_on": []
     },
     {
-      "id": "b.semantic-llm",
-      "title": "Auto: b.semantic-llm",
-      "status": "wip",
-      "depends_on": []
-    },
-    {
-      "id": "b.realtime-ingestion",
-      "title": "Auto: b.realtime-ingestion",
-      "status": "wip",
-      "depends_on": []
-    },
-    {
-      "id": "b.payments",
-      "title": "Auto: b.payments",
-      "status": "wip",
-      "depends_on": []
+      "id": "b.smoke-sandbox",
+      "title": "Smoke Sandbox (test target)",
+      "status": "idea",
+      "status_reason": "Reserved write-target for e2e/smoke scripts so they never touch real product blocks",
+      "depends_on": [],
+      "test_only": true
     }
   ]
 }

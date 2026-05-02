@@ -1,13 +1,13 @@
 # Roadmap (auto-generated)
 
-_Generated: 2026-04-30T20:30:30.262Z_
+_Generated: 2026-05-02T08:49:10.755Z_
 
 Приоритет: broken → drift → wip → idea → review → done.
 
-1. **b.db** (wip) — Atlas Database
-2. **b.docs** (wip) — Docs Builder
-3. **b.semantic-llm** (wip) — Auto: b.semantic-llm
-4. **b.realtime-ingestion** (wip) — Auto: b.realtime-ingestion
-5. **b.ui-control** (done) — UI Control Plane
-6. **b.core-sync** (done) — Sync Engine
-7. **b.agent-orchestrator** (done) — Agent Orchestrator
+1. **b.ui-control** (wip) — UI Control Plane
+2. **b.core-sync** (wip) — Sync Engine
+3. **b.agent-orchestrator** (wip) — Agent Orchestrator
+4. **b.docs** (wip) — Docs Builder
+5. **b.db** (idea) — Atlas Database
+6. **b.llm-gateway** (idea) — LLM Gateway (PR3)
+7. **b.smoke-sandbox** (idea) — Smoke Sandbox (test target)

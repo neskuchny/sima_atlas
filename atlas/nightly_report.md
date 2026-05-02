@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-04-30T20:30:27.550Z_
+_Generated: 2026-05-02T08:49:08.370Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -10,6 +10,8 @@ _Generated: 2026-04-30T20:30:27.550Z_
   - output: Ingestion quality validation: OK
 - ✅ block_contracts: ok
   - output: Block contract validation: OK
+- ✅ no_template_placeholders: ok
+  - output: Template-placeholder validation: OK (7 blocks scanned)
 - ✅ dependency_contracts: ok
   - output: Dependency contract validation: OK
 - ✅ acceptance_assertions: ok
@@ -23,14 +25,14 @@ _Generated: 2026-04-30T20:30:27.550Z_
 - ✅ parity_matrix: ok
   - output: Parity matrix validation: OK
 - ✅ generate_wiki: ok
-  - output: Generated /workspace/sima_atlas/atlas/WIKI.md
+  - output: Generated /home/user/sima_atlas/atlas/WIKI.md
 - ✅ generate_tz: ok
-  - output: Generated /workspace/sima_atlas/ТЗ/auto_tz.md
+  - output: Generated /home/user/sima_atlas/ТЗ/auto_tz.md
 - ✅ rebuild_roadmap: ok
-  - output: Rebuilt /workspace/sima_atlas/atlas/roadmap.md
+  - output: Rebuilt /home/user/sima_atlas/atlas/roadmap.md
 - ✅ mcp_smoke_e2e: ok
   - output: mcp_smoke_e2e: OK
 - ✅ intelligence_health: ok
   - output: Intelligence health: 1 (7/7)
 
-Summary: PASS (15/15)
+Summary: PASS (16/16)

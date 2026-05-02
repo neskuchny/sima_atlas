@@ -18,3 +18,4 @@
 2026-04-30T20:30:23Z  acceptance/checklist  pass  all acceptance items checked for done status
 2026-04-30T20:30:24.920Z	ingestion	pass	queue applied
 2026-04-30T20:30:25.013Z	semantic_ingestion	pass	conversation mapped to b.core-sync
+2026-05-02T08:41:44Z	honest_reset	pass	PR1 cleared template mission/kpi/acceptance/tasks; honest status set in graph.json

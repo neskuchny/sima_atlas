@@ -1,46 +1,65 @@
-# Sima Atlas — статус и остаток работ
+# Sima Atlas — статус (PR1 honest reset)
 
-Дата: 2026-04-30
+Дата: 2026-05-02
 
-## Где мы сейчас
+## Что произошло
 
-### Выполнено
-- Базовый Atlas runtime + UI-панель в `Sima (Remix)`.
-- State transitions для блоков и transition audit trail.
-- One-shot pipeline: transition -> selftest -> block contracts -> dependency contracts -> acceptance assertions -> roadmap rebuild.
-- Блоки по статусам:
-  - `b.agent-orchestrator` — `done`.
-  - `b.ui-control` — `done`.
-  - `b.core-sync` — `review`.
-  - `b.db` — `wip`.
+Предыдущие STATUS_REPORT и `production_audit_report.md` рапортовали PASS / done. По факту:
+- UI рисует **однослойную сетку 4×N**, потому что в `graph.json` у блоков нет поля `layer`, и `arch_canvas.jsx` не получает данных по слоям.
+- LLM **не подключён нигде** в репо. «Семантический разбор диалога» в `analyze_conversation_to_atlas.mjs` — это `regex /(?:block|блок\p{L}*)\s+([a-z0-9._-]+)/giu`, который грепает буквальные строки «block X».
+- 4 авто-блока (`b.semantic-llm`, `b.realtime-ingestion`, `b.payments`, `b.crm`) появились в графе как сирот без зависимостей и со 100%-шаблонными mission/kpi/acceptance: «Автосоздано из смыслов диалога» и «KPI-1: semantic extraction quality >= baseline».
+- Cursor hooks в `.cursor/hooks.json` используют событие `afterPromptSent`, которое **не существует** у Cursor SDK. Хук игнорируется.
+- Sync-валидаторы проверяют только наличие файлов, а не их смысл.
 
-### Текущая стадия
-Мы на этапе **P3/P7 stabilization** (после закрытия P1/P2 и P0-хвоста).
+PR1 (этот) — Honest Reset. Не добавляет новых фич, только убирает фальшивый «done».
 
-## Что осталось по плану
+## Сделано в PR1
 
-### P1 (следующий приоритет)
-1. [x] Добавить `Rollback` в UI lifecycle-кнопки.
-2. [x] Добавить фильтры `broken/drift/review/done` в Atlas-панели.
-3. [x] Автообновление `files.md` и `checks.log` после UI/agent actions без ручной правки (UI + MCP + pipeline paths покрыты: transition/mark dead/set/update/pipeline step автологируют checks/files).
-4. [x] Визуальный индикатор «готово к done» (все gates pass) + блокировка кнопки Done, если блок не готов.
+- [x] Удалены 4 регекс-сгенерированных блока из `graph.json` и их папки + context_packs.
+- [x] Статусы 5 оставшихся блоков сброшены на честные с `status_reason`:
+  - `b.ui-control` → wip (UI крашится плоской схемой; план в PR2).
+  - `b.core-sync` → wip (sync проверяет только наличие файлов).
+  - `b.db` → idea (нет реальной БД).
+  - `b.agent-orchestrator` → wip (нет Cursor SDK / Claude Code интеграции; hooks выдуманы).
+  - `b.docs` → wip (генерирует, но из шаблонов).
+- [x] Шаблонные `mission.md / kpi.md / acceptance.md / tasks.md` всех 5 блоков заменены на содержательный текст с конкретными PR-привязками.
+- [x] Добавлен новый блок `b.llm-gateway` (idea) — критический-path для PR3, без него «авто-генерация смыслов» не имеет смысла.
+- [x] Добавлен новый валидатор `scripts/validate_no_template_placeholders.mjs`:
+  - детектит forbidden-фразы («Ключевая цель блока», «Автосоздано», «KPI-1: метрика готовности определена», и т.п.);
+  - проверяет минимальную длину mission/kpi/acceptance в зависимости от статуса блока;
+  - игнорирует фразы внутри кавычек/backticks (чтобы можно было документировать анти-паттерны).
+- [x] Валидатор подключён в `nightly_consolidation.mjs` как gate.
 
-### P2
-1. [x] Nightly consolidation job (`scripts/nightly_consolidation.mjs` + MCP tool `nightly_consolidation`).
-2. [x] Wiki renderer поверх `/atlas` (`scripts/render_wiki_html.mjs` + MCP tool `render_wiki_html`).
-3. [x] MCP server (`read_block`, `sync_check`, `log_check`, `update_block`, `mark_file_dead`) — `update_block` добавлен как atomic tool.
+## Что НЕ сделано (по дизайну PR1)
 
-### Открытый P0-хвост
-- [x] Углублены acceptance assertions: добавлены смысловые проверки checklist/semantic tokens в `scripts/validate_acceptance_assertions.mjs`.
+- [ ] HTML uploads — не трогал. На текущем main все нужные JSX подключены через `atlas_bootstrap.js` и есть в `tweaks-panel.jsx` / `layer1_canvas.jsx`. Прежний диагноз «UI не загружается из-за пропавших скриптов» был основан на устаревшем срезе main, до добавления bootstrap. Реальная проблема UI — однослойность, и она лечится в PR2.
+- [ ] Расширение модели блока (`layer/type/mvp/subschema_id/files`) — это **PR2**.
+- [ ] Multi-layer rendering — **PR2**.
+- [ ] LLM gateway — **PR3** (`b.llm-gateway` создан как idea).
+- [ ] Реальный watcher Cursor / Claude — **PR4**.
 
-## Ближайший next step
-- [x] Добавлен smoke-e2e сценарий MCP `update_block -> enqueue_ingestion -> apply_ingestion_queue -> build_context_pack -> validated_bundle -> render_wiki_html` и включён в nightly consolidation.
-- [x] Добавлен расчёт `intelligence_health` и его публикация в nightly (`scripts/calc_intelligence_health.mjs`).
-- [~] Старт P6 ingestion: добавлен distillate path (`ingest_chat_distillate`), MCP enqueue (`enqueue_ingestion`), nightly queue processor (`apply_ingestion_queue`) и gate `validate_ingestion_contracts`.
-- [x] P10 parity закрыт (2026-04-30): deterministic context-packs для всех блоков + unified contracts + gates `sync_context_packs`/`validate_agent_parity`/`validate_parity_matrix`.
+## Текущее реальное состояние
 
-## Прогресс по semantic веткам общения
-- [x] Добавлен replay сценарий веток общения с ИИ (`scripts/simulate_conversation_branches.mjs`).
-- [x] Фиксируется факт изменений графа после ingestion (создание нового блока + смена статуса существующего).
-- [~] Семантический слой пока эвристический (regex), полноценный LLM extractor — в следующем этапе.
-- [x] Сводка "что реализовано / что нет" вынесена в `atlas/IMPLEMENTATION_PROGRESS.md`.
+| Блок | Статус | Что работает | Что не работает |
+|---|---|---|---|
+| b.ui-control | wip | React-канвас рендерится, layer-switcher, lifecycle-кнопки | Однослойная сетка; нет live-обновления из atlas; нет subschema |
+| b.core-sync | wip | runSync детектит наличие файлов, прогресс tasks/kpi | Не сравнивает миссию с реализацией; нет stack-mismatch; нет file/line ссылок |
+| b.db | idea | Markdown + localStorage; MCP read/write | Нет atomic writes; нет history; нет migrations; нет multi-project |
+| b.agent-orchestrator | wip | MCP-сервер с 21+ tools | hooks.json неправильный; нет наблюдения за file edits; нет Claude Code adapter |
+| b.docs | wip | Генерирует wiki.md, auto_tz.md, roadmap.md | Шаблонные missions попадают в wiki; нет mermaid-диаграммы; roadmap без topo-sort |
+| b.llm-gateway | idea | — | Не реализован; критический gate для PR3 |
+
+## Roadmap
+
+- **PR2 — Schema model + multi-layer** (1–2 дня): расширить graph.json до v2 с `layer/type/mvp/subschema_id/files`; переписать `atlas_bootstrap.js` на layer-based раскладку; mermaid в wiki; topo-sort roadmap.
+- **PR3 — Real LLM extraction** (2–3 дня): `b.llm-gateway` done; заменить regex в `analyze_conversation_to_atlas.mjs` на LLM с structured output; eval на golden set.
+- **PR4 — Real Cursor observation** (2 дня): валидные Cursor hooks; observe_file_edit; guard_against_drift; Claude Code adapter.
+
+## Команды для проверки PR1
+
+```bash
+node scripts/validate_block_contracts.mjs
+node scripts/validate_no_template_placeholders.mjs   # новый
+node scripts/validate_dependency_contracts.mjs
+node scripts/nightly_consolidation.mjs               # должен пройти
+```

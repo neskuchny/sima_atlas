@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-30T20:30:28.498Z",
+  "generated_at": "2026-05-02T08:49:09.350Z",
   "block_id": "b.ui-control",
   "project": {
     "project": "# Sima Atlas\n\nЦель: единая визуально-документная система, которая устраняет рассинхрон между кодом, агентами и документацией.\n\n## North Star\n- Любой агент работает по одному и тому же block-context.\n- Человек видит статус реализации на схеме без чтения всего кода.\n",
@@ -10,28 +10,29 @@
     "meta": {
       "id": "b.ui-control",
       "title": "UI Control Plane",
-      "status": "done",
+      "status": "wip",
+      "status_reason": "HTML loses references to components.jsx/sidecol.jsx/canvas_tools.jsx — UI does not boot",
       "depends_on": [
         "b.core-sync",
         "b.agent-orchestrator"
       ]
     },
-    "mission": "# b.ui-control — mission\n\nКлючевая цель блока и его значение для устранения рассинхрона.\n",
-    "kpi": "# b.ui-control — KPI\n\n- KPI-1: метрика готовности определена.\n- KPI-2: есть минимум одна автоматическая проверка.\n",
-    "acceptance": "# b.ui-control — acceptance\n\n- [x] Логика блока документирована.\n- [x] Связи с зависимостями проверены.\n- [x] Результат отражается в UI/отчёте sync.\n",
-    "tasks": "# b.ui-control — tasks\n\n- [ ] Описать контракты вход/выход.\n- [ ] Добавить checks.log по первичным тестам.\n",
+    "mission": "# b.ui-control — mission\n\nВизуальная control plane Симы: один React-канвас, в котором человек видит схему продукта (слои, блоки, связи), статус каждого блока (idea/wip/review/done/broken/drift), запускает действия по блоку (Implement / Review / Done / Rollback / mark-dead) и собирает context-pack для агента.\n\nГлавное назначение — заменить чтение кода и переключение между чатами Cursor/Claude/Codex на одну визуальную карту, где видно: что сделано, что сломано, что синхронизировано с миссией продукта, что нет.\n\n## Scope\n- 4 layer switcher (Канвас источников / Карта продукта / ТЗ / Реализация) + Галерея.\n- Архитектурный канвас (горизонтальные слои, блоки с портами, типизированные связи, drag&drop).\n- Inspector блока: mission/kpi/tasks/checks, кнопки lifecycle, экспорт context-pack.\n- Подсветка рассинхрона и broken/drift-фильтры.\n\n## Out of scope (для PR1)\n- LLM-вызовы из UI (PR3).\n- Watcher событий Cursor (PR4).\n",
+    "kpi": "# b.ui-control — KPI\n\n- **KPI-1 (boot)**: HTML-страница `Sima (Remix)/Сима - универсальный конструктор.html` открывается в браузере без ошибок в консоли (всё React-дерево рендерится). Сейчас: ✗ (часть JSX не подключена).\n- **KPI-2 (multi-layer)**: канвас рисует не менее 5 горизонтальных слоёв из `ARCH_LAYERS`, и блоки распределены по этим слоям по полю `layer`. Сейчас: ✗ (графа без поля `layer`, всё валится в один контейнер).\n- **KPI-3 (sync visibility)**: при `syncCheck` блоки со статусом drift/broken визуально подсвечиваются на канвасе с причиной из `syncReport.details`. Сейчас: △ (логика есть в `atlas_sync.js`, но завязана только на наличие файлов).\n- **KPI-4 (lifecycle gating)**: кнопка Done на блоке заблокирована, пока не пройдены acceptance + kpi проверки. Сейчас: ✓ (логика `isReadyToDone` в `app_v2.jsx`).\n- **KPI-5 (context-pack export)**: для выбранного блока копируется в буфер deterministic JSON со всеми ссылками на mission/kpi/depends/provides. Сейчас: ✓ для UI-кнопки, файл-output генерируется через `scripts/build_context_pack.mjs`.\n",
+    "acceptance": "# b.ui-control — acceptance\n\nБлок переходит в `done` только когда:\n\n- [ ] **A1.** HTML открывается в браузере и `<div id=\"root\">` заполнен (smoke-тест: `headless run` грузит страницу, ловит `error`-события, ждёт что DOM содержит `.l2-top` и `.workarea`).\n- [ ] **A2.** Все JSX-зависимости `app_v2.jsx` подгружены (нет `useTweaks/SourcePalette/CanvasInspector is not defined` в консоли).\n- [ ] **A3.** При выбранном проекте `atlas-live` канвас архитектуры рисует ≥ 3 горизонтальных слоя; в каждом слое — корректные блоки из `graph.json` по полю `layer` (зависит от PR2).\n- [ ] **A4.** Sync-check на 5 блоках возвращает либо ok, либо drift с конкретной причиной (`status_reason`) — без ложных «всё зелёное».\n- [ ] **A5.** Кнопка Done заблокирована, если `acceptance` чек-листа блока не отмечены полностью И в `checks.log` нет `acceptance pass` + `kpi pass`.\n\n## Не считается acceptance:\n- наличие файлов;\n- прохождение `validate_block_contracts.mjs` (это контрактный gate, не приёмка);\n- генерация `wiki.html` (это `b.docs`).\n",
+    "tasks": "# b.ui-control — tasks\n\n- [ ] T1: Подключить пропавшие JSX в `Sima (Remix)/Сима - универсальный конструктор.html` (components.jsx, sidecol.jsx, canvas_tools.jsx, composer.jsx, library_view.jsx) — **PR1**\n- [ ] T2: Развести блоки по слоям через поле `layer` из `graph.json` v2 — **PR2**\n- [ ] T3: В `arch_canvas.jsx` корректно читать `layer` и рисовать каждый блок в соответствующей полосе — **PR2**\n- [ ] T4: Live update схемы при изменениях в `/atlas/` (через WebSocket или polling) — **PR2**\n- [ ] T5: Подсветка drift/broken блоков с tooltip-причиной из `syncReport.details` — **PR2**\n- [ ] T6: Двойной клик по блоку с `subschema_id` открывает подсхему (рекурсия) — **PR2**\n- [ ] T7: Кнопка «Implement» вызывает `composer.jsx` со сгенерированным context-pack для агента — **PR3**\n",
     "patterns": "",
     "files": ""
   },
   "dependencies": [
     {
       "id": "b.core-sync",
-      "mission": "# b.core-sync — mission\n\nКлючевая цель блока и его значение для устранения рассинхрона.\n",
+      "mission": "# b.core-sync — mission\n\nSync Engine — движок проверки синхронизации блоков продукта с миссией, KPI, стэком и кодом. Главная задача — детектить «рассинхрон»: код пишется в одном фреймворке, ТЗ говорит про другой; блок A объявляет, что зависит от capability X у блока B, а B такой capability не предоставляет; KPI задан, но в `checks.log` нет ни одной измеренной записи.\n\nТекущая реализация (`Sima (Remix)/atlas_sync.js` + `scripts/validate_*`) — каркас: проверяет наличие файлов, подсчитывает прогресс tasks/KPI, сравнивает `depends_on/provides`. Этого недостаточно для миссии «решить рассинхрон» — нужно семантическое сопоставление миссии блока с реализацией (требует LLM, PR3) и реальный анализ кода (PR4).\n\n## Layer\nlogic\n\n## Что должен делать в done-версии (роадмап)\n1. Структурный sync (PR2): contract-валидация графа, layer/depends/provides консистентность.\n2. Семантический sync (PR3): LLM проверяет `code(impl) ↔ mission/kpi блока`, выдаёт `drift_reason`.\n3. Реальный sync с кодом (PR4): на каждый `git diff` сопоставляет изменённые файлы с `files.md` блоков и логирует факт изменения в `checks.log`.\n\n## Out of scope\n- Генерация документации (это `b.docs`).\n- UI-визуализация sync-репорта (это `b.ui-control`).\n",
       "provides": "# b.core-sync — provides\n\n- sync_report\n- contract_validation\n"
     },
     {
       "id": "b.agent-orchestrator",
-      "mission": "# b.agent-orchestrator — mission\n\nКлючевая цель блока и его значение для устранения рассинхрона.\n",
+      "mission": "# b.agent-orchestrator — mission\n\nШина между Sima и любым coding-агентом (Cursor, Claude Code, Codex CLI, Antigravity). Главная задача — обеспечить, чтобы все агенты работали по **одному и тому же** context-pack, читали `/atlas/blocks/<id>/` перед написанием кода и пушили обратно реальные события (file edits, shell calls, status transitions), а не шаблонные «sync pass»-логи.\n\nТекущая реализация: MCP-сервер (`scripts/mcp_atlas_server.mjs` с 21+ tools), `.cursor/hooks.json`, `AGENTS.md` / `CLAUDE.md` контракты. Главные пропуски — `.cursor/hooks.json` использует выдуманное событие `afterPromptSent` и формат `action.run_command`, который Cursor не интерпретирует; нет наблюдения за реальными file edits и tool calls агентов.\n\n## Layer\nai\n\n## Что должен делать в done-версии\n1. Валидные Cursor hooks: `beforeShellExecution`, `afterFileEdit`, `beforeSubmitPrompt` с реальным запуском node-скриптов.\n2. `observe_file_edit.mjs`: получает путь файла → ищет в `files.md` блоков → пишет в `checks.log` блока факт правки + `git diff --stat`.\n3. `guard_against_drift.mjs`: проверяет shell-команды против `tech_stack.md` (например, блокирует `pip install` если стек React).\n4. Adapter для Claude Code: `claude --print --add-dir /atlas/blocks/<id>` запускается из MCP-tool `run_block_implementation`.\n5. Multi-agent parity: один и тот же context-pack JSON отдаётся через Cursor (MCP) и Claude (CLI flag).\n\n## Out of scope\n- LLM-извлечение смысла из чата (это `b.llm-gateway`).\n- UI-операции по блоку (это `b.ui-control`).\n",
       "provides": "# b.agent-orchestrator — provides\n\n- pipeline_execution\n"
     }
   ]

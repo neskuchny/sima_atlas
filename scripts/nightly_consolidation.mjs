@@ -12,6 +12,7 @@ const checks = [
   ['ingestion_contracts', 'node scripts/validate_ingestion_contracts.mjs'],
   ['ingestion_quality', 'node scripts/validate_ingestion_quality.mjs'],
   ['block_contracts', 'node scripts/validate_block_contracts.mjs'],
+  ['no_template_placeholders', 'node scripts/validate_no_template_placeholders.mjs'],
   ['dependency_contracts', 'node scripts/validate_dependency_contracts.mjs'],
   ['acceptance_assertions', 'node scripts/validate_acceptance_assertions.mjs'],
   ['atlas_selftest', 'node tests/atlas_sync.selftest.mjs'],

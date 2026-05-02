@@ -5,44 +5,134 @@
 <h1>Sima Atlas Wiki</h1>
 <h2>b.ui-control — UI Control Plane</h2>
 <ul>
-<li>status: **done**</li>
+<li>status: **wip**</li>
 </ul>
 <h1>b.ui-control — mission</h1>
-<p>Ключевая цель блока и его значение для устранения рассинхрона.</p>
-<h2>b.core-sync — Sync Engine</h2>
+<p>Визуальная control plane Симы: один React-канвас, в котором человек видит схему продукта (слои, блоки, связи), статус каждого блока (idea/wip/review/done/broken/drift), запускает действия по блоку (Implement / Review / Done / Rollback / mark-dead) и собирает context-pack для агента.</p>
+<p>Главное назначение — заменить чтение кода и переключение между чатами Cursor/Claude/Codex на одну визуальную карту, где видно: что сделано, что сломано, что синхронизировано с миссией продукта, что нет.</p>
+<h2>Scope</h2>
 <ul>
-<li>status: **done**</li>
+<li>4 layer switcher (Канвас источников / Карта продукта / ТЗ / Реализация) + Галерея.</li>
+<li>Архитектурный канвас (горизонтальные слои, блоки с портами, типизированные связи, drag&amp;drop).</li>
+<li>Inspector блока: mission/kpi/tasks/checks, кнопки lifecycle, экспорт context-pack.</li>
+<li>Подсветка рассинхрона и broken/drift-фильтры.</li>
 </ul>
-<h1>b.core-sync — mission</h1>
-<p>Ключевая цель блока и его значение для устранения рассинхрона.</p>
-<h2>b.db — Atlas Database</h2>
+<h2>Out of scope (для PR1)</h2>
+<ul>
+<li>LLM-вызовы из UI (PR3).</li>
+<li>Watcher событий Cursor (PR4).</li>
+</ul>
+<h2>b.core-sync — Sync Engine</h2>
 <ul>
 <li>status: **wip**</li>
 </ul>
+<h1>b.core-sync — mission</h1>
+<p>Sync Engine — движок проверки синхронизации блоков продукта с миссией, KPI, стэком и кодом. Главная задача — детектить «рассинхрон»: код пишется в одном фреймворке, ТЗ говорит про другой; блок A объявляет, что зависит от capability X у блока B, а B такой capability не предоставляет; KPI задан, но в `checks.log` нет ни одной измеренной записи.</p>
+<p>Текущая реализация (`Sima (Remix)/atlas_sync.js` + `scripts/validate_*`) — каркас: проверяет наличие файлов, подсчитывает прогресс tasks/KPI, сравнивает `depends_on/provides`. Этого недостаточно для миссии «решить рассинхрон» — нужно семантическое сопоставление миссии блока с реализацией (требует LLM, PR3) и реальный анализ кода (PR4).</p>
+<h2>Layer</h2>
+<p>logic</p>
+<h2>Что должен делать в done-версии (роадмап)</h2>
+<p>1. Структурный sync (PR2): contract-валидация графа, layer/depends/provides консистентность.</p>
+<p>2. Семантический sync (PR3): LLM проверяет `code(impl) ↔ mission/kpi блока`, выдаёт `drift_reason`.</p>
+<p>3. Реальный sync с кодом (PR4): на каждый `git diff` сопоставляет изменённые файлы с `files.md` блоков и логирует факт изменения в `checks.log`.</p>
+<h2>Out of scope</h2>
+<ul>
+<li>Генерация документации (это `b.docs`).</li>
+<li>UI-визуализация sync-репорта (это `b.ui-control`).</li>
+</ul>
+<h2>b.db — Atlas Database</h2>
+<ul>
+<li>status: **idea**</li>
+</ul>
 <h1>b.db — mission</h1>
-<p>Ключевая цель блока и его значение для устранения рассинхрона.</p>
+<p>Atlas storage слой: единый источник правды для графа продукта (`graph.json`), блоков (`blocks/&lt;id&gt;/*.md`), очереди ingestion (`ingestion_queue.jsonl`), журналов transitions/decisions/checks. Цель — предоставить детерминированный API для чтения/записи без дрейфа.</p>
+<p>В MVP — это plain markdown + JSON файлы на диске + localStorage-кеш на клиенте через `atlas_sync.js`. В production-варианте — миграция на SQLite или Postgres с тем же файловым API через MCP-сервер (атомарность, версии, multi-tenant).</p>
+<h2>Layer</h2>
+<p>data</p>
+<h2>Что должен делать в done-версии</h2>
+<p>1. Атомарные write-операции (block update = single transaction, не оставляем half-written файлы при сбое).</p>
+<p>2. Версионирование блока: каждое изменение mission/kpi/depends/provides пишется в `history/&lt;timestamp&gt;.diff`.</p>
+<p>3. Migration runner: если схема `graph.json` меняется (как в PR2 при добавлении `layer/type/mvp`), мигратор обновляет старые блоки.</p>
+<p>4. Read-API: `getBlock(id)`, `listBlocks(filter)`, `getDependencies(id)`, `getHistory(id)` — единый интерфейс для UI и MCP.</p>
+<h2>Out of scope</h2>
+<ul>
+<li>Векторный поиск (это backup-память, не основная).</li>
+<li>Multi-project namespacing (PR в стек после PR4).</li>
+</ul>
 <h2>b.agent-orchestrator — Agent Orchestrator</h2>
 <ul>
-<li>status: **done**</li>
+<li>status: **wip**</li>
 </ul>
 <h1>b.agent-orchestrator — mission</h1>
-<p>Ключевая цель блока и его значение для устранения рассинхрона.</p>
+<p>Шина между Sima и любым coding-агентом (Cursor, Claude Code, Codex CLI, Antigravity). Главная задача — обеспечить, чтобы все агенты работали по **одному и тому же** context-pack, читали `/atlas/blocks/&lt;id&gt;/` перед написанием кода и пушили обратно реальные события (file edits, shell calls, status transitions), а не шаблонные «sync pass»-логи.</p>
+<p>Текущая реализация: MCP-сервер (`scripts/mcp_atlas_server.mjs` с 21+ tools), `.cursor/hooks.json`, `AGENTS.md` / `CLAUDE.md` контракты. Главные пропуски — `.cursor/hooks.json` использует выдуманное событие `afterPromptSent` и формат `action.run_command`, который Cursor не интерпретирует; нет наблюдения за реальными file edits и tool calls агентов.</p>
+<h2>Layer</h2>
+<p>ai</p>
+<h2>Что должен делать в done-версии</h2>
+<p>1. Валидные Cursor hooks: `beforeShellExecution`, `afterFileEdit`, `beforeSubmitPrompt` с реальным запуском node-скриптов.</p>
+<p>2. `observe_file_edit.mjs`: получает путь файла → ищет в `files.md` блоков → пишет в `checks.log` блока факт правки + `git diff --stat`.</p>
+<p>3. `guard_against_drift.mjs`: проверяет shell-команды против `tech_stack.md` (например, блокирует `pip install` если стек React).</p>
+<p>4. Adapter для Claude Code: `claude --print --add-dir /atlas/blocks/&lt;id&gt;` запускается из MCP-tool `run_block_implementation`.</p>
+<p>5. Multi-agent parity: один и тот же context-pack JSON отдаётся через Cursor (MCP) и Claude (CLI flag).</p>
+<h2>Out of scope</h2>
+<ul>
+<li>LLM-извлечение смысла из чата (это `b.llm-gateway`).</li>
+<li>UI-операции по блоку (это `b.ui-control`).</li>
+</ul>
 <h2>b.docs — Docs Builder</h2>
 <ul>
 <li>status: **wip**</li>
 </ul>
 <h1>b.docs — mission</h1>
-<p>Генерирует wiki и ТЗ по блокам.</p>
-<h2>b.semantic-llm — Auto: b.semantic-llm</h2>
+<p>Документ-генератор Атласа: на каждый блок собирает живую страницу wiki из его `mission.md / kpi.md / acceptance.md / depends_on.md / provides.md / files.md / patterns.md`. На каждый проект собирает `auto_tz.md` (агрегированное ТЗ) и `roadmap.md` (приоритизированный список блоков по статусу и зависимостям).</p>
+<p>Главное правило — **никакой генерации текста, не основанной на содержимом блоков**. Если у блока mission.md шаблонный или пустой, в wiki это блок попадает с явной пометкой `[требует заполнения]`, а не «Ключевая цель блока…».</p>
+<p>Реализация: `scripts/generate_wiki.mjs`, `scripts/generate_tz_from_atlas.mjs`, `scripts/render_wiki_html.mjs`, `scripts/rebuild_atlas_roadmap.mjs`.</p>
+<h2>Layer</h2>
+<p>content</p>
+<h2>Что должен делать в done-версии</h2>
+<p>1. Wiki содержит секции по слоям (front/back/ai/data/...) и навигацию между блоками по `depends_on`.</p>
+<p>2. Mermaid-диаграмма графа в `wiki.html` (по `graph.json`).</p>
+<p>3. ТЗ автогенерируется только из non-template mission/kpi (контракт `validate_no_template_placeholders`).</p>
+<p>4. Roadmap учитывает не только статус блока, но и `depends_on` (топологическая сортировка).</p>
+<p>5. Скриншоты блоков (когда `b.ui-control` дойдёт до этой фичи) встраиваются в wiki.</p>
+<h2>Out of scope</h2>
 <ul>
-<li>status: **wip**</li>
+<li>Извлечение содержимого блоков из чата (это `b.llm-gateway` + `b.agent-orchestrator`).</li>
 </ul>
-<h1>b.semantic-llm — mission</h1>
-<p>Автосоздано из смыслов диалога.</p>
-<h2>b.realtime-ingestion — Auto: b.realtime-ingestion</h2>
+<h2>b.llm-gateway — LLM Gateway (PR3)</h2>
 <ul>
-<li>status: **wip**</li>
+<li>status: **idea**</li>
 </ul>
-<h1>b.realtime-ingestion — mission</h1>
-<p>Автосоздано из смыслов диалога.</p>
+<h1>b.llm-gateway — mission</h1>
+<p>Тонкий слой к LLM-провайдерам (Claude / Gemini / OpenAI) с единым интерфейсом для всех движков Атласа: `extractBlockSchema(text) → BlockSchema`, `validateMissionMatch(mission, code) → DriftReport`, `summarizeChat(messages) → distillate`, `rerank(chunks, query) → ranked`. Без этого блока никакая «авто-генерация смыслов» в Атласе невозможна — сейчас всё делается regex-эвристиками, и поэтому система сейчас не соответствует ТЗ.</p>
+<p>Этот блок — **критический gate для PR3**. До его done-версии любой блок с автозаполненными полями должен быть помечен `confidence: 0` и не пропускаться в roadmap/wiki.</p>
+<h2>Layer</h2>
+<p>ai</p>
+<h2>Что должен делать в done-версии</h2>
+<p>1. `scripts/llm_gateway.mjs` экспортирует `callLLM({ provider, model, prompt, schema, max_tokens })` с structured-output (JSON Schema).</p>
+<p>2. ENV-конфиг через `.env`: `ANTHROPIC_API_KEY`, `GOOGLE_API_KEY`, `OPENAI_API_KEY` + `LLM_DEFAULT_PROVIDER`.</p>
+<p>3. Mock-режим (без ключей): возвращает фиксированный JSON, чтобы тесты в CI работали без сети.</p>
+<p>4. Token budget guard: если запрос &gt; 30k токенов на input — отклонить с понятной ошибкой.</p>
+<p>5. Retry с exponential backoff на 429 / 5xx.</p>
+<p>6. Trace: каждый вызов пишет в `atlas/llm_traces/&lt;timestamp&gt;.json` (provider, model, in/out tokens, cost-estimate, prompt hash).</p>
+<h2>Out of scope</h2>
+<ul>
+<li>Embeddings / vector search (в PR3 не нужно, остаётся backup-памятью на будущее).</li>
+<li>Streaming (Атлас работает по запрос-ответ).</li>
+</ul>
+<h2>b.smoke-sandbox — Smoke Sandbox (test target)</h2>
+<ul>
+<li>status: **idea**</li>
+</ul>
+<h1>b.smoke-sandbox — mission</h1>
+<p>Целевой блок для всех e2e/smoke-тестов Атласа. Реальный код продукта на него не ссылается. MCP smoke-сценарии (`scripts/mcp_smoke_e2e.mjs`, future smoke harnesses) пишут сюда mission/tasks/ingestion-queue, чтобы не повреждать содержание реальных блоков (b.ui-control, b.core-sync, b.db, b.agent-orchestrator, b.docs, b.llm-gateway).</p>
+<p>Ожидаемый цикл жизни: блок постоянно в статусе `idea`, его tasks/checks log заполняются и затираются smoke-сценариями, что не считается дрейфом — это часть функции блока.</p>
+<h2>Layer</h2>
+<p>testing</p>
+<h2>Что должен делать в done-версии</h2>
+<p>Блок никогда не должен попадать в `done`. Это контейнер для тестов.</p>
+<h2>Out of scope</h2>
+<ul>
+<li>Любые продуктовые фичи.</li>
+</ul>
 </body></html>
