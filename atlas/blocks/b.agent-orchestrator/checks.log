@@ -17,3 +17,4 @@
 2026-05-02T11:33:33.752Z	llm_extraction	pass	skipped touched=0 provider=mock model=mock-1 cost_usd=0.000000 hash=329695684fbe4372
 2026-05-02T11:34:35Z	pr4_1_windows_fixes	pass	provider cascade respects LLM_DEFAULT_PROVIDER pin; llm_check.mjs diag; index.html for http.server; analyze --text/--stdin for PowerShell; HOWTO Windows section
 2026-05-02T17:36:33.441Z	llm_extraction	pass	skipped touched=0 provider=mock model=mock-1 cost_usd=0.000000 hash=bede3583cb6ed106
+2026-05-02T18:16:03Z	pr4_5_claude_adapter	pass	run_block_implementation.mjs (claude/codex/cursor + print-only fallback) + MCP tool + HTTP /run-block + UI Run agent button + agent_parity_real smoke (MCP pack ≡ disk for Claude --add-dir)

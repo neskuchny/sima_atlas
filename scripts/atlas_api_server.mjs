@@ -85,6 +85,21 @@ const server = http.createServer((req, res) => {
         const out = runNode(['scripts/list_proposals.mjs', '--write-index', '--json']);
         return json(res, 200, { ok: true, out });
       }
+      // PR4.5: run the configured coding agent on a block
+      if (req.url === '/run-block') {
+        const blockId = String(body.block_id || '');
+        if (!blockId) return json(res, 400, { ok: false, error: 'block_id required' });
+        const userPrompt = String(body.prompt || '');
+        const agentEnv = body.agent ? { ATLAS_AGENT: String(body.agent) } : {};
+        const args = ['scripts/run_block_implementation.mjs', blockId];
+        if (userPrompt) args.push('--', userPrompt);
+        try {
+          const out = execFileSync('node', args, { stdio: 'pipe', env: { ...process.env, ...agentEnv } }).toString();
+          return json(res, 200, { ok: true, out });
+        } catch (e) {
+          return json(res, 200, { ok: false, error: String(e.message || e), stderr: (e.stderr || '').toString().slice(0, 2000) });
+        }
+      }
       return json(res, 404, { ok: false, error: 'unknown endpoint' });
     } catch (e) {
       return json(res, 500, { ok: false, error: String(e) });

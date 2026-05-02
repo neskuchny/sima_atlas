@@ -8,6 +8,8 @@
 - scripts/guard_against_drift.mjs [alive] (PR4: beforeShellExecution action — tech_stack.md guard)
 - scripts/inject_context_pack.mjs [alive] (PR4: beforeSubmitPrompt action — block-scoped context)
 - tests/cursor_hooks_actions.test.mjs [alive] (PR4: 9-case integration test for the three actions)
+- scripts/run_block_implementation.mjs [alive] (PR4.5: build prompt + invoke claude/codex/cursor CLI)
+- tests/agent_parity_real.smoke.mjs [alive] (PR4.5: real MCP pack ≡ Claude --add-dir disk parity)
 - scripts/generate_agent_contracts.mjs [alive] (writes AGENTS.md / CLAUDE.md)
 - scripts/build_context_pack.mjs [alive]
 - scripts/sync_context_packs.mjs [alive]

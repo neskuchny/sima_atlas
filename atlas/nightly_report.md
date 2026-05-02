@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-05-02T17:44:25.209Z_
+_Generated: 2026-05-02T18:15:16.548Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -38,6 +38,8 @@ _Generated: 2026-05-02T17:44:25.209Z_
   - output: proposals_flow.smoke: OK (accept + reject + filter, state restored)
 - ✅ list_proposals_index: ok
   - output: [
+- ✅ agent_parity_real: ok
+  - output: agent_parity_real.smoke: OK (7 blocks, MCP pack ≡ disk)
 - ✅ sync_context_packs: ok
   - output: Context packs synced: 7
 - ✅ agent_parity: ok
@@ -55,4 +57,4 @@ _Generated: 2026-05-02T17:44:25.209Z_
 - ✅ intelligence_health: ok
   - output: Intelligence health: 1 (7/7)
 
-Summary: PASS (26/26)
+Summary: PASS (27/27)

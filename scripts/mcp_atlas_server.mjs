@@ -40,6 +40,7 @@ function toolList(){
     { name:'list_proposals', description:'PR3.5: list pending LLM proposals for existing blocks', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} } } },
     { name:'accept_proposal', description:'PR3.5: accept a pending LLM proposal — applies structural changes to graph.json + checks.log trace', inputSchema:{ type:'object', properties:{ proposal_id:{type:'string'} }, required:['proposal_id'] } },
     { name:'reject_proposal', description:'PR3.5: reject a pending LLM proposal with a reason', inputSchema:{ type:'object', properties:{ proposal_id:{type:'string'}, reason:{type:'string'} }, required:['proposal_id'] } },
+    { name:'run_block_implementation', description:'PR4.5: run the configured coding agent (claude / codex / cursor) on the given block; writes prompt to atlas/agent_invocations/ and logs an agent_invocation check', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, prompt:{type:'string'}, agent:{type:'string'} }, required:['block_id'] } },
 
   ];
 }
@@ -372,6 +373,15 @@ rl.on('line', (line) => {
         if (!pid) return respondErr(id, 'reject_proposal: proposal_id required');
         const reason = String(args.reason || '').replace(/"/g, '\\"');
         const out = execSync(`node scripts/reject_proposal.mjs ${JSON.stringify(pid)} "${reason}"`, { cwd: root, stdio:'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'run_block_implementation') {
+        const bid = String(args.block_id || '');
+        if (!bid) return respondErr(id, 'run_block_implementation: block_id required');
+        const userPrompt = String(args.prompt || '');
+        const agentEnv = args.agent ? { ATLAS_AGENT: String(args.agent) } : {};
+        const cmdArgs = userPrompt ? [bid, '--', userPrompt] : [bid];
+        const out = execSync(`node scripts/run_block_implementation.mjs ${cmdArgs.map(a => JSON.stringify(a)).join(' ')}`, { cwd: root, stdio:'pipe', env: { ...process.env, ...agentEnv } }).toString().trim();
         return respond(id, { content:[{ type:'text', text: out }] });
       }
 

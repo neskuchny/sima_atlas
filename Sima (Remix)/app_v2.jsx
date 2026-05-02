@@ -20,7 +20,7 @@ function computeArchSummary(arch, atlas){
 
 
 
-function AtlasSchemaPanel({ arch, atlasState, syncReport, selectedBlockId, onRunSync, onExportContext, onTransition }){
+function AtlasSchemaPanel({ arch, atlasState, syncReport, selectedBlockId, onRunSync, onExportContext, onTransition, onRunAgent }){
   const blocks = arch?.blocks || [];
   const [filter, setFilter] = React.useState('all');
   const detailById = Object.fromEntries((syncReport?.details || []).map(d => [d.blockId, d]));
@@ -72,6 +72,13 @@ function AtlasSchemaPanel({ arch, atlasState, syncReport, selectedBlockId, onRun
         <button className="btn xs" onClick={()=>onTransition && onTransition('done')} disabled={!selectedBlockId || !selectedReadyToDone}>Done</button>
         <button className="btn xs ghost" onClick={()=>onTransition && onTransition('broken')} disabled={!selectedBlockId}>Broken</button>
         <button className="btn xs ghost" onClick={()=>onTransition && onTransition('wip')} disabled={!selectedBlockId}>Rollback</button>
+        <button className="btn xs"
+          style={{background:'#0f766e',color:'#fff',borderColor:'#0f766e'}}
+          onClick={()=>onRunAgent && onRunAgent(selectedBlockId)}
+          disabled={!selectedBlockId}
+          title="POST /run-block — запустит claude / codex / cursor по этому блоку через scripts/run_block_implementation.mjs">
+          ▶ Run agent
+        </button>
       </div>
       <div style={{overflow:'auto',border:'1px solid var(--line-2)',borderRadius:10,padding:8,background:'#fff'}}>
         {blocks.filter((b)=>{
@@ -255,6 +262,28 @@ function AppV2(){
     }
     window.SIMA_ATLAS_CORE.logCheck(patch, archSelectedId, { kind:'sync', result:'pass', note:`transition ${res.from}->${res.to}` });
     commitAtlasPatch(patch, `Block ${archSelectedId}: ${res.from} -> ${res.to}`);
+  };
+
+  // PR4.5: trigger run_block_implementation through atlas_api_server
+  const runAgentOnBlock = async (blockId) => {
+    if (!blockId) return;
+    showToast(`Запускаю агент на ${blockId}…`);
+    try {
+      const r = await fetch('http://localhost:8787/run-block', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ block_id: blockId }),
+      });
+      const data = await r.json().catch(() => ({}));
+      if (data.ok) {
+        const head = String(data.out || '').split(/\r?\n/).slice(0, 2).join(' / ');
+        showToast(`Agent запущен на ${blockId}: ${head.slice(0, 100)}`);
+      } else {
+        showToast(`Agent error: ${data.error || 'HTTP ' + r.status} — запусти atlas_api_server.mjs`);
+      }
+    } catch (e) {
+      showToast(`Agent error: ${e.message} — запусти node scripts/atlas_api_server.mjs`);
+    }
   };
 
   const markDemoProgress = () => {
@@ -579,7 +608,8 @@ function AppV2(){
                 selectedBlockId={archSelectedId}
                 onRunSync={runSyncCheck}
                 onExportContext={exportContextPack}
-                onTransition={transitionSelectedBlock}/>
+                onTransition={transitionSelectedBlock}
+                onRunAgent={runAgentOnBlock}/>
               {window.ProposalsPanel ? <ProposalsPanel/> : null}
             </React.Fragment>
           )}
