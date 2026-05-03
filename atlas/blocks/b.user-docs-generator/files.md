@@ -3,9 +3,9 @@
 Все пути с тегом `[pending]` — *планируемые* (status: idea).
 
 ## Introspection (PR-1)
-- scripts/introspect_block_ui.mjs [pending] (PR-1)
-- tests/fixtures/jsx/.gitkeep [pending] (PR-1)
-- tests/introspect_block_ui.selftest.mjs [pending] (PR-1)
+- scripts/introspect_block_ui.mjs [alive]
+- tests/fixtures/jsx/synthetic_panel.jsx [alive]
+- tests/introspect_block_ui.selftest.mjs [alive]
 
 ## LLM writer (PR-2)
 - scripts/generate_user_docs.mjs [pending] (PR-2: оркестратор)

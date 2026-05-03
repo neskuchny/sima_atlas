@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-05-03T17:45:59.285Z_
+_Generated: 2026-05-03T19:29:45.194Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -13,7 +13,7 @@ _Generated: 2026-05-03T17:45:59.285Z_
 - ✅ no_template_placeholders: ok
   - output: Template-placeholder validation: OK (10 blocks scanned)
 - ✅ files_registry: ok
-  - output: Files registry validation: OK (alive=182, archived=4, dead=0)
+  - output: Files registry validation: OK (alive=185, archived=4, dead=0)
 - ✅ projects_contracts: ok
   - output: validate_projects: OK (1 projects, 5 blocks)
 - ✅ subschemas_contracts: ok
@@ -33,7 +33,7 @@ _Generated: 2026-05-03T17:45:59.285Z_
 - ✅ operator_profile_selftest: ok
   - output: operator_profile.selftest: OK (7 test groups, all assertions green)
 - ✅ aggregate_operator_profile: ok
-  - output: operator_profile: warming_up (done=2, invocations=3, traces=1729, proposals=36)
+  - output: operator_profile: warming_up (done=2, invocations=3, traces=1857, proposals=38)
 - ✅ operator_profile_lessons_smoke: ok
   - output: operator_profile_lessons.smoke: OK (6 test groups, all assertions green)
 - ✅ operator_profile_inject_smoke: ok
@@ -44,6 +44,8 @@ _Generated: 2026-05-03T17:45:59.285Z_
   - output: dont_use_management.selftest: OK (7 test groups, all assertions green)
 - ✅ validate_dont_use_compliance: ok
   - output: validate_dont_use_compliance: banned=0 (none); checked=10; warnings=0
+- ✅ introspect_block_ui_selftest: ok
+  - output: introspect_block_ui.selftest: OK (7 test groups, all assertions green)
 - ✅ parse_acceptance_selftest: ok
   - output: parse_acceptance.selftest: OK (9 test groups, all assertions green)
 - ✅ evidence_collectors_selftest: ok
@@ -93,4 +95,4 @@ _Generated: 2026-05-03T17:45:59.285Z_
 - ✅ intelligence_health: ok
   - output: Intelligence health: 1 (10/10)
 
-Summary: PASS (45/45)
+Summary: PASS (46/46)

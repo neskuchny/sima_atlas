@@ -59,6 +59,7 @@ function toolList(){
     { name:'list_always_use', description:'PR-3 (b.operator-profile-learner): list operator always_use entries (category → value).', inputSchema:{ type:'object', properties:{} } },
     { name:'set_always_use', description:'PR-3 (b.operator-profile-learner): pin a category default (e.g. language=typescript). Surfaces in inject_context_pack alongside dont_use.', inputSchema:{ type:'object', properties:{ category:{type:'string'}, value:{type:'string'}, reason:{type:'string'} }, required:['category','value'] } },
     { name:'clear_always_use', description:'PR-3 (b.operator-profile-learner): remove an always_use pin.', inputSchema:{ type:'object', properties:{ category:{type:'string'}, value:{type:'string'} }, required:['category','value'] } },
+    { name:'introspect_block_ui', description:'PR-1 (b.user-docs-generator): scan alive JSX/HTML files of a block and return structured UI elements (buttons, inputs, textareas, forms, links, routes, fetches). Used by PR-2 LLM tutorial writer.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} }, required:['block_id'] } },
 
   ];
 }
@@ -512,6 +513,12 @@ rl.on('line', (line) => {
           ? `node scripts/manage_dont_use.mjs always add ${JSON.stringify(cat)} ${JSON.stringify(value)} ${JSON.stringify(reason)} --json`
           : `node scripts/manage_dont_use.mjs always add ${JSON.stringify(cat)} ${JSON.stringify(value)} --json`;
         const out = execSync(cmd, { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'introspect_block_ui') {
+        const bid = String(args.block_id || '');
+        if (!bid) return respondErr(id, 'introspect_block_ui: block_id required');
+        const out = execSync(`node scripts/introspect_block_ui.mjs ${JSON.stringify(bid)} --json`, { cwd: root, stdio: 'pipe' }).toString().trim();
         return respond(id, { content:[{ type:'text', text: out }] });
       }
       if (name === 'clear_always_use') {

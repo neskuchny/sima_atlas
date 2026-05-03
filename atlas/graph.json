@@ -331,7 +331,10 @@
         "playwright"
       ],
       "files": [
-        "atlas/blocks/b.user-docs-generator/mission.md"
+        "atlas/blocks/b.user-docs-generator/mission.md",
+        "scripts/introspect_block_ui.mjs",
+        "tests/introspect_block_ui.selftest.mjs",
+        "tests/fixtures/jsx/synthetic_panel.jsx"
       ]
     },
     {
