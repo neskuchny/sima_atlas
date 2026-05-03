@@ -18,8 +18,9 @@
 - tests/llm_mocks/judge_borderline.json [pending] (PR-3)
 
 ## Gate hooks (PR-4)
-- scripts/verify_block_acceptance.mjs [pending] (PR-4: оркестратор parse→collect→judge→write report)
-- atlas/acceptance_runs/.gitkeep [pending] (PR-4)
+- scripts/verify_block_acceptance.mjs [pending] (PR-4: оркестратор parse→collect→judge→write report; уже есть верcия для одиночного блока через `node scripts/collect_evidence.mjs --block <id>`; PR-4 добавит pre-transition gate)
+- scripts/verify_all_acceptance.mjs [alive] (PR-2 migration: walks all blocks, writes acceptance_runs/<block>/<UTC>.json + _latest.json + _summary.json; nightly-friendly, exit 0 always)
+- atlas/acceptance_runs/_summary.json [alive] (PR-2 migration: aggregate verdicts across all blocks)
 - tests/acceptance_verifier.e2e.smoke.mjs [pending] (PR-4)
 
 ## UI (PR-5)

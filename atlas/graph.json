@@ -293,7 +293,9 @@
         "scripts/parse_acceptance.mjs",
         "tests/parse_acceptance.selftest.mjs",
         "scripts/collect_evidence.mjs",
-        "tests/evidence_collectors.selftest.mjs"
+        "tests/evidence_collectors.selftest.mjs",
+        "scripts/verify_all_acceptance.mjs",
+        "atlas/acceptance_runs/_summary.json"
       ]
     },
     {

@@ -1,0 +1,129 @@
+{
+  "generated_at": "2026-05-03T13:51:48.746Z",
+  "blocks": [
+    {
+      "block_id": "b.ui-control",
+      "verdict": "inconclusive",
+      "counts": {
+        "pass": 0,
+        "fail": 0,
+        "skipped": 5
+      },
+      "duration_ms": 0,
+      "sample_failures": []
+    },
+    {
+      "block_id": "b.core-sync",
+      "verdict": "inconclusive",
+      "counts": {
+        "pass": 0,
+        "fail": 0,
+        "skipped": 5
+      },
+      "duration_ms": 1,
+      "sample_failures": []
+    },
+    {
+      "block_id": "b.db",
+      "verdict": "inconclusive",
+      "counts": {
+        "pass": 0,
+        "fail": 0,
+        "skipped": 5
+      },
+      "duration_ms": 0,
+      "sample_failures": []
+    },
+    {
+      "block_id": "b.agent-orchestrator",
+      "verdict": "pass",
+      "counts": {
+        "pass": 5,
+        "fail": 0,
+        "skipped": 2
+      },
+      "duration_ms": 1287,
+      "sample_failures": []
+    },
+    {
+      "block_id": "b.docs",
+      "verdict": "fail",
+      "counts": {
+        "pass": 2,
+        "fail": 1,
+        "skipped": 2
+      },
+      "duration_ms": 46,
+      "sample_failures": [
+        {
+          "id": "A2",
+          "evidence": "grep /class=\\\"mermaid\\\"/ atlas/wiki.html → 0 matches",
+          "reasoning": "no matches"
+        }
+      ]
+    },
+    {
+      "block_id": "b.llm-gateway",
+      "verdict": "pass",
+      "counts": {
+        "pass": 4,
+        "fail": 0,
+        "skipped": 1
+      },
+      "duration_ms": 401,
+      "sample_failures": []
+    },
+    {
+      "block_id": "b.operator-profile-learner",
+      "verdict": "inconclusive",
+      "counts": {
+        "pass": 0,
+        "fail": 0,
+        "skipped": 8
+      },
+      "duration_ms": 0,
+      "sample_failures": []
+    },
+    {
+      "block_id": "b.acceptance-verifier-loop",
+      "verdict": "inconclusive",
+      "counts": {
+        "pass": 0,
+        "fail": 0,
+        "skipped": 8
+      },
+      "duration_ms": 0,
+      "sample_failures": []
+    },
+    {
+      "block_id": "b.user-docs-generator",
+      "verdict": "inconclusive",
+      "counts": {
+        "pass": 0,
+        "fail": 0,
+        "skipped": 8
+      },
+      "duration_ms": 0,
+      "sample_failures": []
+    },
+    {
+      "block_id": "b.smoke-sandbox",
+      "verdict": "inconclusive",
+      "counts": {
+        "pass": 0,
+        "fail": 0,
+        "skipped": 3
+      },
+      "duration_ms": 0,
+      "sample_failures": []
+    }
+  ],
+  "totals": {
+    "pass": 11,
+    "fail": 1,
+    "skipped": 47,
+    "blocks_pass": 2,
+    "blocks_fail": 1,
+    "blocks_inconclusive": 7
+  }
+}
