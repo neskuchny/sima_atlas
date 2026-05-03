@@ -13,7 +13,7 @@
 - [ ] T1.8: MCP tool `read_operator_profile` (read-only).
 
 ## PR-2 — Templates set
-- [ ] T2.1: написать 4 JSON-шаблона `atlas/operator_profile/templates/{backend-mvp,backend-prod,frontend-spa,testing-stack}.json` с дефолтным стеком.
+- [x] T2.1: написать 4 JSON-шаблона `atlas/operator_profile/templates/{backend-mvp,backend-prod,frontend-spa,testing-stack}.json` с дефолтным стеком. **DONE in PR-Backlog**: starter templates + applicability + must_have_acceptance + anti-patterns + scaffold + estimated_hours.
 - [ ] T2.2: `pickTemplate(scope, profile)` — функция, возвращающая шаблон, скорректированный под `tech_stack_history` оператора.
 - [ ] T2.3: интегрировать в `analyze_conversation_to_atlas.mjs`: если LLM вернул блок без `tech_stack` — подмешать `pickTemplate` и пометить `suggested_template_id` в proposal.
 - [ ] T2.4: UI ProposalsPanel: badge `template: backend-mvp` рядом с tech_stack.

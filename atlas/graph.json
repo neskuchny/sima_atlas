@@ -256,7 +256,60 @@
         "json"
       ],
       "files": [
-        "atlas/blocks/b.operator-profile-learner/mission.md"
+        "atlas/blocks/b.operator-profile-learner/mission.md",
+        "atlas/operator_profile/templates/backend-mvp.json",
+        "atlas/operator_profile/templates/backend-prod.json",
+        "atlas/operator_profile/templates/frontend-spa.json",
+        "atlas/operator_profile/templates/testing-stack.json"
+      ]
+    },
+    {
+      "id": "b.acceptance-verifier-loop",
+      "title": "Acceptance Verifier Loop",
+      "status": "idea",
+      "status_reason": "PR-Backlog: design-only milestone. Closes the verification gap (Symphony trusts agent output, Hermes has no contract layer). После любого run_block_implementation проверяет каждый пункт acceptance.md через детерминированные collectors (exit_code/fs_glob/file_diff/log_grep) + LLM-judge fallback; блокирует wip→done если verdict !== pass. 5-PR breakdown.",
+      "layer": "testing",
+      "type": "module",
+      "mvp": false,
+      "subschema_id": null,
+      "depends_on": [
+        "b.db",
+        "b.core-sync",
+        "b.agent-orchestrator",
+        "b.llm-gateway"
+      ],
+      "tech_stack": [
+        "nodejs",
+        "esm",
+        "json-schema"
+      ],
+      "files": [
+        "atlas/blocks/b.acceptance-verifier-loop/mission.md"
+      ]
+    },
+    {
+      "id": "b.user-docs-generator",
+      "title": "End-User Docs Generator",
+      "status": "idea",
+      "status_reason": "PR-Backlog: design-only milestone. Closes the end-user tutorial gap — Атлас сам пишет UI блоков, значит знает все кнопки и поля; этот блок генерирует 'как пользоваться' markdown для конечного пользователя продукта (не developer wiki — это делает b.docs). Auto-regen на каждое изменение JSX. 3-4 PR breakdown.",
+      "layer": "content",
+      "type": "module",
+      "mvp": false,
+      "subschema_id": null,
+      "depends_on": [
+        "b.db",
+        "b.docs",
+        "b.agent-orchestrator",
+        "b.llm-gateway"
+      ],
+      "tech_stack": [
+        "nodejs",
+        "esm",
+        "markdown",
+        "playwright"
+      ],
+      "files": [
+        "atlas/blocks/b.user-docs-generator/mission.md"
       ]
     },
     {

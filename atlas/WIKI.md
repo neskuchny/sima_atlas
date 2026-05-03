@@ -320,6 +320,278 @@ atlas/operator_profile/
   6. `UI hints` — badge'и в Inspector / ProposalsPanel
 
 
+## b.acceptance-verifier-loop — Acceptance Verifier Loop
+- status: **idea**
+
+# b.acceptance-verifier-loop — mission
+
+«Закрывающий контур» для каждого агент-прогона. Сейчас `run_block_implementation.mjs` отдаёт результат и забывает: `done` ставится «на честном слове» оператора. Этот блок добавляет **обязательную пост-проверку**: после того как агент сказал «готово», LLM-judge (через `b.llm-gateway`) сверяет результат **построчно против `acceptance.md`** блока. Каждый пункт получает `pass / fail / skipped + evidence + reasoning`. Если хоть один `fail` — блок **не может перейти в `done`** через `transition_block`, а получает proposal `acceptance_blocked` с конкретным описанием, что не сошлось.
+
+Без этого блока «верификация» = ручной пересмотр чек-листа человеком. С ним — Атлас сам говорит «ты сказал готово, но A2 (selftest) не прошёл, потому что файла X нет, и A4 (trace write) не прошёл, потому что в `atlas/llm_traces/` нет новых записей за последние 5 минут».
+
+## Layer
+testing
+
+## North Star
+> После любого `run_block_implementation` блок не может перейти в `done`, пока ВСЕ пункты `acceptance.md` не получили `pass` с зафиксированным evidence. И каждый `fail` сопровождается конкретной обратной связью, которая сразу подходит как prompt для retry-прогона того же агента.
+
+---
+
+## Что наблюдается (источники данных)
+
+| Источник | Что вытягивается |
+|---|---|
+| `atlas/blocks/<id>/acceptance.md` | список assertion-пунктов A1..AN с описанием и (опц.) машинно-читаемым evidence-spec |
+| `run_block_implementation` stdout/exit code | факт «агент закончил» + последние модифицированные файлы |
+| `git diff` за окно прогона | какие файлы реально изменились (для evidence-кросс-чека) |
+| `atlas/blocks/<id>/checks.log` (новые записи) | `acceptance pass A1` / `acceptance fail A2 ...` |
+| `atlas/llm_traces/*` (новые) | были ли LLM-вызовы в окне прогона (для KPI: «А3 требует live API») |
+| Output of `tests/<block>.selftest.mjs` (если упомянут в acceptance) | exit code + stderr |
+| `atlas/proposals/*` | acceptance_blocked proposal становится Accept-able блокером |
+
+## Что сохраняется (output, файлы)
+
+```
+atlas/acceptance_runs/
+  <block_id>/<UTC>__<run_id>.json   ← полный отчёт прогона (per-item pass/fail/evidence/reasoning)
+  <block_id>/_latest.json            ← последний отчёт (для UI)
+atlas/proposals/<UTC>__<block_id>__acceptance_blocked.json  ← если есть fail
+atlas/blocks/<block_id>/checks.log   ← append: 'acceptance_verifier <pass|fail> <Aitem> note'
+```
+
+`acceptance_runs/<id>/<UTC>__.json` shape:
+
+```json
+{
+  "block_id": "b.llm-gateway",
+  "run_id": "2026-05-03T10:30:00Z__claude",
+  "agent": "claude",
+  "started_at": "...",
+  "finished_at": "...",
+  "items": [
+    { "id": "A1",
+      "assertion": "Selftest tests/llm_gateway.selftest.mjs проходит (4 case)",
+      "verdict": "pass",
+      "evidence_kind": "exit_code",
+      "evidence": "node tests/llm_gateway.selftest.mjs → exit 0; output: 'OK (4 cases)'",
+      "reasoning": "Все 4 case прошли; selftest зелёный.",
+      "checked_at": "..."
+    },
+    { "id": "A4",
+      "assertion": "Каждый вызов пишет trace в atlas/llm_traces/",
+      "verdict": "fail",
+      "evidence_kind": "fs_glob",
+      "evidence": "ls atlas/llm_traces/*.json --since=5m → 0 new files",
+      "reasoning": "Selftest test 3 проверяет trace, но в окне прогона новых traces нет → trace-writer не сработал.",
+      "checked_at": "..."
+    }
+  ],
+  "verdict": "fail",
+  "blocked_transition": "wip → done",
+  "retry_prompt_hint": "А4 не прошёл: trace-writer не пишет в atlas/llm_traces. Проверь функцию writeTrace() в scripts/llm_gateway.mjs — вероятно, fs.writeFileSync вызывается в try-catch с подавлением ошибки."
+}
+```
+
+---
+
+## Когда работает (триггеры)
+
+| Тип | Когда | Что делает |
+|---|---|---|
+| **Auto после run_block_implementation** | exit code 0 от агента | сразу запускает `verify_block_acceptance.mjs <block_id>`; пишет `_latest.json` |
+| **Pre-transition gate** | `transition_block <id> done` через CLI/MCP/UI | читает `_latest.json`; если `verdict !== "pass"` — блокирует переход с понятной ошибкой |
+| **On-demand re-verify** | MCP tool `verify_block_acceptance {block_id}` | прогоняет проверку даже без агент-прогона (для ручной проверки уже-в-done блоков) |
+| **Nightly re-verify of done** | в `nightly_consolidation.mjs` | проверяет, что блоки в `done` всё ещё проходят acceptance; если нет — авто-rollback `done → broken` + proposal |
+| **Retry-loop hook (опц.)** | при verdict=fail и `auto_retry: true` в env | подмешивает `retry_prompt_hint` в новый run_block_implementation, max 2 retry |
+
+**Что нельзя**: не проверять блоки без `acceptance.md` (это контрактная ошибка валидатора, не verifier'а). Не подменять структурные валидаторы (`validate_block_contracts` и т. д.) — verifier работает поверх них.
+
+---
+
+## Где применяется (потребители)
+
+| Потребитель | Как использует |
+|---|---|
+| `scripts/run_block_implementation.mjs` | После exit code 0 — спавнит verifier; кладёт `_latest.json` рядом с trace |
+| `scripts/log_transition.mjs` | Перед `wip → done` читает `_latest.json`; verdict !== pass → reject с описанием |
+| `scripts/nightly_consolidation.mjs` | Step `verify_done_blocks_still_green` |
+| UI Inspector | Под mission блока — секция «Acceptance verifier»: список A1..AN с зелёным/красным badge + reasoning по клику |
+| ProposalsPanel | `acceptance_blocked` proposal с retry-кнопкой, которая дёргает `/run-block` с `retry_prompt_hint` |
+| MCP tools | `verify_block_acceptance`, `read_acceptance_run`, `list_failed_acceptances` |
+
+---
+
+## UX-принципы
+
+1. **Жёсткий gate, мягкий совет.** Verdict=fail **физически блокирует** `→ done` (это hard gate; KPI продукта). Но retry — добровольный (proposal в UI, не auto-апдейт кода без accept).
+2. **Каждый fail подходит как prompt.** `retry_prompt_hint` пишется так, чтобы его можно было сразу скормить тому же агенту: конкретный файл, конкретная строка, что должно произойти.
+3. **Прозрачность evidence.** Поле `evidence_kind` ∈ `{exit_code, fs_glob, file_diff, log_grep, llm_judge, manual}` — UI показывает разные иконки. `llm_judge` всегда сопровождается `reasoning` (нельзя «потому что я так считаю»).
+4. **Не подменяет тесты.** Если пункт acceptance говорит «selftest зелёный» — verifier именно запускает selftest и читает exit code, а не «спрашивает Claude, кажется ли что selftest прошёл бы».
+5. **Кэшируемо.** Если в окне после последнего verifier-прогона нет новых коммитов / нет новых traces / нет новых checks.log записей — verifier возвращает закэшированный результат за < 50ms.
+
+---
+
+## Out of scope
+
+- Авто-fix кода блока — verifier только сообщает, не правит. Правка идёт через proposals + agent run.
+- Acceptance-генератор (LLM пишет acceptance.md за пользователя) — это отдельный плагин на `b.docs` или `b.llm-gateway`.
+- Cross-block acceptance («все блоки в layer:ai green») — это уровнем выше; пусть будет `intelligence_health` или новый `b.suite-verifier`.
+
+---
+
+## Интеграция с уже существующими блоками
+
+- **depends_on**: `b.db` (read graph + acceptance.md), `b.core-sync` (write checks.log), `b.agent-orchestrator` (hook после run_block_implementation), `b.llm-gateway` (LLM-judge для assertion-пунктов, которые без exit-code/fs evidence).
+- **provides**: `acceptance_run_report`, `acceptance_gate_decision`, `retry_prompt_hint`.
+
+---
+
+## Backlog priority
+
+- **Position**: после `b.operator-profile-learner` (тот учится на готовых данных, этот — генерирует данные о done/blocked). По важности — **выше** profile-learner'а: это фактически **закрывающий контур качества**, без которого `done` остаётся empty signal.
+- **Estimate**: 4–5 PR-ов:
+  1. `assertion parser` — структурированный парсинг `acceptance.md` (A1..AN + опц. evidence-spec в YAML-блоке)
+  2. `evidence collectors` — exit_code / fs_glob / file_diff / log_grep раннеры (без LLM)
+  3. `LLM-judge fallback` — для пунктов без явного evidence-spec, через `b.llm-gateway`
+  4. `gate hooks` — интеграция в `log_transition` + `run_block_implementation` + nightly
+  5. `UI surface` — Inspector секция + ProposalsPanel acceptance_blocked + retry-кнопка
+
+
+## b.user-docs-generator — End-User Docs Generator
+- status: **idea**
+
+# b.user-docs-generator — mission
+
+Атлас сам пишет UI и backend каждого пользовательского блока — следовательно, **знает** где какая кнопка, какой endpoint, какой happy path. Этот блок берёт это знание и для **каждого user-facing блока** генерирует обучающую страницу для **конечного пользователя продукта**: «чтобы создать задачу, нажми + в правом верхнем углу → откроется форма → введи название → Enter».
+
+Не путать с `b.docs` — тот делает developer-facing wiki по архитектуре блоков (mission/kpi/acceptance Атласа). Этот делает **end-user** документацию: то, что увидит конечный юзер построенного продукта (`demo-todo`, `e-shop`, что угодно), а не разработчик Атласа.
+
+Без этого блока: пользователь Атласа должен сам писать tutorial.md для своего продукта вручную. С ним: tutorial обновляется **автоматически** при каждом изменении UI / API блока — никакой документ-долг, описание всегда соответствует коду.
+
+## Layer
+content
+
+## North Star
+> Когда `b.todo-ui` блок переходит в `done`, в проекте `demo-todo` появляется `docs/end-user/todo-ui.md` со скриншотом и пошаговой инструкцией, где каждое «нажми X» подтверждено реальным селектором из `Sima (Remix)/<file>.jsx` и реальным endpoint'ом из `b.todo-api`. Если кнопка переименована — туториал обновляется в следующий nightly.
+
+---
+
+## Что наблюдается (источники данных)
+
+| Источник | Что вытягивается |
+|---|---|
+| `atlas/blocks/<id>/mission.md` | какую user story закрывает блок |
+| `atlas/blocks/<id>/files.md` (alive) | список JSX/HTML/route-файлов блока |
+| Содержимое JSX/HTML файлов блока | список кнопок (`<button>`), полей (`<input>`), маршрутов, обработчиков |
+| `atlas/blocks/<id>/depends_on.md` | связанные API-блоки → endpoints, которые юзер косвенно дёргает |
+| `atlas/process_runs/cursor_observations/*` | какие user-flow реально проходились в IDE (если есть) |
+| `Sima (Remix)/screenshots/*.png` (если PR4.5+ генерится Playwright'ом) | визуал для встраивания |
+| `atlas/blocks/<id>/patterns.md` | gotchas / edge cases, которые стоит упомянуть |
+| `atlas/projects/<proj>/user_stories/*.md` (если b.user-stories блок есть) | язык целевой аудитории, jobs-to-be-done |
+
+## Что сохраняется (output, файлы)
+
+```
+atlas/projects/<proj>/docs/end-user/
+  index.md                       ← навигация по фичам
+  <block_id>.md                  ← per-block tutorial (заменяет b.todo-ui → docs/end-user/todo-ui.md)
+  _screenshots/<block_id>__<flow>.png  ← Playwright-снимки конкретного шага (если доступны)
+  _meta/<block_id>.json          ← machine-readable: список кнопок/полей/endpoints, hash источников (для cache)
+atlas/projects/<proj>/docs/end-user/AUTOGENERATED.md  ← маркер «не редактируй вручную»
+```
+
+`<block_id>.md` shape (генерируется LLM-ом через `b.llm-gateway` со схемой):
+
+```md
+# Как пользоваться: <user-friendly title>
+
+> Эта страница автогенерирована Атласом. Не редактируй вручную — изменения перезапишутся.
+
+## Что это делает (1 строка)
+<derived from mission.md user story>
+
+## Шаги
+1. **Открой** `<route from JSX>` — например, `/tasks`.
+2. **Нажми** кнопку `+ Новая задача` (правый верхний угол).
+3. **Заполни** поле `Название` — обязательное.
+4. **Нажми** `Enter` или кнопку `Сохранить`.
+
+## Что ты увидишь
+<screenshot ![](./_screenshots/todo-ui__create.png)>
+
+## Если не получилось
+- Кнопка `Сохранить` не активна → проверь, что поле `Название` не пустое.
+- Список не обновился → fetch к `<endpoint from b.todo-api/provides>` мог зафейлиться; см. консоль.
+
+## Под капотом (опц., для любопытных)
+- Модуль: `b.todo-ui`
+- Связанный API: `b.todo-api` → `POST /tasks`
+```
+
+---
+
+## Когда работает (триггеры)
+
+| Тип | Когда | Что делает |
+|---|---|---|
+| **Auto при `done` user-facing блока** | `transition_block <id> done` где `layer ∈ {user, front}` | спавнит generator на этом блоке; пишет `<block_id>.md` |
+| **Nightly drift-check** | в `nightly_consolidation.mjs` | проверяет hash источников (JSX + mission); если изменились — regen; если нет — skip |
+| **On-demand** | MCP tool `regenerate_user_docs {block_id|project}` | принудительный пересбор |
+| **Project bootstrap** | при создании нового проекта через `analyze_conversation_to_atlas` | пишет пустой `docs/end-user/index.md` с TOC из планируемых блоков |
+
+**Не работает на**: блоки с `layer ∈ {data, ext, ai, testing, content}` (там нет user-facing UI). Для них — только если явно указано `user_facing: true` во frontmatter блока.
+
+---
+
+## Где применяется (потребители)
+
+| Потребитель | Как использует |
+|---|---|
+| Пользователь Атласа (читатель) | открывает `docs/end-user/<block>.md` в репо своего продукта, видит готовый tutorial |
+| `b.docs` | в wiki-странице блока добавляет ссылку «End-user docs: docs/end-user/<id>.md» |
+| UI Inspector | под mission блока — кнопка «Открыть end-user туториал» |
+| `nightly_consolidation` | drift-check; если меняется JSX — пересобирает |
+| `analyze_conversation_to_atlas` | при создании нового user-facing блока — добавляет в proposal `expects_user_docs: true` |
+| MCP tools | `regenerate_user_docs`, `read_user_docs`, `list_user_docs` |
+
+---
+
+## UX-принципы
+
+1. **Авто-маркер.** Каждый файл начинается с «АВТОГЕНЕРИРОВАНО — не редактируй». Pre-commit hook предотвращает ручные правки (или предлагает либо унаследовать через mission/patterns, либо явно `LOCKED: true` в meta).
+2. **Скриншоты опциональны.** Если Playwright не настроен — текст без картинок, но всё ещё валидный markdown.
+3. **Язык — пользовательский.** Не «module b.todo-ui implements a TaskCreator component»; а «чтобы создать задачу, нажми +». LLM-prompt явно требует «not technical jargon».
+4. **Idempotent.** Регенерация без изменений источников даёт **байт-в-байт** тот же файл (cache на hash).
+5. **Локализация.** В meta/<id>.json — поле `lang: "ru"`; LLM-prompt получает язык из `atlas/project.md` или env `ATLAS_USER_DOCS_LANG`.
+
+---
+
+## Out of scope
+
+- Реальный hosting (gh-pages / vercel deploy) — пусть пользователь сам подключит, мы только пишем markdown.
+- Видео-туториалы — за рамками.
+- A/B test разных формулировок — за рамками.
+- Локализация в больше чем 2 языка одновременно — генерим по 1 языку за прогон.
+
+---
+
+## Интеграция с уже существующими блоками
+
+- **depends_on**: `b.db` (read graph + project files), `b.docs` (общий wiki-pipeline), `b.agent-orchestrator` (cursor_observations + Playwright screenshots в будущем), `b.llm-gateway` (генерация текста через structured output).
+- **provides**: `end_user_docs_set`, `user_docs_meta`, `tutorial_renderer`.
+
+---
+
+## Backlog priority
+
+- **Position**: после `b.acceptance-verifier-loop` и `b.operator-profile-learner`. Не критично для функциональности Атласа, но **сильно повышает ценность** для конечного пользователя продукта (=пользователя Атласа). Потенциально — самый «продаваемый» feature: «при разработке продукт сам пишет себе manual».
+- **Estimate**: 3–4 PR-а:
+  1. `block introspection` — парсер JSX/HTML → структура (кнопки, поля, маршруты, handlers)
+  2. `LLM tutorial writer` — single-shot per block через `b.llm-gateway`, JSON Schema-driven вывод
+  3. `screenshot integration` — Playwright snapshot per flow (опц.; работает без него)
+  4. `auto-regen + UI` — nightly drift-check + Inspector кнопка + locked-flag protection
+
+
 ## b.smoke-sandbox — Smoke Sandbox (test target)
 - status: **idea**
 

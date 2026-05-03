@@ -9,7 +9,7 @@ window.SIMA_BOOTSTRAP = {
         "taskKind": "продукт",
         "taskTitle": "Живая схема Atlas",
         "taskNote": "Блоки, слои, статусы и зависимости автогенерируются из /atlas",
-        "created": "2026-05-02",
+        "created": "2026-05-03",
         "owner": "Cursor / Claude / Codex",
         "canvas": {
           "task": {
@@ -135,10 +135,42 @@ window.SIMA_BOOTSTRAP = {
               ]
             },
             {
-              "id": "b.smoke-sandbox",
+              "id": "b.user-docs-generator",
               "type": "artifact",
               "x": 810,
               "y": 360,
+              "w": 220,
+              "h": 130,
+              "source": "content · idea",
+              "title": "End-User Docs Generator",
+              "meta": "b.user-docs-generator",
+              "take": "Атлас сам пишет UI и backend каждого пользовательского блока — следовательно, **знает** где какая кнопка, какой endpoint, какой happy path.",
+              "tags": [
+                "#idea",
+                "#content"
+              ]
+            },
+            {
+              "id": "b.acceptance-verifier-loop",
+              "type": "artifact",
+              "x": 120,
+              "y": 520,
+              "w": 220,
+              "h": 130,
+              "source": "testing · idea",
+              "title": "Acceptance Verifier Loop",
+              "meta": "b.acceptance-verifier-loop",
+              "take": "«Закрывающий контур» для каждого агент-прогона.",
+              "tags": [
+                "#idea",
+                "#testing"
+              ]
+            },
+            {
+              "id": "b.smoke-sandbox",
+              "type": "artifact",
+              "x": 350,
+              "y": 520,
               "w": 220,
               "h": 130,
               "source": "testing · idea",
@@ -241,6 +273,62 @@ window.SIMA_BOOTSTRAP = {
               "from": "b.operator-profile-learner",
               "to": "b.docs",
               "label": "b.operator-profile-learner → b.docs",
+              "direction": "to-task"
+            },
+            {
+              "id": "b.acceptance-verifier-loop__b.db",
+              "from": "b.acceptance-verifier-loop",
+              "to": "b.db",
+              "label": "b.acceptance-verifier-loop → b.db",
+              "direction": "to-task"
+            },
+            {
+              "id": "b.acceptance-verifier-loop__b.core-sync",
+              "from": "b.acceptance-verifier-loop",
+              "to": "b.core-sync",
+              "label": "b.acceptance-verifier-loop → b.core-sync",
+              "direction": "to-task"
+            },
+            {
+              "id": "b.acceptance-verifier-loop__b.agent-orchestrator",
+              "from": "b.acceptance-verifier-loop",
+              "to": "b.agent-orchestrator",
+              "label": "b.acceptance-verifier-loop → b.agent-orchestrator",
+              "direction": "to-task"
+            },
+            {
+              "id": "b.acceptance-verifier-loop__b.llm-gateway",
+              "from": "b.acceptance-verifier-loop",
+              "to": "b.llm-gateway",
+              "label": "b.acceptance-verifier-loop → b.llm-gateway",
+              "direction": "to-task"
+            },
+            {
+              "id": "b.user-docs-generator__b.db",
+              "from": "b.user-docs-generator",
+              "to": "b.db",
+              "label": "b.user-docs-generator → b.db",
+              "direction": "to-task"
+            },
+            {
+              "id": "b.user-docs-generator__b.docs",
+              "from": "b.user-docs-generator",
+              "to": "b.docs",
+              "label": "b.user-docs-generator → b.docs",
+              "direction": "to-task"
+            },
+            {
+              "id": "b.user-docs-generator__b.agent-orchestrator",
+              "from": "b.user-docs-generator",
+              "to": "b.agent-orchestrator",
+              "label": "b.user-docs-generator → b.agent-orchestrator",
+              "direction": "to-task"
+            },
+            {
+              "id": "b.user-docs-generator__b.llm-gateway",
+              "from": "b.user-docs-generator",
+              "to": "b.llm-gateway",
+              "label": "b.user-docs-generator → b.llm-gateway",
               "direction": "to-task"
             }
           ]
@@ -416,6 +504,36 @@ window.SIMA_BOOTSTRAP = {
                 ]
               },
               {
+                "id": "b.user-docs-generator",
+                "title": "End-User Docs Generator",
+                "kind": "блок · content",
+                "filled": true,
+                "body": "Атлас сам пишет UI и backend каждого пользовательского блока — следовательно, **знает** где какая кнопка, какой endpoint, какой happy path.",
+                "hasSubschema": false,
+                "sources": [
+                  "scripts/introspect_block_ui.mjs [pending] (PR-1)",
+                  "tests/fixtures/jsx/.gitkeep [pending] (PR-1)",
+                  "tests/introspect_block_ui.selftest.mjs [pending] (PR-1)",
+                  "scripts/generate_user_docs.mjs [pending] (PR-2: оркестратор)",
+                  "tests/user_docs.smoke.mjs [pending] (PR-2)"
+                ]
+              },
+              {
+                "id": "b.acceptance-verifier-loop",
+                "title": "Acceptance Verifier Loop",
+                "kind": "блок · testing",
+                "filled": true,
+                "body": "«Закрывающий контур» для каждого агент-прогона.",
+                "hasSubschema": false,
+                "sources": [
+                  "scripts/parse_acceptance.mjs [pending] (PR-1: парсер acceptance.md → структурированный JSON)",
+                  "tests/parse_acceptance.selftest.mjs [pending] (PR-1)",
+                  "scripts/collect_evidence.mjs [pending] (PR-2: диспетчер по evidence_kind)",
+                  "tests/evidence_collectors.selftest.mjs [pending] (PR-2)",
+                  "scripts/judge_assertion.mjs [pending] (PR-3)"
+                ]
+              },
+              {
                 "id": "b.smoke-sandbox",
                 "title": "Smoke Sandbox (test target)",
                 "kind": "блок · testing",
@@ -480,6 +598,38 @@ window.SIMA_BOOTSTRAP = {
               [
                 "b.operator-profile-learner",
                 "b.docs"
+              ],
+              [
+                "b.acceptance-verifier-loop",
+                "b.db"
+              ],
+              [
+                "b.acceptance-verifier-loop",
+                "b.core-sync"
+              ],
+              [
+                "b.acceptance-verifier-loop",
+                "b.agent-orchestrator"
+              ],
+              [
+                "b.acceptance-verifier-loop",
+                "b.llm-gateway"
+              ],
+              [
+                "b.user-docs-generator",
+                "b.db"
+              ],
+              [
+                "b.user-docs-generator",
+                "b.docs"
+              ],
+              [
+                "b.user-docs-generator",
+                "b.agent-orchestrator"
+              ],
+              [
+                "b.user-docs-generator",
+                "b.llm-gateway"
               ]
             ],
             "links": [
@@ -546,6 +696,46 @@ window.SIMA_BOOTSTRAP = {
               {
                 "from": "b.operator-profile-learner",
                 "to": "b.docs",
+                "label": "depends_on"
+              },
+              {
+                "from": "b.acceptance-verifier-loop",
+                "to": "b.db",
+                "label": "depends_on"
+              },
+              {
+                "from": "b.acceptance-verifier-loop",
+                "to": "b.core-sync",
+                "label": "depends_on"
+              },
+              {
+                "from": "b.acceptance-verifier-loop",
+                "to": "b.agent-orchestrator",
+                "label": "depends_on"
+              },
+              {
+                "from": "b.acceptance-verifier-loop",
+                "to": "b.llm-gateway",
+                "label": "depends_on"
+              },
+              {
+                "from": "b.user-docs-generator",
+                "to": "b.db",
+                "label": "depends_on"
+              },
+              {
+                "from": "b.user-docs-generator",
+                "to": "b.docs",
+                "label": "depends_on"
+              },
+              {
+                "from": "b.user-docs-generator",
+                "to": "b.agent-orchestrator",
+                "label": "depends_on"
+              },
+              {
+                "from": "b.user-docs-generator",
+                "to": "b.llm-gateway",
                 "label": "depends_on"
               }
             ]
@@ -625,6 +815,18 @@ window.SIMA_BOOTSTRAP = {
               "layer": "content"
             },
             {
+              "id": "b.user-docs-generator",
+              "title": "End-User Docs Generator",
+              "status": "idea",
+              "layer": "content"
+            },
+            {
+              "id": "b.acceptance-verifier-loop",
+              "title": "Acceptance Verifier Loop",
+              "status": "idea",
+              "layer": "testing"
+            },
+            {
               "id": "b.smoke-sandbox",
               "title": "Smoke Sandbox (test target)",
               "status": "idea",
@@ -639,7 +841,7 @@ window.SIMA_BOOTSTRAP = {
         "taskKind": "продукт",
         "taskTitle": "Минимальный пример пользовательского продукта в Атласе, чтобы показать: Сима умеет вести **любой** продукт, не только сама себя.",
         "taskNote": "Project under atlas/projects/demo-todo",
-        "created": "2026-05-02",
+        "created": "2026-05-03",
         "owner": "demo",
         "canvas": {
           "task": {
@@ -991,7 +1193,7 @@ window.SIMA_BOOTSTRAP = {
         "taskKind": "продукт",
         "taskTitle": "Подсхема блока b.ui-control",
         "taskNote": "Subschema \"components\" of atlas-live/b.ui-control",
-        "created": "2026-05-02",
+        "created": "2026-05-03",
         "owner": "Cursor / Claude / Codex",
         "canvas": {
           "task": {
@@ -1561,6 +1763,57 @@ window.SIMA_BOOTSTRAP = {
           ]
         },
         {
+          "id": "b.user-docs-generator",
+          "title": "End-User Docs Generator",
+          "layer": "content",
+          "type": "module",
+          "status": "idea",
+          "status_reason": "PR-Backlog: design-only milestone. Closes the end-user tutorial gap — Атлас сам пишет UI блоков, значит знает все кнопки и поля; этот блок генерирует 'как пользоваться' markdown для конечного пользователя продукта (не developer wiki — это делает b.docs). Auto-regen на каждое изменение JSX. 3-4 PR breakdown.",
+          "mvp": false,
+          "subschema": null,
+          "x": 270,
+          "w": 210,
+          "note": "Атлас сам пишет UI и backend каждого пользовательского блока — следовательно, **знает** где какая кнопка, какой endpoint, какой happy path.",
+          "sources": [
+            "scripts/introspect_block_ui.mjs [pending] (PR-1)",
+            "tests/fixtures/jsx/.gitkeep [pending] (PR-1)",
+            "tests/introspect_block_ui.selftest.mjs [pending] (PR-1)",
+            "scripts/generate_user_docs.mjs [pending] (PR-2: оркестратор)",
+            "tests/user_docs.smoke.mjs [pending] (PR-2)"
+          ],
+          "tech_stack": [
+            "nodejs",
+            "esm",
+            "markdown",
+            "playwright"
+          ]
+        },
+        {
+          "id": "b.acceptance-verifier-loop",
+          "title": "Acceptance Verifier Loop",
+          "layer": "testing",
+          "type": "module",
+          "status": "idea",
+          "status_reason": "PR-Backlog: design-only milestone. Closes the verification gap (Symphony trusts agent output, Hermes has no contract layer). После любого run_block_implementation проверяет каждый пункт acceptance.md через детерминированные collectors (exit_code/fs_glob/file_diff/log_grep) + LLM-judge fallback; блокирует wip→done если verdict !== pass. 5-PR breakdown.",
+          "mvp": false,
+          "subschema": null,
+          "x": 40,
+          "w": 210,
+          "note": "«Закрывающий контур» для каждого агент-прогона.",
+          "sources": [
+            "scripts/parse_acceptance.mjs [pending] (PR-1: парсер acceptance.md → структурированный JSON)",
+            "tests/parse_acceptance.selftest.mjs [pending] (PR-1)",
+            "scripts/collect_evidence.mjs [pending] (PR-2: диспетчер по evidence_kind)",
+            "tests/evidence_collectors.selftest.mjs [pending] (PR-2)",
+            "scripts/judge_assertion.mjs [pending] (PR-3)"
+          ],
+          "tech_stack": [
+            "nodejs",
+            "esm",
+            "json-schema"
+          ]
+        },
+        {
           "id": "b.smoke-sandbox",
           "title": "Smoke Sandbox (test target)",
           "layer": "testing",
@@ -1569,7 +1822,7 @@ window.SIMA_BOOTSTRAP = {
           "status_reason": "Reserved write-target for e2e/smoke scripts so they never touch real product blocks",
           "mvp": false,
           "subschema": null,
-          "x": 40,
+          "x": 270,
           "w": 210,
           "note": "Целевой блок для всех e2e/smoke-тестов Атласа.",
           "sources": [
@@ -1694,6 +1947,78 @@ window.SIMA_BOOTSTRAP = {
           "type": "dep",
           "label": "wiki_bundle",
           "capability": "wiki_bundle",
+          "broken": false,
+          "broken_reason": null
+        },
+        {
+          "from": "b.acceptance-verifier-loop",
+          "to": "b.db",
+          "type": "dep",
+          "label": "atlas_state_store",
+          "capability": "atlas_state_store",
+          "broken": false,
+          "broken_reason": null
+        },
+        {
+          "from": "b.acceptance-verifier-loop",
+          "to": "b.core-sync",
+          "type": "dep",
+          "label": "sync_report",
+          "capability": "sync_report",
+          "broken": false,
+          "broken_reason": null
+        },
+        {
+          "from": "b.acceptance-verifier-loop",
+          "to": "b.agent-orchestrator",
+          "type": "dep",
+          "label": "pipeline_execution",
+          "capability": "pipeline_execution",
+          "broken": false,
+          "broken_reason": null
+        },
+        {
+          "from": "b.acceptance-verifier-loop",
+          "to": "b.llm-gateway",
+          "type": "dep",
+          "label": "llm_call_structured",
+          "capability": "llm_call_structured",
+          "broken": false,
+          "broken_reason": null
+        },
+        {
+          "from": "b.user-docs-generator",
+          "to": "b.db",
+          "type": "dep",
+          "label": "atlas_state_store",
+          "capability": "atlas_state_store",
+          "broken": false,
+          "broken_reason": null
+        },
+        {
+          "from": "b.user-docs-generator",
+          "to": "b.docs",
+          "type": "dep",
+          "label": "wiki_bundle",
+          "capability": "wiki_bundle",
+          "broken": false,
+          "broken_reason": null
+        },
+        {
+          "from": "b.user-docs-generator",
+          "to": "b.agent-orchestrator",
+          "type": "dep",
+          "label": "pipeline_execution",
+          "capability": "pipeline_execution",
+          "broken": false,
+          "broken_reason": null
+        },
+        {
+          "from": "b.user-docs-generator",
+          "to": "b.llm-gateway",
+          "type": "dep",
+          "label": "llm_call_structured",
+          "capability": "llm_call_structured",
           "broken": false,
           "broken_reason": null
         }

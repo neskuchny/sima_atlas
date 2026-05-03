@@ -1,0 +1,110 @@
+{
+  "template_id": "testing-stack",
+  "title": "Testing Stack — пирамида unit/integration/e2e под node + react",
+  "description": "Унифицированный набор testing-инструментов для Node.js backend и React frontend проектов. Цель — одни и те же команды (`npm test`), один runner (vitest) везде где можно, минимум разных синтаксисов.",
+  "scope": "testing",
+  "applicability": {
+    "best_when": [
+      "проект на typescript + nodejs + (опц.) react",
+      "хотим CI gate перед merge",
+      "≥ 2 разработчика → нужна защита от регрессии"
+    ],
+    "not_when": [
+      "одноразовый скрипт / спайк (1 файл, выкинется через неделю)",
+      "критичная физика / встраиваемые системы → специализированные тулы"
+    ]
+  },
+  "tech_stack": {
+    "primary_runner": "vitest",
+    "primary_runner_chosen_because": "тот же синтаксис что у jest, но в 2-3 раза быстрее, нативный esm/typescript, parallel-by-default, watch mode хороший",
+    "primary_runner_alternatives": ["jest (если унаследовано)", "node:test (если zero-deps критично)"],
+    "unit": {
+      "runner": "vitest",
+      "matchers": "vitest assertions (chai-compatible)",
+      "mocking": "vi.mock / vi.spyOn (встроенное)",
+      "coverage_provider": "v8",
+      "coverage_threshold_target": 70
+    },
+    "integration_backend": {
+      "http_assertions": "supertest",
+      "real_dependencies": "testcontainers (postgres / redis в docker)",
+      "fixtures_strategy": "factory functions, не shared json",
+      "isolation": "transaction-rollback per test (если sql) или fresh container per suite"
+    },
+    "component_react": {
+      "lib": "@testing-library/react",
+      "user_events": "@testing-library/user-event",
+      "queries_preference": "byRole > byLabelText > byText > byTestId",
+      "no_implementation_details": "не testить state hooks напрямую — testить через render+interact"
+    },
+    "e2e": {
+      "tool": "playwright",
+      "tool_chosen_because": "три браузера из коробки, авто-wait, trace viewer, parallel by default",
+      "tool_alternatives": ["cypress (если команда привыкла)"],
+      "scope": "main user flows + smoke на критические страницы",
+      "anti_pattern": "не тестировать всю функциональность через e2e — это медленно; e2e только для critical paths"
+    },
+    "contract_api": {
+      "tool": "openapi-typescript + msw (для mocking)",
+      "purpose": "frontend знает types backend; mocking без живого backend"
+    },
+    "load": {
+      "tool": "k6",
+      "tool_alternatives": ["artillery"],
+      "when": "только при подготовке к проду (см. backend-prod)"
+    },
+    "static": {
+      "type_check": "tsc --noEmit в CI",
+      "linter": "biome (или eslint)",
+      "secrets_scan": "gitleaks"
+    },
+    "ci": {
+      "platform": "github actions",
+      "matrix": "node 22.x на ubuntu-latest",
+      "stages": ["lint", "typecheck", "unit", "integration", "e2e (на main+release branches)"],
+      "artifacts": ["coverage.lcov → codecov", "playwright traces (on failure)"]
+    }
+  },
+  "scaffold": {
+    "files": [
+      "vitest.config.ts",
+      "vitest.integration.config.ts",
+      "playwright.config.ts",
+      "test/unit/**/*.test.ts",
+      "test/integration/**/*.test.ts",
+      "test/e2e/**/*.spec.ts",
+      "test/fixtures/factories.ts",
+      "test/setup.ts",
+      ".github/workflows/ci.yml"
+    ],
+    "minimal_npm_scripts": {
+      "test": "vitest run",
+      "test:watch": "vitest",
+      "test:coverage": "vitest run --coverage",
+      "test:integration": "vitest run --config vitest.integration.config.ts",
+      "test:e2e": "playwright test",
+      "lint": "biome check .",
+      "typecheck": "tsc --noEmit"
+    }
+  },
+  "must_have_acceptance_items": [
+    "vitest run зелёный с ≥ 70% coverage на src/ (исключая ui-only)",
+    "playwright spec на main user flow + happy path",
+    "CI запускает все стадии перед merge в main",
+    "factory functions для тестовых данных (не shared mutable fixtures)",
+    "no skipped tests без TODO-comment с issue-id",
+    "test names в формате 'should <expected behavior> when <condition>'",
+    "integration tests изолированы (свежий контейнер или transaction rollback)",
+    "playwright trace включён для failed runs (CI artifact)"
+  ],
+  "anti_patterns_to_warn_about": [
+    "не тестировать implementation details (`expect(useState).toHaveBeenCalled`)",
+    "не sleep/setTimeout в тестах — playwright/testing-library auto-waits",
+    "не shared mutable fixture между тестами → flaky",
+    "не e2e на 200 страниц — это будет 30 минут и flaky; unit/integration покрывают логику",
+    "не coverage 100% любой ценой — это легко гёйминг",
+    "не один гигантский test-file на 2000 строк"
+  ],
+  "estimated_setup_hours": 6,
+  "pairs_well_with": ["backend-mvp", "backend-prod", "frontend-spa"]
+}
