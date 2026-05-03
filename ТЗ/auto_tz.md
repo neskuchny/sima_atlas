@@ -408,10 +408,12 @@ PR-1 закрыт. PR-2 (templates set + pickTemplate) уже закрыт ра�
 PR-2 закрыт. Остаются PR-3..PR-6.
 
 ## PR-3 — Dont-use list (hard constraints)
-- [ ] T3.1: MCP tools `set_dont_use {value, reason}`, `set_always_use {category, value}`, `clear_dont_use {value}`.
-- [ ] T3.2: `guard_against_drift.mjs` читает `atlas/operator_profile/dont_use.json` и расширяет `forbidden_substrings` персональными запретами.
-- [ ] T3.3: validator `validate_dont_use_compliance.mjs` — раз в nightly выкидывает `warning` (не fail) если в активном блоке используется framework из dont_use.
-- [ ] T3.4: UI Inspector: секция `Запреты оператора` со списком и кнопкой `снять запрет`.
+- [x] T3.1: `scripts/manage_dont_use.mjs` экспортирует `setDontUse / clearDontUse / listDontUse / setAlwaysUse / clearAlwaysUse / listAlwaysUse / effectiveDontUseValues`. CLI `add / clear / list / always {add,clear,list} / effective`. MCP tools `set_dont_use / clear_dont_use / list_dont_use / set_always_use / clear_always_use / list_always_use`. **DONE PR-3**.
+- [x] T3.2: `scripts/guard_against_drift.mjs` читает `atlas/operator_profile/dont_use.json` + `profile.dont_use` и сливает с `forbidden_substrings` из tech_stack.md. На блокировку показывает источник (operator_profile/dont_use.json vs tech_stack.md) и команду `manage_dont_use.mjs clear <value>` для снятия личного запрета. **DONE PR-3**.
+- [x] T3.3: `scripts/validate_dont_use_compliance.mjs` — nightly info-only step (exit 0 always). Для каждого блока с `tech_stack ∋ banned` пишет proposal `<UTC>__<block>__dont_use_warning.json` с `hits` + `retry_prompt_hint`. Dedup: skip если pending proposal с тем же набором hits уже есть. **DONE PR-3**.
+- [x] T3.4: UI — `ProfileHintsSection` в `Sima (Remix)/arch_canvas.jsx` (PR-6) уже рендерит секцию запретов с кнопками «🔓 Снять запрет» / «🗑 Забыть урок» / «🗑 Забыть паттерн». В `scripts/atlas_api_server.mjs` добавлены endpoints `/profile/forget`, `/lessons/revoke`, `/dont-use/add` — UI кнопки реально мутируют состояние через MCP-обёрточные вызовы. **DONE PR-3**.
+
+PR-3 закрыт. tests/dont_use_management.selftest.mjs 7 групп зелёный (set/update/clear/missing; alwaysUse round-trip; effectiveDontUseValues sources merge; guard блокирует с цитатой источника + hint; validator пишет dont_use_warning proposal).
 
 ## PR-4 — Lessons LLM analyser
 - [x] T4.1: `scripts/analyze_lessons_from_history.mjs` — `analyzeLessons({window_days, dry_run})` через `b.llm-gateway.callLLM` со схемой `{lessons: [{lesson, evidence[], expires_at}]}`. **DONE PR-4**.

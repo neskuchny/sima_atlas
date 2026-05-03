@@ -27,6 +27,8 @@ const checks = [
   ['operator_profile_lessons_smoke', 'node tests/operator_profile_lessons.smoke.mjs'],
   ['operator_profile_inject_smoke', 'node tests/operator_profile_inject.smoke.mjs'],
   ['analyze_lessons_from_history', 'node scripts/analyze_lessons_from_history.mjs --window-days 30'],
+  ['dont_use_management_selftest', 'node tests/dont_use_management.selftest.mjs'],
+  ['validate_dont_use_compliance', 'node scripts/validate_dont_use_compliance.mjs'],
   ['parse_acceptance_selftest', 'node tests/parse_acceptance.selftest.mjs'],
   ['evidence_collectors_selftest', 'node tests/evidence_collectors.selftest.mjs'],
   ['llm_judge_smoke', 'node tests/llm_judge.smoke.mjs'],

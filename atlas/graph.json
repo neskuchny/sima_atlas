@@ -268,7 +268,10 @@
         "atlas/operator_profile/profile.json",
         "scripts/analyze_lessons_from_history.mjs",
         "tests/operator_profile_lessons.smoke.mjs",
-        "tests/operator_profile_inject.smoke.mjs"
+        "tests/operator_profile_inject.smoke.mjs",
+        "scripts/manage_dont_use.mjs",
+        "scripts/validate_dont_use_compliance.mjs",
+        "tests/dont_use_management.selftest.mjs"
       ]
     },
     {

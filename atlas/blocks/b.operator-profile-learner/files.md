@@ -21,9 +21,9 @@
 - tests/pick_template.selftest.mjs [alive] (PR-2: 8 test groups: scopeFromLayer + invalid scope + each scope returns expected template + canonicalization + warming_up state + profile-driven tech_stack adjustment + dont_use forces alternative)
 
 ## Don't-use (PR-3)
-- atlas/operator_profile/dont_use.json [pending] (PR-3)
-- atlas/operator_profile/always_use.json [pending] (PR-3)
-- scripts/validate_dont_use_compliance.mjs [pending] (PR-3: nightly warning, not fail)
+- scripts/manage_dont_use.mjs [alive]
+- scripts/validate_dont_use_compliance.mjs [alive]
+- tests/dont_use_management.selftest.mjs [alive]
 
 ## Lessons (PR-4)
 - scripts/analyze_lessons_from_history.mjs [alive]

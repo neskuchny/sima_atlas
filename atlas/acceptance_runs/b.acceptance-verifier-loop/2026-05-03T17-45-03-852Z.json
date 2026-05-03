@@ -1,56 +1,12 @@
 {
-  "block_id": "b.user-docs-generator",
-  "source_path": "/home/user/sima_atlas/atlas/blocks/b.user-docs-generator/acceptance.md",
+  "block_id": "b.acceptance-verifier-loop",
+  "source_path": "/home/user/sima_atlas/atlas/blocks/b.acceptance-verifier-loop/acceptance.md",
   "parsed_warnings": [],
   "assertions": [
     {
       "id": "A1",
       "label": null,
-      "text": "PR-1 (block introspection) merged: `scripts/introspect_block_ui.mjs <block_id>` парсит JSX/HTML/route-файлы блока, возвращает `{buttons: [...], inputs: [...], routes: [...], handlers: [...]}`. Selftest на `b.todo-ui` (≥ 5 element types обнаружены).",
-      "checked": false,
-      "line": 3,
-      "evidence_kind": "llm_judge",
-      "evidence_spec": null,
-      "verdict": "skipped",
-      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
-      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
-      "raw": {
-        "judge_verdict": "inconclusive",
-        "provider": "mock",
-        "model": "mock-1",
-        "prompt_hash": "345405c02734afd9",
-        "cost_usd": 0,
-        "cost_capped": false,
-        "evidence_quote": ""
-      },
-      "duration_ms": 0
-    },
-    {
-      "id": "A2",
-      "label": null,
-      "text": "PR-2 (LLM tutorial writer) merged: `scripts/generate_user_docs.mjs <block_id>` через `b.llm-gateway.callLLM` со схемой `UserTutorial` пишет `docs/end-user/<block>.md` + `_meta/<block>.json`. Mock-режим возвращает консистентный markdown.",
-      "checked": false,
-      "line": 4,
-      "evidence_kind": "llm_judge",
-      "evidence_spec": null,
-      "verdict": "skipped",
-      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
-      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
-      "raw": {
-        "judge_verdict": "inconclusive",
-        "provider": "mock",
-        "model": "mock-1",
-        "prompt_hash": "179e4869a84af00d",
-        "cost_usd": 0,
-        "cost_capped": false,
-        "evidence_quote": ""
-      },
-      "duration_ms": 1
-    },
-    {
-      "id": "A3",
-      "label": null,
-      "text": "PR-3 (screenshot integration, опц.) merged: если Playwright настроен и `playwright.config.js` валидный — после генерации текста запускается `playwright test --grep <block_id>` который создаёт `_screenshots/<block>__<flow>.png`; иначе skip без ошибки.",
+      "text": "PR-1 (assertion parser) merged: `scripts/parse_acceptance.mjs` парсит `atlas/blocks/<id>/acceptance.md`, возвращает массив `{id, assertion, evidence_kind, evidence_spec}`. Selftest (≥ 8 cases) на разные форматы acceptance.md существующих блоков (b.llm-gateway/b.docs/b.core-sync).",
       "checked": false,
       "line": 5,
       "evidence_kind": "llm_judge",
@@ -62,7 +18,7 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "eb705f8ba97f1003",
+        "prompt_hash": "ac1f179aad519bb9",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
@@ -70,9 +26,9 @@
       "duration_ms": 0
     },
     {
-      "id": "A4",
+      "id": "A2",
       "label": null,
-      "text": "PR-4 (auto-regen + UI) merged: nightly step `regenerate_user_docs_drift` пересобирает только блоки с изменившимся hash источников; Inspector кнопка «Открыть end-user docs»; pre-commit hook предупреждает при ручной правке без `LOCKED: true`.",
+      "text": "PR-2 (evidence collectors) merged: `scripts/collect_evidence.mjs` поддерживает `exit_code`, `fs_glob`, `file_diff`, `log_grep`, `selftest_run` без LLM-вызова; selftest (≥ 6 cases) на каждый kind зелёный.",
       "checked": false,
       "line": 6,
       "evidence_kind": "llm_judge",
@@ -84,7 +40,7 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "5d1a64c8a79b9aea",
+        "prompt_hash": "85ef0b0d97f39030",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
@@ -92,9 +48,9 @@
       "duration_ms": 0
     },
     {
-      "id": "A5",
+      "id": "A3",
       "label": null,
-      "text": "Idempotency smoke `tests/user_docs.idempotent.smoke.mjs`: regen без изменений → diff пустой; изменили mission.md → diff не пустой и hash в meta обновлён.",
+      "text": "PR-3 (LLM-judge fallback) merged: `scripts/judge_assertion.mjs` через `b.llm-gateway` оценивает пункт без явного evidence_spec; cost ≤ $0.02 per assertion; mock-режим для тестов; smoke green.",
       "checked": false,
       "line": 7,
       "evidence_kind": "llm_judge",
@@ -106,7 +62,7 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "8dce362236115093",
+        "prompt_hash": "944c38b954622434",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
@@ -114,9 +70,9 @@
       "duration_ms": 0
     },
     {
-      "id": "A6",
+      "id": "A4",
       "label": null,
-      "text": "No-jargon validator: post-LLM проверяет, что финальный markdown не содержит {`module`, `component`, `endpoint`, `prop`, `state`, `import`, `function`} вне блока «Под капотом»; на violation — retry с явной подсказкой в prompt (max 1).",
+      "text": "PR-4 (gate hooks) merged: `log_transition.mjs` блокирует `wip → done` если `_latest.json` отсутствует или `verdict !== \"pass\"`; `run_block_implementation.mjs` после exit 0 спавнит verifier; nightly включает `verify_done_blocks_still_green` step.",
       "checked": false,
       "line": 8,
       "evidence_kind": "llm_judge",
@@ -128,7 +84,7 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "8209bf9d6b163e30",
+        "prompt_hash": "979bdf12142436c8",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
@@ -136,9 +92,9 @@
       "duration_ms": 0
     },
     {
-      "id": "A7",
+      "id": "A5",
       "label": null,
-      "text": "Privacy / safety: generator **только** пишет в `atlas/projects/<proj>/docs/end-user/`; pre-commit hook предотвращает запись вне этой директории; никакого кода блока не модифицируется.",
+      "text": "PR-5 (UI) merged: Inspector секция «Acceptance verifier» (зелёные/красные badge per item, click → reasoning + evidence); ProposalsPanel `acceptance_blocked` proposal с retry-кнопкой; smoke (Playwright) подтверждает оба сценария.",
       "checked": false,
       "line": 9,
       "evidence_kind": "llm_judge",
@@ -150,7 +106,7 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "aad0dd23670e6755",
+        "prompt_hash": "6b5d462b0eb80137",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
@@ -158,9 +114,9 @@
       "duration_ms": 0
     },
     {
-      "id": "A8",
+      "id": "A6",
       "label": null,
-      "text": "Localization smoke: `ATLAS_USER_DOCS_LANG=en` → все заголовки и шаги по-английски; default = ru.",
+      "text": "End-to-end smoke `tests/acceptance_verifier.e2e.smoke.mjs`: создать тестовый блок с 3 acceptance items (1 deterministic, 1 LLM-judge, 1 заведомо-fail) → run agent (mock) → verifier даёт verdict=fail с правильным `retry_prompt_hint` → `transition_block done` блокируется.",
       "checked": false,
       "line": 10,
       "evidence_kind": "llm_judge",
@@ -172,7 +128,51 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "060eb7d016a14c0a",
+        "prompt_hash": "e343af944aa64c78",
+        "cost_usd": 0,
+        "cost_capped": false,
+        "evidence_quote": ""
+      },
+      "duration_ms": 0
+    },
+    {
+      "id": "A7",
+      "label": null,
+      "text": "Cache: при повторном вызове без новых коммитов и без новых traces — verdict из `_latest.json` без LLM-вызова; integration test проверяет, что cost_usd на 2-й вызов = 0.",
+      "checked": false,
+      "line": 11,
+      "evidence_kind": "llm_judge",
+      "evidence_spec": null,
+      "verdict": "skipped",
+      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
+      "raw": {
+        "judge_verdict": "inconclusive",
+        "provider": "mock",
+        "model": "mock-1",
+        "prompt_hash": "61bb76d71f489d20",
+        "cost_usd": 0,
+        "cost_capped": false,
+        "evidence_quote": ""
+      },
+      "duration_ms": 1
+    },
+    {
+      "id": "A8",
+      "label": null,
+      "text": "Privacy/safety: verifier не пишет в `acceptance.md` блока (read-only по контракту); pre-commit hook предотвращает.",
+      "checked": false,
+      "line": 12,
+      "evidence_kind": "llm_judge",
+      "evidence_spec": null,
+      "verdict": "skipped",
+      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
+      "raw": {
+        "judge_verdict": "inconclusive",
+        "provider": "mock",
+        "model": "mock-1",
+        "prompt_hash": "0c831397e9f5950c",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
@@ -186,6 +186,6 @@
     "skipped": 8
   },
   "verdict": "inconclusive",
-  "duration_ms": 2,
-  "checked_at": "2026-05-03T17:46:03.002Z"
+  "duration_ms": 3,
+  "checked_at": "2026-05-03T17:45:05.731Z"
 }

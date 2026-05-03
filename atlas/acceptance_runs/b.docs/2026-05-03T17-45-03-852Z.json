@@ -15,17 +15,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_no_template_placeholders.mjs → exit 0 (44ms); first line: \"Template-placeholder validation: OK (10 blocks scanned)\"",
+      "evidence": "node scripts/validate_no_template_placeholders.mjs → exit 0 (46ms); first line: \"Template-placeholder validation: OK (10 blocks scanned)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_no_template_placeholders.mjs",
         "exit_code": 0,
         "stdout": "Template-placeholder validation: OK (10 blocks scanned)\n",
         "stderr": "Template-placeholder validation warnings:\n ⚠ b.smoke-sandbox: tasks.md is suspiciously short (28 chars)\n",
-        "duration_ms": 44,
+        "duration_ms": 46,
         "timed_out": false
       },
-      "duration_ms": 44
+      "duration_ms": 46
     },
     {
       "id": "A2",
@@ -84,19 +84,19 @@
         "min_count": 1
       },
       "verdict": "pass",
-      "evidence": "glob ТЗ/auto_tz.md → 1 files (min=1); newest 1min ago",
+      "evidence": "glob ТЗ/auto_tz.md → 1 files (min=1); newest 8min ago",
       "reasoning": "1 files match (≥1)",
       "raw": {
         "pattern": "ТЗ/auto_tz.md",
         "count": 1,
         "min_count": 1,
         "max_age_min": null,
-        "newest_minutes_ago": 1,
+        "newest_minutes_ago": 8,
         "sample": [
           "/home/user/sima_atlas/ТЗ/auto_tz.md"
         ]
       },
-      "duration_ms": 1
+      "duration_ms": 0
     },
     {
       "id": "A5",
@@ -127,6 +127,6 @@
     "skipped": 2
   },
   "verdict": "fail",
-  "duration_ms": 46,
-  "checked_at": "2026-05-03T17:46:02.586Z"
+  "duration_ms": 48,
+  "checked_at": "2026-05-03T17:45:05.313Z"
 }

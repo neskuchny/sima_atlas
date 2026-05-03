@@ -73,11 +73,41 @@ const techStack = readSafe(path.join(ATLAS, 'tech_stack.md'));
 const forbiddenRegexes = parseFencedSection(techStack, 'forbidden');
 const forbiddenSubstrings = parseFencedSection(techStack, 'forbidden_substrings');
 
-const hit = matchesForbidden(cmd, forbiddenRegexes, forbiddenSubstrings);
+// PR-3 (b.operator-profile-learner): merge personal dont_use bans from
+// atlas/operator_profile/dont_use.json into forbidden_substrings.
+// guard_against_drift treats a personal "never use mongo" the same way it
+// treats project-level "never use vue": exit 1 with a clear reason that
+// cites the source so the operator knows whether to edit tech_stack.md or
+// the profile dont_use list.
+const personalDontUse = [];
+const dontUsePath = path.join(ATLAS, 'operator_profile', 'dont_use.json');
+if (fs.existsSync(dontUsePath)) {
+  try {
+    const j = JSON.parse(fs.readFileSync(dontUsePath, 'utf8'));
+    const arr = Array.isArray(j) ? j : (Array.isArray(j.items) ? j.items : []);
+    for (const it of arr) {
+      const v = typeof it === 'string' ? it : it && it.value;
+      if (v && typeof v === 'string') personalDontUse.push(v);
+    }
+  } catch {}
+}
+// Also merge profile.dont_use (LLM-aggregated; lives in profile.json).
+const profilePath = path.join(ATLAS, 'operator_profile', 'profile.json');
+if (fs.existsSync(profilePath)) {
+  try {
+    const j = JSON.parse(fs.readFileSync(profilePath, 'utf8'));
+    if (Array.isArray(j.dont_use)) for (const v of j.dont_use) if (v) personalDontUse.push(v);
+  } catch {}
+}
+const allSubstrings = forbiddenSubstrings.concat(personalDontUse);
+
+const hit = matchesForbidden(cmd, forbiddenRegexes, allSubstrings);
+const isPersonal = hit && hit.kind === 'substring' && personalDontUse.includes(hit.pattern) && !forbiddenSubstrings.includes(hit.pattern);
 const ts = new Date().toISOString();
 
 if (hit) {
-  const reason = `drift_blocked: command "${cmd}" matched ${hit.kind} "${hit.pattern}" in tech_stack.md`;
+  const source = isPersonal ? 'operator_profile/dont_use.json' : 'tech_stack.md';
+  const reason = `drift_blocked: command "${cmd}" matched ${hit.kind} "${hit.pattern}" in ${source}`;
   const orch = path.join(BLOCKS, 'b.agent-orchestrator', 'checks.log');
   if (fs.existsSync(path.dirname(orch))) {
     fs.appendFileSync(orch, `${ts}\tdrift_guard\tfail\t${reason}\n`, 'utf8');
@@ -85,7 +115,12 @@ if (hit) {
   const transitions = path.join(ATLAS, 'transitions.log');
   fs.appendFileSync(transitions, `${ts}\tdrift_guard\tfail\t${reason}\n`, 'utf8');
   process.stderr.write(`✗ guard_against_drift: ${reason}\n`);
-  process.stderr.write(`  Edit atlas/tech_stack.md if you want to allow this command.\n`);
+  if (isPersonal) {
+    process.stderr.write(`  Source: personal operator dont_use list.\n`);
+    process.stderr.write(`  Lift the ban: node scripts/manage_dont_use.mjs clear ${hit.pattern}\n`);
+  } else {
+    process.stderr.write(`  Edit atlas/tech_stack.md if you want to allow this command.\n`);
+  }
   process.exit(1);
 }
 

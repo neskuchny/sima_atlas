@@ -2348,7 +2348,7 @@ window.SIMA_BOOTSTRAP = {
     }
   },
   "acceptanceSummary": {
-    "generated_at": "2026-05-03T17:37:01.763Z",
+    "generated_at": "2026-05-03T17:46:00.989Z",
     "blocks": [
       {
         "block_id": "b.ui-control",
@@ -2358,7 +2358,7 @@ window.SIMA_BOOTSTRAP = {
           "fail": 0,
           "skipped": 5
         },
-        "duration_ms": 6,
+        "duration_ms": 3,
         "sample_failures": []
       },
       {
@@ -2369,7 +2369,7 @@ window.SIMA_BOOTSTRAP = {
           "fail": 0,
           "skipped": 5
         },
-        "duration_ms": 2,
+        "duration_ms": 3,
         "sample_failures": []
       },
       {
@@ -2391,7 +2391,7 @@ window.SIMA_BOOTSTRAP = {
           "fail": 0,
           "skipped": 2
         },
-        "duration_ms": 1539,
+        "duration_ms": 1540,
         "sample_failures": []
       },
       {
@@ -2402,7 +2402,7 @@ window.SIMA_BOOTSTRAP = {
           "fail": 1,
           "skipped": 2
         },
-        "duration_ms": 44,
+        "duration_ms": 46,
         "sample_failures": [
           {
             "id": "A2",
@@ -2419,7 +2419,7 @@ window.SIMA_BOOTSTRAP = {
           "fail": 0,
           "skipped": 1
         },
-        "duration_ms": 462,
+        "duration_ms": 408,
         "sample_failures": []
       },
       {
@@ -2430,7 +2430,7 @@ window.SIMA_BOOTSTRAP = {
           "fail": 0,
           "skipped": 8
         },
-        "duration_ms": 4,
+        "duration_ms": 3,
         "sample_failures": []
       },
       {
@@ -2441,7 +2441,7 @@ window.SIMA_BOOTSTRAP = {
           "fail": 0,
           "skipped": 8
         },
-        "duration_ms": 3,
+        "duration_ms": 2,
         "sample_failures": []
       },
       {
@@ -2452,7 +2452,7 @@ window.SIMA_BOOTSTRAP = {
           "fail": 0,
           "skipped": 8
         },
-        "duration_ms": 3,
+        "duration_ms": 2,
         "sample_failures": []
       },
       {
@@ -2484,7 +2484,7 @@ window.SIMA_BOOTSTRAP = {
         "fail": 0,
         "skipped": 8
       },
-      "checked_at": "2026-05-03T17:37:03.828Z",
+      "checked_at": "2026-05-03T17:46:03.000Z",
       "assertions": [
         {
           "id": "A1",
@@ -2575,7 +2575,7 @@ window.SIMA_BOOTSTRAP = {
         "fail": 0,
         "skipped": 2
       },
-      "checked_at": "2026-05-03T17:37:03.313Z",
+      "checked_at": "2026-05-03T17:46:02.540Z",
       "assertions": [
         {
           "id": "A1",
@@ -2584,7 +2584,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "exit_code",
-          "evidence": "node scripts/validate_cursor_hooks.mjs → exit 0 (41ms); first line: \"cursor hooks validation: OK (4 events, 4 commands)\"",
+          "evidence": "node scripts/validate_cursor_hooks.mjs → exit 0 (45ms); first line: \"cursor hooks validation: OK (4 events, 4 commands)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -2594,7 +2594,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (481ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
+          "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (461ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -2604,7 +2604,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (433ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
+          "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (510ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
           "reasoning": "shell exit code 0 and stdout matches /9 cases/"
         },
         {
@@ -2614,7 +2614,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (542ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
+          "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (483ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -2644,7 +2644,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": false,
           "verdict": "pass",
           "evidence_kind": "exit_code",
-          "evidence": "node scripts/validate_agent_parity.mjs → exit 0 (41ms); first line: \"Agent parity validation: OK\"",
+          "evidence": "node scripts/validate_agent_parity.mjs → exit 0 (39ms); first line: \"Agent parity validation: OK\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         }
       ]
@@ -2656,7 +2656,7 @@ window.SIMA_BOOTSTRAP = {
         "fail": 0,
         "skipped": 5
       },
-      "checked_at": "2026-05-03T17:37:01.772Z",
+      "checked_at": "2026-05-03T17:46:00.997Z",
       "assertions": [
         {
           "id": "A1",
@@ -2717,7 +2717,7 @@ window.SIMA_BOOTSTRAP = {
         "fail": 0,
         "skipped": 5
       },
-      "checked_at": "2026-05-03T17:37:01.774Z",
+      "checked_at": "2026-05-03T17:46:00.999Z",
       "assertions": [
         {
           "id": "A1",
@@ -2778,7 +2778,7 @@ window.SIMA_BOOTSTRAP = {
         "fail": 1,
         "skipped": 2
       },
-      "checked_at": "2026-05-03T17:37:03.358Z",
+      "checked_at": "2026-05-03T17:46:02.586Z",
       "assertions": [
         {
           "id": "A1",
@@ -2787,7 +2787,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": false,
           "verdict": "pass",
           "evidence_kind": "exit_code",
-          "evidence": "node scripts/validate_no_template_placeholders.mjs → exit 0 (41ms); first line: \"Template-placeholder validation: OK (10 blocks scanned)\"",
+          "evidence": "node scripts/validate_no_template_placeholders.mjs → exit 0 (44ms); first line: \"Template-placeholder validation: OK (10 blocks scanned)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -2817,7 +2817,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": false,
           "verdict": "pass",
           "evidence_kind": "fs_glob",
-          "evidence": "glob ТЗ/auto_tz.md → 1 files (min=1); newest 28min ago",
+          "evidence": "glob ТЗ/auto_tz.md → 1 files (min=1); newest 1min ago",
           "reasoning": "1 files match (≥1)"
         },
         {
@@ -2839,7 +2839,7 @@ window.SIMA_BOOTSTRAP = {
         "fail": 0,
         "skipped": 1
       },
-      "checked_at": "2026-05-03T17:37:03.820Z",
+      "checked_at": "2026-05-03T17:46:02.994Z",
       "assertions": [
         {
           "id": "A1",
@@ -2848,7 +2848,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/llm_gateway.selftest.mjs → exit 0 (62ms); first line: \"llm_gateway.selftest: OK (4 cases)\"",
+          "evidence": "node tests/llm_gateway.selftest.mjs → exit 0 (55ms); first line: \"llm_gateway.selftest: OK (4 cases)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -2858,7 +2858,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node scripts/simulate_conversation_branches.mjs → exit 0 (303ms); first line: \"PASS: created b.realtime-ingestion in graph.json\"",
+          "evidence": "node scripts/simulate_conversation_branches.mjs → exit 0 (264ms); first line: \"PASS: created b.realtime-ingestion in graph.json\"",
           "reasoning": "shell exit code 0 and stdout matches /simulate_conversation_branches: OK/"
         },
         {
@@ -2878,8 +2878,8 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "fs_glob",
-          "evidence": "glob atlas/llm_traces/*.json → 1508 files (min=1); newest 0min ago",
-          "reasoning": "1508 files match (≥1)"
+          "evidence": "glob atlas/llm_traces/*.json → 1764 files (min=1); newest 0min ago",
+          "reasoning": "1764 files match (≥1)"
         },
         {
           "id": "A5",
@@ -2888,7 +2888,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/llm_extraction.eval.mjs → exit 0 (72ms); first line: \"llm_extraction.eval — overall avg=1.000 (cases=30/30)\"",
+          "evidence": "node tests/llm_extraction.eval.mjs → exit 0 (62ms); first line: \"llm_extraction.eval — overall avg=1.000 (cases=30/30)\"",
           "reasoning": "shell exit code 0 and stdout matches /overall avg=/"
         }
       ]
@@ -2900,7 +2900,7 @@ window.SIMA_BOOTSTRAP = {
         "fail": 0,
         "skipped": 8
       },
-      "checked_at": "2026-05-03T17:37:03.824Z",
+      "checked_at": "2026-05-03T17:46:02.998Z",
       "assertions": [
         {
           "id": "A1",
@@ -2991,7 +2991,7 @@ window.SIMA_BOOTSTRAP = {
         "fail": 0,
         "skipped": 3
       },
-      "checked_at": "2026-05-03T17:37:03.834Z",
+      "checked_at": "2026-05-03T17:46:03.003Z",
       "assertions": [
         {
           "id": "A1",
@@ -3032,7 +3032,7 @@ window.SIMA_BOOTSTRAP = {
         "fail": 0,
         "skipped": 5
       },
-      "checked_at": "2026-05-03T17:37:01.769Z",
+      "checked_at": "2026-05-03T17:46:00.993Z",
       "assertions": [
         {
           "id": "A1",
@@ -3093,7 +3093,7 @@ window.SIMA_BOOTSTRAP = {
         "fail": 0,
         "skipped": 8
       },
-      "checked_at": "2026-05-03T17:37:03.832Z",
+      "checked_at": "2026-05-03T17:46:03.002Z",
       "assertions": [
         {
           "id": "A1",
@@ -3180,7 +3180,7 @@ window.SIMA_BOOTSTRAP = {
   },
   "operatorProfile": {
     "operator_id": "default",
-    "updated_at": "2026-05-03T17:37:01.087Z",
+    "updated_at": "2026-05-03T17:46:00.058Z",
     "_status": "warming_up",
     "_min_data": {
       "done_transitions": 2,
@@ -3191,8 +3191,8 @@ window.SIMA_BOOTSTRAP = {
     "_preview": {
       "total_done": 2,
       "total_invocations": 3,
-      "total_traces": 1473,
-      "total_proposals": 32
+      "total_traces": 1729,
+      "total_proposals": 36
     }
   },
   "operatorLessons": [],

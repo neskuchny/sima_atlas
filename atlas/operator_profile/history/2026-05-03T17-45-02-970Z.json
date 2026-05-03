@@ -1,6 +1,6 @@
 {
   "operator_id": "default",
-  "updated_at": "2026-05-03T17:46:00.058Z",
+  "updated_at": "2026-05-03T17:45:02.970Z",
   "_status": "warming_up",
   "_min_data": {
     "done_transitions": 2,
@@ -11,7 +11,7 @@
   "_preview": {
     "total_done": 2,
     "total_invocations": 3,
-    "total_traces": 1729,
-    "total_proposals": 36
+    "total_traces": 1601,
+    "total_proposals": 34
   }
 }

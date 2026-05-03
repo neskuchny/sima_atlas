@@ -53,6 +53,12 @@ function toolList(){
     { name:'add_lesson', description:'PR-4 (b.operator-profile-learner): manually add an operator lesson with ≥ 2 evidence items.', inputSchema:{ type:'object', properties:{ lesson:{type:'string'}, evidence:{type:'array', items:{type:'string'}}, expires_at:{type:'string'} }, required:['lesson','evidence'] } },
     { name:'revoke_lesson', description:'PR-4 (b.operator-profile-learner): revoke a stored lesson by id.', inputSchema:{ type:'object', properties:{ lesson_id:{type:'string'} }, required:['lesson_id'] } },
     { name:'analyze_lessons', description:'PR-4 (b.operator-profile-learner): trigger LLM-driven lessons analysis over the last N days of fail records.', inputSchema:{ type:'object', properties:{ window_days:{type:'number'}, dry_run:{type:'boolean'} } } },
+    { name:'list_dont_use', description:'PR-3 (b.operator-profile-learner): list operator dont_use bans.', inputSchema:{ type:'object', properties:{} } },
+    { name:'set_dont_use', description:'PR-3 (b.operator-profile-learner): add (or update reason of) a personal dont_use ban — guard_against_drift will block matching shell commands and ProposalsPanel will mark conflicting proposals.', inputSchema:{ type:'object', properties:{ value:{type:'string'}, reason:{type:'string'} }, required:['value'] } },
+    { name:'clear_dont_use', description:'PR-3 (b.operator-profile-learner): remove a personal dont_use ban.', inputSchema:{ type:'object', properties:{ value:{type:'string'} }, required:['value'] } },
+    { name:'list_always_use', description:'PR-3 (b.operator-profile-learner): list operator always_use entries (category → value).', inputSchema:{ type:'object', properties:{} } },
+    { name:'set_always_use', description:'PR-3 (b.operator-profile-learner): pin a category default (e.g. language=typescript). Surfaces in inject_context_pack alongside dont_use.', inputSchema:{ type:'object', properties:{ category:{type:'string'}, value:{type:'string'}, reason:{type:'string'} }, required:['category','value'] } },
+    { name:'clear_always_use', description:'PR-3 (b.operator-profile-learner): remove an always_use pin.', inputSchema:{ type:'object', properties:{ category:{type:'string'}, value:{type:'string'} }, required:['category','value'] } },
 
   ];
 }
@@ -467,6 +473,57 @@ rl.on('line', (line) => {
         const dry = args.dry_run ? '--dry-run' : '';
         const out = execSync(`node scripts/analyze_lessons_from_history.mjs --window-days ${wd} --json ${dry}`, { cwd: root, stdio: 'pipe' }).toString().trim();
         return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'list_dont_use') {
+        const out = execSync('node scripts/manage_dont_use.mjs list --json', { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out || '[]' }] });
+      }
+      if (name === 'set_dont_use') {
+        const value = String(args.value || '');
+        const reason = String(args.reason || '');
+        if (!value) return respondErr(id, 'set_dont_use: value required');
+        const cmd = reason
+          ? `node scripts/manage_dont_use.mjs add ${JSON.stringify(value)} ${JSON.stringify(reason)} --json`
+          : `node scripts/manage_dont_use.mjs add ${JSON.stringify(value)} --json`;
+        const out = execSync(cmd, { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'clear_dont_use') {
+        const value = String(args.value || '');
+        if (!value) return respondErr(id, 'clear_dont_use: value required');
+        try {
+          const out = execSync(`node scripts/manage_dont_use.mjs clear ${JSON.stringify(value)} --json`, { cwd: root, stdio: 'pipe' }).toString().trim();
+          return respond(id, { content:[{ type:'text', text: out }] });
+        } catch (e) {
+          // exit 2 on not_found is normal — surface message anyway
+          return respond(id, { content:[{ type:'text', text: (e.stdout || '').toString().trim() || JSON.stringify({ cleared: false, reason: 'not_found' }) }] });
+        }
+      }
+      if (name === 'list_always_use') {
+        const out = execSync('node scripts/manage_dont_use.mjs always list --json', { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out || '[]' }] });
+      }
+      if (name === 'set_always_use') {
+        const cat = String(args.category || '');
+        const value = String(args.value || '');
+        const reason = String(args.reason || '');
+        if (!cat || !value) return respondErr(id, 'set_always_use: category + value required');
+        const cmd = reason
+          ? `node scripts/manage_dont_use.mjs always add ${JSON.stringify(cat)} ${JSON.stringify(value)} ${JSON.stringify(reason)} --json`
+          : `node scripts/manage_dont_use.mjs always add ${JSON.stringify(cat)} ${JSON.stringify(value)} --json`;
+        const out = execSync(cmd, { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'clear_always_use') {
+        const cat = String(args.category || '');
+        const value = String(args.value || '');
+        if (!cat || !value) return respondErr(id, 'clear_always_use: category + value required');
+        try {
+          const out = execSync(`node scripts/manage_dont_use.mjs always clear ${JSON.stringify(cat)} ${JSON.stringify(value)} --json`, { cwd: root, stdio: 'pipe' }).toString().trim();
+          return respond(id, { content:[{ type:'text', text: out }] });
+        } catch (e) {
+          return respond(id, { content:[{ type:'text', text: (e.stdout || '').toString().trim() || JSON.stringify({ cleared: false, reason: 'not_found' }) }] });
+        }
       }
       if (name === 'list_failed_acceptances') {
         const dir = path.join(atlasRoot, 'acceptance_runs');

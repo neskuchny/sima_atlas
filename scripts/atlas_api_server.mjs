@@ -154,6 +154,52 @@ const server = http.createServer((req, res) => {
         const out = runNode(['scripts/list_proposals.mjs', '--write-index', '--json']);
         return json(res, 200, { ok: true, out });
       }
+      // PR-3 (b.operator-profile-learner): UI-friendly mutation endpoints
+      // matching the Inspector ProfileHintsSection buttons.
+      if (req.url === '/profile/forget') {
+        const kind = String(body.kind || '');
+        if (kind === 'dont_use') {
+          const items = Array.isArray(body.items) ? body.items : (body.value ? [body.value] : []);
+          if (!items.length) return json(res, 400, { ok: false, error: 'items or value required' });
+          const cleared = [];
+          for (const v of items) {
+            try {
+              const out = execFileSync('node', ['scripts/manage_dont_use.mjs', 'clear', String(v), '--json'], { cwd: ROOT, stdio: 'pipe' }).toString().trim();
+              cleared.push({ value: v, result: out });
+            } catch {
+              cleared.push({ value: v, result: 'not_found' });
+            }
+          }
+          return json(res, 200, { ok: true, kind, cleared });
+        }
+        if (kind === 'pattern') {
+          // tech_stack_history is derived; "forget" is a UI hint for next
+          // recompute. We log it but don't mutate state.
+          const note = `forget_pattern: scope=${body.scope} items=${(body.items || []).join(',')}`;
+          return json(res, 200, { ok: true, kind, note });
+        }
+        return json(res, 400, { ok: false, error: 'unknown kind: ' + kind });
+      }
+      if (req.url === '/lessons/revoke') {
+        const lid = String(body.lesson_id || '');
+        if (!lid) return json(res, 400, { ok: false, error: 'lesson_id required' });
+        try {
+          const out = execFileSync('node', ['scripts/analyze_lessons_from_history.mjs', 'revoke', lid], { cwd: ROOT, stdio: 'pipe' }).toString().trim();
+          return json(res, 200, { ok: true, out });
+        } catch (e) {
+          return json(res, 200, { ok: false, error: 'not_found', stderr: (e.stderr || '').toString().slice(0, 500) });
+        }
+      }
+      if (req.url === '/dont-use/add') {
+        const value = String(body.value || '');
+        const reason = String(body.reason || '');
+        if (!value) return json(res, 400, { ok: false, error: 'value required' });
+        const args = ['scripts/manage_dont_use.mjs', 'add', value];
+        if (reason) args.push(reason);
+        args.push('--json');
+        const out = execFileSync('node', args, { cwd: ROOT, stdio: 'pipe' }).toString().trim();
+        return json(res, 200, { ok: true, out });
+      }
       // PR4.5: run the configured coding agent on a block
       if (req.url === '/run-block') {
         const blockId = String(body.block_id || '');
