@@ -614,11 +614,13 @@ PR-3 закрыт. Wired into `collect_evidence.mjs` → llm_judge case тепе
 PR-4 закрыт. Verifier теперь — реальный hard gate против `wip → done`. Остаётся PR-5 (UI surface).
 
 ## PR-5 — UI surface
-- [ ] T5.1: Inspector секция «Acceptance verifier» (под mission блока): зелёный badge `5/5 pass` или красный `3/5 — A2/A4 fail`.
-- [ ] T5.2: Click на красный пункт → раскрытие с `reasoning + evidence + retry_prompt_hint` + кнопка «Скопировать как prompt для retry».
-- [ ] T5.3: ProposalsPanel: новый тип proposal `acceptance_blocked` с кнопкой «Прогнать снова с подсказкой» → дёргает `/run-block` с `retry_prompt_hint` в prompt.
-- [ ] T5.4: Под mission блока — счётчик «последний прогон: 30 секунд назад / 2 минуты назад / out-of-date».
-- [ ] T5.5: Playwright smoke screenshots для обоих сценариев (pass / fail).
+- [x] T5.1: AcceptanceSection в `Sima (Remix)/arch_canvas.jsx` — секция «Acceptance verifier» в ArchInspector над «Слой». Цветной badge: ✓ зелёный `pass · N/M`, ✗ красный `fail · K/M (X fail)`, · оранжевый `inconclusive`. Список assertions с tick-mark + evidence_kind + текстом. **DONE PR-5**.
+- [x] T5.2: Click на красный/skipped пункт → expand с `evidence + reasoning + 📋 Скопировать как prompt для retry` (формирует готовый промпт со ссылкой на assertion + evidence + reasoning + fix command для следующего агент-прогона). **DONE PR-5**.
+- [x] T5.3: ProposalsPanel — специализированная карточка для `kind === 'acceptance_regression'`: красный фон, sample_failures с evidence снимками, кнопка «🔁 Прогнать снова с подсказкой» → `POST /run-block {block_id, prompt: retry_prompt_hint}` (использует существующий endpoint), Accept (→ broken) красный, Reject ghost. accept_proposal.mjs расширен: понимает новый shape `proposal.proposed.{status, status_reason}` (только safe fields) для kind=acceptance_regression. **DONE PR-5**.
+- [x] T5.4: Под названием секции — relative-time stamp («last run: 30 sec ago / 5 min ago / 2h ago / 3d ago»). **DONE PR-5**.
+- [ ] T5.5: Playwright smoke screenshots — отложено до общего Playwright setup (сейчас Playwright не настроен в проекте; это часть b.user-docs-generator PR-3).
+
+PR-5 закрыт (T5.1-T5.4). T5.5 отложен в b.user-docs-generator.
 
 ## Stretch (post-PR5)
 - [ ] S1: Авто-retry loop (max 2) при `auto_retry: true` — экспериментальный режим, по умолчанию off.

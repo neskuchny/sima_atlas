@@ -549,6 +549,7 @@ function ArchInspector({ projectId, selectedBlockId, onOpenSubschema, onPatch, s
           </ul>
         </div>
       )}
+      <AcceptanceSection blockId={block.id}/>
       <div className="field">
         <label>Слой</label>
         <div style={{display:'flex',alignItems:'center',gap:6,fontSize:12}}>
@@ -608,4 +609,115 @@ function ArchInspector({ projectId, selectedBlockId, onOpenSubschema, onPatch, s
   );
 }
 
-Object.assign(window, { ArchCanvas, ArchInspector });
+function relativeTime(iso) {
+  if (!iso) return null;
+  const ms = Date.now() - Date.parse(iso);
+  if (Number.isNaN(ms) || ms < 0) return null;
+  const s = Math.floor(ms / 1000);
+  if (s < 60) return s + ' sec ago';
+  const m = Math.floor(s / 60);
+  if (m < 60) return m + ' min ago';
+  const h = Math.floor(m / 60);
+  if (h < 24) return h + 'h ago';
+  return Math.floor(h / 24) + 'd ago';
+}
+
+// PR-5 (b.acceptance-verifier-loop): per-block verifier verdict panel.
+// Reads window.SIMA_BOOTSTRAP.acceptanceRuns[blockId] which the bootstrap
+// generator populates from atlas/acceptance_runs/<block>/_latest.json.
+function AcceptanceSection({ blockId }) {
+  const [expanded, setExpanded] = React.useState({});
+  const [copied, setCopied] = React.useState(null);
+  const run = ((window.SIMA_BOOTSTRAP && window.SIMA_BOOTSTRAP.acceptanceRuns) || {})[blockId];
+  if (!run) {
+    return (
+      <div className="field" style={{
+        background: 'rgba(122,106,79,0.04)', border: '1px solid #e7e3d8',
+        borderRadius: 6, padding: '8px 10px', marginBottom: 8,
+      }}>
+        <label style={{ color: 'var(--ink-3)', fontWeight: 600 }}>Acceptance verifier</label>
+        <div style={{ fontSize: 11, color: 'var(--ink-4)', marginTop: 2 }}>
+          Прогон не запускался. Запусти: <code style={{fontSize:10}}>node scripts/verify_block_acceptance.mjs {blockId}</code>
+        </div>
+      </div>
+    );
+  }
+  const verdict = run.verdict;
+  const counts = run.counts || { pass: 0, fail: 0, skipped: 0 };
+  const total = counts.pass + counts.fail + counts.skipped;
+  const verdictColor = verdict === 'pass' ? '#059669' : verdict === 'fail' ? '#b91c1c' : '#9a3412';
+  const verdictBg = verdict === 'pass' ? 'rgba(5,150,105,0.06)' : verdict === 'fail' ? 'rgba(220,38,38,0.06)' : 'rgba(217,119,6,0.06)';
+  const verdictBorder = verdict === 'pass' ? '#bbf7d0' : verdict === 'fail' ? '#fecaca' : '#fed7aa';
+  const verdictLabel = verdict === 'pass' ? '✓ pass' : verdict === 'fail' ? '✗ fail' : '· inconclusive';
+  const summary = verdict === 'fail'
+    ? counts.pass + '/' + total + ' (' + counts.fail + ' fail)'
+    : counts.pass + '/' + total + (counts.skipped ? ' (' + counts.skipped + ' skipped)' : '');
+
+  function copyRetryPrompt(a) {
+    const hint = 'Acceptance assertion ' + a.id + ' of block ' + blockId + ' is failing.\n'
+      + 'Assertion: ' + a.text + '\n'
+      + 'Evidence: ' + (a.evidence || '') + '\n'
+      + 'Reasoning: ' + (a.reasoning || '') + '\n'
+      + 'Fix the underlying issue, then re-run: node scripts/verify_block_acceptance.mjs ' + blockId;
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(hint);
+      } else {
+        const ta = document.createElement('textarea');
+        ta.value = hint; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+      }
+      setCopied(a.id);
+      setTimeout(() => setCopied(null), 1500);
+    } catch (e) {}
+  }
+
+  const tick = (v) => v === 'pass' ? '✓' : v === 'fail' ? '✗' : '·';
+  const tickColor = (v) => v === 'pass' ? '#059669' : v === 'fail' ? '#b91c1c' : 'var(--ink-4)';
+
+  return (
+    <div className="field" style={{
+      background: verdictBg, border: '1px solid ' + verdictBorder,
+      borderRadius: 6, padding: '8px 10px', marginBottom: 8,
+    }}>
+      <label style={{ color: verdictColor, fontWeight: 600 }}>
+        Acceptance verifier · {verdictLabel} · {summary}
+      </label>
+      <div style={{ fontSize: 10.5, color: 'var(--ink-4)', marginTop: 1 }}>
+        last run: {relativeTime(run.checked_at) || run.checked_at}
+      </div>
+      <ul style={{ margin: '6px 0 0 0', padding: 0, fontSize: 11, lineHeight: 1.5, listStyle: 'none' }}>
+        {(run.assertions || []).map((a) => {
+          const isOpen = !!expanded[a.id];
+          const canExpand = a.verdict !== 'pass';
+          return (
+            <li key={a.id} style={{ borderTop: '1px solid rgba(0,0,0,0.04)', padding: '4px 0' }}>
+              <div
+                onClick={() => canExpand && setExpanded({ ...expanded, [a.id]: !isOpen })}
+                style={{ cursor: canExpand ? 'pointer' : 'default', display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                <span style={{ color: tickColor(a.verdict), fontWeight: 600, width: 12 }}>{tick(a.verdict)}</span>
+                <b style={{ width: 28 }}>{a.id}</b>
+                <span style={{ fontSize: 9.5, color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{a.evidence_kind}</span>
+                <span style={{ flex: 1, color: 'var(--ink-3)' }}>{(a.text || '').slice(0, 60)}{(a.text || '').length > 60 ? '…' : ''}</span>
+                {canExpand && <span style={{ fontSize: 9, color: 'var(--ink-4)' }}>{isOpen ? '▾' : '▸'}</span>}
+              </div>
+              {canExpand && isOpen && (
+                <div style={{ marginLeft: 18, marginTop: 4, fontSize: 10.5, color: 'var(--ink-3)' }}>
+                  {a.evidence && <div style={{ marginBottom: 4 }}><b>evidence:</b> {a.evidence}</div>}
+                  {a.reasoning && <div style={{ marginBottom: 6 }}><b>reasoning:</b> {a.reasoning}</div>}
+                  {a.verdict === 'fail' && (
+                    <button className="btn xs" onClick={(e) => { e.stopPropagation(); copyRetryPrompt(a); }}
+                      style={{ fontSize: 10 }}>
+                      {copied === a.id ? '✓ Скопировано' : '📋 Скопировать как prompt для retry'}
+                    </button>
+                  )}
+                </div>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+Object.assign(window, { ArchCanvas, ArchInspector, AcceptanceSection });

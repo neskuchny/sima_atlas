@@ -85,7 +85,60 @@ function ProposalsPanel() {
     <div className="side-sec">
       <h4 className="sec-ttl">Предложения LLM <span style={{ color: 'var(--orange-ink)' }}>· {proposals.length}</span></h4>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {proposals.map((p) => (
+        {proposals.map((p) => {
+          // PR-5 (b.acceptance-verifier-loop): specialised card for
+          // acceptance_regression — surfaces sample failures + a one-click
+          // retry button that re-runs the configured agent on the block with
+          // the verifier's retry_prompt_hint pre-pended.
+          if (p.kind === 'acceptance_regression') {
+            return (
+              <div key={p.id} style={{
+                border: '1px solid #fecaca', borderRadius: 8, padding: 10, background: '#fef2f2',
+              }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#b91c1c' }}>
+                  ✗ {p.block_id}
+                  <span style={{ marginLeft: 8, fontWeight: 400, fontSize: 10, color: 'var(--ink-4)' }}>
+                    acceptance_regression · {p.counts?.fail || 0}/{(p.counts?.pass || 0) + (p.counts?.fail || 0) + (p.counts?.skipped || 0)} fail
+                  </span>
+                </div>
+                <div style={{ fontSize: 10.5, color: 'var(--ink-3)', margin: '6px 0' }}>
+                  was <b>done</b> → propose <b style={{color:'#b91c1c'}}>broken</b>
+                </div>
+                {(p.sample_failures || []).slice(0, 3).map((sf) => (
+                  <div key={sf.id} style={{ fontSize: 10.5, marginTop: 4, paddingLeft: 8, borderLeft: '2px solid #fecaca' }}>
+                    <b>{sf.id}</b>: <span style={{ color: 'var(--ink-3)' }}>{(sf.evidence || '').slice(0, 140)}</span>
+                  </div>
+                ))}
+                {p.retry_prompt_hint && (
+                  <div style={{ fontSize: 10, color: 'var(--ink-4)', marginTop: 6, fontStyle: 'italic' }}>
+                    hint: {p.retry_prompt_hint.slice(0, 160)}{p.retry_prompt_hint.length > 160 ? '…' : ''}
+                  </div>
+                )}
+                <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
+                  <button className="btn xs" disabled={busy}
+                    style={{ background: '#b91c1c', color: '#fff', borderColor: '#b91c1c' }}
+                    onClick={() => callServer('/proposals/accept', { proposal_id: p.id })}>
+                    Accept (→ broken)
+                  </button>
+                  {p.retry_prompt_hint && (
+                    <button className="btn xs" disabled={busy}
+                      style={{ background: '#1e40af', color: '#fff', borderColor: '#1e40af' }}
+                      onClick={() => callServer('/run-block', { block_id: p.block_id, prompt: p.retry_prompt_hint })}>
+                      🔁 Прогнать снова с подсказкой
+                    </button>
+                  )}
+                  <button className="btn xs ghost" disabled={busy}
+                    onClick={() => {
+                      const reason = prompt('Причина отклонения (опционально):') || '';
+                      callServer('/proposals/reject', { proposal_id: p.id, reason });
+                    }}>
+                    Reject
+                  </button>
+                </div>
+              </div>
+            );
+          }
+          return (
           <div key={p.id} style={{
             border: '1px solid var(--line-2)', borderRadius: 8, padding: 10, background: '#fff7ed',
           }}>
@@ -132,7 +185,8 @@ function ProposalsPanel() {
               </button>
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
       {!serverOk && (
         <div style={{ marginTop: 8, padding: 8, background: '#fef2f2', borderRadius: 6, fontSize: 10.5, color: '#7f1d1d' }}>

@@ -65,7 +65,10 @@ async function run() {
       created_at: new Date().toISOString(),
       source: { detector: 'verify_done_blocks_still_green' },
       current: { status: 'done' },
-      proposed: { status: 'broken', reason: `acceptance verifier verdict=${r.verdict}` },
+      proposed: {
+        status: 'broken',
+        status_reason: `acceptance regressed: verdict=${r.verdict} (pass=${r.counts?.pass}, fail=${r.counts?.fail}, skipped=${r.counts?.skipped}); see acceptance_runs/${b.id}/_latest.json`,
+      },
       counts: r.counts,
       sample_failures: sample,
       retry_prompt_hint: sample.length

@@ -67,6 +67,21 @@ if (Array.isArray(c.tech_stack_add) && c.tech_stack_add.length) {
   applied.push(`tech_stack+=[${c.tech_stack_add.join(',')}]`);
 }
 
+// PR-5 (b.acceptance-verifier-loop): proposals with kind='acceptance_regression'
+// (and any future shape that puts the change inside proposed.<field> rather
+// than changes.<field>) carry simple field overwrites. Apply only known-safe
+// fields so we don't accidentally let an LLM-built proposal rewrite mission.
+if (proposal.proposed && typeof proposal.proposed === 'object') {
+  const safeFields = ['status', 'status_reason'];
+  for (const f of safeFields) {
+    const v = proposal.proposed[f];
+    if (typeof v === 'string' && v && block[f] !== v) {
+      block[f] = v;
+      applied.push(`${f}=${v}`);
+    }
+  }
+}
+
 fs.writeFileSync(GRAPH_PATH, JSON.stringify(graph, null, 2) + '\n', 'utf8');
 
 // Append trace into the block's checks.log

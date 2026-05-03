@@ -22,8 +22,14 @@
 - tests/acceptance_verifier.e2e.smoke.mjs [alive]
 
 ## UI (PR-5)
-- Sima (Remix)/inspector_acceptance_section.jsx [pending] (PR-5)
-- Sima (Remix)/proposals_panel_acceptance_blocked.jsx [pending] (PR-5)
+PR-5 touches files owned by other blocks (UI host blocks own JSX; bootstrap
+generator is owned by b.ui-control). Cross-cutting changes are documented
+in checks.log + tasks.md (not listed here because files.md only enumerates
+this block's own owned files):
+
+  • `Sima (Remix)/arch_canvas.jsx` (owned by b.ui-control) gained AcceptanceSection
+  • `Sima (Remix)/proposals_panel.jsx` (owned by b.llm-gateway) gained acceptance_regression card
+  • `scripts/generate_atlas_bootstrap_js.mjs` (owned by b.ui-control) now exposes acceptanceRuns + acceptanceSummary in the payload
 
 ## Documentation
 - atlas/blocks/b.acceptance-verifier-loop/mission.md [alive]
