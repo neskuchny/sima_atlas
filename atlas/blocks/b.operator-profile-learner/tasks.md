@@ -3,14 +3,16 @@
 Разбит на 6 PR-ов по образцу PR3 (LLM gateway) и PR3.5 (proposals flow). Каждый PR — независимо мержабельный.
 
 ## PR-1 — Data collector (без LLM)
-- [ ] T1.1: создать `scripts/aggregate_operator_profile.mjs` — single entry point read-only.
-- [ ] T1.2: реализовать readers: `readChecksLogs`, `readTransitions`, `readProposals`, `readAgentInvocations`, `readLlmTraces`, `readCursorObservations`, `readDecisionsLogs`, `readPatterns`, `readTechStacks`.
-- [ ] T1.3: aggregator: вычисляет `work_style.median_time_idea_to_done_h`, `agents_used.{claude|openai|gemini}.success_rate`, `tech_stack_history` с frequency × satisfaction (satisfaction = 1 - rollback_rate).
-- [ ] T1.4: writer: пишет `atlas/operator_profile/profile.json` + `patterns/*.json` + snapshot в `history/<UTC>.json`.
-- [ ] T1.5: min-data guard: если transitions < 5 И invocations < 10 → пишет profile.json с `_status: "warming_up"` и пустые patterns; downstream'ы это видят и молчат.
-- [ ] T1.6: selftest `tests/operator_profile.selftest.mjs` (≥ 6 case с фиксированными fixtures).
-- [ ] T1.7: интеграция в `nightly_consolidation.mjs` как `aggregate_operator_profile` step.
-- [ ] T1.8: MCP tool `read_operator_profile` (read-only).
+- [x] T1.1: создать `scripts/aggregate_operator_profile.mjs` — single entry point read-only. **DONE PR-1**.
+- [x] T1.2: readers: `readChecksLogs`, `readTransitions`, `readProposals`, `readLlmTraces`, `readDecisionsLogs`, `readPatternsCounts`, `readTechStacks`. (`readCursorObservations` отложен до PR-1.5 — у нас нет реальных данных в `atlas/process_runs/cursor_observations/` сегодня.) **DONE PR-1**.
+- [x] T1.3: aggregator: `work_style.median_time_idea_to_done_h` через linear scan + median; `agents_used.<x>.{count, success_rate, blocks_touched}`; `tech_stack_history.<scope>` с satisfaction inferred из rollback_rate per block (high < 0.1, medium < 0.3, low ≥ 0.3); `proposals_stats.{accept_rate, reject_rate}`; `llm_provider_stats.<provider>.{fallback_rate, schema_ok_rate, avg_cost_usd}`. **DONE PR-1**.
+- [x] T1.4: writer: пишет `atlas/operator_profile/profile.json` + `patterns/{work_style,agents,tech_stack,environment,failures}.json` + snapshot в `history/<UTC>.json`. **DONE PR-1**.
+- [x] T1.5: min-data guard: env `OPERATOR_PROFILE_MIN_DONE` (default 5) И `OPERATOR_PROFILE_MIN_INVOCATIONS` (default 10). При < threshold → `_status: "warming_up"`, агрегаты не пишутся в верхний уровень profile, patterns/*.json получают `{_status: "warming_up"}`, а `_preview` всегда содержит счётчики для UI ("3/5 done, 8/10 invocations"). **DONE PR-1**.
+- [x] T1.6: selftest `tests/operator_profile.selftest.mjs` — 7 групп (empty / below threshold / at threshold / work_style median+rollback / agents_used / tech_stack satisfaction / proposals accept-rate). **DONE PR-1**.
+- [x] T1.7: интеграция в `nightly_consolidation.mjs` как `operator_profile_selftest` + `aggregate_operator_profile` steps. **DONE PR-1**.
+- [x] T1.8: MCP tools `read_operator_profile` + `recompute_operator_profile`. **DONE PR-1**.
+
+PR-1 закрыт. PR-2 (templates set + pickTemplate) уже закрыт ранее. Live переключение `warming_up → live` сработает когда оператор пройдёт 5 done транзишнов или 10 agent_invocations.
 
 ## PR-2 — Templates set
 - [x] T2.1: написать 4 JSON-шаблона `atlas/operator_profile/templates/{backend-mvp,backend-prod,frontend-spa,testing-stack}.json` с дефолтным стеком. **DONE in PR-Backlog**: starter templates + applicability + must_have_acceptance + anti-patterns + scaffold + estimated_hours.

@@ -3,15 +3,14 @@
 Все пути с тегом `[pending]` — *планируемые* (status: idea). Реальные `[alive]` помечаются по мере мержа PR-1…PR-6.
 
 ## Aggregator + storage (PR-1)
-- scripts/aggregate_operator_profile.mjs [pending] (PR-1: read-only агрегатор всех 10 источников)
-- atlas/operator_profile/profile.json [pending] (PR-1: главная карточка оператора)
-- atlas/operator_profile/patterns/work_style.json [pending] (PR-1)
-- atlas/operator_profile/patterns/agents.json [pending] (PR-1)
-- atlas/operator_profile/patterns/tech_stack.json [pending] (PR-1)
-- atlas/operator_profile/patterns/environment.json [pending] (PR-1)
-- atlas/operator_profile/patterns/failures.json [pending] (PR-1)
-- atlas/operator_profile/history/.gitkeep [pending] (PR-1: snapshot per nightly)
-- tests/operator_profile.selftest.mjs [pending] (PR-1)
+- scripts/aggregate_operator_profile.mjs [alive]
+- atlas/operator_profile/profile.json [alive]
+- atlas/operator_profile/patterns/work_style.json [alive]
+- atlas/operator_profile/patterns/agents.json [alive]
+- atlas/operator_profile/patterns/tech_stack.json [alive]
+- atlas/operator_profile/patterns/environment.json [alive]
+- atlas/operator_profile/patterns/failures.json [alive]
+- tests/operator_profile.selftest.mjs [alive]
 
 ## Templates (PR-2)
 - atlas/operator_profile/templates/backend-mvp.json [alive]

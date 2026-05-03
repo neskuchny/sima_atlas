@@ -466,11 +466,11 @@ window.SIMA_BOOTSTRAP = {
                 "body": "Адаптивный модуль, который наблюдает за тем, **как именно** работает конкретный пользователь Атласа, запоминает его рабочие паттерны / стек / запреты / уроки из неудач, и адаптируе",
                 "hasSubschema": false,
                 "sources": [
-                  "scripts/aggregate_operator_profile.mjs [pending] (PR-1: read-only агрегатор всех 10 источников)",
-                  "atlas/operator_profile/profile.json [pending] (PR-1: главная карточка оператора)",
-                  "atlas/operator_profile/patterns/work_style.json [pending] (PR-1)",
-                  "atlas/operator_profile/patterns/agents.json [pending] (PR-1)",
-                  "atlas/operator_profile/patterns/tech_stack.json [pending] (PR-1)"
+                  "scripts/aggregate_operator_profile.mjs [alive]",
+                  "atlas/operator_profile/profile.json [alive]",
+                  "atlas/operator_profile/patterns/work_style.json [alive]",
+                  "atlas/operator_profile/patterns/agents.json [alive]",
+                  "atlas/operator_profile/patterns/tech_stack.json [alive]"
                 ]
               },
               {
@@ -1700,11 +1700,11 @@ window.SIMA_BOOTSTRAP = {
           "w": 210,
           "note": "Адаптивный модуль, который наблюдает за тем, **как именно** работает конкретный пользователь Атласа, запоминает его рабочие паттерны / стек / запреты / уроки из неудач, и адаптируе",
           "sources": [
-            "scripts/aggregate_operator_profile.mjs [pending] (PR-1: read-only агрегатор всех 10 источников)",
-            "atlas/operator_profile/profile.json [pending] (PR-1: главная карточка оператора)",
-            "atlas/operator_profile/patterns/work_style.json [pending] (PR-1)",
-            "atlas/operator_profile/patterns/agents.json [pending] (PR-1)",
-            "atlas/operator_profile/patterns/tech_stack.json [pending] (PR-1)"
+            "scripts/aggregate_operator_profile.mjs [alive]",
+            "atlas/operator_profile/profile.json [alive]",
+            "atlas/operator_profile/patterns/work_style.json [alive]",
+            "atlas/operator_profile/patterns/agents.json [alive]",
+            "atlas/operator_profile/patterns/tech_stack.json [alive]"
           ],
           "tech_stack": [
             "nodejs",

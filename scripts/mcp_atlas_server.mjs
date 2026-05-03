@@ -41,6 +41,8 @@ function toolList(){
     { name:'accept_proposal', description:'PR3.5: accept a pending LLM proposal — applies structural changes to graph.json + checks.log trace', inputSchema:{ type:'object', properties:{ proposal_id:{type:'string'} }, required:['proposal_id'] } },
     { name:'reject_proposal', description:'PR3.5: reject a pending LLM proposal with a reason', inputSchema:{ type:'object', properties:{ proposal_id:{type:'string'}, reason:{type:'string'} }, required:['proposal_id'] } },
     { name:'run_block_implementation', description:'PR4.5: run the configured coding agent (claude / codex / cursor) on the given block; writes prompt to atlas/agent_invocations/ and logs an agent_invocation check', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, prompt:{type:'string'}, agent:{type:'string'} }, required:['block_id'] } },
+    { name:'read_operator_profile', description:'PR-1 (b.operator-profile-learner): read aggregated operator profile (profile.json). When no profile exists yet — returns warming_up.', inputSchema:{ type:'object', properties:{} } },
+    { name:'recompute_operator_profile', description:'PR-1 (b.operator-profile-learner): re-aggregate operator profile from current repo signals (transitions / checks.log / llm_traces / proposals). Idempotent.', inputSchema:{ type:'object', properties:{} } },
 
   ];
 }
@@ -382,6 +384,18 @@ rl.on('line', (line) => {
         const agentEnv = args.agent ? { ATLAS_AGENT: String(args.agent) } : {};
         const cmdArgs = userPrompt ? [bid, '--', userPrompt] : [bid];
         const out = execSync(`node scripts/run_block_implementation.mjs ${cmdArgs.map(a => JSON.stringify(a)).join(' ')}`, { cwd: root, stdio:'pipe', env: { ...process.env, ...agentEnv } }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+
+      if (name === 'read_operator_profile') {
+        const p = path.join(atlasRoot, 'operator_profile', 'profile.json');
+        if (!fs.existsSync(p)) {
+          return respond(id, { content:[{ type:'text', text: JSON.stringify({ _status: 'warming_up', _note: 'profile.json not generated yet — run aggregate_operator_profile.mjs first.' }) }] });
+        }
+        return respond(id, { content:[{ type:'text', text: fs.readFileSync(p, 'utf8') }] });
+      }
+      if (name === 'recompute_operator_profile') {
+        const out = execSync('node scripts/aggregate_operator_profile.mjs', { cwd: root, stdio: 'pipe' }).toString().trim();
         return respond(id, { content:[{ type:'text', text: out }] });
       }
 

@@ -262,7 +262,10 @@
         "atlas/operator_profile/templates/frontend-spa.json",
         "atlas/operator_profile/templates/testing-stack.json",
         "scripts/pick_template.mjs",
-        "tests/pick_template.selftest.mjs"
+        "tests/pick_template.selftest.mjs",
+        "scripts/aggregate_operator_profile.mjs",
+        "tests/operator_profile.selftest.mjs",
+        "atlas/operator_profile/profile.json"
       ]
     },
     {
