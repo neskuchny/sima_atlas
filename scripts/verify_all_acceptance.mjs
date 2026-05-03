@@ -23,7 +23,7 @@ const ROOT = path.resolve(path.dirname(__filename), '..');
 const ATLAS = path.join(ROOT, 'atlas');
 const RUNS_DIR = path.join(ATLAS, 'acceptance_runs');
 
-function run() {
+async function run() {
   const graph = JSON.parse(fs.readFileSync(path.join(ATLAS, 'graph.json'), 'utf8'));
   const blocks = graph.blocks || [];
   const ts = new Date().toISOString();
@@ -41,7 +41,7 @@ function run() {
       continue;
     }
 
-    const r = verifyBlock(b.id);
+    const r = await verifyBlock(b.id);
     const blockDir = path.join(RUNS_DIR, b.id);
     fs.mkdirSync(blockDir, { recursive: true });
     fs.writeFileSync(path.join(blockDir, `${tsSafe}.json`), JSON.stringify(r, null, 2) + '\n', 'utf8');
@@ -83,7 +83,7 @@ function run() {
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const summary = run();
+  const summary = await run();
   if (process.argv.includes('--json')) {
     console.log('---');
     console.log(JSON.stringify(summary, null, 2));

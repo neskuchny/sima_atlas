@@ -530,7 +530,7 @@ window.SIMA_BOOTSTRAP = {
                   "tests/parse_acceptance.selftest.mjs [alive]",
                   "scripts/collect_evidence.mjs [alive]",
                   "tests/evidence_collectors.selftest.mjs [alive]",
-                  "scripts/judge_assertion.mjs [pending] (PR-3)"
+                  "scripts/judge_assertion.mjs [alive]"
                 ]
               },
               {
@@ -1805,7 +1805,7 @@ window.SIMA_BOOTSTRAP = {
             "tests/parse_acceptance.selftest.mjs [alive]",
             "scripts/collect_evidence.mjs [alive]",
             "tests/evidence_collectors.selftest.mjs [alive]",
-            "scripts/judge_assertion.mjs [pending] (PR-3)"
+            "scripts/judge_assertion.mjs [alive]"
           ],
           "tech_stack": [
             "nodejs",

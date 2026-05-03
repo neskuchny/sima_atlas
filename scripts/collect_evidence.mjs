@@ -33,6 +33,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { parseAcceptance } from './parse_acceptance.mjs';
+import { judgeAssertion } from './judge_assertion.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(__filename), '..');
@@ -248,8 +249,44 @@ function collectLogGrep(spec) {
   };
 }
 
+// ─────────────────────────────────────────── llm_judge (PR-3)
+async function collectLlmJudge(spec, { block_id, assertion } = {}) {
+  // The dispatcher passes the whole assertion object via `_judge_input` so the
+  // judge can build a context-aware prompt without re-parsing acceptance.md.
+  if (!assertion || !assertion.id) {
+    return { verdict: 'skipped', evidence: 'llm_judge requires assertion context', reasoning: 'collectEvidence({evidence_kind:"llm_judge"}) called without {assertion, block_id} context — only verifyBlock() supplies it', raw: { spec }, duration_ms: 0 };
+  }
+  const t0 = Date.now();
+  let r;
+  try {
+    r = await judgeAssertion({ assertion, block_id });
+  } catch (e) {
+    return { verdict: 'fail', evidence: `judge_assertion threw: ${e.message}`, reasoning: 'LLM-judge crashed', raw: { error: e.message }, duration_ms: Date.now() - t0 };
+  }
+  // Map judge verdict → collector verdict. inconclusive → skipped (so the
+  // overall block verdict logic stays unchanged: skipped doesn't block, fail
+  // does).
+  const verdict = r.verdict === 'inconclusive' ? 'skipped' : r.verdict;
+  const tail = r.evidence_quote ? `; quote: "${r.evidence_quote.slice(0, 200)}"` : '';
+  return {
+    verdict,
+    evidence: `LLM judge → ${r.verdict} via ${r.provider}/${r.model || '?'} (${r.cost_usd ? '$' + r.cost_usd.toFixed(5) : '$0'})${tail}`,
+    reasoning: r.reasoning,
+    raw: {
+      judge_verdict: r.verdict,
+      provider: r.provider,
+      model: r.model,
+      prompt_hash: r.prompt_hash,
+      cost_usd: r.cost_usd,
+      cost_capped: r.cost_capped,
+      evidence_quote: r.evidence_quote,
+    },
+    duration_ms: r.duration_ms,
+  };
+}
+
 // ─────────────────────────────────────────── dispatcher
-export function collectEvidence({ evidence_kind, evidence_spec, cwd, timeout_ms } = {}) {
+export async function collectEvidence({ evidence_kind, evidence_spec, cwd, timeout_ms, block_id, assertion } = {}) {
   const opts = { cwd, timeout_ms };
   switch (evidence_kind) {
     case 'exit_code':
@@ -262,29 +299,33 @@ export function collectEvidence({ evidence_kind, evidence_spec, cwd, timeout_ms 
     case 'log_grep':
       return { evidence_kind, ...collectLogGrep(evidence_spec) };
     case 'llm_judge':
-      return { evidence_kind, verdict: 'skipped', evidence: 'llm_judge — defer to PR-3', reasoning: 'LLM-judge collector not yet implemented (PR-3 of b.acceptance-verifier-loop)', raw: {}, duration_ms: 0 };
+      return { evidence_kind, ...(await collectLlmJudge(evidence_spec, { block_id, assertion })) };
     default:
       return { evidence_kind, verdict: 'fail', evidence: `unknown evidence_kind: ${evidence_kind}`, reasoning: `evidence_kind must be one of: exit_code, fs_glob, file_diff, log_grep, selftest_run, llm_judge`, raw: { evidence_kind }, duration_ms: 0 };
   }
 }
 
 // ─────────────────────────────────────────── verifyBlock (parser + collectors)
-export function verifyBlock(blockId, opts = {}) {
+export async function verifyBlock(blockId, opts = {}) {
   const parsed = parseAcceptance(blockId, opts.atlas_root);
   const t0 = Date.now();
-  const enriched = parsed.assertions.map((a) => {
-    const result = collectEvidence({
+  const enriched = [];
+  for (const a of parsed.assertions) {
+    const result = await collectEvidence({
       evidence_kind: a.evidence_kind,
       evidence_spec: a.evidence_spec,
       cwd: opts.cwd,
       timeout_ms: opts.timeout_ms,
+      block_id: blockId,
+      assertion: a,
     });
-    return { ...a, ...result };
-  });
+    enriched.push({ ...a, ...result });
+  }
   const counts = { pass: 0, fail: 0, skipped: 0 };
   for (const a of enriched) counts[a.verdict] = (counts[a.verdict] || 0) + 1;
-  // Block verdict: pass iff ZERO fails and ≥1 pass (skipped doesn't block —
-  // it just means PR-3 LLM-judge needs to run on those before final gate).
+  // Block verdict: fail iff ANY fail; pass iff ≥1 pass and 0 fails; otherwise
+  // (all skipped) inconclusive. PR-4 will turn fail into a hard gate against
+  // wip → done transitions.
   const verdict = counts.fail > 0 ? 'fail' : (counts.pass > 0 ? 'pass' : 'inconclusive');
   return {
     block_id: blockId,
@@ -305,7 +346,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   if (argv.includes('--block')) {
     const blockId = argv[argv.indexOf('--block') + 1];
     if (!blockId) { console.error('--block requires a block_id'); process.exit(1); }
-    const r = verifyBlock(blockId);
+    const r = await verifyBlock(blockId);
     if (json) { console.log(JSON.stringify(r, null, 2)); }
     else {
       const tick = (v) => v === 'pass' ? '✓' : v === 'fail' ? '✗' : v === 'skipped' ? '·' : '?';
@@ -319,7 +360,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     const kind = argv[argv.indexOf('--kind') + 1];
     const specRaw = argv.includes('--spec') ? argv[argv.indexOf('--spec') + 1] : '{}';
     let spec; try { spec = JSON.parse(specRaw); } catch (e) { console.error('--spec must be JSON:', e.message); process.exit(1); }
-    const r = collectEvidence({ evidence_kind: kind, evidence_spec: spec });
+    const r = await collectEvidence({ evidence_kind: kind, evidence_spec: spec });
     if (json) { console.log(JSON.stringify(r, null, 2)); }
     else { console.log(`[${kind}] ${r.verdict}: ${r.evidence}`); }
   } else {

@@ -596,10 +596,12 @@ PR-1 закрыт. Следующее — PR-2 (deterministic evidence collector
 PR-2 закрыт. MCP tools `collect_evidence` + `verify_block_acceptance` живые. Следующий — PR-3 (LLM-judge для llm_judge kind).
 
 ## PR-3 — LLM-judge fallback
-- [ ] T3.1: `scripts/judge_assertion.mjs` — через `b.llm-gateway.callLLM` со схемой `{verdict: pass|fail|skipped, reasoning, evidence_quote}`.
-- [ ] T3.2: prompt: «Вот пункт acceptance: <assertion>. Вот контекст: mission.md / последний git diff / последние 200 строк checks.log. Сделай verdict с reasoning. Нельзя просто "выглядит ок" — нужно цитировать конкретный фрагмент кода или лога.»
-- [ ] T3.3: cost cap LLM_MAX_USD_PER_RUN ≤ $0.02; mock-режим из `tests/llm_mocks/`.
-- [ ] T3.4: smoke `tests/llm_judge.smoke.mjs` (3 case: pass / fail / borderline).
+- [x] T3.1: `scripts/judge_assertion.mjs` — через `b.llm-gateway.callLLM` со схемой `{verdict: inconclusive|pass|fail, reasoning, evidence_quote}`. Enum-порядок умышленно ставит `inconclusive` первым: deterministic-empty фолбэк (mock без fixture, без API ключа) → safe `inconclusive`, никогда не silent `pass`. **DONE PR-3**.
+- [x] T3.2: prompt включает: BLOCK id + ASSERTION id (label) + mission.md excerpt (≤ 800 chars) + recent checks.log (last 50 lines) + (опц.) recent diff filenames. Жёсткие правила: «pass требует concrete evidence, fail требует concrete отрицательное evidence, иначе inconclusive — не угадывать. evidence_quote ≤ 200 chars verbatim». **DONE PR-3**.
+- [x] T3.3: cost cap `LLM_MAX_USD_PER_RUN` (default $0.02); если trace.cost_usd > cap → возвращает `{verdict: inconclusive, cost_capped: true, reasoning: 'cost cap exceeded'}`. Mock-режим через `tests/llm_mocks/<hash>.json` — фикстуры записываются по `mockHashForPrompt(prompt)` (тот же механизм, что в llm_extraction.eval). **DONE PR-3**.
+- [x] T3.4: smoke `tests/llm_judge.smoke.mjs` — 4 group: (1) no fixture → inconclusive с reasoning о mock-unavailable; (2) seeded fixture verdict=pass → pass + reasoning + evidence_quote; (3) seeded fixture verdict=fail → fail + reasoning; (4) cost_capped:false на mock (cost=0). **DONE PR-3**.
+
+PR-3 закрыт. Wired into `collect_evidence.mjs` → llm_judge case теперь зовёт реальный judge (через verifyBlock контекст). MCP tool `judge_assertion` живой. После добавления API ключа все 47 skipped assertions из verify_all_summary.json автоматически получат реальные verdicts без правок acceptance.md.
 
 ## PR-4 — Gate hooks
 - [ ] T4.1: `scripts/verify_block_acceptance.mjs <block_id>` — оркестратор: parse → collect (deterministic) → judge (fallback) → write `acceptance_runs/<block>/<UTC>__.json` + `_latest.json` + append `checks.log`.

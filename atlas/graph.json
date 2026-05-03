@@ -295,7 +295,9 @@
         "scripts/collect_evidence.mjs",
         "tests/evidence_collectors.selftest.mjs",
         "scripts/verify_all_acceptance.mjs",
-        "atlas/acceptance_runs/_summary.json"
+        "atlas/acceptance_runs/_summary.json",
+        "scripts/judge_assertion.mjs",
+        "tests/llm_judge.smoke.mjs"
       ]
     },
     {

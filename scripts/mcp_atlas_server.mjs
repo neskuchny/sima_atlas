@@ -46,6 +46,7 @@ function toolList(){
     { name:'parse_acceptance', description:'PR-1 (b.acceptance-verifier-loop): parse atlas/blocks/<id>/acceptance.md into structured assertions (id, label, text, checked, evidence_kind, evidence_spec). Default evidence_kind = llm_judge when not declared in YAML block.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} }, required:['block_id'] } },
     { name:'collect_evidence', description:'PR-2 (b.acceptance-verifier-loop): run a single deterministic evidence collector. evidence_kind ∈ {exit_code, fs_glob, file_diff, log_grep, selftest_run}. Returns {verdict, evidence, reasoning, raw, duration_ms}.', inputSchema:{ type:'object', properties:{ evidence_kind:{type:'string'}, evidence_spec:{type:'object'} }, required:['evidence_kind','evidence_spec'] } },
     { name:'verify_block_acceptance', description:'PR-2 (b.acceptance-verifier-loop): parse acceptance.md AND collect evidence per assertion in one shot. Returns {block_id, assertions: [...], counts: {pass, fail, skipped}, verdict}.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} }, required:['block_id'] } },
+    { name:'judge_assertion', description:'PR-3 (b.acceptance-verifier-loop): LLM-judge fallback for an individual assertion. Returns {verdict: pass|fail|inconclusive, reasoning, evidence_quote, cost_usd, provider}. Inconclusive on missing API key — never silent pass.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, assertion_id:{type:'string'} }, required:['block_id','assertion_id'] } },
 
   ];
 }
@@ -419,6 +420,13 @@ rl.on('line', (line) => {
         const bid = String(args.block_id || '');
         if (!bid) return respondErr(id, 'verify_block_acceptance: block_id required');
         const out = execSync(`node scripts/collect_evidence.mjs --block ${JSON.stringify(bid)} --json`, { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'judge_assertion') {
+        const bid = String(args.block_id || '');
+        const aid = String(args.assertion_id || '');
+        if (!bid || !aid) return respondErr(id, 'judge_assertion: block_id + assertion_id required');
+        const out = execSync(`node scripts/judge_assertion.mjs --block ${JSON.stringify(bid)} --id ${JSON.stringify(aid)} --json`, { cwd: root, stdio: 'pipe' }).toString().trim();
         return respond(id, { content:[{ type:'text', text: out }] });
       }
 

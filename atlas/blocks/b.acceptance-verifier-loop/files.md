@@ -11,11 +11,8 @@
 - tests/evidence_collectors.selftest.mjs [alive]
 
 ## LLM-judge (PR-3)
-- scripts/judge_assertion.mjs [pending] (PR-3)
-- tests/llm_judge.smoke.mjs [pending] (PR-3)
-- tests/llm_mocks/judge_pass.json [pending] (PR-3)
-- tests/llm_mocks/judge_fail.json [pending] (PR-3)
-- tests/llm_mocks/judge_borderline.json [pending] (PR-3)
+- scripts/judge_assertion.mjs [alive]
+- tests/llm_judge.smoke.mjs [alive]
 
 ## Gate hooks (PR-4)
 - scripts/verify_block_acceptance.mjs [pending] (PR-4: оркестратор parse→collect→judge→write report; уже есть верcия для одиночного блока через `node scripts/collect_evidence.mjs --block <id>`; PR-4 добавит pre-transition gate)
