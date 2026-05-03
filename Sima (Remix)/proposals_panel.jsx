@@ -94,6 +94,16 @@ function ProposalsPanel() {
               <span style={{ marginLeft: 8, fontWeight: 400, fontSize: 10, color: 'var(--ink-4)' }}>
                 {p.source?.provider || '?'} · c={p.source?.confidence?.toFixed?.(2) ?? '?'}
               </span>
+              {p.suggested_template_id && (
+                <span
+                  title={`Стартовый шаблон Атласа · профиль: ${p.suggested_template_profile_state || 'warming_up'}`}
+                  style={{
+                    marginLeft: 8, padding: '1px 6px', fontSize: 10, fontWeight: 500,
+                    background: '#dbeafe', color: '#1e3a8a', borderRadius: 4, border: '1px solid #93c5fd',
+                  }}>
+                  template: {p.suggested_template_id}
+                </span>
+              )}
             </div>
             <div style={{ fontSize: 10.5, color: 'var(--ink-3)', margin: '4px 0' }}>
               {Object.entries(p.changes || {}).slice(0, 6).map(([k, v]) => (

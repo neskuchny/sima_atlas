@@ -399,9 +399,11 @@ atlas/operator_profile/
 
 ## PR-2 — Templates set
 - [x] T2.1: написать 4 JSON-шаблона `atlas/operator_profile/templates/{backend-mvp,backend-prod,frontend-spa,testing-stack}.json` с дефолтным стеком. **DONE in PR-Backlog**: starter templates + applicability + must_have_acceptance + anti-patterns + scaffold + estimated_hours.
-- [ ] T2.2: `pickTemplate(scope, profile)` — функция, возвращающая шаблон, скорректированный под `tech_stack_history` оператора.
-- [ ] T2.3: интегрировать в `analyze_conversation_to_atlas.mjs`: если LLM вернул блок без `tech_stack` — подмешать `pickTemplate` и пометить `suggested_template_id` в proposal.
-- [ ] T2.4: UI ProposalsPanel: badge `template: backend-mvp` рядом с tech_stack.
+- [x] T2.2: `pickTemplate(scope, profile)` — `scripts/pick_template.mjs` с экспортами `pickTemplate / scopeFromLayer / flattenTechStack`. Поддерживает adjustments по `tech_stack_history` (winner: uses ≥ 3 + satisfaction === 'high') и по `dont_use`. CLI: `node scripts/pick_template.mjs <backend|frontend|testing> [--json]`. Selftest 8 групп зелёный. **DONE PR-2**.
+- [x] T2.3: интеграция в `analyze_conversation_to_atlas.mjs` — для каждого extracted блока без `tech_stack` подмешивает шаблон по `scopeFromLayer(block.layer)`, заполняет `tech_stack` flat-listом и пишет `suggested_template_id` + `suggested_template_scope` + `suggested_template_profile_state` + `suggested_template_adjustments` в proposal JSON. Подтверждено: `simulate_conversation_branches.mjs` на mock LLM привязал backend-mvp к b.core-sync proposal. **DONE PR-2**.
+- [x] T2.4: ProposalsPanel — badge `template: backend-mvp` рядом с провайдером/confidence; tooltip показывает profile_state (warming_up / live). **DONE PR-2**.
+
+PR-2 закрыт. Остаются PR-3..PR-6.
 
 ## PR-3 — Dont-use list (hard constraints)
 - [ ] T3.1: MCP tools `set_dont_use {value, reason}`, `set_always_use {category, value}`, `clear_dont_use {value}`.

@@ -14,10 +14,12 @@
 - tests/operator_profile.selftest.mjs [pending] (PR-1)
 
 ## Templates (PR-2)
-- atlas/operator_profile/templates/backend-mvp.json [alive] (PR-2-pre: design templates landed in PR-Backlog as starter set; PR-2 wires pickTemplate() into analyze_conversation_to_atlas)
-- atlas/operator_profile/templates/backend-prod.json [alive] (PR-2-pre)
-- atlas/operator_profile/templates/frontend-spa.json [alive] (PR-2-pre)
-- atlas/operator_profile/templates/testing-stack.json [alive] (PR-2-pre)
+- atlas/operator_profile/templates/backend-mvp.json [alive]
+- atlas/operator_profile/templates/backend-prod.json [alive]
+- atlas/operator_profile/templates/frontend-spa.json [alive]
+- atlas/operator_profile/templates/testing-stack.json [alive]
+- scripts/pick_template.mjs [alive] (PR-2: pickTemplate(scope, profile?) + scopeFromLayer + flattenTechStack; CLI for inspection)
+- tests/pick_template.selftest.mjs [alive] (PR-2: 8 test groups: scopeFromLayer + invalid scope + each scope returns expected template + canonicalization + warming_up state + profile-driven tech_stack adjustment + dont_use forces alternative)
 
 ## Don't-use (PR-3)
 - atlas/operator_profile/dont_use.json [pending] (PR-3)

@@ -21,6 +21,7 @@ const checks = [
   ['atlas_selftest', 'node tests/atlas_sync.selftest.mjs'],
   ['bootstrap_layered_smoke', 'node tests/atlas_bootstrap.smoke.mjs'],
   ['llm_gateway_selftest', 'node tests/llm_gateway.selftest.mjs'],
+  ['pick_template_selftest', 'node tests/pick_template.selftest.mjs'],
   ['seed_llm_mocks', 'node scripts/seed_llm_mocks.mjs'],
   ['llm_extraction_eval', 'node tests/llm_extraction.eval.mjs'],
   ['simulate_conversation_branches', 'node scripts/simulate_conversation_branches.mjs'],

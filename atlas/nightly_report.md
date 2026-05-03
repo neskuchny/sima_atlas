@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-05-03T04:32:02.914Z_
+_Generated: 2026-05-03T04:39:00.880Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -13,7 +13,7 @@ _Generated: 2026-05-03T04:32:02.914Z_
 - ✅ no_template_placeholders: ok
   - output: Template-placeholder validation: OK (10 blocks scanned)
 - ✅ files_registry: ok
-  - output: Files registry validation: OK (alive=155, archived=4, dead=0)
+  - output: Files registry validation: OK (alive=157, archived=4, dead=0)
 - ✅ projects_contracts: ok
   - output: validate_projects: OK (1 projects, 5 blocks)
 - ✅ subschemas_contracts: ok
@@ -28,6 +28,8 @@ _Generated: 2026-05-03T04:32:02.914Z_
   - output: atlas_bootstrap smoke: OK (layers=6, blocks=10, links=21)
 - ✅ llm_gateway_selftest: ok
   - output: llm_gateway.selftest: OK (4 cases)
+- ✅ pick_template_selftest: ok
+  - output: pick_template.selftest: OK (8 test groups, all assertions green)
 - ✅ seed_llm_mocks: ok
   - output: seed_llm_mocks: 0 written, 30 unchanged, 30 total
 - ✅ llm_extraction_eval: ok
@@ -65,4 +67,4 @@ _Generated: 2026-05-03T04:32:02.914Z_
 - ✅ intelligence_health: ok
   - output: Intelligence health: 1 (10/10)
 
-Summary: PASS (31/31)
+Summary: PASS (32/32)

@@ -19,6 +19,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { extractBlockSchema } from './llm_gateway.mjs';
+import { pickTemplate, scopeFromLayer } from './pick_template.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(__filename), '..');
@@ -100,6 +101,26 @@ if (!proposed.length) {
   process.exit(0);
 }
 
+// PR-2 (b.operator-profile-learner): if the LLM extracted a block without an
+// explicit tech_stack, pick a starter template based on the block's layer
+// (logic/data → backend, front/user → frontend, testing → testing) and stamp
+// the proposal with `suggested_template_id`. The starter template is also
+// adjusted by operator profile when one exists (warming_up → no-op).
+let templatesAttached = 0;
+for (const p of proposed) {
+  if (Array.isArray(p.tech_stack) && p.tech_stack.length) continue;
+  const scope = scopeFromLayer(p.layer);
+  if (!scope) continue;
+  const t = pickTemplate({ scope });
+  if (!t) continue;
+  p.tech_stack = t.flat_tech_stack;
+  p.suggested_template_id = t.template_id;
+  p.suggested_template_scope = t.scope;
+  p.suggested_template_profile_state = t.profile_state;
+  p.suggested_template_adjustments = t.adjustments;
+  templatesAttached += 1;
+}
+
 let createdNew = 0;
 let proposalsWritten = 0;
 const touched = [];
@@ -160,6 +181,9 @@ for (const proposal of proposed) {
       },
       proposed: proposal,
       changes,
+      suggested_template_id: proposal.suggested_template_id ?? null,
+      suggested_template_scope: proposal.suggested_template_scope ?? null,
+      suggested_template_profile_state: proposal.suggested_template_profile_state ?? null,
       verdict: 'pending',
     }, null, 2) + '\n', 'utf8');
     proposalsWritten += 1;
@@ -199,7 +223,7 @@ for (const id of touched) {
 appendOrchestratorTrace('applied', extraction.trace, touched.length);
 
 console.log(
-  `semantic_ingestion: applied ${touched.length} blocks (new=${createdNew}, proposals=${proposalsWritten}, provider=${extraction.trace?.provider})`
+  `semantic_ingestion: applied ${touched.length} blocks (new=${createdNew}, proposals=${proposalsWritten}, templates_attached=${templatesAttached}, provider=${extraction.trace?.provider})`
 );
 
 // ─────────────────────────────────────────────────────────── helpers

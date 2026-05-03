@@ -260,7 +260,9 @@
         "atlas/operator_profile/templates/backend-mvp.json",
         "atlas/operator_profile/templates/backend-prod.json",
         "atlas/operator_profile/templates/frontend-spa.json",
-        "atlas/operator_profile/templates/testing-stack.json"
+        "atlas/operator_profile/templates/testing-stack.json",
+        "scripts/pick_template.mjs",
+        "tests/pick_template.selftest.mjs"
       ]
     },
     {
