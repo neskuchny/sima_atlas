@@ -550,6 +550,7 @@ function ArchInspector({ projectId, selectedBlockId, onOpenSubschema, onPatch, s
         </div>
       )}
       <AcceptanceSection blockId={block.id}/>
+      <ProfileHintsSection blockId={block.id}/>
       <div className="field">
         <label>Слой</label>
         <div style={{display:'flex',alignItems:'center',gap:6,fontSize:12}}>
@@ -720,4 +721,182 @@ function AcceptanceSection({ blockId }) {
   );
 }
 
-Object.assign(window, { ArchCanvas, ArchInspector, AcceptanceSection });
+// PR-6 (b.operator-profile-learner): per-block profile hints panel.
+// - warming_up → quiet status with N/M counters
+// - live → list 3-5 hints from profile.work_style + tech_stack_history +
+//          recent lessons; click on a hint reveals its evidence (block_ids
+//          from history) and offers «Снять запрет» / «Забыть паттерн» when
+//          that hint is a dont_use entry or a personal-history-derived rule.
+function ProfileHintsSection({ blockId }) {
+  const [openId, setOpenId] = React.useState(null);
+  const [busy, setBusy] = React.useState(false);
+  const profile = (window.SIMA_BOOTSTRAP && window.SIMA_BOOTSTRAP.operatorProfile) || null;
+  const lessons = (window.SIMA_BOOTSTRAP && window.SIMA_BOOTSTRAP.operatorLessons) || [];
+  const dontUse = (window.SIMA_BOOTSTRAP && window.SIMA_BOOTSTRAP.operatorDontUse) || [];
+
+  if (!profile) return null;
+  if (profile._status === 'warming_up') {
+    const pv = profile._preview || {};
+    const md = profile._min_data || {};
+    return (
+      <div className="field" style={{
+        background: 'rgba(122,106,79,0.04)', border: '1px solid #e7e3d8',
+        borderRadius: 6, padding: '8px 10px', marginBottom: 8,
+      }}>
+        <label style={{ color: 'var(--ink-3)', fontWeight: 600 }}>Подсказки от профиля</label>
+        <div style={{ fontSize: 11, color: 'var(--ink-4)', marginTop: 2 }}>
+          Профиль ещё учится: {pv.total_done || 0}/{md.done_required || 5} done,{' '}
+          {pv.total_invocations || 0}/{md.invocations_required || 10} invocations.
+        </div>
+      </div>
+    );
+  }
+
+  const hints = [];
+  const ws = profile.work_style || {};
+  if (ws.median_time_idea_to_done_h) {
+    hints.push({
+      id: 'h-median',
+      kind: 'info',
+      text: `Обычно проходит idea→done за ~${Math.round(ws.median_time_idea_to_done_h * 10) / 10}h.`,
+      evidence: [`${ws.total_done || 0} done transitions`],
+      revocable: false,
+    });
+  }
+  if (typeof ws.rollback_rate === 'number' && ws.rollback_rate > 0.1) {
+    hints.push({
+      id: 'h-rollback',
+      kind: 'warn',
+      text: `Rollback-rate ${Math.round(ws.rollback_rate * 100)}% — будь осторожен с непроверенными решениями.`,
+      evidence: [`${ws.total_broken || 0} broken / ${ws.total_done || 0} done`],
+      revocable: false,
+    });
+  }
+  const techHist = profile.tech_stack_history || {};
+  for (const scope of ['frontend', 'backend', 'testing']) {
+    const top = (techHist[scope] || []).filter((x) => x.uses >= 2 && x.satisfaction === 'high').slice(0, 3);
+    if (top.length) {
+      hints.push({
+        id: `h-tech-${scope}`,
+        kind: 'info',
+        text: `${scope}: предпочитает ${top.map((x) => x.name).join(', ')}.`,
+        evidence: top.flatMap((x) => x.evidence || []).slice(0, 6),
+        revocable: true,
+        revokeKind: 'forget_pattern',
+        revokePayload: { scope, items: top.map((x) => x.name) },
+      });
+    }
+  }
+  if (Array.isArray(profile.dont_use) && profile.dont_use.length) {
+    hints.push({
+      id: 'h-dont-use-profile',
+      kind: 'block',
+      text: `НИКОГДА не использует: ${profile.dont_use.join(', ')}.`,
+      evidence: ['profile.dont_use'],
+      revocable: true,
+      revokeKind: 'clear_dont_use',
+      revokePayload: { items: profile.dont_use },
+    });
+  }
+  if (dontUse.length) {
+    hints.push({
+      id: 'h-dont-use-explicit',
+      kind: 'block',
+      text: `Запреты оператора: ${dontUse.join(', ')}.`,
+      evidence: ['operator_profile/dont_use.json'],
+      revocable: true,
+      revokeKind: 'clear_dont_use',
+      revokePayload: { items: dontUse },
+    });
+  }
+  // Lessons (unexpired, last 3) — also revocable
+  const now = Date.now();
+  const fresh = lessons.filter((l) => !l.expires_at || Date.parse(l.expires_at) > now);
+  for (const l of fresh.slice(-3)) {
+    hints.push({
+      id: 'h-lesson-' + (l.id || l.lesson || '').slice(0, 24),
+      kind: 'lesson',
+      text: l.lesson,
+      evidence: l.evidence || [],
+      revocable: !!l.id,
+      revokeKind: 'revoke_lesson',
+      revokePayload: { lesson_id: l.id },
+    });
+  }
+
+  if (!hints.length) return null;
+
+  async function callMcp(path_, body) {
+    setBusy(true);
+    try {
+      const r = await fetch('http://localhost:8787' + path_, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      await r.json().catch(() => ({}));
+    } catch (e) {} finally { setBusy(false); }
+  }
+
+  function colorFor(kind) {
+    if (kind === 'block') return { bg: 'rgba(220,38,38,0.05)', bd: '#fecaca', tx: '#b91c1c', dot: '⛔' };
+    if (kind === 'warn') return { bg: 'rgba(217,119,6,0.06)', bd: '#fed7aa', tx: '#9a3412', dot: '⚠' };
+    if (kind === 'lesson') return { bg: 'rgba(30,64,175,0.05)', bd: '#bfdbfe', tx: '#1e3a8a', dot: '📘' };
+    return { bg: 'rgba(5,150,105,0.05)', bd: '#bbf7d0', tx: '#065f46', dot: '✓' };
+  }
+
+  return (
+    <div className="field" style={{
+      background: 'rgba(122,106,79,0.04)', border: '1px solid #e7e3d8',
+      borderRadius: 6, padding: '8px 10px', marginBottom: 8,
+    }}>
+      <label style={{ color: 'var(--ink-3)', fontWeight: 600 }}>Подсказки от профиля</label>
+      <ul style={{ margin: '6px 0 0 0', padding: 0, listStyle: 'none', fontSize: 11, lineHeight: 1.5 }}>
+        {hints.map((h) => {
+          const c = colorFor(h.kind);
+          const open = openId === h.id;
+          return (
+            <li key={h.id} style={{
+              background: c.bg, border: '1px solid ' + c.bd, borderRadius: 5,
+              padding: '4px 6px', marginBottom: 4, cursor: 'pointer',
+            }} onClick={() => setOpenId(open ? null : h.id)}>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, color: c.tx }}>
+                <span>{c.dot}</span><span>{h.text}</span>
+                <span style={{ marginLeft: 'auto', fontSize: 9, color: 'var(--ink-4)' }}>{open ? '▾' : '▸'}</span>
+              </div>
+              {open && (
+                <div style={{ marginLeft: 18, marginTop: 4, fontSize: 10.5, color: 'var(--ink-3)' }}>
+                  {h.evidence.length > 0 && (
+                    <div><b>evidence:</b> {h.evidence.slice(0, 6).join(', ')}</div>
+                  )}
+                  {h.revocable && (
+                    <button className="btn xs" disabled={busy} style={{ marginTop: 6, fontSize: 10 }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (h.revokeKind === 'revoke_lesson' && h.revokePayload?.lesson_id) {
+                          callMcp('/lessons/revoke', h.revokePayload);
+                        } else if (h.revokeKind === 'clear_dont_use') {
+                          callMcp('/profile/forget', { kind: 'dont_use', items: h.revokePayload.items });
+                        } else if (h.revokeKind === 'forget_pattern') {
+                          callMcp('/profile/forget', { kind: 'pattern', scope: h.revokePayload.scope, items: h.revokePayload.items });
+                        }
+                      }}>
+                      {h.kind === 'block' ? '🔓 Снять запрет' :
+                        h.kind === 'lesson' ? '🗑 Забыть урок' :
+                        '🗑 Забыть паттерн'}
+                    </button>
+                  )}
+                </div>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+      <div style={{ fontSize: 9.5, color: 'var(--ink-4)', marginTop: 6, fontStyle: 'italic' }}>
+        Source: aggregate_operator_profile + analyze_lessons. Подсказки тихие — учитывай, не диктуй.
+      </div>
+    </div>
+  );
+}
+
+Object.assign(window, { ArchCanvas, ArchInspector, AcceptanceSection, ProfileHintsSection });

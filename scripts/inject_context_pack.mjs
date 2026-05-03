@@ -114,6 +114,82 @@ try {
   const rules = readSafe(path.join(ATLAS, 'rules.md'));
   const techStack = readSafe(path.join(ATLAS, 'tech_stack.md'));
 
+  // PR-5 (b.operator-profile-learner): operator profile (work_style + agents +
+  // tech preferences + last 3 lessons + dont_use). Silent when profile is in
+  // warming_up state OR --no-profile flag is set OR SIMA_NO_PROFILE=1 is set.
+  // Profile values come from atlas/operator_profile/profile.json (PR-1) and
+  // atlas/operator_profile/lessons.json (PR-4 of this same block).
+  const argv = process.argv.slice(2);
+  const noProfile = argv.includes('--no-profile') || process.env.SIMA_NO_PROFILE === '1';
+  let operatorProfileSection = '';
+  if (!noProfile) {
+    const profilePath = path.join(ATLAS, 'operator_profile', 'profile.json');
+    const lessonsPath = path.join(ATLAS, 'operator_profile', 'lessons.json');
+    let profile = null;
+    try { if (fs.existsSync(profilePath)) profile = JSON.parse(fs.readFileSync(profilePath, 'utf8')); } catch {}
+    if (profile && profile._status !== 'warming_up') {
+      const lines = ['## Operator profile (likely preferences)', ''];
+      const ws = profile.work_style || {};
+      if (ws.median_time_idea_to_done_h) {
+        lines.push(`- Этот оператор обычно проходит idea→done за ~${Math.round(ws.median_time_idea_to_done_h * 10) / 10}h.`);
+      }
+      if (typeof ws.rollback_rate === 'number' && ws.rollback_rate > 0) {
+        lines.push(`- Rollback-rate ${(ws.rollback_rate * 100).toFixed(0)}% — будь осторожен с непроверенными решениями.`);
+      }
+      // Tech stack: top items per scope by uses with high satisfaction
+      const techHist = profile.tech_stack_history || {};
+      for (const scope of ['frontend', 'backend', 'testing']) {
+        const items = (techHist[scope] || []).filter((x) => x.uses >= 2 && x.satisfaction === 'high').slice(0, 3);
+        if (items.length) {
+          lines.push(`- ${scope}: оператор предпочитает ${items.map((x) => `\`${x.name}\``).join(', ')}.`);
+        }
+      }
+      // Agents
+      const agents = profile.agents_used || {};
+      const topAgent = Object.entries(agents).sort((a, b) => (b[1].count || 0) - (a[1].count || 0))[0];
+      if (topAgent) {
+        const [name, st] = topAgent;
+        const sr = st.success_rate != null ? Math.round(st.success_rate * 100) : null;
+        lines.push(`- Чаще всего использует агента \`${name}\`${sr != null ? ` (success-rate ${sr}%)` : ''}.`);
+      }
+      // dont_use (read from explicit dont_use.json if exists; future PR-3 wires it)
+      let dontUse = [];
+      try {
+        const dPath = path.join(ATLAS, 'operator_profile', 'dont_use.json');
+        if (fs.existsSync(dPath)) {
+          const j = JSON.parse(fs.readFileSync(dPath, 'utf8'));
+          dontUse = Array.isArray(j) ? j : (Array.isArray(j.items) ? j.items : []);
+        }
+      } catch {}
+      if (Array.isArray(profile.dont_use) && profile.dont_use.length) dontUse = dontUse.concat(profile.dont_use);
+      const dontUseNames = dontUse.map((d) => typeof d === 'string' ? d : d.value).filter(Boolean);
+      if (dontUseNames.length) {
+        lines.push(`- НИКОГДА не использует: ${dontUseNames.map((x) => `\`${x}\``).join(', ')}.`);
+      }
+      // Lessons (last 3)
+      let lessons = [];
+      try { if (fs.existsSync(lessonsPath)) {
+        const j = JSON.parse(fs.readFileSync(lessonsPath, 'utf8'));
+        lessons = Array.isArray(j) ? j : (Array.isArray(j.lessons) ? j.lessons : []);
+      } } catch {}
+      // Filter out expired
+      const now = Date.now();
+      const fresh = lessons.filter((l) => !l.expires_at || Date.parse(l.expires_at) > now);
+      const recent = fresh.slice(-3);
+      if (recent.length) {
+        lines.push('', 'Последние уроки оператора (учти их в решении):');
+        for (const l of recent) {
+          const ev = (l.evidence || []).slice(0, 3).join(', ');
+          lines.push(`  - ${l.lesson}${ev ? ` _(evidence: ${ev})_` : ''}`);
+        }
+      }
+      if (lines.length > 2) {
+        lines.push('', '_Источники профиля: aggregate_operator_profile + analyze_lessons_from_history. Эти подсказки тихие — не диктуй, но учитывай._', '');
+        operatorProfileSection = lines.join('\n');
+      }
+    }
+  }
+
   // Tight per-section budgets so we never overshoot MAX_BYTES.
   const SECTION = Math.floor(MAX_BYTES / 9);
 
@@ -130,6 +206,7 @@ try {
     '## Tech stack (forbidden commands enforced via guard_against_drift)',
     shorten(techStack, SECTION),
     '',
+    operatorProfileSection ? shorten(operatorProfileSection, SECTION) : '',
     `## Block: ${blockId}`,
     '',
     '### mission',

@@ -26,16 +26,18 @@
 - scripts/validate_dont_use_compliance.mjs [pending] (PR-3: nightly warning, not fail)
 
 ## Lessons (PR-4)
-- atlas/operator_profile/lessons.json [pending] (PR-4: append-only с expires_at)
-- scripts/analyze_lessons_from_history.mjs [pending] (PR-4: LLM single-shot per nightly)
-- tests/operator_profile_lessons.smoke.mjs [pending] (PR-4)
+- scripts/analyze_lessons_from_history.mjs [alive]
+- tests/operator_profile_lessons.smoke.mjs [alive]
 
-## Inject (PR-5)
-- tests/operator_profile_inject.smoke.mjs [pending] (PR-5)
+## Inject (PR-5) — touches inject_context_pack.mjs (owned by b.agent-orchestrator)
+- tests/operator_profile_inject.smoke.mjs [alive]
 
-## UI (PR-6)
-- Sima (Remix)/profile_hint_badge.jsx [pending] (PR-6: ProposalsPanel match/conflict/neutral)
-- Sima (Remix)/inspector_profile_section.jsx [pending] (PR-6: Inspector секция «Подсказки от профиля»)
+## UI (PR-6) — touches arch_canvas.jsx (b.ui-control) + proposals_panel.jsx (b.llm-gateway)
+PR-6 cross-cutting changes (host blocks own JSX; documented in checks.log + tasks.md):
+
+  • `Sima (Remix)/arch_canvas.jsx` (owned by b.ui-control) gained ProfileHintsSection
+  • `Sima (Remix)/proposals_panel.jsx` (owned by b.llm-gateway) gained complianceWithProfile + match/conflict badge
+  • `scripts/generate_atlas_bootstrap_js.mjs` (owned by b.ui-control) now exposes operatorProfile + operatorLessons + operatorDontUse
 
 ## Documentation
 - atlas/blocks/b.operator-profile-learner/mission.md [alive]

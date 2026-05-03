@@ -414,25 +414,27 @@ PR-2 закрыт. Остаются PR-3..PR-6.
 - [ ] T3.4: UI Inspector: секция `Запреты оператора` со списком и кнопкой `снять запрет`.
 
 ## PR-4 — Lessons LLM analyser
-- [ ] T4.1: `scripts/analyze_lessons_from_history.mjs` — single shot через b.llm-gateway.
-- [ ] T4.2: prompt: «Вот decisions.log + checks.log fail записи за последние 30 дней. Найди повторяющиеся проблемы (≥ 2 evidence). Верни JSON `[{lesson, evidence: [block_id@date], expires_at}]`.»
-- [ ] T4.3: cost cap LLM_MAX_USD_PER_RUN ≤ $0.05; mock-режим для тестов.
-- [ ] T4.4: nightly запускает раз в сутки, append в `lessons.json` (без перезаписи).
-- [ ] T4.5: MCP tools `add_lesson`, `revoke_lesson`, `list_lessons`.
-- [ ] T4.6: smoke `tests/operator_profile_lessons.smoke.mjs`.
+- [x] T4.1: `scripts/analyze_lessons_from_history.mjs` — `analyzeLessons({window_days, dry_run})` через `b.llm-gateway.callLLM` со схемой `{lessons: [{lesson, evidence[], expires_at}]}`. **DONE PR-4**.
+- [x] T4.2: prompt включает последние N дней failed checks + decisions, требует ≥ 2 evidence per lesson, явно запрещает «выглядит ок», JSON-only output. **DONE PR-4**.
+- [x] T4.3: cost cap `LLM_MAX_USD_PER_RUN` (default $0.05) → если превышен возвращает `{cost_capped: true}`; min-data guard (< 2 fail+decision items → warming_up без LLM-вызова); post-LLM фильтр `< 2 evidence` (LLM может срезать правило); dedupe по тексту + 50% evidence overlap. Mock-friendly через `tests/llm_mocks/<hash>.json`. **DONE PR-4**.
+- [x] T4.4: nightly step `analyze_lessons_from_history` запускается раз в сутки, append в `atlas/operator_profile/lessons.json` (без перезаписи). **DONE PR-4**.
+- [x] T4.5: MCP tools `add_lesson` (требует ≥ 2 evidence) + `revoke_lesson` + `list_lessons` + `analyze_lessons` (trigger). **DONE PR-4**.
+- [x] T4.6: smoke `tests/operator_profile_lessons.smoke.mjs` — 6 групп: warming_up no-data; seeded fixture → 2 lessons (1 filtered <2 evidence); dedupe не двоит; addLesson L-001/L-002; revokeLesson by id + missing→false; <2 evidence фильтр. **DONE PR-4**.
 
 ## PR-5 — inject_context_pack hook
-- [ ] T5.1: `inject_context_pack.mjs` читает `atlas/operator_profile/profile.json` (если `_status !== "warming_up"`).
-- [ ] T5.2: рендерит секцию `## Operator profile (likely preferences)` с work_style + dont_use + last 3 lessons.
-- [ ] T5.3: smoke-тест: после prompt — context-pack содержит «Этот оператор предпочитает react. Никогда не использует mongo. В прошлом: <lesson>».
-- [ ] T5.4: при `--no-profile` flag модуль молчит (для воспроизводимости evals).
+- [x] T5.1: `scripts/inject_context_pack.mjs` читает `atlas/operator_profile/profile.json` через `fs.readFileSync` (внутри try/catch для graceful degradation). При `_status === "warming_up"` секция не emit'ится. **DONE PR-5**.
+- [x] T5.2: рендерит секцию `## Operator profile (likely preferences)` с `work_style.median_time_idea_to_done_h` + `rollback_rate` + top tech_stack по scope (high satisfaction + uses≥2) + top agent + dont_use list (из profile.dont_use + atlas/operator_profile/dont_use.json) + last 3 unexpired lessons с evidence. **DONE PR-5**.
+- [x] T5.3: `tests/operator_profile_inject.smoke.mjs` — 4 группы: warming_up без секции; live profile с tech-preferences («оператор предпочитает react / fastify»); lessons surfaced («Большое ТЗ → сбой 2 раза» + evidence cited); --no-profile flag + SIMA_NO_PROFILE=1 silences. **DONE PR-5**.
+- [x] T5.4: `--no-profile` flag + `SIMA_NO_PROFILE=1` env override отключают секцию (для воспроизводимости evals). **DONE PR-5**.
 
 ## PR-6 — UI hints
-- [ ] T6.1: ProposalsPanel: вычисляет `complianceWithProfile(proposal, profile)` → `match | conflict | neutral`.
-- [ ] T6.2: badge цвет: green (match) / amber (conflict) / gray (neutral).
-- [ ] T6.3: Inspector под mission блока: секция `Подсказки от профиля` со списком; click на подсказку открывает `evidence` (список block_id из истории).
-- [ ] T6.4: UI кнопка «забыть этот паттерн» / «снять запрет» → дёргает MCP tool.
-- [ ] T6.5: privacy: если `_status === "warming_up"` — UI показывает `Профиль ещё учится: 3/5 done, 7/10 invocations`.
+- [x] T6.1: `Sima (Remix)/proposals_panel.jsx` — `complianceWithProfile(proposal)` смотрит `proposed.tech_stack` против `profile.tech_stack_history` (high satisfaction + uses≥2) и `dont_use`. Returns `{kind: match|conflict|neutral, items, reason}` или `null` при warming_up. **DONE PR-6**.
+- [x] T6.2: Badge palette: ✓ зелёный (match) / ⛔ красный (conflict) / · серый (neutral); tooltip с reason + items. **DONE PR-6**.
+- [x] T6.3: `Sima (Remix)/arch_canvas.jsx` — компонент `<ProfileHintsSection>` рендерит до 6 хинтов (median time / rollback warn / per-scope tech preferences / dont_use bans / lessons). Click → expand с evidence (block_ids из истории). **DONE PR-6**.
+- [x] T6.4: Под expanded хинтом — кнопки «🔓 Снять запрет» (kind=block) / «🗑 Забыть урок» (kind=lesson) / «🗑 Забыть паттерн» (kind=info с tech-history) → POST на MCP-обёрточные endpoints `/lessons/revoke` + `/profile/forget` (TODO в atlas_api_server: backed by revoke_lesson MCP). **DONE PR-6 (UI часть)**; endpoint stubs ждут PR-Hardening.
+- [x] T6.5: При `_status === "warming_up"` секция показывает `Профиль ещё учится: N/M done, K/L invocations` из `profile._preview` + `_min_data`. **DONE PR-6**.
+
+PR-3 (dont-use list) формально не закрыт — но `inject_context_pack` уже умеет читать `atlas/operator_profile/dont_use.json` если файл есть, UI badge тоже читает. PR-3 остаётся как «MCP tools `set_dont_use` / `set_always_use` + guard_against_drift integration» — это узкая работа на ~30 строк, сделается по запросу.
 
 
 ## b.acceptance-verifier-loop (idea)

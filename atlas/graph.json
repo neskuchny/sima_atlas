@@ -265,7 +265,10 @@
         "tests/pick_template.selftest.mjs",
         "scripts/aggregate_operator_profile.mjs",
         "tests/operator_profile.selftest.mjs",
-        "atlas/operator_profile/profile.json"
+        "atlas/operator_profile/profile.json",
+        "scripts/analyze_lessons_from_history.mjs",
+        "tests/operator_profile_lessons.smoke.mjs",
+        "tests/operator_profile_inject.smoke.mjs"
       ]
     },
     {

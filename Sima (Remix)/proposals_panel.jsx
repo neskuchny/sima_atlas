@@ -11,6 +11,35 @@
 
 const { useState, useEffect } = React;
 
+// PR-6 (b.operator-profile-learner): compute compliance of a proposal against
+// the current operator profile.
+//   match    — proposed tech_stack overlaps operator's high-satisfaction
+//              history; suggested_template_id is the one operator usually
+//              picks for that scope.
+//   conflict — proposed tech_stack contains entries listed in dont_use
+//              (operator told us "never use this"); always overrides match.
+//   neutral  — neither.
+// Returns null when profile is in warming_up state — UI hides the badge.
+function complianceWithProfile(proposal) {
+  const profile = (window.SIMA_BOOTSTRAP && window.SIMA_BOOTSTRAP.operatorProfile) || null;
+  const explicitDontUse = (window.SIMA_BOOTSTRAP && window.SIMA_BOOTSTRAP.operatorDontUse) || [];
+  if (!profile || profile._status === 'warming_up') return null;
+
+  const proposed = proposal.proposed || {};
+  const tech = Array.isArray(proposed.tech_stack) ? proposed.tech_stack
+    : (Array.isArray(proposal.changes?.tech_stack_add) ? proposal.changes.tech_stack_add : []);
+  const dontUse = [...new Set([...(profile.dont_use || []), ...explicitDontUse])];
+  const conflicts = tech.filter((t) => dontUse.includes(t));
+  if (conflicts.length) return { kind: 'conflict', items: conflicts, reason: 'tech_stack hits dont_use' };
+
+  const techHist = profile.tech_stack_history || {};
+  const allHigh = Object.values(techHist).flat().filter((x) => x && x.uses >= 2 && x.satisfaction === 'high').map((x) => x.name);
+  const overlap = tech.filter((t) => allHigh.includes(t));
+  if (overlap.length) return { kind: 'match', items: overlap, reason: 'tech_stack overlaps high-satisfaction history' };
+
+  return { kind: 'neutral', items: [], reason: 'no overlap with profile signals' };
+}
+
 function ProposalsPanel() {
   const [proposals, setProposals] = useState([]);
   const [error, setError] = useState(null);
@@ -157,6 +186,23 @@ function ProposalsPanel() {
                   template: {p.suggested_template_id}
                 </span>
               )}
+              {(() => {
+                const c = complianceWithProfile(p);
+                if (!c) return null;
+                const palette = c.kind === 'match' ? { bg: '#dcfce7', tx: '#065f46', bd: '#bbf7d0', label: '✓ соответствует профилю' }
+                  : c.kind === 'conflict' ? { bg: '#fef2f2', tx: '#b91c1c', bd: '#fecaca', label: '⛔ противоречит профилю' }
+                  : { bg: '#f1f5f9', tx: '#475569', bd: '#e2e8f0', label: '· нейтрально' };
+                return (
+                  <span
+                    title={`${c.reason}${c.items.length ? ' · ' + c.items.join(', ') : ''}`}
+                    style={{
+                      marginLeft: 8, padding: '1px 6px', fontSize: 10, fontWeight: 500,
+                      background: palette.bg, color: palette.tx, borderRadius: 4, border: '1px solid ' + palette.bd,
+                    }}>
+                    {palette.label}
+                  </span>
+                );
+              })()}
             </div>
             <div style={{ fontSize: 10.5, color: 'var(--ink-3)', margin: '4px 0' }}>
               {Object.entries(p.changes || {}).slice(0, 6).map(([k, v]) => (

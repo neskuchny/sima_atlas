@@ -49,6 +49,10 @@ function toolList(){
     { name:'judge_assertion', description:'PR-3 (b.acceptance-verifier-loop): LLM-judge fallback for an individual assertion. Returns {verdict: pass|fail|inconclusive, reasoning, evidence_quote, cost_usd, provider}. Inconclusive on missing API key — never silent pass.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, assertion_id:{type:'string'} }, required:['block_id','assertion_id'] } },
     { name:'read_acceptance_run', description:'PR-4 (b.acceptance-verifier-loop): read atlas/acceptance_runs/<block>/_latest.json — full assertion-level verdict report from the most recent verifier run.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} }, required:['block_id'] } },
     { name:'list_failed_acceptances', description:'PR-4 (b.acceptance-verifier-loop): list every block whose latest verifier verdict is fail or inconclusive (with sample failures).', inputSchema:{ type:'object', properties:{} } },
+    { name:'list_lessons', description:'PR-4 (b.operator-profile-learner): list operator lessons stored in atlas/operator_profile/lessons.json.', inputSchema:{ type:'object', properties:{} } },
+    { name:'add_lesson', description:'PR-4 (b.operator-profile-learner): manually add an operator lesson with ≥ 2 evidence items.', inputSchema:{ type:'object', properties:{ lesson:{type:'string'}, evidence:{type:'array', items:{type:'string'}}, expires_at:{type:'string'} }, required:['lesson','evidence'] } },
+    { name:'revoke_lesson', description:'PR-4 (b.operator-profile-learner): revoke a stored lesson by id.', inputSchema:{ type:'object', properties:{ lesson_id:{type:'string'} }, required:['lesson_id'] } },
+    { name:'analyze_lessons', description:'PR-4 (b.operator-profile-learner): trigger LLM-driven lessons analysis over the last N days of fail records.', inputSchema:{ type:'object', properties:{ window_days:{type:'number'}, dry_run:{type:'boolean'} } } },
 
   ];
 }
@@ -439,6 +443,30 @@ rl.on('line', (line) => {
           return respond(id, { content:[{ type:'text', text: JSON.stringify({ block_id: bid, _status: 'no_run', hint: `node scripts/verify_block_acceptance.mjs ${bid}` }) }] });
         }
         return respond(id, { content:[{ type:'text', text: fs.readFileSync(p, 'utf8') }] });
+      }
+      if (name === 'list_lessons') {
+        const out = execSync('node scripts/analyze_lessons_from_history.mjs list --json', { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out || '[]' }] });
+      }
+      if (name === 'add_lesson') {
+        const txt = String(args.lesson || '');
+        const ev = Array.isArray(args.evidence) ? args.evidence : [];
+        if (!txt || ev.length < 2) return respondErr(id, 'add_lesson: lesson + at least 2 evidence items required');
+        const evArg = ev.join(',');
+        const out = execSync(`node scripts/analyze_lessons_from_history.mjs add ${JSON.stringify(txt)} --evidence ${JSON.stringify(evArg)}`, { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'revoke_lesson') {
+        const lid = String(args.lesson_id || '');
+        if (!lid) return respondErr(id, 'revoke_lesson: lesson_id required');
+        const out = execSync(`node scripts/analyze_lessons_from_history.mjs revoke ${JSON.stringify(lid)}`, { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'analyze_lessons') {
+        const wd = Number(args.window_days || 30);
+        const dry = args.dry_run ? '--dry-run' : '';
+        const out = execSync(`node scripts/analyze_lessons_from_history.mjs --window-days ${wd} --json ${dry}`, { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
       }
       if (name === 'list_failed_acceptances') {
         const dir = path.join(atlasRoot, 'acceptance_runs');
