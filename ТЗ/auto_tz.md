@@ -576,11 +576,13 @@ atlas/blocks/<block_id>/checks.log   ← append: 'acceptance_verifier <pass|fail
 5 PR-ов. PR-1..PR-3 — pure-deterministic (без LLM); PR-3 добавляет LLM fallback; PR-4..PR-5 — интеграция.
 
 ## PR-1 — Assertion parser
-- [ ] T1.1: `scripts/parse_acceptance.mjs` — строгий парсер `acceptance.md`.
-- [ ] T1.2: формат: `- [ ] **A1.** <assertion text>` обязателен; опц. YAML-блок ниже с `evidence_kind: ...` + `evidence_spec: {...}`.
-- [ ] T1.3: extract `id` (A1..AN), `text`, `evidence_kind` (default = `llm_judge` если не указан), `evidence_spec`.
-- [ ] T1.4: selftest на acceptance.md от b.llm-gateway / b.docs / b.core-sync (≥ 3 блока × 5 пунктов = 15 assertions, parser должен извлечь все).
-- [ ] T1.5: MCP tool `parse_acceptance {block_id}` возвращает массив assertions.
+- [x] T1.1: `scripts/parse_acceptance.mjs` — строгий парсер `acceptance.md`. **DONE PR-1**.
+- [x] T1.2: формат: `- [ ] **A1.** <text>` или `- [x] **A1 (label).** <text>`; опц. fenced YAML-блок сразу после bullet (перед следующим bullet или section header) с `evidence_kind` + `evidence_spec`. **DONE PR-1**.
+- [x] T1.3: extract `id` (A1..AN), `label`, `text`, `checked`, `line`, `evidence_kind` (default = `llm_judge`), `evidence_spec`. Поддерживаемые kinds: `exit_code, fs_glob, file_diff, log_grep, selftest_run, llm_judge`. Section header останавливает parsing после первого bullet (защита от попадания текста из NOT-acceptance секций). **DONE PR-1**.
+- [x] T1.4: selftest на 7 реальных блоках репо (b.llm-gateway / b.agent-orchestrator / b.docs / b.core-sync / b.db / b.ui-control / b.operator-profile-learner) — 39 assertions parsed без warnings. Плюс синтетические тесты на варианты bullet'ов / YAML / duplicate id / gap / invalid kind / malformed YAML / empty file. 9 групп всего. **DONE PR-1**.
+- [x] T1.5: MCP tool `parse_acceptance {block_id}` возвращает структурированный JSON. CLI `node scripts/parse_acceptance.mjs <id> [--json]`. **DONE PR-1**.
+
+PR-1 закрыт. Следующее — PR-2 (deterministic evidence collectors).
 
 ## PR-2 — Deterministic evidence collectors
 - [ ] T2.1: `scripts/collect_evidence.mjs` — диспетчер по `evidence_kind`.

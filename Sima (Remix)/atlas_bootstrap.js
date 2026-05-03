@@ -526,8 +526,8 @@ window.SIMA_BOOTSTRAP = {
                 "body": "«Закрывающий контур» для каждого агент-прогона.",
                 "hasSubschema": false,
                 "sources": [
-                  "scripts/parse_acceptance.mjs [pending] (PR-1: парсер acceptance.md → структурированный JSON)",
-                  "tests/parse_acceptance.selftest.mjs [pending] (PR-1)",
+                  "scripts/parse_acceptance.mjs [alive]",
+                  "tests/parse_acceptance.selftest.mjs [alive]",
                   "scripts/collect_evidence.mjs [pending] (PR-2: диспетчер по evidence_kind)",
                   "tests/evidence_collectors.selftest.mjs [pending] (PR-2)",
                   "scripts/judge_assertion.mjs [pending] (PR-3)"
@@ -1801,8 +1801,8 @@ window.SIMA_BOOTSTRAP = {
           "w": 210,
           "note": "«Закрывающий контур» для каждого агент-прогона.",
           "sources": [
-            "scripts/parse_acceptance.mjs [pending] (PR-1: парсер acceptance.md → структурированный JSON)",
-            "tests/parse_acceptance.selftest.mjs [pending] (PR-1)",
+            "scripts/parse_acceptance.mjs [alive]",
+            "tests/parse_acceptance.selftest.mjs [alive]",
             "scripts/collect_evidence.mjs [pending] (PR-2: диспетчер по evidence_kind)",
             "tests/evidence_collectors.selftest.mjs [pending] (PR-2)",
             "scripts/judge_assertion.mjs [pending] (PR-3)"

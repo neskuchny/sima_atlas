@@ -3,8 +3,8 @@
 Все пути с тегом `[pending]` — *планируемые* (status: idea). Реальные `[alive]` помечаются по мере мержа PR-1…PR-5.
 
 ## Parser (PR-1)
-- scripts/parse_acceptance.mjs [pending] (PR-1: парсер acceptance.md → структурированный JSON)
-- tests/parse_acceptance.selftest.mjs [pending] (PR-1)
+- scripts/parse_acceptance.mjs [alive]
+- tests/parse_acceptance.selftest.mjs [alive]
 
 ## Evidence collectors (PR-2)
 - scripts/collect_evidence.mjs [pending] (PR-2: диспетчер по evidence_kind)

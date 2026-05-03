@@ -43,6 +43,7 @@ function toolList(){
     { name:'run_block_implementation', description:'PR4.5: run the configured coding agent (claude / codex / cursor) on the given block; writes prompt to atlas/agent_invocations/ and logs an agent_invocation check', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, prompt:{type:'string'}, agent:{type:'string'} }, required:['block_id'] } },
     { name:'read_operator_profile', description:'PR-1 (b.operator-profile-learner): read aggregated operator profile (profile.json). When no profile exists yet — returns warming_up.', inputSchema:{ type:'object', properties:{} } },
     { name:'recompute_operator_profile', description:'PR-1 (b.operator-profile-learner): re-aggregate operator profile from current repo signals (transitions / checks.log / llm_traces / proposals). Idempotent.', inputSchema:{ type:'object', properties:{} } },
+    { name:'parse_acceptance', description:'PR-1 (b.acceptance-verifier-loop): parse atlas/blocks/<id>/acceptance.md into structured assertions (id, label, text, checked, evidence_kind, evidence_spec). Default evidence_kind = llm_judge when not declared in YAML block.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} }, required:['block_id'] } },
 
   ];
 }
@@ -396,6 +397,13 @@ rl.on('line', (line) => {
       }
       if (name === 'recompute_operator_profile') {
         const out = execSync('node scripts/aggregate_operator_profile.mjs', { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+
+      if (name === 'parse_acceptance') {
+        const bid = String(args.block_id || '');
+        if (!bid) return respondErr(id, 'parse_acceptance: block_id required');
+        const out = execSync(`node scripts/parse_acceptance.mjs ${JSON.stringify(bid)} --json`, { cwd: root, stdio: 'pipe' }).toString().trim();
         return respond(id, { content:[{ type:'text', text: out }] });
       }
 
