@@ -334,7 +334,9 @@
         "atlas/blocks/b.user-docs-generator/mission.md",
         "scripts/introspect_block_ui.mjs",
         "tests/introspect_block_ui.selftest.mjs",
-        "tests/fixtures/jsx/synthetic_panel.jsx"
+        "tests/fixtures/jsx/synthetic_panel.jsx",
+        "scripts/generate_user_docs.mjs",
+        "tests/user_docs.smoke.mjs"
       ]
     },
     {

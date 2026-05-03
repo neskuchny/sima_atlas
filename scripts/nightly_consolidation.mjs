@@ -30,6 +30,7 @@ const checks = [
   ['dont_use_management_selftest', 'node tests/dont_use_management.selftest.mjs'],
   ['validate_dont_use_compliance', 'node scripts/validate_dont_use_compliance.mjs'],
   ['introspect_block_ui_selftest', 'node tests/introspect_block_ui.selftest.mjs'],
+  ['user_docs_smoke', 'node tests/user_docs.smoke.mjs'],
   ['parse_acceptance_selftest', 'node tests/parse_acceptance.selftest.mjs'],
   ['evidence_collectors_selftest', 'node tests/evidence_collectors.selftest.mjs'],
   ['llm_judge_smoke', 'node tests/llm_judge.smoke.mjs'],

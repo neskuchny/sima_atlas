@@ -60,6 +60,7 @@ function toolList(){
     { name:'set_always_use', description:'PR-3 (b.operator-profile-learner): pin a category default (e.g. language=typescript). Surfaces in inject_context_pack alongside dont_use.', inputSchema:{ type:'object', properties:{ category:{type:'string'}, value:{type:'string'}, reason:{type:'string'} }, required:['category','value'] } },
     { name:'clear_always_use', description:'PR-3 (b.operator-profile-learner): remove an always_use pin.', inputSchema:{ type:'object', properties:{ category:{type:'string'}, value:{type:'string'} }, required:['category','value'] } },
     { name:'introspect_block_ui', description:'PR-1 (b.user-docs-generator): scan alive JSX/HTML files of a block and return structured UI elements (buttons, inputs, textareas, forms, links, routes, fetches). Used by PR-2 LLM tutorial writer.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} }, required:['block_id'] } },
+    { name:'generate_user_docs', description:'PR-2 (b.user-docs-generator): generate end-user tutorial markdown for a block via b.llm-gateway. Idempotent (skips if source hash unchanged). Writes atlas/docs/end-user/<block>.md + _meta/<block>.json. Cost cap $0.03/run.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, lang:{type:'string'}, dry_run:{type:'boolean'} }, required:['block_id'] } },
 
   ];
 }
@@ -519,6 +520,14 @@ rl.on('line', (line) => {
         const bid = String(args.block_id || '');
         if (!bid) return respondErr(id, 'introspect_block_ui: block_id required');
         const out = execSync(`node scripts/introspect_block_ui.mjs ${JSON.stringify(bid)} --json`, { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'generate_user_docs') {
+        const bid = String(args.block_id || '');
+        if (!bid) return respondErr(id, 'generate_user_docs: block_id required');
+        const lang = args.lang ? `--lang ${JSON.stringify(String(args.lang))}` : '';
+        const dry = args.dry_run ? '--dry-run' : '';
+        const out = execSync(`node scripts/generate_user_docs.mjs ${JSON.stringify(bid)} --json ${lang} ${dry}`, { cwd: root, stdio: 'pipe' }).toString().trim();
         return respond(id, { content:[{ type:'text', text: out }] });
       }
       if (name === 'clear_always_use') {

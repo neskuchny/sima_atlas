@@ -8,9 +8,8 @@
 - tests/introspect_block_ui.selftest.mjs [alive]
 
 ## LLM writer (PR-2)
-- scripts/generate_user_docs.mjs [pending] (PR-2: оркестратор)
-- tests/user_docs.smoke.mjs [pending] (PR-2)
-- tests/llm_mocks/user_docs_default.json [pending] (PR-2)
+- scripts/generate_user_docs.mjs [alive]
+- tests/user_docs.smoke.mjs [alive]
 
 ## Screenshots (PR-3, опц.)
 - tests/playwright/user_docs_screenshots.spec.ts [pending] (PR-3)
