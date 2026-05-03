@@ -134,6 +134,10 @@ if (agent === 'print-only' || (agent === 'claude' && !which('claude')) || (agent
   console.log('--- prompt below — paste into any coding agent ---');
   console.log(prompt);
   appendCheck('agent_invocation', 'pass', `agent=${agent} mode=print-only file=${path.relative(ROOT, invocationPath)}`);
+  // PR-4: in print-only mode the agent hasn't run yet, so verifier would only
+  // measure the pre-existing state. Surface that explicitly without spawning.
+  console.log('');
+  console.log(`tip: after pasting & implementing, run \`node scripts/verify_block_acceptance.mjs ${blockId}\` to see acceptance verdict.`);
   process.exit(0);
 }
 
@@ -173,3 +177,20 @@ console.log(`run_block_implementation: agent=${agent} block=${blockId}`);
 console.log(`  prompt:   ${path.relative(ROOT, invocationPath)}`);
 console.log(`  output:`);
 console.log(out.split(/\r?\n/).map((l) => '    ' + l).join('\n'));
+
+// PR-4: auto-spawn acceptance verifier so the operator immediately sees
+// whether the agent's work satisfies acceptance.md. Verdict is non-blocking
+// here (transitions hold the actual gate via log_transition.mjs); we just
+// surface the result so the next step (transition / retry / proposal) is
+// obvious. Skip when ATLAS_SKIP_VERIFIER=1 (e.g. in tight CI loops).
+if (process.env.ATLAS_SKIP_VERIFIER !== '1') {
+  console.log('');
+  console.log(`run_block_implementation: spawning acceptance verifier...`);
+  const v = spawnSync('node', ['scripts/verify_block_acceptance.mjs', blockId], {
+    cwd: ROOT, stdio: 'inherit',
+  });
+  const verdictExit = v.status;
+  if (verdictExit === 0) console.log(`  ✓ acceptance: pass — block is gate-eligible for → done`);
+  else if (verdictExit === 1) console.log(`  ✗ acceptance: fail — log_transition will block → done until fixed`);
+  else if (verdictExit === 2) console.log(`  · acceptance: inconclusive — collectors need YAML evidence_spec or LLM key`);
+}

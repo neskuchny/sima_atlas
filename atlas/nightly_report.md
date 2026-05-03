@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-05-03T14:09:12.496Z_
+_Generated: 2026-05-03T14:18:48.252Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -13,7 +13,7 @@ _Generated: 2026-05-03T14:09:12.496Z_
 - ✅ no_template_placeholders: ok
   - output: Template-placeholder validation: OK (10 blocks scanned)
 - ✅ files_registry: ok
-  - output: Files registry validation: OK (alive=173, archived=4, dead=0)
+  - output: Files registry validation: OK (alive=176, archived=4, dead=0)
 - ✅ projects_contracts: ok
   - output: validate_projects: OK (1 projects, 5 blocks)
 - ✅ subschemas_contracts: ok
@@ -33,7 +33,7 @@ _Generated: 2026-05-03T14:09:12.496Z_
 - ✅ operator_profile_selftest: ok
   - output: operator_profile.selftest: OK (7 test groups, all assertions green)
 - ✅ aggregate_operator_profile: ok
-  - output: operator_profile: warming_up (done=2, invocations=3, traces=812, proposals=21)
+  - output: operator_profile: warming_up (done=2, invocations=3, traces=973, proposals=24)
 - ✅ parse_acceptance_selftest: ok
   - output: parse_acceptance.selftest: OK (9 test groups, all assertions green)
 - ✅ evidence_collectors_selftest: ok
@@ -42,6 +42,10 @@ _Generated: 2026-05-03T14:09:12.496Z_
   - output: llm_judge.smoke: OK (4 test groups, all assertions green)
 - ✅ verify_all_acceptance: ok
   - output: verify_all_acceptance: 2 pass / 1 fail / 7 inconclusive (assertions: 11 pass / 1 fail / 47 skipped)
+- ✅ acceptance_verifier_e2e_smoke: ok
+  - output: acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)
+- ✅ verify_done_blocks_still_green: ok
+  - output: verify_done_blocks_still_green: checked=0 green=0 regressions=0 inconclusive=0
 - ✅ seed_llm_mocks: ok
   - output: seed_llm_mocks: 0 written, 30 unchanged, 30 total
 - ✅ llm_extraction_eval: ok
@@ -79,4 +83,4 @@ _Generated: 2026-05-03T14:09:12.496Z_
 - ✅ intelligence_health: ok
   - output: Intelligence health: 1 (10/10)
 
-Summary: PASS (38/38)
+Summary: PASS (40/40)

@@ -11,3 +11,4 @@
 2026-05-02T12:16:30Z	pr4_2_env_parser	pass	.env parser strips inline # comments; llm_check warns on malformed LLM_DEFAULT_PROVIDER; key length sanity check
 2026-05-02T17:40:29Z	pr3_5_proposals_flow	pass	atlas/proposals/ inbox + accept/reject CLI + MCP tools + ProposalsPanel UI + atlas_api_server endpoints with CORS + smoke flow
 2026-05-02T23:16:07Z	pr_eval_30	pass	golden set 5→30 cases / 6 categories; per-category pass + regression-check vs baseline; eval_history snapshots per run
+2026-05-03T14:12:41.488Z	acceptance_verifier	pass	verdict=pass pass=4 fail=0 skipped=1

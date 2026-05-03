@@ -297,7 +297,10 @@
         "scripts/verify_all_acceptance.mjs",
         "atlas/acceptance_runs/_summary.json",
         "scripts/judge_assertion.mjs",
-        "tests/llm_judge.smoke.mjs"
+        "tests/llm_judge.smoke.mjs",
+        "scripts/verify_block_acceptance.mjs",
+        "scripts/verify_done_blocks_still_green.mjs",
+        "tests/acceptance_verifier.e2e.smoke.mjs"
       ]
     },
     {

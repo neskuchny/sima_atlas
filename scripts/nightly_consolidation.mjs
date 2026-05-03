@@ -28,6 +28,8 @@ const checks = [
   ['evidence_collectors_selftest', 'node tests/evidence_collectors.selftest.mjs'],
   ['llm_judge_smoke', 'node tests/llm_judge.smoke.mjs'],
   ['verify_all_acceptance', 'node scripts/verify_all_acceptance.mjs'],
+  ['acceptance_verifier_e2e_smoke', 'node tests/acceptance_verifier.e2e.smoke.mjs'],
+  ['verify_done_blocks_still_green', 'node scripts/verify_done_blocks_still_green.mjs'],
   ['seed_llm_mocks', 'node scripts/seed_llm_mocks.mjs'],
   ['llm_extraction_eval', 'node tests/llm_extraction.eval.mjs'],
   ['simulate_conversation_branches', 'node scripts/simulate_conversation_branches.mjs'],

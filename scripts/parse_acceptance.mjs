@@ -184,7 +184,7 @@ export function parseAcceptanceText(text, sourceLabel = '<inline>') {
 }
 
 export function parseAcceptance(blockId, atlasRoot) {
-  const root = atlasRoot || path.join(ROOT, 'atlas');
+  const root = atlasRoot || process.env.ATLAS_ROOT || path.join(ROOT, 'atlas');
   const sourcePath = path.join(root, 'blocks', blockId, 'acceptance.md');
   if (!fs.existsSync(sourcePath)) {
     return { block_id: blockId, source_path: sourcePath, assertions: [], warnings: [`acceptance.md missing: ${sourcePath}`] };

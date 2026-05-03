@@ -31,12 +31,14 @@ PR-2 закрыт. MCP tools `collect_evidence` + `verify_block_acceptance` жи
 PR-3 закрыт. Wired into `collect_evidence.mjs` → llm_judge case теперь зовёт реальный judge (через verifyBlock контекст). MCP tool `judge_assertion` живой. После добавления API ключа все 47 skipped assertions из verify_all_summary.json автоматически получат реальные verdicts без правок acceptance.md.
 
 ## PR-4 — Gate hooks
-- [ ] T4.1: `scripts/verify_block_acceptance.mjs <block_id>` — оркестратор: parse → collect (deterministic) → judge (fallback) → write `acceptance_runs/<block>/<UTC>__.json` + `_latest.json` + append `checks.log`.
-- [ ] T4.2: `scripts/log_transition.mjs` модификация: перед `wip → done` читает `_latest.json`; verdict !== pass → exit 1 с понятной ошибкой и подсказкой `node scripts/verify_block_acceptance.mjs <id>`.
-- [ ] T4.3: `scripts/run_block_implementation.mjs` модификация: после exit 0 агента — авто-спавн verifier; вывод verdict в stdout.
-- [ ] T4.4: `scripts/nightly_consolidation.mjs` step `verify_done_blocks_still_green` — re-verify всех `done`; при regress → `done → broken` proposal.
-- [ ] T4.5: MCP tools `verify_block_acceptance`, `read_acceptance_run`, `list_failed_acceptances`.
-- [ ] T4.6: e2e smoke `tests/acceptance_verifier.e2e.smoke.mjs`.
+- [x] T4.1: `scripts/verify_block_acceptance.mjs <block_id>` — оркестратор parse → collect → judge → write `acceptance_runs/<block>/<UTC>.json` + `_latest.json` + append одиночной строки `acceptance_verifier <pass|fail> <counts>` в `checks.log`. Exit code = verdict (0 pass / 1 fail / 2 inconclusive). Поддерживает `ATLAS_ROOT` env для тестов в tmpdir. **DONE PR-4**.
+- [x] T4.2: `scripts/log_transition.mjs` gate — перед `→ done` (если from !== done) читает `_latest.json`. Если файла нет ИЛИ verdict !== pass → REJECTED с подробной ошибкой (sample failures + fix command + bypass hint). Override: `--allow-no-verifier` или `ATLAS_ALLOW_NO_VERIFIER=1` (override логируется в transitions.log как `gate=overridden(...)`). Successful pass пишется как `gate=pass(N/M)`. **DONE PR-4**.
+- [x] T4.3: `scripts/run_block_implementation.mjs` — после агент-прогона exit 0 авто-спавнит `verify_block_acceptance.mjs <id>` через `spawnSync stdio:inherit`. Печатает summary («✓ acceptance: pass — block is gate-eligible for → done» / «✗ acceptance: fail — log_transition will block → done until fixed» / «· inconclusive»). Skip via `ATLAS_SKIP_VERIFIER=1` (для tight CI loops). В print-only mode (когда CLI агента нет на PATH) — печатается hint без вызова verifier'а (потому что код ещё не написан). **DONE PR-4**.
+- [x] T4.4: `scripts/verify_done_blocks_still_green.mjs` — nightly regression check. Для каждого блока с `status === done` ре-прогоняет verifier; verdict !== pass → пишет proposal `<UTC>__<block>__acceptance_regression.json` с `proposed.status: broken` + `retry_prompt_hint` готовый как промпт ретраю. Dedup: не пишет если уже есть pending proposal на тот же блок. **Никогда** не auto-flips done → broken — всегда proposal через human-in-the-loop. **DONE PR-4**.
+- [x] T4.5: MCP tools `read_acceptance_run {block_id}` (читает `_latest.json` или возвращает `_status: no_run`) + `list_failed_acceptances` (обходит все блоки, возвращает массив с verdict !== pass + sample_failures). `verify_block_acceptance` уже был добавлен в PR-2. **DONE PR-4**.
+- [x] T4.6: e2e smoke `tests/acceptance_verifier.e2e.smoke.mjs` — 5 фаз в tmpdir-based fake atlas/: (1) verifier пишет fail report + _latest.json; (2) log_transition REJECTS wip→done с verdict=fail + transitions.log не получает запись; (3) фикс probe.txt + ре-verifier → pass; (4) log_transition ACCEPTS wip→done с `gate=pass(1/1)` в transitions.log; (5) regression: status→done + удаляем probe + verify_done_blocks_still_green → proposal `acceptance_regression` написан с `retry_prompt_hint`. ATLAS_ROOT env override прокидывается в spawn. **DONE PR-4**.
+
+PR-4 закрыт. Verifier теперь — реальный hard gate против `wip → done`. Остаётся PR-5 (UI surface).
 
 ## PR-5 — UI surface
 - [ ] T5.1: Inspector секция «Acceptance verifier» (под mission блока): зелёный badge `5/5 pass` или красный `3/5 — A2/A4 fail`.

@@ -37,7 +37,7 @@ import { parseAcceptance } from './parse_acceptance.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(__filename), '..');
-const ATLAS = path.join(ROOT, 'atlas');
+const ATLAS = process.env.ATLAS_ROOT || path.join(ROOT, 'atlas');
 const COST_CAP_USD = Number(process.env.LLM_MAX_USD_PER_RUN || 0.02);
 
 export const JUDGE_SCHEMA = {
