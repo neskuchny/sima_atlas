@@ -25,6 +25,7 @@ const checks = [
   ['operator_profile_selftest', 'node tests/operator_profile.selftest.mjs'],
   ['aggregate_operator_profile', 'node scripts/aggregate_operator_profile.mjs'],
   ['parse_acceptance_selftest', 'node tests/parse_acceptance.selftest.mjs'],
+  ['evidence_collectors_selftest', 'node tests/evidence_collectors.selftest.mjs'],
   ['seed_llm_mocks', 'node scripts/seed_llm_mocks.mjs'],
   ['llm_extraction_eval', 'node tests/llm_extraction.eval.mjs'],
   ['simulate_conversation_branches', 'node scripts/simulate_conversation_branches.mjs'],

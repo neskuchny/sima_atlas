@@ -7,8 +7,8 @@
 - tests/parse_acceptance.selftest.mjs [alive]
 
 ## Evidence collectors (PR-2)
-- scripts/collect_evidence.mjs [pending] (PR-2: диспетчер по evidence_kind)
-- tests/evidence_collectors.selftest.mjs [pending] (PR-2)
+- scripts/collect_evidence.mjs [alive]
+- tests/evidence_collectors.selftest.mjs [alive]
 
 ## LLM-judge (PR-3)
 - scripts/judge_assertion.mjs [pending] (PR-3)

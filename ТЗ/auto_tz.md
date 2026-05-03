@@ -585,13 +585,15 @@ atlas/blocks/<block_id>/checks.log   ← append: 'acceptance_verifier <pass|fail
 PR-1 закрыт. Следующее — PR-2 (deterministic evidence collectors).
 
 ## PR-2 — Deterministic evidence collectors
-- [ ] T2.1: `scripts/collect_evidence.mjs` — диспетчер по `evidence_kind`.
-- [ ] T2.2: `exit_code` collector: запуск shell-команды из `evidence_spec.cmd`, capture exit code + stdout (≤ 4KB).
-- [ ] T2.3: `fs_glob` collector: `evidence_spec.pattern` (glob) + `evidence_spec.min_count` / `max_age_min`.
-- [ ] T2.4: `file_diff` collector: `git diff --name-only` за окно прогона; `evidence_spec.must_touch: [path...]` / `must_not_touch`.
-- [ ] T2.5: `log_grep` collector: `evidence_spec.file` + `evidence_spec.pattern` (regex) + `since_time`.
-- [ ] T2.6: `selftest_run` collector: `evidence_spec.cmd` + ожидание `exit 0` + (опц.) regex для `expect_in_stdout`.
-- [ ] T2.7: selftest `tests/evidence_collectors.selftest.mjs` (по 1 case на kind + 1 negative для каждого).
+- [x] T2.1: `scripts/collect_evidence.mjs` — единый диспетчер `collectEvidence({evidence_kind, evidence_spec, cwd, timeout_ms})` + `verifyBlock(blockId)` (parser + collectors → aggregate {pass, fail, skipped, verdict}). Result shape: `{verdict, evidence_kind, evidence, reasoning, raw, duration_ms}`. **DONE PR-2**.
+- [x] T2.2: `exit_code` collector — `spawnSync(cmd, {shell:true})`, exit + stdout/stderr capture (truncate at 4KB), опц. `expect_in_stdout` regex, timeout default 30s. **DONE PR-2**.
+- [x] T2.3: `fs_glob` collector — использует `fs.globSync` (Node 22+) с fallback на `readdirSync` для простых паттернов; `min_count` (default 1) + `max_age_min` (опц.) — все файлы должны быть свежее. Возвращает count, newest_minutes_ago, sample_paths. **DONE PR-2**.
+- [x] T2.4: `file_diff` collector — `git diff --name-only <since_ref>` (default HEAD~1); проверяет `must_touch: [...]` и `must_not_touch: [...]`. Если не git-репо — graceful `verdict: skipped`. **DONE PR-2**.
+- [x] T2.5: `log_grep` collector — regex match по строкам файла; опц. `since_time` (ISO) фильтрует по timestamp в начале строки. **DONE PR-2**.
+- [x] T2.6: `selftest_run` collector — alias для `exit_code` с явным namespace; в acceptance.md можно отличить «просто запусти команду» от «прогони тестсуит». **DONE PR-2**.
+- [x] T2.7: selftest `tests/evidence_collectors.selftest.mjs` — 11 групп: positive+negative для каждого kind + max_age_min fresh/stale + log_grep since_time + missing file + git missing → skipped + llm_judge defer + unknown kind + verifyBlock e2e на синтетическом блоке (4 assertions: exit_code pass / fs_glob pass / llm_judge skipped / exit_code fail → counts {2,1,1}, verdict=fail). **DONE PR-2**.
+
+PR-2 закрыт. MCP tools `collect_evidence` + `verify_block_acceptance` живые. Следующий — PR-3 (LLM-judge для llm_judge kind).
 
 ## PR-3 — LLM-judge fallback
 - [ ] T3.1: `scripts/judge_assertion.mjs` — через `b.llm-gateway.callLLM` со схемой `{verdict: pass|fail|skipped, reasoning, evidence_quote}`.

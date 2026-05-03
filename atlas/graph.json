@@ -291,7 +291,9 @@
       "files": [
         "atlas/blocks/b.acceptance-verifier-loop/mission.md",
         "scripts/parse_acceptance.mjs",
-        "tests/parse_acceptance.selftest.mjs"
+        "tests/parse_acceptance.selftest.mjs",
+        "scripts/collect_evidence.mjs",
+        "tests/evidence_collectors.selftest.mjs"
       ]
     },
     {

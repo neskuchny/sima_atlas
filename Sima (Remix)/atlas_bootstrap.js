@@ -528,8 +528,8 @@ window.SIMA_BOOTSTRAP = {
                 "sources": [
                   "scripts/parse_acceptance.mjs [alive]",
                   "tests/parse_acceptance.selftest.mjs [alive]",
-                  "scripts/collect_evidence.mjs [pending] (PR-2: диспетчер по evidence_kind)",
-                  "tests/evidence_collectors.selftest.mjs [pending] (PR-2)",
+                  "scripts/collect_evidence.mjs [alive]",
+                  "tests/evidence_collectors.selftest.mjs [alive]",
                   "scripts/judge_assertion.mjs [pending] (PR-3)"
                 ]
               },
@@ -1803,8 +1803,8 @@ window.SIMA_BOOTSTRAP = {
           "sources": [
             "scripts/parse_acceptance.mjs [alive]",
             "tests/parse_acceptance.selftest.mjs [alive]",
-            "scripts/collect_evidence.mjs [pending] (PR-2: диспетчер по evidence_kind)",
-            "tests/evidence_collectors.selftest.mjs [pending] (PR-2)",
+            "scripts/collect_evidence.mjs [alive]",
+            "tests/evidence_collectors.selftest.mjs [alive]",
             "scripts/judge_assertion.mjs [pending] (PR-3)"
           ],
           "tech_stack": [

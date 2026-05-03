@@ -44,6 +44,8 @@ function toolList(){
     { name:'read_operator_profile', description:'PR-1 (b.operator-profile-learner): read aggregated operator profile (profile.json). When no profile exists yet — returns warming_up.', inputSchema:{ type:'object', properties:{} } },
     { name:'recompute_operator_profile', description:'PR-1 (b.operator-profile-learner): re-aggregate operator profile from current repo signals (transitions / checks.log / llm_traces / proposals). Idempotent.', inputSchema:{ type:'object', properties:{} } },
     { name:'parse_acceptance', description:'PR-1 (b.acceptance-verifier-loop): parse atlas/blocks/<id>/acceptance.md into structured assertions (id, label, text, checked, evidence_kind, evidence_spec). Default evidence_kind = llm_judge when not declared in YAML block.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} }, required:['block_id'] } },
+    { name:'collect_evidence', description:'PR-2 (b.acceptance-verifier-loop): run a single deterministic evidence collector. evidence_kind ∈ {exit_code, fs_glob, file_diff, log_grep, selftest_run}. Returns {verdict, evidence, reasoning, raw, duration_ms}.', inputSchema:{ type:'object', properties:{ evidence_kind:{type:'string'}, evidence_spec:{type:'object'} }, required:['evidence_kind','evidence_spec'] } },
+    { name:'verify_block_acceptance', description:'PR-2 (b.acceptance-verifier-loop): parse acceptance.md AND collect evidence per assertion in one shot. Returns {block_id, assertions: [...], counts: {pass, fail, skipped}, verdict}.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} }, required:['block_id'] } },
 
   ];
 }
@@ -404,6 +406,19 @@ rl.on('line', (line) => {
         const bid = String(args.block_id || '');
         if (!bid) return respondErr(id, 'parse_acceptance: block_id required');
         const out = execSync(`node scripts/parse_acceptance.mjs ${JSON.stringify(bid)} --json`, { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'collect_evidence') {
+        const kind = String(args.evidence_kind || '');
+        const spec = JSON.stringify(args.evidence_spec || {});
+        if (!kind) return respondErr(id, 'collect_evidence: evidence_kind required');
+        const out = execSync(`node scripts/collect_evidence.mjs --kind ${JSON.stringify(kind)} --spec ${JSON.stringify(spec)} --json`, { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'verify_block_acceptance') {
+        const bid = String(args.block_id || '');
+        if (!bid) return respondErr(id, 'verify_block_acceptance: block_id required');
+        const out = execSync(`node scripts/collect_evidence.mjs --block ${JSON.stringify(bid)} --json`, { cwd: root, stdio: 'pipe' }).toString().trim();
         return respond(id, { content:[{ type:'text', text: out }] });
       }
 
