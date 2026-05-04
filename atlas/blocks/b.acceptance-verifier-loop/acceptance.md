@@ -3,12 +3,54 @@
 Acceptance gate для перехода `idea → wip → review → done`. Каждый пункт должен иметь признак прохождения в `checks.log` либо в auto-evidence из nightly.
 
 - [ ] **A1.** PR-1 (assertion parser) merged: `scripts/parse_acceptance.mjs` парсит `atlas/blocks/<id>/acceptance.md`, возвращает массив `{id, assertion, evidence_kind, evidence_spec}`. Selftest (≥ 8 cases) на разные форматы acceptance.md существующих блоков (b.llm-gateway/b.docs/b.core-sync).
+```yaml
+evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/parse_acceptance.selftest.mjs
+  expect_in_stdout: "OK"
+```
 - [ ] **A2.** PR-2 (evidence collectors) merged: `scripts/collect_evidence.mjs` поддерживает `exit_code`, `fs_glob`, `file_diff`, `log_grep`, `selftest_run` без LLM-вызова; selftest (≥ 6 cases) на каждый kind зелёный.
+```yaml
+evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/evidence_collectors.selftest.mjs
+  expect_in_stdout: "OK"
+```
 - [ ] **A3.** PR-3 (LLM-judge fallback) merged: `scripts/judge_assertion.mjs` через `b.llm-gateway` оценивает пункт без явного evidence_spec; cost ≤ $0.02 per assertion; mock-режим для тестов; smoke green.
+```yaml
+evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/llm_judge.smoke.mjs
+  expect_in_stdout: "OK"
+```
 - [ ] **A4.** PR-4 (gate hooks) merged: `log_transition.mjs` блокирует `wip → done` если `_latest.json` отсутствует или `verdict !== "pass"`; `run_block_implementation.mjs` после exit 0 спавнит verifier; nightly включает `verify_done_blocks_still_green` step.
+```yaml
+evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/acceptance_verifier.e2e.smoke.mjs
+  expect_in_stdout: "OK"
+```
 - [ ] **A5.** PR-5 (UI) merged: Inspector секция «Acceptance verifier» (зелёные/красные badge per item, click → reasoning + evidence); ProposalsPanel `acceptance_blocked` proposal с retry-кнопкой; smoke (Playwright) подтверждает оба сценария.
+```yaml
+evidence_kind: log_grep
+evidence_spec:
+  file: Sima (Remix)/arch_canvas.jsx
+  pattern: "AcceptanceSection"
+```
 - [ ] **A6.** End-to-end smoke `tests/acceptance_verifier.e2e.smoke.mjs`: создать тестовый блок с 3 acceptance items (1 deterministic, 1 LLM-judge, 1 заведомо-fail) → run agent (mock) → verifier даёт verdict=fail с правильным `retry_prompt_hint` → `transition_block done` блокируется.
+```yaml
+evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/acceptance_verifier.e2e.smoke.mjs
+  expect_in_stdout: "5 phases"
+```
 - [ ] **A7.** Cache: при повторном вызове без новых коммитов и без новых traces — verdict из `_latest.json` без LLM-вызова; integration test проверяет, что cost_usd на 2-й вызов = 0.
+```yaml
+evidence_kind: fs_glob
+evidence_spec:
+  pattern: atlas/acceptance_runs/*/_latest.json
+  min_count: 1
+```
 - [ ] **A8.** Privacy/safety: verifier не пишет в `acceptance.md` блока (read-only по контракту); pre-commit hook предотвращает.
 
 ## Что считается NOT acceptance

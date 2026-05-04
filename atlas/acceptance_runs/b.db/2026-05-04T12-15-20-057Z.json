@@ -15,17 +15,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (54ms); first line: \"Block contract validation: OK\"",
+      "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (122ms); first line: \"Block contract validation: OK\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_block_contracts.mjs",
         "exit_code": 0,
         "stdout": "Block contract validation: OK\n",
         "stderr": "",
-        "duration_ms": 54,
+        "duration_ms": 122,
         "timed_out": false
       },
-      "duration_ms": 54
+      "duration_ms": 122
     },
     {
       "id": "A2",
@@ -39,14 +39,14 @@
         "min_count": 1
       },
       "verdict": "pass",
-      "evidence": "glob atlas/transitions.log → 1 files (min=1); newest 0min ago",
+      "evidence": "glob atlas/transitions.log → 1 files (min=1); newest 3min ago",
       "reasoning": "1 files match (≥1)",
       "raw": {
         "pattern": "atlas/transitions.log",
         "count": 1,
         "min_count": 1,
         "max_age_min": null,
-        "newest_minutes_ago": 0,
+        "newest_minutes_ago": 3,
         "sample": [
           "/home/user/sima_atlas/atlas/transitions.log"
         ]
@@ -113,17 +113,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_files_registry.mjs → exit 0 (56ms); first line: \"Files registry validation: OK (alive=197, archived=4, dead=0)\"",
+      "evidence": "node scripts/validate_files_registry.mjs → exit 0 (57ms); first line: \"Files registry validation: OK (alive=197, archived=4, dead=0)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_files_registry.mjs",
         "exit_code": 0,
         "stdout": "Files registry validation: OK (alive=197, archived=4, dead=0)\n",
         "stderr": "Files registry warnings:\n ⚠ b.ui-control: archived file still on disk → Sima (Remix)/result_view.jsx (consider deleting)\n ⚠ b.ui-control: archived file still on disk → Sima (Remix)/schema_view.jsx (consider deleting)\n ⚠ b.ui-control: archived file still on disk → Sima (Remix)/data.js (consider deleting)\n ⚠ b.ui-control: archived file still on disk → Sima (Remix)/app.jsx (consider deleting)\n",
-        "duration_ms": 56,
+        "duration_ms": 57,
         "timed_out": false
       },
-      "duration_ms": 56
+      "duration_ms": 57
     }
   ],
   "counts": {
@@ -132,6 +132,6 @@
     "skipped": 1
   },
   "verdict": "pass",
-  "duration_ms": 112,
-  "checked_at": "2026-05-04T12:15:36.543Z"
+  "duration_ms": 180,
+  "checked_at": "2026-05-04T12:15:20.488Z"
 }
