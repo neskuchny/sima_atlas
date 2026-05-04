@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import * as blocksApi from './atlas_blocks_api.mjs';
 import * as artifactsApi from './atlas_artifacts_api.mjs';
 import * as runsApi from './atlas_runs_api.mjs';
+import * as synthApi from './atlas_synthesis_api.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(__filename), '..');
@@ -570,6 +571,38 @@ const server = http.createServer((req, res) => {
           prompt:   body.prompt   ? String(body.prompt)   : undefined,
           context:  body.context,
         }).then((r) => json(res, 200, r), (e) => json(res, 200, { ok: false, error: String(e.message || e) }));
+      }
+
+      // ─── Phase M — Sima synthesis (block / edges / tasks) ──────────
+      if (req.url === '/llm/synthesize-block') {
+        return synthApi.synthesizeBlock({
+          source_text:     String(body.source_text || body.text || ''),
+          product_context: body.product_context || null,
+          count:           body.count,
+        }).then((r) => json(res, 200, r), (e) => json(res, 200, { ok: false, error: String(e.message || e) }));
+      }
+      if (req.url === '/llm/suggest-edges') {
+        return synthApi.suggestEdges({
+          focal_block_id: String(body.focal_block_id || body.block_id || ''),
+          modules:        Array.isArray(body.modules) ? body.modules : [],
+          edges:          Array.isArray(body.edges)   ? body.edges   : [],
+        }).then((r) => json(res, 200, r), (e) => json(res, 200, { ok: false, error: String(e.message || e) }));
+      }
+      if (req.url === '/llm/decompose-tasks') {
+        return synthApi.decomposeTasks({
+          block_id: String(body.block_id || ''),
+          title:    body.title ? String(body.title) : undefined,
+          mission:  body.mission ? String(body.mission) : undefined,
+          layer:    body.layer ? String(body.layer) : undefined,
+        }).then((r) => json(res, 200, r), (e) => json(res, 200, { ok: false, error: String(e.message || e) }));
+      }
+      // /atlas/blocks/patch-file — write a block's mission.md/kpi.md/etc.
+      if (req.url === '/atlas/blocks/patch-file') {
+        const id = String(body.block_id || body.id || '');
+        if (!id) return json(res, 400, { ok: false, error: 'block_id required' });
+        return tryFn(() => blocksApi.patchBlockFile({
+          block_id: id, file: String(body.file || ''), content: String(body.content || ''),
+        }));
       }
 
       // PR4.5: run the configured coding agent on a block

@@ -750,6 +750,7 @@ function App() {
           onDrillDown={onDrillDown}
           onOpenTz={(id) => setTzOpenFor(id || selectedId)}
           onClaudeAdvice={onClaudeAdvice}
+          onAddEdge={addEdge}
         />
       ) : (
         <button className="detail-reopen" onClick={() => setDetailOpen(true)} title="Открыть детали">◀</button>
@@ -772,14 +773,21 @@ function App() {
         />
       )}
 
-      {/* COMPOSER MODAL — multi-source intake → artifact */}
+      {/* COMPOSER MODAL — multi-source intake → artifact + Sima synthesis */}
       {composerOpen && (
         <div className="composer-modal" onClick={() => setComposerOpen(false)}>
           <div className="composer-modal-inner" onClick={e => e.stopPropagation()}>
             <Composer
               onClose={() => setComposerOpen(false)}
+              productContext={data.product}
               onPublished={(art) => {
                 pushLog({ agent: 'SIMA Core', kind: 'ok', msg: `Артефакт «${art.title}» (${art.id}) опубликован.` });
+              }}
+              onBlocksCreated={(p) => {
+                pushLog({ agent: 'SIMA Core', kind: 'head', msg: `Sima создала блок ${p.id} — «${p.title}»` });
+                pushLog({ agent: 'SIMA Core', kind: 'note', msg: `мiссия + ${p.kpi.length} KPI + ${p.acceptance.length} критериев записаны на диск` });
+                // Refresh underlying graph payload so the new block appears
+                window.SIMA_API?.refresh && window.SIMA_API.refresh();
               }}
             />
           </div>

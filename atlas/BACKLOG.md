@@ -236,17 +236,23 @@ LLM-ом — только сохраняет сырой transcript.
 артефакт + контекст продукта и **сама генерит черновик блока с mission /
 kpi / acceptance**. Сейчас этого нет.
 
-- [ ] **M1** Endpoint `POST /llm/synthesize-block` body
-      `{ source_artifact_id?, source_text?, product_context }`
-      → callLLM с structured-output schema → возвращает
-      `{ id, title, layer, mission, kpi[], acceptance[] }`.
-- [ ] **M2** UI flow: в Composer, после publish артефакта → кнопка
-      «Sima предложит блоки на основе этого». Показывает 1-3 драфта
-      блоков → пользователь approves → создаются через `/atlas/blocks/create`.
-- [ ] **M3** Auto-edges: Sima предлагает связи между новым блоком и
-      существующими по `provides ∩ depends_on`.
-- [ ] **M4** Auto-decompose: уже есть блок без задач — кнопка «Sima
-      разложит на подзадачи» в TasksList tab.
+- [x] **M1** `scripts/atlas_synthesis_api.mjs` — synthesizeBlock(),
+      suggestEdges(), decomposeTasks(). Каждая функция вызывает
+      `callLLM` с structured-output schema. Возвращает sanitized
+      proposals (id принудительно в `b.<base>` форме, layers
+      нормализованы, нерелевантные drop'нуты). Mock-провайдер
+      возвращает `[]` с флагом `mock:true` чтобы UI пометил «demo-режим».
+- [x] **M2** Composer post-publish flow: кнопка «✦ Sima предложит блоки
+      на основе этого» → показывает 1-3 карточки draft-ов с
+      title/mission/KPI/acceptance/capabilities/rationale → «＋ Принять и
+      создать блок» атомарно вызывает `createBlock` + `patchBlockFile`
+      для mission.md/kpi.md/acceptance.md/depends_on.md/provides.md.
+- [x] **M3** ConnectionsTab: кнопка «✦ предложить» → POST `/llm/suggest-edges`
+      с focal_block_id + всеми modules + edges → cards с rationale →
+      «＋ принять» вызывает `addEdge` (UI + persist).
+- [x] **M4** TasksList: кнопка «✦ предложить декомпозицию» (для b.* блоков) →
+      POST `/llm/decompose-tasks` → 4-8 задач с приоритетом и agent.
+      Записываются как preview; запись в tasks.md — следующая итерация.
 
 ---
 

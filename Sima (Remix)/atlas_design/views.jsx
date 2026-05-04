@@ -27,13 +27,17 @@ const { useState: useStateV, useEffect: useEffectV, useMemo: useMemoV } = React;
 // an artifact (kind=document or kind=transcript). Artifacts then feed
 // the Gallery and TZ generation.
 
-function Composer({ onClose, onPublished }) {
+function Composer({ onClose, onPublished, productContext, onBlocksCreated }) {
   const [source, setSource] = useStateV('text');     // text | file | url | meeting
   const [title, setTitle] = useStateV('');
   const [text, setText] = useStateV('');
   const [tags, setTags] = useStateV('');             // comma-separated
   const [busy, setBusy] = useStateV(false);
   const [result, setResult] = useStateV(null);
+  // Phase M — synthesis post-publish flow
+  const [proposals, setProposals] = useStateV([]);
+  const [synthBusy, setSynthBusy] = useStateV(false);
+  const [accepting, setAccepting] = useStateV({}); // by id → state
 
   const sources = [
     { id: 'text',    label: 'Текст',     hint: 'паста / заметка' },
@@ -55,6 +59,7 @@ function Composer({ onClose, onPublished }) {
     if (!text.trim() && source !== 'url') { setResult({ ok: false, error: 'Контент пуст' }); return; }
     setBusy(true);
     setResult(null);
+    setProposals([]);
     const kind = source === 'meeting' ? 'transcript' : source === 'url' ? 'document' : 'document';
     const r = await window.SIMA_API.artifacts.create({
       kind,
@@ -67,10 +72,52 @@ function Composer({ onClose, onPublished }) {
     setResult(r);
     if (r.ok) {
       if (onPublished) onPublished(r.artifact);
-      // Reset for next intake
-      setText(''); setTitle(''); setTags('');
+      // Don't reset text yet — we need it for the synthesis flow.
     }
   };
+
+  // Phase M — ask Sima to propose 1-3 blocks based on the artefact body.
+  const synthesize = async () => {
+    setSynthBusy(true); setProposals([]);
+    const r = await window.SIMA_API.synthesis.block({
+      source_text: text || (result?.artifact?.description || ''),
+      product_context: productContext || null,
+      count: 3,
+    });
+    setSynthBusy(false);
+    if (r?.ok) setProposals(r.proposals.map((p) => ({ ...p, _mock: r.mock })));
+  };
+
+  // Accept a proposal: create the block, then write its mission / kpi /
+  // acceptance / depends_on / provides files.
+  const accept = async (p) => {
+    setAccepting((a) => ({ ...a, [p.id]: 'creating' }));
+    const c = await window.SIMA_API.createBlock({
+      id: p.id,
+      title: p.title,
+      layer: p.layer,
+      status: 'idea',
+    });
+    if (!c?.ok) {
+      setAccepting((a) => ({ ...a, [p.id]: `failed: ${c?.error || 'create'}` }));
+      return;
+    }
+    setAccepting((a) => ({ ...a, [p.id]: 'writing' }));
+    const writeFile = async (file, content) => {
+      const r = await window.SIMA_API.synthesis.patchBlockFile(p.id, file, content);
+      return r?.ok;
+    };
+    await writeFile('mission.md',    `# ${p.id} — mission\n\n${p.mission}\n`);
+    if (p.kpi.length)        await writeFile('kpi.md',        `# ${p.id} — KPI\n\n${p.kpi.map((k) => `- ${k}`).join('\n')}\n`);
+    if (p.acceptance.length) await writeFile('acceptance.md', `# ${p.id} — acceptance\n\n${p.acceptance.map((a, i) => `- [ ] **A${i+1}.** ${a}`).join('\n')}\n`);
+    if (p.depends_on_capabilities.length) await writeFile('depends_on.md', `# ${p.id} — depends_on\n\n${p.depends_on_capabilities.map((d) => `- ?: ${d}`).join('\n')}\n`);
+    if (p.provides_capabilities.length)   await writeFile('provides.md',   `# ${p.id} — provides\n\n${p.provides_capabilities.map((d) => `- ${d}`).join('\n')}\n`);
+    setAccepting((a) => ({ ...a, [p.id]: 'accepted' }));
+    setProposals((P) => P.filter((x) => x.id !== p.id));
+    if (onBlocksCreated) onBlocksCreated(p);
+  };
+
+  const reject = (p) => setProposals((P) => P.filter((x) => x.id !== p.id));
 
   return (
     <div className="composer-wrap">
@@ -153,6 +200,72 @@ function Composer({ onClose, onPublished }) {
               {result.ok
                 ? <>✓ Опубликовано как <span className="mono">{result.artifact.id}</span> — «{result.artifact.title}»</>
                 : <>✗ {result.error}</>}
+            </div>
+          )}
+
+          {/* Phase M — Sima synthesis */}
+          {result?.ok && text && (
+            <div className="synthesis-cta">
+              <button className="pill primary" onClick={synthesize} disabled={synthBusy}>
+                {synthBusy ? '✦ Sima думает…' : '✦ Sima предложит блоки на основе этого'}
+              </button>
+              <span className="meta" style={{ fontSize: 11.5 }}>
+                Sima проанализирует артефакт и предложит 1-3 черновика блоков.
+              </span>
+            </div>
+          )}
+          {proposals.length > 0 && (
+            <div className="synthesis-list">
+              {proposals[0]?._mock && (
+                <div className="composer-result fail" style={{ marginBottom: 8 }}>
+                  Demo-режим: задайте ANTHROPIC_API_KEY чтобы Sima генерировала реальные предложения.
+                </div>
+              )}
+              {proposals.map((p) => (
+                <div key={p.id} className="synth-card">
+                  <div className="synth-card-head">
+                    <span className="mono" style={{ fontSize: 11 }}>{p.id}</span>
+                    <span className="gallery-kind">{p.layer}</span>
+                  </div>
+                  <div className="synth-title">{p.title}</div>
+                  <div className="synth-mission">{p.mission}</div>
+                  {p.kpi.length > 0 && (
+                    <div style={{ marginTop: 6 }}>
+                      <div className="meta" style={{ fontSize: 10.5, marginBottom: 2 }}>KPI</div>
+                      <div className="chips">{p.kpi.slice(0, 4).map((k, i) => <span key={i} className="chip">{k}</span>)}</div>
+                    </div>
+                  )}
+                  {p.acceptance.length > 0 && (
+                    <div style={{ marginTop: 6 }}>
+                      <div className="meta" style={{ fontSize: 10.5, marginBottom: 2 }}>ACCEPTANCE</div>
+                      <ul className="synth-list-md">
+                        {p.acceptance.slice(0, 4).map((a, i) => <li key={i}>{a}</li>)}
+                      </ul>
+                    </div>
+                  )}
+                  {(p.provides_capabilities.length > 0 || p.depends_on_capabilities.length > 0) && (
+                    <div className="synth-caps">
+                      {p.provides_capabilities.length > 0 && <span><span className="meta">даёт:</span> {p.provides_capabilities.slice(0, 4).join(', ')}</span>}
+                      {p.depends_on_capabilities.length > 0 && <span><span className="meta">зависит:</span> {p.depends_on_capabilities.slice(0, 4).join(', ')}</span>}
+                    </div>
+                  )}
+                  {p.rationale && <div className="meta" style={{ fontSize: 11, marginTop: 6 }}>{p.rationale}</div>}
+                  <div className="synth-actions">
+                    <button className="pill primary" onClick={() => accept(p)} disabled={!!accepting[p.id]}>
+                      {accepting[p.id] === 'creating' ? 'создаю…' :
+                        accepting[p.id] === 'writing' ? 'пишу файлы…' :
+                        accepting[p.id]?.startsWith('failed') ? 'ошибка' :
+                        '＋ Принять и создать блок'}
+                    </button>
+                    <button className="pill" onClick={() => reject(p)} disabled={!!accepting[p.id]}>
+                      ✗ Пропустить
+                    </button>
+                    {accepting[p.id]?.startsWith('failed') && (
+                      <span className="meta" style={{ fontSize: 11, color: 'var(--st-fail)' }}>{accepting[p.id]}</span>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>

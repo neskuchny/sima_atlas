@@ -307,6 +307,32 @@ export function deleteNote({ atlas_root, note_id } = {}) {
   return { ok: true, removed: 1 };
 }
 
+// Phase M: write a block's contract file with provided content. Used by
+// the synthesis flow to populate mission.md / kpi.md / acceptance.md /
+// depends_on.md / provides.md after Sima generates a draft. Whitelisted
+// to prevent arbitrary file writes through this endpoint.
+const WRITABLE_BLOCK_FILES = new Set([
+  'mission.md', 'kpi.md', 'acceptance.md', 'tasks.md',
+  'depends_on.md', 'provides.md', 'files.md',
+]);
+export function patchBlockFile({ atlas_root, block_id, file, content } = {}) {
+  if (!block_id) throw new Error('patchBlockFile: block_id required');
+  if (!WRITABLE_BLOCK_FILES.has(file)) throw new Error(`patchBlockFile: forbidden file "${file}"`);
+  if (typeof content !== 'string') throw new Error('patchBlockFile: content must be string');
+  if (content.length > 100_000) throw new Error('patchBlockFile: content too large');
+  const root = atlas_root || ATLAS;
+  const dir = blockDir(root, block_id);
+  if (!fs.existsSync(dir)) throw new Error(`patchBlockFile: block "${block_id}" not found`);
+  const p = path.join(dir, file);
+  const tmp = p + '.tmp';
+  fs.writeFileSync(tmp, content, 'utf8');
+  fs.renameSync(tmp, p);
+  // Audit line in checks.log so the run-files extractor can pick it up.
+  const log = path.join(dir, 'checks.log');
+  fs.appendFileSync(log, `${ts()}\tdesign_patch\tpass\tatlas/blocks/${block_id}/${file}\n`);
+  return { ok: true, block_id, file, bytes: content.length };
+}
+
 export function listNotes({ atlas_root } = {}) {
   return readNotes(atlas_root);
 }

@@ -66,7 +66,7 @@ function ContextRail({ data, onClose, onUpdateField }) {
 }
 
 /* ====================== DETAIL PANEL ====================== */
-function DetailPanel({ data, moduleId, onClose, desyncResolved, onSendToAgent, onDrillDown, onOpenTz, onClaudeAdvice }) {
+function DetailPanel({ data, moduleId, onClose, desyncResolved, onSendToAgent, onDrillDown, onOpenTz, onClaudeAdvice, onAddEdge }) {
   const [tab, setTab] = useState2('overview');
   useEffect2(() => { setTab('overview'); }, [moduleId]);
 
@@ -133,12 +133,12 @@ function DetailPanel({ data, moduleId, onClose, desyncResolved, onSendToAgent, o
 
       <div className="dbody">
         {tab === 'overview' && <Overview m={m} status={status} desyncResolved={desyncResolved} onSendToAgent={onSendToAgent} onDrillDown={onDrillDown} hasSubsystem={!!data.subsystems?.[m.id]} onOpenTz={onOpenTz} onClaudeAdvice={onClaudeAdvice} />}
-        {tab === 'tasks' && <TasksList tasks={tasks} desyncResolved={desyncResolved} moduleId={moduleId} onSendToAgent={onSendToAgent} />}
+        {tab === 'tasks' && <TasksList tasks={tasks} desyncResolved={desyncResolved} moduleId={moduleId} onSendToAgent={onSendToAgent} missionText={(MODULE_DESC[moduleId] || {}).why || (MODULE_DESC[moduleId] || {}).logic || ''} layer={m.layer} />}
         {tab === 'runs' && <RunStatusSection moduleId={moduleId} />}
         {tab === 'acceptance' && <AcceptanceSection moduleId={moduleId} />}
         {tab === 'subs' && <SubsList subs={subs} desyncResolved={desyncResolved} moduleId={moduleId} />}
         {tab === 'memory' && <Memory lessons={lessons} history={data.history.filter(h => h.module === moduleId)} moduleId={moduleId} />}
-        {tab === 'connections' && <ConnectionsTab inEdges={inEdges} outEdges={outEdges} moduleById={moduleById} />}
+        {tab === 'connections' && <ConnectionsTab inEdges={inEdges} outEdges={outEdges} moduleById={moduleById} moduleId={moduleId} allModules={data.modules} allEdges={data.edges} onAddEdge={onAddEdge} />}
       </div>
     </aside>
   );
@@ -204,11 +204,28 @@ function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSu
   );
 }
 
-function TasksList({ tasks, desyncResolved, moduleId, onSendToAgent }) {
-  if (!tasks.length) return <p style={{ color: 'var(--ink-3)' }}>Задачи появятся, когда агент начнёт декомпозицию.</p>;
+function TasksList({ tasks, desyncResolved, moduleId, onSendToAgent, missionText, layer }) {
+  // Phase M-4 — Sima decomposes mission into tasks
+  const [suggested, setSuggested] = useState2([]);
+  const [busy, setBusy] = useState2(false);
+
+  const askSima = async () => {
+    if (!moduleId || !moduleId.startsWith('b.')) return;
+    setBusy(true);
+    const r = await window.SIMA_API?.synthesis?.tasks({
+      block_id: moduleId,
+      title: moduleId,
+      mission: missionText || '',
+      layer: layer || 'logic',
+    });
+    setBusy(false);
+    if (r?.ok) setSuggested(r.tasks.map((t) => ({ ...t, _mock: r.mock })));
+  };
+
   return (
     <>
       <h3>Декомпозиция</h3>
+      {!tasks.length && <p style={{ color: 'var(--ink-3)' }}>Задачи появятся, когда агент начнёт декомпозицию.</p>}
       {tasks.map(t => {
         const st = (moduleId === 'metrics' && t.id === 'T-202' && desyncResolved) ? 'progress' : t.status;
         return (
@@ -226,6 +243,37 @@ function TasksList({ tasks, desyncResolved, moduleId, onSendToAgent }) {
           </div>
         );
       })}
+
+      {moduleId && moduleId.startsWith('b.') && (
+        <>
+          <h3>✦ Sima разложит на задачи</h3>
+          <div className="send-task" style={{ marginBottom: 8 }}>
+            <span className="lab">Из mission блока →</span>
+            <button onClick={askSima} disabled={busy}>{busy ? 'думаю…' : '✦ предложить декомпозицию'}</button>
+          </div>
+          {suggested[0]?._mock && (
+            <div className="composer-result fail" style={{ marginBottom: 8 }}>Demo-режим — нужен ANTHROPIC_API_KEY.</div>
+          )}
+          {suggested.map((t) => (
+            <div key={t.id} className="synth-task">
+              <span className="mono" style={{ fontSize: 11, color: 'var(--ink-3)' }}>{t.id}</span>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 13 }}>{t.title}</div>
+                {t.note && <div className="meta" style={{ fontSize: 11 }}>{t.note}</div>}
+                <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
+                  <span className="acc-pill mono">{t.priority}</span>
+                  <span className="acc-pill mono">{t.agent}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+          {suggested.length > 0 && (
+            <div className="meta" style={{ fontSize: 11, marginTop: 4 }}>
+              Предложения только показаны — записать их в tasks.md можно через «Send to Claude Code» с этим контекстом.
+            </div>
+          )}
+        </>
+      )}
     </>
   );
 }
@@ -365,7 +413,7 @@ function Memory({ lessons, history, moduleId }) {
   );
 }
 
-function ConnectionsTab({ inEdges, outEdges, moduleById }) {
+function ConnectionsTab({ inEdges, outEdges, moduleById, moduleId, allModules, allEdges, onAddEdge }) {
   const Row = ({ e, dir }) => {
     const other = moduleById[dir === 'in' ? e.from : e.to];
     if (!other) return null;
@@ -377,6 +425,29 @@ function ConnectionsTab({ inEdges, outEdges, moduleById }) {
       </div>
     );
   };
+
+  // Phase M-3 — Sima suggests edges
+  const [suggested, setSuggested] = useState2([]);
+  const [busy, setBusy] = useState2(false);
+  const [accepted, setAccepted] = useState2(new Set());
+
+  const askSima = async () => {
+    if (!moduleId || !moduleId.startsWith('b.')) return;
+    setBusy(true);
+    const r = await window.SIMA_API?.synthesis?.edges({
+      focal_block_id: moduleId,
+      modules: allModules || [],
+      edges: allEdges || [],
+    });
+    setBusy(false);
+    if (r?.ok) setSuggested(r.edges.map((e) => ({ ...e, _mock: r.mock })));
+  };
+
+  const acceptSuggestion = async (e) => {
+    setAccepted((s) => new Set([...s, edgeKey(e)]));
+    if (onAddEdge) onAddEdge({ from: e.from, to: e.to, kind: e.kind, label: e.capability || '' });
+  };
+
   return (
     <>
       <h3>Входящие ({inEdges.length})</h3>
@@ -385,13 +456,51 @@ function ConnectionsTab({ inEdges, outEdges, moduleById }) {
         {!inEdges.length && <p style={{ color: 'var(--ink-3)', margin: 0 }}>—</p>}
       </div>
       <h3>Исходящие ({outEdges.length})</h3>
-      <div className="subm-list">
+      <div className="subm-list" style={{ marginBottom: 14 }}>
         {outEdges.map((e, i) => <Row key={i} e={e} dir="out" />)}
         {!outEdges.length && <p style={{ color: 'var(--ink-3)', margin: 0 }}>—</p>}
       </div>
+
+      {moduleId && moduleId.startsWith('b.') && (
+        <>
+          <h3>✦ Sima предложит связи</h3>
+          <div className="send-task" style={{ marginBottom: 8 }}>
+            <span className="lab">На основе графа →</span>
+            <button onClick={askSima} disabled={busy}>{busy ? 'думаю…' : '✦ предложить'}</button>
+          </div>
+          {suggested[0]?._mock && (
+            <div className="composer-result fail" style={{ marginBottom: 8 }}>Demo-режим — нужен ANTHROPIC_API_KEY.</div>
+          )}
+          {suggested.map((e) => {
+            const key = edgeKey(e);
+            const isAccepted = accepted.has(key);
+            const target = moduleById[e.to];
+            return (
+              <div key={key} className={`synth-edge ${isAccepted ? 'accepted' : ''}`}>
+                <div className="synth-edge-head">
+                  <span className="mono" style={{ fontSize: 11 }}>{e.from} → {e.to}</span>
+                  <span className="gallery-kind">{e.kind}</span>
+                </div>
+                <div style={{ fontSize: 12.5, marginTop: 2 }}>
+                  {target ? `${target.title} · ` : ''}{e.capability && <span className="mono" style={{ fontSize: 11 }}>{e.capability}</span>}
+                </div>
+                {e.rationale && <div className="meta" style={{ fontSize: 11, marginTop: 2 }}>{e.rationale}</div>}
+                {!isAccepted && (
+                  <div className="synth-actions" style={{ marginTop: 6 }}>
+                    <button className="pill primary" onClick={() => acceptSuggestion(e)}>＋ принять</button>
+                    <button className="pill" onClick={() => setSuggested((S) => S.filter((x) => edgeKey(x) !== key))}>✗ пропустить</button>
+                  </div>
+                )}
+                {isAccepted && <div className="meta" style={{ fontSize: 11, marginTop: 4 }}>✓ добавлено</div>}
+              </div>
+            );
+          })}
+        </>
+      )}
     </>
   );
 }
+function edgeKey(e) { return `${e.from}|${e.to}|${e.capability || ''}`; }
 
 /* Module descriptions */
 const MODULE_DESC = {

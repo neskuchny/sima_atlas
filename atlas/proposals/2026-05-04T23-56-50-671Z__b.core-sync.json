@@ -1,0 +1,80 @@
+{
+  "id": "2026-05-04T23-56-50-671Z__b.core-sync",
+  "block_id": "b.core-sync",
+  "kind": "block_update",
+  "created_at": "2026-05-04T23:56:50.671Z",
+  "source": {
+    "provider": "mock",
+    "model": "mock-1",
+    "prompt_hash": "29294553c70f1fe0",
+    "confidence": 0.85
+  },
+  "current": {
+    "layer": "logic",
+    "type": "module",
+    "mvp": true,
+    "status": "wip",
+    "depends_on": [
+      "b.db"
+    ],
+    "tech_stack": [
+      "nodejs",
+      "esm"
+    ]
+  },
+  "proposed": {
+    "id": "b.core-sync",
+    "title": "Sync Engine",
+    "mission": "Sync Engine — движок проверки синхронизации блоков продукта; подтверждаем переход в done после прохождения acceptance.",
+    "layer": "logic",
+    "type": "module",
+    "mvp": true,
+    "status": "done",
+    "depends_on": [
+      "b.db"
+    ],
+    "provides": [
+      "sync_report"
+    ],
+    "tech_stack": [
+      "typescript",
+      "nodejs",
+      "fastify",
+      "zod",
+      "drizzle-orm",
+      "sqlite",
+      "session-cookies",
+      "pino",
+      "vitest"
+    ],
+    "confidence": 0.85,
+    "suggested_template_id": "backend-mvp",
+    "suggested_template_scope": "backend",
+    "suggested_template_profile_state": "warming_up",
+    "suggested_template_adjustments": []
+  },
+  "changes": {
+    "status": {
+      "from": "wip",
+      "to": "done"
+    },
+    "provides_add": [
+      "sync_report"
+    ],
+    "tech_stack_add": [
+      "typescript",
+      "fastify",
+      "zod",
+      "drizzle-orm",
+      "sqlite",
+      "session-cookies",
+      "pino",
+      "vitest"
+    ],
+    "mission_preview": "Sync Engine — движок проверки синхронизации блоков продукта; подтверждаем переход в done после прохождения acceptance."
+  },
+  "suggested_template_id": "backend-mvp",
+  "suggested_template_scope": "backend",
+  "suggested_template_profile_state": "warming_up",
+  "verdict": "pending"
+}

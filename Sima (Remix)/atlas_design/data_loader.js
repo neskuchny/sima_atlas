@@ -166,6 +166,14 @@
     },
   };
 
+  // ─── Phase M — Sima synthesis (creates schemas itself) ─────────
+  const synthesis = {
+    block:   async (body_)             => await postJson('/llm/synthesize-block', body_),
+    edges:   async (body_)             => await postJson('/llm/suggest-edges',    body_),
+    tasks:   async (body_)             => await postJson('/llm/decompose-tasks',  body_),
+    patchBlockFile: async (block_id, file, content) => await postJson('/atlas/blocks/patch-file', { block_id, file, content }),
+  };
+
   // ─── "Совет Клода" — bridge to b.llm-gateway ─────────────────────
   // Sends a free-form prompt + optional block context, returns advice.
   // Backend route /llm/advice is expected to exist; if not, the UI
@@ -200,6 +208,7 @@
     deleteNote:  async (note_id)       => { const r = await postJson('/atlas/notes/delete', withClient({ note_id })); if (r.ok) await refresh(); return r; },
     artifacts,
     meta,
+    synthesis,
     claudeAdvice,
     refresh,
   };
