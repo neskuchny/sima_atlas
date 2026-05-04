@@ -138,8 +138,14 @@ test.describe('SIMA Atlas Design UI', () => {
       expect(listResp).toMatchObject({ ok: true });
       expect(Array.isArray((listResp as any).artifacts)).toBe(true);
 
-      // End-to-end create → list → delete, all from inside the page
+      // End-to-end create → list → delete, all from inside the page.
+      // Sweep any stragglers from previous failed runs first so we never
+      // leak test data into atlas/artifacts/ on disk.
       const e2e = await page.evaluate(async () => {
+        const stale = await (window as any).SIMA_API.artifacts.list({ search: 'pw-roundtrip' });
+        for (const a of (stale?.artifacts || [])) {
+          await (window as any).SIMA_API.artifacts.delete(a.id);
+        }
         const c = await (window as any).SIMA_API.artifacts.create({
           kind: 'note',
           title: 'pw-roundtrip',
