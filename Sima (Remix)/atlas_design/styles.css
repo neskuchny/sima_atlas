@@ -1610,3 +1610,79 @@ html, body {
 }
 .tz-actions { padding: 12px 18px 16px; border-top: 1px solid var(--rule); display: flex; flex-direction: column; gap: 8px; }
 .tz-actions-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+
+/* ============================================================
+   PR — Run status + Acceptance sections (panels.jsx)
+   ============================================================ */
+
+/* Run cards */
+.run-card {
+  background: var(--card); border: 1px solid var(--rule); border-radius: 8px;
+  padding: 9px 12px; margin-bottom: 8px;
+}
+.run-card.live { border-color: var(--st-progress); background: rgba(220, 150, 60, 0.06); }
+.run-card.succeeded { border-left: 3px solid var(--st-done); }
+.run-card.failed,
+.run-card.stalled { border-left: 3px solid var(--st-fail); }
+.run-card.canceled { border-left: 3px solid var(--ink-3); }
+.run-card-head { display: flex; align-items: center; gap: 8px; }
+.run-card-head .run-phase {
+  font-family: 'JetBrains Mono', monospace; font-size: 10.5px; padding: 2px 8px;
+  border-radius: 999px; background: var(--card-2); color: var(--ink-2);
+  letter-spacing: 0.05em; text-transform: uppercase;
+}
+.run-card.live .run-phase { background: rgba(220, 150, 60, 0.18); color: #7a4a00; }
+.run-card.succeeded .run-phase { background: rgba(60, 160, 100, 0.14); color: #2d6e3f; }
+.run-card.failed .run-phase,
+.run-card.stalled .run-phase { background: rgba(190, 60, 60, 0.12); color: #8a2f2f; }
+.run-pulse {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--st-progress);
+  animation: pulse 1.4s infinite ease-in-out;
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.5; }
+}
+
+/* Acceptance summary + rows */
+.acc-summary {
+  background: var(--card); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 12px 14px; margin-bottom: 12px;
+}
+.acc-summary.acc-ok  { border-color: var(--st-done); background: rgba(60, 160, 100, 0.05); }
+.acc-summary.acc-bad { border-color: var(--st-fail); background: rgba(190, 60, 60, 0.04); }
+.acc-summary.acc-warn { border-color: var(--st-progress); }
+.acc-verdict {
+  font-family: 'Newsreader', serif; font-style: italic; font-size: 18px;
+  text-transform: capitalize; margin-bottom: 6px;
+}
+.acc-counts { display: flex; gap: 6px; flex-wrap: wrap; }
+.acc-pill {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  padding: 2px 8px; border-radius: 999px; background: var(--card-2);
+  color: var(--ink-3); letter-spacing: 0.04em;
+}
+.acc-pill.ok   { background: rgba(60, 160, 100, 0.16); color: #2d6e3f; }
+.acc-pill.bad  { background: rgba(190, 60, 60, 0.16);  color: #8a2f2f; }
+.acc-pill.skip { background: rgba(160, 160, 160, 0.18); color: var(--ink-3); }
+
+.acc-list { display: flex; flex-direction: column; gap: 6px; }
+.acc-row {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 9px 12px; border: 1px solid var(--rule); border-radius: 8px;
+  background: var(--card);
+}
+.acc-row .acc-id   { font-size: 10.5px; color: var(--ink-3); min-width: 28px; padding-top: 2px; }
+.acc-row .acc-text { font-size: 12.5px; line-height: 1.4; color: var(--ink-2); }
+.acc-row .acc-dot {
+  font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1;
+  width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 50%; flex-shrink: 0; padding-top: 2px;
+}
+.acc-row .acc-dot.v-pass { background: rgba(60, 160, 100, 0.14); color: var(--st-done); }
+.acc-row .acc-dot.v-fail { background: rgba(190, 60, 60, 0.14);  color: var(--st-fail); }
+.acc-row .acc-dot.v-skipped,
+.acc-row .acc-dot.v-skip,
+.acc-row .acc-dot.v-inconclusive { background: var(--card-2); color: var(--ink-3); }
+.acc-row.v-fail { border-left: 3px solid var(--st-fail); }
+.acc-row.v-pass { border-left: 3px solid var(--st-done); }

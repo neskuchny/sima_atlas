@@ -246,20 +246,43 @@ function App() {
     }, 1400);
   };
 
-  const onSendToAgent = (agentId, mod) => {
-    const agent = data.agents.find(a => a.id === agentId).title;
+  const onSendToAgent = async (agentId, mod) => {
+    const agent = data.agents.find(a => a.id === agentId)?.title || agentId;
     pushLog({ agent: 'SIMA Core', kind: 'head', msg: `— пакую контекст блока @${mod.tag} → ${agent}` });
-    setTimeout(() => pushLog({ agent: 'SIMA Core', kind: 'note', msg: `включено: описание · KPI · логика · ${(data.tasks[mod.id]||[]).length} задач · история (${data.lessons.filter(l=>l.module===mod.id).length} уроков)` }), 350);
-    setTimeout(() => pushLog({ agent, kind: 'note', msg: `получил контекст @${mod.tag} (≈${Math.floor(800 + Math.random()*1200)} токенов вместо ~12k)` }), 800);
-    setTimeout(() => pushLog({ agent, kind: 'ok', msg: `начал работу над ${mod.title}` }), 1300);
+    pushLog({ agent: 'SIMA Core', kind: 'note', msg: `включено: описание · KPI · логика · ${(data.tasks[mod.id]||[]).length} задач · история (${data.lessons.filter(l=>l.module===mod.id).length} уроков)` });
     setActiveAgent('all');
     setDockCollapsed(false);
     setActiveFlash(mod.id);
     setTimeout(() => setActiveFlash(null), 800);
+
+    // Real run via /runs/start (non-blocking). Only fires when the block id
+    // is an Atlas-shaped id (b.*); modules from the static fallback (m-*)
+    // can't be run because they have no atlas/blocks/<id>/ folder.
+    if (!mod.id.startsWith('b.')) {
+      pushLog({ agent, kind: 'note', msg: `(demo-режим: запуск работает только для b.* блоков из живого atlas)` });
+      return;
+    }
+    try {
+      const base = (window.SIMA_API_BASE || 'http://localhost:8787').replace(/\/$/, '');
+      const r = await fetch(base + '/runs/start', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ block_id: mod.id, agent: agentId }),
+      });
+      const j = await r.json();
+      if (j.ok) {
+        pushLog({ agent, kind: 'ok', msg: `запуск создан (pid=${j.pid}). Вкладка «Запуски» покажет фазы FSM.` });
+      } else {
+        pushLog({ agent, kind: 'fail', msg: `не удалось стартовать: ${j.error}` });
+      }
+    } catch (e) {
+      pushLog({ agent, kind: 'fail', msg: `сеть недоступна: ${e.message || e}` });
+    }
   };
 
-  // "Совет Клода" — sends block context + free-form prompt to b.llm-gateway.
-  // Backend may not have /llm/advice yet; show a graceful in-log result.
+  // "Совет Клода" — sends block context + free-form prompt via
+  // SIMA_API.claudeAdvice → /llm/advice → b.llm-gateway. When no API
+  // key is configured the gateway returns a labelled mock response.
   const onClaudeAdvice = async (mod) => {
     if (!window.SIMA_API?.claudeAdvice) {
       pushLog({ agent: 'Claude', kind: 'note', msg: 'Совет Клода: функция готовится (требуется b.llm-gateway).' });
@@ -272,9 +295,13 @@ function App() {
       context: { layer: mod.layer, status: mod.status },
     });
     if (r?.ok && r.advice) {
-      pushLog({ agent: 'Claude', kind: 'note', msg: `✨ ${r.advice.slice(0, 180)}${r.advice.length > 180 ? '…' : ''}` });
+      pushLog({
+        agent: r.mock ? 'Claude (demo)' : 'Claude',
+        kind: r.mock ? 'note' : 'ok',
+        msg: `✨ ${r.advice}`,
+      });
     } else {
-      pushLog({ agent: 'Claude', kind: 'note', msg: 'Пока без совета — gateway не вернул ответ. Попробуйте позже.' });
+      pushLog({ agent: 'Claude', kind: 'fail', msg: `Совет недоступен: ${r?.error || 'unknown'}` });
     }
   };
 

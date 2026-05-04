@@ -7,6 +7,7 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import * as blocksApi from './atlas_blocks_api.mjs';
 import * as artifactsApi from './atlas_artifacts_api.mjs';
+import * as runsApi from './atlas_runs_api.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(__filename), '..');
@@ -111,6 +112,40 @@ const server = http.createServer((req, res) => {
       return json(res, 200, { ok: false, error: String(e.message || e) });
     }
   }
+  // /runs/list?block_id=&active=1   /runs/get?run_id=
+  // /acceptance/get?block_id=
+  if (req.method === 'GET' && req.url.startsWith('/runs/list')) {
+    try {
+      const u = new URL(req.url, `http://localhost:${port}`);
+      const runs = runsApi.listRunsByBlock({
+        block_id: u.searchParams.get('block_id') || undefined,
+        active_only: u.searchParams.get('active') === '1',
+        limit: Number(u.searchParams.get('limit') || 20),
+      });
+      return json(res, 200, { ok: true, runs });
+    } catch (e) {
+      return json(res, 200, { ok: false, error: String(e.message || e) });
+    }
+  }
+  if (req.method === 'GET' && req.url.startsWith('/runs/get')) {
+    try {
+      const u = new URL(req.url, `http://localhost:${port}`);
+      const run = runsApi.getRun(u.searchParams.get('run_id') || '');
+      return json(res, 200, run ? { ok: true, run } : { ok: false, error: 'not_found' });
+    } catch (e) {
+      return json(res, 200, { ok: false, error: String(e.message || e) });
+    }
+  }
+  if (req.method === 'GET' && req.url.startsWith('/acceptance/get')) {
+    try {
+      const u = new URL(req.url, `http://localhost:${port}`);
+      const r = runsApi.getLatestAcceptance({ block_id: u.searchParams.get('block_id') || '' });
+      return json(res, 200, r ? { ok: true, ...r } : { ok: false, error: 'not_found' });
+    } catch (e) {
+      return json(res, 200, { ok: false, error: String(e.message || e) });
+    }
+  }
+
   if (req.method === 'DELETE' && req.url.startsWith('/api/artifacts')) {
     try {
       const u = new URL(req.url, `http://localhost:${port}`);
@@ -347,6 +382,27 @@ const server = http.createServer((req, res) => {
       const artPatchM = req.url.match(/^\/api\/artifacts\/(art-[a-z0-9-]+)$/i);
       if (artPatchM) {
         return tryFn(() => artifactsApi.updateArtifact(artPatchM[1], body));
+      }
+
+      // /runs/start — non-blocking variant of /run-block. Spawns the
+      // implementation script detached and returns immediately. The UI
+      // polls /runs/list?block_id=...&active=1 to track FSM progression.
+      if (req.url === '/runs/start') {
+        return tryFn(() => runsApi.startRunAsync({
+          block_id: String(body.block_id || ''),
+          agent:    body.agent ? String(body.agent) : undefined,
+          prompt:   body.prompt ? String(body.prompt) : undefined,
+        }));
+      }
+      // /llm/advice — bridge to b.llm-gateway. Returns ok:true with
+      // advice text on success, ok:false with mock fallback if no
+      // provider is configured (callLLM degrades gracefully).
+      if (req.url === '/llm/advice') {
+        return runsApi.callAdvice({
+          block_id: body.block_id ? String(body.block_id) : undefined,
+          prompt:   body.prompt   ? String(body.prompt)   : undefined,
+          context:  body.context,
+        }).then((r) => json(res, 200, r), (e) => json(res, 200, { ok: false, error: String(e.message || e) }));
       }
 
       // PR4.5: run the configured coding agent on a block

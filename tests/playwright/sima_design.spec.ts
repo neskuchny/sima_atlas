@@ -161,6 +161,34 @@ test.describe('SIMA Atlas Design UI', () => {
       expect((e2e as any).after?.artifacts?.length).toBeGreaterThanOrEqual(1);
       expect((e2e as any).del?.ok).toBe(true);
 
+      // /runs/list and /acceptance/get reachable for any block.
+      const runsResp = await page.evaluate(async () => {
+        const r = await fetch('http://localhost:8787/runs/list?block_id=b.docs');
+        return await r.json();
+      });
+      expect(runsResp).toMatchObject({ ok: true });
+      expect(Array.isArray((runsResp as any).runs)).toBe(true);
+
+      const accResp = await page.evaluate(async () => {
+        const r = await fetch('http://localhost:8787/acceptance/get?block_id=b.docs');
+        return await r.json();
+      });
+      expect(accResp).toMatchObject({ ok: true });
+      expect((accResp as any).summary).toMatchObject({ total: expect.any(Number) });
+      expect(Array.isArray((accResp as any).assertions)).toBe(true);
+
+      // /llm/advice returns ok with a string advice (mock fallback when no key).
+      const adviceResp = await page.evaluate(async () => {
+        const r = await fetch('http://localhost:8787/llm/advice', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ block_id: 'b.docs', prompt: 'test' }),
+        });
+        return await r.json();
+      });
+      expect(adviceResp).toMatchObject({ ok: true });
+      expect(typeof (adviceResp as any).advice).toBe('string');
+
       // Topbar pills: artifact / gallery / library / commandbar are present.
       // In sandbox CI the chromium-headless-shell can't validate unpkg.com's
       // cert chain → React/Babel CDN scripts fail to load → no DOM tree.

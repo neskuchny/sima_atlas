@@ -93,6 +93,8 @@ function DetailPanel({ data, moduleId, onClose, desyncResolved, onSendToAgent, o
   const tabs = [
     { id: 'overview', label: 'Обзор' },
     { id: 'tasks', label: 'Задачи', count: tasks.length },
+    { id: 'runs', label: 'Запуски' },
+    { id: 'acceptance', label: 'Приёмка' },
     { id: 'subs', label: 'Подмодули', count: subs.length },
     { id: 'memory', label: 'Память', count: lessons.length },
     { id: 'connections', label: 'Связи' },
@@ -132,6 +134,8 @@ function DetailPanel({ data, moduleId, onClose, desyncResolved, onSendToAgent, o
       <div className="dbody">
         {tab === 'overview' && <Overview m={m} status={status} desyncResolved={desyncResolved} onSendToAgent={onSendToAgent} onDrillDown={onDrillDown} hasSubsystem={!!data.subsystems?.[m.id]} onOpenTz={onOpenTz} onClaudeAdvice={onClaudeAdvice} />}
         {tab === 'tasks' && <TasksList tasks={tasks} desyncResolved={desyncResolved} moduleId={moduleId} onSendToAgent={onSendToAgent} />}
+        {tab === 'runs' && <RunStatusSection moduleId={moduleId} />}
+        {tab === 'acceptance' && <AcceptanceSection moduleId={moduleId} />}
         {tab === 'subs' && <SubsList subs={subs} desyncResolved={desyncResolved} moduleId={moduleId} />}
         {tab === 'memory' && <Memory lessons={lessons} history={data.history.filter(h => h.module === moduleId)} />}
         {tab === 'connections' && <ConnectionsTab inEdges={inEdges} outEdges={outEdges} moduleById={moduleById} />}
@@ -503,3 +507,161 @@ function LayeredV2({ data, modules, onSelect, desyncResolved }) {
 }
 
 window.LayeredV2 = LayeredV2;
+
+/* ====================== RUN STATUS ======================
+   Polls /runs/list?block_id=<id>&active=1 every 4s while a run is live,
+   falls back to a 12s slow poll otherwise. Surfaces FSM phase, agent,
+   and a "Send to ..." action that POSTs /runs/start (non-blocking).
+*/
+function RunStatusSection({ moduleId }) {
+  const [runs, setRuns] = useState2([]);
+  const [busy, setBusy] = useState2(false);
+  const [error, setError] = useState2(null);
+
+  const fetchRuns = async () => {
+    try {
+      const r = await fetch((window.SIMA_API_BASE || 'http://localhost:8787').replace(/\/$/, '') + '/runs/list?block_id=' + encodeURIComponent(moduleId) + '&limit=10', { cache: 'no-store' });
+      const j = await r.json();
+      if (j.ok) setRuns(j.runs || []);
+    } catch {}
+  };
+
+  useEffect2(() => {
+    fetchRuns();
+    const TERMINAL = new Set(['Succeeded', 'Failed', 'Stalled', 'Canceled']);
+    const live = (runs || []).some((r) => !TERMINAL.has(r.current_state));
+    const itv = setInterval(fetchRuns, live ? 4000 : 12000);
+    return () => clearInterval(itv);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [moduleId]);
+
+  const startRun = async (agent) => {
+    if (!window.SIMA_API) return;
+    setBusy(true); setError(null);
+    try {
+      const r = await fetch((window.SIMA_API_BASE || 'http://localhost:8787').replace(/\/$/, '') + '/runs/start', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ block_id: moduleId, agent }),
+      });
+      const j = await r.json();
+      if (!j.ok) setError(j.error || 'failed');
+      // The async run writes its own run_state file — poll once after a
+      // brief delay to surface it without waiting for the next interval.
+      setTimeout(fetchRuns, 800);
+    } catch (e) {
+      setError(String(e.message || e));
+    }
+    setBusy(false);
+  };
+
+  const TERMINAL = new Set(['Succeeded', 'Failed', 'Stalled', 'Canceled']);
+  const live = runs.find((r) => !TERMINAL.has(r.current_state));
+  const last = runs[0] || null;
+
+  return (
+    <>
+      <h3>Запуск агента</h3>
+      <div className="send-task" style={{ marginBottom: 14 }}>
+        <span className="lab">Запустить блок →</span>
+        <button onClick={() => startRun('claude')} disabled={busy}>Claude Code</button>
+        <button onClick={() => startRun('cursor')} disabled={busy}>Cursor</button>
+        <button onClick={() => startRun('codex')}  disabled={busy}>Codex</button>
+      </div>
+      {error && <div className="lesson bad" style={{ marginBottom: 12 }}>{error}</div>}
+
+      {live && (
+        <div className="run-card live">
+          <div className="run-card-head">
+            <span className="run-pulse" />
+            <span className="mono" style={{ fontSize: 11 }}>{live.run_id}</span>
+            <span className="run-phase">{live.current_state}</span>
+          </div>
+          <div className="meta" style={{ fontSize: 11.5 }}>
+            agent={live.agent} · started {short(live.started_at)} · last event {short(live.last_event_at)}
+          </div>
+        </div>
+      )}
+
+      <h3>История</h3>
+      {!runs.length && <p style={{ color: 'var(--ink-3)' }}>Запусков пока нет — нажмите кнопку выше.</p>}
+      {runs.map((r) => (
+        <div key={r.run_id} className={`run-card ${r.current_state.toLowerCase()}`}>
+          <div className="run-card-head">
+            <span className="run-phase">{r.current_state}</span>
+            <span className="mono" style={{ fontSize: 10.5, color: 'var(--ink-4)' }}>{short(r.started_at)}</span>
+          </div>
+          <div className="mono" style={{ fontSize: 10.5, color: 'var(--ink-3)', marginTop: 4 }}>
+            {r.run_id} · agent={r.agent}
+          </div>
+        </div>
+      ))}
+      {last && <div className="meta" style={{ fontSize: 11, marginTop: 8 }}>Опрос каждые {live ? '4' : '12'} сек.</div>}
+    </>
+  );
+}
+
+/* ====================== ACCEPTANCE ======================
+   Reads atlas/acceptance_runs/<block_id>/_latest.json via /acceptance/get.
+*/
+function AcceptanceSection({ moduleId }) {
+  const [data_, setData] = useState2(null);
+  const [loading, setLoading] = useState2(true);
+
+  useEffect2(() => {
+    let alive = true;
+    (async () => {
+      setLoading(true);
+      try {
+        const r = await fetch((window.SIMA_API_BASE || 'http://localhost:8787').replace(/\/$/, '') + '/acceptance/get?block_id=' + encodeURIComponent(moduleId), { cache: 'no-store' });
+        const j = await r.json();
+        if (alive) setData(j.ok ? j : null);
+      } catch {
+        if (alive) setData(null);
+      }
+      if (alive) setLoading(false);
+    })();
+    return () => { alive = false; };
+  }, [moduleId]);
+
+  if (loading) return <p style={{ color: 'var(--ink-3)' }}>Загрузка…</p>;
+  if (!data_) return <p style={{ color: 'var(--ink-3)' }}>Нет данных приёмки. Запустите acceptance-verifier по этому блоку.</p>;
+
+  const { verdict, checked_at, summary, assertions } = data_;
+  const cls = verdict === 'pass' ? 'ok' : verdict === 'fail' ? 'bad' : 'warn';
+  return (
+    <>
+      <h3>Приёмка блока</h3>
+      <div className={`acc-summary acc-${cls}`}>
+        <div className="acc-verdict">{verdict || 'inconclusive'}</div>
+        <div className="acc-counts mono">
+          <span className="acc-pill ok">pass {summary.pass}</span>
+          <span className="acc-pill bad">fail {summary.fail}</span>
+          <span className="acc-pill skip">skip {summary.skip}</span>
+          <span className="acc-pill">total {summary.total}</span>
+        </div>
+        {checked_at && <div className="meta" style={{ fontSize: 11, marginTop: 6 }}>проверено: {short(checked_at)}</div>}
+      </div>
+      <div className="acc-list">
+        {assertions.map((a) => (
+          <div key={a.id} className={`acc-row v-${a.verdict}`}>
+            <span className="acc-id mono">{a.id}</span>
+            <div style={{ flex: 1 }}>
+              <div className="acc-text">{a.text}</div>
+              {a.reasoning && <div className="meta" style={{ fontSize: 11, marginTop: 3 }}>{a.reasoning}</div>}
+            </div>
+            <span className={`acc-dot v-${a.verdict}`} title={a.verdict}>
+              {a.verdict === 'pass' ? '✓' : a.verdict === 'fail' ? '✗' : '·'}
+            </span>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
+function short(ts) {
+  if (!ts) return '—';
+  try { return new Date(ts).toLocaleString('ru-RU', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }); }
+  catch { return String(ts).slice(0, 16); }
+}
