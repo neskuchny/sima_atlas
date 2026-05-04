@@ -698,33 +698,68 @@ function RunStatusSection({ moduleId }) {
 }
 
 /* ====================== ACCEPTANCE ======================
-   Reads atlas/acceptance_runs/<block_id>/_latest.json via /acceptance/get.
+   Reads /acceptance/diff which returns {latest, previous, delta}. The delta
+   per-assertion drives the «улучшилось / регресс / новое» badges so the
+   operator can see what changed after the last run.
 */
 function AcceptanceSection({ moduleId }) {
   const [data_, setData] = useState2(null);
   const [loading, setLoading] = useState2(true);
+  const [reviseBusy, setReviseBusy] = useState2(false);
+  const [reviseMsg, setReviseMsg] = useState2(null);
+  const apiBase = (window.SIMA_API_BASE || 'http://localhost:8787').replace(/\/$/, '');
 
-  useEffect2(() => {
-    let alive = true;
-    (async () => {
-      setLoading(true);
-      try {
-        const r = await fetch((window.SIMA_API_BASE || 'http://localhost:8787').replace(/\/$/, '') + '/acceptance/get?block_id=' + encodeURIComponent(moduleId), { cache: 'no-store' });
-        const j = await r.json();
-        if (alive) setData(j.ok ? j : null);
-      } catch {
-        if (alive) setData(null);
-      }
-      if (alive) setLoading(false);
-    })();
-    return () => { alive = false; };
-  }, [moduleId]);
+  const fetchDiff = async () => {
+    setLoading(true);
+    try {
+      const r = await fetch(apiBase + '/acceptance/diff?block_id=' + encodeURIComponent(moduleId), { cache: 'no-store' });
+      const j = await r.json();
+      setData(j.ok ? j : null);
+    } catch {
+      setData(null);
+    }
+    setLoading(false);
+  };
+  useEffect2(() => { fetchDiff(); /* eslint-disable-next-line */ }, [moduleId]);
+
+  const reviseAndRerun = async () => {
+    if (!data_) return;
+    setReviseBusy(true); setReviseMsg(null);
+    const failed = data_.latest.assertions.filter((a) => a.verdict === 'fail');
+    const inconclusive = data_.latest.assertions.filter((a) => a.verdict === 'inconclusive');
+    const lines = [
+      `Блок ${moduleId} не прошёл приёмку. Исправь следующее, минимально инвазивно.`,
+      '',
+      ...failed.map((a) => `[FAIL] ${a.id}: ${a.text}\n   reasoning: ${a.reasoning || '(no reasoning)'}`),
+      ...inconclusive.map((a) => `[INCONCL] ${a.id}: ${a.text}`),
+      '',
+      'После исправления убедись что acceptance-verifier пройдёт. Не вноси изменения за пределами зоны ответственности блока.',
+    ];
+    try {
+      const r = await fetch(apiBase + '/runs/start', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ block_id: moduleId, agent: 'claude', prompt: lines.join('\n') }),
+      });
+      const j = await r.json();
+      if (j.ok) setReviseMsg({ kind: 'ok', text: `Запуск создан: ${j.run_id}. Откройте «Запуски» для прогресса.` });
+      else setReviseMsg({ kind: 'fail', text: j.error || 'failed' });
+    } catch (e) {
+      setReviseMsg({ kind: 'fail', text: String(e.message || e) });
+    }
+    setReviseBusy(false);
+  };
 
   if (loading) return <p style={{ color: 'var(--ink-3)' }}>Загрузка…</p>;
   if (!data_) return <p style={{ color: 'var(--ink-3)' }}>Нет данных приёмки. Запустите acceptance-verifier по этому блоку.</p>;
 
-  const { verdict, checked_at, summary, assertions } = data_;
+  const { latest, previous, delta } = data_;
+  const { verdict, checked_at, summary, assertions } = latest;
   const cls = verdict === 'pass' ? 'ok' : verdict === 'fail' ? 'bad' : 'warn';
+  const hasFailures = (latest.summary.fail || 0) > 0;
+  const regressedCount = Object.values(delta || {}).filter((d) => d.kind === 'regressed').length;
+  const improvedCount  = Object.values(delta || {}).filter((d) => d.kind === 'improved').length;
+
   return (
     <>
       <h3>Приёмка блока</h3>
@@ -736,21 +771,53 @@ function AcceptanceSection({ moduleId }) {
           <span className="acc-pill skip">skip {summary.skip}</span>
           <span className="acc-pill">total {summary.total}</span>
         </div>
-        {checked_at && <div className="meta" style={{ fontSize: 11, marginTop: 6 }}>проверено: {short(checked_at)}</div>}
-      </div>
-      <div className="acc-list">
-        {assertions.map((a) => (
-          <div key={a.id} className={`acc-row v-${a.verdict}`}>
-            <span className="acc-id mono">{a.id}</span>
-            <div style={{ flex: 1 }}>
-              <div className="acc-text">{a.text}</div>
-              {a.reasoning && <div className="meta" style={{ fontSize: 11, marginTop: 3 }}>{a.reasoning}</div>}
-            </div>
-            <span className={`acc-dot v-${a.verdict}`} title={a.verdict}>
-              {a.verdict === 'pass' ? '✓' : a.verdict === 'fail' ? '✗' : '·'}
+        {previous && (improvedCount + regressedCount > 0) && (
+          <div className="acc-deltabar mono">
+            {improvedCount > 0 && <span className="acc-delta improved">↑ {improvedCount} улучшилось</span>}
+            {regressedCount > 0 && <span className="acc-delta regressed">↓ {regressedCount} регресс</span>}
+            <span className="meta" style={{ fontSize: 10.5 }}>
+              vs {short(previous.checked_at)} (verdict={previous.verdict})
             </span>
           </div>
-        ))}
+        )}
+        {checked_at && <div className="meta" style={{ fontSize: 11, marginTop: 6 }}>проверено: {short(checked_at)}</div>}
+        {hasFailures && (
+          <div style={{ marginTop: 10 }}>
+            <button className="pill primary" onClick={reviseAndRerun} disabled={reviseBusy}>
+              {reviseBusy ? 'Запускаю…' : '↻ Исправить и перезапустить'}
+            </button>
+            {reviseMsg && (
+              <div className={`composer-result ${reviseMsg.kind}`} style={{ marginTop: 8 }}>{reviseMsg.text}</div>
+            )}
+          </div>
+        )}
+      </div>
+      <div className="acc-list">
+        {assertions.map((a) => {
+          const d = delta?.[a.id];
+          const changed = d && (d.kind === 'improved' || d.kind === 'regressed');
+          return (
+            <div key={a.id} className={`acc-row v-${a.verdict} ${changed ? 'd-' + d.kind : ''}`}>
+              <span className="acc-id mono">{a.id}</span>
+              <div style={{ flex: 1 }}>
+                <div className="acc-text">{a.text}</div>
+                {a.reasoning && <div className="meta" style={{ fontSize: 11, marginTop: 3 }}>{a.reasoning}</div>}
+                {changed && (
+                  <div className="acc-changed mono">
+                    {d.from} → {d.to}
+                    <span className="acc-changed-tag">{d.kind === 'improved' ? '↑ улучшилось' : '↓ регресс'}</span>
+                  </div>
+                )}
+                {d && d.kind === 'new' && (
+                  <div className="acc-changed mono"><span className="acc-changed-tag new">+ новое</span></div>
+                )}
+              </div>
+              <span className={`acc-dot v-${a.verdict}`} title={a.verdict}>
+                {a.verdict === 'pass' ? '✓' : a.verdict === 'fail' ? '✗' : '·'}
+              </span>
+            </div>
+          );
+        })}
       </div>
     </>
   );

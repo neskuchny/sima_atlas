@@ -1711,3 +1711,27 @@ html, body {
   max-height: 240px; overflow: auto; white-space: pre-wrap; word-wrap: break-word;
 }
 .run-files { margin-top: 10px; }
+
+/* Acceptance diff (Phase D-3) */
+.acc-deltabar {
+  display: flex; gap: 10px; align-items: baseline; margin-top: 8px;
+  padding-top: 8px; border-top: 1px dashed var(--rule);
+}
+.acc-delta {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  padding: 2px 9px; border-radius: 999px;
+}
+.acc-delta.improved  { background: rgba(60, 160, 100, 0.16); color: #2d6e3f; }
+.acc-delta.regressed { background: rgba(190, 60, 60, 0.16);  color: #8a2f2f; }
+
+.acc-changed {
+  font-size: 11px; color: var(--ink-3); margin-top: 4px;
+  display: flex; align-items: center; gap: 8px;
+}
+.acc-changed-tag {
+  font-size: 10px; padding: 1px 7px; border-radius: 999px;
+  background: var(--card-2); color: var(--ink-3); letter-spacing: 0.04em;
+}
+.acc-changed-tag.new { background: rgba(80, 140, 80, 0.14); color: #2d6a35; }
+.acc-row.d-regressed { box-shadow: 0 0 0 1px rgba(190, 60, 60, 0.4) inset; }
+.acc-row.d-improved  { box-shadow: 0 0 0 1px rgba(60, 160, 100, 0.4) inset; }

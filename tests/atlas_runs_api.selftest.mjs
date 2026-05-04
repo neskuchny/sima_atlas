@@ -11,7 +11,8 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {
-  listRunsByBlock, getRun, getLatestAcceptance, readRunLog, listRunFiles,
+  listRunsByBlock, getRun, getLatestAcceptance, getAcceptanceDiff,
+  readRunLog, listRunFiles,
 } from '../scripts/atlas_runs_api.mjs';
 
 const failures = [];
@@ -94,6 +95,35 @@ try {
     check('group4:miss null', miss === null);
   }
 
+  // ─── Group 4b: acceptance diff
+  {
+    // Seed: write _previous and _latest with diverging verdicts
+    const accDir = path.join(atlas, 'acceptance_runs', 'b.alpha');
+    fs.writeFileSync(path.join(accDir, '_previous.json'), JSON.stringify({
+      block_id: 'b.alpha', verdict: 'pass', checked_at: '2026-05-04T10:00:00Z',
+      counts: { pass: 3, fail: 0, skipped: 1, inconclusive: 0 },
+      assertions: [
+        { id: 'A1', text: 'a', verdict: 'pass' },
+        { id: 'A2', text: 'b', verdict: 'pass' },
+        { id: 'A3', text: 'c', verdict: 'pass' },
+        { id: 'A4', text: 'd', verdict: 'skipped' },
+      ],
+    }));
+    // _latest already exists from group 4 (with verdict='fail' counts pass=2,fail=1,skipped=1)
+    const d = getAcceptanceDiff({ block_id: 'b.alpha', root: atlas });
+    check('group4b:diff has latest', d && d.latest);
+    check('group4b:diff has previous', d.previous);
+    // A1 was pass, still pass
+    check('group4b:A1 same', d.delta.A1?.kind === 'same');
+    // A2 went from pass to fail (regressed)
+    check('group4b:A2 regressed', d.delta.A2?.kind === 'regressed' && d.delta.A2.from === 'pass' && d.delta.A2.to === 'fail');
+    // A4 was skipped, still skipped
+    check('group4b:A4 same skipped', d.delta.A4?.kind === 'same');
+
+    const noPrev = getAcceptanceDiff({ block_id: 'b.fresh', root: atlas });
+    check('group4b:no acceptance returns null', noPrev === null);
+  }
+
   // ─── Group 5: readRunLog tail with byte offset
   {
     const logsDir = path.join(atlas, 'run_logs');
@@ -150,4 +180,4 @@ if (failures.length) {
   failures.forEach((f) => console.error(' ✗', f));
   process.exit(1);
 }
-console.log('atlas_runs_api.selftest: OK (6 test groups, all assertions green)');
+console.log('atlas_runs_api.selftest: OK (7 test groups, all assertions green)');

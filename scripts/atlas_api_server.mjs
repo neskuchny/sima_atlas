@@ -165,6 +165,15 @@ const server = http.createServer((req, res) => {
       return json(res, 200, { ok: false, error: String(e.message || e) });
     }
   }
+  if (req.method === 'GET' && req.url.startsWith('/acceptance/diff')) {
+    try {
+      const u = new URL(req.url, `http://localhost:${port}`);
+      const r = runsApi.getAcceptanceDiff({ block_id: u.searchParams.get('block_id') || '' });
+      return json(res, 200, r ? { ok: true, ...r } : { ok: false, error: 'not_found' });
+    } catch (e) {
+      return json(res, 200, { ok: false, error: String(e.message || e) });
+    }
+  }
 
   if (req.method === 'DELETE' && req.url.startsWith('/api/artifacts')) {
     try {

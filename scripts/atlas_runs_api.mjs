@@ -57,12 +57,9 @@ export function getRun(run_id, { root } = {}) {
   return safeReadJson(p);
 }
 
-export function getLatestAcceptance({ block_id, root } = {}) {
-  if (!block_id) return null;
-  const p = path.join(acceptanceDir(root), block_id, '_latest.json');
-  const r = safeReadJson(p);
+// Compresses a raw acceptance run JSON to the fields the UI cares about.
+function compactAcceptance(r) {
   if (!r) return null;
-  // Compress: only return what the UI needs to keep payload small.
   const assertions = (r.assertions || []).map((a) => ({
     id: a.id,
     text: a.text,
@@ -87,6 +84,42 @@ export function getLatestAcceptance({ block_id, root } = {}) {
     assertions,
     summary,
   };
+}
+
+export function getLatestAcceptance({ block_id, root } = {}) {
+  if (!block_id) return null;
+  const p = path.join(acceptanceDir(root), block_id, '_latest.json');
+  return compactAcceptance(safeReadJson(p));
+}
+
+// Returns latest + previous + per-assertion delta. Used by the design UI's
+// AcceptanceSection to highlight regressions and improvements after a run.
+//   delta[id] = { from: 'pass'|'fail'|..., to: ..., kind: 'regressed'|'improved'|'same'|'new'|'removed' }
+export function getAcceptanceDiff({ block_id, root } = {}) {
+  if (!block_id) return null;
+  const dir = path.join(acceptanceDir(root), block_id);
+  const latest = compactAcceptance(safeReadJson(path.join(dir, '_latest.json')));
+  if (!latest) return null;
+  const prev = compactAcceptance(safeReadJson(path.join(dir, '_previous.json')));
+  if (!prev) return { latest, previous: null, delta: {} };
+
+  const SCORES = { pass: 2, skipped: 1, skip: 1, inconclusive: 1, fail: 0 };
+  const prevById = Object.fromEntries(prev.assertions.map((a) => [a.id, a.verdict]));
+  const latestById = Object.fromEntries(latest.assertions.map((a) => [a.id, a.verdict]));
+  const delta = {};
+  for (const a of latest.assertions) {
+    const before = prevById[a.id];
+    const after = a.verdict;
+    if (!before) { delta[a.id] = { from: null, to: after, kind: 'new' }; continue; }
+    if (before === after) { delta[a.id] = { from: before, to: after, kind: 'same' }; continue; }
+    const sb = SCORES[before] ?? 0;
+    const sa = SCORES[after]  ?? 0;
+    delta[a.id] = { from: before, to: after, kind: sa > sb ? 'improved' : sa < sb ? 'regressed' : 'same' };
+  }
+  for (const id of Object.keys(prevById)) {
+    if (!(id in latestById)) delta[id] = { from: prevById[id], to: null, kind: 'removed' };
+  }
+  return { latest, previous: prev, delta };
 }
 
 // Spawn run_block_implementation.mjs in the background. We do NOT block on

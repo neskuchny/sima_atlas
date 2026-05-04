@@ -45,7 +45,12 @@ async function run() {
     const blockDir = path.join(RUNS_DIR, b.id);
     fs.mkdirSync(blockDir, { recursive: true });
     fs.writeFileSync(path.join(blockDir, `${tsSafe}.json`), JSON.stringify(r, null, 2) + '\n', 'utf8');
-    fs.writeFileSync(path.join(blockDir, '_latest.json'), JSON.stringify(r, null, 2) + '\n', 'utf8');
+    // Phase D-3: snapshot _previous before overwriting _latest.
+    const latestPath = path.join(blockDir, '_latest.json');
+    if (fs.existsSync(latestPath)) {
+      fs.copyFileSync(latestPath, path.join(blockDir, '_previous.json'));
+    }
+    fs.writeFileSync(latestPath, JSON.stringify(r, null, 2) + '\n', 'utf8');
 
     summary.blocks.push({
       block_id: b.id,

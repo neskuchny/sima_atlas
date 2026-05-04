@@ -45,7 +45,13 @@ export async function verifyAndPersist(blockId) {
   fs.mkdirSync(runsDir, { recursive: true });
   const tsSafe = result.checked_at.replace(/[:.]/g, '-');
   fs.writeFileSync(path.join(runsDir, `${tsSafe}.json`), JSON.stringify(result, null, 2) + '\n', 'utf8');
-  fs.writeFileSync(path.join(runsDir, '_latest.json'), JSON.stringify(result, null, 2) + '\n', 'utf8');
+  // Phase D-3: snapshot previous _latest as _previous before overwriting,
+  // so the design UI can render a per-assertion diff (pass→fail, skip→pass).
+  const latestPath = path.join(runsDir, '_latest.json');
+  if (fs.existsSync(latestPath)) {
+    fs.copyFileSync(latestPath, path.join(runsDir, '_previous.json'));
+  }
+  fs.writeFileSync(latestPath, JSON.stringify(result, null, 2) + '\n', 'utf8');
 
   // Append single-line summary to block's checks.log
   const checksPath = path.join(blockDir, 'checks.log');

@@ -61,12 +61,15 @@
 - [~] **D2** Auto-verify после run — оказывается, уже встроено в
       `run_block_implementation.mjs` (line 254: spawn verify_block_acceptance).
       Достаточно: после `Succeeded` UI само рефетчит `/acceptance/get`.
-- [ ] **D3** Diff view: acceptance before/after. Хранить предыдущий
-      `_latest.json` как `_previous.json`, в DetailPanel показать разницу
-      verdicts по assertion (A1: pass→fail, A2: skip→pass).
-- [ ] **D4** «Revise TZ + re-run». Кнопка в AcceptanceSection при verdict=fail.
-      Промпт собирается: TZ блока + список failed assertions с reasoning →
-      `/runs/start` с `prompt: "Исправь следующее: ..."`.
+- [x] **D3** Diff view: `verify_all_acceptance` и `verify_block_acceptance`
+      теперь снапшотят предыдущий `_latest.json` в `_previous.json` перед
+      перезаписью. `GET /acceptance/diff` возвращает `{latest, previous,
+      delta[id]:{from,to,kind}}`. AcceptanceSection показывает «↑ улучшилось /
+      ↓ регресс» badges + outline вокруг изменённых строк. (commit pending)
+- [x] **D4** «Исправить и перезапустить». Кнопка в AcceptanceSection
+      при наличии fail. Собирает prompt из failed/inconclusive assertions
+      (id + text + reasoning) → POST /runs/start с этим промптом для
+      claude. (commit pending)
 - [x] **D5** Cancel running run. Кнопка `✕ Отменить` на live run card →
       `POST /runs/cancel`. (commit pending)
 - [x] **D6** Run output: какие файлы агент трогал. `listRunFiles`
