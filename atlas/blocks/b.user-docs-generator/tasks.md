@@ -22,10 +22,12 @@ PR-1 закрыт. Foundation для PR-2 (LLM tutorial writer): introspectBlock
 PR-2 закрыт. С реальным API ключом или seeded fixture orchestrator пишет работающий end-user туториал; без ключа — defensive defaults (title="<block> — обзор", пустые steps), идемпотентность работает в обоих режимах.
 
 ## PR-3 — Screenshot integration (опц.)
-- [ ] T3.1: проверка `playwright.config.js` существования; если нет — skip + warn в stdout (не fail).
-- [ ] T3.2: `tests/playwright/user_docs_screenshots.spec.ts` — для каждого user-facing блока playwright-сценарий: open route → screenshot.
-- [ ] T3.3: интеграция в `generate_user_docs.mjs`: после LLM записи markdown — попытка screenshot; success → подмешиваем `![](./_screenshots/<block>__<flow>.png)` в нужное место.
-- [ ] T3.4: cleanup: удаление screenshots для блоков, которые удалены/переименованы.
+- [x] T3.1: `scripts/take_screenshots.mjs` `detectPlaywright()` ищет `playwright.config.{js,ts,mjs,cjs}` + `node_modules/@playwright/test`. Если нет ни конфига ни модуля → `{available: false, reason}`. Никогда не fail. **DONE PR-3**.
+- [x] T3.2: `tests/playwright/user_docs_screenshots.spec.ts` — template-spec, читает manifest `_screenshots/_manifest.json` (writes происходит из `take_screenshots.tryCapture`), для каждого `block_id × route` делает `page.goto(route) → networkidle → page.screenshot()`. Параметрические маршруты (`/tasks/:id`) пропускаются. Filter via `--grep <block_id>` + env `ATLAS_USER_DOCS_BLOCK`. **DONE PR-3**.
+- [x] T3.3: `generate_user_docs.mjs` после LLM-записи зовёт `tryCapture(blockId, introspection)`. На `status: captured` подмешивается `## Что ты увидишь / ## Screenshots` секция с `![alt](./_screenshots/<block>__<slug>.png)`. На `skipped` (no routes) — benign, без warning. На `failed` / `skipped (playwright unavailable, with routes)` — warning. Meta хранит `screenshots: {status, reason}` + `screenshot_files` для cleanup. **DONE PR-3**.
+- [x] T3.4: `cleanupOrphanScreenshots(activeBlockIds, {dry_run})` обходит `_screenshots/*.png`, удаляет файлы блоков отсутствующих в graph.json (любого проекта). Также pruнит `_manifest.json.entries`. CLI `take_screenshots cleanup`. MCP tool `cleanup_orphan_screenshots`. **DONE PR-3**.
+
+PR-3 закрыт. T5.5 b.acceptance-verifier-loop (Playwright smoke screenshots) теперь имеет ту же инфраструктуру для использования — в их случае поверх `acceptance_runs/` data shape. tests/screenshots_integration.selftest.mjs 7 групп зелёный (detectPlaywright skip; slugifyRoute; expectedScreenshots; tryCapture skip "no routes"; tryCapture skip "playwright unavailable" with routes; cleanupOrphanScreenshots removes orphans + prunes manifest; e2e generate_user_docs no benign warning when route-less).
 
 ## PR-4 — Auto-regen + UI + safety
 - [ ] T4.1: `scripts/regenerate_user_docs_drift.mjs` — nightly step: обходит все user-facing блоки, сравнивает hash; regen только при изменениях.

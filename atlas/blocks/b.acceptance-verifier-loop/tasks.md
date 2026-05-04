@@ -45,9 +45,9 @@ PR-4 закрыт. Verifier теперь — реальный hard gate прот
 - [x] T5.2: Click на красный/skipped пункт → expand с `evidence + reasoning + 📋 Скопировать как prompt для retry` (формирует готовый промпт со ссылкой на assertion + evidence + reasoning + fix command для следующего агент-прогона). **DONE PR-5**.
 - [x] T5.3: ProposalsPanel — специализированная карточка для `kind === 'acceptance_regression'`: красный фон, sample_failures с evidence снимками, кнопка «🔁 Прогнать снова с подсказкой» → `POST /run-block {block_id, prompt: retry_prompt_hint}` (использует существующий endpoint), Accept (→ broken) красный, Reject ghost. accept_proposal.mjs расширен: понимает новый shape `proposal.proposed.{status, status_reason}` (только safe fields) для kind=acceptance_regression. **DONE PR-5**.
 - [x] T5.4: Под названием секции — relative-time stamp («last run: 30 sec ago / 5 min ago / 2h ago / 3d ago»). **DONE PR-5**.
-- [ ] T5.5: Playwright smoke screenshots — отложено до общего Playwright setup (сейчас Playwright не настроен в проекте; это часть b.user-docs-generator PR-3).
+- [ ] T5.5: Playwright smoke screenshots — общая инфраструктура реализована в b.user-docs-generator PR-3 (`scripts/take_screenshots.mjs`, `tests/playwright/user_docs_screenshots.spec.ts`). Когда Playwright реально установится в проекте, дописать spec под acceptance_runs/ shape: для каждого блока с `verdict !== pass` снимать скриншот Inspector с раскрытым AcceptanceSection. Сейчас остаётся pending до live Playwright wiring.
 
-PR-5 закрыт (T5.1-T5.4). T5.5 отложен в b.user-docs-generator.
+PR-5 закрыт (T5.1-T5.4). T5.5 unblocked (инфраструктура готова), но fizzle-test ждёт Playwright.
 
 ## Stretch (post-PR5)
 - [ ] S1: Авто-retry loop (max 2) при `auto_retry: true` — экспериментальный режим, по умолчанию off.

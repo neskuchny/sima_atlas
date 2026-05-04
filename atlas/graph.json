@@ -336,7 +336,10 @@
         "tests/introspect_block_ui.selftest.mjs",
         "tests/fixtures/jsx/synthetic_panel.jsx",
         "scripts/generate_user_docs.mjs",
-        "tests/user_docs.smoke.mjs"
+        "tests/user_docs.smoke.mjs",
+        "scripts/take_screenshots.mjs",
+        "tests/playwright/user_docs_screenshots.spec.ts",
+        "tests/screenshots_integration.selftest.mjs"
       ]
     },
     {

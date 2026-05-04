@@ -61,6 +61,8 @@ function toolList(){
     { name:'clear_always_use', description:'PR-3 (b.operator-profile-learner): remove an always_use pin.', inputSchema:{ type:'object', properties:{ category:{type:'string'}, value:{type:'string'} }, required:['category','value'] } },
     { name:'introspect_block_ui', description:'PR-1 (b.user-docs-generator): scan alive JSX/HTML files of a block and return structured UI elements (buttons, inputs, textareas, forms, links, routes, fetches). Used by PR-2 LLM tutorial writer.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} }, required:['block_id'] } },
     { name:'generate_user_docs', description:'PR-2 (b.user-docs-generator): generate end-user tutorial markdown for a block via b.llm-gateway. Idempotent (skips if source hash unchanged). Writes atlas/docs/end-user/<block>.md + _meta/<block>.json. Cost cap $0.03/run.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, lang:{type:'string'}, dry_run:{type:'boolean'} }, required:['block_id'] } },
+    { name:'detect_playwright', description:'PR-3 (b.user-docs-generator): report whether Playwright is configured + installed (used to gate screenshot capture). Always available; returns {available, reason}.', inputSchema:{ type:'object', properties:{} } },
+    { name:'cleanup_orphan_screenshots', description:'PR-3 (b.user-docs-generator): remove screenshots whose block_id is no longer in graph.json (any project), and prune the manifest accordingly.', inputSchema:{ type:'object', properties:{ dry_run:{type:'boolean'} } } },
 
   ];
 }
@@ -528,6 +530,15 @@ rl.on('line', (line) => {
         const lang = args.lang ? `--lang ${JSON.stringify(String(args.lang))}` : '';
         const dry = args.dry_run ? '--dry-run' : '';
         const out = execSync(`node scripts/generate_user_docs.mjs ${JSON.stringify(bid)} --json ${lang} ${dry}`, { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'detect_playwright') {
+        const out = execSync('node scripts/take_screenshots.mjs detect', { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'cleanup_orphan_screenshots') {
+        const dry = args.dry_run ? '--dry-run' : '';
+        const out = execSync(`node scripts/take_screenshots.mjs cleanup ${dry}`, { cwd: root, stdio: 'pipe' }).toString().trim();
         return respond(id, { content:[{ type:'text', text: out }] });
       }
       if (name === 'clear_always_use') {

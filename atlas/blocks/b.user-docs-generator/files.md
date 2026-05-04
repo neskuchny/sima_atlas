@@ -12,7 +12,9 @@
 - tests/user_docs.smoke.mjs [alive]
 
 ## Screenshots (PR-3, опц.)
-- tests/playwright/user_docs_screenshots.spec.ts [pending] (PR-3)
+- scripts/take_screenshots.mjs [alive]
+- tests/playwright/user_docs_screenshots.spec.ts [alive]
+- tests/screenshots_integration.selftest.mjs [alive]
 
 ## Auto-regen + UI (PR-4)
 - scripts/regenerate_user_docs_drift.mjs [pending] (PR-4: nightly drift-check)

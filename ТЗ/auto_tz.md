@@ -622,9 +622,9 @@ PR-4 закрыт. Verifier теперь — реальный hard gate прот
 - [x] T5.2: Click на красный/skipped пункт → expand с `evidence + reasoning + 📋 Скопировать как prompt для retry` (формирует готовый промпт со ссылкой на assertion + evidence + reasoning + fix command для следующего агент-прогона). **DONE PR-5**.
 - [x] T5.3: ProposalsPanel — специализированная карточка для `kind === 'acceptance_regression'`: красный фон, sample_failures с evidence снимками, кнопка «🔁 Прогнать снова с подсказкой» → `POST /run-block {block_id, prompt: retry_prompt_hint}` (использует существующий endpoint), Accept (→ broken) красный, Reject ghost. accept_proposal.mjs расширен: понимает новый shape `proposal.proposed.{status, status_reason}` (только safe fields) для kind=acceptance_regression. **DONE PR-5**.
 - [x] T5.4: Под названием секции — relative-time stamp («last run: 30 sec ago / 5 min ago / 2h ago / 3d ago»). **DONE PR-5**.
-- [ ] T5.5: Playwright smoke screenshots — отложено до общего Playwright setup (сейчас Playwright не настроен в проекте; это часть b.user-docs-generator PR-3).
+- [ ] T5.5: Playwright smoke screenshots — общая инфраструктура реализована в b.user-docs-generator PR-3 (`scripts/take_screenshots.mjs`, `tests/playwright/user_docs_screenshots.spec.ts`). Когда Playwright реально установится в проекте, дописать spec под acceptance_runs/ shape: для каждого блока с `verdict !== pass` снимать скриншот Inspector с раскрытым AcceptanceSection. Сейчас остаётся pending до live Playwright wiring.
 
-PR-5 закрыт (T5.1-T5.4). T5.5 отложен в b.user-docs-generator.
+PR-5 закрыт (T5.1-T5.4). T5.5 unblocked (инфраструктура готова), но fizzle-test ждёт Playwright.
 
 ## Stretch (post-PR5)
 - [ ] S1: Авто-retry loop (max 2) при `auto_retry: true` — экспериментальный режим, по умолчанию off.
@@ -790,10 +790,12 @@ PR-1 закрыт. Foundation для PR-2 (LLM tutorial writer): introspectBlock
 PR-2 закрыт. С реальным API ключом или seeded fixture orchestrator пишет работающий end-user туториал; без ключа — defensive defaults (title="<block> — обзор", пустые steps), идемпотентность работает в обоих режимах.
 
 ## PR-3 — Screenshot integration (опц.)
-- [ ] T3.1: проверка `playwright.config.js` существования; если нет — skip + warn в stdout (не fail).
-- [ ] T3.2: `tests/playwright/user_docs_screenshots.spec.ts` — для каждого user-facing блока playwright-сценарий: open route → screenshot.
-- [ ] T3.3: интеграция в `generate_user_docs.mjs`: после LLM записи markdown — попытка screenshot; success → подмешиваем `![](./_screenshots/<block>__<flow>.png)` в нужное место.
-- [ ] T3.4: cleanup: удаление screenshots для блоков, которые удалены/переименованы.
+- [x] T3.1: `scripts/take_screenshots.mjs` `detectPlaywright()` ищет `playwright.config.{js,ts,mjs,cjs}` + `node_modules/@playwright/test`. Если нет ни конфига ни модуля → `{available: false, reason}`. Никогда не fail. **DONE PR-3**.
+- [x] T3.2: `tests/playwright/user_docs_screenshots.spec.ts` — template-spec, читает manifest `_screenshots/_manifest.json` (writes происходит из `take_screenshots.tryCapture`), для каждого `block_id × route` делает `page.goto(route) → networkidle → page.screenshot()`. Параметрические маршруты (`/tasks/:id`) пропускаются. Filter via `--grep <block_id>` + env `ATLAS_USER_DOCS_BLOCK`. **DONE PR-3**.
+- [x] T3.3: `generate_user_docs.mjs` после LLM-записи зовёт `tryCapture(blockId, introspection)`. На `status: captured` подмешивается `## Что ты увидишь / ## Screenshots` секция с `![alt](./_screenshots/<block>__<slug>.png)`. На `skipped` (no routes) — benign, без warning. На `failed` / `skipped (playwright unavailable, with routes)` — warning. Meta хранит `screenshots: {status, reason}` + `screenshot_files` для cleanup. **DONE PR-3**.
+- [x] T3.4: `cleanupOrphanScreenshots(activeBlockIds, {dry_run})` обходит `_screenshots/*.png`, удаляет файлы блоков отсутствующих в graph.json (любого проекта). Также pruнит `_manifest.json.entries`. CLI `take_screenshots cleanup`. MCP tool `cleanup_orphan_screenshots`. **DONE PR-3**.
+
+PR-3 закрыт. T5.5 b.acceptance-verifier-loop (Playwright smoke screenshots) теперь имеет ту же инфраструктуру для использования — в их случае поверх `acceptance_runs/` data shape. tests/screenshots_integration.selftest.mjs 7 групп зелёный (detectPlaywright skip; slugifyRoute; expectedScreenshots; tryCapture skip "no routes"; tryCapture skip "playwright unavailable" with routes; cleanupOrphanScreenshots removes orphans + prunes manifest; e2e generate_user_docs no benign warning when route-less).
 
 ## PR-4 — Auto-regen + UI + safety
 - [ ] T4.1: `scripts/regenerate_user_docs_drift.mjs` — nightly step: обходит все user-facing блоки, сравнивает hash; regen только при изменениях.
