@@ -12,3 +12,7 @@ node_modules/
 .env
 .env.local
 *.log.bak
+node_modules/
+tests/playwright/_report/
+tests/playwright/test-results/
+test-results/

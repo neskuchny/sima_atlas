@@ -1,0 +1,15 @@
+{
+  "name": "sima-atlas",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:nightly": "node scripts/nightly_consolidation.mjs",
+    "atlas:api": "node scripts/atlas_api_server.mjs",
+    "ui:serve": "python3 -m http.server 8000 --directory \"Sima (Remix)\""
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0"
+  }
+}

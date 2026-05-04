@@ -36,6 +36,8 @@ const checks = [
   ['run_state_selftest', 'node tests/run_state.selftest.mjs'],
   ['agent_workspace_selftest', 'node tests/agent_workspace.selftest.mjs'],
   ['detect_stalled_runs', 'node scripts/run_state.mjs detect-stalled --json'],
+  ['cursor_live_headless_smoke', 'node tests/cursor_live.headless.smoke.mjs'],
+  ['playwright_canvas', 'npx playwright test tests/playwright/canvas_screenshots.spec.ts --reporter=line'],
   ['parse_acceptance_selftest', 'node tests/parse_acceptance.selftest.mjs'],
   ['evidence_collectors_selftest', 'node tests/evidence_collectors.selftest.mjs'],
   ['llm_judge_smoke', 'node tests/llm_judge.smoke.mjs'],

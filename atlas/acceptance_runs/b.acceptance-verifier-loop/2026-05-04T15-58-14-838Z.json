@@ -1,0 +1,214 @@
+{
+  "block_id": "b.acceptance-verifier-loop",
+  "source_path": "/home/user/sima_atlas/atlas/blocks/b.acceptance-verifier-loop/acceptance.md",
+  "parsed_warnings": [],
+  "assertions": [
+    {
+      "id": "A1",
+      "label": null,
+      "text": "PR-1 (assertion parser) merged: `scripts/parse_acceptance.mjs` парсит `atlas/blocks/<id>/acceptance.md`, возвращает массив `{id, assertion, evidence_kind, evidence_spec}`. Selftest (≥ 8 cases) на разные форматы acceptance.md существующих блоков (b.llm-gateway/b.docs/b.core-sync).",
+      "checked": false,
+      "line": 5,
+      "evidence_kind": "selftest_run",
+      "evidence_spec": {
+        "cmd": "node tests/parse_acceptance.selftest.mjs",
+        "expect_in_stdout": "OK"
+      },
+      "verdict": "pass",
+      "evidence": "node tests/parse_acceptance.selftest.mjs → exit 0 (51ms); first line: \"parse_acceptance.selftest: OK (9 test groups, all assertions green)\"",
+      "reasoning": "shell exit code 0 and stdout matches /OK/",
+      "raw": {
+        "cmd": "node tests/parse_acceptance.selftest.mjs",
+        "exit_code": 0,
+        "stdout": "parse_acceptance.selftest: OK (9 test groups, all assertions green)\n",
+        "stderr": "",
+        "duration_ms": 51,
+        "timed_out": false
+      },
+      "duration_ms": 51
+    },
+    {
+      "id": "A2",
+      "label": null,
+      "text": "PR-2 (evidence collectors) merged: `scripts/collect_evidence.mjs` поддерживает `exit_code`, `fs_glob`, `file_diff`, `log_grep`, `selftest_run` без LLM-вызова; selftest (≥ 6 cases) на каждый kind зелёный.",
+      "checked": false,
+      "line": 12,
+      "evidence_kind": "selftest_run",
+      "evidence_spec": {
+        "cmd": "node tests/evidence_collectors.selftest.mjs",
+        "expect_in_stdout": "OK"
+      },
+      "verdict": "pass",
+      "evidence": "node tests/evidence_collectors.selftest.mjs → exit 0 (158ms); first line: \"evidence_collectors.selftest: OK (11 test groups, all assertions green)\"",
+      "reasoning": "shell exit code 0 and stdout matches /OK/",
+      "raw": {
+        "cmd": "node tests/evidence_collectors.selftest.mjs",
+        "exit_code": 0,
+        "stdout": "evidence_collectors.selftest: OK (11 test groups, all assertions green)\n",
+        "stderr": "",
+        "duration_ms": 158,
+        "timed_out": false
+      },
+      "duration_ms": 158
+    },
+    {
+      "id": "A3",
+      "label": null,
+      "text": "PR-3 (LLM-judge fallback) merged: `scripts/judge_assertion.mjs` через `b.llm-gateway` оценивает пункт без явного evidence_spec; cost ≤ $0.02 per assertion; mock-режим для тестов; smoke green.",
+      "checked": false,
+      "line": 19,
+      "evidence_kind": "selftest_run",
+      "evidence_spec": {
+        "cmd": "node tests/llm_judge.smoke.mjs",
+        "expect_in_stdout": "OK"
+      },
+      "verdict": "pass",
+      "evidence": "node tests/llm_judge.smoke.mjs → exit 0 (66ms); first line: \"llm_judge.smoke: OK (4 test groups, all assertions green)\"",
+      "reasoning": "shell exit code 0 and stdout matches /OK/",
+      "raw": {
+        "cmd": "node tests/llm_judge.smoke.mjs",
+        "exit_code": 0,
+        "stdout": "llm_judge.smoke: OK (4 test groups, all assertions green)\n",
+        "stderr": "",
+        "duration_ms": 66,
+        "timed_out": false
+      },
+      "duration_ms": 66
+    },
+    {
+      "id": "A4",
+      "label": null,
+      "text": "PR-4 (gate hooks) merged: `log_transition.mjs` блокирует `wip → done` если `_latest.json` отсутствует или `verdict !== \"pass\"`; `run_block_implementation.mjs` после exit 0 спавнит verifier; nightly включает `verify_done_blocks_still_green` step.",
+      "checked": false,
+      "line": 26,
+      "evidence_kind": "selftest_run",
+      "evidence_spec": {
+        "cmd": "node tests/acceptance_verifier.e2e.smoke.mjs",
+        "expect_in_stdout": "OK"
+      },
+      "verdict": "pass",
+      "evidence": "node tests/acceptance_verifier.e2e.smoke.mjs → exit 0 (339ms); first line: \"acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\"",
+      "reasoning": "shell exit code 0 and stdout matches /OK/",
+      "raw": {
+        "cmd": "node tests/acceptance_verifier.e2e.smoke.mjs",
+        "exit_code": 0,
+        "stdout": "acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\n",
+        "stderr": "",
+        "duration_ms": 339,
+        "timed_out": false
+      },
+      "duration_ms": 339
+    },
+    {
+      "id": "A5",
+      "label": null,
+      "text": "PR-5 (UI) merged: Inspector секция «Acceptance verifier» (зелёные/красные badge per item, click → reasoning + evidence); ProposalsPanel `acceptance_blocked` proposal с retry-кнопкой; smoke (Playwright) подтверждает оба сценария.",
+      "checked": false,
+      "line": 33,
+      "evidence_kind": "log_grep",
+      "evidence_spec": {
+        "file": "Sima (Remix)/arch_canvas.jsx",
+        "pattern": "AcceptanceSection"
+      },
+      "verdict": "pass",
+      "evidence": "grep /AcceptanceSection/ Sima (Remix)/arch_canvas.jsx → 3 matches; first: \"      <AcceptanceSection blockId={block.id}/>\"",
+      "reasoning": "3 matching lines found",
+      "raw": {
+        "file": "/home/user/sima_atlas/Sima (Remix)/arch_canvas.jsx",
+        "pattern": "AcceptanceSection",
+        "since_time": null,
+        "match_count": 3,
+        "sample": [
+          "      <AcceptanceSection blockId={block.id}/>",
+          "function AcceptanceSection({ blockId }) {",
+          "Object.assign(window, { ArchCanvas, ArchInspector, AcceptanceSection, ProfileHintsSection, UserDocsLink, RunStatusSection });"
+        ]
+      },
+      "duration_ms": 0
+    },
+    {
+      "id": "A6",
+      "label": null,
+      "text": "End-to-end smoke `tests/acceptance_verifier.e2e.smoke.mjs`: создать тестовый блок с 3 acceptance items (1 deterministic, 1 LLM-judge, 1 заведомо-fail) → run agent (mock) → verifier даёт verdict=fail с правильным `retry_prompt_hint` → `transition_block done` блокируется.",
+      "checked": false,
+      "line": 40,
+      "evidence_kind": "selftest_run",
+      "evidence_spec": {
+        "cmd": "node tests/acceptance_verifier.e2e.smoke.mjs",
+        "expect_in_stdout": "5 phases"
+      },
+      "verdict": "pass",
+      "evidence": "node tests/acceptance_verifier.e2e.smoke.mjs → exit 0 (330ms); first line: \"acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\"",
+      "reasoning": "shell exit code 0 and stdout matches /5 phases/",
+      "raw": {
+        "cmd": "node tests/acceptance_verifier.e2e.smoke.mjs",
+        "exit_code": 0,
+        "stdout": "acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\n",
+        "stderr": "",
+        "duration_ms": 330,
+        "timed_out": false
+      },
+      "duration_ms": 330
+    },
+    {
+      "id": "A7",
+      "label": null,
+      "text": "Cache: при повторном вызове без новых коммитов и без новых traces — verdict из `_latest.json` без LLM-вызова; integration test проверяет, что cost_usd на 2-й вызов = 0.",
+      "checked": false,
+      "line": 47,
+      "evidence_kind": "fs_glob",
+      "evidence_spec": {
+        "pattern": "atlas/acceptance_runs/*/_latest.json",
+        "min_count": 1
+      },
+      "verdict": "pass",
+      "evidence": "glob atlas/acceptance_runs/*/_latest.json → 10 files (min=1); newest 0min ago",
+      "reasoning": "10 files match (≥1)",
+      "raw": {
+        "pattern": "atlas/acceptance_runs/*/_latest.json",
+        "count": 10,
+        "min_count": 1,
+        "max_age_min": null,
+        "newest_minutes_ago": 0,
+        "sample": [
+          "/home/user/sima_atlas/atlas/acceptance_runs/b.user-docs-generator/_latest.json",
+          "/home/user/sima_atlas/atlas/acceptance_runs/b.ui-control/_latest.json",
+          "/home/user/sima_atlas/atlas/acceptance_runs/b.smoke-sandbox/_latest.json",
+          "/home/user/sima_atlas/atlas/acceptance_runs/b.operator-profile-learner/_latest.json",
+          "/home/user/sima_atlas/atlas/acceptance_runs/b.llm-gateway/_latest.json"
+        ]
+      },
+      "duration_ms": 2
+    },
+    {
+      "id": "A8",
+      "label": null,
+      "text": "Privacy/safety: verifier не пишет в `acceptance.md` блока (read-only по контракту); pre-commit hook предотвращает.",
+      "checked": false,
+      "line": 54,
+      "evidence_kind": "llm_judge",
+      "evidence_spec": null,
+      "verdict": "skipped",
+      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
+      "raw": {
+        "judge_verdict": "inconclusive",
+        "provider": "mock",
+        "model": "mock-1",
+        "prompt_hash": "0c831397e9f5950c",
+        "cost_usd": 0,
+        "cost_capped": false,
+        "evidence_quote": ""
+      },
+      "duration_ms": 1
+    }
+  ],
+  "counts": {
+    "pass": 7,
+    "fail": 0,
+    "skipped": 1
+  },
+  "verdict": "pass",
+  "duration_ms": 948,
+  "checked_at": "2026-05-04T15:58:19.702Z"
+}
