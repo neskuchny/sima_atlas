@@ -130,6 +130,50 @@
   function withClient(body_) {
     return client ? { ...body_, _client: client } : body_;
   }
+  // GET helper — used by artifacts.list / artifacts.get / state probes.
+  async function getJson(path_) {
+    try {
+      const r = await fetch(API_BASE.replace(/\/$/, '') + path_, { cache: 'no-store' });
+      const j = await r.json().catch(() => ({}));
+      return j;
+    } catch (e) { return { ok: false, error: String(e.message || e) }; }
+  }
+
+  // ─── Artifacts CRUD ──────────────────────────────────────────────
+  // Backed by atlas/artifacts/<id>/{index.json,body.md}. Used by the
+  // Gallery / Composer / Library / TZ exporter views.
+  const artifacts = {
+    list:    async (params = {}) => {
+      const qs = new URLSearchParams();
+      if (params.kind)    qs.set('kind', params.kind);
+      if (params.search)  qs.set('search', params.search);
+      const tail = qs.toString() ? `?${qs.toString()}` : '';
+      return await getJson('/api/artifacts' + tail);
+    },
+    get:     async (id, opts = {}) => {
+      const qs = new URLSearchParams({ id });
+      if (opts.withBody) qs.set('with_body', '1');
+      return await getJson('/api/artifacts?' + qs.toString());
+    },
+    create:  async (body_)         => { return await postJson('/api/artifacts', body_); },
+    update:  async (id, patch)     => { return await postJson('/api/artifacts/' + encodeURIComponent(id), patch); },
+    insert:  async (id, body_)     => { return await postJson('/api/artifacts/' + encodeURIComponent(id) + '/insert', body_); },
+    delete:  async (id)            => {
+      try {
+        const r = await fetch(API_BASE.replace(/\/$/, '') + '/api/artifacts?id=' + encodeURIComponent(id), { method: 'DELETE' });
+        return await r.json().catch(() => ({}));
+      } catch (e) { return { ok: false, error: String(e.message || e) }; }
+    },
+  };
+
+  // ─── "Совет Клода" — bridge to b.llm-gateway ─────────────────────
+  // Sends a free-form prompt + optional block context, returns advice.
+  // Backend route /llm/advice is expected to exist; if not, the UI
+  // shows a graceful "функция готовится" message.
+  const claudeAdvice = async ({ block_id, prompt, context }) => {
+    return await postJson('/llm/advice', withClient({ block_id, prompt, context }));
+  };
+
   window.SIMA_API = {
     // Returns immediately; UI should optimistically update its local
     // state and rely on the next refresh to confirm.
@@ -141,6 +185,8 @@
     addNote:     async (body_)         => { const r = await postJson('/atlas/notes/add',    withClient(body_)); if (r.ok) await refresh(); return r; },
     patchNote:   async (note_id, body_) => { const r = await postJson('/atlas/notes/patch',  withClient({ note_id, ...body_ })); if (r.ok) await refresh(); return r; },
     deleteNote:  async (note_id)       => { const r = await postJson('/atlas/notes/delete', withClient({ note_id })); if (r.ok) await refresh(); return r; },
+    artifacts,
+    claudeAdvice,
     refresh,
   };
 })();

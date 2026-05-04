@@ -27,6 +27,7 @@
 <script type="text/babel" src="tweaks-panel.jsx"></script>
 <script type="text/babel" src="graph.jsx"></script>
 <script type="text/babel" src="panels.jsx"></script>
+<script type="text/babel" src="views.jsx"></script>
 <script type="text/babel">
 const { useState, useEffect, useRef, useMemo, useCallback } = React;
 
@@ -68,6 +69,10 @@ function App() {
   const [railOpen, setRailOpen] = useState(true);
   const [detailOpen, setDetailOpen] = useState(true);
   const [laneOverrides, setLaneOverrides] = useState({}); // { laneId: { y, height } }
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const [libraryOpen, setLibraryOpen] = useState(false);
+  const [tzOpenFor, setTzOpenFor] = useState(null); // moduleId or null
+  const [composerOpen, setComposerOpen] = useState(false);
 
   // Subsystem-local module/edge state, keyed by subsystem id
   const [subState, setSubState] = useState({});
@@ -253,6 +258,26 @@ function App() {
     setTimeout(() => setActiveFlash(null), 800);
   };
 
+  // "Совет Клода" — sends block context + free-form prompt to b.llm-gateway.
+  // Backend may not have /llm/advice yet; show a graceful in-log result.
+  const onClaudeAdvice = async (mod) => {
+    if (!window.SIMA_API?.claudeAdvice) {
+      pushLog({ agent: 'Claude', kind: 'note', msg: 'Совет Клода: функция готовится (требуется b.llm-gateway).' });
+      return;
+    }
+    pushLog({ agent: 'SIMA Core', kind: 'head', msg: `— спрашиваю Клода про @${mod.tag}…` });
+    const r = await window.SIMA_API.claudeAdvice({
+      block_id: mod.id,
+      prompt: `Дай практический совет по блоку «${mod.title}» (слой: ${mod.layer}). Что упростить, что усилить, какие риски?`,
+      context: { layer: mod.layer, status: mod.status },
+    });
+    if (r?.ok && r.advice) {
+      pushLog({ agent: 'Claude', kind: 'note', msg: `✨ ${r.advice.slice(0, 180)}${r.advice.length > 180 ? '…' : ''}` });
+    } else {
+      pushLog({ agent: 'Claude', kind: 'note', msg: 'Пока без совета — gateway не вернул ответ. Попробуйте позже.' });
+    }
+  };
+
   const onAddModule = async (preset) => {
     // Generate a unique id (`b.<base>-<n>` until free).
     // Atlas convention: block IDs start with `b.`. We prefix automatically
@@ -432,6 +457,9 @@ function App() {
           <span className="dot" style={{ background: scanState === 'found' ? 'var(--st-desync)' : 'var(--st-done)' }} />
           {scanState === 'scanning' ? 'проверяю…' : scanState === 'found' ? '1 рассинхрон' : 'sync ok'}
         </button>
+        <button className="pill" onClick={() => setComposerOpen(true)} title="Синтезировать артефакт из источника">＋ Артефакт</button>
+        <button className="pill" onClick={() => setGalleryOpen(true)} title="Галерея артефактов">⊞ Галерея</button>
+        <button className="pill" onClick={() => setLibraryOpen(true)} title="Библиотека блоков">⌘ Библиотека</button>
         <button className="pill" onClick={() => setCmdOpen(true)}>
           ⌘K · команда
         </button>
@@ -626,6 +654,8 @@ function App() {
           desyncResolved={desyncResolved}
           onSendToAgent={onSendToAgent}
           onDrillDown={onDrillDown}
+          onOpenTz={(id) => setTzOpenFor(id || selectedId)}
+          onClaudeAdvice={onClaudeAdvice}
         />
       ) : (
         <button className="detail-reopen" onClick={() => setDetailOpen(true)} title="Открыть детали">◀</button>
@@ -639,6 +669,60 @@ function App() {
           onSelect={(id) => { setSelectedId(id); setCmdOpen(false); setTweak('primaryView', 'split'); }}
           onSync={() => { setCmdOpen(false); runSyncCheck(); }}
           onAddModule={onAddModule}
+          onOpenGallery={() => { setCmdOpen(false); setGalleryOpen(true); }}
+          onOpenLibrary={() => { setCmdOpen(false); setLibraryOpen(true); }}
+          onOpenComposer={() => { setCmdOpen(false); setComposerOpen(true); }}
+          onOpenTz={() => { setCmdOpen(false); if (selectedId) setTzOpenFor(selectedId); }}
+          selectedId={selectedId}
+        />
+      )}
+
+      {/* COMPOSER MODAL — multi-source intake → artifact */}
+      {composerOpen && (
+        <div className="composer-modal" onClick={() => setComposerOpen(false)}>
+          <div className="composer-modal-inner" onClick={e => e.stopPropagation()}>
+            <Composer
+              onClose={() => setComposerOpen(false)}
+              onPublished={(art) => {
+                pushLog({ agent: 'SIMA Core', kind: 'ok', msg: `Артефакт «${art.title}» (${art.id}) опубликован.` });
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* GALLERY MODAL — browse / insert / delete artifacts */}
+      {galleryOpen && (
+        <Gallery
+          onClose={() => setGalleryOpen(false)}
+          onPick={(art) => {
+            pushLog({ agent: 'SIMA Core', kind: 'note', msg: `Артефакт «${art.title}» подцеплен к проекту.` });
+          }}
+        />
+      )}
+
+      {/* LIBRARY MODAL — saved blocks browser */}
+      {libraryOpen && (
+        <Library
+          data={data}
+          currentModuleId={selectedId}
+          onClose={() => setLibraryOpen(false)}
+          onPick={(art) => {
+            // Inserting a library block as a new module on canvas
+            onAddModule({ title: art.title, layer: art.blockLayer || 'logic', tag: art.tags?.[0] });
+            setLibraryOpen(false);
+            pushLog({ agent: 'SIMA Core', kind: 'note', msg: `Блок «${art.title}» добавлен из библиотеки.` });
+          }}
+        />
+      )}
+
+      {/* TZ EXPORTER MODAL — markdown TZ + send-to-agent + save-as-artifact */}
+      {tzOpenFor && (
+        <TZExporter
+          data={data}
+          moduleId={tzOpenFor}
+          onClose={() => setTzOpenFor(null)}
+          onSendToAgent={(agentId, mod) => { onSendToAgent(agentId, mod); setTzOpenFor(null); }}
         />
       )}
 
@@ -709,7 +793,7 @@ function App() {
   );
 }
 
-function CommandBar({ data, onClose, onSelect, onSync, onAddModule }) {
+function CommandBar({ data, onClose, onSelect, onSync, onAddModule, onOpenGallery, onOpenLibrary, onOpenComposer, onOpenTz, selectedId }) {
   const [q, setQ] = useState('');
   const [active, setActive] = useState(0);
   const inputRef = useRef(null);
@@ -719,8 +803,14 @@ function CommandBar({ data, onClose, onSelect, onSync, onAddModule }) {
     const cmds = [
       { type: 'cmd', ic: '⟳', label: 'Запустить sync-check', hint: '⏎', run: onSync },
       { type: 'cmd', ic: '＋', label: 'Создать новый модуль', hint: '⏎', run: () => { if (onAddModule) onAddModule(); onClose(); } },
-      { type: 'cmd', ic: '⤴', label: 'Открыть Roadmap', hint: '⏎', run: () => onClose() },
+      { type: 'cmd', ic: '⊞', label: 'Открыть галерею артефактов', hint: '⏎', run: () => onOpenGallery && onOpenGallery() },
+      { type: 'cmd', ic: '⌘', label: 'Открыть библиотеку блоков', hint: '⏎', run: () => onOpenLibrary && onOpenLibrary() },
+      { type: 'cmd', ic: '＋', label: 'Синтезировать артефакт из источника', hint: '⏎', run: () => onOpenComposer && onOpenComposer() },
     ];
+    if (selectedId) {
+      cmds.push({ type: 'cmd', ic: '✎', label: `Сгенерировать ТЗ для @${data.modules.find(m=>m.id===selectedId)?.tag}`, hint: '⏎', run: () => onOpenTz && onOpenTz() });
+    }
+    cmds.push({ type: 'cmd', ic: '⤴', label: 'Открыть Roadmap', hint: '⏎', run: () => onClose() });
     const mods = data.modules.map(m => ({
       type: 'mod', ic: '◆', label: m.title, hint: '@' + m.tag, run: () => onSelect(m.id),
     }));

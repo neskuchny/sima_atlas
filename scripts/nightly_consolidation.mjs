@@ -40,6 +40,7 @@ const checks = [
   ['playwright_canvas', 'npx playwright test tests/playwright/canvas_screenshots.spec.ts --reporter=line'],
   ['sima_design_payload_selftest', 'node tests/sima_design_payload.selftest.mjs'],
   ['atlas_blocks_api_selftest', 'node tests/atlas_blocks_api.selftest.mjs'],
+  ['atlas_artifacts_api_selftest', 'node tests/atlas_artifacts_api.selftest.mjs'],
   ['build_sima_design_payload', 'node scripts/build_sima_design_payload.mjs'],
   ['playwright_sima_design', 'npx playwright test tests/playwright/sima_design.spec.ts --reporter=line'],
   ['parse_acceptance_selftest', 'node tests/parse_acceptance.selftest.mjs'],

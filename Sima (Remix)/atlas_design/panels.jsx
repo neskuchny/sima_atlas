@@ -66,7 +66,7 @@ function ContextRail({ data, onClose, onUpdateField }) {
 }
 
 /* ====================== DETAIL PANEL ====================== */
-function DetailPanel({ data, moduleId, onClose, desyncResolved, onSendToAgent, onDrillDown }) {
+function DetailPanel({ data, moduleId, onClose, desyncResolved, onSendToAgent, onDrillDown, onOpenTz, onClaudeAdvice }) {
   const [tab, setTab] = useState2('overview');
   useEffect2(() => { setTab('overview'); }, [moduleId]);
 
@@ -130,7 +130,7 @@ function DetailPanel({ data, moduleId, onClose, desyncResolved, onSendToAgent, o
       </div>
 
       <div className="dbody">
-        {tab === 'overview' && <Overview m={m} status={status} desyncResolved={desyncResolved} onSendToAgent={onSendToAgent} onDrillDown={onDrillDown} hasSubsystem={!!data.subsystems?.[m.id]} />}
+        {tab === 'overview' && <Overview m={m} status={status} desyncResolved={desyncResolved} onSendToAgent={onSendToAgent} onDrillDown={onDrillDown} hasSubsystem={!!data.subsystems?.[m.id]} onOpenTz={onOpenTz} onClaudeAdvice={onClaudeAdvice} />}
         {tab === 'tasks' && <TasksList tasks={tasks} desyncResolved={desyncResolved} moduleId={moduleId} onSendToAgent={onSendToAgent} />}
         {tab === 'subs' && <SubsList subs={subs} desyncResolved={desyncResolved} moduleId={moduleId} />}
         {tab === 'memory' && <Memory lessons={lessons} history={data.history.filter(h => h.module === moduleId)} />}
@@ -140,7 +140,7 @@ function DetailPanel({ data, moduleId, onClose, desyncResolved, onSendToAgent, o
   );
 }
 
-function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSubsystem }) {
+function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSubsystem, onOpenTz, onClaudeAdvice }) {
   const desc = MODULE_DESC[m.id] || {};
   return (
     <>
@@ -188,6 +188,13 @@ function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSu
         <button onClick={() => onSendToAgent('claude', m)}>Claude Code</button>
         <button onClick={() => onSendToAgent('cursor', m)}>Cursor</button>
         <button onClick={() => onSendToAgent('codex', m)}>Codex</button>
+      </div>
+
+      <h3>Документы</h3>
+      <div className="send-task">
+        <span className="lab">Сгенерировать / экспорт →</span>
+        {onOpenTz && <button onClick={() => onOpenTz(m.id)}>✎ ТЗ блока</button>}
+        {onClaudeAdvice && <button onClick={() => onClaudeAdvice(m)}>✨ Совет Клода</button>}
       </div>
     </>
   );

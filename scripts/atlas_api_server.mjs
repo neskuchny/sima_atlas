@@ -6,6 +6,7 @@ import crypto from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import * as blocksApi from './atlas_blocks_api.mjs';
+import * as artifactsApi from './atlas_artifacts_api.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(__filename), '..');
@@ -56,7 +57,7 @@ function json(res, code, body) {
     // PR3.5: simple CORS so the UI page (served by python -m http.server)
     // can call accept/reject endpoints from the browser.
     'access-control-allow-origin': '*',
-    'access-control-allow-methods': 'POST, GET, OPTIONS',
+    'access-control-allow-methods': 'POST, GET, DELETE, OPTIONS',
     'access-control-allow-headers': 'content-type',
   });
   res.end(JSON.stringify(body));
@@ -66,7 +67,7 @@ const server = http.createServer((req, res) => {
   if (req.method === 'OPTIONS') {
     res.writeHead(204, {
       'access-control-allow-origin': '*',
-      'access-control-allow-methods': 'POST, GET, OPTIONS',
+      'access-control-allow-methods': 'POST, GET, DELETE, OPTIONS',
       'access-control-allow-headers': 'content-type',
     });
     return res.end();
@@ -86,19 +87,39 @@ const server = http.createServer((req, res) => {
       return json(res, 500, { ok: false, error: String(e) });
     }
   }
-  // PR — graceful empty stubs for the legacy /api/artifacts endpoints
-  // gallery_v2.jsx and layer1_canvas.jsx call. They were never wired to a
-  // real backend; the UI handled 404 silently but the network panel
-  // showed scary red lines. Now we return empty lists / no-op responses
-  // so the UI stays clean.
+  // /api/artifacts — real artifact storage backed by atlas/artifacts/.
+  // GET /api/artifacts?kind=&search=&with_body=1[&id=<id>]
+  // DELETE /api/artifacts?id=<id>
+  // POST /api/artifacts/<id>/insert  body: { project_id }
+  // POST /api/artifacts (create)     body: { kind, title, body?, tags?, ... }
+  // POST /api/artifacts/<id>          body: { ...patch }
   if (req.method === 'GET' && req.url.startsWith('/api/artifacts')) {
-    return json(res, 200, { artifacts: [], total: 0, source: 'stub' });
-  }
-  if (req.method === 'POST' && req.url.startsWith('/api/artifacts/') && req.url.endsWith('/insert')) {
-    return json(res, 200, { ok: true, source: 'stub', note: 'artifact insert is a no-op until a real artifact backend lands' });
+    try {
+      const u = new URL(req.url, `http://localhost:${port}`);
+      const id = u.searchParams.get('id') || '';
+      if (id) {
+        const a = artifactsApi.getArtifact(id, { withBody: u.searchParams.get('with_body') === '1' });
+        if (!a) return json(res, 200, { ok: false, error: 'not_found' });
+        return json(res, 200, { ok: true, artifact: a });
+      }
+      const list = artifactsApi.listArtifacts({
+        kind: u.searchParams.get('kind') || undefined,
+        search: u.searchParams.get('search') || undefined,
+      });
+      return json(res, 200, { ok: true, artifacts: list, total: list.length });
+    } catch (e) {
+      return json(res, 200, { ok: false, error: String(e.message || e) });
+    }
   }
   if (req.method === 'DELETE' && req.url.startsWith('/api/artifacts')) {
-    return json(res, 200, { ok: true, source: 'stub' });
+    try {
+      const u = new URL(req.url, `http://localhost:${port}`);
+      const id = u.searchParams.get('id') || '';
+      if (!id) return json(res, 200, { ok: false, error: 'id required' });
+      return json(res, 200, artifactsApi.deleteArtifact(id));
+    } catch (e) {
+      return json(res, 200, { ok: false, error: String(e.message || e) });
+    }
   }
 
   // PR — SIMA Atlas Design integration (sima_atlas_design folder).
@@ -313,6 +334,19 @@ const server = http.createServer((req, res) => {
         const id = String(body.note_id || body.id || '');
         if (!id) return json(res, 400, { ok: false, error: 'note_id required' });
         return tryFn(() => blocksApi.deleteNote({ note_id: id }));
+      }
+
+      // /api/artifacts POST routes (create, patch, insert)
+      if (req.url === '/api/artifacts') {
+        return tryFn(() => artifactsApi.createArtifact({ body }));
+      }
+      const artInsertM = req.url.match(/^\/api\/artifacts\/(art-[a-z0-9-]+)\/insert$/i);
+      if (artInsertM) {
+        return tryFn(() => artifactsApi.insertArtifactToProject(artInsertM[1], { project_id: body.project_id || body.projectId || 'main' }));
+      }
+      const artPatchM = req.url.match(/^\/api\/artifacts\/(art-[a-z0-9-]+)$/i);
+      if (artPatchM) {
+        return tryFn(() => artifactsApi.updateArtifact(artPatchM[1], body));
       }
 
       // PR4.5: run the configured coding agent on a block
