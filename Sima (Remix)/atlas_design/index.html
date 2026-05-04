@@ -72,10 +72,24 @@ function App() {
   // Subsystem-local module/edge state, keyed by subsystem id
   const [subState, setSubState] = useState({});
 
+  // PR — debounced persistence helper. Drag emits dozens of patch calls
+  // per second; we don't want to POST on every frame. Buffer per-block
+  // and flush 500ms after the last update.
+  const persistTimers = useRef({});
+  const persistBlock = (id, patchAccum) => {
+    if (!window.SIMA_API || !window.SIMA_API.patchBlock) return;
+    if (id.startsWith('m-') || !id.startsWith('b.')) return; // local-only ids
+    if (persistTimers.current[id]) clearTimeout(persistTimers.current[id]);
+    persistTimers.current[id] = setTimeout(async () => {
+      delete persistTimers.current[id];
+      const r = await window.SIMA_API.patchBlock(id, patchAccum);
+      if (!r?.ok) pushLog({ agent: 'SIMA Core', kind: 'fail', msg: `patch ${id} failed: ${r?.error}` });
+    }, 500);
+  };
+
   const updateModule = (id, patch) => {
     setModules(M => M.map(m => {
       if (m.id !== id) return m;
-      // store free-form module short desc onto data.moduleDocs (live)
       if (patch._short !== undefined) {
         if (!data.moduleDocs[id]) data.moduleDocs[id] = {};
         data.moduleDocs[id].short = patch._short;
@@ -84,14 +98,56 @@ function App() {
       }
       return { ...m, ...patch };
     }));
+    // Persist structural fields. _short stays UI-only; the block's
+    // mission.md is the canonical home for descriptions.
+    const persistable = {};
+    if ('x' in patch) persistable.x = patch.x;
+    if ('y' in patch) persistable.y = patch.y;
+    if ('title' in patch) persistable.title = patch.title;
+    if ('size' in patch) persistable.size = patch.size;
+    if ('status' in patch) persistable.status = patch.status;
+    if (Object.keys(persistable).length) persistBlock(id, persistable);
   };
 
   const updateEdge = (i, patch) => setEdges(E => E.map((e, idx) => idx === i ? { ...e, ...patch } : e));
-  const addEdge = (e) => setEdges(E => [...E, e]);
-  const deleteEdge = (i) => setEdges(E => E.filter((_, idx) => idx !== i));
+  const addEdge = async (e) => {
+    setEdges(E => [...E, e]);
+    if (window.SIMA_API && e.from?.startsWith('b.') && e.to?.startsWith('b.')) {
+      const r = await window.SIMA_API.addEdge({ from: e.from, to: e.to, capability: e.label });
+      if (!r?.ok) pushLog({ agent: 'SIMA Core', kind: 'fail', msg: `addEdge failed: ${r?.error}` });
+    }
+  };
+  const deleteEdge = async (i) => {
+    const target = edges[i];
+    setEdges(E => E.filter((_, idx) => idx !== i));
+    if (window.SIMA_API && target?.from?.startsWith('b.') && target?.to?.startsWith('b.')) {
+      const r = await window.SIMA_API.deleteEdge({ from: target.from, to: target.to });
+      if (!r?.ok) pushLog({ agent: 'SIMA Core', kind: 'fail', msg: `deleteEdge failed: ${r?.error}` });
+    }
+  };
 
-  const addNote = (n) => setNotes(N => [...N, { id: `n${Date.now()}`, ...n }]);
-  const updateNote = (id, patch) => setNotes(N => N.map(n => n.id === id ? { ...n, ...patch } : n));
+  const addNote = async (n) => {
+    const local = { id: `n${Date.now()}`, ...n };
+    setNotes(N => [...N, local]);
+    if (window.SIMA_API) {
+      const r = await window.SIMA_API.addNote(n);
+      if (r?.ok && r.note) {
+        setNotes(N => N.map(x => x.id === local.id ? r.note : x));
+      }
+    }
+  };
+  const updateNote = (id, patch) => {
+    setNotes(N => N.map(n => n.id === id ? { ...n, ...patch } : n));
+    if (window.SIMA_API && id && !id.startsWith('n') && persistTimers.current) {
+      // Debounced
+      const k = '__note_' + id;
+      if (persistTimers.current[k]) clearTimeout(persistTimers.current[k]);
+      persistTimers.current[k] = setTimeout(() => {
+        delete persistTimers.current[k];
+        window.SIMA_API.patchNote(id, patch);
+      }, 500);
+    }
+  };
   const deleteNote = (id) => setNotes(N => N.filter(n => n.id !== id));
 
   // Sima placeholder generator (just appends a draft so the UX makes sense)
@@ -197,16 +253,17 @@ function App() {
     setTimeout(() => setActiveFlash(null), 800);
   };
 
-  const onAddModule = (preset) => {
-    // Generate a unique id (`m-<n>` until free) and place the new node
-    // somewhere visible. Server-side persistence will land in PR-Backend
-    // (atlas/graph.json write path) — for now the new module lives in
-    // React state and the operator sees it appear immediately.
+  const onAddModule = async (preset) => {
+    // Generate a unique id (`b.<base>-<n>` until free).
+    // Atlas convention: block IDs start with `b.`. We prefix automatically
+    // so design-UI-created blocks are indistinguishable from CLI-created.
     const existingIds = new Set(modules.map(m => m.id));
-    let n = 1; while (existingIds.has('m-' + n)) n++;
-    const id = (preset && preset.id) || ('m-' + n);
-    // Default placement: average existing module position + small offset
-    // so it doesn't land off-screen in zoomed-out views.
+    const base = (preset?.title || 'block').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 32) || 'block';
+    let n = 1; while (existingIds.has(`b.${base}-${n}`)) n++;
+    const id = preset?.id || `b.${base}-${n}`;
+    // Layer mapping: design layer → atlas layer (reverse of adapter)
+    const REV_LAYER = { backend: 'logic', frontend: 'front', logic: 'logic', tests: 'testing' };
+    // Default placement near current modules' centroid
     const avg = modules.length
       ? { x: modules.reduce((s, m) => s + m.x, 0) / modules.length,
           y: modules.reduce((s, m) => s + m.y, 0) / modules.length }
@@ -214,7 +271,7 @@ function App() {
     const created = {
       id,
       title: preset?.title || 'Новый модуль',
-      tag: preset?.tag || id,
+      tag: preset?.tag || id.replace(/^b\./, ''),
       layer: preset?.layer || 'logic',
       x: preset?.x ?? Math.round(avg.x + 40),
       y: preset?.y ?? Math.round(avg.y + 40),
@@ -223,9 +280,27 @@ function App() {
       checked: false,
       size: preset?.size || 'md',
     };
+    // Optimistic update: show on canvas immediately
     setModules(M => [...M, created]);
     setSelectedId(id);
-    pushLog({ agent: 'SIMA Core', kind: 'head', msg: `Создан модуль ${created.title} (${id}). Откройте детали справа, чтобы заполнить mission.` });
+    pushLog({ agent: 'SIMA Core', kind: 'head', msg: `Создан модуль ${created.title} (${id}).` });
+    // Persist to atlas/graph.json. On failure rollback the optimistic add.
+    if (window.SIMA_API && window.SIMA_API.createBlock) {
+      const r = await window.SIMA_API.createBlock({
+        id,
+        title: created.title,
+        layer: REV_LAYER[created.layer] || 'logic',
+        status: 'idea',
+        x: created.x, y: created.y, size: created.size,
+      });
+      if (!r || !r.ok) {
+        setModules(M => M.filter(x => x.id !== id));
+        setSelectedId(null);
+        pushLog({ agent: 'SIMA Core', kind: 'fail', msg: `Не удалось сохранить ${id}: ${r?.error || 'unknown'}. Откат.` });
+      } else {
+        pushLog({ agent: 'SIMA Core', kind: 'ok', msg: `Сохранено в atlas/graph.json (+8 контрактных файлов)` });
+      }
+    }
   };
 
   const filtersList = [

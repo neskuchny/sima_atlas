@@ -5,6 +5,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import * as blocksApi from './atlas_blocks_api.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(__filename), '..');
@@ -282,6 +283,38 @@ const server = http.createServer((req, res) => {
         const out = execFileSync('node', args, { cwd: ROOT, stdio: 'pipe' }).toString().trim();
         return json(res, 200, { ok: true, out });
       }
+      // PR — design UI write API. Routes delegate to atlas_blocks_api.mjs.
+      // Errors come back as 200 {ok:false, error} so the UI shows them
+      // inline (rather than CORS-mangled 4xx).
+      const tryFn = (fn) => {
+        try { return json(res, 200, fn()); }
+        catch (e) { return json(res, 200, { ok: false, error: String(e.message || e) }); }
+      };
+      if (req.url === '/atlas/blocks/create') return tryFn(() => blocksApi.createBlock({ body }));
+      if (req.url === '/atlas/blocks/patch') {
+        const id = String(body.block_id || body.id || '');
+        if (!id) return json(res, 400, { ok: false, error: 'block_id required' });
+        return tryFn(() => blocksApi.patchBlock({ block_id: id, body }));
+      }
+      if (req.url === '/atlas/blocks/delete') {
+        const id = String(body.block_id || body.id || '');
+        if (!id) return json(res, 400, { ok: false, error: 'block_id required' });
+        return tryFn(() => blocksApi.deleteBlock({ block_id: id, hard: !!body.hard }));
+      }
+      if (req.url === '/atlas/edges/add')    return tryFn(() => blocksApi.addEdge({ body }));
+      if (req.url === '/atlas/edges/delete') return tryFn(() => blocksApi.deleteEdge({ body }));
+      if (req.url === '/atlas/notes/add')    return tryFn(() => blocksApi.addNote({ body }));
+      if (req.url === '/atlas/notes/patch') {
+        const id = String(body.note_id || body.id || '');
+        if (!id) return json(res, 400, { ok: false, error: 'note_id required' });
+        return tryFn(() => blocksApi.patchNote({ note_id: id, body }));
+      }
+      if (req.url === '/atlas/notes/delete') {
+        const id = String(body.note_id || body.id || '');
+        if (!id) return json(res, 400, { ok: false, error: 'note_id required' });
+        return tryFn(() => blocksApi.deleteNote({ note_id: id }));
+      }
+
       // PR4.5: run the configured coding agent on a block
       if (req.url === '/run-block') {
         const blockId = String(body.block_id || '');

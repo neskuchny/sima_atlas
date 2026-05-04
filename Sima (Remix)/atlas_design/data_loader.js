@@ -102,4 +102,45 @@
       announce('hash_change');
     }
   }, 5000);
+
+  // ─── Write-side API for the design UI ─────────────────────────────
+  // window.SIMA_API.* methods POST to atlas_api_server which mutates
+  // atlas/graph.json + per-block files. On success they trigger a
+  // refetch immediately so the React tree sees the persisted state
+  // (instead of waiting up to 5s for the next poll).
+  async function postJson(path_, body_) {
+    try {
+      const r = await fetch(API_BASE.replace(/\/$/, '') + path_, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body_ || {}),
+      });
+      const j = await r.json().catch(() => ({}));
+      return j;
+    } catch (e) { return { ok: false, error: String(e.message || e) }; }
+  }
+  async function refresh() {
+    const live = await fetchLive();
+    if (live) {
+      window.SIMA_DATA = live;
+      window.__SIMA_DATA_SOURCE = 'live_polled';
+      announce('mutation');
+    }
+  }
+  function withClient(body_) {
+    return client ? { ...body_, _client: client } : body_;
+  }
+  window.SIMA_API = {
+    // Returns immediately; UI should optimistically update its local
+    // state and rely on the next refresh to confirm.
+    createBlock: async (body_)         => { const r = await postJson('/atlas/blocks/create', withClient(body_)); if (r.ok) await refresh(); return r; },
+    patchBlock:  async (block_id, body_) => { const r = await postJson('/atlas/blocks/patch',  withClient({ block_id, ...body_ })); if (r.ok) await refresh(); return r; },
+    deleteBlock: async (block_id, hard=false) => { const r = await postJson('/atlas/blocks/delete', withClient({ block_id, hard })); if (r.ok) await refresh(); return r; },
+    addEdge:     async (body_)         => { const r = await postJson('/atlas/edges/add',    withClient(body_)); if (r.ok) await refresh(); return r; },
+    deleteEdge:  async (body_)         => { const r = await postJson('/atlas/edges/delete', withClient(body_)); if (r.ok) await refresh(); return r; },
+    addNote:     async (body_)         => { const r = await postJson('/atlas/notes/add',    withClient(body_)); if (r.ok) await refresh(); return r; },
+    patchNote:   async (note_id, body_) => { const r = await postJson('/atlas/notes/patch',  withClient({ note_id, ...body_ })); if (r.ok) await refresh(); return r; },
+    deleteNote:  async (note_id)       => { const r = await postJson('/atlas/notes/delete', withClient({ note_id })); if (r.ok) await refresh(); return r; },
+    refresh,
+  };
 })();

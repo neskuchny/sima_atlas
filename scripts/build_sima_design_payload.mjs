@@ -242,26 +242,35 @@ export function buildSimaDesignPayload({ atlas_root, client_id } = {}) {
   if (!fs.existsSync(graphPath)) throw new Error(`graph.json not found: ${graphPath}`);
   const graph = JSON.parse(fs.readFileSync(graphPath, 'utf8'));
 
-  const modules = (graph.blocks || []).map((b) => {
-    const visualStatus = STATUS_MAP[b.status] || 'todo';
-    const visualLayer = LAYER_MAP[b.layer] || 'logic';
-    return {
-      id: b.id,
-      _raw_status: b.status,
-      title: b.title || b.id,
-      tag: tagFromId(b.id),
-      layer: visualLayer,
-      status: visualStatus,
-      priority: autoPriority(b),
-      checked: b.status === 'done',
-      size: autoSize(b),
-      warn: (visualStatus === 'fail' || visualStatus === 'desync') ? (b.status_reason || '').slice(0, 140) : undefined,
-      x: 0, y: 0, // filled by autoLayout
-    };
-  });
-  autoLayout(modules);
-  // Strip internal field before serialization
-  modules.forEach((m) => { delete m._raw_status; });
+  const modules = (graph.blocks || [])
+    .filter((b) => b.status !== 'archived')
+    .map((b) => {
+      const visualStatus = STATUS_MAP[b.status] || 'todo';
+      const visualLayer = LAYER_MAP[b.layer] || 'logic';
+      return {
+        id: b.id,
+        _raw_status: b.status,
+        title: b.title || b.id,
+        tag: tagFromId(b.id),
+        layer: visualLayer,
+        status: visualStatus,
+        priority: autoPriority(b),
+        checked: b.status === 'done',
+        size: b.canvas_size || autoSize(b),
+        warn: (visualStatus === 'fail' || visualStatus === 'desync') ? (b.status_reason || '').slice(0, 140) : undefined,
+        // Canvas coordinates: persisted (canvas_x/canvas_y) win over
+        // auto-layout. Adapter writes both modes side-by-side so a fresh
+        // graph.json gets useful default placement, AND user-dragged
+        // positions survive nightly regen.
+        x: Number.isFinite(b.canvas_x) ? b.canvas_x : 0,
+        y: Number.isFinite(b.canvas_y) ? b.canvas_y : 0,
+        _has_canvas_xy: Number.isFinite(b.canvas_x) && Number.isFinite(b.canvas_y),
+      };
+    });
+  // Auto-layout only blocks WITHOUT persisted canvas coords
+  const needsLayout = modules.filter((m) => !m._has_canvas_xy);
+  if (needsLayout.length) autoLayout(needsLayout);
+  modules.forEach((m) => { delete m._raw_status; delete m._has_canvas_xy; });
 
   const edges = [];
   for (const b of (graph.blocks || [])) {
