@@ -15,17 +15,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/atlas_sync.selftest.mjs → exit 0 (65ms); first line: \"atlas_sync.selftest: OK\"",
+      "evidence": "node tests/atlas_sync.selftest.mjs → exit 0 (67ms); first line: \"atlas_sync.selftest: OK\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/atlas_sync.selftest.mjs",
         "exit_code": 0,
         "stdout": "atlas_sync.selftest: OK\n",
         "stderr": "",
-        "duration_ms": 65,
+        "duration_ms": 67,
         "timed_out": false
       },
-      "duration_ms": 65
+      "duration_ms": 67
     },
     {
       "id": "A2",
@@ -39,17 +39,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_dependency_contracts.mjs → exit 0 (59ms); first line: \"Dependency contract validation: OK\"",
+      "evidence": "node scripts/validate_dependency_contracts.mjs → exit 0 (58ms); first line: \"Dependency contract validation: OK\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_dependency_contracts.mjs",
         "exit_code": 0,
         "stdout": "Dependency contract validation: OK\n",
         "stderr": "",
-        "duration_ms": 59,
+        "duration_ms": 58,
         "timed_out": false
       },
-      "duration_ms": 59
+      "duration_ms": 58
     },
     {
       "id": "A3",
@@ -107,17 +107,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (62ms); first line: \"Block contract validation: OK\"",
+      "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (59ms); first line: \"Block contract validation: OK\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_block_contracts.mjs",
         "exit_code": 0,
         "stdout": "Block contract validation: OK\n",
         "stderr": "",
-        "duration_ms": 62,
+        "duration_ms": 59,
         "timed_out": false
       },
-      "duration_ms": 62
+      "duration_ms": 59
     }
   ],
   "counts": {
@@ -126,6 +126,6 @@
     "skipped": 2
   },
   "verdict": "pass",
-  "duration_ms": 188,
-  "checked_at": "2026-05-04T23:20:10.269Z"
+  "duration_ms": 185,
+  "checked_at": "2026-05-04T23:19:58.498Z"
 }

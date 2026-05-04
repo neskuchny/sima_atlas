@@ -11,7 +11,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {
-  listRunsByBlock, getRun, getLatestAcceptance,
+  listRunsByBlock, getRun, getLatestAcceptance, readRunLog, listRunFiles,
 } from '../scripts/atlas_runs_api.mjs';
 
 const failures = [];
@@ -93,6 +93,54 @@ try {
     const miss = getLatestAcceptance({ block_id: 'b.unknown', root: atlas });
     check('group4:miss null', miss === null);
   }
+
+  // ─── Group 5: readRunLog tail with byte offset
+  {
+    const logsDir = path.join(atlas, 'run_logs');
+    fs.mkdirSync(logsDir, { recursive: true });
+    const lp = path.join(logsDir, 'b.alpha__1.log');
+    const part1 = '# header\nrunning step 1\n';
+    const part2 = 'step 2 ok\nstep 3 done\n';
+    fs.writeFileSync(lp, part1);
+    const a = readRunLog({ run_id: 'b.alpha__1', root: atlas });
+    check('group5:initial read ok', a.ok && a.text === part1);
+    check('group5:initial size matches', a.size === part1.length);
+    fs.appendFileSync(lp, part2);
+    const b = readRunLog({ run_id: 'b.alpha__1', since: a.next, root: atlas });
+    check('group5:incremental text', b.text === part2);
+    check('group5:incremental next advanced', b.next === part1.length + part2.length);
+    const c = readRunLog({ run_id: 'b.alpha__1', since: b.next, root: atlas });
+    check('group5:no-new-bytes empty', c.text === '');
+    const miss = readRunLog({ run_id: 'no-such-run', root: atlas });
+    check('group5:missing log graceful', miss.ok && miss.text === '' && miss.size === 0);
+
+    // Tail when initial read of large log
+    const big = 'x'.repeat(20000) + '\nfinal line\n';
+    fs.writeFileSync(lp, big);
+    const tail = readRunLog({ run_id: 'b.alpha__1', root: atlas, tail_bytes: 4000 });
+    check('group5:tail truncates', tail.truncated === true && tail.text.length <= 4000);
+    check('group5:tail still includes end', tail.text.endsWith('final line\n'));
+  }
+
+  // ─── Group 6: listRunFiles parses checks.log
+  {
+    const blockDir = path.join(atlas, 'blocks', 'b.alpha');
+    fs.mkdirSync(blockDir, { recursive: true });
+    fs.writeFileSync(path.join(blockDir, 'checks.log'), [
+      '2026-05-04T09:00:00.000Z  preexisting  pass  pre-run untouched.mjs',
+      '2026-05-04T10:30:00.000Z  design_patch pass  scripts/foo.mjs scripts/bar.mjs README.md',
+      '2026-05-04T10:31:00.000Z  design_patch pass  atlas/blocks/b.alpha/mission.md',
+    ].join('\n'));
+    const files = listRunFiles({ run_id: 'b.alpha__1', root: atlas });
+    check('group6:files extracted', Array.isArray(files));
+    // Run b.alpha__1 was started 2026-05-04T10:00:00Z so 09:00 line is filtered out
+    check('group6:pre-run line filtered', !files.includes('untouched.mjs'));
+    check('group6:foo.mjs found', files.includes('scripts/foo.mjs'));
+    check('group6:README.md found', files.includes('README.md'));
+    check('group6:mission.md found', files.includes('atlas/blocks/b.alpha/mission.md'));
+    const empty = listRunFiles({ run_id: 'no-run', root: atlas });
+    check('group6:missing run empty', empty.length === 0);
+  }
 } finally {
   fs.rmSync(tmp, { recursive: true, force: true });
 }
@@ -102,4 +150,4 @@ if (failures.length) {
   failures.forEach((f) => console.error(' ✗', f));
   process.exit(1);
 }
-console.log('atlas_runs_api.selftest: OK (4 test groups, all assertions green)');
+console.log('atlas_runs_api.selftest: OK (6 test groups, all assertions green)');

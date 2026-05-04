@@ -517,37 +517,87 @@ function RunStatusSection({ moduleId }) {
   const [runs, setRuns] = useState2([]);
   const [busy, setBusy] = useState2(false);
   const [error, setError] = useState2(null);
+  // Per-run-id log tail state. We only tail the most-recent run; older runs
+  // can be expanded on-demand if needed.
+  const [logText, setLogText] = useState2('');
+  const [logSize, setLogSize] = useState2(0);
+  const [files, setFiles] = useState2([]);
+  const [openLogFor, setOpenLogFor] = useState2(null); // run_id whose log is shown
+  const apiBase = (window.SIMA_API_BASE || 'http://localhost:8787').replace(/\/$/, '');
 
   const fetchRuns = async () => {
     try {
-      const r = await fetch((window.SIMA_API_BASE || 'http://localhost:8787').replace(/\/$/, '') + '/runs/list?block_id=' + encodeURIComponent(moduleId) + '&limit=10', { cache: 'no-store' });
+      const r = await fetch(apiBase + '/runs/list?block_id=' + encodeURIComponent(moduleId) + '&limit=10', { cache: 'no-store' });
       const j = await r.json();
       if (j.ok) setRuns(j.runs || []);
     } catch {}
   };
 
+  // Keep the latest run open by default so the operator sees agent output
+  // immediately after pressing "Run".
+  useEffect2(() => {
+    if (!openLogFor && runs[0]) setOpenLogFor(runs[0].run_id);
+  }, [runs, openLogFor]);
+
+  const fetchLog = async (run_id, since = 0) => {
+    try {
+      const r = await fetch(apiBase + '/runs/log?run_id=' + encodeURIComponent(run_id) + '&since=' + since, { cache: 'no-store' });
+      const j = await r.json();
+      if (!j.ok) return;
+      // If `since` was stale (e.g. log got truncated), reset to whatever
+      // the server returned so we don't miss new bytes.
+      if (since === 0) {
+        setLogText(j.text || '');
+      } else {
+        setLogText((t) => t + (j.text || ''));
+      }
+      setLogSize(j.next || 0);
+    } catch {}
+  };
+  const fetchFiles = async (run_id) => {
+    try {
+      const r = await fetch(apiBase + '/runs/files?run_id=' + encodeURIComponent(run_id), { cache: 'no-store' });
+      const j = await r.json();
+      if (j.ok) setFiles(j.files || []);
+    } catch {}
+  };
+
+  // When the open run changes, reset the tail state and fetch fresh.
+  useEffect2(() => {
+    if (!openLogFor) return;
+    setLogText('');
+    setLogSize(0);
+    fetchLog(openLogFor, 0);
+    fetchFiles(openLogFor);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openLogFor]);
+
   useEffect2(() => {
     fetchRuns();
     const TERMINAL = new Set(['Succeeded', 'Failed', 'Stalled', 'Canceled']);
     const live = (runs || []).some((r) => !TERMINAL.has(r.current_state));
-    const itv = setInterval(fetchRuns, live ? 4000 : 12000);
+    const itv = setInterval(() => {
+      fetchRuns();
+      if (openLogFor && live) fetchLog(openLogFor, logSize);
+    }, live ? 2000 : 12000);
     return () => clearInterval(itv);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [moduleId]);
+  }, [moduleId, openLogFor, logSize, runs.length]);
 
   const startRun = async (agent) => {
-    if (!window.SIMA_API) return;
     setBusy(true); setError(null);
     try {
-      const r = await fetch((window.SIMA_API_BASE || 'http://localhost:8787').replace(/\/$/, '') + '/runs/start', {
+      const r = await fetch(apiBase + '/runs/start', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ block_id: moduleId, agent }),
       });
       const j = await r.json();
       if (!j.ok) setError(j.error || 'failed');
-      // The async run writes its own run_state file — poll once after a
-      // brief delay to surface it without waiting for the next interval.
+      else if (j.run_id) {
+        setOpenLogFor(j.run_id);
+        setLogText(''); setLogSize(0);
+      }
       setTimeout(fetchRuns, 800);
     } catch (e) {
       setError(String(e.message || e));
@@ -555,9 +605,24 @@ function RunStatusSection({ moduleId }) {
     setBusy(false);
   };
 
+  const cancelRun = async (run_id) => {
+    if (!window.confirm(`Отменить запуск ${run_id}?`)) return;
+    try {
+      const r = await fetch(apiBase + '/runs/cancel', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ run_id, reason: 'cancelled from UI' }),
+      });
+      const j = await r.json();
+      if (!j.ok) setError(j.error || 'cancel failed');
+      setTimeout(fetchRuns, 400);
+    } catch (e) {
+      setError(String(e.message || e));
+    }
+  };
+
   const TERMINAL = new Set(['Succeeded', 'Failed', 'Stalled', 'Canceled']);
   const live = runs.find((r) => !TERMINAL.has(r.current_state));
-  const last = runs[0] || null;
 
   return (
     <>
@@ -571,11 +636,16 @@ function RunStatusSection({ moduleId }) {
       {error && <div className="lesson bad" style={{ marginBottom: 12 }}>{error}</div>}
 
       {live && (
-        <div className="run-card live">
+        <div className="run-card live" onClick={() => setOpenLogFor(live.run_id)}>
           <div className="run-card-head">
             <span className="run-pulse" />
-            <span className="mono" style={{ fontSize: 11 }}>{live.run_id}</span>
+            <span className="mono" style={{ fontSize: 11, flex: 1 }}>{live.run_id}</span>
             <span className="run-phase">{live.current_state}</span>
+            <button
+              className="run-cancel"
+              onClick={(e) => { e.stopPropagation(); cancelRun(live.run_id); }}
+              title="Отменить"
+            >✕ Отменить</button>
           </div>
           <div className="meta" style={{ fontSize: 11.5 }}>
             agent={live.agent} · started {short(live.started_at)} · last event {short(live.last_event_at)}
@@ -583,20 +653,46 @@ function RunStatusSection({ moduleId }) {
         </div>
       )}
 
+      {openLogFor && (
+        <div className="run-log-wrap">
+          <div className="run-log-head">
+            <span className="mono" style={{ fontSize: 10.5, color: 'var(--ink-3)' }}>лог · {openLogFor}</span>
+            <span className="meta" style={{ fontSize: 10.5 }}>{logSize} байт</span>
+          </div>
+          <pre className="run-log">{logText || (live ? 'ожидаю вывод…' : 'лог пуст или удалён')}</pre>
+          {files.length > 0 && (
+            <div className="run-files">
+              <div className="meta" style={{ fontSize: 10.5, marginBottom: 4, letterSpacing: '0.06em' }}>ИЗМЕНИЛ</div>
+              <div className="chips">
+                {files.slice(0, 12).map((f) => <span key={f} className="chip mono">{f}</span>)}
+                {files.length > 12 && <span className="chip">+{files.length - 12}</span>}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       <h3>История</h3>
       {!runs.length && <p style={{ color: 'var(--ink-3)' }}>Запусков пока нет — нажмите кнопку выше.</p>}
       {runs.map((r) => (
-        <div key={r.run_id} className={`run-card ${r.current_state.toLowerCase()}`}>
+        <div
+          key={r.run_id}
+          className={`run-card ${r.current_state.toLowerCase()} ${openLogFor === r.run_id ? 'open' : ''}`}
+          onClick={() => setOpenLogFor(r.run_id)}
+        >
           <div className="run-card-head">
             <span className="run-phase">{r.current_state}</span>
-            <span className="mono" style={{ fontSize: 10.5, color: 'var(--ink-4)' }}>{short(r.started_at)}</span>
+            <span className="mono" style={{ fontSize: 10.5, color: 'var(--ink-4)', flex: 1 }}>{short(r.started_at)}</span>
+            <span className="meta" style={{ fontSize: 10.5 }}>{r.agent}</span>
           </div>
           <div className="mono" style={{ fontSize: 10.5, color: 'var(--ink-3)', marginTop: 4 }}>
-            {r.run_id} · agent={r.agent}
+            {r.run_id}
           </div>
         </div>
       ))}
-      {last && <div className="meta" style={{ fontSize: 11, marginTop: 8 }}>Опрос каждые {live ? '4' : '12'} сек.</div>}
+      <div className="meta" style={{ fontSize: 11, marginTop: 8 }}>
+        Опрос каждые {live ? '2' : '12'} сек.
+      </div>
     </>
   );
 }

@@ -92,6 +92,11 @@ export function getLatestAcceptance({ block_id, root } = {}) {
 // Spawn run_block_implementation.mjs in the background. We do NOT block on
 // completion — the script writes its own run_state file as it progresses,
 // and the UI polls listRunsByBlock to track it.
+//
+// Stdout/stderr are captured to atlas/run_logs/<run_id>.log so the UI's
+// /runs/log endpoint can tail them. Run id is derived in the same way
+// run_state.startRun does (block_id__<UTC ts>) so we know it up-front
+// without racing the child.
 export function startRunAsync({ block_id, agent, prompt } = {}) {
   if (!block_id) throw new Error('startRunAsync: block_id required');
   const args = ['scripts/run_block_implementation.mjs', String(block_id)];
@@ -99,19 +104,76 @@ export function startRunAsync({ block_id, agent, prompt } = {}) {
   const env = { ...process.env };
   if (agent) env.ATLAS_AGENT = String(agent);
 
+  // Predict run_id same way run_state.startRun does, then pass it via env
+  // so the child uses our id instead of computing its own. This lets the
+  // UI tail logs immediately without polling for the run to appear.
+  const ts = new Date().toISOString().replace(/[:.]/g, '-');
+  const run_id = `${block_id}__${ts}`;
+  env.ATLAS_PRESET_RUN_ID = run_id;
+
+  const logsDir = path.join(ROOT, 'atlas', 'run_logs');
+  fs.mkdirSync(logsDir, { recursive: true });
+  const logPath = path.join(logsDir, `${run_id}.log`);
+  const out = fs.openSync(logPath, 'a');
+  const err = fs.openSync(logPath, 'a');
+  fs.writeFileSync(logPath, `# run ${run_id}  block=${block_id}  agent=${agent || '(default)'}  started=${new Date().toISOString()}\n`);
+
   const child = spawn('node', args, {
     cwd: ROOT,
     env,
-    stdio: 'ignore',
+    stdio: ['ignore', out, err],
     detached: true,
   });
   child.unref();
+  fs.closeSync(out);
+  fs.closeSync(err);
 
-  // The child's startRun() writes run_id = `<block_id>__<UTC-ts>`. We can't
-  // know the exact timestamp the child will pick (clock skew between this
-  // call and child boot is ~ms). Best-effort: poll listRunsByBlock for ~1s
-  // and return the newest entry.
-  return { ok: true, pid: child.pid, block_id, agent: agent || null };
+  return { ok: true, pid: child.pid, run_id, block_id, agent: agent || null };
+}
+
+// Tail the captured run log starting at byte offset `since`. Returns the
+// new bytes plus the next offset so the UI can poll incrementally without
+// re-reading the whole log every tick. `tail_bytes` caps initial fetch
+// for clients that pass since=0 on a long-running log.
+export function readRunLog({ run_id, since = 0, tail_bytes = 16000, root } = {}) {
+  if (!run_id) throw new Error('readRunLog: run_id required');
+  const p = path.join(root || ATLAS_DEFAULT, 'run_logs', `${run_id}.log`);
+  if (!fs.existsSync(p)) return { ok: true, run_id, text: '', size: 0, next: 0 };
+  const stat = fs.statSync(p);
+  const size = stat.size;
+  let start = Math.max(0, Number(since) || 0);
+  if (start === 0 && size > tail_bytes) start = size - tail_bytes;
+  if (start >= size) return { ok: true, run_id, text: '', size, next: size };
+  const fd = fs.openSync(p, 'r');
+  const buf = Buffer.alloc(size - start);
+  fs.readSync(fd, buf, 0, buf.length, start);
+  fs.closeSync(fd);
+  return { ok: true, run_id, text: buf.toString('utf8'), size, next: size, truncated: since === 0 && size > tail_bytes };
+}
+
+// Files an agent edited during a run. Two sources, in priority order:
+//   1. block's checks.log (`+files: …` lines we add when patchBlock writes)
+//   2. git diff in the workspace, if a workspace was created
+// For now we read checks.log entries newer than the run's started_at and
+// extract any file paths mentioned. The list is best-effort.
+export function listRunFiles({ run_id, root } = {}) {
+  if (!run_id) return [];
+  const run = getRun(run_id, { root });
+  if (!run) return [];
+  const block_id = run.block_id;
+  const startedAt = run.started_at;
+  const checks = path.join(root || ATLAS_DEFAULT, 'blocks', block_id, 'checks.log');
+  if (!fs.existsSync(checks)) return [];
+  const lines = fs.readFileSync(checks, 'utf8').split(/\n/);
+  const files = new Set();
+  for (const ln of lines) {
+    const m = ln.match(/^\d{4}-\d{2}-\d{2}T[\d:.]+Z/);
+    if (!m) continue;
+    if (startedAt && ln.slice(0, 24) < startedAt.slice(0, 24)) continue;
+    const fileMatches = ln.match(/[a-zA-Z0-9_/.-]+\.(?:mjs|js|jsx|ts|tsx|md|json|css|html|py|sh)/g);
+    if (fileMatches) for (const f of fileMatches) files.add(f);
+  }
+  return Array.from(files).sort();
 }
 
 // Convenience: callLLM-backed advice for the design UI's "Совет Клода"

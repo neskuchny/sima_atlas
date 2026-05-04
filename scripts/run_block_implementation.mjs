@@ -134,7 +134,12 @@ const useWorkspace = process.env.ATLAS_USE_WORKSPACE === '1';
 let runState = null;
 let workspace = null;
 try {
-  runState = startRun({ block_id: blockId, agent, prompt_file: invocationPath });
+  runState = startRun({
+    block_id: blockId,
+    agent,
+    prompt_file: invocationPath,
+    run_id: process.env.ATLAS_PRESET_RUN_ID || null,
+  });
   if (useWorkspace && agent !== 'print-only') {
     workspace = createWorkspace({ block_id: blockId, run_id: runState.run_id });
     transitionRunState(runState.run_id, 'PreparingWorkspace', { workspace_path: workspace.workspace_path });

@@ -1686,3 +1686,28 @@ html, body {
 .acc-row .acc-dot.v-inconclusive { background: var(--card-2); color: var(--ink-3); }
 .acc-row.v-fail { border-left: 3px solid var(--st-fail); }
 .acc-row.v-pass { border-left: 3px solid var(--st-done); }
+
+/* ============================================================
+   PR — Run log + cancel + files-changed (Phase D1/D5/D6)
+   ============================================================ */
+.run-card { cursor: pointer; }
+.run-card.open { box-shadow: 0 0 0 1px var(--ink-2) inset; }
+.run-cancel {
+  font: inherit; font-size: 10.5px; padding: 2px 8px;
+  border: 1px solid var(--rule); border-radius: 999px;
+  background: transparent; color: var(--ink-3); cursor: pointer;
+}
+.run-cancel:hover { color: var(--st-fail); border-color: var(--st-fail); }
+
+.run-log-wrap {
+  background: var(--card-2); border: 1px solid var(--rule); border-radius: 8px;
+  padding: 10px 12px; margin: 8px 0 14px;
+}
+.run-log-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+.run-log {
+  font-family: 'JetBrains Mono', monospace; font-size: 10.5px; line-height: 1.45;
+  background: var(--ink); color: #d8e0e8;
+  padding: 10px 12px; border-radius: 6px; margin: 0;
+  max-height: 240px; overflow: auto; white-space: pre-wrap; word-wrap: break-word;
+}
+.run-files { margin-top: 10px; }

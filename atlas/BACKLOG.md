@@ -54,23 +54,24 @@
 Без этого «Send to Claude Code» работает вслепую — ты видишь FSM «Running», но не
 видишь что агент делает; и acceptance после run руками запускать.
 
-- [ ] **D1** Live run output. Стримить хвост `atlas/llm_traces/<run_id>.log`
-      (или stdout/stderr agent-процесса) в RunStatusSection. Endpoint:
-      `GET /runs/log?run_id=&since_ms=` → последние N строк. Polling 2s.
-- [ ] **D2** Auto-verify после run. Когда `current_state` переходит в
-      `Succeeded` → серверная side эффект-цепочка дёргает
-      `verify_all_acceptance.mjs --block <id>` и записывает свежий
-      `_latest.json`. UI само перерисует «Приёмку».
+- [x] **D1** Live run output. stdout/stderr спавн-процесса захватываются в
+      `atlas/run_logs/<run_id>.log`. `GET /runs/log?run_id=&since=`
+      возвращает дельту с byte-offset. RunStatusSection поллит 2s для
+      live runs, прогрессивно дописывает в textarea. (commit pending)
+- [~] **D2** Auto-verify после run — оказывается, уже встроено в
+      `run_block_implementation.mjs` (line 254: spawn verify_block_acceptance).
+      Достаточно: после `Succeeded` UI само рефетчит `/acceptance/get`.
 - [ ] **D3** Diff view: acceptance before/after. Хранить предыдущий
       `_latest.json` как `_previous.json`, в DetailPanel показать разницу
       verdicts по assertion (A1: pass→fail, A2: skip→pass).
 - [ ] **D4** «Revise TZ + re-run». Кнопка в AcceptanceSection при verdict=fail.
       Промпт собирается: TZ блока + список failed assertions с reasoning →
       `/runs/start` с `prompt: "Исправь следующее: ..."`.
-- [ ] **D5** Cancel running run. Кнопка в RunStatusSection live card →
-      `POST /runs/cancel { run_id }` (endpoint уже есть, нужно подключить).
-- [ ] **D6** Run output: которые файлы агент трогал. Парсить из `checks.log`
-      или из `git diff` в workspace; показать как chips «↑ scripts/foo.mjs».
+- [x] **D5** Cancel running run. Кнопка `✕ Отменить` на live run card →
+      `POST /runs/cancel`. (commit pending)
+- [x] **D6** Run output: какие файлы агент трогал. `listRunFiles`
+      парсит block's `checks.log` (фильтр по started_at), показываются
+      chips в RunStatusSection. (commit pending)
 
 ---
 

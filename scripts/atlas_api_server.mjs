@@ -136,6 +136,26 @@ const server = http.createServer((req, res) => {
       return json(res, 200, { ok: false, error: String(e.message || e) });
     }
   }
+  if (req.method === 'GET' && req.url.startsWith('/runs/log')) {
+    try {
+      const u = new URL(req.url, `http://localhost:${port}`);
+      return json(res, 200, runsApi.readRunLog({
+        run_id: u.searchParams.get('run_id') || '',
+        since:  Number(u.searchParams.get('since') || 0),
+      }));
+    } catch (e) {
+      return json(res, 200, { ok: false, error: String(e.message || e) });
+    }
+  }
+  if (req.method === 'GET' && req.url.startsWith('/runs/files')) {
+    try {
+      const u = new URL(req.url, `http://localhost:${port}`);
+      const files = runsApi.listRunFiles({ run_id: u.searchParams.get('run_id') || '' });
+      return json(res, 200, { ok: true, files });
+    } catch (e) {
+      return json(res, 200, { ok: false, error: String(e.message || e) });
+    }
+  }
   if (req.method === 'GET' && req.url.startsWith('/acceptance/get')) {
     try {
       const u = new URL(req.url, `http://localhost:${port}`);
