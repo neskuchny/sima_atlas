@@ -22,6 +22,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync, execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { startRun, transitionRunState } from './run_state.mjs';
+import { createWorkspace, captureDiff, writeDiffProposal, cleanupWorkspace } from './agent_workspace.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(__filename), '..');
@@ -125,6 +127,28 @@ function runCli(cmd, args, opts) {
   return r;
 }
 
+// PR-7+8 (b.agent-orchestrator): start FSM + optional workspace BEFORE the
+// agent spawns. Workspace gated on ATLAS_USE_WORKSPACE=1 so existing flows
+// keep working unchanged.
+const useWorkspace = process.env.ATLAS_USE_WORKSPACE === '1';
+let runState = null;
+let workspace = null;
+try {
+  runState = startRun({ block_id: blockId, agent, prompt_file: invocationPath });
+  if (useWorkspace && agent !== 'print-only') {
+    workspace = createWorkspace({ block_id: blockId, run_id: runState.run_id });
+    transitionRunState(runState.run_id, 'PreparingWorkspace', { workspace_path: workspace.workspace_path });
+  }
+} catch (e) {
+  console.warn(`run_block_implementation: FSM init failed (${e.message}); continuing without state tracking`);
+}
+
+function fsm(state, meta) {
+  if (!runState) return;
+  try { transitionRunState(runState.run_id, state, meta || {}); }
+  catch (e) { console.warn(`fsm: ${state} transition failed: ${e.message}`); }
+}
+
 if (agent === 'print-only' || (agent === 'claude' && !which('claude')) || (agent === 'codex' && !which('codex'))) {
   // Graceful fallback: print the prompt for the user to paste anywhere.
   console.log(`run_block_implementation: agent CLI "${agent}" not on PATH or print-only mode`);
@@ -138,6 +162,15 @@ if (agent === 'print-only' || (agent === 'claude' && !which('claude')) || (agent
   // measure the pre-existing state. Surface that explicitly without spawning.
   console.log('');
   console.log(`tip: after pasting & implementing, run \`node scripts/verify_block_acceptance.mjs ${blockId}\` to see acceptance verdict.`);
+  // PR-7: FSM completes immediately in print-only mode — there's no agent
+  // run to track further. We mark Succeeded with a clear summary so the UI
+  // doesn't show a perpetually-pending run.
+  if (runState) {
+    fsm('LaunchingAgent', { note: 'print-only mode' });
+    fsm('Running', { note: 'print-only invocation; agent will run externally' });
+    fsm('Finishing', { note: 'print-only handoff' });
+    fsm('Succeeded', { exit_code: 0, summary: 'print-only — operator picks up the prompt' });
+  }
   process.exit(0);
 }
 
@@ -156,16 +189,20 @@ if (agent === 'claude') {
   process.exit(4);
 }
 
-const r = runCli(cmd, args, { input: prompt });
+fsm('LaunchingAgent', { note: `${cmd} ${args.join(' ')}` });
+const r = runCli(cmd, args, { input: prompt, cwd: workspace ? workspace.workspace_path : undefined });
+fsm('Running', { note: `${cmd} spawned${workspace ? ' inside workspace' : ''}` });
 if (r.error) {
   console.error(`run_block_implementation: ${cmd} failed → ${r.error.message}`);
   appendCheck('agent_invocation', 'fail', `agent=${agent} error=${r.error.message}`);
+  fsm('Failed', { error: r.error.message });
   process.exit(5);
 }
 if (r.status !== 0) {
   console.error(`run_block_implementation: ${cmd} exited ${r.status}`);
   console.error((r.stderr || '').slice(0, 1000));
   appendCheck('agent_invocation', 'fail', `agent=${agent} exit=${r.status}`);
+  fsm('Failed', { exit_code: r.status, error: (r.stderr || '').slice(0, 200) });
   process.exit(r.status || 1);
 }
 
@@ -175,22 +212,71 @@ appendCheck('agent_invocation', 'pass', `agent=${agent} summary=${summary}`);
 
 console.log(`run_block_implementation: agent=${agent} block=${blockId}`);
 console.log(`  prompt:   ${path.relative(ROOT, invocationPath)}`);
+if (workspace) console.log(`  workspace: ${workspace.workspace_path}`);
 console.log(`  output:`);
 console.log(out.split(/\r?\n/).map((l) => '    ' + l).join('\n'));
 
-// PR-4: auto-spawn acceptance verifier so the operator immediately sees
-// whether the agent's work satisfies acceptance.md. Verdict is non-blocking
-// here (transitions hold the actual gate via log_transition.mjs); we just
-// surface the result so the next step (transition / retry / proposal) is
-// obvious. Skip when ATLAS_SKIP_VERIFIER=1 (e.g. in tight CI loops).
+fsm('Finishing', { note: 'agent exit 0', summary });
+
+// PR-9: when running inside a sandboxed workspace, capture diff against
+// origin and write a kind=agent_run_diff proposal. The operator Accepts
+// to merge into the real repo. The verifier runs IN THE WORKSPACE so a
+// fail blocks Accept (verifier verdict is recorded on FSM).
+let diffProposalId = null;
+if (workspace) {
+  try {
+    const diff = captureDiff({ workspace_path: workspace.workspace_path });
+    if (diff.changed_files.length > 0) {
+      diffProposalId = writeDiffProposal({
+        run_id: runState ? runState.run_id : null,
+        block_id: blockId,
+        workspace_path: workspace.workspace_path,
+        diff,
+      });
+      console.log(`  diff:     ${diff.changed_files.length} files changed; proposal=${diffProposalId}`);
+    } else {
+      console.log(`  diff:     no changes captured (agent may have no-op'd)`);
+    }
+  } catch (e) {
+    console.warn(`  diff capture failed: ${e.message}`);
+  }
+}
+
+// PR-4 + PR-9: auto-spawn acceptance verifier. When workspace is active,
+// verifier runs INSIDE the workspace (cwd + ATLAS_ROOT pointed there) so
+// the verdict reflects the agent's work in isolation. Skip via
+// ATLAS_SKIP_VERIFIER=1.
+let verifierVerdict = null;
 if (process.env.ATLAS_SKIP_VERIFIER !== '1') {
   console.log('');
-  console.log(`run_block_implementation: spawning acceptance verifier...`);
-  const v = spawnSync('node', ['scripts/verify_block_acceptance.mjs', blockId], {
-    cwd: ROOT, stdio: 'inherit',
+  console.log(`run_block_implementation: spawning acceptance verifier${workspace ? ' (in workspace)' : ''}...`);
+  fsm('Verifying');
+  const v = spawnSync('node', [path.join(ROOT, 'scripts/verify_block_acceptance.mjs'), blockId], {
+    cwd: workspace ? workspace.workspace_path : ROOT,
+    stdio: 'inherit',
+    env: { ...process.env, ATLAS_ROOT: workspace ? path.join(workspace.workspace_path, 'atlas') : process.env.ATLAS_ROOT },
   });
   const verdictExit = v.status;
-  if (verdictExit === 0) console.log(`  ✓ acceptance: pass — block is gate-eligible for → done`);
-  else if (verdictExit === 1) console.log(`  ✗ acceptance: fail — log_transition will block → done until fixed`);
-  else if (verdictExit === 2) console.log(`  · acceptance: inconclusive — collectors need YAML evidence_spec or LLM key`);
+  if (verdictExit === 0) { verifierVerdict = 'pass'; console.log(`  ✓ acceptance: pass — block is gate-eligible for → done`); }
+  else if (verdictExit === 1) { verifierVerdict = 'fail'; console.log(`  ✗ acceptance: fail — log_transition will block → done until fixed`); }
+  else if (verdictExit === 2) { verifierVerdict = 'inconclusive'; console.log(`  · acceptance: inconclusive — collectors need YAML evidence_spec or LLM key`); }
+}
+
+fsm(verifierVerdict === 'fail' ? 'Failed' : 'Succeeded', {
+  exit_code: r.status,
+  summary,
+  verifier_verdict: verifierVerdict,
+  diff_proposal_id: diffProposalId,
+});
+
+// Workspace cleanup: only when there's NO pending diff proposal (operator
+// needs to apply it) AND verifier didn't fail (preserve workspace for
+// inspection on fail).
+if (workspace && verifierVerdict !== 'fail' && !diffProposalId) {
+  try {
+    cleanupWorkspace({ workspace_path: workspace.workspace_path });
+    console.log(`  workspace cleaned: ${workspace.workspace_path}`);
+  } catch (e) {
+    console.warn(`  workspace cleanup failed: ${e.message}`);
+  }
 }

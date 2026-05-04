@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-05-04T10:53:23.412Z_
+_Generated: 2026-05-04T11:05:44.179Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -13,7 +13,7 @@ _Generated: 2026-05-04T10:53:23.412Z_
 - ✅ no_template_placeholders: ok
   - output: Template-placeholder validation: OK (10 blocks scanned)
 - ✅ files_registry: ok
-  - output: Files registry validation: OK (alive=193, archived=4, dead=0)
+  - output: Files registry validation: OK (alive=197, archived=4, dead=0)
 - ✅ projects_contracts: ok
   - output: validate_projects: OK (1 projects, 5 blocks)
 - ✅ subschemas_contracts: ok
@@ -33,7 +33,7 @@ _Generated: 2026-05-04T10:53:23.412Z_
 - ✅ operator_profile_selftest: ok
   - output: operator_profile.selftest: OK (7 test groups, all assertions green)
 - ✅ aggregate_operator_profile: ok
-  - output: operator_profile: warming_up (done=2, invocations=3, traces=2261, proposals=44)
+  - output: operator_profile: warming_up (done=2, invocations=3, traces=2397, proposals=46)
 - ✅ operator_profile_lessons_smoke: ok
   - output: operator_profile_lessons.smoke: OK (6 test groups, all assertions green)
 - ✅ operator_profile_inject_smoke: ok
@@ -52,6 +52,12 @@ _Generated: 2026-05-04T10:53:23.412Z_
   - output: screenshots_integration.selftest: OK (7 test groups, all assertions green)
 - ✅ user_docs_drift_selftest: ok
   - output: user_docs_drift.selftest: OK (5 test groups, all assertions green)
+- ✅ run_state_selftest: ok
+  - output: run_state.selftest: OK (8 test groups, all assertions green)
+- ✅ agent_workspace_selftest: ok
+  - output: agent_workspace.selftest: OK (7 test groups, all assertions green)
+- ✅ detect_stalled_runs: ok
+  - output: {
 - ✅ parse_acceptance_selftest: ok
   - output: parse_acceptance.selftest: OK (9 test groups, all assertions green)
 - ✅ evidence_collectors_selftest: ok
@@ -101,4 +107,4 @@ _Generated: 2026-05-04T10:53:23.412Z_
 - ✅ intelligence_health: ok
   - output: Intelligence health: 1 (10/10)
 
-Summary: PASS (49/49)
+Summary: PASS (52/52)

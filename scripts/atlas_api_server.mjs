@@ -226,6 +226,18 @@ const server = http.createServer((req, res) => {
           return json(res, 200, { ok: false, error: String(e.message || e) });
         }
       }
+      // PR-7 (b.agent-orchestrator): UI-friendly run-state mutations.
+      if (req.url === '/runs/cancel') {
+        const rid = String(body.run_id || '');
+        if (!rid) return json(res, 400, { ok: false, error: 'run_id required' });
+        const reason = String(body.reason || '');
+        try {
+          const out = execFileSync('node', ['scripts/run_state.mjs', 'cancel', rid, reason], { cwd: ROOT, stdio: 'pipe' }).toString().trim();
+          return json(res, 200, { ok: true, out });
+        } catch (e) {
+          return json(res, 200, { ok: false, error: String(e.message || e) });
+        }
+      }
       if (req.url === '/dont-use/add') {
         const value = String(body.value || '');
         const reason = String(body.reason || '');

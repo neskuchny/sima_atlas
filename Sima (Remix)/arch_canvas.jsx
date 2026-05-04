@@ -549,6 +549,7 @@ function ArchInspector({ projectId, selectedBlockId, onOpenSubschema, onPatch, s
           </ul>
         </div>
       )}
+      <RunStatusSection blockId={block.id}/>
       <AcceptanceSection blockId={block.id}/>
       <ProfileHintsSection blockId={block.id}/>
       <UserDocsLink blockId={block.id}/>
@@ -970,4 +971,78 @@ function UserDocsLink({ blockId }) {
   );
 }
 
-Object.assign(window, { ArchCanvas, ArchInspector, AcceptanceSection, ProfileHintsSection, UserDocsLink });
+// PR-7 (b.agent-orchestrator): show the FSM state of recent agent runs for
+// this block. Active runs get a colored "Running 3 min" pill; stalled
+// surface a warning + Cancel button. Terminal runs show a 1-line summary
+// with verifier verdict + link to diff proposal if any.
+const ACTIVE_RUN_STATES = new Set(['PreparingWorkspace', 'LaunchingAgent', 'Running', 'Verifying', 'Finishing']);
+function RunStatusSection({ blockId }) {
+  const [busy, setBusy] = React.useState(false);
+  const [msg, setMsg] = React.useState(null);
+  const reg = (window.SIMA_BOOTSTRAP && window.SIMA_BOOTSTRAP.runsByBlock) || {};
+  const runs = reg[blockId] || [];
+  if (!runs.length) return null;
+  const latest = runs[0];
+  const active = ACTIVE_RUN_STATES.has(latest.current_state);
+  const isStalled = latest.current_state === 'Stalled';
+  const palette = active ? { bg: 'rgba(30,64,175,0.05)', bd: '#bfdbfe', tx: '#1e3a8a' }
+    : isStalled ? { bg: 'rgba(217,119,6,0.06)', bd: '#fed7aa', tx: '#9a3412' }
+    : latest.current_state === 'Failed' ? { bg: 'rgba(220,38,38,0.05)', bd: '#fecaca', tx: '#b91c1c' }
+    : latest.current_state === 'Succeeded' ? { bg: 'rgba(5,150,105,0.05)', bd: '#bbf7d0', tx: '#065f46' }
+    : { bg: 'rgba(122,106,79,0.04)', bd: '#e7e3d8', tx: 'var(--ink-3)' };
+  const verdictTag = latest.verifier_verdict
+    ? { pass: '✓ verifier pass', fail: '✗ verifier fail', inconclusive: '· verifier inconclusive' }[latest.verifier_verdict]
+    : null;
+
+  async function cancel() {
+    setBusy(true);
+    try {
+      const r = await fetch('http://localhost:8787/runs/cancel', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ run_id: latest.run_id, reason: 'user requested via inspector' }),
+      });
+      const j = await r.json().catch(() => ({}));
+      setMsg(j.ok ? 'Cancel sent — refresh to see new state.' : 'Cancel failed.');
+    } finally { setBusy(false); }
+  }
+
+  return (
+    <div className="field" style={{
+      background: palette.bg, border: '1px solid ' + palette.bd,
+      borderRadius: 6, padding: '8px 10px', marginBottom: 8,
+    }}>
+      <label style={{ color: palette.tx, fontWeight: 600 }}>
+        Agent run · {latest.current_state} {active ? '⏳' : isStalled ? '⚠' : ''}
+      </label>
+      <div style={{ fontSize: 11, color: 'var(--ink-3)', marginTop: 1 }}>
+        agent <b>{latest.agent || '?'}</b> · started {relativeTime(latest.started_at) || latest.started_at}
+      </div>
+      <div style={{ fontSize: 10.5, color: 'var(--ink-4)', marginTop: 2 }}>
+        last event: {relativeTime(latest.last_event_at) || latest.last_event_at}
+        {latest.terminated_at && <> · ended {relativeTime(latest.terminated_at)}</>}
+      </div>
+      {(verdictTag || latest.diff_proposal_id || latest.workspace_path) && (
+        <div style={{ fontSize: 10.5, color: 'var(--ink-3)', marginTop: 3 }}>
+          {verdictTag && <span style={{ marginRight: 8 }}>{verdictTag}</span>}
+          {latest.diff_proposal_id && <span style={{ marginRight: 8 }}>📋 diff proposal pending</span>}
+          {latest.workspace_path && <span style={{ fontFamily: 'monospace', fontSize: 9.5 }}>{latest.workspace_path.split('/').slice(-2).join('/')}</span>}
+        </div>
+      )}
+      {(active || isStalled) && (
+        <div style={{ display: 'flex', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
+          <button className="btn xs ghost" disabled={busy} onClick={cancel}>
+            ✕ Cancel
+          </button>
+        </div>
+      )}
+      {runs.length > 1 && (
+        <div style={{ fontSize: 10, color: 'var(--ink-4)', marginTop: 4 }}>
+          {runs.length - 1} earlier run{runs.length > 2 ? 's' : ''} (last 7 days)
+        </div>
+      )}
+      {msg && <div style={{ marginTop: 6, fontSize: 10, color: 'var(--ink-3)' }}>{msg}</div>}
+    </div>
+  );
+}
+
+Object.assign(window, { ArchCanvas, ArchInspector, AcceptanceSection, ProfileHintsSection, UserDocsLink, RunStatusSection });

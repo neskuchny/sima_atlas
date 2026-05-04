@@ -67,6 +67,12 @@ function toolList(){
     { name:'read_user_docs', description:'PR-4 (b.user-docs-generator): read end-user tutorial markdown + meta for a block.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} }, required:['block_id'] } },
     { name:'lock_user_docs', description:'PR-4 (b.user-docs-generator): lock/unlock end-user docs to preserve manual edits across regen runs.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, locked:{type:'boolean'}, reason:{type:'string'} }, required:['block_id'] } },
     { name:'regenerate_user_docs_drift', description:'PR-4 (b.user-docs-generator): nightly drift-check across all user-facing blocks; regen on hash drift, write user_docs_locked proposal when locked+drifted.', inputSchema:{ type:'object', properties:{ dry_run:{type:'boolean'} } } },
+    { name:'list_runs', description:'PR-7 (b.agent-orchestrator): list agent runs from atlas/run_state/ — all or active only.', inputSchema:{ type:'object', properties:{ active_only:{type:'boolean'} } } },
+    { name:'get_run', description:'PR-7 (b.agent-orchestrator): read full state of a specific agent run.', inputSchema:{ type:'object', properties:{ run_id:{type:'string'} }, required:['run_id'] } },
+    { name:'cancel_run', description:'PR-7 (b.agent-orchestrator): cancel an active agent run; flips FSM to Canceled (real process cancel requires Symphony-style supervisor — for now this only marks state).', inputSchema:{ type:'object', properties:{ run_id:{type:'string'}, reason:{type:'string'} }, required:['run_id'] } },
+    { name:'detect_stalled_runs', description:'PR-7 (b.agent-orchestrator): scan active runs and flip those whose last_event_at exceeds max_idle_ms to Stalled.', inputSchema:{ type:'object', properties:{ max_idle_ms:{type:'number'} } } },
+    { name:'list_workspaces', description:'PR-8 (b.agent-orchestrator): list active agent workspaces under ~/.atlas_workspaces/ (or ATLAS_WORKSPACES_ROOT).', inputSchema:{ type:'object', properties:{} } },
+    { name:'cleanup_workspace', description:'PR-8 (b.agent-orchestrator): remove a sandboxed agent workspace. Refuses paths outside WORKSPACES_ROOT or without .atlas_workspace.json marker.', inputSchema:{ type:'object', properties:{ workspace_path:{type:'string'}, force:{type:'boolean'} }, required:['workspace_path'] } },
 
   ];
 }
@@ -566,6 +572,44 @@ rl.on('line', (line) => {
       if (name === 'regenerate_user_docs_drift') {
         const dry = args.dry_run ? '--dry-run' : '';
         const out = execSync(`node scripts/regenerate_user_docs_drift.mjs --json ${dry}`, { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'list_runs') {
+        const flag = args.active_only ? '--active' : '';
+        const out = execSync(`node scripts/run_state.mjs list ${flag} --json`, { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out || '[]' }] });
+      }
+      if (name === 'get_run') {
+        const rid = String(args.run_id || '');
+        if (!rid) return respondErr(id, 'get_run: run_id required');
+        try {
+          const out = execSync(`node scripts/run_state.mjs get ${JSON.stringify(rid)}`, { cwd: root, stdio: 'pipe' }).toString().trim();
+          return respond(id, { content:[{ type:'text', text: out }] });
+        } catch (e) {
+          return respond(id, { content:[{ type:'text', text: JSON.stringify({ error: 'not_found', run_id: rid }) }] });
+        }
+      }
+      if (name === 'cancel_run') {
+        const rid = String(args.run_id || '');
+        if (!rid) return respondErr(id, 'cancel_run: run_id required');
+        const reason = args.reason ? JSON.stringify(String(args.reason)) : '""';
+        const out = execSync(`node scripts/run_state.mjs cancel ${JSON.stringify(rid)} ${reason} --json`, { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'detect_stalled_runs') {
+        const ms = args.max_idle_ms ? `--max-idle-ms ${Number(args.max_idle_ms)}` : '';
+        const out = execSync(`node scripts/run_state.mjs detect-stalled ${ms} --json`, { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'list_workspaces') {
+        const out = execSync('node scripts/agent_workspace.mjs list --json', { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out || '[]' }] });
+      }
+      if (name === 'cleanup_workspace') {
+        const ws = String(args.workspace_path || '');
+        const force = args.force ? '--force' : '';
+        if (!ws) return respondErr(id, 'cleanup_workspace: workspace_path required');
+        const out = execSync(`node scripts/agent_workspace.mjs cleanup ${JSON.stringify(ws)} ${force}`, { cwd: root, stdio: 'pipe' }).toString().trim();
         return respond(id, { content:[{ type:'text', text: out }] });
       }
       if (name === 'clear_always_use') {

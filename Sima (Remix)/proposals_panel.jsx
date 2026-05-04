@@ -119,6 +119,60 @@ function ProposalsPanel() {
           // acceptance_regression — surfaces sample failures + a one-click
           // retry button that re-runs the configured agent on the block with
           // the verifier's retry_prompt_hint pre-pended.
+          // PR-9 (b.agent-orchestrator): agent finished a sandboxed run
+          // and produced a diff against origin. Operator reviews + Accepts
+          // to merge into the real repo, or Rejects to discard.
+          if (p.kind === 'agent_run_diff') {
+            return (
+              <div key={p.id} style={{
+                border: '1px solid #93c5fd', borderRadius: 8, padding: 10, background: '#eff6ff',
+              }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#1e3a8a' }}>
+                  📋 {p.block_id}
+                  <span style={{ marginLeft: 8, fontWeight: 400, fontSize: 10, color: 'var(--ink-4)' }}>
+                    agent_run_diff · {(p.changed_files || []).length} files
+                  </span>
+                </div>
+                <div style={{ fontSize: 10.5, color: 'var(--ink-3)', margin: '6px 0' }}>
+                  {(p.changed_files || []).slice(0, 6).map((f) => (
+                    <div key={f.path}>
+                      <b style={{ color: f.kind === 'added' ? '#065f46' : f.kind === 'removed' ? '#b91c1c' : '#1e3a8a' }}>
+                        {f.kind === 'added' ? '+' : f.kind === 'removed' ? '−' : '~'}
+                      </b>{' '}
+                      <span style={{ fontFamily: 'monospace', fontSize: 10 }}>{f.path}</span>
+                    </div>
+                  ))}
+                  {(p.changed_files || []).length > 6 && (
+                    <div style={{ color: 'var(--ink-4)' }}>… {p.changed_files.length - 6} more</div>
+                  )}
+                </div>
+                {p.workspace_path && (
+                  <div style={{ fontSize: 9.5, color: 'var(--ink-4)', fontFamily: 'monospace', marginTop: 4 }}>
+                    {p.workspace_path}
+                  </div>
+                )}
+                {p.diff_truncated && (
+                  <div style={{ fontSize: 10, color: 'var(--ink-4)', marginTop: 4, fontStyle: 'italic' }}>
+                    diff truncated — open the workspace path to see full diff
+                  </div>
+                )}
+                <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+                  <button className="btn xs" disabled={busy}
+                    style={{ background: '#1e40af', color: '#fff', borderColor: '#1e40af' }}
+                    onClick={() => callServer('/proposals/accept', { proposal_id: p.id })}>
+                    Accept (apply diff)
+                  </button>
+                  <button className="btn xs ghost" disabled={busy}
+                    onClick={() => {
+                      const reason = prompt('Причина отклонения:') || '';
+                      callServer('/proposals/reject', { proposal_id: p.id, reason });
+                    }}>
+                    Reject (discard)
+                  </button>
+                </div>
+              </div>
+            );
+          }
           // PR-4 (b.user-docs-generator): locked end-user docs drift
           // → operator must either unlock+regen or hand-edit markdown.
           if (p.kind === 'user_docs_locked') {

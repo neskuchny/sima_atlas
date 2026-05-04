@@ -23,3 +23,7 @@
 - .cursor/mcp.json [alive]
 - AGENTS.md [alive]
 - CLAUDE.md [alive]
+- scripts/run_state.mjs [alive] (PR-7 Symphony-inspired FSM; runs are tracked in atlas/run_state/<run_id>.json)
+- tests/run_state.selftest.mjs [alive] (PR-7; 8 test groups)
+- scripts/agent_workspace.mjs [alive] (PR-8 sandboxed workspaces under ~/.atlas_workspaces/)
+- tests/agent_workspace.selftest.mjs [alive] (PR-8; 7 test groups)

@@ -171,7 +171,11 @@
         ".cursor/hooks.json",
         ".cursor/mcp.json",
         "AGENTS.md",
-        "CLAUDE.md"
+        "CLAUDE.md",
+        "scripts/run_state.mjs",
+        "tests/run_state.selftest.mjs",
+        "scripts/agent_workspace.mjs",
+        "tests/agent_workspace.selftest.mjs"
       ]
     },
     {
