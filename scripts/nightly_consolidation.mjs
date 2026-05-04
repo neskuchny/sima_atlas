@@ -56,6 +56,7 @@ const checks = [
   ['agent_parity', 'node scripts/validate_agent_parity.mjs'],
   ['parity_matrix', 'node scripts/validate_parity_matrix.mjs'],
   ['generate_wiki', 'node scripts/generate_wiki.mjs'],
+  ['render_wiki_html', 'node scripts/render_wiki_html.mjs'],
   ['generate_tz', 'node scripts/generate_tz_from_atlas.mjs'],
   ['rebuild_roadmap', 'node scripts/rebuild_atlas_roadmap.mjs'],
   ['mcp_smoke_e2e', 'node scripts/mcp_smoke_e2e.mjs'],

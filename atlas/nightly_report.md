@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-05-04T12:15:32.873Z_
+_Generated: 2026-05-04T15:47:17.635Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -33,7 +33,7 @@ _Generated: 2026-05-04T12:15:32.873Z_
 - ✅ operator_profile_selftest: ok
   - output: operator_profile.selftest: OK (7 test groups, all assertions green)
 - ✅ aggregate_operator_profile: ok
-  - output: operator_profile: warming_up (done=2, invocations=3, traces=2623, proposals=49)
+  - output: operator_profile: warming_up (done=2, invocations=3, traces=2810, proposals=52)
 - ✅ operator_profile_lessons_smoke: ok
   - output: operator_profile_lessons.smoke: OK (6 test groups, all assertions green)
 - ✅ operator_profile_inject_smoke: ok
@@ -98,6 +98,8 @@ _Generated: 2026-05-04T12:15:32.873Z_
   - output: Parity matrix validation: OK
 - ✅ generate_wiki: ok
   - output: Generated /home/user/sima_atlas/atlas/WIKI.md
+- ✅ render_wiki_html: ok
+  - output: Rendered /home/user/sima_atlas/atlas/wiki.html
 - ✅ generate_tz: ok
   - output: Generated /home/user/sima_atlas/ТЗ/auto_tz.md
 - ✅ rebuild_roadmap: ok
@@ -107,4 +109,4 @@ _Generated: 2026-05-04T12:15:32.873Z_
 - ✅ intelligence_health: ok
   - output: Intelligence health: 1 (10/10)
 
-Summary: PASS (52/52)
+Summary: PASS (53/53)
