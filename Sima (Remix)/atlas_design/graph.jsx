@@ -17,6 +17,7 @@ function edgeMidpoint(a, b, awSize, bwSize, detailed) {
 
 function GraphCanvas({
   data, modules, edges, notes, onUpdateModule, onUpdateEdge, onAddNote, onUpdateNote, onDeleteNote, onAddEdge, onDeleteEdge,
+  onAddModule,
   selectedId, onSelect, onDrillDown, hoveredId, setHoveredId,
   filters, scanState, desyncResolved, activeFlash, detailed, showLanes, showLabels,
   schemaTitle, onUpdateSchemaTitle, onSimaGenerate, onLaneResize,
@@ -40,23 +41,35 @@ function GraphCanvas({
 
   const startNodeDrag = (e, m) => {
     e.stopPropagation();
-    drag.current = { active: true, mode: 'node', id: m.id, sx: e.clientX, sy: e.clientY, ox: m.x, oy: m.y };
+    drag.current = { active: true, mode: 'node', id: m.id, sx: e.clientX, sy: e.clientY, ox: m.x, oy: m.y, moved: false };
   };
 
   useEffect(() => {
     const onMove = (e) => {
       if (!drag.current.active) return;
       if (drag.current.mode === 'pan') {
-        setTx(t => ({ ...t, x: drag.current.ox + (e.clientX - drag.current.sx), y: drag.current.oy + (e.clientY - drag.current.sy) }));
+        const dx = e.clientX - drag.current.sx;
+        const dy = e.clientY - drag.current.sy;
+        if (Math.abs(dx) > 3 || Math.abs(dy) > 3) drag.current.moved = true;
+        setTx(t => ({ ...t, x: drag.current.ox + dx, y: drag.current.oy + dy }));
       } else if (drag.current.mode === 'node') {
         const dx = (e.clientX - drag.current.sx) / tx.k;
         const dy = (e.clientY - drag.current.sy) / tx.k;
+        if (Math.abs(dx) > 3 || Math.abs(dy) > 3) drag.current.moved = true;
         onUpdateModule(drag.current.id, { x: drag.current.ox + dx, y: drag.current.oy + dy });
       }
     };
     const onUp = () => {
+      // Remember whether the just-finished drag actually moved. The next
+      // click handler reads `recentlyDragged` and bails out — this fixes
+      // the bug where drag-end-on-node also opened the detail panel.
+      drag.current.recentlyDragged = drag.current.moved;
       drag.current.active = false;
       drag.current.mode = null;
+      drag.current.moved = false;
+      // Clear the "just dragged" flag after the click event has had a
+      // chance to fire (clicks fire immediately after mouseup).
+      setTimeout(() => { drag.current.recentlyDragged = false; }, 0);
     };
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onUp);
@@ -315,7 +328,13 @@ function GraphCanvas({
                 cursor: drag.current.active && drag.current.id === m.id ? 'grabbing' : 'grab',
               }}
               onMouseDown={(e) => startNodeDrag(e, m)}
-              onClick={(e) => { e.stopPropagation(); onSelect(m.id); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                // If the user just finished a drag with movement, swallow
+                // the click — it shouldn't open the detail panel.
+                if (drag.current && drag.current.recentlyDragged) return;
+                onSelect(m.id);
+              }}
               onDoubleClick={(e) => { e.stopPropagation(); onDrillDown(m.id); }}
               onMouseEnter={() => setHoveredId(m.id)}
               onMouseLeave={() => setHoveredId(null)}
@@ -389,7 +408,7 @@ function GraphCanvas({
           ) : (
             <>
               <button onClick={() => { onAddNote({ x: ctxMenu.cx, y: ctxMenu.cy, w: 200, color: 'yellow', text: 'Заметка…' }); setCtxMenu(null); }}>📝 Добавить заметку</button>
-              <button onClick={() => setCtxMenu(null)}>＋ Новый модуль</button>
+              <button onClick={() => { if (onAddModule) onAddModule({ x: ctxMenu.cx, y: ctxMenu.cy }); setCtxMenu(null); }}>＋ Новый модуль</button>
               <button onClick={() => setCtxMenu(null)}>📐 Авто-разместить по линиям</button>
               <hr/>
               <button onClick={() => { setTx({ x: 30, y: 20, k: 0.7 }); setCtxMenu(null); }}>↻ Сбросить вид</button>

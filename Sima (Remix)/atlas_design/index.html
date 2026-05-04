@@ -197,8 +197,35 @@ function App() {
     setTimeout(() => setActiveFlash(null), 800);
   };
 
-  const onAddModule = () => {
-    pushLog({ agent: 'SIMA Core', kind: 'head', msg: '— добавление нового модуля (вы можете кликнуть правой по канвасу)' });
+  const onAddModule = (preset) => {
+    // Generate a unique id (`m-<n>` until free) and place the new node
+    // somewhere visible. Server-side persistence will land in PR-Backend
+    // (atlas/graph.json write path) — for now the new module lives in
+    // React state and the operator sees it appear immediately.
+    const existingIds = new Set(modules.map(m => m.id));
+    let n = 1; while (existingIds.has('m-' + n)) n++;
+    const id = (preset && preset.id) || ('m-' + n);
+    // Default placement: average existing module position + small offset
+    // so it doesn't land off-screen in zoomed-out views.
+    const avg = modules.length
+      ? { x: modules.reduce((s, m) => s + m.x, 0) / modules.length,
+          y: modules.reduce((s, m) => s + m.y, 0) / modules.length }
+      : { x: 400, y: 300 };
+    const created = {
+      id,
+      title: preset?.title || 'Новый модуль',
+      tag: preset?.tag || id,
+      layer: preset?.layer || 'logic',
+      x: preset?.x ?? Math.round(avg.x + 40),
+      y: preset?.y ?? Math.round(avg.y + 40),
+      status: preset?.status || 'todo',
+      priority: preset?.priority ?? 3,
+      checked: false,
+      size: preset?.size || 'md',
+    };
+    setModules(M => [...M, created]);
+    setSelectedId(id);
+    pushLog({ agent: 'SIMA Core', kind: 'head', msg: `Создан модуль ${created.title} (${id}). Откройте детали справа, чтобы заполнить mission.` });
   };
 
   const filtersList = [
@@ -360,6 +387,7 @@ function App() {
             onUpdateNote={updateActiveNote}
             onDeleteNote={deleteActiveNote}
             onAddEdge={curSub ? () => {} : addEdge}
+            onAddModule={onAddModule}
             onDeleteEdge={deleteActiveEdge}
             selectedId={selectedId}
             onSelect={(id) => { setSelectedId(id); if (view === 'graph') setTweak('primaryView', 'split'); setDetailOpen(true); }}
@@ -535,6 +563,7 @@ function App() {
           onClose={() => setCmdOpen(false)}
           onSelect={(id) => { setSelectedId(id); setCmdOpen(false); setTweak('primaryView', 'split'); }}
           onSync={() => { setCmdOpen(false); runSyncCheck(); }}
+          onAddModule={onAddModule}
         />
       )}
 
@@ -605,7 +634,7 @@ function App() {
   );
 }
 
-function CommandBar({ data, onClose, onSelect, onSync }) {
+function CommandBar({ data, onClose, onSelect, onSync, onAddModule }) {
   const [q, setQ] = useState('');
   const [active, setActive] = useState(0);
   const inputRef = useRef(null);
@@ -614,7 +643,7 @@ function CommandBar({ data, onClose, onSelect, onSync }) {
   const items = useMemo(() => {
     const cmds = [
       { type: 'cmd', ic: '⟳', label: 'Запустить sync-check', hint: '⏎', run: onSync },
-      { type: 'cmd', ic: '＋', label: 'Создать новый модуль', hint: '⏎', run: () => onClose() },
+      { type: 'cmd', ic: '＋', label: 'Создать новый модуль', hint: '⏎', run: () => { if (onAddModule) onAddModule(); onClose(); } },
       { type: 'cmd', ic: '⤴', label: 'Открыть Roadmap', hint: '⏎', run: () => onClose() },
     ];
     const mods = data.modules.map(m => ({

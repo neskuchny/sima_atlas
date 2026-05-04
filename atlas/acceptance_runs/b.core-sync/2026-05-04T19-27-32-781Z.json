@@ -15,17 +15,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/atlas_sync.selftest.mjs → exit 0 (44ms); first line: \"atlas_sync.selftest: OK\"",
+      "evidence": "node tests/atlas_sync.selftest.mjs → exit 0 (49ms); first line: \"atlas_sync.selftest: OK\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/atlas_sync.selftest.mjs",
         "exit_code": 0,
         "stdout": "atlas_sync.selftest: OK\n",
         "stderr": "",
-        "duration_ms": 44,
+        "duration_ms": 49,
         "timed_out": false
       },
-      "duration_ms": 44
+      "duration_ms": 49
     },
     {
       "id": "A2",
@@ -71,7 +71,7 @@
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 0
+      "duration_ms": 1
     },
     {
       "id": "A4",
@@ -107,17 +107,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (52ms); first line: \"Block contract validation: OK\"",
+      "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (49ms); first line: \"Block contract validation: OK\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_block_contracts.mjs",
         "exit_code": 0,
         "stdout": "Block contract validation: OK\n",
         "stderr": "",
-        "duration_ms": 52,
+        "duration_ms": 49,
         "timed_out": false
       },
-      "duration_ms": 52
+      "duration_ms": 49
     }
   ],
   "counts": {
@@ -126,6 +126,6 @@
     "skipped": 2
   },
   "verdict": "pass",
-  "duration_ms": 142,
-  "checked_at": "2026-05-04T19:27:42.397Z"
+  "duration_ms": 144,
+  "checked_at": "2026-05-04T19:27:32.987Z"
 }
