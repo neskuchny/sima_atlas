@@ -63,6 +63,10 @@ function toolList(){
     { name:'generate_user_docs', description:'PR-2 (b.user-docs-generator): generate end-user tutorial markdown for a block via b.llm-gateway. Idempotent (skips if source hash unchanged). Writes atlas/docs/end-user/<block>.md + _meta/<block>.json. Cost cap $0.03/run.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, lang:{type:'string'}, dry_run:{type:'boolean'} }, required:['block_id'] } },
     { name:'detect_playwright', description:'PR-3 (b.user-docs-generator): report whether Playwright is configured + installed (used to gate screenshot capture). Always available; returns {available, reason}.', inputSchema:{ type:'object', properties:{} } },
     { name:'cleanup_orphan_screenshots', description:'PR-3 (b.user-docs-generator): remove screenshots whose block_id is no longer in graph.json (any project), and prune the manifest accordingly.', inputSchema:{ type:'object', properties:{ dry_run:{type:'boolean'} } } },
+    { name:'list_user_docs', description:'PR-4 (b.user-docs-generator): list every block that has an end-user tutorial in atlas/docs/end-user/_meta/.', inputSchema:{ type:'object', properties:{} } },
+    { name:'read_user_docs', description:'PR-4 (b.user-docs-generator): read end-user tutorial markdown + meta for a block.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} }, required:['block_id'] } },
+    { name:'lock_user_docs', description:'PR-4 (b.user-docs-generator): lock/unlock end-user docs to preserve manual edits across regen runs.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, locked:{type:'boolean'}, reason:{type:'string'} }, required:['block_id'] } },
+    { name:'regenerate_user_docs_drift', description:'PR-4 (b.user-docs-generator): nightly drift-check across all user-facing blocks; regen on hash drift, write user_docs_locked proposal when locked+drifted.', inputSchema:{ type:'object', properties:{ dry_run:{type:'boolean'} } } },
 
   ];
 }
@@ -539,6 +543,29 @@ rl.on('line', (line) => {
       if (name === 'cleanup_orphan_screenshots') {
         const dry = args.dry_run ? '--dry-run' : '';
         const out = execSync(`node scripts/take_screenshots.mjs cleanup ${dry}`, { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'list_user_docs') {
+        const out = execSync('node -e "import(\'./scripts/regenerate_user_docs_drift.mjs\').then(m=>console.log(JSON.stringify(m.listUserDocs(),null,2)))"', { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out || '[]' }] });
+      }
+      if (name === 'read_user_docs') {
+        const bid = String(args.block_id || '');
+        if (!bid) return respondErr(id, 'read_user_docs: block_id required');
+        const out = execSync(`node -e "import('./scripts/regenerate_user_docs_drift.mjs').then(m=>console.log(JSON.stringify(m.readUserDocs({block_id:${JSON.stringify(bid)}}),null,2)))"`, { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out || '{}' }] });
+      }
+      if (name === 'lock_user_docs') {
+        const bid = String(args.block_id || '');
+        const locked = args.locked === false ? false : true;
+        const reason = args.reason ? JSON.stringify(String(args.reason)) : '""';
+        if (!bid) return respondErr(id, 'lock_user_docs: block_id required');
+        const out = execSync(`node -e "import('./scripts/regenerate_user_docs_drift.mjs').then(m=>console.log(JSON.stringify(m.lockUserDocs({block_id:${JSON.stringify(bid)},locked:${locked},reason:${reason}}),null,2)))"`, { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'regenerate_user_docs_drift') {
+        const dry = args.dry_run ? '--dry-run' : '';
+        const out = execSync(`node scripts/regenerate_user_docs_drift.mjs --json ${dry}`, { cwd: root, stdio: 'pipe' }).toString().trim();
         return respond(id, { content:[{ type:'text', text: out }] });
       }
       if (name === 'clear_always_use') {

@@ -339,7 +339,10 @@
         "tests/user_docs.smoke.mjs",
         "scripts/take_screenshots.mjs",
         "tests/playwright/user_docs_screenshots.spec.ts",
-        "tests/screenshots_integration.selftest.mjs"
+        "tests/screenshots_integration.selftest.mjs",
+        "scripts/regenerate_user_docs_drift.mjs",
+        "scripts/check_user_docs_locked.mjs",
+        "tests/user_docs_drift.selftest.mjs"
       ]
     },
     {

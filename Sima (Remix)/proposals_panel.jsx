@@ -119,6 +119,44 @@ function ProposalsPanel() {
           // acceptance_regression — surfaces sample failures + a one-click
           // retry button that re-runs the configured agent on the block with
           // the verifier's retry_prompt_hint pre-pended.
+          // PR-4 (b.user-docs-generator): locked end-user docs drift
+          // → operator must either unlock+regen or hand-edit markdown.
+          if (p.kind === 'user_docs_locked') {
+            return (
+              <div key={p.id} style={{
+                border: '1px solid #fed7aa', borderRadius: 8, padding: 10, background: '#fffbeb',
+              }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#9a3412' }}>
+                  🔒 {p.block_id}
+                  <span style={{ marginLeft: 8, fontWeight: 400, fontSize: 10, color: 'var(--ink-4)' }}>
+                    user_docs_locked · sources drifted
+                  </span>
+                </div>
+                <div style={{ fontSize: 10.5, color: 'var(--ink-3)', margin: '6px 0' }}>
+                  hash <span style={{ textDecoration: 'line-through' }}>{p.current?.hash}</span> → <b>{p.new_hash}</b>
+                </div>
+                {p.retry_prompt_hint && (
+                  <div style={{ fontSize: 10, color: 'var(--ink-4)', marginTop: 6, fontStyle: 'italic' }}>
+                    {p.retry_prompt_hint.slice(0, 240)}{p.retry_prompt_hint.length > 240 ? '…' : ''}
+                  </div>
+                )}
+                <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
+                  <button className="btn xs" disabled={busy}
+                    style={{ background: '#9a3412', color: '#fff', borderColor: '#9a3412' }}
+                    onClick={() => callServer('/user-docs/unlock-and-regen', { block_id: p.block_id })}>
+                    🔓 Unlock + regen
+                  </button>
+                  <button className="btn xs ghost" disabled={busy}
+                    onClick={() => {
+                      const reason = prompt('Причина отклонения (опционально):') || '';
+                      callServer('/proposals/reject', { proposal_id: p.id, reason });
+                    }}>
+                    Keep locked
+                  </button>
+                </div>
+              </div>
+            );
+          }
           if (p.kind === 'acceptance_regression') {
             return (
               <div key={p.id} style={{

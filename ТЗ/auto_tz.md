@@ -798,13 +798,15 @@ PR-2 закрыт. С реальным API ключом или seeded fixture or
 PR-3 закрыт. T5.5 b.acceptance-verifier-loop (Playwright smoke screenshots) теперь имеет ту же инфраструктуру для использования — в их случае поверх `acceptance_runs/` data shape. tests/screenshots_integration.selftest.mjs 7 групп зелёный (detectPlaywright skip; slugifyRoute; expectedScreenshots; tryCapture skip "no routes"; tryCapture skip "playwright unavailable" with routes; cleanupOrphanScreenshots removes orphans + prunes manifest; e2e generate_user_docs no benign warning when route-less).
 
 ## PR-4 — Auto-regen + UI + safety
-- [ ] T4.1: `scripts/regenerate_user_docs_drift.mjs` — nightly step: обходит все user-facing блоки, сравнивает hash; regen только при изменениях.
-- [ ] T4.2: `scripts/log_transition.mjs` hook: при `→ done` user-facing блока — спавнит `generate_user_docs.mjs` (асинхронно, не блокирует переход).
-- [ ] T4.3: pre-commit hook: проверка ручных правок `docs/end-user/*.md` без `LOCKED: true` в meta — warning + предложение снять auto-regen.
-- [ ] T4.4: Inspector кнопка «Открыть end-user docs» (под mission).
-- [ ] T4.5: ProposalsPanel: `user_docs_locked` proposal — когда блок locked, но источники изменились (нужно вмешательство оператора).
-- [ ] T4.6: MCP tools `regenerate_user_docs`, `read_user_docs`, `list_user_docs`, `lock_user_docs`.
-- [ ] T4.7: Localization: `ATLAS_USER_DOCS_LANG` env (default `ru`); UI-toggle позже.
+- [x] T4.1: `scripts/regenerate_user_docs_drift.mjs` walks user-facing blocks (layer ∈ {user, front} OR `user_facing: true` в graph; и в основном atlas/graph.json и в projects/<proj>/graph.json), читает `_meta/<block>.json`, сравнивает hash. Three-way: no meta → seed; hash matches → skip; hash drifted + locked=false → regen; hash drifted + locked=true → write `user_docs_locked` proposal (dedup — skip если pending для того же new_hash уже есть). Пишет `atlas/docs/end-user/_drift_summary.json`. **DONE PR-4**.
+- [x] T4.2: `scripts/log_transition.mjs` после успешного `→ done` для user-facing блока (детект через graph.json + projects/*/graph.json) спавнит `generate_user_docs.mjs <id>` через `child_process.spawn({detached, stdio: 'ignore'}) + child.unref()` — не блокирует transition. Skip via `ATLAS_SKIP_USER_DOCS=1`. **DONE PR-4**.
+- [x] T4.3: `scripts/check_user_docs_locked.mjs` — pre-commit guard, читает `git diff --name-only [--cached] -- atlas/docs/end-user/`, для каждого изменённого `.md` проверяет meta.locked; если false → exit 1 с подробным сообщением и инструкцией fix. Wiring (manual): `.git/hooks/pre-commit: node scripts/check_user_docs_locked.mjs --staged`. CLI `--staged | --json`. **DONE PR-4**.
+- [x] T4.4: `Sima (Remix)/arch_canvas.jsx` `<UserDocsLink blockId={...}>` рисует blue-tinted панель под mission блока со ссылкой `/atlas/docs/end-user/<block>.md` + кнопками 🔁 Regenerate / 🔒 Lock | 🔓 Unlock + relative-time stamp + 🔒 locked badge. Появляется только когда `window.SIMA_BOOTSTRAP.userDocsByBlock[blockId]` существует. **DONE PR-4**.
+- [x] T4.5: `Sima (Remix)/proposals_panel.jsx` распознаёт `kind === 'user_docs_locked'` — рисует amber карточку с hash diff (`old` → `new`) + retry_prompt_hint preview + кнопками 🔓 Unlock + regen / Keep locked (Reject). **DONE PR-4**.
+- [x] T4.6: MCP tools `list_user_docs / read_user_docs / lock_user_docs / regenerate_user_docs_drift`. atlas_api endpoints `/user-docs/regenerate`, `/user-docs/lock`, `/user-docs/unlock-and-regen` — UI кнопки реально мутируют state. **DONE PR-4**.
+- [x] T4.7: Localization уже работает через `ATLAS_USER_DOCS_LANG` env (PR-2) + `--lang` flag; UserDocsLink показывает текущий lang в meta-line. UI-toggle отложен. **DONE PR-4 (env path)**.
+
+PR-4 закрыт. tests/user_docs_drift.selftest.mjs 5 групп зелёный (bare repo seed; idempotent re-run; hash drift unlocked → refreshed; hash drift locked → proposal + dedup; list/read/lock helpers). b.user-docs-generator закрыт целиком — все 4 PR'а (1 introspection / 2 LLM writer / 3 screenshots / 4 auto-regen+UI).
 
 
 ## b.smoke-sandbox (idea)

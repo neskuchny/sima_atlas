@@ -190,6 +190,42 @@ const server = http.createServer((req, res) => {
           return json(res, 200, { ok: false, error: 'not_found', stderr: (e.stderr || '').toString().slice(0, 500) });
         }
       }
+      // PR-4 (b.user-docs-generator): UI buttons for end-user tutorial
+      // management (Inspector + ProposalsPanel)
+      if (req.url === '/user-docs/regenerate') {
+        const bid = String(body.block_id || '');
+        if (!bid) return json(res, 400, { ok: false, error: 'block_id required' });
+        try {
+          const out = execFileSync('node', ['scripts/generate_user_docs.mjs', bid, '--json'], { cwd: ROOT, stdio: 'pipe' }).toString().trim();
+          return json(res, 200, { ok: true, out });
+        } catch (e) {
+          return json(res, 200, { ok: false, error: String(e.message || e), stderr: (e.stderr || '').toString().slice(0, 500) });
+        }
+      }
+      if (req.url === '/user-docs/lock') {
+        const bid = String(body.block_id || '');
+        const locked = body.locked === false ? false : true;
+        if (!bid) return json(res, 400, { ok: false, error: 'block_id required' });
+        try {
+          const code = `import('./scripts/regenerate_user_docs_drift.mjs').then(m=>console.log(JSON.stringify(m.lockUserDocs({block_id:${JSON.stringify(bid)},locked:${locked}}),null,2)))`;
+          const out = execFileSync('node', ['-e', code], { cwd: ROOT, stdio: 'pipe' }).toString().trim();
+          return json(res, 200, { ok: true, out });
+        } catch (e) {
+          return json(res, 200, { ok: false, error: String(e.message || e) });
+        }
+      }
+      if (req.url === '/user-docs/unlock-and-regen') {
+        const bid = String(body.block_id || '');
+        if (!bid) return json(res, 400, { ok: false, error: 'block_id required' });
+        try {
+          const code = `import('./scripts/regenerate_user_docs_drift.mjs').then(m=>m.lockUserDocs({block_id:${JSON.stringify(bid)},locked:false}))`;
+          execFileSync('node', ['-e', code], { cwd: ROOT, stdio: 'pipe' });
+          const out = execFileSync('node', ['scripts/generate_user_docs.mjs', bid, '--json'], { cwd: ROOT, stdio: 'pipe' }).toString().trim();
+          return json(res, 200, { ok: true, out });
+        } catch (e) {
+          return json(res, 200, { ok: false, error: String(e.message || e) });
+        }
+      }
       if (req.url === '/dont-use/add') {
         const value = String(body.value || '');
         const reason = String(body.reason || '');

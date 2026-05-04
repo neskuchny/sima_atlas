@@ -11,6 +11,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { spawn } from 'node:child_process';
 
 const argv = process.argv.slice(2);
 const positional = argv.filter((a) => !a.startsWith('--'));
@@ -72,3 +73,49 @@ const finalNote = (note || '') + gateNote;
 const line = `${ts}\t${blockId}\t${from}\t${to}\tactor=${actor}\tnote=${finalNote}\n`;
 fs.appendFileSync(logPath, line, 'utf8');
 console.log(`Appended transition to ${logPath}${gateNote ? ' (' + gateNote.trim() + ')' : ''}`);
+
+// PR-4 (b.user-docs-generator): when a block transitions INTO `done` and is
+// user-facing (layer ∈ {user, front} OR user_facing: true in graph), spawn
+// scripts/generate_user_docs.mjs in detached mode so the transition doesn't
+// wait for the LLM call. Failures are non-fatal — a missed regen will be
+// caught by the next nightly drift-check.
+//
+// Skip via ATLAS_SKIP_USER_DOCS=1 (e.g. in tests).
+if (to === 'done' && from !== 'done' && process.env.ATLAS_SKIP_USER_DOCS !== '1') {
+  let isUserFacing = false;
+  try {
+    const graph = JSON.parse(fs.readFileSync(path.join(ATLAS, 'graph.json'), 'utf8'));
+    const block = (graph.blocks || []).find((b) => b.id === blockId);
+    if (block && (block.user_facing === true || block.layer === 'user' || block.layer === 'front')) {
+      isUserFacing = true;
+    }
+    // Also check projects/<proj>/graph.json
+    if (!isUserFacing) {
+      const projDir = path.join(ATLAS, 'projects');
+      if (fs.existsSync(projDir)) {
+        for (const proj of fs.readdirSync(projDir)) {
+          const g = path.join(projDir, proj, 'graph.json');
+          if (!fs.existsSync(g)) continue;
+          try {
+            const j = JSON.parse(fs.readFileSync(g, 'utf8'));
+            const b = (j.blocks || []).find((x) => x.id === blockId);
+            if (b && (b.user_facing === true || b.layer === 'user' || b.layer === 'front')) {
+              isUserFacing = true; break;
+            }
+          } catch {}
+        }
+      }
+    }
+  } catch {}
+  if (isUserFacing) {
+    try {
+      const child = spawn('node', ['scripts/generate_user_docs.mjs', blockId], {
+        cwd: ROOT, detached: true, stdio: 'ignore',
+      });
+      child.unref();
+      console.log(`  (spawned generate_user_docs.mjs ${blockId} async; pid=${child.pid})`);
+    } catch (e) {
+      console.warn(`  warning: could not spawn generate_user_docs: ${e.message}`);
+    }
+  }
+}

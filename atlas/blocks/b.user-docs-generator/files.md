@@ -17,9 +17,23 @@
 - tests/screenshots_integration.selftest.mjs [alive]
 
 ## Auto-regen + UI (PR-4)
-- scripts/regenerate_user_docs_drift.mjs [pending] (PR-4: nightly drift-check)
-- Sima (Remix)/inspector_user_docs_button.jsx [pending] (PR-4)
-- tests/user_docs.idempotent.smoke.mjs [pending] (PR-4)
+- scripts/regenerate_user_docs_drift.mjs [alive]
+- scripts/check_user_docs_locked.mjs [alive]
+- tests/user_docs_drift.selftest.mjs [alive]
+
+PR-4 also touches files owned by other blocks (cross-cutting; documented
+in checks.log + tasks.md):
+
+  • `Sima (Remix)/arch_canvas.jsx` (owned by b.ui-control) gained
+    UserDocsLink component
+  • `Sima (Remix)/proposals_panel.jsx` (owned by b.llm-gateway) gained
+    user_docs_locked card branch
+  • `scripts/generate_atlas_bootstrap_js.mjs` (owned by b.ui-control)
+    now exposes userDocsByBlock
+  • `scripts/log_transition.mjs` (owned by b.db) gained the
+    user-facing-block auto-regen spawn
+  • `scripts/atlas_api_server.mjs` (owned by b.agent-orchestrator)
+    gained /user-docs/{regenerate,lock,unlock-and-regen} endpoints
 
 ## Documentation
 - atlas/blocks/b.user-docs-generator/mission.md [alive]

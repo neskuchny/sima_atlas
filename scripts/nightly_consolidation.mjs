@@ -32,6 +32,7 @@ const checks = [
   ['introspect_block_ui_selftest', 'node tests/introspect_block_ui.selftest.mjs'],
   ['user_docs_smoke', 'node tests/user_docs.smoke.mjs'],
   ['screenshots_integration_selftest', 'node tests/screenshots_integration.selftest.mjs'],
+  ['user_docs_drift_selftest', 'node tests/user_docs_drift.selftest.mjs'],
   ['parse_acceptance_selftest', 'node tests/parse_acceptance.selftest.mjs'],
   ['evidence_collectors_selftest', 'node tests/evidence_collectors.selftest.mjs'],
   ['llm_judge_smoke', 'node tests/llm_judge.smoke.mjs'],

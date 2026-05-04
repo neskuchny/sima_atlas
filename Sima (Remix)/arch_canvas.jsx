@@ -551,6 +551,7 @@ function ArchInspector({ projectId, selectedBlockId, onOpenSubschema, onPatch, s
       )}
       <AcceptanceSection blockId={block.id}/>
       <ProfileHintsSection blockId={block.id}/>
+      <UserDocsLink blockId={block.id}/>
       <div className="field">
         <label>Слой</label>
         <div style={{display:'flex',alignItems:'center',gap:6,fontSize:12}}>
@@ -899,4 +900,74 @@ function ProfileHintsSection({ blockId }) {
   );
 }
 
-Object.assign(window, { ArchCanvas, ArchInspector, AcceptanceSection, ProfileHintsSection });
+// PR-4 (b.user-docs-generator): tiny inspector affordance — link to the
+// auto-generated end-user tutorial markdown when one exists. The user
+// reads it with their editor / GitHub preview / their browser; we don't
+// embed the markdown inline (would crowd the inspector).
+function UserDocsLink({ blockId }) {
+  const reg = (window.SIMA_BOOTSTRAP && window.SIMA_BOOTSTRAP.userDocsByBlock) || {};
+  const entry = reg[blockId];
+  const [busy, setBusy] = React.useState(false);
+  const [msg, setMsg] = React.useState(null);
+  if (!entry) {
+    return null; // no doc → no link; the regenerator will create one on next done
+  }
+  async function regenerate() {
+    setBusy(true);
+    try {
+      const r = await fetch('http://localhost:8787/run-block', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ block_id: blockId, prompt: '__regenerate_user_docs__' }),
+      }).catch(() => null);
+      // Server may not handle this prompt yet — fall back to direct regen MCP path
+      if (!r || !r.ok) {
+        await fetch('http://localhost:8787/user-docs/regenerate', {
+          method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ block_id: blockId }),
+        }).catch(() => null);
+      }
+      setMsg('Regen requested — refresh proposals/state to see updated meta.');
+    } finally { setBusy(false); }
+  }
+  async function toggleLock() {
+    setBusy(true);
+    try {
+      await fetch('http://localhost:8787/user-docs/lock', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ block_id: blockId, locked: !entry.locked }),
+      }).catch(() => null);
+      setMsg(entry.locked ? 'Снят lock — следующий regen перепишет markdown.' : 'Lock включён — ручные правки сохранятся.');
+    } finally { setBusy(false); }
+  }
+  return (
+    <div className="field" style={{
+      background: 'rgba(30,64,175,0.04)', border: '1px solid #bfdbfe',
+      borderRadius: 6, padding: '8px 10px', marginBottom: 8,
+    }}>
+      <label style={{ color: '#1e3a8a', fontWeight: 600 }}>End-user docs</label>
+      <div style={{ fontSize: 11, color: 'var(--ink-3)', marginTop: 2, fontFamily: 'monospace' }}>
+        {entry.file}
+      </div>
+      <div style={{ fontSize: 10.5, color: 'var(--ink-4)', marginTop: 1 }}>
+        hash {entry.hash} · {entry.lang || 'ru'}
+        {entry.locked && <span style={{ marginLeft: 6, color: '#9a3412' }}>· 🔒 locked</span>}
+        {entry.generated_at && <span> · {relativeTime(entry.generated_at)}</span>}
+      </div>
+      <div style={{ display: 'flex', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
+        <a className="btn xs" href={'/' + entry.file} target="_blank" rel="noreferrer"
+           style={{ textDecoration: 'none', display: 'inline-block' }}>
+          📖 Открыть туториал
+        </a>
+        <button className="btn xs ghost" disabled={busy} onClick={regenerate}>
+          🔁 Regenerate
+        </button>
+        <button className="btn xs ghost" disabled={busy} onClick={toggleLock}>
+          {entry.locked ? '🔓 Unlock' : '🔒 Lock'}
+        </button>
+      </div>
+      {msg && <div style={{ marginTop: 6, fontSize: 10, color: 'var(--ink-3)' }}>{msg}</div>}
+    </div>
+  );
+}
+
+Object.assign(window, { ArchCanvas, ArchInspector, AcceptanceSection, ProfileHintsSection, UserDocsLink });

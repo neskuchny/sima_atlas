@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-05-04T08:30:38.581Z_
+_Generated: 2026-05-04T10:53:23.412Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -13,7 +13,7 @@ _Generated: 2026-05-04T08:30:38.581Z_
 - ✅ no_template_placeholders: ok
   - output: Template-placeholder validation: OK (10 blocks scanned)
 - ✅ files_registry: ok
-  - output: Files registry validation: OK (alive=190, archived=4, dead=0)
+  - output: Files registry validation: OK (alive=193, archived=4, dead=0)
 - ✅ projects_contracts: ok
   - output: validate_projects: OK (1 projects, 5 blocks)
 - ✅ subschemas_contracts: ok
@@ -33,7 +33,7 @@ _Generated: 2026-05-04T08:30:38.581Z_
 - ✅ operator_profile_selftest: ok
   - output: operator_profile.selftest: OK (7 test groups, all assertions green)
 - ✅ aggregate_operator_profile: ok
-  - output: operator_profile: warming_up (done=2, invocations=3, traces=2122, proposals=42)
+  - output: operator_profile: warming_up (done=2, invocations=3, traces=2261, proposals=44)
 - ✅ operator_profile_lessons_smoke: ok
   - output: operator_profile_lessons.smoke: OK (6 test groups, all assertions green)
 - ✅ operator_profile_inject_smoke: ok
@@ -50,6 +50,8 @@ _Generated: 2026-05-04T08:30:38.581Z_
   - output: user_docs.smoke: OK (5 test groups, all assertions green)
 - ✅ screenshots_integration_selftest: ok
   - output: screenshots_integration.selftest: OK (7 test groups, all assertions green)
+- ✅ user_docs_drift_selftest: ok
+  - output: user_docs_drift.selftest: OK (5 test groups, all assertions green)
 - ✅ parse_acceptance_selftest: ok
   - output: parse_acceptance.selftest: OK (9 test groups, all assertions green)
 - ✅ evidence_collectors_selftest: ok
@@ -99,4 +101,4 @@ _Generated: 2026-05-04T08:30:38.581Z_
 - ✅ intelligence_health: ok
   - output: Intelligence health: 1 (10/10)
 
-Summary: PASS (48/48)
+Summary: PASS (49/49)
