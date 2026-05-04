@@ -134,14 +134,11 @@ function setMission(blockId, mission){
 }
 
 function generateWiki(){
-  const graph = readJson(path.join(atlasRoot,'graph.json'));
-  let md = '# Sima Atlas Wiki\n\n';
-  for (const b of graph.blocks || []){
-    const dir = blockDir(b.id);
-    md += `## ${b.id} — ${b.title}\n- status: **${b.status}**\n\n`;
-    md += readText(path.join(dir,'mission.md')) + '\n\n';
-  }
-  fs.writeFileSync(path.join(atlasRoot,'WIKI.md'), md,'utf8');
+  // Delegate to the canonical generator so MCP and CLI produce identical
+  // output. Previously this stub wrote a no-mermaid WIKI.md that clobbered
+  // the layered + mermaid version produced by scripts/generate_wiki.mjs,
+  // which broke b.docs A2 verifier verdict whenever mcp_smoke_e2e ran.
+  execSync('node scripts/generate_wiki.mjs', { cwd: root, stdio: 'pipe' });
 }
 
 

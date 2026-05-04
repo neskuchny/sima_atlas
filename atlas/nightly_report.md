@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-05-04T15:59:26.423Z_
+_Generated: 2026-05-04T16:11:33.235Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -33,7 +33,7 @@ _Generated: 2026-05-04T15:59:26.423Z_
 - ✅ operator_profile_selftest: ok
   - output: operator_profile.selftest: OK (7 test groups, all assertions green)
 - ✅ aggregate_operator_profile: ok
-  - output: operator_profile: warming_up (done=2, invocations=3, traces=3049, proposals=56)
+  - output: operator_profile: warming_up (done=2, invocations=3, traces=3802, proposals=68)
 - ✅ operator_profile_lessons_smoke: ok
   - output: operator_profile_lessons.smoke: OK (6 test groups, all assertions green)
 - ✅ operator_profile_inject_smoke: ok
@@ -68,12 +68,8 @@ _Generated: 2026-05-04T15:59:26.423Z_
   - output: evidence_collectors.selftest: OK (11 test groups, all assertions green)
 - ✅ llm_judge_smoke: ok
   - output: llm_judge.smoke: OK (4 test groups, all assertions green)
-- ✅ verify_all_acceptance: ok
-  - output: verify_all_acceptance: 9 pass / 1 fail / 0 inconclusive (assertions: 45 pass / 1 fail / 13 skipped)
 - ✅ acceptance_verifier_e2e_smoke: ok
   - output: acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)
-- ✅ verify_done_blocks_still_green: ok
-  - output: verify_done_blocks_still_green: checked=0 green=0 regressions=0 inconclusive=0
 - ✅ seed_llm_mocks: ok
   - output: seed_llm_mocks: 0 written, 30 unchanged, 30 total
 - ✅ llm_extraction_eval: ok
@@ -108,6 +104,10 @@ _Generated: 2026-05-04T15:59:26.423Z_
   - output: Generated /home/user/sima_atlas/ТЗ/auto_tz.md
 - ✅ rebuild_roadmap: ok
   - output: Rebuilt /home/user/sima_atlas/atlas/roadmap.md
+- ✅ verify_all_acceptance: ok
+  - output: verify_all_acceptance: 10 pass / 0 fail / 0 inconclusive (assertions: 46 pass / 0 fail / 13 skipped)
+- ✅ verify_done_blocks_still_green: ok
+  - output: verify_done_blocks_still_green: checked=0 green=0 regressions=0 inconclusive=0
 - ✅ mcp_smoke_e2e: ok
   - output: mcp_smoke_e2e: OK
 - ✅ intelligence_health: ok

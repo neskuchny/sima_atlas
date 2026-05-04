@@ -41,9 +41,7 @@ const checks = [
   ['parse_acceptance_selftest', 'node tests/parse_acceptance.selftest.mjs'],
   ['evidence_collectors_selftest', 'node tests/evidence_collectors.selftest.mjs'],
   ['llm_judge_smoke', 'node tests/llm_judge.smoke.mjs'],
-  ['verify_all_acceptance', 'node scripts/verify_all_acceptance.mjs'],
   ['acceptance_verifier_e2e_smoke', 'node tests/acceptance_verifier.e2e.smoke.mjs'],
-  ['verify_done_blocks_still_green', 'node scripts/verify_done_blocks_still_green.mjs'],
   ['seed_llm_mocks', 'node scripts/seed_llm_mocks.mjs'],
   ['llm_extraction_eval', 'node tests/llm_extraction.eval.mjs'],
   ['simulate_conversation_branches', 'node scripts/simulate_conversation_branches.mjs'],
@@ -61,6 +59,11 @@ const checks = [
   ['render_wiki_html', 'node scripts/render_wiki_html.mjs'],
   ['generate_tz', 'node scripts/generate_tz_from_atlas.mjs'],
   ['rebuild_roadmap', 'node scripts/rebuild_atlas_roadmap.mjs'],
+  // Acceptance verifier runs LAST among artefact-producing steps so it
+  // sees the freshest wiki.html / auto_tz.md / roadmap.md when checking
+  // assertions about them (b.docs A2/A4, b.core-sync A5).
+  ['verify_all_acceptance', 'node scripts/verify_all_acceptance.mjs'],
+  ['verify_done_blocks_still_green', 'node scripts/verify_done_blocks_still_green.mjs'],
   ['mcp_smoke_e2e', 'node scripts/mcp_smoke_e2e.mjs'],
   ['intelligence_health', 'node scripts/calc_intelligence_health.mjs'],
 ];

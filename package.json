@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "verify": "node scripts/verify_all.mjs",
     "test:e2e": "playwright test",
     "test:nightly": "node scripts/nightly_consolidation.mjs",
     "atlas:api": "node scripts/atlas_api_server.mjs",
