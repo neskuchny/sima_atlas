@@ -1,11 +1,43 @@
 # Как проверить, что всё работает
 
+> **Windows / PowerShell?** Примеры в этом документе даны для bash/zsh.
+> Главные отличия PowerShell:
+>
+> | bash | PowerShell | cmd |
+> |---|---|---|
+> | `KEY=value command` | `$env:KEY = "value"; command` | `set KEY=value && command` |
+> | `which claude` | `Get-Command claude` | `where claude` |
+> | `cmd1 && cmd2` | `cmd1; if ($LASTEXITCODE -eq 0) { cmd2 }` (PS 7+ понимает `&&`) | `cmd1 && cmd2` |
+> | `open URL` | `Start-Process URL` | `start URL` |
+> | `node app.mjs &` (фон) | `Start-Job { node app.mjs }` | — |
+>
+> **Главная команда — `npm run dev`** (см. ниже): один процесс
+> запускает API + статику + открывает браузер. Не нужно крутить два
+> терминала вручную.
+
 Этот документ — единственный source of truth для ответа на вопрос
 «как мне проверить, что Sima Atlas действительно работает в моей среде, в
 том числе с Claude Code и Cursor IDE?». Каждая секция самодостаточна — если
 упала только одна, остальные всё ещё ценны.
 
-## TL;DR — одна команда
+## TL;DR — две команды
+
+```sh
+npm run verify     # все автотесты (nightly + acceptance + Playwright + MCP)
+npm run dev        # запустить локальный UI и открыть в браузере
+```
+
+`npm run dev` — кросс-платформенный launcher (`scripts/dev_server.mjs`):
+1. поднимает `atlas_api_server` на :8787
+2. поднимает `python http.server` на :8000 (отдаёт `Sima (Remix)/`)
+3. открывает `http://localhost:8000/atlas_design/index.html` в браузере
+4. на Ctrl-C аккуратно гасит обе подпроцесса
+
+Флаги: `--no-browser` (не открывать), `--ui-port 8001`, `--api-port 8788`,
+`--url http://localhost:8000/index.html` (открыть классический UI вместо
+дизайн-canvas).
+
+## TL;DR — `npm run verify`
 
 ```sh
 npm run verify
@@ -108,13 +140,31 @@ Pre-requisite: установлен `claude` CLI ([docs](https://docs.claude.com
 ### Smoke
 
 ```sh
+# bash / zsh / Git Bash
 which claude && claude --version
+```
+
+```powershell
+# PowerShell
+Get-Command claude; claude --version
 ```
 
 ### Запустить агента на блоке
 
 ```sh
+# bash
 ATLAS_AGENT=claude node scripts/run_block_implementation.mjs b.smoke-sandbox
+```
+
+```powershell
+# PowerShell — env-vars выставляются через $env:
+$env:ATLAS_AGENT = "claude"
+node scripts/run_block_implementation.mjs b.smoke-sandbox
+```
+
+```bat
+:: Windows cmd.exe
+set ATLAS_AGENT=claude && node scripts/run_block_implementation.mjs b.smoke-sandbox
 ```
 
 Что должно произойти:
@@ -126,8 +176,16 @@ ATLAS_AGENT=claude node scripts/run_block_implementation.mjs b.smoke-sandbox
 ### Запустить с изолированным workspace (Symphony-style)
 
 ```sh
+# bash
 ATLAS_USE_WORKSPACE=1 ATLAS_AGENT=claude \
   node scripts/run_block_implementation.mjs b.smoke-sandbox
+```
+
+```powershell
+# PowerShell
+$env:ATLAS_USE_WORKSPACE = "1"
+$env:ATLAS_AGENT = "claude"
+node scripts/run_block_implementation.mjs b.smoke-sandbox
 ```
 
 Что добавится:
@@ -216,14 +274,38 @@ node tests/cursor_live.headless.smoke.mjs
 
 ## Визуальная проверка UI
 
-Запусти статический сервер + atlas API:
+Один процесс — кросс-платформенный:
 
 ```sh
-npm run atlas:api &        # порт 8787 (proposal Accept/Reject + run cancel)
-npm run ui:serve &         # порт 8000 (React UI)
+npm run dev
 ```
 
-Открой `http://localhost:8000/index.html`.
+Это `scripts/dev_server.mjs`: `atlas_api` на :8787 + `python http.server`
+на :8000 + автоматическое открытие
+`http://localhost:8000/atlas_design/index.html` в системном браузере.
+Ctrl-C гасит обе подпроцесса разом.
+
+Доступные URL:
+
+* `http://localhost:8000/atlas_design/index.html` — новый design canvas
+  (sima_atlas_design layout, читает live-данные через `/atlas/design-payload`)
+* `http://localhost:8000/index.html` — классический Sima Remix UI
+  (Canvas + ProposalsPanel + Inspector — см. ниже)
+* `?client=<id>` — если есть `atlas/clients/<id>/`, читает оттуда
+
+Если хочешь сам управлять процессами (например, на CI/headless server):
+
+```sh
+# bash
+node scripts/atlas_api_server.mjs &
+node scripts/dev_server.mjs --no-browser
+```
+
+```powershell
+# PowerShell
+Start-Job { node scripts/atlas_api_server.mjs }
+node scripts/dev_server.mjs --no-browser
+```
 
 Что должно работать:
 

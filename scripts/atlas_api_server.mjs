@@ -85,6 +85,21 @@ const server = http.createServer((req, res) => {
       return json(res, 500, { ok: false, error: String(e) });
     }
   }
+  // PR — graceful empty stubs for the legacy /api/artifacts endpoints
+  // gallery_v2.jsx and layer1_canvas.jsx call. They were never wired to a
+  // real backend; the UI handled 404 silently but the network panel
+  // showed scary red lines. Now we return empty lists / no-op responses
+  // so the UI stays clean.
+  if (req.method === 'GET' && req.url.startsWith('/api/artifacts')) {
+    return json(res, 200, { artifacts: [], total: 0, source: 'stub' });
+  }
+  if (req.method === 'POST' && req.url.startsWith('/api/artifacts/') && req.url.endsWith('/insert')) {
+    return json(res, 200, { ok: true, source: 'stub', note: 'artifact insert is a no-op until a real artifact backend lands' });
+  }
+  if (req.method === 'DELETE' && req.url.startsWith('/api/artifacts')) {
+    return json(res, 200, { ok: true, source: 'stub' });
+  }
+
   // PR — SIMA Atlas Design integration (sima_atlas_design folder).
   // /atlas/design-payload[?client=<id>] returns SIMA_DATA-shaped JSON
   // adapted from atlas/graph.json. Per-client multi-tenancy: ?client=acme
