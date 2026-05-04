@@ -85,6 +85,25 @@ const server = http.createServer((req, res) => {
       return json(res, 500, { ok: false, error: String(e) });
     }
   }
+  // PR — SIMA Atlas Design integration (sima_atlas_design folder).
+  // /atlas/design-payload[?client=<id>] returns SIMA_DATA-shaped JSON
+  // adapted from atlas/graph.json. Per-client multi-tenancy: ?client=acme
+  // reads from atlas/clients/acme/ if it exists, else falls back to the
+  // main atlas/. Kept hot — regenerated on each request so edits in the
+  // graph show up immediately.
+  if (req.method === 'GET' && req.url.startsWith('/atlas/design-payload')) {
+    try {
+      const u = new URL(req.url, `http://localhost:${port}`);
+      const client = u.searchParams.get('client') || '';
+      const args = ['scripts/build_sima_design_payload.mjs', '--stdout'];
+      if (client) args.push('--client', client);
+      const out = execFileSync('node', args, { cwd: ROOT }).toString();
+      const data = JSON.parse(out);
+      return json(res, 200, { ok: true, data });
+    } catch (e) {
+      return json(res, 500, { ok: false, error: String(e.message || e), stderr: (e.stderr || '').toString().slice(0, 500) });
+    }
+  }
   if (req.method === 'GET' && req.url === '/atlas/payload') {
     try {
       // Re-run the bootstrap generator on demand so /atlas/payload always
