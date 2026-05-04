@@ -73,6 +73,31 @@ function App() {
   const [libraryOpen, setLibraryOpen] = useState(false);
   const [tzOpenFor, setTzOpenFor] = useState(null); // moduleId or null
   const [composerOpen, setComposerOpen] = useState(false);
+  const [sysDocsOpen, setSysDocsOpen] = useState(false);
+  const [proposalsOpen, setProposalsOpen] = useState(false);
+  const [proposalsCount, setProposalsCount] = useState(0);
+  const [hooksOk, setHooksOk] = useState(null); // null=unknown true=ok false=drift
+
+  // Poll proposals count + cursor hooks status every 30s; cheap and gives
+  // the topbar a live "чем-то внимание привлекают" indicator.
+  useEffect(() => {
+    let alive = true;
+    const tick = async () => {
+      if (!window.SIMA_API?.meta) return;
+      try {
+        const [pr, hs] = await Promise.all([
+          window.SIMA_API.meta.proposalsList(),
+          window.SIMA_API.meta.cursorHooksStatus(),
+        ]);
+        if (!alive) return;
+        if (pr?.ok) setProposalsCount(pr.items.filter((i) => !i.resolved && !i.accepted_at && !i.rejected_at).length);
+        if (hs?.ok) setHooksOk(hs.status?.valid !== false);
+      } catch {}
+    };
+    tick();
+    const itv = setInterval(tick, 30_000);
+    return () => { alive = false; clearInterval(itv); };
+  }, []);
 
   // Subsystem-local module/edge state, keyed by subsystem id
   const [subState, setSubState] = useState({});
@@ -222,17 +247,48 @@ function App() {
     return () => clearInterval(t);
   }, [tweaks.liveActivity]);
 
-  // Sync check flow
-  const runSyncCheck = () => {
+  // Sync check flow — calls real /atlas/sync-check (b.core-sync runs the
+  // sync_audit_context process). Falls back to the editorial mock when the
+  // backend is unreachable so the demo still narrates.
+  const runSyncCheck = async () => {
     setScanState('scanning');
-    pushLog({ agent: 'SIMA Core', kind: 'head', msg: '— запуск проверки синхронизации (16 модулей, 21 связь)' });
-    setTimeout(() => pushLog({ agent: 'SIMA Core', kind: 'note', msg: 'auth ✓  ingest ✓  warehouse ✓  query ✓  events ✓' }), 600);
-    setTimeout(() => pushLog({ agent: 'SIMA Core', kind: 'note', msg: 'datasets ✓  charts ✓  dashboard ✓  filters ✓' }), 1200);
-    setTimeout(() => {
-      pushLog({ agent: 'SIMA Core', kind: 'warn', msg: 'metrics ↔ ingest: AST использует поле user_id, в ingest-schema поле — actor_id' });
-      pushLog({ agent: 'SIMA Core', kind: 'warn', msg: 'предложение: переименовать metrics-dsl/AST.user_id → actor_id, ре-генерация SQL' });
-      setScanState('found');
-    }, 2000);
+    pushLog({ agent: 'SIMA Core', kind: 'head', msg: '— запуск sync-check для блоков atlas/' });
+    let live = false;
+    try {
+      const base = (window.SIMA_API_BASE || 'http://localhost:8787').replace(/\/$/, '');
+      const r = await fetch(base + '/atlas/sync-check', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ block_id: 'b.core-sync' }),
+      });
+      const j = await r.json();
+      live = true;
+      // Surface last 12 non-empty lines of the process output as activity.
+      const tail = String(j.out || j.stderr || '').split(/\n/).filter(Boolean).slice(-12);
+      for (const ln of tail) {
+        const kind = /\b(fail|err|drift|mismatch|❌|✗)\b/i.test(ln) ? 'warn' : 'note';
+        pushLog({ agent: 'SIMA Core', kind, msg: ln });
+      }
+      if (j.ok) {
+        setScanState(/drift|mismatch/i.test(tail.join(' ')) ? 'found' : 'resolved');
+        if (/drift|mismatch/i.test(tail.join(' '))) pushLog({ agent: 'SIMA Core', kind: 'warn', msg: 'обнаружен рассинхрон — см. вывод выше' });
+        else pushLog({ agent: 'SIMA Core', kind: 'ok', msg: '✓ sync-check прошёл, схема синхронна' });
+      } else {
+        setScanState('found');
+        pushLog({ agent: 'SIMA Core', kind: 'fail', msg: `sync-check завершился с ошибкой: ${j.error || 'unknown'}` });
+      }
+    } catch (e) {
+      // Fallback editorial narration when API unreachable
+      pushLog({ agent: 'SIMA Core', kind: 'note', msg: '(API недоступен, показываю демо-сценарий)' });
+    }
+    if (!live) {
+      setTimeout(() => pushLog({ agent: 'SIMA Core', kind: 'note', msg: 'auth ✓  ingest ✓  warehouse ✓  query ✓' }), 400);
+      setTimeout(() => {
+        pushLog({ agent: 'SIMA Core', kind: 'warn', msg: 'metrics ↔ ingest: AST использует поле user_id, в ingest-schema поле — actor_id' });
+        setScanState('found');
+      }, 1200);
+    }
+    setTimeout(() => { if (scanState !== 'found') setScanState('idle'); }, 4000);
   };
 
   const resolveDesync = () => {
@@ -487,6 +543,17 @@ function App() {
         <button className="pill" onClick={() => setComposerOpen(true)} title="Синтезировать артефакт из источника">＋ Артефакт</button>
         <button className="pill" onClick={() => setGalleryOpen(true)} title="Галерея артефактов">⊞ Галерея</button>
         <button className="pill" onClick={() => setLibraryOpen(true)} title="Библиотека блоков">⌘ Библиотека</button>
+        <button className="pill" onClick={() => setSysDocsOpen(true)} title="Roadmap, Wiki, документация">📖 Доки</button>
+        <button className="pill" onClick={() => setProposalsOpen(true)} title="Предложения Sima">
+          <span className="dot" style={{ background: proposalsCount > 0 ? 'var(--st-progress)' : 'var(--st-done)' }} />
+          ✦ Предложения{proposalsCount > 0 ? ` (${proposalsCount})` : ''}
+        </button>
+        {hooksOk !== null && (
+          <span className="pill" title={hooksOk ? 'Cursor hooks валидны' : 'Cursor hooks: drift'} style={{ cursor: 'default' }}>
+            <span className="dot" style={{ background: hooksOk ? 'var(--st-done)' : 'var(--st-fail)' }} />
+            cursor
+          </span>
+        )}
         <button className="pill" onClick={() => setCmdOpen(true)}>
           ⌘K · команда
         </button>
@@ -699,6 +766,7 @@ function App() {
           onOpenGallery={() => { setCmdOpen(false); setGalleryOpen(true); }}
           onOpenLibrary={() => { setCmdOpen(false); setLibraryOpen(true); }}
           onOpenComposer={() => { setCmdOpen(false); setComposerOpen(true); }}
+          onOpenSysDocs={() => { setCmdOpen(false); setSysDocsOpen(true); }}
           onOpenTz={() => { setCmdOpen(false); if (selectedId) setTzOpenFor(selectedId); }}
           selectedId={selectedId}
         />
@@ -739,6 +807,21 @@ function App() {
             onAddModule({ title: art.title, layer: art.blockLayer || 'logic', tag: art.tags?.[0] });
             setLibraryOpen(false);
             pushLog({ agent: 'SIMA Core', kind: 'note', msg: `Блок «${art.title}» добавлен из библиотеки.` });
+          }}
+        />
+      )}
+
+      {/* SYSTEM DOCS MODAL — Roadmap / Wiki / End-user docs / project / rules / stack */}
+      {sysDocsOpen && (
+        <SystemDocs onClose={() => setSysDocsOpen(false)} />
+      )}
+
+      {/* PROPOSALS MODAL */}
+      {proposalsOpen && (
+        <ProposalsPanel
+          onClose={() => setProposalsOpen(false)}
+          onAfterAction={(kind, id) => {
+            pushLog({ agent: 'SIMA Core', kind: kind === 'accept' ? 'ok' : 'note', msg: `${kind === 'accept' ? 'Принял' : 'Отклонил'} предложение ${id}` });
           }}
         />
       )}
@@ -820,7 +903,7 @@ function App() {
   );
 }
 
-function CommandBar({ data, onClose, onSelect, onSync, onAddModule, onOpenGallery, onOpenLibrary, onOpenComposer, onOpenTz, selectedId }) {
+function CommandBar({ data, onClose, onSelect, onSync, onAddModule, onOpenGallery, onOpenLibrary, onOpenComposer, onOpenSysDocs, onOpenTz, selectedId }) {
   const [q, setQ] = useState('');
   const [active, setActive] = useState(0);
   const inputRef = useRef(null);
@@ -833,6 +916,7 @@ function CommandBar({ data, onClose, onSelect, onSync, onAddModule, onOpenGaller
       { type: 'cmd', ic: '⊞', label: 'Открыть галерею артефактов', hint: '⏎', run: () => onOpenGallery && onOpenGallery() },
       { type: 'cmd', ic: '⌘', label: 'Открыть библиотеку блоков', hint: '⏎', run: () => onOpenLibrary && onOpenLibrary() },
       { type: 'cmd', ic: '＋', label: 'Синтезировать артефакт из источника', hint: '⏎', run: () => onOpenComposer && onOpenComposer() },
+      { type: 'cmd', ic: '📖', label: 'Системные доки (Roadmap / Wiki / End-user)', hint: '⏎', run: () => onOpenSysDocs && onOpenSysDocs() },
     ];
     if (selectedId) {
       cmds.push({ type: 'cmd', ic: '✎', label: `Сгенерировать ТЗ для @${data.modules.find(m=>m.id===selectedId)?.tag}`, hint: '⏎', run: () => onOpenTz && onOpenTz() });

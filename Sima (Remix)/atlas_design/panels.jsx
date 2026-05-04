@@ -137,7 +137,7 @@ function DetailPanel({ data, moduleId, onClose, desyncResolved, onSendToAgent, o
         {tab === 'runs' && <RunStatusSection moduleId={moduleId} />}
         {tab === 'acceptance' && <AcceptanceSection moduleId={moduleId} />}
         {tab === 'subs' && <SubsList subs={subs} desyncResolved={desyncResolved} moduleId={moduleId} />}
-        {tab === 'memory' && <Memory lessons={lessons} history={data.history.filter(h => h.module === moduleId)} />}
+        {tab === 'memory' && <Memory lessons={lessons} history={data.history.filter(h => h.module === moduleId)} moduleId={moduleId} />}
         {tab === 'connections' && <ConnectionsTab inEdges={inEdges} outEdges={outEdges} moduleById={moduleById} />}
       </div>
     </aside>
@@ -251,18 +251,104 @@ function SubsList({ subs, desyncResolved, moduleId }) {
   );
 }
 
-function Memory({ lessons, history }) {
+function Memory({ lessons, history, moduleId }) {
+  // Pull real per-block trace from disk: decisions.log + patterns.md.
+  // The static `lessons`/`history` props from the bootstrap are the
+  // editorial fallback; if the block has its own decisions log we
+  // surface that as the primary view.
+  const [decisions, setDecisions] = useState2(null);
+  const [patterns, setPatterns] = useState2(null);
+  const [packBusy, setPackBusy] = useState2(false);
+  const [packResult, setPackResult] = useState2(null);
+  const apiBase = (window.SIMA_API_BASE || 'http://localhost:8787').replace(/\/$/, '');
+
+  useEffect2(() => {
+    let alive = true;
+    (async () => {
+      if (!moduleId || !moduleId.startsWith('b.')) { setDecisions(null); setPatterns(null); return; }
+      const [d, p] = await Promise.all([
+        window.SIMA_API?.meta?.blockFile(moduleId, 'decisions.log'),
+        window.SIMA_API?.meta?.blockFile(moduleId, 'patterns.md'),
+      ]);
+      if (!alive) return;
+      setDecisions(d?.ok ? d.content : null);
+      setPatterns(p?.ok ? p.content : null);
+    })();
+    return () => { alive = false; };
+  }, [moduleId]);
+
+  const decisionLines = decisions
+    ? decisions.split(/\n/).filter((l) => l && !l.startsWith('#')).slice(-12).reverse()
+    : [];
+
+  const buildPack = async () => {
+    setPackBusy(true); setPackResult(null);
+    try {
+      const r = await fetch(apiBase + '/atlas/build-context-pack', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ block_id: moduleId }),
+      });
+      const j = await r.json();
+      setPackResult(j);
+    } catch (e) {
+      setPackResult({ ok: false, error: String(e.message || e) });
+    }
+    setPackBusy(false);
+  };
+
   return (
     <>
-      <h3>Опыт / решения</h3>
+      {moduleId && moduleId.startsWith('b.') && (
+        <div className="send-task" style={{ marginBottom: 14 }}>
+          <span className="lab">Контекст-пак →</span>
+          <button onClick={buildPack} disabled={packBusy}>{packBusy ? 'Собираю…' : '🗂 Собрать context_pack'}</button>
+          {packResult && (
+            <span className={`composer-result ${packResult.ok ? 'ok' : 'fail'}`} style={{ marginLeft: 8, padding: '4px 10px' }}>
+              {packResult.ok ? <>✓ <span className="mono">{packResult.file}</span></> : <>✗ {packResult.error}</>}
+            </span>
+          )}
+        </div>
+      )}
+
+      <h3>Решения блока (decisions.log)</h3>
+      {decisionLines.length ? (
+        <div className="memory-decisions">
+          {decisionLines.map((ln, i) => {
+            const tabs = ln.split('\t');
+            const ts = tabs[0] || '';
+            const kind = tabs[1] || '';
+            const note = tabs.slice(2).join('\t') || ln;
+            return (
+              <div key={i} className="memory-row">
+                <span className="mono" style={{ fontSize: 10, color: 'var(--ink-4)' }}>{ts.slice(0, 16).replace('T', ' ')}</span>
+                <span className="mono" style={{ fontSize: 10, color: 'var(--ink-3)' }}>{kind}</span>
+                <span style={{ fontSize: 12 }}>{note}</span>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <p style={{ color: 'var(--ink-3)' }}>
+          {moduleId && moduleId.startsWith('b.') ? 'decisions.log пуст для этого блока.' : 'Память — для b.* блоков atlas.'}
+        </p>
+      )}
+
+      {patterns && patterns.trim() && patterns.trim() !== '# patterns' && (
+        <>
+          <h3>Паттерны (patterns.md)</h3>
+          <pre className="memory-patterns">{patterns}</pre>
+        </>
+      )}
+
+      <h3>Уроки (бутстрап)</h3>
       {lessons.length ? lessons.map((l, i) => (
         <div key={i} className={`lesson ${l.verdict}`}>
           <div className="verdict">{l.verdict === 'good' ? '✓ что сработало' : '✗ что не сработало'}</div>
           {l.note}
         </div>
-      )) : <p style={{ color: 'var(--ink-3)' }}>Память по этому блоку пуста — она наполнится по ходу работы.</p>}
+      )) : <p style={{ color: 'var(--ink-3)' }}>Уроков по этому блоку нет.</p>}
 
-      <h3>Последние события</h3>
+      <h3>События</h3>
       {history.length ? history.map((h, i) => (
         <div key={i} style={{
           padding: '7px 0', borderBottom: '1px dashed var(--rule)',

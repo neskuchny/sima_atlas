@@ -140,49 +140,46 @@ LLM-ом — только сохраняет сырой transcript.
 но новый UI этого не показывает.
 
 ### H1 · Sync check (real)
-- [ ] Кнопка `runSyncCheck()` в topbar — сейчас mock-анимация. Заменить
-      на реальный `POST /run-process { block_id: 'b.core-sync', process: 'sync_audit_context' }`,
-      результат показывать в DetailPanel.
+- [x] `runSyncCheck()` теперь POST `/atlas/sync-check { block_id }` →
+      `run_block_process.mjs <id> sync_audit_context`. Хвост вывода
+      рендерится в activity log; задний план рисует sync_state по
+      наличию /drift|mismatch/. Editorial fallback если API недоступен.
 
 ### H2 · Lessons / decisions / patterns
-- [~] Memory tab в DetailPanel читает `data.lessons` из payload (статика).
-- [ ] Адаптер `build_sima_design_payload.mjs` уже грузит lessons —
-      проверить что real-data попадает. Сейчас `data.lessons` приходит
-      из bootstrap, а не из block-folder.
-- [ ] Кнопка «Добавить lesson» в Memory tab → POST в `decisions.log` блока.
+- [x] Memory tab читает `decisions.log` (последние 12 строк), `patterns.md`
+      через `GET /atlas/blocks/<id>/file?name=`. Static lessons остаются
+      как «уроки бутстрапа» снизу.
+- [ ] Кнопка «Добавить lesson» — следующая итерация.
 
 ### H3 · Proposals panel
-- [ ] Backend живёт: `/proposals/accept` / `/proposals/reject` / `/proposals/refresh`.
-- [ ] UI: новая кнопка в topbar или в Dock «Предложения (N)», открывает
-      modal со списком pending → accept / reject UI.
+- [x] `GET /atlas/proposals/list` (обёртка над list_proposals.mjs).
+      Topbar pill «✦ Предложения (N)» с live-counter (poll 30s).
+      Modal `ProposalsPanel` показывает pending, accept/reject
+      кнопки → `/proposals/accept` / `/proposals/reject`.
 
 ### H4 · build_context_pack
-- [ ] Кнопка «Собрать context pack» в Overview → POST `/build-context-pack`
-      (нужно добавить роут, оборачивает `scripts/build_context_pack.mjs`)
-      → показывает path к JSON и копирует prompt в clipboard.
+- [x] Кнопка «🗂 Собрать context_pack» в Memory tab → POST
+      `/atlas/build-context-pack` → возвращает путь к JSON.
 
 ### H5 · Roadmap view
-- [ ] Topbar tab «Roadmap» → загружает `atlas/roadmap.md` через GET
-      (нужен endpoint `/atlas/roadmap`) → рендерит markdown в правой
-      панели через marked.js (CDN).
+- [x] Tab `Roadmap` в `📖 Доки` modal → `/atlas/meta?file=roadmap.md`.
 
 ### H6 · Wiki / mermaid view
-- [ ] Topbar tab «Wiki» → embed `atlas/wiki.html` через iframe
-      (или GET-роут возвращает html, рендерим как-есть). Mermaid graph
-      показывается там, где раньше был Mermaid.
+- [x] Tab `Wiki (mermaid)` в `📖 Доки` modal → iframe srcDoc с
+      `atlas/wiki.html`. Mermaid рендерится так же как был.
 
 ### H7 · End-user docs viewer
-- [ ] Backend (`b.user-docs-generator`) пишет docs в `atlas/user_docs/`.
-      Topbar tab «Документация» → список markdown файлов + reader.
+- [x] Tab `Пользователю` в `📖 Доки` modal → `/atlas/user-docs/list`
+      и `/atlas/user-docs/get?block_id=`. Список + reader.
 
 ### H8 · Editable rules.md / project.md / tech_stack.md
-- [ ] Сейчас редактируются только `data.product.title/goal/mission` (in-memory).
-      Добавить endpoints `/atlas/meta/get?file=` + `/atlas/meta/patch`,
-      ContextRail кнопка «Редактировать project.md».
+- [x] Tabs `project.md` / `rules.md` / `tech_stack.md` в `📖 Доки`
+      modal с режимом ✎ Редактировать → 💾 Сохранить (atomic write).
+      `/atlas/meta?file=` (GET) + `/atlas/meta/save` (POST whitelist).
 
 ### H9 · Cursor hooks status indicator
-- [ ] Topbar читает `scripts/validate_cursor_hooks.mjs --json` каждые
-      30s, показывает зелёную / жёлтую точку «Cursor hooks ok / drift».
+- [x] Topbar pill `cursor` с цветной точкой (зелёная/красная).
+      `/atlas/cursor-hooks/status` опрашивается раз в 30s.
 
 ---
 

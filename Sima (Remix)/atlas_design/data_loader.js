@@ -174,6 +174,19 @@
     return await postJson('/llm/advice', withClient({ block_id, prompt, context }));
   };
 
+  // ─── System docs / per-block files ───────────────────────────────
+  const meta = {
+    get:          async (file)             => await getJson('/atlas/meta?file=' + encodeURIComponent(file)),
+    save:         async (file, content)    => await postJson('/atlas/meta/save', { file, content }),
+    userDocsList: async ()                 => await getJson('/atlas/user-docs/list'),
+    userDocGet:   async (block_id)         => await getJson('/atlas/user-docs/get?block_id=' + encodeURIComponent(block_id)),
+    blockFile:    async (block_id, name)   => await getJson('/atlas/blocks/' + encodeURIComponent(block_id) + '/file?name=' + encodeURIComponent(name)),
+    proposalsList: async ()                => await getJson('/atlas/proposals/list'),
+    proposalAccept:async (proposal_id)     => await postJson('/proposals/accept', { proposal_id }),
+    proposalReject:async (proposal_id, reason) => await postJson('/proposals/reject', { proposal_id, reason }),
+    cursorHooksStatus: async ()            => await getJson('/atlas/cursor-hooks/status'),
+  };
+
   window.SIMA_API = {
     // Returns immediately; UI should optimistically update its local
     // state and rely on the next refresh to confirm.
@@ -186,6 +199,7 @@
     patchNote:   async (note_id, body_) => { const r = await postJson('/atlas/notes/patch',  withClient({ note_id, ...body_ })); if (r.ok) await refresh(); return r; },
     deleteNote:  async (note_id)       => { const r = await postJson('/atlas/notes/delete', withClient({ note_id })); if (r.ok) await refresh(); return r; },
     artifacts,
+    meta,
     claudeAdvice,
     refresh,
   };

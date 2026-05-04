@@ -156,6 +156,100 @@ const server = http.createServer((req, res) => {
       return json(res, 200, { ok: false, error: String(e.message || e) });
     }
   }
+
+  // /atlas/meta?file=<allowed>     read whitelisted top-level meta files
+  // /atlas/user-docs/list          list atlas/docs/end-user/*.md
+  // /atlas/user-docs/get?block_id= read a generated user-doc by block id
+  // /atlas/blocks/<id>/file?name=  read a file from a block folder
+  //                                  (decisions.log / patterns.md / lessons.md / etc.)
+  const META_WHITELIST = new Set([
+    'project.md', 'rules.md', 'tech_stack.md', 'roadmap.md', 'wiki.html',
+    'WIKI.md', 'BACKLOG.md',
+  ]);
+  if (req.method === 'GET' && req.url.startsWith('/atlas/meta')) {
+    try {
+      const u = new URL(req.url, `http://localhost:${port}`);
+      const file = u.searchParams.get('file') || '';
+      if (!META_WHITELIST.has(file)) return json(res, 200, { ok: false, error: 'forbidden' });
+      const p = path.join(ATLAS, file);
+      if (!fs.existsSync(p)) return json(res, 200, { ok: false, error: 'not_found' });
+      const content = fs.readFileSync(p, 'utf8');
+      const mime = file.endsWith('.html') ? 'text/html' : 'text/markdown';
+      return json(res, 200, { ok: true, file, content, mime, mtime: fs.statSync(p).mtime.toISOString() });
+    } catch (e) {
+      return json(res, 200, { ok: false, error: String(e.message || e) });
+    }
+  }
+  if (req.method === 'GET' && req.url === '/atlas/proposals/list') {
+    try {
+      const out = execFileSync('node', ['scripts/list_proposals.mjs', '--json'], { cwd: ROOT, stdio: 'pipe' }).toString();
+      const items = JSON.parse(out);
+      return json(res, 200, { ok: true, items });
+    } catch (e) {
+      return json(res, 200, { ok: false, error: String(e.message || e) });
+    }
+  }
+  if (req.method === 'GET' && req.url === '/atlas/cursor-hooks/status') {
+    try {
+      const out = execFileSync('node', ['scripts/validate_cursor_hooks.mjs', '--json'], { cwd: ROOT, stdio: 'pipe' }).toString();
+      let parsed = {}; try { parsed = JSON.parse(out); } catch {}
+      return json(res, 200, { ok: true, status: parsed });
+    } catch (e) {
+      return json(res, 200, { ok: false, error: String(e.message || e), stderr: (e.stderr || '').toString().slice(0, 500) });
+    }
+  }
+  if (req.method === 'GET' && req.url === '/atlas/user-docs/list') {
+    try {
+      const dir = path.join(ATLAS, 'docs', 'end-user');
+      if (!fs.existsSync(dir)) return json(res, 200, { ok: true, docs: [] });
+      const docs = fs.readdirSync(dir)
+        .filter((f) => f.endsWith('.md'))
+        .map((f) => {
+          const block_id = f.replace(/\.md$/, '');
+          const stat = fs.statSync(path.join(dir, f));
+          return { block_id, mtime: stat.mtime.toISOString(), bytes: stat.size };
+        })
+        .sort((a, b) => b.mtime.localeCompare(a.mtime));
+      return json(res, 200, { ok: true, docs });
+    } catch (e) {
+      return json(res, 200, { ok: false, error: String(e.message || e) });
+    }
+  }
+  if (req.method === 'GET' && req.url.startsWith('/atlas/user-docs/get')) {
+    try {
+      const u = new URL(req.url, `http://localhost:${port}`);
+      const block_id = u.searchParams.get('block_id') || '';
+      if (!/^[a-zA-Z0-9._-]+$/.test(block_id)) return json(res, 200, { ok: false, error: 'invalid block_id' });
+      const p = path.join(ATLAS, 'docs', 'end-user', `${block_id}.md`);
+      if (!fs.existsSync(p)) return json(res, 200, { ok: false, error: 'not_found' });
+      return json(res, 200, { ok: true, block_id, content: fs.readFileSync(p, 'utf8'), mtime: fs.statSync(p).mtime.toISOString() });
+    } catch (e) {
+      return json(res, 200, { ok: false, error: String(e.message || e) });
+    }
+  }
+  // Read a single file from a block folder. Whitelist of trace files only —
+  // never serves arbitrary files even from inside the block dir.
+  const BLOCK_FILE_WHITELIST = new Set([
+    'mission.md', 'kpi.md', 'acceptance.md', 'tasks.md', 'depends_on.md',
+    'provides.md', 'files.md', 'checks.log', 'decisions.log', 'patterns.md',
+    'lessons.md',
+  ]);
+  {
+    const m = req.method === 'GET' && req.url.match(/^\/atlas\/blocks\/([a-zA-Z0-9._-]+)\/file\?(.*)$/);
+    if (m) {
+      try {
+        const block_id = m[1];
+        const u = new URLSearchParams(m[2]);
+        const name = u.get('name') || '';
+        if (!BLOCK_FILE_WHITELIST.has(name)) return json(res, 200, { ok: false, error: 'forbidden' });
+        const p = path.join(ATLAS, 'blocks', block_id, name);
+        if (!fs.existsSync(p)) return json(res, 200, { ok: false, error: 'not_found' });
+        return json(res, 200, { ok: true, block_id, name, content: fs.readFileSync(p, 'utf8'), mtime: fs.statSync(p).mtime.toISOString() });
+      } catch (e) {
+        return json(res, 200, { ok: false, error: String(e.message || e) });
+      }
+    }
+  }
   if (req.method === 'GET' && req.url.startsWith('/acceptance/get')) {
     try {
       const u = new URL(req.url, `http://localhost:${port}`);
@@ -411,6 +505,50 @@ const server = http.createServer((req, res) => {
       const artPatchM = req.url.match(/^\/api\/artifacts\/(art-[a-z0-9-]+)$/i);
       if (artPatchM) {
         return tryFn(() => artifactsApi.updateArtifact(artPatchM[1], body));
+      }
+
+      // /atlas/meta/save — write a whitelisted top-level meta file.
+      if (req.url === '/atlas/meta/save') {
+        const META_W = new Set(['project.md', 'rules.md', 'tech_stack.md']);
+        const file = String(body.file || '');
+        if (!META_W.has(file)) return json(res, 200, { ok: false, error: 'forbidden' });
+        const content = String(body.content ?? '');
+        if (content.length > 500_000) return json(res, 200, { ok: false, error: 'too large' });
+        try {
+          const p = path.join(ATLAS, file);
+          const tmp = p + '.tmp';
+          fs.writeFileSync(tmp, content);
+          fs.renameSync(tmp, p);
+          return json(res, 200, { ok: true, file, bytes: content.length, mtime: fs.statSync(p).mtime.toISOString() });
+        } catch (e) {
+          return json(res, 200, { ok: false, error: String(e.message || e) });
+        }
+      }
+
+      // /atlas/build-context-pack — wraps scripts/build_context_pack.mjs.
+      // Returns the path to the freshly written JSON so the UI can deep-link.
+      if (req.url === '/atlas/build-context-pack') {
+        const bid = String(body.block_id || '');
+        if (!bid) return json(res, 400, { ok: false, error: 'block_id required' });
+        try {
+          const out = execFileSync('node', ['scripts/build_context_pack.mjs', bid], { cwd: ROOT, stdio: 'pipe' }).toString();
+          const fp = path.join('atlas', 'context_packs', `${bid}.json`);
+          return json(res, 200, { ok: true, file: fp, out: out.trim() });
+        } catch (e) {
+          return json(res, 200, { ok: false, error: String(e.message || e), stderr: (e.stderr || '').toString().slice(0, 500) });
+        }
+      }
+      // /atlas/sync-check — runs sync_audit_context for a block (or for
+      // the whole atlas via b.core-sync). Real replacement for the mock
+      // "1 рассинхрон" topbar pill.
+      if (req.url === '/atlas/sync-check') {
+        const bid = String(body.block_id || 'b.core-sync');
+        try {
+          const out = execFileSync('node', ['scripts/run_block_process.mjs', bid, 'sync_audit_context'], { cwd: ROOT, stdio: 'pipe' }).toString();
+          return json(res, 200, { ok: true, block_id: bid, out: out.slice(-2000) });
+        } catch (e) {
+          return json(res, 200, { ok: false, error: String(e.message || e), stderr: (e.stderr || '').toString().slice(-2000) });
+        }
       }
 
       // /runs/start — non-blocking variant of /run-block. Spawns the

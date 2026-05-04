@@ -497,6 +497,261 @@ function TZExporter({ data, moduleId, onClose, onSendToAgent }) {
   );
 }
 
+/* ====================== SYSTEM DOCS ======================
+   Read-only modal that surfaces the auto-generated artefacts living in
+   atlas/ — Roadmap, Wiki (mermaid), end-user tutorials. These were
+   produced by the existing toolchain (generate_wiki, render_wiki_html,
+   rebuild_atlas_roadmap, generate_user_docs); the new design just
+   exposes them.
+*/
+function SystemDocs({ onClose }) {
+  const [tab, setTab] = useStateV('roadmap');
+  const [content, setContent] = useStateV('');
+  const [draft, setDraft] = useStateV('');
+  const [editing, setEditing] = useStateV(false);
+  const [saveMsg, setSaveMsg] = useStateV(null);
+  const [docs, setDocs] = useStateV([]);
+  const [openDocFor, setOpenDocFor] = useStateV(null);
+  const [docContent, setDocContent] = useStateV('');
+  const [meta, setMeta] = useStateV(null);
+
+  const EDITABLE = new Set(['project.md', 'rules.md', 'tech_stack.md']);
+  const tabToFile = (t) => ({
+    roadmap: 'roadmap.md', wiki: 'wiki.html', 'wiki-md': 'WIKI.md',
+    project: 'project.md', rules: 'rules.md', stack: 'tech_stack.md',
+  }[t]);
+
+  useEffectV(() => {
+    let alive = true;
+    (async () => {
+      setContent(''); setDraft(''); setMeta(null); setEditing(false); setSaveMsg(null);
+      const file = tabToFile(tab);
+      if (file && tab !== 'docs') {
+        const r = await window.SIMA_API.meta.get(file);
+        if (alive && r?.ok) { setContent(r.content || ''); setDraft(r.content || ''); setMeta(r); }
+      } else if (tab === 'docs') {
+        const r = await window.SIMA_API.meta.userDocsList();
+        if (alive && r?.ok) setDocs(r.docs || []);
+      }
+    })();
+    return () => { alive = false; };
+  }, [tab]);
+
+  const saveMeta = async () => {
+    const file = tabToFile(tab);
+    if (!EDITABLE.has(file)) return;
+    setSaveMsg(null);
+    const r = await window.SIMA_API.meta.save(file, draft);
+    if (r?.ok) {
+      setContent(draft);
+      setEditing(false);
+      setSaveMsg({ kind: 'ok', text: `✓ сохранено (${r.bytes} байт)` });
+      setTimeout(() => setSaveMsg(null), 2400);
+    } else {
+      setSaveMsg({ kind: 'fail', text: r?.error || 'save failed' });
+    }
+  };
+
+  useEffectV(() => {
+    let alive = true;
+    if (!openDocFor) { setDocContent(''); return; }
+    (async () => {
+      const r = await window.SIMA_API.meta.userDocGet(openDocFor);
+      if (alive) setDocContent(r?.ok ? r.content : `# Не сгенерировано\n\nЗапустите generate_user_docs ${openDocFor}`);
+    })();
+    return () => { alive = false; };
+  }, [openDocFor]);
+
+  const tabs = [
+    { id: 'roadmap',  label: 'Roadmap' },
+    { id: 'wiki',     label: 'Wiki (mermaid)' },
+    { id: 'wiki-md',  label: 'WIKI.md' },
+    { id: 'docs',     label: 'Пользователю' },
+    { id: 'project',  label: 'project.md', editable: true },
+    { id: 'rules',    label: 'rules.md', editable: true },
+    { id: 'stack',    label: 'tech_stack.md', editable: true },
+  ];
+  const isEditableTab = !!tabs.find((t) => t.id === tab && t.editable);
+
+  return (
+    <div className="cmd-bar" onClick={onClose}>
+      <div className="cmd-box sysdocs-box" onClick={e => e.stopPropagation()}>
+        <div className="sysdocs-head">
+          <div>
+            <div className="mono" style={{ fontSize: 11, color: 'var(--ink-4)', letterSpacing: '0.08em' }}>СИСТЕМНЫЕ ДОКИ</div>
+            <h3 style={{ margin: '4px 0 0', fontFamily: 'Newsreader, serif', fontStyle: 'italic', fontSize: 19 }}>
+              Авто-генерируемые + редактируемые артефакты Atlas
+            </h3>
+          </div>
+          <div style={{ display: 'flex', gap: 6 }}>
+            {isEditableTab && !editing && content !== null && (
+              <button className="pill" onClick={() => setEditing(true)}>✎ Редактировать</button>
+            )}
+            {isEditableTab && editing && (
+              <>
+                <button className="pill primary" onClick={saveMeta}>💾 Сохранить</button>
+                <button className="pill" onClick={() => { setDraft(content); setEditing(false); setSaveMsg(null); }}>Отмена</button>
+              </>
+            )}
+            <button className="pill" onClick={onClose}>✕</button>
+          </div>
+        </div>
+        <div className="tabs sysdocs-tabs">
+          {tabs.map(t => (
+            <button key={t.id} className={tab === t.id ? 'active' : ''} onClick={() => { setTab(t.id); setOpenDocFor(null); }}>
+              {t.label}{t.editable && <span className="ct">✎</span>}
+            </button>
+          ))}
+        </div>
+        {saveMsg && (
+          <div className={`composer-result ${saveMsg.kind}`} style={{ margin: '8px 18px 0' }}>{saveMsg.text}</div>
+        )}
+        <div className="sysdocs-body">
+          {tab === 'wiki' && (
+            content
+              ? <iframe className="sysdocs-iframe" srcDoc={content} title="wiki" />
+              : <div className="meta" style={{ padding: 14 }}>wiki.html не найден. Запустите node scripts/render_wiki_html.mjs.</div>
+          )}
+          {(tab === 'roadmap' || tab === 'wiki-md') && (
+            content
+              ? <pre className="sysdocs-md">{content}</pre>
+              : <div className="meta" style={{ padding: 14 }}>файл не найден или пуст</div>
+          )}
+          {isEditableTab && !editing && (
+            content
+              ? <pre className="sysdocs-md">{content}</pre>
+              : <div className="meta" style={{ padding: 14 }}>пусто</div>
+          )}
+          {isEditableTab && editing && (
+            <textarea className="sysdocs-editor" value={draft} onChange={e => setDraft(e.target.value)} rows={26} />
+          )}
+          {tab === 'docs' && !openDocFor && (
+            <div className="sysdocs-list">
+              {!docs.length && <div className="meta" style={{ padding: 14 }}>
+                Ещё не сгенерировано. В DetailPanel нажмите «Сгенерировать пользовательский гайд» для блока,
+                либо запустите node scripts/generate_user_docs.mjs &lt;block_id&gt;.
+              </div>}
+              {docs.map(d => (
+                <div key={d.block_id} className="sysdocs-list-row" onClick={() => setOpenDocFor(d.block_id)}>
+                  <span className="mono" style={{ fontSize: 12 }}>{d.block_id}</span>
+                  <span className="meta" style={{ fontSize: 11 }}>{(d.bytes/1024).toFixed(1)} КБ · {String(d.mtime).slice(0, 16).replace('T', ' ')}</span>
+                  <span className="meta">→</span>
+                </div>
+              ))}
+            </div>
+          )}
+          {tab === 'docs' && openDocFor && (
+            <>
+              <div className="sysdocs-back-bar">
+                <button className="pill" onClick={() => setOpenDocFor(null)}>← список</button>
+                <span className="mono" style={{ fontSize: 12 }}>{openDocFor}.md</span>
+              </div>
+              <pre className="sysdocs-md">{docContent}</pre>
+            </>
+          )}
+        </div>
+        {meta && meta.mtime && (
+          <div className="sysdocs-foot">
+            <span className="meta" style={{ fontSize: 11 }}>обновлено: {String(meta.mtime).slice(0, 16).replace('T', ' ')}</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ====================== PROPOSALS ======================
+   Modal listing pending proposals (block_update + others) so the operator
+   can accept/reject them. Backend endpoints live in atlas_api_server.mjs:
+   /atlas/proposals/list (read), /proposals/accept, /proposals/reject.
+*/
+function ProposalsPanel({ onClose, onAfterAction }) {
+  const [items, setItems] = useStateV([]);
+  const [loading, setLoading] = useStateV(true);
+  const [busy, setBusy] = useStateV({});
+  const [reason, setReason] = useStateV('');
+
+  const refresh = async () => {
+    setLoading(true);
+    const r = await window.SIMA_API.meta.proposalsList();
+    setItems(r?.ok ? r.items.filter((i) => !i.resolved && !i.accepted_at && !i.rejected_at) : []);
+    setLoading(false);
+  };
+  useEffectV(() => { refresh(); }, []);
+
+  const act = async (id, kind) => {
+    setBusy((b) => ({ ...b, [id]: kind }));
+    const r = kind === 'accept'
+      ? await window.SIMA_API.meta.proposalAccept(id)
+      : await window.SIMA_API.meta.proposalReject(id, reason || 'rejected from UI');
+    setBusy((b) => { const c = { ...b }; delete c[id]; return c; });
+    if (r?.ok) {
+      onAfterAction && onAfterAction(kind, id);
+      await refresh();
+    }
+  };
+
+  return (
+    <div className="cmd-bar" onClick={onClose}>
+      <div className="cmd-box proposals-box" onClick={e => e.stopPropagation()}>
+        <div className="sysdocs-head">
+          <div>
+            <div className="mono" style={{ fontSize: 11, color: 'var(--ink-4)', letterSpacing: '0.08em' }}>ПРЕДЛОЖЕНИЯ SIMA</div>
+            <h3 style={{ margin: '4px 0 0', fontFamily: 'Newsreader, serif', fontStyle: 'italic', fontSize: 19 }}>
+              {loading ? 'Загрузка…' : `${items.length} в ожидании`}
+            </h3>
+          </div>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <button className="pill" onClick={refresh}>↻ Обновить</button>
+            <button className="pill" onClick={onClose}>✕</button>
+          </div>
+        </div>
+        <div className="proposals-body">
+          {!loading && !items.length && <div className="meta" style={{ padding: 14 }}>
+            Нет открытых предложений. Sima добавляет их автоматически на основе chat-distillates,
+            sync-check и других процессов.
+          </div>}
+          {items.map((p) => (
+            <div key={p.id} className="proposal-card">
+              <div className="proposal-card-head">
+                <span className="mono" style={{ fontSize: 10.5 }}>{p.kind}</span>
+                <span className="mono" style={{ fontSize: 10.5, color: 'var(--ink-3)' }}>
+                  {p.block_id} · conf {((p.source?.confidence || 0) * 100).toFixed(0)}% · {p.source?.provider}
+                </span>
+              </div>
+              {p.diff_summary && <div style={{ fontSize: 12.5, marginTop: 4 }}>{p.diff_summary}</div>}
+              {p.proposed && (
+                <pre className="proposal-diff">{
+                  Object.entries(p.proposed).map(([k, v]) => `+ ${k}: ${typeof v === 'string' ? v : JSON.stringify(v).slice(0, 140)}`).join('\n')
+                }</pre>
+              )}
+              <div className="proposal-actions">
+                <button className="pill primary" disabled={!!busy[p.id]} onClick={() => act(p.id, 'accept')}>
+                  {busy[p.id] === 'accept' ? 'применяю…' : '✓ принять'}
+                </button>
+                <button className="pill" disabled={!!busy[p.id]} onClick={() => act(p.id, 'reject')}>
+                  {busy[p.id] === 'reject' ? 'отклоняю…' : '✗ отклонить'}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+        {items.length > 0 && (
+          <div className="sysdocs-foot">
+            <input
+              className="composer-input"
+              placeholder="Причина отклонения (по умолчанию)"
+              value={reason}
+              onChange={e => setReason(e.target.value)}
+              style={{ maxWidth: 360 }}
+            />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* ====================== HELPERS ====================== */
 function pluralize(n, one, few, many) {
   const mod10 = n % 10;
