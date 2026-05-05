@@ -38,6 +38,10 @@ function Composer({ onClose, onPublished, productContext, onBlocksCreated }) {
   const [proposals, setProposals] = useStateV([]);
   const [synthBusy, setSynthBusy] = useStateV(false);
   const [accepting, setAccepting] = useStateV({}); // by id → state
+  // Phase G — extracted insights (goals / constraints / ideas / risks / terms)
+  const [insights, setInsights] = useStateV(null);
+  const [insightsBusy, setInsightsBusy] = useStateV(false);
+  const [picked, setPicked] = useStateV({}); // key → bool, for "save as artifact" multi-select
 
   const sources = [
     { id: 'text',    label: 'Текст',     hint: 'паста / заметка' },
@@ -118,6 +122,53 @@ function Composer({ onClose, onPublished, productContext, onBlocksCreated }) {
   };
 
   const reject = (p) => setProposals((P) => P.filter((x) => x.id !== p.id));
+
+  // Phase G — extract insights from the artefact body. Builds a panel
+  // of goals/constraints/ideas/risks/terms that the operator can either
+  // turn into separate artifacts or merge as tags on the current one.
+  const runExtract = async () => {
+    setInsightsBusy(true); setInsights(null); setPicked({});
+    const r = await window.SIMA_API.synthesis.extract({
+      text: text || (result?.artifact?.description || ''),
+      kind: source === 'meeting' ? 'transcript' : source,
+    });
+    setInsightsBusy(false);
+    if (r?.ok) setInsights(r);
+  };
+
+  const togglePick = (key) => setPicked((p) => ({ ...p, [key]: !p[key] }));
+
+  const savePickedAsArtifacts = async () => {
+    if (!insights) return;
+    const buckets = ['goals', 'constraints', 'ideas', 'risks'];
+    let created = 0, failed = 0;
+    for (const bucket of buckets) {
+      for (let i = 0; i < (insights[bucket] || []).length; i++) {
+        const k = `${bucket}.${i}`;
+        if (!picked[k]) continue;
+        const itemText = insights[bucket][i];
+        const r = await window.SIMA_API.artifacts.create({
+          kind: bucket === 'ideas' ? 'note' : 'document',
+          title: itemText.slice(0, 60) + (itemText.length > 60 ? '…' : ''),
+          description: `Извлечено из «${title || 'untitled'}»`,
+          body: itemText,
+          tags: [bucket, ...(insights.terms || []).slice(0, 3)],
+          sourceProjectId: result?.artifact?.id,
+        });
+        if (r?.ok) created++; else failed++;
+      }
+    }
+    setResult({ ok: true, _extracted: { created, failed } });
+    setPicked({});
+  };
+
+  // Tag suggestions from extracted terms — clicking a chip appends to
+  // the tags input.
+  const addTagFromTerm = (term) => {
+    const cur = tags.split(',').map((s) => s.trim()).filter(Boolean);
+    if (cur.includes(term)) return;
+    setTags([...cur, term].join(', '));
+  };
 
   return (
     <div className="composer-wrap">
@@ -209,9 +260,88 @@ function Composer({ onClose, onPublished, productContext, onBlocksCreated }) {
               <button className="pill primary" onClick={synthesize} disabled={synthBusy}>
                 {synthBusy ? '✦ Sima думает…' : '✦ Sima предложит блоки на основе этого'}
               </button>
+              <button className="pill" onClick={runExtract} disabled={insightsBusy}>
+                {insightsBusy ? '◔ извлекаю…' : '◔ Найти смыслы (goals / risks / ideas)'}
+              </button>
               <span className="meta" style={{ fontSize: 11.5 }}>
-                Sima проанализирует артефакт и предложит 1-3 черновика блоков.
+                Блоки и/или извлечь структурированные insights.
               </span>
+            </div>
+          )}
+
+          {/* Phase G — extracted insights panel */}
+          {insights && (
+            <div className="insights-panel">
+              {insights.mock && (
+                <div className="composer-result fail" style={{ marginBottom: 8 }}>
+                  Demo-режим: задайте ANTHROPIC_API_KEY для реального извлечения.
+                </div>
+              )}
+              {insights.summary && (
+                <div className="insights-summary">
+                  <div className="meta" style={{ fontSize: 10.5, marginBottom: 2 }}>SIMA РЕЗЮМИРУЕТ</div>
+                  {insights.summary}
+                </div>
+              )}
+              {insights.terms && insights.terms.length > 0 && (
+                <div style={{ marginTop: 8 }}>
+                  <div className="meta" style={{ fontSize: 10.5, marginBottom: 4 }}>ТЕРМИНЫ — клик добавит в теги</div>
+                  <div className="chips">
+                    {insights.terms.map((t) => (
+                      <span
+                        key={t}
+                        className={`chip clickable ${tags.split(',').map(s=>s.trim()).includes(t) ? 'on' : ''}`}
+                        onClick={() => addTagFromTerm(t)}
+                      >{t}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {[
+                { k: 'goals', label: 'Цели', icon: '◎' },
+                { k: 'constraints', label: 'Ограничения', icon: '⊗' },
+                { k: 'ideas', label: 'Идеи', icon: '✦' },
+                { k: 'risks', label: 'Риски', icon: '⚠' },
+              ].map(({ k, label, icon }) => {
+                const items = insights[k] || [];
+                if (!items.length) return null;
+                return (
+                  <div key={k} className="insights-group">
+                    <div className="insights-group-head">
+                      <span className="mono" style={{ fontSize: 11 }}>{icon} {label.toUpperCase()}</span>
+                      <span className="meta" style={{ fontSize: 11 }}>{items.length}</span>
+                    </div>
+                    <ul className="insights-list">
+                      {items.map((it, i) => {
+                        const key = `${k}.${i}`;
+                        return (
+                          <li key={key} className={picked[key] ? 'picked' : ''} onClick={() => togglePick(key)}>
+                            <span className="insights-check">{picked[key] ? '☑' : '☐'}</span>
+                            <span>{it}</span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                );
+              })}
+              {Object.values(picked).some(Boolean) && (
+                <div className="insights-actions">
+                  <button className="pill primary" onClick={savePickedAsArtifacts}>
+                    💾 Сохранить отмеченные как артефакты
+                  </button>
+                  <span className="meta" style={{ fontSize: 11.5 }}>
+                    Каждый отмеченный пункт станет отдельным артефактом
+                    (kind=document для goals/constraints/risks, note для ideas).
+                  </span>
+                </div>
+              )}
+              {result?._extracted && (
+                <div className={`composer-result ${result._extracted.failed ? 'fail' : 'ok'}`} style={{ marginTop: 6 }}>
+                  ✓ создано артефактов: {result._extracted.created}
+                  {result._extracted.failed > 0 && <>; ошибок: {result._extracted.failed}</>}
+                </div>
+              )}
             </div>
           )}
           {proposals.length > 0 && (

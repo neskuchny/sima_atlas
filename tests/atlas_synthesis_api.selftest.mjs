@@ -15,7 +15,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {
-  synthesizeBlock, suggestEdges, decomposeTasks, fillField, rewriteField,
+  synthesizeBlock, suggestEdges, decomposeTasks, fillField, rewriteField, extractInsights,
 } from '../scripts/atlas_synthesis_api.mjs';
 import { createBlock, patchBlockFile } from '../scripts/atlas_blocks_api.mjs';
 
@@ -134,6 +134,29 @@ try {
     check('group6b:rewriteField envelope', rw.ok && typeof rw.content === 'string' && rw.original);
   }
 
+  // ─── Group 6c: extractInsights envelope
+  {
+    let threw = false;
+    try { await extractInsights({}); } catch { threw = true; }
+    check('group6c:no text rejected', threw);
+    threw = false;
+    try { await extractInsights({ text: '' }); } catch { threw = true; }
+    check('group6c:empty text rejected', threw);
+
+    const r = await extractInsights({
+      text: 'Нам надо ускорить ingest до 100k events/sec до конца квартала. Бюджет — 0. Идея: партиционировать по client_id.',
+      kind: 'transcript',
+    });
+    check('group6c:envelope ok', r.ok && typeof r.summary === 'string');
+    check('group6c:goals array', Array.isArray(r.goals));
+    check('group6c:constraints array', Array.isArray(r.constraints));
+    check('group6c:ideas array', Array.isArray(r.ideas));
+    check('group6c:terms array', Array.isArray(r.terms));
+    check('group6c:mock flag', r.mock === true);
+    // terms are normalized to kebab/snake without spaces
+    check('group6c:terms sanitized', r.terms.every((t) => /^[a-z0-9_-]+$/.test(t)));
+  }
+
   // ─── Group 7: patchBlockFile round-trip
   {
     createBlock({ atlas_root: atlas, body: { id: 'b.synth-test', title: 'Synth Test', layer: 'logic' } });
@@ -165,4 +188,4 @@ if (failures.length) {
   failures.forEach((f) => console.error(' ✗', f));
   process.exit(1);
 }
-console.log('atlas_synthesis_api.selftest: OK (8 test groups, all assertions green)');
+console.log('atlas_synthesis_api.selftest: OK (9 test groups, all assertions green)');

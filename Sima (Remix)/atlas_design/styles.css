@@ -1912,3 +1912,34 @@ html, body {
   display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
   padding: 12px 18px; border-top: 1px solid var(--rule);
 }
+
+/* ============================================================
+   PR — Phase G insights panel (Composer)
+   ============================================================ */
+.insights-panel {
+  margin-top: 12px; padding: 14px 16px;
+  background: var(--card-2); border: 1px dashed var(--rule); border-radius: 10px;
+}
+.insights-summary {
+  font-family: 'Newsreader', serif; font-size: 14px; font-style: italic;
+  line-height: 1.5; color: var(--ink-2);
+}
+.insights-group { margin-top: 10px; }
+.insights-group-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+.insights-list {
+  list-style: none; padding: 0; margin: 0;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.insights-list li {
+  display: flex; gap: 8px; align-items: flex-start;
+  padding: 7px 10px; background: var(--card); border: 1px solid var(--rule);
+  border-radius: 6px; font-size: 12.5px; line-height: 1.4; cursor: pointer;
+  transition: 0.12s;
+}
+.insights-list li:hover { border-color: var(--ink-3); }
+.insights-list li.picked { border-color: var(--ink); background: rgba(60, 160, 100, 0.05); }
+.insights-check { font-family: 'JetBrains Mono', monospace; color: var(--ink-3); font-size: 14px; line-height: 1.2; }
+.insights-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+.chip.clickable { cursor: pointer; transition: 0.1s; }
+.chip.clickable:hover { background: var(--card); border-color: var(--ink-3); }
+.chip.clickable.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }

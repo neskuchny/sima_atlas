@@ -134,15 +134,25 @@ PDF-видения, которой сейчас вообще нет.
 Composer сейчас принимает текст, но не **извлекает** цели / ограничения / идеи
 LLM-ом — только сохраняет сырой transcript.
 
-- [ ] **G1** Endpoint `POST /api/intake/transcribe` — multipart/form-data
-      audio → whisper-API (если есть key) или ручной paste fallback.
-- [ ] **G2** Endpoint `POST /api/intake/extract` — body `{ text }` →
-      callLLM возвращает `{ goals[], constraints[], ideas[], terms[] }`.
-- [ ] **G3** Composer UI: после publish автозапустить extract → показать
-      превью «Sima нашла: 3 цели, 2 ограничения, 5 идей» → пользователь
-      подтверждает → каждый кусок становится отдельным артефактом или тегом.
-- [ ] **G4** Тег-предложения: если text упоминает «refund» / «биллинг» /
-      «auth» — авто-теги.
+- [~] **G1** `POST /api/intake/transcribe` — graceful stub.
+      Возвращает `{ok:false, error:'transcription not configured', hint:...}`
+      с подсказкой про `WHISPER_API_KEY`. Реальная интеграция (OpenAI
+      Whisper / whisper.cpp) — отдельная задача провайдера; сейчас
+      пользователь вставляет транскрипт текстом.
+- [x] **G2** `POST /api/intake/extract` body `{text, kind}` →
+      `{summary, goals[], constraints[], ideas[], risks[], terms[]}`.
+      Schema-driven callLLM. Terms нормализуются в kebab/snake.
+      Selftest 9/9 (group 6c).
+- [x] **G3** Composer post-publish — кнопка «◔ Найти смыслы» рядом с
+      синтезом блоков. Открывает `insights-panel`: summary, terms
+      (clickable chips → добавить в теги), 4 бакета (goals/constraints/
+      ideas/risks) с checkbox-списком. Кнопка «💾 Сохранить отмеченные
+      как артефакты» создаёт каждый отмеченный пункт отдельным
+      артефактом (kind=document для goals/constraints/risks, kind=note
+      для ideas).
+- [x] **G4** Tag suggestions: terms из `extract` показываются как
+      clickable chips. Клик добавляет термин в поле tags (с pill-state
+      «on» если уже добавлен).
 
 ---
 

@@ -193,6 +193,8 @@
     tasks:   async (body_)             => await postJson('/llm/decompose-tasks',  body_),
     fillField:    async (body_)        => await postJson('/llm/fill-field',    body_),
     rewriteField: async (body_)        => await postJson('/llm/rewrite-field', body_),
+    extract:      async (body_)        => await postJson('/api/intake/extract', body_),
+    transcribe:   async (body_)        => await postJson('/api/intake/transcribe', body_),
     patchBlockFile: async (block_id, file, content) => await postJson('/atlas/blocks/patch-file', { block_id, file, content }),
   };
 

@@ -321,6 +321,69 @@ export async function fillField({ block_id, field, mission_context, layer, neigh
   return { ok: true, block_id, field, content, provider: r.trace?.provider || null, model: r.trace?.model || null, mock: r.trace?.provider === 'mock' };
 }
 
+// ─── extractInsights (Phase G) ───────────────────────────────────
+// Reads a meeting transcript / document / free text and pulls out the
+// goals / constraints / ideas / domain terms hidden inside, so the
+// Composer can offer them as auto-tags or follow-up artifacts.
+
+const INSIGHTS_SCHEMA = {
+  type: 'object',
+  properties: {
+    summary: { type: 'string', description: 'one-sentence summary of the source' },
+    goals:       { type: 'array', items: { type: 'string', description: 'a desired outcome explicitly mentioned' } },
+    constraints: { type: 'array', items: { type: 'string', description: 'a limitation, deadline, or non-negotiable' } },
+    ideas:       { type: 'array', items: { type: 'string', description: 'a candidate solution or experiment' } },
+    risks:       { type: 'array', items: { type: 'string', description: 'a risk, blocker, or open question' } },
+    terms:       { type: 'array', items: { type: 'string', description: 'a domain term worth treating as a tag (snake_case or kebab-case)' } },
+  },
+  required: ['summary'],
+};
+
+export async function extractInsights({ text, kind } = {}) {
+  if (!text || typeof text !== 'string') throw new Error('extractInsights: text required');
+  const sys = [
+    'You are SIMA Atlas. Read the source carefully and extract structured insights.',
+    'Rules:',
+    '  - Only extract things the source actually mentions; do not invent.',
+    '  - Goals: outcomes the speakers want.',
+    '  - Constraints: deadlines, budget caps, non-negotiable rules, technical limits.',
+    '  - Ideas: candidate solutions / experiments / proposals.',
+    '  - Risks: blockers, open questions, things that might fail.',
+    '  - Terms: 3-12 short domain words (kebab-case or snake_case) to use as tags.',
+    '  - Each list item is ONE concise sentence (≤ 20 words).',
+    '  - Match the language of the source (Russian → Russian, English → English).',
+    'Reply ONLY structured JSON.',
+  ].join('\n');
+  const prompt = [
+    `Source kind: ${kind || 'document'}`,
+    '',
+    'Source:',
+    String(text).slice(0, 8000),
+  ].join('\n');
+  const r = await callLLM({
+    system: sys,
+    prompt,
+    schema: INSIGHTS_SCHEMA,
+    max_tokens: 1200,
+    temperature: 0.3,
+    op: 'synthesis_extract_insights',
+  });
+  const v = r.value || {};
+  const arr = (a) => Array.isArray(a) ? a.filter(Boolean).map((x) => String(x).trim()).filter(Boolean).slice(0, 12) : [];
+  return {
+    ok: true,
+    summary: String(v.summary || '').trim(),
+    goals: arr(v.goals),
+    constraints: arr(v.constraints),
+    ideas: arr(v.ideas),
+    risks: arr(v.risks),
+    terms: arr(v.terms).map((t) => t.toLowerCase().replace(/[^a-z0-9_-]+/g, '-').replace(/^-|-$/g, '')).filter((t) => t.length > 1).slice(0, 10),
+    provider: r.trace?.provider || null,
+    model: r.trace?.model || null,
+    mock: r.trace?.provider === 'mock',
+  };
+}
+
 export async function rewriteField({ block_id, field, current_content, mission_context } = {}) {
   if (!block_id || !field) throw new Error('rewriteField: block_id and field required');
   if (!FIELD_GUIDANCE[field]) throw new Error(`rewriteField: unsupported field "${field}"`);

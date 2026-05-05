@@ -716,6 +716,27 @@ const server = http.createServer((req, res) => {
           mission_context: body.mission_context ? String(body.mission_context) : undefined,
         }).then((r) => json(res, 200, r), (e) => json(res, 200, { ok: false, error: String(e.message || e) }));
       }
+
+      // Phase G — Composer intake helpers.
+      // /api/intake/extract — pull structured insights (goals/constraints/
+      //                       ideas/risks/terms) from any source text.
+      if (req.url === '/api/intake/extract') {
+        return synthApi.extractInsights({
+          text: String(body.text || ''),
+          kind: body.kind ? String(body.kind) : undefined,
+        }).then((r) => json(res, 200, r), (e) => json(res, 200, { ok: false, error: String(e.message || e) }));
+      }
+      // /api/intake/transcribe — graceful stub. The actual whisper call
+      // requires a separate provider integration (OpenAI / local whisper.cpp)
+      // — wired here as a deliberate no-op with a clear hint so the UI
+      // can switch to "paste transcript text" mode.
+      if (req.url === '/api/intake/transcribe') {
+        return json(res, 200, {
+          ok: false,
+          error: 'transcription not configured',
+          hint: 'Установите WHISPER_API_KEY и реализуйте provider в scripts/atlas_synthesis_api.mjs::transcribe(). Пока что вставьте транскрипт в поле «Текст».',
+        });
+      }
       // /atlas/blocks/patch-file — write a block's mission.md/kpi.md/etc.
       if (req.url === '/atlas/blocks/patch-file') {
         const id = String(body.block_id || body.id || '');
