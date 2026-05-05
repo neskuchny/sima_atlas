@@ -1038,15 +1038,43 @@ function TemplatesPanel({ onClose, onApplied }) {
   const [prefix, setPrefix] = useStateV('');
   const [busy, setBusy] = useStateV(false);
   const [result, setResult] = useStateV(null);
+  // K3 — snapshot current graph as new template
+  const [snapMode, setSnapMode] = useStateV(false);
+  const [snapId, setSnapId] = useStateV('');
+  const [snapTitle, setSnapTitle] = useStateV('');
+  const [snapDesc, setSnapDesc] = useStateV('');
+  const [snapBusy, setSnapBusy] = useStateV(false);
+  const [snapResult, setSnapResult] = useStateV(null);
+
+  const refresh = async () => {
+    const r = await window.SIMA_API.templates.list();
+    if (r?.ok) setItems(r.templates || []);
+  };
+  const doSnapshot = async () => {
+    if (!snapId.trim()) { setSnapResult({ ok: false, error: 'укажите id' }); return; }
+    setSnapBusy(true); setSnapResult(null);
+    const r = await window.SIMA_API.templates.snapshot({
+      template_id: snapId.trim(),
+      title: snapTitle.trim() || snapId.trim(),
+      description: snapDesc.trim() || undefined,
+      overwrite: snapResult?.error?.includes('exists') ? true : undefined,
+    });
+    setSnapBusy(false);
+    setSnapResult(r);
+    if (r?.ok) {
+      await refresh();
+      setSnapMode(false); setSnapId(''); setSnapTitle(''); setSnapDesc('');
+    }
+  };
 
   useEffectV(() => {
     let alive = true;
     (async () => {
-      const r = await window.SIMA_API.templates.list();
-      if (alive && r?.ok) setItems(r.templates || []);
+      await refresh();
       if (alive) setLoading(false);
     })();
     return () => { alive = false; };
+    // eslint-disable-next-line
   }, []);
 
   const apply = async () => {
@@ -1065,11 +1093,57 @@ function TemplatesPanel({ onClose, onApplied }) {
           <div>
             <div className="mono" style={{ fontSize: 11, color: 'var(--ink-4)', letterSpacing: '0.08em' }}>ШАБЛОНЫ СХЕМ</div>
             <h3 style={{ margin: '4px 0 0', fontFamily: 'Newsreader, serif', fontStyle: 'italic', fontSize: 19 }}>
-              Готовые скелеты — продукт, книга, идея, маркетинг
+              Готовые скелеты — или сохрани свой граф как шаблон
             </h3>
           </div>
-          <button className="pill" onClick={onClose}>✕</button>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <button className="pill" onClick={() => setSnapMode((s) => !s)} title="Сохранить весь текущий граф как новый шаблон">
+              {snapMode ? '✕ Отмена' : '＋ Снимок графа'}
+            </button>
+            <button className="pill" onClick={onClose}>✕</button>
+          </div>
         </div>
+        {snapMode && (
+          <div className="snap-form">
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <input
+                className="composer-input"
+                placeholder="id шаблона (a-z0-9-)"
+                value={snapId}
+                onChange={(e) => setSnapId(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+                style={{ maxWidth: 220 }}
+              />
+              <input
+                className="composer-input"
+                placeholder="Название (видно в галерее шаблонов)"
+                value={snapTitle}
+                onChange={(e) => setSnapTitle(e.target.value)}
+                style={{ flex: 1, minWidth: 220 }}
+              />
+            </div>
+            <input
+              className="composer-input"
+              placeholder="Краткое описание — что это за шаблон, для чего"
+              value={snapDesc}
+              onChange={(e) => setSnapDesc(e.target.value)}
+            />
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+              <button className="pill primary" onClick={doSnapshot} disabled={snapBusy || !snapId.trim()}>
+                {snapBusy ? 'снимаю…' : '💾 Сохранить как шаблон'}
+              </button>
+              <span className="meta" style={{ fontSize: 11.5 }}>
+                Считает все живые блоки текущего графа + их mission/kpi/acceptance + связи.
+              </span>
+              {snapResult && (
+                <span className={`composer-result ${snapResult.ok ? 'ok' : 'fail'}`} style={{ padding: '4px 10px' }}>
+                  {snapResult.ok
+                    ? <>✓ создано: {snapResult.blocks_count} блоков, {snapResult.edges_count} связей</>
+                    : <>✗ {snapResult.error}{snapResult.error?.includes('exists') ? ' (нажмите ещё раз чтобы перезаписать)' : ''}</>}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
         <div className="templates-body">
           {loading && <div className="meta" style={{ padding: 14 }}>Загрузка…</div>}
           {!loading && !items.length && <div className="meta" style={{ padding: 14 }}>

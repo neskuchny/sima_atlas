@@ -174,9 +174,10 @@
 
   // ─── Phase F-5 — schema templates (book/idea/marketing/product) ──
   const templates = {
-    list:  async ()         => await getJson('/atlas/schema-templates/list'),
-    get:   async (id)       => await getJson('/atlas/schema-templates/get?id=' + encodeURIComponent(id)),
-    apply: async (template_id, prefix) => await postJson('/atlas/schema-templates/apply', { template_id, prefix }),
+    list:     async ()         => await getJson('/atlas/schema-templates/list'),
+    get:      async (id)       => await getJson('/atlas/schema-templates/get?id=' + encodeURIComponent(id)),
+    apply:    async (template_id, prefix) => await postJson('/atlas/schema-templates/apply', { template_id, prefix }),
+    snapshot: async (body_)    => await postJson('/atlas/schema-templates/snapshot', withClient(body_)),
   };
 
   // ─── Phase F — subsystems (drill-into-block persistence) ───────

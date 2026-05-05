@@ -256,8 +256,15 @@ LLM-ом — только сохраняет сырой transcript.
       (graph_overview), Acceptance «Почему упала?» (block_acceptance),
       Connections «что упускаю?» (block_connections), TZ «Sima ужмёт ТЗ»
       (tz). Возвращаемое поле `kind` echo'ится для UI-валидации.
-- [ ] **K3** Save layer as artifact (не только block): в drill-mode
-      кнопка «Сохранить эту подсхему как артефакт».
+- [x] **K3** «＋ Снимок графа» в TemplatesPanel: form с id /
+      title / description → POST `/atlas/schema-templates/snapshot`
+      реверс-инжинирит текущий `atlas/[clients/<c>/]graph.json` +
+      все per-block mission/kpi/acceptance в template-shape.
+      Авто-вычисляется common-prefix для chistых suffix-ов
+      (например `b.lensa-auth + b.lensa-ingest` → suffix `auth/ingest`).
+      Edges приводятся к suffix-ссылкам. Dup-защита (`overwrite=true`
+      для перезаписи). Multi-tenant: `?client=` сохраняет per-client.
+      F4 (subsystem-as-artifact) остаётся как complementary flow.
 - [x] **K4** Composer теперь имеет intent-picker: Продукт / Книга /
       Идея / Маркетинг / Своё. Передаётся в `synthesizeBlock` как
       `intent`, оборачивается в system-prompt через `INTENT_HINTS`

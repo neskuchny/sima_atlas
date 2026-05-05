@@ -617,6 +617,84 @@ const server = http.createServer((req, res) => {
         }
       }
 
+      // /atlas/schema-templates/snapshot — capture the CURRENT graph
+      // (or current ?client= namespace) as a reusable template.
+      // Body: {template_id, title?, description?, client?}
+      // Reads atlas/[clients/<c>/]graph.json + per-block mission/kpi/
+      // acceptance, derives id_suffix from block.id, drops common prefix
+      // when blocks share one (b.lensa-auth + b.lensa-ingest → suffix=auth/ingest).
+      if (req.url === '/atlas/schema-templates/snapshot') {
+        const tid = String(body.template_id || '').toLowerCase().replace(/[^a-z0-9._-]/g, '-');
+        if (!/^[a-z0-9._-]{2,48}$/.test(tid)) return json(res, 200, { ok: false, error: 'template_id required (lowercase, ≤48 chars)' });
+        try {
+          const clientId = body.client && /^[a-zA-Z0-9._-]+$/.test(body.client) ? String(body.client) : null;
+          const root = clientId ? path.join(ATLAS, 'clients', clientId) : ATLAS;
+          const graphPath = path.join(root, 'graph.json');
+          if (!fs.existsSync(graphPath)) return json(res, 200, { ok: false, error: `graph.json not found in ${clientId ? 'client/' + clientId : 'main'}` });
+          const graph = JSON.parse(fs.readFileSync(graphPath, 'utf8'));
+          const blocksDir = path.join(root, 'blocks');
+          const liveBlocks = (graph.blocks || []).filter((b) => b.status !== 'archived');
+          if (!liveBlocks.length) return json(res, 200, { ok: false, error: 'no live blocks to snapshot' });
+          // Determine common prefix to strip from b.* ids → cleaner suffixes
+          const ids = liveBlocks.map((b) => b.id.replace(/^b\./, ''));
+          let common = ids[0] || '';
+          for (const id of ids) {
+            while (common && !id.startsWith(common + '-')) common = common.slice(0, -1);
+            if (!common) break;
+          }
+          const stripPrefix = common ? `${common}-` : '';
+          const suffixOf = (id) => id.replace(/^b\./, '').replace(stripPrefix ? new RegExp('^' + stripPrefix.replace(/[.-]/g, '\\$&')) : /^$/, '');
+          // Read per-block mission/kpi/acceptance from disk
+          const blocks = liveBlocks.map((b) => {
+            const dir = path.join(blocksDir, b.id);
+            const safe = (f) => {
+              try { return fs.existsSync(path.join(dir, f)) ? fs.readFileSync(path.join(dir, f), 'utf8').replace(/^#[^\n]*\n+/, '').trim() : ''; } catch { return ''; }
+            };
+            const kpiText = safe('kpi.md');
+            const accText = safe('acceptance.md');
+            // Parse kpi/acceptance lines: strip leading bullets / checkboxes
+            const lines = (s) => s.split(/\n/).map((l) => l.replace(/^\s*[-*]\s*\[[ xX]\]\s*\**[A-Z]?\d*\.?\**\s*/, '').replace(/^\s*[-*]\s*/, '').trim()).filter(Boolean);
+            return {
+              id_suffix: suffixOf(b.id) || b.id.replace(/^b\./, ''),
+              title: b.title || b.id,
+              layer: b.layer || 'logic',
+              mission: safe('mission.md'),
+              kpi: lines(kpiText).slice(0, 8),
+              acceptance: lines(accText).slice(0, 8),
+            };
+          });
+          // Build edge list using suffixes
+          const idToSuffix = Object.fromEntries(liveBlocks.map((b) => [b.id, suffixOf(b.id) || b.id.replace(/^b\./, '')]));
+          const edges = [];
+          for (const b of liveBlocks) {
+            for (const dep of (b.depends_on || [])) {
+              const m = String(dep).match(/^([^:]+)(?::(.+))?$/);
+              if (!m) continue;
+              const target = idToSuffix[m[1]];
+              if (!target) continue;
+              edges.push({ from: idToSuffix[b.id], to: target, kind: 'contract', capability: m[2] || undefined });
+            }
+          }
+          const template = {
+            id: tid,
+            title: String(body.title || tid),
+            description: String(body.description || `Snapshot graph from ${clientId || 'main'} taken at ${new Date().toISOString().slice(0, 10)}`),
+            default_layer: 'logic',
+            blocks,
+            edges,
+          };
+          const tpath = path.join(ATLAS, 'schema_templates', `${tid}.json`);
+          fs.mkdirSync(path.dirname(tpath), { recursive: true });
+          if (fs.existsSync(tpath) && !body.overwrite) return json(res, 200, { ok: false, error: 'template_id exists; pass overwrite=true to replace' });
+          const tmp = tpath + '.tmp';
+          fs.writeFileSync(tmp, JSON.stringify(template, null, 2) + '\n', 'utf8');
+          fs.renameSync(tmp, tpath);
+          return json(res, 200, { ok: true, template_id: tid, file: path.relative(ROOT, tpath), blocks_count: blocks.length, edges_count: edges.length });
+        } catch (e) {
+          return json(res, 200, { ok: false, error: String(e.message || e) });
+        }
+      }
+
       // /atlas/schema-templates/apply — instantiate all blocks + edges
       // from a template at a given prefix. Idempotent: skips blocks that
       // already exist by id, but logs them in the response.
