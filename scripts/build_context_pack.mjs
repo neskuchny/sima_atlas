@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import path from 'node:path';
+import { filterAlive, listFiles } from './atlas_files_api.mjs';
 
 const [,, blockId] = process.argv;
 if (!blockId) {
@@ -14,6 +15,15 @@ const graph = JSON.parse(fs.readFileSync(path.join(atlas, 'graph.json'), 'utf8')
 
 function read(p){ return fs.existsSync(p) ? fs.readFileSync(p,'utf8') : ''; }
 function listFrom(md){ return md.split(/\r?\n/).map(s=>s.trim()).filter(s=>s.startsWith('- ')).map(s=>s.slice(2)); }
+
+// Phase N-2: drop dead/archived files from the pack so the agent never
+// reads stale code. files.md may list `path [status]`; we strip the
+// suffix and also filter via the global registry.
+function aliveFilesFromMd(md) {
+  const items = listFrom(md);
+  const paths = items.map((it) => String(it).split('[')[0].trim()).filter(Boolean);
+  return filterAlive(paths);
+}
 
 const block = (graph.blocks||[]).find(b => b.id===blockId);
 if (!block) {
@@ -41,6 +51,11 @@ const pack = {
     tasks: read(path.join(dir,'tasks.md')),
     patterns: read(path.join(dir,'patterns.md')),
     files: read(path.join(dir,'files.md')),
+    // Phase N-2: explicit alive list — the agent should treat this as
+    // the only code it may read/edit; ignore the bare files.md.
+    files_alive: aliveFilesFromMd(read(path.join(dir,'files.md'))),
+    files_dead: listFiles({ block_id: blockId, status: 'dead' }).map((e) => ({ path: e.path, reason: e.reason })),
+    files_archived: listFiles({ block_id: blockId, status: 'archived' }).map((e) => ({ path: e.path, reason: e.reason })),
   },
   dependencies: depends.map(id => ({
     id,

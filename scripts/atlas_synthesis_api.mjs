@@ -398,6 +398,118 @@ export async function extractInsights({ text, kind } = {}) {
   };
 }
 
+// ─── validateBlock (Phase N-1) ───────────────────────────────────
+// «Работает, но не то». Sync-check проверяет наличие файлов; этот
+// валидатор спрашивает у LLM: реально ли реализация блока соответствует
+// его mission / acceptance / KPI / правилам проекта / tech_stack /
+// условиям соседних блоков. Возвращает structured verdict.
+//
+// Returns: {
+//   verdict: 'aligned' | 'drift' | 'broken',
+//   summary: string,
+//   violations: [{ kind, severity: 'low'|'med'|'high', evidence, fix? }],
+//   matches:    [string],   // что хорошо
+// }
+
+const VALIDATE_SCHEMA = {
+  type: 'object',
+  properties: {
+    verdict:    { type: 'string', enum: ['aligned', 'drift', 'broken'] },
+    summary:    { type: 'string', description: 'one-sentence verdict explanation' },
+    violations: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          kind:     { type: 'string', enum: ['mission', 'kpi', 'acceptance', 'rules', 'tech_stack', 'depends_on', 'condition'] },
+          severity: { type: 'string', enum: ['low', 'med', 'high'] },
+          evidence: { type: 'string' },
+          fix:      { type: 'string' },
+        },
+        required: ['kind', 'severity', 'evidence'],
+      },
+    },
+    matches: { type: 'array', items: { type: 'string' } },
+  },
+  required: ['verdict', 'summary'],
+};
+
+export async function validateBlock({
+  block_id,
+  mission, kpi, acceptance, tasks, depends_on_md, provides_md,
+  decisions, checks_tail, files,
+  project_md, rules_md, tech_stack_md,
+  neighbors,
+} = {}) {
+  if (!block_id) throw new Error('validateBlock: block_id required');
+  const sys = [
+    'You are SIMA Atlas — a senior architect doing block consistency review.',
+    'Goal: decide whether the block\'s ACTUAL state (what was decided + tested + which files exist) ',
+    'aligns with what was PROMISED (mission, KPI, acceptance, conditions / rules / tech_stack).',
+    '',
+    'Verdict rubric:',
+    '  aligned — implementation matches mission and respects all constraints',
+    '  drift   — partial match; some KPI/acceptance unverified or one rule violated',
+    '  broken  — fundamentally fails the mission or violates a hard rule (e.g. forbidden lib)',
+    '',
+    'For each violation classify the kind:',
+    '  mission     — implementation diverges from why this block exists',
+    '  kpi         — a measurable target not met or not measured',
+    '  acceptance  — a specific criterion not satisfied',
+    '  rules       — violates rules.md (style, forbidden patterns)',
+    '  tech_stack  — uses a lib/framework not in tech_stack.md',
+    '  depends_on  — broken contract with neighbor (capability missing)',
+    '  condition   — block-specific condition (visual, functional) unmet',
+    '',
+    'Be strict but fair. If evidence is missing, flag as drift+kpi (not measured).',
+    'Reply ONLY with structured JSON matching the schema. Match the input language.',
+  ].join('\n');
+  const prompt = [
+    `Block: ${block_id}`,
+    '',
+    '== PROMISED ==',
+    `mission.md:\n${(mission || '(empty)').slice(0, 2000)}`,
+    `\nkpi.md:\n${(kpi || '(empty)').slice(0, 800)}`,
+    `\nacceptance.md:\n${(acceptance || '(empty)').slice(0, 1500)}`,
+    `\ntasks.md (что собирались сделать):\n${(tasks || '(empty)').slice(0, 1000)}`,
+    `\ndepends_on.md:\n${(depends_on_md || '(empty)').slice(0, 500)}`,
+    `\nprovides.md:\n${(provides_md || '(empty)').slice(0, 500)}`,
+    '',
+    '== CONSTRAINTS ==',
+    `project.md (главная цель):\n${(project_md || '(empty)').slice(0, 1500)}`,
+    `\nrules.md (запреты, стиль):\n${(rules_md || '(empty)').slice(0, 1500)}`,
+    `\ntech_stack.md:\n${(tech_stack_md || '(empty)').slice(0, 800)}`,
+    '',
+    '== ACTUAL ==',
+    `decisions.log (последние записи):\n${(decisions || '(empty)').slice(0, 2000)}`,
+    `\nchecks.log (последние проверки):\n${(checks_tail || '(empty)').slice(0, 1500)}`,
+    `\nfiles.md (что относится к блоку):\n${(files || '(empty)').slice(0, 800)}`,
+    '',
+    neighbors?.length ? `== NEIGHBORS ==\n${neighbors.slice(0, 6).map((n) => `- ${n.id} (${n.layer}) provides:\n  ${(n.provides_md || '').slice(0, 200)}`).join('\n')}\n` : '',
+    'Now decide: does ACTUAL match PROMISED under CONSTRAINTS?',
+  ].join('\n');
+  const r = await callLLM({
+    system: sys,
+    prompt,
+    schema: VALIDATE_SCHEMA,
+    max_tokens: 1200,
+    temperature: 0.2,
+    op: 'synthesis_validate_block',
+  });
+  const v = r.value || {};
+  return {
+    ok: true,
+    block_id,
+    verdict: ['aligned', 'drift', 'broken'].includes(v.verdict) ? v.verdict : 'drift',
+    summary: String(v.summary || '').trim(),
+    violations: Array.isArray(v.violations) ? v.violations.filter((x) => x && x.kind && x.evidence).slice(0, 10) : [],
+    matches: Array.isArray(v.matches) ? v.matches.filter(Boolean).map(String).slice(0, 8) : [],
+    provider: r.trace?.provider || null,
+    model: r.trace?.model || null,
+    mock: r.trace?.provider === 'mock',
+  };
+}
+
 export async function rewriteField({ block_id, field, current_content, mission_context } = {}) {
   if (!block_id || !field) throw new Error('rewriteField: block_id and field required');
   if (!FIELD_GUIDANCE[field]) throw new Error(`rewriteField: unsupported field "${field}"`);

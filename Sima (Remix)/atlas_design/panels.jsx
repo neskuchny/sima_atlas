@@ -96,6 +96,8 @@ function DetailPanel({ data, moduleId, onClose, desyncResolved, onSendToAgent, o
     { id: 'tasks', label: 'Задачи', count: tasks.length },
     { id: 'runs', label: 'Запуски' },
     { id: 'acceptance', label: 'Приёмка' },
+    { id: 'validation', label: 'Соответствие' },
+    { id: 'files', label: 'Файлы' },
     { id: 'subs', label: 'Подмодули', count: subs.length },
     { id: 'memory', label: 'Память', count: lessons.length },
     { id: 'connections', label: 'Связи' },
@@ -138,6 +140,8 @@ function DetailPanel({ data, moduleId, onClose, desyncResolved, onSendToAgent, o
         {tab === 'tasks' && <TasksList tasks={tasks} desyncResolved={desyncResolved} moduleId={moduleId} onSendToAgent={onSendToAgent} missionText={(MODULE_DESC[moduleId] || {}).why || (MODULE_DESC[moduleId] || {}).logic || ''} layer={m.layer} />}
         {tab === 'runs' && <RunStatusSection moduleId={moduleId} />}
         {tab === 'acceptance' && <AcceptanceSection moduleId={moduleId} moduleObj={m} onClaudeAdvice={onClaudeAdvice} />}
+        {tab === 'validation' && <ValidationSection moduleId={moduleId} moduleObj={m} />}
+        {tab === 'files' && <FilesSection moduleId={moduleId} />}
         {tab === 'subs' && <SubsList subs={subs} desyncResolved={desyncResolved} moduleId={moduleId} />}
         {tab === 'memory' && <Memory lessons={lessons} history={data.history.filter(h => h.module === moduleId)} moduleId={moduleId} />}
         {tab === 'connections' && <ConnectionsTab inEdges={inEdges} outEdges={outEdges} moduleById={moduleById} moduleId={moduleId} allModules={data.modules} allEdges={data.edges} onAddEdge={onAddEdge} onClaudeAdvice={onClaudeAdvice} />}
@@ -1098,6 +1102,194 @@ function classifyContent(file, content) {
   if (!body || isPlaceholder) return 'empty';
   if (body.length < 80) return 'weak';
   return 'filled';
+}
+
+/* ====================== VALIDATION (Phase N-1) ======================
+   LLM-судья: совпадает ли реализация блока с миссией / KPI / acceptance /
+   условиями (rules.md, tech_stack.md). Verdict: aligned / drift / broken.
+   Каждое нарушение типизировано (mission/kpi/rules/tech_stack/...) с
+   severity и evidence. UI: «Проверить соответствие» → результат с
+   разбивкой violations + matches.
+*/
+function ValidationSection({ moduleId, moduleObj }) {
+  const [latest, setLatest] = useState2(null);
+  const [busy, setBusy] = useState2(false);
+  const [error, setError] = useState2(null);
+
+  const loadLatest = async () => {
+    if (!moduleId || !moduleId.startsWith('b.')) { setLatest(null); return; }
+    const r = await window.SIMA_API?.synthesis?.validationLatest(moduleId);
+    if (r?.ok) setLatest(r);
+  };
+  useEffect2(() => { loadLatest(); /* eslint-disable-next-line */ }, [moduleId]);
+
+  const runCheck = async () => {
+    setBusy(true); setError(null);
+    const r = await window.SIMA_API.synthesis.validateBlock(moduleId);
+    setBusy(false);
+    if (!r?.ok) { setError(r?.error || 'failed'); return; }
+    setLatest(r);
+  };
+
+  if (!moduleId || !moduleId.startsWith('b.')) {
+    return <p style={{ color: 'var(--ink-3)' }}>Доступно только для b.* блоков atlas.</p>;
+  }
+
+  const verdictClass = latest?.verdict === 'aligned' ? 'ok' : latest?.verdict === 'broken' ? 'bad' : latest?.verdict === 'drift' ? 'warn' : '';
+  const verdictLabel = { aligned: '✓ соответствует', drift: '⚠ дрейф', broken: '✗ сломано' }[latest?.verdict] || latest?.verdict;
+
+  return (
+    <>
+      <h3>LLM-валидатор соответствия</h3>
+      <div className="meta" style={{ fontSize: 11.5, marginBottom: 10 }}>
+        Sima сравнивает <strong>миссию / KPI / acceptance</strong> блока с тем, что <strong>реально сделано</strong> (decisions / checks / files), и проверяет соблюдение <strong>rules.md</strong> и <strong>tech_stack.md</strong>.
+      </div>
+      <div className="send-task" style={{ marginBottom: 12 }}>
+        <span className="lab">Sima-судья →</span>
+        <button onClick={runCheck} disabled={busy}>{busy ? 'проверяю…' : '✦ Проверить соответствие'}</button>
+        {latest?.checked_at && (
+          <span className="meta" style={{ fontSize: 11 }}>последняя: {short(latest.checked_at)}</span>
+        )}
+      </div>
+      {error && <div className="lesson bad" style={{ marginBottom: 10 }}>{error}</div>}
+      {!latest && !busy && <p style={{ color: 'var(--ink-3)' }}>Ещё не проверялось — нажмите кнопку выше.</p>}
+      {latest?.mock && (
+        <div className="composer-result fail" style={{ marginBottom: 8 }}>Demo-режим — задайте ANTHROPIC_API_KEY для реальной проверки.</div>
+      )}
+      {latest && (
+        <div className={`acc-summary acc-${verdictClass}`}>
+          <div className="acc-verdict">{verdictLabel}</div>
+          {latest.summary && <div style={{ fontSize: 12.5, marginTop: 4 }}>{latest.summary}</div>}
+          <div className="acc-counts mono" style={{ marginTop: 8 }}>
+            {latest.violations?.length > 0 && <span className="acc-pill bad">violations {latest.violations.length}</span>}
+            {latest.matches?.length > 0 && <span className="acc-pill ok">matches {latest.matches.length}</span>}
+          </div>
+        </div>
+      )}
+      {latest?.violations?.length > 0 && (
+        <>
+          <h3>Нарушения</h3>
+          <div className="acc-list">
+            {latest.violations.map((v, i) => (
+              <div key={i} className={`acc-row v-${v.severity === 'high' ? 'fail' : v.severity === 'med' ? 'inconclusive' : 'skipped'}`}>
+                <span className="acc-id mono">{v.kind}</span>
+                <div style={{ flex: 1 }}>
+                  <div className="acc-text">{v.evidence}</div>
+                  {v.fix && <div className="meta" style={{ fontSize: 11, marginTop: 3 }}>предлагаемый фикс: {v.fix}</div>}
+                </div>
+                <span className={`val-sev sev-${v.severity || 'low'}`}>{v.severity || 'low'}</span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+      {latest?.matches?.length > 0 && (
+        <>
+          <h3>Что хорошо</h3>
+          <ul className="val-matches">
+            {latest.matches.map((m, i) => <li key={i}>✓ {m}</li>)}
+          </ul>
+        </>
+      )}
+    </>
+  );
+}
+
+/* ====================== FILES (Phase N-2) ======================
+   atlas/files_registry.json view per-block. Mark alive/dead/archived.
+   Dead/archived files are excluded from build_context_pack so the
+   agent never reads stale code.
+*/
+function FilesSection({ moduleId }) {
+  const [files, setFiles] = useState2([]);
+  const [loading, setLoading] = useState2(true);
+  const [busy, setBusy] = useState2({}); // by path
+  const [newPath, setNewPath] = useState2('');
+
+  const load = async () => {
+    if (!moduleId || !moduleId.startsWith('b.')) { setFiles([]); setLoading(false); return; }
+    setLoading(true);
+    const r = await window.SIMA_API?.meta?.filesList(moduleId);
+    setFiles(r?.ok ? r.files : []);
+    setLoading(false);
+  };
+  useEffect2(() => { load(); /* eslint-disable-next-line */ }, [moduleId]);
+
+  const importFromBlock = async () => {
+    setBusy((b) => ({ ...b, _import: true }));
+    await window.SIMA_API?.meta?.filesSyncFromBlock(moduleId);
+    setBusy((b) => { const c = { ...b }; delete c._import; return c; });
+    await load();
+  };
+
+  const setStatus = async (p, status, reason) => {
+    setBusy((b) => ({ ...b, [p]: status }));
+    const r = await window.SIMA_API?.meta?.filesMark(p, status, moduleId, reason || `marked ${status} from UI`);
+    setBusy((b) => { const c = { ...b }; delete c[p]; return c; });
+    if (r?.ok) await load();
+  };
+
+  const addFile = async () => {
+    const p = newPath.trim();
+    if (!p) return;
+    await setStatus(p, 'alive', 'added from UI');
+    setNewPath('');
+  };
+
+  if (!moduleId || !moduleId.startsWith('b.')) {
+    return <p style={{ color: 'var(--ink-3)' }}>Файловый реестр доступен только для b.* блоков atlas.</p>;
+  }
+
+  const counts = {
+    alive: files.filter((f) => f.status === 'alive').length,
+    dead: files.filter((f) => f.status === 'dead').length,
+    archived: files.filter((f) => f.status === 'archived').length,
+  };
+
+  return (
+    <>
+      <h3>Файлы блока (alive / dead / archived)</h3>
+      <div className="meta" style={{ fontSize: 11.5, marginBottom: 10 }}>
+        <strong>dead</strong> и <strong>archived</strong> файлы исключаются из context-pack, который читают агенты — так они никогда не натыкаются на старый код.
+      </div>
+      <div className="acc-counts mono" style={{ marginBottom: 10 }}>
+        <span className="acc-pill ok">alive {counts.alive}</span>
+        <span className="acc-pill bad">dead {counts.dead}</span>
+        <span className="acc-pill skip">archived {counts.archived}</span>
+      </div>
+      <div className="send-task" style={{ marginBottom: 10 }}>
+        <button onClick={importFromBlock} disabled={!!busy._import}>{busy._import ? 'импорт…' : '↻ импорт из files.md блока'}</button>
+        <input
+          className="composer-input"
+          placeholder="src/path/file.ts — добавить новый"
+          value={newPath}
+          onChange={(e) => setNewPath(e.target.value)}
+          style={{ flex: 1, minWidth: 180 }}
+        />
+        <button onClick={addFile} disabled={!newPath.trim()}>＋ alive</button>
+      </div>
+      {loading && <p style={{ color: 'var(--ink-3)' }}>Загрузка…</p>}
+      {!loading && !files.length && (
+        <p style={{ color: 'var(--ink-3)' }}>Нет файлов в реестре. Импортируйте из files.md блока или добавьте вручную.</p>
+      )}
+      <div className="files-list">
+        {files.map((f) => (
+          <div key={f.path} className={`files-row file-${f.status}`}>
+            <span className="files-status">{f.status === 'alive' ? '✓' : f.status === 'dead' ? '✗' : '⊘'}</span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="mono files-path">{f.path}</div>
+              {f.reason && <div className="meta" style={{ fontSize: 10.5, marginTop: 2 }}>{f.reason}</div>}
+            </div>
+            <div className="files-actions">
+              {f.status !== 'alive'    && <button onClick={() => setStatus(f.path, 'alive')} disabled={busy[f.path]}>alive</button>}
+              {f.status !== 'dead'     && <button onClick={() => setStatus(f.path, 'dead', window.prompt('Причина (опционально):') || 'replaced')} disabled={busy[f.path]}>dead</button>}
+              {f.status !== 'archived' && <button onClick={() => setStatus(f.path, 'archived')} disabled={busy[f.path]}>archived</button>}
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
+  );
 }
 
 function ContractSection({ moduleId, layer }) {

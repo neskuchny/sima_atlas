@@ -15,7 +15,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {
-  synthesizeBlock, suggestEdges, decomposeTasks, fillField, rewriteField, extractInsights,
+  synthesizeBlock, suggestEdges, decomposeTasks, fillField, rewriteField, extractInsights, validateBlock,
 } from '../scripts/atlas_synthesis_api.mjs';
 import { createBlock, patchBlockFile } from '../scripts/atlas_blocks_api.mjs';
 
@@ -157,6 +157,33 @@ try {
     check('group6c:terms sanitized', r.terms.every((t) => /^[a-z0-9_-]+$/.test(t)));
   }
 
+  // ─── Group 6d: validateBlock envelope (Phase N-1)
+  {
+    let threw = false;
+    try { await validateBlock({}); } catch { threw = true; }
+    check('group6d:no block_id rejected', threw);
+
+    const r = await validateBlock({
+      block_id: 'b.test',
+      mission: 'Authenticate users with OAuth and return JWT.',
+      kpi: '- < 50ms p95\n- 0 CVE high',
+      acceptance: '- [ ] **A1.** /login returns JWT\n- [ ] **A2.** RBAC enforced',
+      tasks: 'T-1: implement /login\nT-2: add RBAC',
+      decisions: '2026-05-05\tdecision\tswitched to passport.js',
+      checks_tail: '2026-05-05\tunit/login\tpass',
+      files: '- src/auth/login.ts',
+      project_md: 'Multi-tenant analytics platform',
+      rules_md: '- no runtime validators\n- TypeScript strict',
+      tech_stack_md: '- Node 22\n- NestJS',
+      neighbors: [{ id: 'b.users', layer: 'data', provides_md: 'user_record' }],
+    });
+    check('group6d:envelope ok', r.ok && typeof r.summary === 'string');
+    check('group6d:verdict valid enum', ['aligned', 'drift', 'broken'].includes(r.verdict));
+    check('group6d:violations array', Array.isArray(r.violations));
+    check('group6d:matches array', Array.isArray(r.matches));
+    check('group6d:mock flag', r.mock === true);
+  }
+
   // ─── Group 7: patchBlockFile round-trip
   {
     createBlock({ atlas_root: atlas, body: { id: 'b.synth-test', title: 'Synth Test', layer: 'logic' } });
@@ -188,4 +215,4 @@ if (failures.length) {
   failures.forEach((f) => console.error(' ✗', f));
   process.exit(1);
 }
-console.log('atlas_synthesis_api.selftest: OK (9 test groups, all assertions green)');
+console.log('atlas_synthesis_api.selftest: OK (10 test groups, all assertions green)');

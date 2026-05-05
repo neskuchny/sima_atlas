@@ -202,6 +202,8 @@
     rewriteField: async (body_)        => await postJson('/llm/rewrite-field', body_),
     extract:      async (body_)        => await postJson('/api/intake/extract', body_),
     transcribe:   async (body_)        => await postJson('/api/intake/transcribe', body_),
+    validateBlock:    async (block_id) => await postJson('/llm/validate-block', { block_id }),
+    validationLatest: async (block_id) => await getJson('/llm/validate-block/get?block_id=' + encodeURIComponent(block_id)),
     patchBlockFile: async (block_id, file, content) => await postJson('/atlas/blocks/patch-file', { block_id, file, content }),
   };
 
@@ -224,6 +226,14 @@
     proposalsList: async ()                => await getJson('/atlas/proposals/list'),
     activityLogTail:   async (limit = 100) => await getJson('/atlas/activity-log/tail?limit=' + limit),
     activityLogAppend: async (entry)       => await postJson('/atlas/activity-log/append', entry),
+    filesList:    async (block_id, status) => {
+      const qs = new URLSearchParams();
+      if (block_id) qs.set('block_id', block_id);
+      if (status)   qs.set('status', status);
+      return await getJson('/atlas/files/list' + (qs.toString() ? '?' + qs.toString() : ''));
+    },
+    filesMark:    async (path_, status, block_id, reason) => await postJson('/atlas/files/mark', { path: path_, status, block_id, reason }),
+    filesSyncFromBlock: async (block_id) => await postJson('/atlas/files/sync-from-block', { block_id }),
     proposalAccept:async (proposal_id)     => await postJson('/proposals/accept', { proposal_id }),
     proposalReject:async (proposal_id, reason) => await postJson('/proposals/reject', { proposal_id, reason }),
     cursorHooksStatus: async ()            => await getJson('/atlas/cursor-hooks/status'),

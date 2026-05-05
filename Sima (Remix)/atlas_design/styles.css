@@ -2031,3 +2031,45 @@ html, body {
   padding: 10px 12px; margin: 0; max-height: 280px; overflow: auto;
   white-space: pre-wrap; word-wrap: break-word;
 }
+
+/* N1 — LLM validator section */
+.val-sev {
+  font-family: 'JetBrains Mono', monospace; font-size: 10.5px;
+  padding: 2px 8px; border-radius: 999px; flex-shrink: 0;
+}
+.val-sev.sev-high { background: rgba(190, 60, 60, 0.16);  color: var(--st-fail); }
+.val-sev.sev-med  { background: rgba(220, 150, 60, 0.18); color: #7a4a00; }
+.val-sev.sev-low  { background: var(--card-2); color: var(--ink-3); }
+.val-matches {
+  list-style: none; padding: 0; margin: 0;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.val-matches li {
+  font-size: 12.5px; padding: 6px 10px;
+  background: rgba(60, 160, 100, 0.06); border-left: 2px solid var(--st-done);
+  border-radius: 4px; color: var(--ink-2);
+}
+
+/* N2 — Files registry tab */
+.files-list { display: flex; flex-direction: column; gap: 6px; }
+.files-row {
+  display: flex; gap: 10px; align-items: center;
+  padding: 8px 12px; background: var(--card); border: 1px solid var(--rule);
+  border-radius: 8px; font-size: 12px;
+}
+.files-row.file-alive    { border-left: 3px solid var(--st-done); }
+.files-row.file-dead     { border-left: 3px solid var(--st-fail); opacity: 0.65; }
+.files-row.file-archived { border-left: 3px solid var(--ink-3);  opacity: 0.55; }
+.files-status {
+  font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700;
+  width: 18px; text-align: center;
+}
+.files-path { font-size: 11.5px; color: var(--ink); word-break: break-all; }
+.files-actions { display: flex; gap: 4px; }
+.files-actions button {
+  font: inherit; font-size: 10.5px; padding: 3px 8px;
+  border: 1px solid var(--rule); border-radius: 999px;
+  background: transparent; color: var(--ink-3); cursor: pointer;
+}
+.files-actions button:hover  { color: var(--ink); border-color: var(--ink-2); }
+.files-actions button[disabled] { opacity: 0.5; cursor: default; }

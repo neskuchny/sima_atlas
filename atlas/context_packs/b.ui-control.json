@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-05T06:00:30.240Z",
+  "generated_at": "2026-05-05T06:44:38.781Z",
   "block_id": "b.ui-control",
   "project": {
     "project": "# Sima Atlas\n\nЦель: единая визуально-документная система, которая устраняет рассинхрон между кодом, агентами и документацией.\n\n## North Star\n- Любой агент работает по одному и тому же block-context.\n- Человек видит статус реализации на схеме без чтения всего кода.\n",
@@ -49,7 +49,43 @@
     "acceptance": "# b.ui-control — acceptance\n\nБлок переходит в `done` только когда:\n\n- [ ] **A1.** HTML открывается в браузере и `<div id=\"root\">` заполнен (smoke-тест: `headless run` грузит страницу, ловит `error`-события, ждёт что DOM содержит `.l2-top` и `.workarea`).\n- [ ] **A2.** Все JSX-зависимости `app_v2.jsx` подгружены (нет `useTweaks/SourcePalette/CanvasInspector is not defined` в консоли).\n- [ ] **A3.** При выбранном проекте `atlas-live` канвас архитектуры рисует ≥ 3 горизонтальных слоя; в каждом слое — корректные блоки из `graph.json` по полю `layer` (зависит от PR2).\n- [ ] **A4.** Sync-check на 5 блоках возвращает либо ok, либо drift с конкретной причиной (`status_reason`) — без ложных «всё зелёное».\n```yaml\nevidence_kind: exit_code\nevidence_spec:\n  cmd: node scripts/validate_block_contracts.mjs\n  expect_in_stdout: \"OK\"\n```\n- [ ] **A5.** Кнопка Done заблокирована, если `acceptance` чек-листа блока не отмечены полностью И в `checks.log` нет `acceptance pass` + `kpi pass`.\n```yaml\nevidence_kind: log_grep\nevidence_spec:\n  file: scripts/log_transition.mjs\n  pattern: \"verdict !== 'pass'\"\n```\n\n## Не считается acceptance:\n- наличие файлов;\n- прохождение `validate_block_contracts.mjs` (это контрактный gate, не приёмка);\n- генерация `wiki.html` (это `b.docs`).\n",
     "tasks": "# b.ui-control — tasks\n\n- [ ] T1: Подключить пропавшие JSX в `Sima (Remix)/Сима - универсальный конструктор.html` (components.jsx, sidecol.jsx, canvas_tools.jsx, composer.jsx, library_view.jsx) — **PR1**\n- [ ] T2: Развести блоки по слоям через поле `layer` из `graph.json` v2 — **PR2**\n- [ ] T3: В `arch_canvas.jsx` корректно читать `layer` и рисовать каждый блок в соответствующей полосе — **PR2**\n- [ ] T4: Live update схемы при изменениях в `/atlas/` (через WebSocket или polling) — **PR2**\n- [ ] T5: Подсветка drift/broken блоков с tooltip-причиной из `syncReport.details` — **PR2**\n- [ ] T6: Двойной клик по блоку с `subschema_id` открывает подсхему (рекурсия) — **PR2**\n- [ ] T7: Кнопка «Implement» вызывает `composer.jsx` со сгенерированным context-pack для агента — **PR3**\n",
     "patterns": "",
-    "files": "# b.ui-control — files\n\n- Sima (Remix)/Сима - универсальный конструктор.html [alive]\n- Sima (Remix)/index.html [alive] (PR4.1: ASCII alias for python http.server compatibility)\n- index.html [alive] (PR4.1: repo-root redirect to Sima (Remix)/index.html)\n- Sima (Remix)/app_v2.jsx [alive]\n- Sima (Remix)/arch_canvas.jsx [alive]\n- Sima (Remix)/layer1_canvas.jsx [alive]\n- Sima (Remix)/layer2_map.jsx [alive]\n- Sima (Remix)/layer3_tz.jsx [alive]\n- Sima (Remix)/layer4_impl.jsx [alive]\n- Sima (Remix)/gallery_v2.jsx [alive]\n- Sima (Remix)/landscape_view.jsx [alive]\n- Sima (Remix)/subschema.jsx [alive]\n- Sima (Remix)/tweaks-panel.jsx [alive]\n- Sima (Remix)/icons.jsx [alive]\n- Sima (Remix)/atlas_sync.js [alive]\n- Sima (Remix)/atlas_bootstrap.js [alive] (auto-generated)\n- Sima (Remix)/styles.css [alive]\n- Sima (Remix)/styles_v2.css [alive]\n- Sima (Remix)/arch_styles.css [alive]\n- Sima (Remix)/landscape_assets.jsx [alive]\n- Sima (Remix)/landscape_styles.css [alive]\n- Sima (Remix)/data_v2.js [alive] (mock projects palette)\n- Sima (Remix)/components.jsx [alive] (referenced indirectly via window globals)\n- Sima (Remix)/sidecol.jsx [alive] (referenced indirectly via window globals)\n- Sima (Remix)/canvas_tools.jsx [alive]\n- Sima (Remix)/composer.jsx [alive] (PR3 will wire it for \"Implement\")\n- Sima (Remix)/library_view.jsx [alive] (PR4 will wire it for artifacts)\n- Sima (Remix)/graph_view.jsx [alive] (alternative graph view)\n- Sima (Remix)/result_view.jsx [archived] (legacy)\n- Sima (Remix)/schema_view.jsx [archived] (legacy)\n- Sima (Remix)/data.js [archived] (v1 data, replaced by data_v2.js)\n- Sima (Remix)/app.jsx [archived] (v1 root, replaced by app_v2.jsx)\n"
+    "files": "# b.ui-control — files\n\n- Sima (Remix)/Сима - универсальный конструктор.html [alive]\n- Sima (Remix)/index.html [alive] (PR4.1: ASCII alias for python http.server compatibility)\n- index.html [alive] (PR4.1: repo-root redirect to Sima (Remix)/index.html)\n- Sima (Remix)/app_v2.jsx [alive]\n- Sima (Remix)/arch_canvas.jsx [alive]\n- Sima (Remix)/layer1_canvas.jsx [alive]\n- Sima (Remix)/layer2_map.jsx [alive]\n- Sima (Remix)/layer3_tz.jsx [alive]\n- Sima (Remix)/layer4_impl.jsx [alive]\n- Sima (Remix)/gallery_v2.jsx [alive]\n- Sima (Remix)/landscape_view.jsx [alive]\n- Sima (Remix)/subschema.jsx [alive]\n- Sima (Remix)/tweaks-panel.jsx [alive]\n- Sima (Remix)/icons.jsx [alive]\n- Sima (Remix)/atlas_sync.js [alive]\n- Sima (Remix)/atlas_bootstrap.js [alive] (auto-generated)\n- Sima (Remix)/styles.css [alive]\n- Sima (Remix)/styles_v2.css [alive]\n- Sima (Remix)/arch_styles.css [alive]\n- Sima (Remix)/landscape_assets.jsx [alive]\n- Sima (Remix)/landscape_styles.css [alive]\n- Sima (Remix)/data_v2.js [alive] (mock projects palette)\n- Sima (Remix)/components.jsx [alive] (referenced indirectly via window globals)\n- Sima (Remix)/sidecol.jsx [alive] (referenced indirectly via window globals)\n- Sima (Remix)/canvas_tools.jsx [alive]\n- Sima (Remix)/composer.jsx [alive] (PR3 will wire it for \"Implement\")\n- Sima (Remix)/library_view.jsx [alive] (PR4 will wire it for artifacts)\n- Sima (Remix)/graph_view.jsx [alive] (alternative graph view)\n- Sima (Remix)/result_view.jsx [archived] (legacy)\n- Sima (Remix)/schema_view.jsx [archived] (legacy)\n- Sima (Remix)/data.js [archived] (v1 data, replaced by data_v2.js)\n- Sima (Remix)/app.jsx [archived] (v1 root, replaced by app_v2.jsx)\n",
+    "files_alive": [
+      "Sima (Remix)/Сима - универсальный конструктор.html",
+      "Sima (Remix)/index.html",
+      "index.html",
+      "Sima (Remix)/app_v2.jsx",
+      "Sima (Remix)/arch_canvas.jsx",
+      "Sima (Remix)/layer1_canvas.jsx",
+      "Sima (Remix)/layer2_map.jsx",
+      "Sima (Remix)/layer3_tz.jsx",
+      "Sima (Remix)/layer4_impl.jsx",
+      "Sima (Remix)/gallery_v2.jsx",
+      "Sima (Remix)/landscape_view.jsx",
+      "Sima (Remix)/subschema.jsx",
+      "Sima (Remix)/tweaks-panel.jsx",
+      "Sima (Remix)/icons.jsx",
+      "Sima (Remix)/atlas_sync.js",
+      "Sima (Remix)/atlas_bootstrap.js",
+      "Sima (Remix)/styles.css",
+      "Sima (Remix)/styles_v2.css",
+      "Sima (Remix)/arch_styles.css",
+      "Sima (Remix)/landscape_assets.jsx",
+      "Sima (Remix)/landscape_styles.css",
+      "Sima (Remix)/data_v2.js",
+      "Sima (Remix)/components.jsx",
+      "Sima (Remix)/sidecol.jsx",
+      "Sima (Remix)/canvas_tools.jsx",
+      "Sima (Remix)/composer.jsx",
+      "Sima (Remix)/library_view.jsx",
+      "Sima (Remix)/graph_view.jsx",
+      "Sima (Remix)/result_view.jsx",
+      "Sima (Remix)/schema_view.jsx",
+      "Sima (Remix)/data.js",
+      "Sima (Remix)/app.jsx"
+    ],
+    "files_dead": [],
+    "files_archived": []
   },
   "dependencies": [
     {

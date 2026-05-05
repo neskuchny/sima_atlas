@@ -10,6 +10,7 @@ import * as artifactsApi from './atlas_artifacts_api.mjs';
 import * as runsApi from './atlas_runs_api.mjs';
 import * as synthApi from './atlas_synthesis_api.mjs';
 import * as subsApi from './atlas_subsystems_api.mjs';
+import * as filesApi from './atlas_files_api.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(__filename), '..');
@@ -201,6 +202,20 @@ const server = http.createServer((req, res) => {
     }
   }
 
+  // Phase N-2 — files registry (alive/dead/archived).
+  if (req.method === 'GET' && req.url.startsWith('/atlas/files/list')) {
+    try {
+      const u = new URL(req.url, `http://localhost:${port}`);
+      const entries = filesApi.listFiles({
+        block_id: u.searchParams.get('block_id') || undefined,
+        status: u.searchParams.get('status') || undefined,
+      });
+      return json(res, 200, { ok: true, files: entries });
+    } catch (e) {
+      return json(res, 200, { ok: false, error: String(e.message || e) });
+    }
+  }
+
   // Phase J-3 — list available client namespaces (folders under
   // atlas/clients/). Always include 'main' (default namespace).
   if (req.method === 'GET' && req.url === '/atlas/clients/list') {
@@ -336,6 +351,19 @@ const server = http.createServer((req, res) => {
       } catch (e) {
         return json(res, 200, { ok: false, error: String(e.message || e) });
       }
+    }
+  }
+  // Phase N-1: latest persisted LLM-validator verdict (atlas/validations/<id>/_latest.json)
+  if (req.method === 'GET' && req.url.startsWith('/llm/validate-block/get')) {
+    try {
+      const u = new URL(req.url, `http://localhost:${port}`);
+      const bid = u.searchParams.get('block_id') || '';
+      if (!bid) return json(res, 200, { ok: false, error: 'block_id required' });
+      const p = path.join(ATLAS, 'validations', bid, '_latest.json');
+      if (!fs.existsSync(p)) return json(res, 200, { ok: false, error: 'not_found' });
+      return json(res, 200, JSON.parse(fs.readFileSync(p, 'utf8')));
+    } catch (e) {
+      return json(res, 200, { ok: false, error: String(e.message || e) });
     }
   }
   if (req.method === 'GET' && req.url.startsWith('/acceptance/get')) {
@@ -746,6 +774,28 @@ const server = http.createServer((req, res) => {
         }
       }
 
+      // /atlas/files/mark — set status (alive/dead/archived) for a file.
+      if (req.url === '/atlas/files/mark') {
+        return tryFn(() => filesApi.markFile({
+          path: String(body.path || ''),
+          status: String(body.status || ''),
+          block_id: body.block_id ? String(body.block_id) : undefined,
+          reason: body.reason ? String(body.reason) : undefined,
+        }));
+      }
+      // /atlas/files/sync-from-block — bulk-import block's files.md
+      if (req.url === '/atlas/files/sync-from-block') {
+        const bid = String(body.block_id || '');
+        if (!bid) return json(res, 400, { ok: false, error: 'block_id required' });
+        try {
+          const p = path.join(ATLAS, 'blocks', bid, 'files.md');
+          const txt = fs.existsSync(p) ? fs.readFileSync(p, 'utf8') : '';
+          return tryFn(() => filesApi.syncFromBlockFilesMd({ block_id: bid, files_md_text: txt }));
+        } catch (e) {
+          return json(res, 200, { ok: false, error: String(e.message || e) });
+        }
+      }
+
       // /atlas/subsystems/save — persist a drill-into-block subsystem.
       if (req.url === '/atlas/subsystems/save') {
         const pid = String(body.parent_id || body.block_id || '');
@@ -856,6 +906,72 @@ const server = http.createServer((req, res) => {
           layer:    body.layer ? String(body.layer) : undefined,
           neighbors: body.neighbors || undefined,
         }).then((r) => json(res, 200, r), (e) => json(res, 200, { ok: false, error: String(e.message || e) }));
+      }
+      // Phase N-1: LLM-validator «миссия vs реализация».
+      // Assembles all block files + global rules + neighbor provides
+      // server-side, then asks the LLM whether ACTUAL matches PROMISED.
+      if (req.url === '/llm/validate-block') {
+        const bid = String(body.block_id || '');
+        if (!bid) return json(res, 400, { ok: false, error: 'block_id required' });
+        try {
+          const blkDir = path.join(ATLAS, 'blocks', bid);
+          if (!fs.existsSync(blkDir)) return json(res, 200, { ok: false, error: 'block not found' });
+          const safeRead = (p, max = 4000) => {
+            try { return fs.existsSync(p) ? fs.readFileSync(p, 'utf8').slice(0, max) : ''; } catch { return ''; }
+          };
+          const tail = (p, lines = 30) => {
+            try {
+              if (!fs.existsSync(p)) return '';
+              const all = fs.readFileSync(p, 'utf8').split(/\n/);
+              return all.slice(-lines).join('\n');
+            } catch { return ''; }
+          };
+          // Read block contract files
+          const inputs = {
+            block_id: bid,
+            mission:       safeRead(path.join(blkDir, 'mission.md')),
+            kpi:           safeRead(path.join(blkDir, 'kpi.md')),
+            acceptance:    safeRead(path.join(blkDir, 'acceptance.md')),
+            tasks:         safeRead(path.join(blkDir, 'tasks.md')),
+            depends_on_md: safeRead(path.join(blkDir, 'depends_on.md'), 1500),
+            provides_md:   safeRead(path.join(blkDir, 'provides.md'), 1500),
+            decisions:     tail(path.join(blkDir, 'decisions.log'), 40),
+            checks_tail:   tail(path.join(blkDir, 'checks.log'), 25),
+            files:         safeRead(path.join(blkDir, 'files.md'), 1500),
+            project_md:    safeRead(path.join(ATLAS, 'project.md')),
+            rules_md:      safeRead(path.join(ATLAS, 'rules.md')),
+            tech_stack_md: safeRead(path.join(ATLAS, 'tech_stack.md')),
+          };
+          // Pull neighbor provides for depends_on context
+          try {
+            const graph = JSON.parse(fs.readFileSync(path.join(ATLAS, 'graph.json'), 'utf8'));
+            const block = (graph.blocks || []).find((b) => b.id === bid);
+            const neighborIds = (block?.depends_on || []).map((d) => String(d).split(':')[0].trim());
+            inputs.neighbors = neighborIds.slice(0, 8).map((nid) => {
+              const n = (graph.blocks || []).find((b) => b.id === nid);
+              if (!n) return null;
+              return {
+                id: nid,
+                layer: n.layer || '',
+                provides_md: safeRead(path.join(ATLAS, 'blocks', nid, 'provides.md'), 600),
+              };
+            }).filter(Boolean);
+          } catch {}
+          return synthApi.validateBlock(inputs)
+            .then((r) => {
+              // Persist verdict alongside acceptance for history viewing
+              try {
+                const dir = path.join(ATLAS, 'validations', bid);
+                fs.mkdirSync(dir, { recursive: true });
+                const ts = new Date().toISOString();
+                fs.writeFileSync(path.join(dir, '_latest.json'), JSON.stringify({ ...r, checked_at: ts }, null, 2) + '\n', 'utf8');
+                fs.writeFileSync(path.join(dir, `${ts.replace(/[:.]/g, '-')}.json`), JSON.stringify({ ...r, checked_at: ts }, null, 2) + '\n', 'utf8');
+              } catch {}
+              return json(res, 200, r);
+            }, (e) => json(res, 200, { ok: false, error: String(e.message || e) }));
+        } catch (e) {
+          return json(res, 200, { ok: false, error: String(e.message || e) });
+        }
       }
       if (req.url === '/llm/rewrite-field') {
         return synthApi.rewriteField({
