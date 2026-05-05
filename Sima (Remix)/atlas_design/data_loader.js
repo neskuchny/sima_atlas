@@ -166,6 +166,26 @@
     },
   };
 
+  // ─── Phase F-5 — schema templates (book/idea/marketing/product) ──
+  const templates = {
+    list:  async ()         => await getJson('/atlas/schema-templates/list'),
+    get:   async (id)       => await getJson('/atlas/schema-templates/get?id=' + encodeURIComponent(id)),
+    apply: async (template_id, prefix) => await postJson('/atlas/schema-templates/apply', { template_id, prefix }),
+  };
+
+  // ─── Phase F — subsystems (drill-into-block persistence) ───────
+  const subsystems = {
+    list:   async ()              => await getJson('/atlas/subsystems/list'),
+    get:    async (block_id)      => await getJson('/atlas/subsystems/get?block_id=' + encodeURIComponent(block_id)),
+    save:   async (parent_id, body_) => await postJson('/atlas/subsystems/save', { parent_id, ...body_ }),
+    delete: async (block_id)      => {
+      try {
+        const r = await fetch(API_BASE.replace(/\/$/, '') + '/atlas/subsystems/delete?block_id=' + encodeURIComponent(block_id), { method: 'DELETE' });
+        return await r.json().catch(() => ({}));
+      } catch (e) { return { ok: false, error: String(e.message || e) }; }
+    },
+  };
+
   // ─── Phase M — Sima synthesis (creates schemas itself) ─────────
   const synthesis = {
     block:   async (body_)             => await postJson('/llm/synthesize-block', body_),
@@ -211,6 +231,8 @@
     artifacts,
     meta,
     synthesis,
+    subsystems,
+    templates,
     claudeAdvice,
     refresh,
   };

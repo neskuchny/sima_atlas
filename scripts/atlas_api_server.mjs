@@ -9,6 +9,7 @@ import * as blocksApi from './atlas_blocks_api.mjs';
 import * as artifactsApi from './atlas_artifacts_api.mjs';
 import * as runsApi from './atlas_runs_api.mjs';
 import * as synthApi from './atlas_synthesis_api.mjs';
+import * as subsApi from './atlas_subsystems_api.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(__filename), '..');
@@ -181,6 +182,59 @@ const server = http.createServer((req, res) => {
       return json(res, 200, { ok: false, error: String(e.message || e) });
     }
   }
+  // Phase F-5 — schema templates (atlas/schema_templates/<id>.json)
+  if (req.method === 'GET' && req.url === '/atlas/schema-templates/list') {
+    try {
+      const dir = path.join(ATLAS, 'schema_templates');
+      if (!fs.existsSync(dir)) return json(res, 200, { ok: true, templates: [] });
+      const templates = fs.readdirSync(dir).filter((f) => f.endsWith('.json')).map((f) => {
+        try {
+          const t = JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8'));
+          return { id: t.id || f.replace(/\.json$/, ''), title: t.title || f, description: t.description || '', blocks_count: (t.blocks || []).length };
+        } catch { return null; }
+      }).filter(Boolean);
+      return json(res, 200, { ok: true, templates });
+    } catch (e) { return json(res, 200, { ok: false, error: String(e.message || e) }); }
+  }
+  if (req.method === 'GET' && req.url.startsWith('/atlas/schema-templates/get')) {
+    try {
+      const u = new URL(req.url, `http://localhost:${port}`);
+      const id = u.searchParams.get('id') || '';
+      if (!/^[a-zA-Z0-9._-]+$/.test(id)) return json(res, 200, { ok: false, error: 'invalid id' });
+      const p = path.join(ATLAS, 'schema_templates', `${id}.json`);
+      if (!fs.existsSync(p)) return json(res, 200, { ok: false, error: 'not_found' });
+      return json(res, 200, { ok: true, template: JSON.parse(fs.readFileSync(p, 'utf8')) });
+    } catch (e) { return json(res, 200, { ok: false, error: String(e.message || e) }); }
+  }
+
+  // Phase F — subsystem (drill-into-block) persistence
+  if (req.method === 'GET' && req.url === '/atlas/subsystems/list') {
+    try {
+      return json(res, 200, { ok: true, subsystems: subsApi.listSubsystems() });
+    } catch (e) {
+      return json(res, 200, { ok: false, error: String(e.message || e) });
+    }
+  }
+  if (req.method === 'GET' && req.url.startsWith('/atlas/subsystems/get')) {
+    try {
+      const u = new URL(req.url, `http://localhost:${port}`);
+      const pid = u.searchParams.get('block_id') || '';
+      const r = subsApi.getSubsystem(pid);
+      return json(res, 200, r ? { ok: true, subsystem: r } : { ok: false, error: 'not_found' });
+    } catch (e) {
+      return json(res, 200, { ok: false, error: String(e.message || e) });
+    }
+  }
+  if (req.method === 'DELETE' && req.url.startsWith('/atlas/subsystems/delete')) {
+    try {
+      const u = new URL(req.url, `http://localhost:${port}`);
+      const pid = u.searchParams.get('block_id') || '';
+      return json(res, 200, subsApi.deleteSubsystem(pid));
+    } catch (e) {
+      return json(res, 200, { ok: false, error: String(e.message || e) });
+    }
+  }
+
   if (req.method === 'GET' && req.url === '/atlas/proposals/list') {
     try {
       const out = execFileSync('node', ['scripts/list_proposals.mjs', '--json'], { cwd: ROOT, stdio: 'pipe' }).toString();
@@ -524,6 +578,55 @@ const server = http.createServer((req, res) => {
         } catch (e) {
           return json(res, 200, { ok: false, error: String(e.message || e) });
         }
+      }
+
+      // /atlas/schema-templates/apply — instantiate all blocks + edges
+      // from a template at a given prefix. Idempotent: skips blocks that
+      // already exist by id, but logs them in the response.
+      if (req.url === '/atlas/schema-templates/apply') {
+        const tid = String(body.template_id || '');
+        const prefix = String(body.prefix || tid);
+        if (!tid) return json(res, 400, { ok: false, error: 'template_id required' });
+        try {
+          const tpath = path.join(ATLAS, 'schema_templates', `${tid}.json`);
+          if (!fs.existsSync(tpath)) return json(res, 200, { ok: false, error: 'template not found' });
+          const tpl = JSON.parse(fs.readFileSync(tpath, 'utf8'));
+          const created = []; const skipped = []; const errors = [];
+          // Map suffix → real block id (b.<prefix>-<suffix>)
+          const ids = {};
+          let cx = 200, cy = 200;
+          for (const b of (tpl.blocks || [])) {
+            const id = `b.${prefix}-${b.id_suffix}`.replace(/[^a-z0-9._-]/g, '-');
+            ids[b.id_suffix] = id;
+            try {
+              blocksApi.createBlock({ body: { id, title: b.title, layer: b.layer || tpl.default_layer || 'logic', x: cx, y: cy } });
+              if (b.mission)         blocksApi.patchBlockFile({ block_id: id, file: 'mission.md',    content: `# ${id} — mission\n\n${b.mission}\n` });
+              if (b.kpi?.length)     blocksApi.patchBlockFile({ block_id: id, file: 'kpi.md',        content: `# ${id} — KPI\n\n${b.kpi.map((k) => `- ${k}`).join('\n')}\n` });
+              if (b.acceptance?.length) blocksApi.patchBlockFile({ block_id: id, file: 'acceptance.md', content: `# ${id} — acceptance\n\n${b.acceptance.map((a, i) => `- [ ] **A${i+1}.** ${a}`).join('\n')}\n` });
+              created.push(id);
+            } catch (e) {
+              if (/already exists/.test(String(e.message || e))) skipped.push(id);
+              else errors.push({ id, error: String(e.message || e) });
+            }
+            cx += 220; if (cx > 1200) { cx = 200; cy += 200; }
+          }
+          for (const e of (tpl.edges || [])) {
+            const from = ids[e.from], to = ids[e.to];
+            if (!from || !to) continue;
+            try { blocksApi.addEdge({ body: { from, to, kind: e.kind || 'contract', capability: e.capability } }); }
+            catch (err) { errors.push({ from, to, error: String(err.message || err) }); }
+          }
+          return json(res, 200, { ok: true, template_id: tid, prefix, created, skipped, errors });
+        } catch (e) {
+          return json(res, 200, { ok: false, error: String(e.message || e) });
+        }
+      }
+
+      // /atlas/subsystems/save — persist a drill-into-block subsystem.
+      if (req.url === '/atlas/subsystems/save') {
+        const pid = String(body.parent_id || body.block_id || '');
+        if (!pid) return json(res, 400, { ok: false, error: 'parent_id required' });
+        return tryFn(() => subsApi.saveSubsystem(pid, body));
       }
 
       // /atlas/build-context-pack — wraps scripts/build_context_pack.mjs.

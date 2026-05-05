@@ -108,17 +108,24 @@ PDF-видения, которой сейчас вообще нет.
 В UI drill уже работает визуально (drillStack), но subsystems
 **не синхронизируются на диск** — правки внутри подсхемы теряются после reload.
 
-- [ ] **F1** Backend: `scripts/atlas_subschemas_api.mjs` — read/write
-      `atlas/subschemas/<block_id>.json` с собственными modules/edges/lanes.
-- [ ] **F2** Расширить `atlas_blocks_api.patchBlock` чтобы при патче
-      поднялся флаг `has_subsystem` если subschema-файл существует.
-- [ ] **F3** UI: drill state хранить в `subState` ↔ POST патчи в
-      `/subschemas/patch?block_id=...`.
-- [ ] **F4** «Сохранить эту подсхему как шаблон» → артефакт kind='map',
-      reuse в другом блоке через Library.
-- [ ] **F5** Generic schema types (книга / идея / маркетинг / продукт) —
-      seed-шаблоны в `atlas/schema_templates/<type>.json`, выбор при создании
-      нового блока.
+- [x] **F1** `scripts/atlas_subsystems_api.mjs` — list/get/save/delete
+      с atomic writes + selftest 5/5. Storage: `atlas/subsystems/<parent_id>.json`.
+- [x] **F2** `build_sima_design_payload.mjs` читает
+      `atlas/subsystems/*.json` и мерджит в `data.subsystems`. Модули,
+      у которых есть подсистема, получают флаг `has_subsystem`.
+- [x] **F3** `subsystemTouched()` debounce 700ms — каждое изменение
+      `subState` (drag модуля, edit edge, add/del note) автоматически
+      пушится в `/atlas/subsystems/save`. Статус «сохраняю / ✓ сохранено
+      / ✗ ошибка» виден в sub-banner.
+- [x] **F4** Кнопка «💾 как артефакт» в drill-banner → создаёт
+      артефакт `kind='map'` с JSON-телом подсхемы (parent_id, codename,
+      modules, edges, kpi). Достаётся через Gallery.
+- [x] **F5** 4 шаблона в `atlas/schema_templates/`:
+      product (5 блоков), book (5 блоков), idea (5 блоков),
+      marketing (6 блоков). Topbar pill «⌬ Шаблоны» открывает
+      TemplatesPanel; пользователь выбирает префикс ID → POST
+      `/atlas/schema-templates/apply` создаёт все блоки + edges с
+      идемпотентностью (skipped если уже существуют).
 
 ---
 

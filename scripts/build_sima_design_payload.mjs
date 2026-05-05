@@ -329,6 +329,39 @@ export function buildSimaDesignPayload({ atlas_root, client_id } = {}) {
   const history = readHistory(root);
   const lessons = readLessons(root);
 
+  // Phase F-2: merge persisted subsystems from atlas/subsystems/<id>.json.
+  // Each file describes a parent block's internal graph (modules, edges,
+  // lanes, KPI). The UI's drill-into-block uses this when a parent's
+  // subsystem exists; saving back via /atlas/subsystems/save round-trips.
+  const subsystems = {};
+  const subsDir = path.join(root, 'subsystems');
+  if (fs.existsSync(subsDir)) {
+    for (const f of fs.readdirSync(subsDir).sort()) {
+      if (!f.endsWith('.json')) continue;
+      try {
+        const sub = JSON.parse(fs.readFileSync(path.join(subsDir, f), 'utf8'));
+        const pid = sub.parent_id || f.replace(/\.json$/, '');
+        subsystems[pid] = {
+          codename: sub.codename || pid.replace(/^b\./, ''),
+          title:    sub.title    || pid,
+          subtitle: sub.subtitle || '',
+          kpi:      Array.isArray(sub.kpi) ? sub.kpi : [],
+          modules:  Array.isArray(sub.modules) ? sub.modules : [],
+          edges:    Array.isArray(sub.edges)   ? sub.edges   : [],
+          lanes:    Array.isArray(sub.lanes)   ? sub.lanes   : [],
+          notes:    Array.isArray(sub.notes)   ? sub.notes   : [],
+          updated_at: sub.updated_at || null,
+          _persisted: true,
+        };
+      } catch {}
+    }
+  }
+  // Mark modules whose subsystem exists, so the design UI can show the
+  // "open subsystem →" affordance even for newly-persisted ones.
+  for (const m of modules) {
+    if (subsystems[m.id]) m.has_subsystem = true;
+  }
+
   return {
     product,
     modules,
@@ -337,6 +370,7 @@ export function buildSimaDesignPayload({ atlas_root, client_id } = {}) {
     moduleDocs,
     history,
     lessons,
+    subsystems,
     agents: [
       { id: 'claude', title: 'Claude Code', tag: 'claude-code', color: 'warm' },
       { id: 'cursor', title: 'Cursor',       tag: 'cursor',      color: 'blue' },

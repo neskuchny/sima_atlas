@@ -1,0 +1,22 @@
+{
+  "id": "marketing",
+  "title": "Маркетинг-кампания",
+  "description": "ICP → канал → оффер → лендинг → метрики → нурчуринг.",
+  "default_layer": "logic",
+  "blocks": [
+    { "id_suffix": "icp",       "title": "ICP",        "layer": "logic", "mission": "Идеальный профиль клиента — компания + персона + триггер покупки.", "kpi": ["1 чёткий ICP", "≥ 3 болевые точки"] },
+    { "id_suffix": "channel",   "title": "Канал",      "layer": "logic", "mission": "Где ICP проводит время — outbound / SEO / paid / community.", "kpi": ["1 основной канал", "1 backup канал"] },
+    { "id_suffix": "offer",     "title": "Оффер",      "layer": "logic", "mission": "Что обещаем: результат + срок + цена. Сравнение с альтернативой.", "kpi": ["1 короткое value-prop ≤ 12 слов"] },
+    { "id_suffix": "landing",   "title": "Лендинг",    "layer": "front", "mission": "Страница приземления: оффер, доказательства, CTA.", "kpi": ["≥ 3% CTR на CTA"] },
+    { "id_suffix": "metrics",   "title": "Метрики",    "layer": "data",  "mission": "CAC / LTV / payback period — считаем до запуска.", "kpi": ["LTV / CAC ≥ 3", "Payback ≤ 12 мес"] },
+    { "id_suffix": "nurture",   "title": "Нурчуринг",  "layer": "logic", "mission": "Что происходит после первого касания — sequence писем / звонков / контента.", "kpi": ["7-day open rate ≥ 30%"] }
+  ],
+  "edges": [
+    { "from": "icp", "to": "channel", "kind": "contract", "capability": "audience" },
+    { "from": "icp", "to": "offer", "kind": "contract", "capability": "pain_point" },
+    { "from": "offer", "to": "landing", "kind": "contract", "capability": "value_prop" },
+    { "from": "channel", "to": "landing", "kind": "data", "capability": "traffic" },
+    { "from": "landing", "to": "metrics", "kind": "data", "capability": "conversion" },
+    { "from": "landing", "to": "nurture", "kind": "data", "capability": "leads" }
+  ]
+}

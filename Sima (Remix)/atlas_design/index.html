@@ -75,6 +75,7 @@ function App() {
   const [composerOpen, setComposerOpen] = useState(false);
   const [sysDocsOpen, setSysDocsOpen] = useState(false);
   const [proposalsOpen, setProposalsOpen] = useState(false);
+  const [templatesOpen, setTemplatesOpen] = useState(false);
   const [proposalsCount, setProposalsCount] = useState(0);
   const [hooksOk, setHooksOk] = useState(null); // null=unknown true=ok false=drift
 
@@ -101,6 +102,37 @@ function App() {
 
   // Subsystem-local module/edge state, keyed by subsystem id
   const [subState, setSubState] = useState({});
+  const subSaveTimers = useRef({});
+  const [subSaveStatus, setSubSaveStatus] = useState({}); // { [parent_id]: 'saving'|'saved'|'error' }
+
+  // Debounced persist: when the operator edits a drilled-in subsystem,
+  // wait 700ms after the last edit then POST /atlas/subsystems/save with
+  // the full local state. Only b.* parents (real atlas blocks) are saved.
+  const persistSubsystem = (parent_id) => {
+    if (!parent_id?.startsWith('b.')) return;
+    if (!window.SIMA_API?.subsystems) return;
+    if (subSaveTimers.current[parent_id]) clearTimeout(subSaveTimers.current[parent_id]);
+    subSaveTimers.current[parent_id] = setTimeout(async () => {
+      delete subSaveTimers.current[parent_id];
+      const cur = subState[parent_id];
+      if (!cur) return;
+      const meta = data.subsystems?.[parent_id] || {};
+      setSubSaveStatus(s => ({ ...s, [parent_id]: 'saving' }));
+      const r = await window.SIMA_API.subsystems.save(parent_id, {
+        codename: meta.codename || parent_id.replace(/^b\./, ''),
+        title: meta.title || (data.modules.find(m => m.id === parent_id)?.title || parent_id),
+        subtitle: meta.subtitle || '',
+        kpi: meta.kpi || [],
+        modules: cur.modules || [],
+        edges: cur.edges || [],
+        lanes: meta.lanes || [],
+        notes: cur.notes || [],
+      });
+      setSubSaveStatus(s => ({ ...s, [parent_id]: r?.ok ? 'saved' : 'error' }));
+      setTimeout(() => setSubSaveStatus(s => { const c = { ...s }; delete c[parent_id]; return c; }), 1800);
+      if (!r?.ok) pushLog({ agent: 'SIMA Core', kind: 'fail', msg: `subsystem save ${parent_id} failed: ${r?.error}` });
+    }, 700);
+  };
 
   // PR — debounced persistence helper. Drag emits dozens of patch calls
   // per second; we don't want to POST on every frame. Buffer per-block
@@ -452,24 +484,32 @@ function App() {
   const activeNotes = curSub ? curSub.notes : notes;
   const activeLanes = activeSub ? activeSub.lanes : data.lanes;
 
+  // Wrapped subState mutators — every change triggers a debounced save
+  // of the corresponding subsystem to disk. Local state still updates
+  // synchronously so the UI feels instant.
+  const k = () => drillStack[drillStack.length - 1];
+  const subsystemTouched = (parent_id) => persistSubsystem(parent_id);
   const updateActiveModule = curSub
-    ? (id, patch) => setSubState(s => ({ ...s, [drillStack[drillStack.length - 1]]: { ...s[drillStack[drillStack.length - 1]], modules: s[drillStack[drillStack.length - 1]].modules.map(m => m.id === id ? { ...m, ...patch } : m) } }))
+    ? (id, patch) => { setSubState(s => ({ ...s, [k()]: { ...s[k()], modules: s[k()].modules.map(m => m.id === id ? { ...m, ...patch } : m) } })); subsystemTouched(k()); }
     : updateModule;
   const updateActiveEdge = curSub
-    ? (i, patch) => setSubState(s => ({ ...s, [drillStack[drillStack.length - 1]]: { ...s[drillStack[drillStack.length - 1]], edges: s[drillStack[drillStack.length - 1]].edges.map((e, idx) => idx === i ? { ...e, ...patch } : e) } }))
+    ? (i, patch) => { setSubState(s => ({ ...s, [k()]: { ...s[k()], edges: s[k()].edges.map((e, idx) => idx === i ? { ...e, ...patch } : e) } })); subsystemTouched(k()); }
     : updateEdge;
   const addActiveNote = curSub
-    ? (n) => setSubState(s => { const k = drillStack[drillStack.length - 1]; return { ...s, [k]: { ...s[k], notes: [...s[k].notes, { id: `n${Date.now()}`, ...n }] } }; })
+    ? (n) => { setSubState(s => { const kk = k(); return { ...s, [kk]: { ...s[kk], notes: [...s[kk].notes, { id: `n${Date.now()}`, ...n }] } }; }); subsystemTouched(k()); }
     : addNote;
   const updateActiveNote = curSub
-    ? (id, patch) => setSubState(s => { const k = drillStack[drillStack.length - 1]; return { ...s, [k]: { ...s[k], notes: s[k].notes.map(n => n.id === id ? { ...n, ...patch } : n) } }; })
+    ? (id, patch) => { setSubState(s => { const kk = k(); return { ...s, [kk]: { ...s[kk], notes: s[kk].notes.map(n => n.id === id ? { ...n, ...patch } : n) } }; }); subsystemTouched(k()); }
     : updateNote;
   const deleteActiveNote = curSub
-    ? (id) => setSubState(s => { const k = drillStack[drillStack.length - 1]; return { ...s, [k]: { ...s[k], notes: s[k].notes.filter(n => n.id !== id) } }; })
+    ? (id) => { setSubState(s => { const kk = k(); return { ...s, [kk]: { ...s[kk], notes: s[kk].notes.filter(n => n.id !== id) } }; }); subsystemTouched(k()); }
     : deleteNote;
   const deleteActiveEdge = curSub
-    ? (i) => setSubState(s => { const k = drillStack[drillStack.length - 1]; return { ...s, [k]: { ...s[k], edges: s[k].edges.filter((_, idx) => idx !== i) } }; })
+    ? (i) => { setSubState(s => { const kk = k(); return { ...s, [kk]: { ...s[kk], edges: s[kk].edges.filter((_, idx) => idx !== i) } }; }); subsystemTouched(k()); }
     : deleteEdge;
+  const addActiveEdge = curSub
+    ? (e) => { setSubState(s => { const kk = k(); return { ...s, [kk]: { ...s[kk], edges: [...s[kk].edges, e] } }; }); subsystemTouched(k()); }
+    : addEdge;
 
   const onDrillDown = (id) => {
     if (data.subsystems && data.subsystems[id]) {
@@ -544,6 +584,7 @@ function App() {
         <button className="pill" onClick={() => setGalleryOpen(true)} title="Галерея артефактов">⊞ Галерея</button>
         <button className="pill" onClick={() => setLibraryOpen(true)} title="Библиотека блоков">⌘ Библиотека</button>
         <button className="pill" onClick={() => setSysDocsOpen(true)} title="Roadmap, Wiki, документация">📖 Доки</button>
+        <button className="pill" onClick={() => setTemplatesOpen(true)} title="Шаблоны схем">⌬ Шаблоны</button>
         <button className="pill" onClick={() => setProposalsOpen(true)} title="Предложения Sima">
           <span className="dot" style={{ background: proposalsCount > 0 ? 'var(--st-progress)' : 'var(--st-done)' }} />
           ✦ Предложения{proposalsCount > 0 ? ` (${proposalsCount})` : ''}
@@ -583,7 +624,7 @@ function App() {
             onAddNote={addActiveNote}
             onUpdateNote={updateActiveNote}
             onDeleteNote={deleteActiveNote}
-            onAddEdge={curSub ? () => {} : addEdge}
+            onAddEdge={curSub ? addActiveEdge : addEdge}
             onAddModule={onAddModule}
             onDeleteEdge={deleteActiveEdge}
             selectedId={selectedId}
@@ -620,14 +661,43 @@ function App() {
           {activeSub && (
             <div className="sub-banner">
               <div>
-                <div className="mono" style={{ fontSize: 10.5, color: 'var(--ink-4)', letterSpacing: '0.08em' }}>SUBSYSTEM · {activeSub.codename}</div>
+                <div className="mono" style={{ fontSize: 10.5, color: 'var(--ink-4)', letterSpacing: '0.08em' }}>
+                  SUBSYSTEM · {activeSub.codename}
+                  {drillStack.length > 0 && drillStack[drillStack.length - 1].startsWith('b.') && (
+                    <span style={{ marginLeft: 8 }}>
+                      {subSaveStatus[drillStack[drillStack.length - 1]] === 'saving' && <span className="meta">· сохраняю…</span>}
+                      {subSaveStatus[drillStack[drillStack.length - 1]] === 'saved' && <span style={{ color: 'var(--st-done)' }}>· ✓ сохранено</span>}
+                      {subSaveStatus[drillStack[drillStack.length - 1]] === 'error' && <span style={{ color: 'var(--st-fail)' }}>· ✗ ошибка</span>}
+                    </span>
+                  )}
+                </div>
                 <div style={{ fontFamily: 'Newsreader, serif', fontStyle: 'italic', fontSize: 17, marginTop: 2 }}>{activeSub.title}</div>
                 <div style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 2, maxWidth: 460 }}>{activeSub.subtitle}</div>
               </div>
-              <div className="sub-kpi">
-                {activeSub.kpi.map(k => (
-                  <div key={k.code}><div className="mono" style={{ fontSize: 11, fontWeight: 600 }}>{k.code}</div><div style={{ fontSize: 10.5, color: 'var(--ink-4)' }}>{k.label}</div></div>
-                ))}
+              <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
+                <div className="sub-kpi">
+                  {activeSub.kpi.map(k => (
+                    <div key={k.code}><div className="mono" style={{ fontSize: 11, fontWeight: 600 }}>{k.code}</div><div style={{ fontSize: 10.5, color: 'var(--ink-4)' }}>{k.label}</div></div>
+                  ))}
+                </div>
+                {drillStack.length > 0 && drillStack[drillStack.length - 1].startsWith('b.') && (
+                  <button className="pill" title="Сохранить эту подсхему как артефакт kind=map" onClick={async () => {
+                    const pid = drillStack[drillStack.length - 1];
+                    const cur = subState[pid];
+                    if (!cur) return;
+                    const m = data.modules.find(x => x.id === pid);
+                    const r = await window.SIMA_API?.artifacts?.create({
+                      kind: 'map',
+                      title: `Подсхема: ${m?.title || pid}`,
+                      description: `Сохранено из drill-into-block для ${pid}`,
+                      body: JSON.stringify({ parent_id: pid, codename: activeSub.codename, title: activeSub.title, subtitle: activeSub.subtitle, kpi: activeSub.kpi, modules: cur.modules, edges: cur.edges, lanes: activeSub.lanes || [], notes: cur.notes }, null, 2),
+                      tags: ['subsystem', 'map', pid],
+                      sourceBlockId: pid,
+                    });
+                    if (r?.ok) pushLog({ agent: 'SIMA Core', kind: 'ok', msg: `Подсхема ${pid} сохранена как артефакт ${r.artifact.id}` });
+                    else pushLog({ agent: 'SIMA Core', kind: 'fail', msg: `save subsystem failed: ${r?.error}` });
+                  }}>💾 как артефакт</button>
+                )}
               </div>
             </div>
           )}
@@ -830,6 +900,17 @@ function App() {
           onClose={() => setProposalsOpen(false)}
           onAfterAction={(kind, id) => {
             pushLog({ agent: 'SIMA Core', kind: kind === 'accept' ? 'ok' : 'note', msg: `${kind === 'accept' ? 'Принял' : 'Отклонил'} предложение ${id}` });
+          }}
+        />
+      )}
+
+      {/* TEMPLATES MODAL — apply schema preset (Phase F-5) */}
+      {templatesOpen && (
+        <TemplatesPanel
+          onClose={() => setTemplatesOpen(false)}
+          onApplied={(r) => {
+            pushLog({ agent: 'SIMA Core', kind: 'ok', msg: `Применён шаблон ${r.template_id}: создано ${r.created.length} блоков` });
+            window.SIMA_API?.refresh && window.SIMA_API.refresh();
           }}
         />
       )}

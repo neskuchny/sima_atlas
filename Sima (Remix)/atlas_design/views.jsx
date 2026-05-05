@@ -865,6 +865,100 @@ function ProposalsPanel({ onClose, onAfterAction }) {
   );
 }
 
+/* ====================== SCHEMA TEMPLATES (Phase F-5) ======================
+   Pre-baked schemas (book / idea / marketing / product) — pick one,
+   choose a prefix, click Apply → backend creates all blocks + edges
+   atomically. Used to bootstrap a new product / project quickly.
+*/
+function TemplatesPanel({ onClose, onApplied }) {
+  const [items, setItems] = useStateV([]);
+  const [loading, setLoading] = useStateV(true);
+  const [picked, setPicked] = useStateV(null);
+  const [prefix, setPrefix] = useStateV('');
+  const [busy, setBusy] = useStateV(false);
+  const [result, setResult] = useStateV(null);
+
+  useEffectV(() => {
+    let alive = true;
+    (async () => {
+      const r = await window.SIMA_API.templates.list();
+      if (alive && r?.ok) setItems(r.templates || []);
+      if (alive) setLoading(false);
+    })();
+    return () => { alive = false; };
+  }, []);
+
+  const apply = async () => {
+    if (!picked) return;
+    setBusy(true); setResult(null);
+    const r = await window.SIMA_API.templates.apply(picked.id, prefix.trim() || picked.id);
+    setBusy(false);
+    setResult(r);
+    if (r?.ok && onApplied) onApplied(r);
+  };
+
+  return (
+    <div className="cmd-bar" onClick={onClose}>
+      <div className="cmd-box templates-box" onClick={e => e.stopPropagation()}>
+        <div className="sysdocs-head">
+          <div>
+            <div className="mono" style={{ fontSize: 11, color: 'var(--ink-4)', letterSpacing: '0.08em' }}>ШАБЛОНЫ СХЕМ</div>
+            <h3 style={{ margin: '4px 0 0', fontFamily: 'Newsreader, serif', fontStyle: 'italic', fontSize: 19 }}>
+              Готовые скелеты — продукт, книга, идея, маркетинг
+            </h3>
+          </div>
+          <button className="pill" onClick={onClose}>✕</button>
+        </div>
+        <div className="templates-body">
+          {loading && <div className="meta" style={{ padding: 14 }}>Загрузка…</div>}
+          {!loading && !items.length && <div className="meta" style={{ padding: 14 }}>
+            Шаблоны не найдены. Положите JSON-файлы в atlas/schema_templates/.
+          </div>}
+          {!loading && items.map((t) => (
+            <div
+              key={t.id}
+              className={`template-card ${picked?.id === t.id ? 'picked' : ''}`}
+              onClick={() => setPicked(t)}
+            >
+              <div className="template-card-head">
+                <span className="mono" style={{ fontSize: 11, color: 'var(--ink-3)' }}>{t.id}</span>
+                <span className="meta" style={{ fontSize: 11 }}>{t.blocks_count} блоков</span>
+              </div>
+              <div className="template-title">{t.title}</div>
+              <div className="template-desc">{t.description}</div>
+            </div>
+          ))}
+        </div>
+        {picked && (
+          <div className="templates-foot">
+            <span className="meta" style={{ fontSize: 12 }}>Префикс ID:</span>
+            <input
+              className="composer-input"
+              placeholder={picked.id}
+              value={prefix}
+              onChange={(e) => setPrefix(e.target.value.replace(/[^a-z0-9-]/g, ''))}
+              style={{ maxWidth: 180 }}
+            />
+            <span className="meta mono" style={{ fontSize: 10.5 }}>
+              блоки получат id b.{(prefix || picked.id)}-&lt;suffix&gt;
+            </span>
+            <button className="pill primary" onClick={apply} disabled={busy}>
+              {busy ? 'применяю…' : '＋ Применить шаблон'}
+            </button>
+            {result && (
+              <span className={`composer-result ${result.ok ? 'ok' : 'fail'}`} style={{ padding: '4px 10px' }}>
+                {result.ok
+                  ? <>✓ создано {result.created.length}{result.skipped.length ? `, пропущено ${result.skipped.length}` : ''}</>
+                  : <>✗ {result.error}</>}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* ====================== HELPERS ====================== */
 function pluralize(n, one, few, many) {
   const mod10 = n % 10;

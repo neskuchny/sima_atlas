@@ -1895,3 +1895,20 @@ html, body {
 }
 .contract-dot.empty { background: rgba(190, 60, 60, 0.18); color: var(--st-fail); }
 .contract-dot.weak  { background: rgba(220, 150, 60, 0.18); color: #7a4a00; }
+
+/* Schema templates panel (Phase F-5) */
+.templates-box { width: min(820px, 92vw); max-height: 86vh; display: flex; flex-direction: column; background: var(--paper); padding: 0; }
+.templates-body { flex: 1; overflow: auto; padding: 14px 18px; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.template-card {
+  background: var(--card); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 12px 14px; cursor: pointer; transition: 0.15s;
+}
+.template-card:hover { border-color: var(--ink-3); transform: translateY(-1px); box-shadow: var(--shadow-1); }
+.template-card.picked { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink) inset; }
+.template-card-head { display: flex; justify-content: space-between; align-items: center; }
+.template-title { font-family: 'Newsreader', serif; font-size: 16px; margin: 6px 0 4px; }
+.template-desc  { font-size: 12px; color: var(--ink-3); line-height: 1.4; }
+.templates-foot {
+  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+  padding: 12px 18px; border-top: 1px solid var(--rule);
+}
