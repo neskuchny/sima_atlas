@@ -2083,3 +2083,31 @@ html, body {
 }
 .subagent-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
 .subagent-card-head h4 { font-weight: 500; }
+
+/* O1 — Sync report viewer */
+.sync-report-box { width: min(900px, 94vw); max-height: 90vh; display: flex; flex-direction: column; background: var(--paper); padding: 0; }
+.sync-report-body { flex: 1; overflow: auto; padding: 14px 18px; }
+.sync-block-row {
+  display: flex; gap: 10px; align-items: center; padding: 8px 12px;
+  background: var(--card); border: 1px solid var(--rule); border-radius: 8px;
+  margin-bottom: 6px; cursor: pointer; transition: 0.12s;
+}
+.sync-block-row:hover { border-color: var(--ink-3); transform: translateX(2px); }
+.sync-block-row.v-bad  { border-left: 3px solid var(--st-fail); }
+.sync-block-row.v-warn { border-left: 3px solid var(--st-progress); }
+.sync-block-row.v-ok   { border-left: 3px solid var(--st-done); }
+.sync-block-card {
+  background: var(--card); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 10px 12px; margin-bottom: 8px; cursor: pointer; transition: 0.12s;
+}
+.sync-block-card:hover { border-color: var(--ink-3); box-shadow: var(--shadow-1); }
+.sync-block-card.v-bad  { border-left: 3px solid var(--st-fail); }
+.sync-block-card.v-warn { border-left: 3px solid var(--st-progress); }
+.sync-block-card.v-ok   { border-left: 3px solid var(--st-done); }
+.sync-block-card-head { display: flex; gap: 8px; align-items: center; }
+.sync-violations {
+  list-style: none; padding: 0; margin: 6px 0 0;
+  display: flex; flex-direction: column; gap: 3px;
+  font-size: 11.5px; color: var(--ink-2);
+}
+.sync-validators-list { display: flex; flex-direction: column; gap: 4px; }

@@ -388,10 +388,32 @@ kpi / acceptance**. Сейчас этого нет.
 - [ ] Счётчики «N/M задач, K/L KPI» прямо на карточках в графе
 - [ ] screenshots/<block>/ + автозахват per-block
 - [ ] history/<block>/ diff-версии mission при patchBlockFile
-- [ ] Sync-report viewer с structured разбивкой ✓/⚠/✗ (сейчас activity log)
+- [x] Sync-report viewer (Phase O-1)
 - [ ] Демо-проект `atlas/clients/example/` (атлас описывает сам себя)
 - [ ] Кнопка «Запустить ревью продукта» в Gallery
 - [ ] tech_stack блока в DetailPanel
+
+## Phase O — gaps from re-read of ТЗ
+
+- [x] **O1** Sync-report viewer. Topbar `⟳ Sync` pill открывает
+      `SyncReportPanel`: tabs Обзор / По блокам / Валидаторы.
+      Считает `subagent_schema_syncer` + опционально `subagent_verifier --all`
+      (LLM-судья), мерджит deterministic+LLM verdicts, рисует ✓/⚠/✗
+      counts + click-to-jump per-block list с reason. Заменяет mock-
+      narration в activity log.
+- [x] **O5** Auto-reflect after run. `reflect_after_run.mjs` читает
+      run_state + run_logs/<id>.log + acceptance _latest + validation
+      _latest + mission → callLLM возвращает structured reflection
+      (summary + what_worked + what_failed + next_time + decision_line)
+      → дописывается в `patterns.md` блока + `decisions.log`.
+      Хук вызывается из `run_block_implementation.mjs` после `fsm
+      Succeeded/Failed`. Skip via `ATLAS_SKIP_REFLECT=1`. Mock provider
+      не падает — пишет «[demo]» секцию.
+
+- [ ] **O2** Auto-ingest run log → distillate в decisions.log блока
+      (отдельно от reflection — для длинного транскрипта)
+- [ ] **O3** Click-walkthrough tutorials с привязкой UI компонентов
+- [ ] **O4** Operator-profile-aware advice + «Профиль» tab
 
 ---
 

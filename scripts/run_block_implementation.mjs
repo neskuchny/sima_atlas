@@ -274,6 +274,23 @@ fsm(verifierVerdict === 'fail' ? 'Failed' : 'Succeeded', {
   diff_proposal_id: diffProposalId,
 });
 
+// Phase O-5: reflect on this run — pull lesson from log + verdicts and
+// append to the block's patterns.md / decisions.log so the NEXT run
+// already starts with this experience in its context-pack. Skipped via
+// ATLAS_SKIP_REFLECT=1 (e.g. for selftests). Mock-provider falls back
+// to a generic empty reflection but still advances the file (labelled
+// [demo]) — never fails the run.
+if (process.env.ATLAS_SKIP_REFLECT !== '1' && runState?.run_id) {
+  try {
+    const { reflectAfterRun } = await import('./reflect_after_run.mjs');
+    const r = await reflectAfterRun(runState.run_id);
+    if (r.ok) console.log(`  ✓ reflect: appended to ${blockId}/patterns.md (${r.reflection?.mock ? 'demo' : 'real'})`);
+    else console.log(`  · reflect: skipped (${r.error})`);
+  } catch (e) {
+    console.log(`  · reflect: failed (${e.message})`);
+  }
+}
+
 // Workspace cleanup: only when there's NO pending diff proposal (operator
 // needs to apply it) AND verifier didn't fail (preserve workspace for
 // inspection on fail).

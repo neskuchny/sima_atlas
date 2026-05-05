@@ -1194,6 +1194,197 @@ function TemplatesPanel({ onClose, onApplied }) {
   );
 }
 
+/* ====================== SYNC REPORT (Phase O-1) ======================
+   Replaces the editorial «1 рассинхрон» mock animation with a real
+   structured drift report: each block classified ✓ ok / ⚠ drift /
+   ✗ broken with the actual reason, plus per-validator pass/fail.
+   Combines schema-syncer (deterministic validators) + verifier --all
+   (LLM-judge mission vs reality).
+*/
+function SyncReportPanel({ onClose, onJumpToBlock }) {
+  const [busy, setBusy] = useStateV(false);
+  const [withVerifier, setWithVerifier] = useStateV(false);
+  const [report, setReport] = useStateV(null);     // schema-syncer result
+  const [verifier, setVerifier] = useStateV(null); // verifier --all result
+  const [tab, setTab] = useStateV('overview');     // overview | validators | blocks
+  const [error, setError] = useStateV(null);
+
+  const run = async () => {
+    setBusy(true); setError(null); setReport(null); setVerifier(null);
+    try {
+      const r1 = await window.SIMA_API.meta.subagentRun('schema-syncer');
+      setReport(r1.result || r1);
+      if (withVerifier) {
+        const r2 = await window.SIMA_API.meta.subagentRun('verifier');
+        setVerifier(r2.result || r2);
+      }
+    } catch (e) {
+      setError(String(e.message || e));
+    }
+    setBusy(false);
+  };
+
+  // Combined per-block status: deterministic verdict from schema-syncer
+  // (drift_blocks / broken_blocks lists), enriched with LLM-judge verdict
+  // from verifier when available.
+  const combined = (() => {
+    if (!report) return null;
+    const broken = new Set((report.broken_blocks || []).map((b) => b.block_id));
+    const drift  = new Set((report.drift_blocks  || []).map((b) => b.block_id));
+    const reasons = {};
+    for (const b of (report.broken_blocks || [])) reasons[b.block_id] = { kind: 'broken', reason: b.reason };
+    for (const b of (report.drift_blocks  || [])) reasons[b.block_id] = { kind: 'drift',  reason: b.reason };
+    const llmByBlock = {};
+    if (verifier?.blocks) {
+      for (const v of verifier.blocks) {
+        llmByBlock[v.block_id] = {
+          verdict: v.verdict,
+          summary: v.validation?.summary || '',
+          violations: v.validation?.violations || [],
+        };
+        // Promote LLM-only finds: if not flagged by deterministic but LLM says broken/drift
+        if (v.verdict === 'broken' && !broken.has(v.block_id)) {
+          broken.add(v.block_id);
+          reasons[v.block_id] = { kind: 'broken', reason: 'LLM: ' + (v.validation?.summary || 'mission mismatch') };
+        } else if (v.verdict === 'drift' && !drift.has(v.block_id) && !broken.has(v.block_id)) {
+          drift.add(v.block_id);
+          reasons[v.block_id] = { kind: 'drift', reason: 'LLM: ' + (v.validation?.summary || 'partial alignment') };
+        }
+      }
+    }
+    return { broken: [...broken], drift: [...drift], reasons, llm: llmByBlock };
+  })();
+
+  return (
+    <div className="cmd-bar" onClick={onClose}>
+      <div className="cmd-box sync-report-box" onClick={(e) => e.stopPropagation()}>
+        <div className="sysdocs-head">
+          <div>
+            <div className="mono" style={{ fontSize: 11, color: 'var(--ink-4)', letterSpacing: '0.08em' }}>SYNC REPORT</div>
+            <h3 style={{ margin: '4px 0 0', fontFamily: 'Newsreader, serif', fontStyle: 'italic', fontSize: 19 }}>
+              Что синхронно, что в дрейфе, что сломано
+            </h3>
+          </div>
+          <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+            <label className="meta" style={{ fontSize: 11.5, display: 'flex', alignItems: 'center', gap: 4 }}>
+              <input type="checkbox" checked={withVerifier} onChange={(e) => setWithVerifier(e.target.checked)} />
+              + LLM-судья (медленнее)
+            </label>
+            <button className="pill primary" onClick={run} disabled={busy}>{busy ? 'считаю…' : '▶ запустить'}</button>
+            <button className="pill" onClick={onClose}>✕</button>
+          </div>
+        </div>
+        {error && <div className="composer-result fail" style={{ margin: '8px 18px 0' }}>{error}</div>}
+        {!report && !busy && (
+          <div className="meta" style={{ padding: '20px 18px', fontSize: 13 }}>
+            Нажмите <strong>▶ запустить</strong> чтобы Sima прогнала 9 валидаторов по всем блокам и собрала
+            структурированный drift-report. Включите <strong>LLM-судью</strong> чтобы дополнительно проверить
+            совпадение реализации с миссией / KPI / acceptance / условиями каждого блока.
+          </div>
+        )}
+        {busy && <div className="meta" style={{ padding: 14 }}>Прогон валидаторов{withVerifier ? ' + LLM-судьи (может занять 10–60 сек)' : ''}…</div>}
+        {report && (
+          <>
+            <div className="acc-summary" style={{ margin: '14px 18px 0' }}>
+              <div className="acc-counts mono">
+                <span className="acc-pill ok">✓ ok {report.summary?.ok ?? 0}</span>
+                <span className="acc-pill" style={{ background: 'rgba(220, 150, 60, 0.18)', color: '#7a4a00' }}>⚠ drift {combined?.drift.length ?? 0}</span>
+                <span className="acc-pill bad">✗ broken {combined?.broken.length ?? 0}</span>
+                <span className="acc-pill mono">валидаторы {report.summary?.validators_pass}/{report.summary?.validators_total}</span>
+                <span className="acc-pill mono">{report.duration_ms}ms</span>
+              </div>
+            </div>
+            <div className="tabs" style={{ padding: '12px 18px 0' }}>
+              <button className={tab === 'overview' ? 'active' : ''} onClick={() => setTab('overview')}>Обзор</button>
+              <button className={tab === 'blocks' ? 'active' : ''} onClick={() => setTab('blocks')}>По блокам</button>
+              <button className={tab === 'validators' ? 'active' : ''} onClick={() => setTab('validators')}>Валидаторы</button>
+            </div>
+            <div className="sync-report-body">
+              {tab === 'overview' && (
+                <>
+                  {combined?.broken.length === 0 && combined?.drift.length === 0 && (
+                    <div className="lesson good" style={{ marginTop: 0 }}>
+                      <div className="verdict">✓ всё синхронно</div>
+                      Все {report.summary?.total_blocks} блоков прошли проверки.
+                      {!withVerifier && ' Включите LLM-судью чтобы дополнительно проверить смысл (миссия vs реализация).'}
+                    </div>
+                  )}
+                  {combined?.broken.length > 0 && (
+                    <>
+                      <h3 style={{ color: 'var(--st-fail)' }}>✗ Сломанные ({combined.broken.length})</h3>
+                      {combined.broken.map((bid) => (
+                        <div key={bid} className="sync-block-row v-bad" onClick={() => onJumpToBlock?.(bid)}>
+                          <span className="mono" style={{ flex: 1 }}>{bid}</span>
+                          <span className="meta" style={{ fontSize: 11.5 }}>{combined.reasons[bid]?.reason}</span>
+                        </div>
+                      ))}
+                    </>
+                  )}
+                  {combined?.drift.length > 0 && (
+                    <>
+                      <h3 style={{ color: '#7a4a00' }}>⚠ Дрейф ({combined.drift.length})</h3>
+                      {combined.drift.map((bid) => (
+                        <div key={bid} className="sync-block-row v-warn" onClick={() => onJumpToBlock?.(bid)}>
+                          <span className="mono" style={{ flex: 1 }}>{bid}</span>
+                          <span className="meta" style={{ fontSize: 11.5 }}>{combined.reasons[bid]?.reason}</span>
+                        </div>
+                      ))}
+                    </>
+                  )}
+                </>
+              )}
+              {tab === 'blocks' && (
+                <>
+                  {!verifier && (
+                    <div className="meta" style={{ marginBottom: 10 }}>
+                      Включите «+ LLM-судья» чтобы получить здесь mission-vs-реализация по каждому блоку.
+                    </div>
+                  )}
+                  {verifier?.blocks?.length > 0 && verifier.blocks.map((b) => {
+                    const cls = b.verdict === 'aligned' ? 'ok' : b.verdict === 'broken' ? 'bad' : 'warn';
+                    return (
+                      <div key={b.block_id} className={`sync-block-card v-${cls}`} onClick={() => onJumpToBlock?.(b.block_id)}>
+                        <div className="sync-block-card-head">
+                          <span className="mono" style={{ flex: 1 }}>{b.block_id}</span>
+                          <span className={`acc-pill ${cls === 'ok' ? 'ok' : cls === 'bad' ? 'bad' : 'skip'}`}>{b.verdict}</span>
+                        </div>
+                        {b.validation?.summary && <div style={{ fontSize: 12.5, marginTop: 4 }}>{b.validation.summary}</div>}
+                        {b.validation?.violations?.length > 0 && (
+                          <ul className="sync-violations">
+                            {b.validation.violations.slice(0, 5).map((v, i) => (
+                              <li key={i}><span className="mono">[{v.kind}]</span> <span style={{ color: v.severity === 'high' ? 'var(--st-fail)' : v.severity === 'med' ? '#7a4a00' : 'var(--ink-3)' }}>{v.evidence}</span></li>
+                            ))}
+                          </ul>
+                        )}
+                        {b.acceptance?.verdict && (
+                          <div className="meta" style={{ fontSize: 11, marginTop: 4 }}>
+                            acceptance: {b.acceptance.verdict}
+                            {b.acceptance.counts && ` (${b.acceptance.counts.pass}/${(b.acceptance.counts.pass||0)+(b.acceptance.counts.fail||0)+(b.acceptance.counts.skipped||0)})`}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </>
+              )}
+              {tab === 'validators' && (
+                <div className="sync-validators-list">
+                  {report.validators.map((v) => (
+                    <div key={v.name} className={`sync-block-row v-${v.ok ? 'ok' : 'bad'}`}>
+                      <span className="mono" style={{ minWidth: 200 }}>{v.ok ? '✓' : '✗'} {v.name}</span>
+                      <span className="meta" style={{ fontSize: 11.5, flex: 1 }}>{v.summary || `exit ${v.exit}`}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* ====================== SUBAGENTS (Phase N-3) ======================
    Three Cursor-style subagents callable from one panel:
      schema-syncer — drift report on the whole atlas

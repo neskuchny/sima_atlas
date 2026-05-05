@@ -86,6 +86,7 @@ function App() {
   const [proposalsOpen, setProposalsOpen] = useState(false);
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const [subagentsOpen, setSubagentsOpen] = useState(false);
+  const [syncReportOpen, setSyncReportOpen] = useState(false);
   const [proposalsCount, setProposalsCount] = useState(0);
   const [hooksOk, setHooksOk] = useState(null); // null=unknown true=ok false=drift
   // J3 — project picker. Reads available namespaces from /atlas/clients/list,
@@ -827,9 +828,9 @@ function App() {
           disabled={redoStack.current.length === 0}
           title={redoStack.current.length ? `Повторить: ${redoStack.current[redoStack.current.length-1].label} (Ctrl+Shift+Z)` : 'Нет действий для повтора'}
         >↷ Redo{redoStack.current.length > 0 ? ` (${redoStack.current.length})` : ''}</button>
-        <button className="pill" onClick={runSyncCheck} disabled={scanState === 'scanning'}>
+        <button className="pill" onClick={() => setSyncReportOpen(true)} title="Полный sync-report по всем блокам со структурированным выводом">
           <span className="dot" style={{ background: scanState === 'found' ? 'var(--st-desync)' : 'var(--st-done)' }} />
-          {scanState === 'scanning' ? 'проверяю…' : scanState === 'found' ? '1 рассинхрон' : 'sync ok'}
+          {scanState === 'scanning' ? 'проверяю…' : scanState === 'found' ? '⚠ есть дрейф' : '⟳ Sync'}
         </button>
         <button className="pill" onClick={() => setComposerOpen(true)} title="Синтезировать артефакт из источника">＋ Артефакт</button>
         <button className="pill" onClick={() => setGalleryOpen(true)} title="Галерея артефактов">⊞ Галерея</button>
@@ -1153,6 +1154,19 @@ function App() {
           onClose={() => setProposalsOpen(false)}
           onAfterAction={(kind, id) => {
             pushLog({ agent: 'SIMA Core', kind: kind === 'accept' ? 'ok' : 'note', msg: `${kind === 'accept' ? 'Принял' : 'Отклонил'} предложение ${id}` });
+          }}
+        />
+      )}
+
+      {/* SYNC REPORT MODAL — Phase O-1 */}
+      {syncReportOpen && (
+        <SyncReportPanel
+          onClose={() => setSyncReportOpen(false)}
+          onJumpToBlock={(bid) => {
+            setSelectedId(bid);
+            setSyncReportOpen(false);
+            setTweak('primaryView', 'split');
+            setDetailOpen(true);
           }}
         />
       )}
