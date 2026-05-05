@@ -1,4 +1,9 @@
 #!/usr/bin/env node
+// Phase R-1 — verify_all forces mock LLM provider so the green-build stays
+// fast / deterministic / free regardless of available API keys or local
+// `claude` CLI. Real providers are for interactive UI work, not CI.
+process.env.ATLAS_FORCE_MOCK_LLM = '1';
+
 // Sima Atlas — single-command verifier.
 //
 // Runs every automated check we have in one go. Prints a single summary at

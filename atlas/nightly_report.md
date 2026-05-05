@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-05-05T11:33:38.644Z_
+_Generated: 2026-05-05T18:24:23.980Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -27,13 +27,13 @@ _Generated: 2026-05-05T11:33:38.644Z_
 - ✅ bootstrap_layered_smoke: ok
   - output: atlas_bootstrap smoke: OK (layers=6, blocks=10, links=21)
 - ✅ llm_gateway_selftest: ok
-  - output: llm_gateway.selftest: OK (4 cases)
+  - output: llm_gateway.selftest: OK (5 cases)
 - ✅ pick_template_selftest: ok
   - output: pick_template.selftest: OK (8 test groups, all assertions green)
 - ✅ operator_profile_selftest: ok
   - output: operator_profile.selftest: OK (7 test groups, all assertions green)
 - ✅ aggregate_operator_profile: ok
-  - output: operator_profile: warming_up (done=2, invocations=3, traces=9805, proposals=163)
+  - output: operator_profile: warming_up (done=2, invocations=3, traces=10318, proposals=166)
 - ✅ operator_profile_lessons_smoke: ok
   - output: operator_profile_lessons.smoke: OK (6 test groups, all assertions green)
 - ✅ operator_profile_inject_smoke: ok

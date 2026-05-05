@@ -20,6 +20,7 @@ function toolList(){
     { name:'subagent_schema_syncer', description:'Phase N-3: walk all atlas blocks, run all consistency validators, return drift report.', inputSchema:{ type:'object', properties:{} } },
     { name:'subagent_verifier', description:'Phase N-3: run acceptance verifier + LLM-validator (mission vs reality) on a block (or --all).', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} } } },
     { name:'subagent_wiki_builder', description:'Phase N-3: regenerate WIKI.md / wiki.html / roadmap.md / auto_tz.md from canonical graph + block files.', inputSchema:{ type:'object', properties:{} } },
+    { name:'sima_fill_from_chat', description:'Phase R-2: take a chat transcript and orchestrate the full pipeline — extract insights, fill weak fields on existing blocks (mission/user_story/kpi/acceptance), propose 1-3 new blocks. Saves a plan to atlas/proposals/<ts>__chat_fill.json which the operator reviews in the «✦ Предложения» panel. The agent (Claude Code / Cursor) calls this tool to «fill the schema from this conversation» without the operator copying anything by hand.', inputSchema:{ type:'object', properties:{ transcript:{type:'string'}, target_block_ids:{type:'array', items:{type:'string'}}, propose_new:{type:'boolean'}, dry_run:{type:'boolean'} }, required:['transcript'] } },
     { name:'create_block', description:'Create/init block in atlas graph and docs', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, title:{type:'string'} }, required:['block_id'] } },
     { name:'set_block_mission', description:'Update mission.md for block', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, mission:{type:'string'} }, required:['block_id','mission'] } },
     { name:'generate_wiki', description:'Generate atlas WIKI.md', inputSchema:{ type:'object', properties:{} } },
@@ -296,6 +297,26 @@ rl.on('line', (line) => {
           // Subagent may exit non-zero (drift/broken found); pass stdout if any
           const stdoutText = (e.stdout || '').toString();
           return respond(id, { content:[{ type:'text', text: stdoutText || `subagent ${name} failed: ${e.message}` }] });
+        }
+      }
+      // Phase R-2: orchestrate fill-from-chat. The transcript can be huge,
+      // so we pipe it via stdin to keep MCP request shape sane.
+      if (name === 'sima_fill_from_chat') {
+        const transcript = String(args.transcript || '');
+        if (!transcript || transcript.trim().length < 30) {
+          return respond(id, { content:[{ type:'text', text: 'sima_fill_from_chat: transcript (≥ 30 chars) required' }] });
+        }
+        const cliArgs = ['scripts/sima_fill_from_chat.mjs', '--stdin', '--json'];
+        if (Array.isArray(args.target_block_ids)) {
+          for (const t of args.target_block_ids) cliArgs.push(`--target=${String(t)}`);
+        }
+        if (args.dry_run) cliArgs.push('--dry-run');
+        try {
+          const out = execFileSync('node', cliArgs, { cwd: root, stdio: ['pipe', 'pipe', 'pipe'], input: transcript }).toString();
+          return respond(id, { content:[{ type:'text', text: out }] });
+        } catch (e) {
+          const stdoutText = (e.stdout || '').toString();
+          return respond(id, { content:[{ type:'text', text: stdoutText || `sima_fill_from_chat failed: ${e.message}` }] });
         }
       }
       if (name === 'create_block') {

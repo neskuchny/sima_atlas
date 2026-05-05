@@ -24,6 +24,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
+import { execFileSync, spawn } from 'node:child_process';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(__filename), '..');
@@ -73,6 +74,23 @@ const PROVIDERS = {
     pricePerMTokenIn: 0.10,
     pricePerMTokenOut: 0.40,
   },
+  // Phase R-1: zero-config provider that shells out to the user's local
+  // Claude Code CLI. Uses whatever model the user picked in their CLI
+  // settings; consumes the user's Pro/Max subscription, NOT a separate
+  // API key. Available iff the `claude` binary is on PATH and prints a
+  // version. Disabled by default — opt in via LLM_DEFAULT_PROVIDER=claude_cli
+  // (or omit and the cascade picks it last after anthropic/google).
+  claude_cli: {
+    available: () => {
+      try {
+        execFileSync('claude', ['--version'], { stdio: ['ignore', 'pipe', 'ignore'], timeout: 4000 });
+        return true;
+      } catch { return false; }
+    },
+    defaultModel: 'claude-cli', // actual model is whatever CLI is configured for
+    pricePerMTokenIn: 0,        // user's subscription — zero from Sima's POV
+    pricePerMTokenOut: 0,
+  },
   mock: {
     available: () => true,
     defaultModel: 'mock-1',
@@ -82,6 +100,11 @@ const PROVIDERS = {
 };
 
 function pickProvider(requested) {
+  // Phase R-1 escape hatch: nightly / CI pipelines need deterministic
+  // mock responses (cheap, fast, idempotent). Setting ATLAS_FORCE_MOCK_LLM=1
+  // forces every call onto the mock provider regardless of which paid
+  // keys or local CLI are available.
+  if (process.env.ATLAS_FORCE_MOCK_LLM === '1') return 'mock';
   if (requested && PROVIDERS[requested] && PROVIDERS[requested].available()) return requested;
   if (requested && PROVIDERS[requested] && requested !== 'mock') {
     // requested explicitly but no key → fall back to mock with a warning trace
@@ -91,7 +114,10 @@ function pickProvider(requested) {
   if (requested && !PROVIDERS[requested]) {
     console.warn(`[llm-gateway] unknown provider "${requested}" (allowed: ${Object.keys(PROVIDERS).join(', ')}); ignoring`);
   }
-  const order = ['anthropic', 'google', 'mock'];
+  // Phase R-1: claude_cli sits between paid APIs and mock — if a user
+  // has Anthropic/Google keys, those take priority; otherwise prefer the
+  // local CLI (uses the user's subscription) over mock.
+  const order = ['anthropic', 'google', 'claude_cli', 'mock'];
   const dfltRaw = process.env.LLM_DEFAULT_PROVIDER;
   const dflt = typeof dfltRaw === 'string' ? dfltRaw.trim() : dfltRaw;
   if (dflt) {
@@ -333,6 +359,79 @@ async function callGoogle({ model, system, prompt, schema, max_tokens, temperatu
   return { value: text, usage };
 }
 
+// ──────────────────────────────────────── Phase R-1: Claude Code CLI provider
+// Shells out to the user's local `claude` binary so Sima can use the user's
+// Pro/Max subscription instead of a separate Anthropic API key. The CLI's
+// `--output-format json` returns {result: text, usage: {...}} which we
+// translate into the same shape callAnthropic returns.
+//
+// Schema mode: claude --print does not natively enforce JSON-schema; we
+// append `Reply ONLY with JSON matching <schema>` to the prompt and parse
+// the response defensively (raw, ```json fence, or first {...} block).
+async function callClaudeCli({ system, prompt, schema, max_tokens, temperature }) {
+  let fullPrompt = '';
+  if (system) fullPrompt += system + '\n\n';
+  fullPrompt += prompt;
+  if (schema) {
+    fullPrompt += '\n\n---\nReply ONLY with valid JSON matching this schema. No prose, no markdown fences, just the raw JSON object:\n';
+    fullPrompt += JSON.stringify(schema);
+  }
+
+  const stdout = await new Promise((resolve, reject) => {
+    const args = ['--print', '--output-format', 'json'];
+    const child = spawn('claude', args, { stdio: ['pipe', 'pipe', 'pipe'], timeout: 120_000 });
+    let out = '', err = '';
+    child.stdout.on('data', (d) => { out += d; });
+    child.stderr.on('data', (d) => { err += d; });
+    child.on('error', (e) => reject(new Error(`claude spawn failed: ${e.message}`)));
+    child.on('close', (code) => {
+      if (code === 0) resolve(out);
+      else reject(new Error(`claude --print exit ${code}: ${err.slice(-400)}`));
+    });
+    child.stdin.write(fullPrompt);
+    child.stdin.end();
+  });
+
+  // Try the documented JSON-output shape first.
+  let envelope = null;
+  try { envelope = JSON.parse(stdout); } catch {}
+  const text = (envelope && (envelope.result || envelope.text)) || stdout;
+  const usage = {
+    input_tokens:  envelope?.usage?.input_tokens || 0,
+    output_tokens: envelope?.usage?.output_tokens || 0,
+  };
+
+  if (!schema) {
+    return { value: typeof text === 'string' ? text : String(text), usage };
+  }
+
+  // Schema-mode: extract JSON from text. Try direct, then fenced, then
+  // first balanced object. On total failure return deterministicEmpty so
+  // callers always see the expected shape.
+  const tryParse = (s) => { try { return JSON.parse(s); } catch { return null; } };
+  let parsed = tryParse(typeof text === 'string' ? text : '');
+  if (!parsed && typeof text === 'string') {
+    const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
+    if (fence) parsed = tryParse(fence[1].trim());
+  }
+  if (!parsed && typeof text === 'string') {
+    // Find first balanced { or [ … } or ]
+    const startCh = text.search(/[{[]/);
+    if (startCh >= 0) {
+      const open = text[startCh];
+      const close = open === '{' ? '}' : ']';
+      let depth = 0, end = -1;
+      for (let i = startCh; i < text.length; i++) {
+        if (text[i] === open) depth++;
+        else if (text[i] === close) { depth--; if (depth === 0) { end = i; break; } }
+      }
+      if (end > startCh) parsed = tryParse(text.slice(startCh, end + 1));
+    }
+  }
+  if (!parsed) parsed = deterministicEmptyForSchema(schema);
+  return { value: parsed, usage };
+}
+
 // ─────────────────────────────────────────────────────────────── public API
 export async function callLLM(opts = {}) {
   const {
@@ -390,6 +489,7 @@ export async function callLLM(opts = {}) {
     try {
       if (provider === 'anthropic') ({ value, usage } = await callAnthropic({ model, system, prompt, schema, max_tokens, temperature }));
       else if (provider === 'google') ({ value, usage } = await callGoogle({ model, system, prompt, schema, max_tokens, temperature }));
+      else if (provider === 'claude_cli') ({ value, usage } = await callClaudeCli({ system, prompt, schema, max_tokens, temperature }));
       else value = await callMock({ schema, promptHash: hashPrompt(['v1', provider, model, system || '', prompt, schema || null]), prompt });
       lastError = null;
       break;

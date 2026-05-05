@@ -43,6 +43,9 @@ function Composer({ onClose, onPublished, productContext, onBlocksCreated }) {
   const [insights, setInsights] = useStateV(null);
   const [insightsBusy, setInsightsBusy] = useStateV(false);
   const [picked, setPicked] = useStateV({}); // key → bool, for "save as artifact" multi-select
+  // Phase R-2 — fill-from-chat orchestrator result
+  const [fillBusy, setFillBusy] = useStateV(false);
+  const [fillResult, setFillResult] = useStateV(null);
 
   const sources = [
     { id: 'text',    label: 'Текст',     hint: 'паста / заметка' },
@@ -125,6 +128,18 @@ function Composer({ onClose, onPublished, productContext, onBlocksCreated }) {
   };
 
   const reject = (p) => setProposals((P) => P.filter((x) => x.id !== p.id));
+
+  // Phase R-2 — single-button «иди и заполни всё»: extract insights +
+  // fill weak fields on existing blocks + propose new blocks. Saves a
+  // plan to atlas/proposals/ which the operator reviews in ✦ Предложения.
+  const fillFromChat = async () => {
+    setFillBusy(true); setFillResult(null);
+    const r = await window.SIMA_API.synthesis.fillFromChat({
+      transcript: text || (result?.artifact?.description || ''),
+    });
+    setFillBusy(false);
+    setFillResult(r);
+  };
 
   // Phase G — extract insights from the artefact body. Builds a panel
   // of goals/constraints/ideas/risks/terms that the operator can either
@@ -282,15 +297,36 @@ function Composer({ onClose, onPublished, productContext, onBlocksCreated }) {
           {/* Phase M — Sima synthesis */}
           {result?.ok && text && (
             <div className="synthesis-cta">
-              <button className="pill primary" onClick={synthesize} disabled={synthBusy}>
-                {synthBusy ? '✦ Sima думает…' : '✦ Sima предложит блоки на основе этого'}
+              <button className="pill primary" onClick={fillFromChat} disabled={fillBusy} title="Один клик: извлечь смыслы + заполнить слабые поля существующих блоков + предложить новые блоки. План сохраняется в ✦ Предложения для review.">
+                {fillBusy ? '✦ Sima идёт по плану…' : '✦ Sima — заполни всё по этой переписке'}
+              </button>
+              <button className="pill" onClick={synthesize} disabled={synthBusy}>
+                {synthBusy ? 'думаю…' : '＋ только новые блоки'}
               </button>
               <button className="pill" onClick={runExtract} disabled={insightsBusy}>
-                {insightsBusy ? '◔ извлекаю…' : '◔ Найти смыслы (goals / risks / ideas)'}
+                {insightsBusy ? 'извлекаю…' : '◔ только смыслы'}
               </button>
               <span className="meta" style={{ fontSize: 11.5 }}>
-                Блоки и/или извлечь структурированные insights.
+                Большая кнопка — для «иди и заполни всё». Меньшие — отдельные шаги.
               </span>
+            </div>
+          )}
+          {fillResult && (
+            <div className={`composer-result ${fillResult.ok ? 'ok' : 'fail'}`} style={{ marginTop: 8 }}>
+              {fillResult.ok && fillResult.plan ? (
+                <>
+                  ✓ {fillResult.mock ? '(demo mode) ' : ''}заполнено блоков: <strong>{fillResult.plan.summary.filled_blocks_count}</strong>
+                  /{fillResult.plan.summary.target_blocks_count}{' '}
+                  ({fillResult.plan.summary.total_fields_filled} полей);
+                  предложено новых: <strong>{fillResult.plan.summary.proposed_new_blocks}</strong>;
+                  ambiguities: {fillResult.plan.summary.ambiguities}.
+                  <div className="meta" style={{ fontSize: 11, marginTop: 4 }}>
+                    План сохранён в <code>atlas/proposals/{fillResult.plan.id}.json</code> — открой <strong>✦ Предложения</strong> чтобы принять/отклонить.
+                  </div>
+                </>
+              ) : (
+                <>✗ {fillResult.error || 'failed'}</>
+              )}
             </div>
           )}
 

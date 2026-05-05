@@ -1142,6 +1142,24 @@ const server = http.createServer((req, res) => {
           hint: 'Установите WHISPER_API_KEY и реализуйте provider в scripts/atlas_synthesis_api.mjs::transcribe(). Пока что вставьте транскрипт в поле «Текст».',
         });
       }
+      // Phase R-2 — Sima orchestrator: fill the schema from a chat
+      // transcript in one call. body: {transcript, target_block_ids?,
+      // propose_new?, dry_run?, client_id?}
+      if (req.url === '/atlas/sima/fill-from-chat') {
+        try {
+          const { simaFillFromChat } = await import('./sima_fill_from_chat.mjs');
+          return simaFillFromChat({
+            transcript: String(body.transcript || ''),
+            target_block_ids: Array.isArray(body.target_block_ids) ? body.target_block_ids.map(String) : undefined,
+            proposeNew: body.propose_new !== false,
+            dryRun: !!body.dry_run,
+            client_id: body._client || body.client_id || undefined,
+          }).then((r) => json(res, 200, r), (e) => json(res, 200, { ok: false, error: String(e.message || e) }));
+        } catch (e) {
+          return json(res, 200, { ok: false, error: String(e.message || e) });
+        }
+      }
+
       // Phase J-3 fix: scaffold an empty client namespace.
       // body: { id }. Creates atlas/clients/<id>/ with empty graph.json
       // + minimal project.md/rules.md/tech_stack.md placeholders + blocks/.

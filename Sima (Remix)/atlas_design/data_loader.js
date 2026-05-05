@@ -235,6 +235,7 @@
     rewriteField: async (body_)        => await postJson('/llm/rewrite-field', body_),
     extract:      async (body_)        => await postJson('/api/intake/extract', body_),
     transcribe:   async (body_)        => await postJson('/api/intake/transcribe', body_),
+    fillFromChat: async (body_)        => await postJson('/atlas/sima/fill-from-chat', body_),
     validateBlock:    async (block_id) => await postJson('/llm/validate-block', { block_id }),
     validationLatest: async (block_id) => await getJson('/llm/validate-block/get?block_id=' + encodeURIComponent(block_id)),
     architectureReview:       async () => await postJson('/llm/architecture-review', {}),

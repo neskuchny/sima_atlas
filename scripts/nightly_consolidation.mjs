@@ -3,6 +3,12 @@ import { execSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 
+// Phase R-1 — nightly pipeline forces mock LLM provider so the green-build
+// stays deterministic / fast / free regardless of which providers (paid
+// API keys, local claude CLI) are available in the developer's env. Real
+// LLM is for interactive work in the design UI; nightly is for invariants.
+process.env.ATLAS_FORCE_MOCK_LLM = '1';
+
 const root = process.cwd();
 const atlas = path.join(root, 'atlas');
 const reportPath = path.join(atlas, 'nightly_report.md');
