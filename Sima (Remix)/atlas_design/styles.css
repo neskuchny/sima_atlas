@@ -1968,3 +1968,47 @@ html, body {
 }
 .project-picker-item:hover { background: var(--card-2); }
 .project-picker-item.active { background: var(--card); font-weight: 500; }
+
+/* ============================================================
+   PR — K1 onboarding overhaul (5-step interactive tour)
+   ============================================================ */
+.onb-tip {
+  font-family: 'Newsreader', serif; font-style: italic; font-size: 14px;
+  color: var(--ink-2); padding: 10px 14px;
+  background: var(--card-2); border-left: 3px solid var(--st-progress);
+  border-radius: 4px; margin: 10px 0 18px;
+}
+.onb-progress {
+  display: flex; gap: 6px; justify-content: center;
+  margin: 14px 0 18px;
+}
+.onb-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--rule); cursor: pointer; transition: 0.15s;
+}
+.onb-dot:hover { background: var(--ink-3); }
+.onb-dot.past   { background: var(--ink-3); }
+.onb-dot.active { background: var(--ink); transform: scale(1.3); }
+.onb-actions {
+  display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  margin-top: 16px;
+}
+.onb-skip {
+  font: inherit; font-size: 12px; padding: 6px 10px;
+  border: 0; background: transparent; color: var(--ink-3);
+  cursor: pointer; text-decoration: underline; text-decoration-color: var(--ink-4);
+}
+.onb-skip:hover { color: var(--ink-2); }
+
+/* K4 intent picker (Composer) */
+.composer-intent {
+  display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
+  margin: 8px 0 4px;
+}
+.intent-pill {
+  font: inherit; font-size: 11.5px; padding: 4px 10px;
+  border: 1px solid var(--rule); border-radius: 999px;
+  background: transparent; color: var(--ink-3); cursor: pointer; transition: 0.12s;
+}
+.intent-pill:hover  { border-color: var(--ink-3); color: var(--ink-2); }
+.intent-pill.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }

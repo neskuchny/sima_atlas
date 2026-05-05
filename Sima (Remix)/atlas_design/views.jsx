@@ -34,6 +34,7 @@ function Composer({ onClose, onPublished, productContext, onBlocksCreated }) {
   const [tags, setTags] = useStateV('');             // comma-separated
   const [busy, setBusy] = useStateV(false);
   const [result, setResult] = useStateV(null);
+  const [intent, setIntent] = useStateV('custom');   // K4 — type of thing being modelled
   // Phase M — synthesis post-publish flow
   const [proposals, setProposals] = useStateV([]);
   const [synthBusy, setSynthBusy] = useStateV(false);
@@ -81,12 +82,14 @@ function Composer({ onClose, onPublished, productContext, onBlocksCreated }) {
   };
 
   // Phase M — ask Sima to propose 1-3 blocks based on the artefact body.
+  // K4 — intent biases the system prompt for richer non-product schemas.
   const synthesize = async () => {
     setSynthBusy(true); setProposals([]);
     const r = await window.SIMA_API.synthesis.block({
       source_text: text || (result?.artifact?.description || ''),
       product_context: productContext || null,
       count: 3,
+      intent,
     });
     setSynthBusy(false);
     if (r?.ok) setProposals(r.proposals.map((p) => ({ ...p, _mock: r.mock })));
@@ -192,6 +195,28 @@ function Composer({ onClose, onPublished, productContext, onBlocksCreated }) {
               {s.label}<span className="ct">{s.hint}</span>
             </button>
           ))}
+        </div>
+
+        {/* K4 — intent picker. What kind of thing are we modelling? */}
+        <div className="composer-intent">
+          <span className="meta" style={{ fontSize: 11.5 }}>Тип:</span>
+          {[
+            { id: 'product',   label: 'Продукт' },
+            { id: 'book',      label: 'Книга' },
+            { id: 'idea',      label: 'Идея' },
+            { id: 'marketing', label: 'Маркетинг' },
+            { id: 'custom',    label: 'Своё' },
+          ].map((k) => (
+            <button
+              key={k.id}
+              className={`intent-pill ${intent === k.id ? 'active' : ''}`}
+              onClick={() => setIntent(k.id)}
+              title={`Sima будет интерпретировать источник как ${k.label.toLowerCase()}`}
+            >{k.label}</button>
+          ))}
+          <span className="meta" style={{ fontSize: 11, marginLeft: 'auto' }}>
+            влияет на «Sima предложит блоки»
+          </span>
         </div>
 
         <div className="composer-body">

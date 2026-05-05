@@ -45,8 +45,20 @@ const BLOCK_SCHEMA = {
   required: ['proposals'],
 };
 
-function buildBlockSystemPrompt(productContext) {
+// K4 — intent biases the system prompt so Sima frames proposals through
+// the right lens (a "book" structure looks different from a "marketing
+// campaign" or a "SaaS product").
+const INTENT_HINTS = {
+  product:   'Frame proposals as software-product modules: backend services, data stores, UI, billing.',
+  book:      'Frame proposals as book chapters or supporting structures (thesis, audience, sources, outline).',
+  idea:      'Frame proposals as steps in idea-validation: hypothesis, riskiest assumption, experiment, metric, kill criteria.',
+  marketing: 'Frame proposals as marketing-campaign pieces: ICP, channel, offer, landing, metrics, nurture.',
+  custom:    '',
+};
+
+function buildBlockSystemPrompt(productContext, intent) {
   const ctx = productContext ? `\nProduct: ${productContext.title || ''}\nGoal: ${productContext.goal || ''}\nMission: ${productContext.mission || ''}` : '';
+  const intentHint = intent && INTENT_HINTS[intent] ? `\nIntent: ${INTENT_HINTS[intent]}` : '';
   return [
     'You are SIMA Atlas, an architect that turns artefacts (meeting transcripts,',
     'documents, ideas) into well-shaped product blocks. A "block" is a folder',
@@ -66,14 +78,16 @@ function buildBlockSystemPrompt(productContext) {
     '  - capabilities are short snake_case identifiers, e.g. "user_events", "audit_log"',
     'Generate 1-3 proposals — only the most useful, do not pad.',
     ctx,
+    intentHint,
   ].join('\n');
 }
 
-export async function synthesizeBlock({ source_text, product_context, count = 3 } = {}) {
+export async function synthesizeBlock({ source_text, product_context, count = 3, intent } = {}) {
   if (!source_text || typeof source_text !== 'string') {
     throw new Error('synthesizeBlock: source_text required');
   }
   const cap = Math.min(Math.max(1, Number(count) || 3), 5);
+  const cleanIntent = intent && INTENT_HINTS[intent] ? intent : 'custom';
   const prompt = [
     `Source artefact (count up to ${cap} proposals):`,
     '',
@@ -83,7 +97,7 @@ export async function synthesizeBlock({ source_text, product_context, count = 3 
     'Prefer few high-quality proposals over many shallow ones.',
   ].join('\n');
   const r = await callLLM({
-    system: buildBlockSystemPrompt(product_context),
+    system: buildBlockSystemPrompt(product_context, cleanIntent),
     prompt,
     schema: BLOCK_SCHEMA,
     max_tokens: 1500,

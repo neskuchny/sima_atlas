@@ -66,6 +66,15 @@ function App() {
   const [drillStack, setDrillStack] = useState([]); // path of parent ids when descending into subsystems
   const [showEdgeLabels, setShowEdgeLabels] = useState(true);
   const [onboarding, setOnboarding] = useState(true);
+  const [onbStep, setOnbStep] = useState(0);
+  const skipOnboarding = () => {
+    setOnboarding(false);
+    try { localStorage.setItem('sima_onb_seen', '1'); } catch {}
+  };
+  // First-time visitor: show; returning: skip. Persisted in localStorage.
+  useEffect(() => {
+    try { if (localStorage.getItem('sima_onb_seen') === '1') setOnboarding(false); } catch {}
+  }, []);
   const [railOpen, setRailOpen] = useState(true);
   const [detailOpen, setDetailOpen] = useState(true);
   const [laneOverrides, setLaneOverrides] = useState({}); // { laneId: { y, height } }
@@ -1168,7 +1177,7 @@ function App() {
         </TweakSection>
         <TweakSection title="Демо">
           <TweakButton label="Показать подсказки заново"
-            onClick={() => setOnboarding(true)} />
+            onClick={() => { setOnbStep(0); setOnboarding(true); }} />
           <TweakButton label="Запустить sync-check + рассинхрон"
             onClick={() => { setDesyncResolved(false); runSyncCheck(); }} />
           <TweakButton label="Сбросить состояние"
@@ -1177,23 +1186,77 @@ function App() {
       </TweaksPanel>
 
       {/* ONBOARDING */}
-      {onboarding && (
-        <div className="onboarding" onClick={() => setOnboarding(false)}>
-          <div className="onb-card" onClick={e => e.stopPropagation()}>
-            <div className="onb-eyebrow mono">sima atlas · 30 секунд</div>
-            <h2>Это карта вашего продукта.</h2>
-            <p>Каждый блок — модуль. Цвет точки и полоска снизу = статус. Стрелки — кто кого использует. AI-агенты получают контекст <em>именно нужного</em> блока, не всю кодовую базу.</p>
-            <div className="onb-rows">
-              <div className="onb-row"><span className="num mono">01</span><div><strong>Клик</strong> по модулю — детали справа: задачи, KPI, память решений.</div></div>
-              <div className="onb-row"><span className="num mono">02</span><div><strong>2× клик</strong> — провалиться внутрь блока (видно только его и связи).</div></div>
-              <div className="onb-row"><span className="num mono">03</span><div><strong>▸ подмод.</strong> на карточке — раскрыть подмодули прямо в графе.</div></div>
-              <div className="onb-row"><span className="num mono">04</span><div><strong>Точка-порт</strong> на краю узла — потяните, чтобы соединить два модуля. Клик по линии — удалить.</div></div>
-              <div className="onb-row"><span className="num mono">05</span><div><strong>«1 рассинхрон»</strong> в шапке — sima сама ловит расхождения между модулями и предлагает фикс.</div></div>
+      {onboarding && (() => {
+        // K1 — interactive 5-step tour. Each step targets one UI surface
+        // and (when applicable) places a "spotlight" hint near it.
+        const steps = [
+          {
+            eyebrow: 'sima atlas · 30 секунд',
+            title: 'Это карта вашего продукта.',
+            body: <>Каждый блок — модуль. Цвет точки и полоска снизу = статус. Стрелки — кто кого использует. AI-агенты получают контекст <em>именно нужного</em> блока, не всю кодовую базу.</>,
+            tip: null,
+          },
+          {
+            eyebrow: 'шаг 2 / 5 · детали блока',
+            title: 'Кликайте по блокам.',
+            body: <>Один клик — справа открывается детальная панель: <strong>Обзор · Контракт · Задачи · Запуски · Приёмка · Подмодули · Память · Связи</strong>. Двойной клик — провалиться внутрь блока (если есть подсхема).</>,
+            tip: 'Попробуйте кликнуть по любому блоку →',
+          },
+          {
+            eyebrow: 'шаг 3 / 5 · агенты',
+            title: 'Отправьте блок в Claude / Cursor / Codex.',
+            body: <>В детальной панели «Запуски» — <strong>«Запустить блок →»</strong>. Sima соберёт контекст-пак, спавнит агента в фоновом workspace, показывает живой лог + acceptance verdict. Если упало — <strong>«↻ Исправить и перезапустить»</strong>.</>,
+            tip: 'Симфония FSM: PreparingWorkspace → LaunchingAgent → Running → Verifying → Succeeded.',
+          },
+          {
+            eyebrow: 'шаг 4 / 5 · артефакты',
+            title: 'Любой источник → артефакт.',
+            body: <>В шапке <strong>＋ Артефакт</strong>: вставьте транскрипт встречи / документ / ссылку → Sima извлечёт <em>цели · ограничения · идеи · риски · термины</em>, а потом предложит блоки на их основе. Принял → блок создан с готовыми mission/kpi/acceptance.</>,
+            tip: '⊞ Галерея — все ваши артефакты, ⌘ Библиотека — переиспользуемые блоки.',
+          },
+          {
+            eyebrow: 'шаг 5 / 5 · ⌘K + ✨ Sima',
+            title: 'Пара клавиш — и всё под рукой.',
+            body: <>⌘K (или Ctrl+K) — палитра команд: создать модуль, открыть галерею, ТЗ, шаблоны. Восклицательный знак <strong>!</strong> на блоке — контракт неполон. <strong>✨ Совет Клода</strong> в шапке — Sima посмотрит на весь граф и подскажет следующий шаг. Ctrl+Z — отмена.</>,
+            tip: 'Готово, поехали.',
+          },
+        ];
+        const step = steps[onbStep];
+        const last = onbStep === steps.length - 1;
+        return (
+          <div className="onboarding" onClick={skipOnboarding}>
+            <div className="onb-card" onClick={e => e.stopPropagation()}>
+              <div className="onb-eyebrow mono">{step.eyebrow}</div>
+              <h2>{step.title}</h2>
+              <p>{step.body}</p>
+              {step.tip && <div className="onb-tip">{step.tip}</div>}
+              <div className="onb-progress">
+                {steps.map((_, i) => (
+                  <span
+                    key={i}
+                    className={`onb-dot ${i === onbStep ? 'active' : ''} ${i < onbStep ? 'past' : ''}`}
+                    onClick={() => setOnbStep(i)}
+                  />
+                ))}
+              </div>
+              <div className="onb-actions">
+                <button className="onb-skip" onClick={skipOnboarding}>пропустить</button>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  {onbStep > 0 && (
+                    <button className="pill" onClick={() => setOnbStep(s => s - 1)}>← назад</button>
+                  )}
+                  {!last && (
+                    <button className="pill primary" onClick={() => setOnbStep(s => s + 1)}>далее →</button>
+                  )}
+                  {last && (
+                    <button className="pill primary" onClick={skipOnboarding}>поехали →</button>
+                  )}
+                </div>
+              </div>
             </div>
-            <button className="onb-go" onClick={() => setOnboarding(false)}>Понятно, поехали →</button>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }

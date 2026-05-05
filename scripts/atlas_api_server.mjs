@@ -743,6 +743,7 @@ const server = http.createServer((req, res) => {
           source_text:     String(body.source_text || body.text || ''),
           product_context: body.product_context || null,
           count:           body.count,
+          intent:          body.intent ? String(body.intent) : undefined,
         }).then((r) => json(res, 200, r), (e) => json(res, 200, { ok: false, error: String(e.message || e) }));
       }
       if (req.url === '/llm/suggest-edges') {

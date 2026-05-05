@@ -243,8 +243,12 @@ LLM-ом — только сохраняет сырой transcript.
 
 ## P2 — Phase K · UX из PDF
 
-- [ ] **K1** Onboarding overhaul: туториал из 5 шагов как в PDF (а не
-      текущая статичная карточка).
+- [x] **K1** Onboarding теперь интерактивный 5-step tour: Карта /
+      Детали блока / Агенты (FSM) / Артефакты / ⌘K + ✨ Sima.
+      Progress dots + ← назад / далее → / поехали. «Skip» персистится
+      в localStorage, повторно открывается через TweakButton.
+      Каждый шаг подсвечивает свою фишку с уже-реализованного UI
+      (Запуски FSM, ＋ Артефакт, ! на блоке, Совет Клода).
 - [x] **K2** `callAdvice` принимает `context_kind` ∈ {block,
       block_acceptance, block_field, block_connections, tz,
       graph_overview, gallery}. Каждый kind имеет свой system-prompt
@@ -254,8 +258,13 @@ LLM-ом — только сохраняет сырой transcript.
       (tz). Возвращаемое поле `kind` echo'ится для UI-валидации.
 - [ ] **K3** Save layer as artifact (не только block): в drill-mode
       кнопка «Сохранить эту подсхему как артефакт».
-- [ ] **K4** Generic schema kinds в Composer: «Книга / Идея / Маркетинг
-      / Продукт / Свой» как пресеты intent.
+- [x] **K4** Composer теперь имеет intent-picker: Продукт / Книга /
+      Идея / Маркетинг / Своё. Передаётся в `synthesizeBlock` как
+      `intent`, оборачивается в system-prompt через `INTENT_HINTS`
+      table (book → "frame as chapters/audience/sources"; idea →
+      "hypothesis/risk/experiment"; marketing → "ICP/channel/offer";
+      etc). Дополняет F5 templates: templates создают фиксированный
+      скелет, intent-picker гибко переинтерпретирует любой источник.
 
 ---
 
