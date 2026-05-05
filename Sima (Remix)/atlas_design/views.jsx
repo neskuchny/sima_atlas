@@ -1463,6 +1463,124 @@ function SyncReportPanel({ onClose, onJumpToBlock, autoVerifier = false }) {
   );
 }
 
+/* ====================== ARCHITECTURE REVIEW (Phase Q-3) ============
+   Whole-product architectural review. Per-block N1 catches local
+   alignment issues; this surfaces SYSTEMIC concerns: stack consistency
+   across blocks, scalability under stated load, multi-tenant fit,
+   data-flow gaps, security between blocks, redundant blocks, missing
+   blocks. Persisted to atlas/architecture_reviews/_latest.json.
+*/
+function ArchReviewPanel({ onClose, onJumpToBlock }) {
+  const [latest, setLatest] = useStateV(null);
+  const [busy, setBusy] = useStateV(false);
+  const [error, setError] = useStateV(null);
+
+  const loadLatest = async () => {
+    const r = await window.SIMA_API.synthesis.architectureReviewLatest();
+    if (r?.ok) setLatest(r);
+  };
+  useEffectV(() => { loadLatest(); /* eslint-disable-next-line */ }, []);
+
+  const run = async () => {
+    setBusy(true); setError(null);
+    const r = await window.SIMA_API.synthesis.architectureReview();
+    setBusy(false);
+    if (!r?.ok) { setError(r?.error || 'failed'); return; }
+    setLatest(r);
+  };
+
+  const verdictClass = latest?.verdict === 'aligned' ? 'ok' : latest?.verdict === 'broken' ? 'bad' : 'warn';
+  const verdictLabel = { aligned: '✓ архитектура целостна', drift: '⚠ есть concerns', broken: '✗ серьёзные проблемы' }[latest?.verdict] || latest?.verdict;
+
+  const KIND_LABEL = {
+    stack_consistency: 'Несогласованный стек',
+    scalability:       'Масштабируемость',
+    multi_tenant:      'Multi-tenant',
+    data_flow:         'Поток данных',
+    security:          'Безопасность',
+    missing_block:     'Не хватает блока',
+    redundancy:        'Дублирование',
+    condition:         'Условие проекта',
+  };
+
+  return (
+    <div className="cmd-bar" onClick={onClose}>
+      <div className="cmd-box arch-review-box" onClick={(e) => e.stopPropagation()}>
+        <div className="sysdocs-head">
+          <div>
+            <div className="mono" style={{ fontSize: 11, color: 'var(--ink-4)', letterSpacing: '0.08em' }}>АРХИТЕКТУРА · ВЕСЬ ПРОДУКТ</div>
+            <h3 style={{ margin: '4px 0 0', fontFamily: 'Newsreader, serif', fontStyle: 'italic', fontSize: 19 }}>
+              Целостность фреймворков, масштаб, поток данных
+            </h3>
+          </div>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <button className="pill primary" onClick={run} disabled={busy}>{busy ? 'анализирую…' : '▶ запустить'}</button>
+            <button className="pill" onClick={onClose}>✕</button>
+          </div>
+        </div>
+        <div className="sync-report-body">
+          {error && <div className="composer-result fail">{error}</div>}
+          {!latest && !busy && (
+            <div className="meta" style={{ padding: 14, fontSize: 13 }}>
+              Sima прочитает <code>project.md</code> + <code>rules.md</code> + <code>tech_stack.md</code> + миссию каждого блока + связи —
+              и поднимет system-level concerns: совместимость стэков, масштаб под нагрузку, multi-tenant fit, поток данных, безопасность,
+              дубли, недостающие блоки. Это <strong>отдельно от per-block validation</strong> — там локально, тут системно.
+            </div>
+          )}
+          {busy && <div className="meta" style={{ padding: 14 }}>LLM анализирует архитектуру (10–60 сек)…</div>}
+          {latest && (
+            <>
+              <div className={`acc-summary acc-${verdictClass}`}>
+                <div className="acc-verdict">{verdictLabel}</div>
+                {latest.summary && <div style={{ fontSize: 13, marginTop: 6 }}>{latest.summary}</div>}
+                <div className="acc-counts mono" style={{ marginTop: 8 }}>
+                  {latest.concerns?.length > 0 && <span className="acc-pill bad">concerns {latest.concerns.length}</span>}
+                  {latest.strengths?.length > 0 && <span className="acc-pill ok">strengths {latest.strengths.length}</span>}
+                  {latest.block_count && <span className="acc-pill mono">blocks {latest.block_count}</span>}
+                  {latest.checked_at && <span className="acc-pill mono">{String(latest.checked_at).slice(0, 16).replace('T', ' ')}</span>}
+                  {latest.mock && <span className="acc-pill" style={{ background: 'var(--card-2)' }}>demo</span>}
+                </div>
+              </div>
+              {latest.concerns?.length > 0 && (
+                <>
+                  <h3>Concerns</h3>
+                  <div className="acc-list">
+                    {latest.concerns.map((c, i) => (
+                      <div key={i} className={`acc-row v-${c.severity === 'high' ? 'fail' : c.severity === 'med' ? 'inconclusive' : 'skipped'}`}>
+                        <span className="acc-id mono">{KIND_LABEL[c.kind] || c.kind}</span>
+                        <div style={{ flex: 1 }}>
+                          <div className="acc-text">{c.evidence}</div>
+                          {c.fix && <div className="meta" style={{ fontSize: 11, marginTop: 3 }}>fix: {c.fix}</div>}
+                          {c.blocks?.length > 0 && (
+                            <div className="meta" style={{ fontSize: 11, marginTop: 3 }}>
+                              затрагивает: {c.blocks.map((b) => (
+                                <span key={b} className="mono" style={{ cursor: 'pointer', textDecoration: 'underline', marginRight: 4 }} onClick={(e) => { e.stopPropagation(); onJumpToBlock?.(b); }}>{b}</span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <span className={`val-sev sev-${c.severity || 'low'}`}>{c.severity || 'low'}</span>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+              {latest.strengths?.length > 0 && (
+                <>
+                  <h3>Что хорошо</h3>
+                  <ul className="val-matches">
+                    {latest.strengths.map((s, i) => <li key={i}>✓ {s}</li>)}
+                  </ul>
+                </>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ====================== SUBAGENTS (Phase N-3) ======================
    Three Cursor-style subagents callable from one panel:
      schema-syncer — drift report on the whole atlas

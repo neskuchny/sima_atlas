@@ -298,6 +298,27 @@ if (process.env.ATLAS_SKIP_REFLECT !== '1' && runState?.run_id) {
   } catch (e) {
     console.log(`  · reflect: failed (${e.message})`);
   }
+  // Phase Q-2: regenerate code_summary.md so the next run reads
+  // a fresh summary instead of re-loading every file.
+  try {
+    const { summarizeBlockCode } = await import('./summarize_block_code.mjs');
+    const s = await summarizeBlockCode(blockId);
+    if (s.ok) console.log(`  ✓ code_summary: ${blockId}/code_summary.md (${s.files_read} files, ${s.summary?.mock ? 'demo' : 'real'})`);
+    else console.log(`  · code_summary: skipped (${s.error})`);
+  } catch (e) {
+    console.log(`  · code_summary: failed (${e.message})`);
+  }
+  // Phase Q-4: trim decisions.log + patterns.md so memory stays bounded
+  // and the next agent run doesn't re-read hundreds of stale entries.
+  try {
+    const { cleanupBlockMemory } = await import('./cleanup_block_memory.mjs');
+    const c = cleanupBlockMemory(blockId);
+    if (c.ok && (c.decisions_trimmed || c.patterns_trimmed)) {
+      console.log(`  ✓ memory: trimmed decisions=${c.decisions_trimmed}, patterns=${c.patterns_trimmed}`);
+    }
+  } catch (e) {
+    console.log(`  · memory cleanup: failed (${e.message})`);
+  }
 }
 
 // Workspace cleanup: only when there's NO pending diff proposal (operator

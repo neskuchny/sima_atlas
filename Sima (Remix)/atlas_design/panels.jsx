@@ -1126,11 +1126,13 @@ function short(ts) {
      · approve modal with side-by-side preview before writing to disk
 */
 const CONTRACT_FILES = [
-  { file: 'mission.md',    label: 'Миссия', placeholder: 'Зачем существует этот блок?' },
-  { file: 'kpi.md',        label: 'KPI', placeholder: 'Измеримые метрики успеха.' },
-  { file: 'acceptance.md', label: 'Приёмка', placeholder: 'Тестируемые критерии готовности.' },
-  { file: 'depends_on.md', label: 'Зависит от', placeholder: 'Какие блоки нужны для работы.' },
-  { file: 'provides.md',   label: 'Даёт', placeholder: 'Какие capability отдаёт.' },
+  { file: 'mission.md',     label: 'Миссия', placeholder: 'Зачем существует этот блок?' },
+  { file: 'user_story.md',  label: 'User story', placeholder: 'Как X / Когда Y / Я хочу Z / Чтобы W — что пользователь реально хочет.' },
+  { file: 'kpi.md',         label: 'KPI', placeholder: 'Измеримые метрики успеха.' },
+  { file: 'acceptance.md',  label: 'Приёмка', placeholder: 'Тестируемые критерии готовности.' },
+  { file: 'depends_on.md',  label: 'Зависит от', placeholder: 'Какие блоки нужны для работы.' },
+  { file: 'provides.md',    label: 'Даёт', placeholder: 'Какие capability отдаёт.' },
+  { file: 'code_summary.md',label: 'Code summary', placeholder: 'Auto-gen после run-а: на чём написан, как, зачем (sub-summary вместо перечитывания всего кода).' },
 ];
 
 function classifyContent(file, content) {

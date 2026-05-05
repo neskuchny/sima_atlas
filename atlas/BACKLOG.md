@@ -432,6 +432,35 @@ kpi / acceptance**. Сейчас этого нет.
         warming-up прогресс (X/5 done-блоков, Y/10 запусков).
       - GET `/atlas/operator-profile/get` route.
 
+## Phase Q — additional gaps from principles re-read
+
+- [x] **Q1** `user_story.md` как 6-й контрактный файл блока. Шаблон
+      `Как [persona] / Когда [trigger] / Я хочу [action] / Чтобы
+      [outcome]`. Видно в Контракт-табе. N1 валидатор получает его
+      отдельным input + новый violation kind `user_story` для случая
+      «код проходит acceptance но реально не решает user story».
+      fillField guidance расширен.
+- [x] **Q2** `code_summary.md` авто-генерируется LLM-ом по `files_alive`
+      содержимому через `scripts/summarize_block_code.mjs`.
+      Schema `{stack, structure, rationale, risks[], rewrite_hints[]}`.
+      Регенерируется в reflect chain после каждого run-а — следующий
+      агент читает summary вместо перечитывания всех файлов. История
+      версий в `history/code_summary.md.<ts>.md`.
+- [x] **Q3** Architecture review across the whole product:
+      `reviewArchitecture()` берёт project + rules + tech_stack +
+      все живые блоки + edges → LLM выдаёт `{verdict, summary,
+      concerns[{kind, severity, evidence, fix?, blocks[]}], strengths[]}`.
+      8 kinds: stack_consistency / scalability / multi_tenant / data_flow /
+      security / missing_block / redundancy / condition.
+      Topbar pill `🏛 Архитектура` → ArchReviewPanel modal с click-to-
+      jump на затронутые блоки. Persisted в
+      `atlas/architecture_reviews/_latest.json`.
+- [x] **Q4** Memory cleanup. `cleanup_block_memory.mjs`:
+      decisions.log capped at 200 entries (header preserved); patterns.md
+      sectioned by `## <run_id>` capped at 30 sections (preamble preserved).
+      Идемпотентно. Вызывается в reflect chain после reflect/distill/
+      summarize. Selftest 4/4. Wired в nightly.
+
 ---
 
 ## Order of attack

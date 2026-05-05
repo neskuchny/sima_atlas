@@ -289,6 +289,7 @@ const FIELD_SCHEMA = {
 
 const FIELD_GUIDANCE = {
   'mission.md':    'Markdown — 4-8 sentences. Why does this block exist? What problem does it solve in the product?',
+  'user_story.md': 'Markdown — single user story in classic format: **Как** [persona] / **Когда** [trigger] / **Я хочу** [action] / **Чтобы** [outcome]. The OUTCOME line is what determines whether the block actually solves the right problem.',
   'kpi.md':        'Markdown — 2-5 measurable KPI lines as a bulleted list. Each line is one metric (latency, error rate, throughput, business KPI).',
   'acceptance.md': 'Markdown — 3-6 testable acceptance criteria as a checkbox list (- [ ] **A1.** ...). Each criterion must be verifiable from code or output.',
   'depends_on.md': 'Markdown — short bulleted list of blocks this depends on with the capability name (e.g. `- b.auth: rbac_check`).',
@@ -333,6 +334,102 @@ export async function fillField({ block_id, field, mission_context, layer, neigh
   });
   const content = String(r.value?.content || '').trim();
   return { ok: true, block_id, field, content, provider: r.trace?.provider || null, model: r.trace?.model || null, mock: r.trace?.provider === 'mock' };
+}
+
+// ─── reviewArchitecture (Phase Q-3) ───────────────────────────────
+// Whole-product LLM review. Looks at the graph, all blocks' missions
+// + tech_stacks, project.md (с заявленным load profile / multi-user /
+// фильтрами / etc) and surfaces architectural concerns.
+//
+// Returns:
+//   {verdict: 'aligned'|'drift'|'broken', concerns: [{kind, severity,
+//    evidence, fix?}], strengths: [string]}
+
+const ARCH_SCHEMA = {
+  type: 'object',
+  properties: {
+    verdict:    { type: 'string', enum: ['aligned', 'drift', 'broken'] },
+    summary:    { type: 'string' },
+    concerns:   {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          kind:     { type: 'string', enum: ['stack_consistency', 'scalability', 'multi_tenant', 'data_flow', 'security', 'missing_block', 'redundancy', 'condition'] },
+          severity: { type: 'string', enum: ['low', 'med', 'high'] },
+          evidence: { type: 'string' },
+          fix:      { type: 'string' },
+          blocks:   { type: 'array', items: { type: 'string' } },
+        },
+        required: ['kind', 'severity', 'evidence'],
+      },
+    },
+    strengths:  { type: 'array', items: { type: 'string' } },
+  },
+  required: ['verdict', 'summary'],
+};
+
+export async function reviewArchitecture({
+  project_md, rules_md, tech_stack_md,
+  blocks, edges,
+} = {}) {
+  if (!Array.isArray(blocks)) throw new Error('reviewArchitecture: blocks[] required');
+  const sys = [
+    'You are SIMA Atlas — a senior software architect.',
+    'Review THE ENTIRE PRODUCT (not one block). Surface architectural concerns:',
+    '',
+    'kinds:',
+    '  stack_consistency — different blocks declare incompatible frameworks',
+    '  scalability      — design will not handle the stated load profile',
+    '  multi_tenant     — single-tenant design where multi-user was promised (or vice versa)',
+    '  data_flow        — missing filtering / projection layer for fetching specific data',
+    '  security         — auth/authorization gaps between blocks',
+    '  missing_block    — a capability is required but no block provides it',
+    '  redundancy       — two blocks doing essentially the same thing',
+    '  condition        — project-wide condition stated in project.md/rules.md is violated',
+    '',
+    'Severity high = will fail in production / blocks shipping.',
+    'Severity med = will require painful rewrite later.',
+    'Severity low = nice-to-fix, not urgent.',
+    '',
+    'Be conservative — only flag what the input actually shows. Match input language.',
+    'Reply ONLY structured JSON.',
+  ].join('\n');
+  const blockSnippets = blocks.slice(0, 30).map((b) => {
+    return `- ${b.id} (${b.layer}) "${b.title}"
+  mission: ${(b.mission || '').slice(0, 280)}
+  stack: ${(b.tech_stack || []).join(', ') || '(none)'}
+  status: ${b.status}`;
+  }).join('\n');
+  const prompt = [
+    'PROJECT CONTEXT:',
+    `project.md:\n${(project_md || '(empty)').slice(0, 2000)}`,
+    `\nrules.md:\n${(rules_md || '(empty)').slice(0, 1500)}`,
+    `\ntech_stack.md:\n${(tech_stack_md || '(empty)').slice(0, 1000)}`,
+    '',
+    'BLOCKS:',
+    blockSnippets,
+    '',
+    'EDGES:',
+    (edges || []).slice(0, 50).map((e) => `${e.from} → ${e.to} (${e.kind || 'contract'}${e.capability ? ': ' + e.capability : ''})`).join('\n'),
+    '',
+    'Now review the architecture as a whole.',
+  ].join('\n');
+  const r = await callLLM({
+    system: sys, prompt, schema: ARCH_SCHEMA,
+    max_tokens: 1500, temperature: 0.2, op: 'review_architecture',
+  });
+  const v = r.value || {};
+  return {
+    ok: true,
+    verdict: ['aligned', 'drift', 'broken'].includes(v.verdict) ? v.verdict : 'drift',
+    summary: String(v.summary || '').trim(),
+    concerns: Array.isArray(v.concerns) ? v.concerns.filter((c) => c?.kind && c?.evidence).slice(0, 12) : [],
+    strengths: Array.isArray(v.strengths) ? v.strengths.filter(Boolean).map(String).slice(0, 8) : [],
+    provider: r.trace?.provider || null,
+    model: r.trace?.model || null,
+    mock: r.trace?.provider === 'mock',
+  };
 }
 
 // ─── extractInsights (Phase G) ───────────────────────────────────
@@ -421,7 +518,7 @@ const VALIDATE_SCHEMA = {
       items: {
         type: 'object',
         properties: {
-          kind:     { type: 'string', enum: ['mission', 'kpi', 'acceptance', 'rules', 'tech_stack', 'depends_on', 'condition'] },
+          kind:     { type: 'string', enum: ['mission', 'user_story', 'kpi', 'acceptance', 'rules', 'tech_stack', 'depends_on', 'condition'] },
           severity: { type: 'string', enum: ['low', 'med', 'high'] },
           evidence: { type: 'string' },
           fix:      { type: 'string' },
@@ -440,6 +537,7 @@ export async function validateBlock({
   decisions, checks_tail, files,
   project_md, rules_md, tech_stack_md,
   neighbors,
+  user_story, code_summary,
 } = {}) {
   if (!block_id) throw new Error('validateBlock: block_id required');
   const sys = [
@@ -454,12 +552,13 @@ export async function validateBlock({
     '',
     'For each violation classify the kind:',
     '  mission     — implementation diverges from why this block exists',
+    '  user_story  — code passes acceptance but does NOT actually solve the user story (the END USER would not get the intended outcome)',
     '  kpi         — a measurable target not met or not measured',
     '  acceptance  — a specific criterion not satisfied',
     '  rules       — violates rules.md (style, forbidden patterns)',
     '  tech_stack  — uses a lib/framework not in tech_stack.md',
     '  depends_on  — broken contract with neighbor (capability missing)',
-    '  condition   — block-specific condition (visual, functional) unmet',
+    '  condition   — block-specific condition (visual, functional) unmet — e.g. mission says "must use LLM for semantic decisions" but the code uses a static formula',
     '',
     'Be strict but fair. If evidence is missing, flag as drift+kpi (not measured).',
     'Reply ONLY with structured JSON matching the schema. Match the input language.',
@@ -469,6 +568,7 @@ export async function validateBlock({
     '',
     '== PROMISED ==',
     `mission.md:\n${(mission || '(empty)').slice(0, 2000)}`,
+    user_story ? `\nuser_story.md (КАК / КОГДА / ЧТО / ЗАЧЕМ):\n${user_story.slice(0, 1500)}` : '',
     `\nkpi.md:\n${(kpi || '(empty)').slice(0, 800)}`,
     `\nacceptance.md:\n${(acceptance || '(empty)').slice(0, 1500)}`,
     `\ntasks.md (что собирались сделать):\n${(tasks || '(empty)').slice(0, 1000)}`,
@@ -481,12 +581,13 @@ export async function validateBlock({
     `\ntech_stack.md:\n${(tech_stack_md || '(empty)').slice(0, 800)}`,
     '',
     '== ACTUAL ==',
+    code_summary ? `code_summary.md (что реально написано в коде блока):\n${code_summary.slice(0, 2000)}\n` : '',
     `decisions.log (последние записи):\n${(decisions || '(empty)').slice(0, 2000)}`,
     `\nchecks.log (последние проверки):\n${(checks_tail || '(empty)').slice(0, 1500)}`,
     `\nfiles.md (что относится к блоку):\n${(files || '(empty)').slice(0, 800)}`,
     '',
     neighbors?.length ? `== NEIGHBORS ==\n${neighbors.slice(0, 6).map((n) => `- ${n.id} (${n.layer}) provides:\n  ${(n.provides_md || '').slice(0, 200)}`).join('\n')}\n` : '',
-    'Now decide: does ACTUAL match PROMISED under CONSTRAINTS?',
+    'Now decide: does ACTUAL match PROMISED under CONSTRAINTS? Pay special attention to user_story (high-level intent) — code that satisfies acceptance but violates the user_story is still drift/broken.',
   ].join('\n');
   const r = await callLLM({
     system: sys,

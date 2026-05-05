@@ -204,6 +204,8 @@
     transcribe:   async (body_)        => await postJson('/api/intake/transcribe', body_),
     validateBlock:    async (block_id) => await postJson('/llm/validate-block', { block_id }),
     validationLatest: async (block_id) => await getJson('/llm/validate-block/get?block_id=' + encodeURIComponent(block_id)),
+    architectureReview:       async () => await postJson('/llm/architecture-review', {}),
+    architectureReviewLatest: async () => await getJson('/llm/architecture-review/get'),
     patchBlockFile: async (block_id, file, content) => await postJson('/atlas/blocks/patch-file', { block_id, file, content }),
   };
 

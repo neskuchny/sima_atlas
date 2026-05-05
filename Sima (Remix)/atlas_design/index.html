@@ -88,6 +88,7 @@ function App() {
   const [subagentsOpen, setSubagentsOpen] = useState(false);
   const [syncReportOpen, setSyncReportOpen] = useState(false);
   const [productReviewOpen, setProductReviewOpen] = useState(false);
+  const [archReviewOpen, setArchReviewOpen] = useState(false);
   const [proposalsCount, setProposalsCount] = useState(0);
   const [hooksOk, setHooksOk] = useState(null); // null=unknown true=ok false=drift
   // J3 — project picker. Reads available namespaces from /atlas/clients/list,
@@ -834,6 +835,7 @@ function App() {
           {scanState === 'scanning' ? 'проверяю…' : scanState === 'found' ? '⚠ есть дрейф' : '⟳ Sync'}
         </button>
         <button className="pill" onClick={() => setProductReviewOpen(true)} title="Глубокое ревью продукта — schema-syncer + LLM-судья по каждому блоку (миссия vs реализация)">🔍 Ревью продукта</button>
+        <button className="pill" onClick={() => setArchReviewOpen(true)} title="Архитектурное ревью — целостность фреймворков, масштаб, поток данных по всему графу">🏛 Архитектура</button>
         <button className="pill" onClick={() => setComposerOpen(true)} title="Синтезировать артефакт из источника">＋ Артефакт</button>
         <button className="pill" onClick={() => setGalleryOpen(true)} title="Галерея артефактов">⊞ Галерея</button>
         <button className="pill" onClick={() => setLibraryOpen(true)} title="Библиотека блоков">⌘ Библиотека</button>
@@ -1181,6 +1183,19 @@ function App() {
           onJumpToBlock={(bid) => {
             setSelectedId(bid);
             setProductReviewOpen(false);
+            setTweak('primaryView', 'split');
+            setDetailOpen(true);
+          }}
+        />
+      )}
+
+      {/* ARCHITECTURE REVIEW MODAL — Phase Q-3 */}
+      {archReviewOpen && (
+        <ArchReviewPanel
+          onClose={() => setArchReviewOpen(false)}
+          onJumpToBlock={(bid) => {
+            setSelectedId(bid);
+            setArchReviewOpen(false);
             setTweak('primaryView', 'split');
             setDetailOpen(true);
           }}

@@ -92,8 +92,10 @@ export function createBlock({ atlas_root, body } = {}) {
     if (!fs.existsSync(p)) fs.writeFileSync(p, content, 'utf8');
   };
   seed('mission.md', `# ${id} — mission\n\n${body.mission || `Описание модуля ${block.title}. Заполни через детальную панель или через Claude.`}\n\n## Layer\n${block.layer}\n`);
+  seed('user_story.md', `# ${id} — user story\n\n_(Phase Q-1: что пользователь делает, ожидает увидеть, и почему ему это нужно)_\n\n**Как** [персона]\n**Когда** [триггер / контекст]\n**Я хочу** [действие]\n**Чтобы** [outcome / value]\n\n_Acceptance — нижний слой; user story — верхний. LLM-валидатор проверяет что код реально решает эту историю, а не выполняет acceptance формально._\n`);
   seed('kpi.md',     `# ${id} — KPI\n\n- KPI-1: добавь конкретную метрику успеха модуля.\n`);
   seed('acceptance.md', `# ${id} — acceptance\n\n- [ ] **A1.** Заполни через детальную панель: что именно подтвердит готовность модуля.\n`);
+  seed('code_summary.md', `# ${id} — code summary\n\n_(Phase Q-2: автоген после run-а — на чём написан, как, зачем; LLM регенерит при изменении файлов)_\n\n_не сгенерировано_\n`);
   seed('tasks.md',   `# ${id} — tasks\n\n- [ ] T1: первая задача — заполнить mission.md и acceptance.md.\n`);
   seed('depends_on.md', `# ${id} — depends_on\n\n- none\n`);
   seed('provides.md',   `# ${id} — provides\n\n- ${id.replace(/^b\./, '').replace(/[^a-z0-9_]/gi, '_')}_capability\n`);
@@ -346,9 +348,12 @@ export function deleteNote({ atlas_root, note_id } = {}) {
 // the synthesis flow to populate mission.md / kpi.md / acceptance.md /
 // depends_on.md / provides.md after Sima generates a draft. Whitelisted
 // to prevent arbitrary file writes through this endpoint.
+// Phase Q-1: user_story.md added (6th contract file).
+// Phase Q-2: code_summary.md added (auto-generated description of code).
 const WRITABLE_BLOCK_FILES = new Set([
   'mission.md', 'kpi.md', 'acceptance.md', 'tasks.md',
   'depends_on.md', 'provides.md', 'files.md',
+  'user_story.md', 'code_summary.md',
 ]);
 // Optional `if_match_mtime`: ISO mtime of the file when the caller read it.
 // If the on-disk mtime has advanced past it, throws EtagMismatchError so

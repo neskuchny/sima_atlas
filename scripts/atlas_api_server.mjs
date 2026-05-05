@@ -347,7 +347,7 @@ const server = http.createServer((req, res) => {
   const BLOCK_FILE_WHITELIST = new Set([
     'mission.md', 'kpi.md', 'acceptance.md', 'tasks.md', 'depends_on.md',
     'provides.md', 'files.md', 'checks.log', 'decisions.log', 'patterns.md',
-    'lessons.md',
+    'lessons.md', 'user_story.md', 'code_summary.md',
   ]);
   {
     const m = req.method === 'GET' && req.url.match(/^\/atlas\/blocks\/([a-zA-Z0-9._-]+)\/file\?(.*)$/);
@@ -365,6 +365,15 @@ const server = http.createServer((req, res) => {
       }
     }
   }
+  // Phase Q-3: latest architecture review (atlas/architecture_reviews/_latest.json)
+  if (req.method === 'GET' && req.url === '/llm/architecture-review/get') {
+    try {
+      const p = path.join(ATLAS, 'architecture_reviews', '_latest.json');
+      if (!fs.existsSync(p)) return json(res, 200, { ok: false, error: 'not_found' });
+      return json(res, 200, JSON.parse(fs.readFileSync(p, 'utf8')));
+    } catch (e) { return json(res, 200, { ok: false, error: String(e.message || e) }); }
+  }
+
   // Phase N-1: latest persisted LLM-validator verdict (atlas/validations/<id>/_latest.json)
   if (req.method === 'GET' && req.url.startsWith('/llm/validate-block/get')) {
     try {
@@ -947,6 +956,47 @@ const server = http.createServer((req, res) => {
           neighbors: body.neighbors || undefined,
         }).then((r) => json(res, 200, r), (e) => json(res, 200, { ok: false, error: String(e.message || e) }));
       }
+      // Phase Q-3: architecture review across the whole product.
+      // Reads project + rules + tech_stack + every live block's mission +
+      // tech_stack + edges → asks the LLM for systemic concerns.
+      // Persisted to atlas/architecture_reviews/_latest.json.
+      if (req.url === '/llm/architecture-review') {
+        try {
+          const safeRead = (p, max = 4000) => { try { return fs.existsSync(p) ? fs.readFileSync(p, 'utf8').slice(0, max) : ''; } catch { return ''; } };
+          const graphPath = path.join(ATLAS, 'graph.json');
+          if (!fs.existsSync(graphPath)) return json(res, 200, { ok: false, error: 'graph.json missing' });
+          const graph = JSON.parse(fs.readFileSync(graphPath, 'utf8'));
+          const live = (graph.blocks || []).filter((b) => b.status !== 'archived');
+          const blocks = live.map((b) => ({
+            id: b.id,
+            title: b.title || b.id,
+            layer: b.layer || 'logic',
+            status: b.status || 'idea',
+            tech_stack: b.tech_stack || [],
+            mission: safeRead(path.join(ATLAS, 'blocks', b.id, 'mission.md'), 1000),
+          }));
+          const inputs = {
+            project_md:    safeRead(path.join(ATLAS, 'project.md'), 3000),
+            rules_md:      safeRead(path.join(ATLAS, 'rules.md'), 2000),
+            tech_stack_md: safeRead(path.join(ATLAS, 'tech_stack.md'), 1500),
+            blocks,
+            edges: graph.edges || [],
+          };
+          return synthApi.reviewArchitecture(inputs).then((r) => {
+            try {
+              const dir = path.join(ATLAS, 'architecture_reviews');
+              fs.mkdirSync(dir, { recursive: true });
+              const ts = new Date().toISOString();
+              fs.writeFileSync(path.join(dir, '_latest.json'), JSON.stringify({ ...r, checked_at: ts, block_count: blocks.length }, null, 2) + '\n', 'utf8');
+              fs.writeFileSync(path.join(dir, `${ts.replace(/[:.]/g, '-')}.json`), JSON.stringify({ ...r, checked_at: ts, block_count: blocks.length }, null, 2) + '\n', 'utf8');
+            } catch {}
+            return json(res, 200, { ...r, block_count: blocks.length });
+          }, (e) => json(res, 200, { ok: false, error: String(e.message || e) }));
+        } catch (e) {
+          return json(res, 200, { ok: false, error: String(e.message || e) });
+        }
+      }
+
       // Phase N-1: LLM-validator «миссия vs реализация».
       // Assembles all block files + global rules + neighbor provides
       // server-side, then asks the LLM whether ACTUAL matches PROMISED.
@@ -970,6 +1020,7 @@ const server = http.createServer((req, res) => {
           const inputs = {
             block_id: bid,
             mission:       safeRead(path.join(blkDir, 'mission.md')),
+            user_story:    safeRead(path.join(blkDir, 'user_story.md'), 2000),
             kpi:           safeRead(path.join(blkDir, 'kpi.md')),
             acceptance:    safeRead(path.join(blkDir, 'acceptance.md')),
             tasks:         safeRead(path.join(blkDir, 'tasks.md')),
@@ -978,6 +1029,7 @@ const server = http.createServer((req, res) => {
             decisions:     tail(path.join(blkDir, 'decisions.log'), 40),
             checks_tail:   tail(path.join(blkDir, 'checks.log'), 25),
             files:         safeRead(path.join(blkDir, 'files.md'), 1500),
+            code_summary:  safeRead(path.join(blkDir, 'code_summary.md'), 2500),
             project_md:    safeRead(path.join(ATLAS, 'project.md')),
             rules_md:      safeRead(path.join(ATLAS, 'rules.md')),
             tech_stack_md: safeRead(path.join(ATLAS, 'tech_stack.md')),

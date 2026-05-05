@@ -2135,3 +2135,6 @@ html, body {
   font-family: 'JetBrains Mono', monospace;
 }
 .np-pill.done { background: rgba(60, 160, 100, 0.16); color: #2d6e3f; }
+
+/* Q-3 — Architecture review modal */
+.arch-review-box { width: min(960px, 94vw); max-height: 90vh; display: flex; flex-direction: column; background: var(--paper); padding: 0; }
