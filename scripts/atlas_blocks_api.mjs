@@ -141,7 +141,7 @@ export function patchBlock({ atlas_root, block_id, body } = {}) {
   }
 
   const changed = {};
-  for (const f of ['title', 'status', 'layer', 'type', 'status_reason']) {
+  for (const f of ['title', 'status', 'layer', 'type', 'status_reason', 'ui_url']) {
     if (typeof body[f] === 'string' && body[f] !== block[f]) {
       block[f] = body[f]; changed[f] = body[f];
     }

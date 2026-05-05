@@ -2138,3 +2138,20 @@ html, body {
 
 /* Q-3 — Architecture review modal */
 .arch-review-box { width: min(960px, 94vw); max-height: 90vh; display: flex; flex-direction: column; background: var(--paper); padding: 0; }
+
+/* P-3 — Block screenshot */
+.block-screenshot {
+  background: var(--card); border: 1px solid var(--rule); border-radius: 8px;
+  padding: 8px; display: flex; flex-direction: column; gap: 6px;
+}
+.block-screenshot-img-wrap {
+  display: block; cursor: zoom-in;
+  border-radius: 4px; overflow: hidden;
+  background: var(--card-2);
+}
+.block-screenshot-img-wrap img { width: 100%; height: auto; display: block; }
+.block-screenshot-empty {
+  padding: 28px 12px; text-align: center; font-style: italic;
+  border: 1px dashed var(--rule); border-radius: 4px;
+}
+.block-screenshot-meta { font-size: 11px; color: var(--ink-3); display: flex; gap: 12px; }

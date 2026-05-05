@@ -214,6 +214,54 @@ const server = http.createServer((req, res) => {
     }
   }
 
+  // Phase P-3 — block screenshots: GET binary file. URL pattern:
+  //   /atlas/blocks/<id>/screenshot-file?name=<filename>
+  // name is whitelisted to *.png in the block's screenshots/ dir.
+  {
+    const m = req.method === 'GET' && req.url.match(/^\/atlas\/blocks\/([a-zA-Z0-9._-]+)\/screenshot-file\?(.*)$/);
+    if (m) {
+      try {
+        const block_id = m[1];
+        const u = new URLSearchParams(m[2]);
+        const name = (u.get('name') || 'latest.png').replace(/[^a-zA-Z0-9._-]/g, '');
+        if (!/^[a-zA-Z0-9._-]+\.png$/.test(name)) return json(res, 200, { ok: false, error: 'forbidden' });
+        const p = path.join(ATLAS, 'blocks', block_id, 'screenshots', name);
+        if (!fs.existsSync(p)) return json(res, 404, { ok: false, error: 'not_found' });
+        const buf = fs.readFileSync(p);
+        res.writeHead(200, {
+          'content-type': 'image/png',
+          'content-length': buf.length,
+          'access-control-allow-origin': '*',
+          'cache-control': 'no-cache',
+        });
+        return res.end(buf);
+      } catch (e) {
+        return json(res, 200, { ok: false, error: String(e.message || e) });
+      }
+    }
+  }
+  // Phase P-3 — list block screenshots (filenames only, sorted newest-first).
+  {
+    const m = req.method === 'GET' && req.url.match(/^\/atlas\/blocks\/([a-zA-Z0-9._-]+)\/screenshots$/);
+    if (m) {
+      try {
+        const dir = path.join(ATLAS, 'blocks', m[1], 'screenshots');
+        if (!fs.existsSync(dir)) return json(res, 200, { ok: true, block_id: m[1], files: [] });
+        const files = fs.readdirSync(dir)
+          .filter((f) => /\.png$/.test(f) && f !== 'latest.png')
+          .sort().reverse()
+          .map((f) => {
+            const stat = fs.statSync(path.join(dir, f));
+            return { name: f, bytes: stat.size, mtime: stat.mtime.toISOString() };
+          });
+        const hasLatest = fs.existsSync(path.join(dir, 'latest.png'));
+        return json(res, 200, { ok: true, block_id: m[1], files, has_latest: hasLatest });
+      } catch (e) {
+        return json(res, 200, { ok: false, error: String(e.message || e) });
+      }
+    }
+  }
+
   // Phase N-2 — files registry (alive/dead/archived).
   if (req.method === 'GET' && req.url.startsWith('/atlas/files/list')) {
     try {
@@ -457,7 +505,7 @@ const server = http.createServer((req, res) => {
 
   let raw = '';
   req.on('data', d => raw += d);
-  req.on('end', () => {
+  req.on('end', async () => {
     let body = {};
     try { body = raw ? JSON.parse(raw) : {}; } catch { return json(res, 400, { ok: false, error: 'invalid json' }); }
     try {
@@ -1094,6 +1142,26 @@ const server = http.createServer((req, res) => {
           hint: 'Установите WHISPER_API_KEY и реализуйте provider в scripts/atlas_synthesis_api.mjs::transcribe(). Пока что вставьте транскрипт в поле «Текст».',
         });
       }
+      // Phase P-3 — capture a screenshot of a block's UI. body:
+      //   { block_id, url? (optional override), full? }
+      // If url not given, falls back to graph.json block.ui_url. Returns
+      // {ok, file, captured_at} or {ok:false, error} (e.g. when
+      // playwright is missing or sandbox can't reach the URL).
+      const screenshotM = req.url.match(/^\/atlas\/blocks\/([a-zA-Z0-9._-]+)\/screenshot$/);
+      if (screenshotM) {
+        const bid = screenshotM[1];
+        try {
+          const { screenshotBlock } = await import('./screenshot_block.mjs');
+          return screenshotBlock({
+            block_id: bid,
+            url: body.url ? String(body.url) : undefined,
+            fullPage: !!body.full,
+          }).then((r) => json(res, 200, r), (e) => json(res, 200, { ok: false, error: String(e.message || e) }));
+        } catch (e) {
+          return json(res, 200, { ok: false, error: String(e.message || e) });
+        }
+      }
+
       // /atlas/blocks/patch-file — write a block's mission.md/kpi.md/etc.
       // body.if_match_mtime (ISO) → ETag-style guard against clobbering
       // changes made between read and write.

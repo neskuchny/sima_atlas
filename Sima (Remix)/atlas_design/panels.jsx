@@ -211,12 +211,116 @@ function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSu
         <button onClick={() => onSendToAgent('codex', m)}>Codex</button>
       </div>
 
+      <BlockScreenshot block={m} />
+
       <h3>Документы</h3>
       <div className="send-task">
         <span className="lab">Сгенерировать / экспорт →</span>
         {onOpenTz && <button onClick={() => onOpenTz(m.id)}>✎ ТЗ блока</button>}
         <UserDocsButton blockId={m.id} />
         {onClaudeAdvice && <button onClick={() => onClaudeAdvice(m)}>✨ Совет Клода</button>}
+      </div>
+    </>
+  );
+}
+
+// P-3 — block screenshot section. Shows latest captured image (or empty
+// state) and a button to trigger a fresh capture against block.ui_url.
+// Operator can edit the ui_url inline; saves via patchBlock.
+function BlockScreenshot({ block }) {
+  const [busy, setBusy] = useState2(false);
+  const [info, setInfo] = useState2(null);
+  const [bumper, setBumper] = useState2(0); // cache-buster for <img src>
+  const [editing, setEditing] = useState2(false);
+  const [urlDraft, setUrlDraft] = useState2(block?.ui_url || '');
+  const [urlSaveMsg, setUrlSaveMsg] = useState2(null);
+
+  const refresh = async () => {
+    if (!block?.id || !block.id.startsWith('b.')) return;
+    const r = await window.SIMA_API?.meta?.screenshotsList(block.id);
+    setInfo(r?.ok ? r : null);
+  };
+  useEffect2(() => { refresh(); /* eslint-disable-next-line */ }, [block?.id]);
+  useEffect2(() => { setUrlDraft(block?.ui_url || ''); }, [block?.id, block?.ui_url]);
+
+  const capture = async () => {
+    setBusy(true);
+    const r = await window.SIMA_API.meta.screenshotCapture(block.id, {});
+    setBusy(false);
+    if (r?.ok) {
+      setBumper(Date.now());
+      refresh();
+    } else {
+      window.alert(r?.error || 'screenshot failed');
+    }
+  };
+
+  const saveUrl = async () => {
+    setUrlSaveMsg(null);
+    const u = urlDraft.trim();
+    if (u && !/^https?:\/\//.test(u)) {
+      setUrlSaveMsg({ kind: 'fail', text: 'URL должен начинаться с http:// или https://' });
+      return;
+    }
+    const r = await window.SIMA_API.patchBlock(block.id, { ui_url: u });
+    if (r?.ok) {
+      setEditing(false);
+      setUrlSaveMsg({ kind: 'ok', text: '✓ сохранено' });
+      setTimeout(() => setUrlSaveMsg(null), 2200);
+    } else {
+      setUrlSaveMsg({ kind: 'fail', text: r?.error || 'save failed' });
+    }
+  };
+
+  if (!block?.id || !block.id.startsWith('b.')) return null;
+  const apiBase = (window.SIMA_API_BASE || 'http://localhost:8787').replace(/\/$/, '');
+  const hasShot = info?.has_latest;
+  const imgSrc = hasShot ? `${apiBase}/atlas/blocks/${encodeURIComponent(block.id)}/screenshot-file?name=latest.png&t=${bumper}` : null;
+
+  return (
+    <>
+      <h3>Скрин блока</h3>
+      <div className="block-screenshot">
+        {hasShot ? (
+          <a href={imgSrc} target="_blank" rel="noreferrer" className="block-screenshot-img-wrap">
+            <img src={imgSrc} alt={`screenshot of ${block.id}`} />
+          </a>
+        ) : (
+          <div className="block-screenshot-empty meta">
+            {block.ui_url
+              ? 'Скрин ещё не снят. Нажмите ниже.'
+              : 'Задайте ui_url блока, чтобы Sima могла снять скрин.'}
+          </div>
+        )}
+        <div className="block-screenshot-meta meta">
+          {info?.files?.[0] && <span>обновлено: {String(info.files[0].mtime).slice(0, 16).replace('T', ' ')} · {(info.files[0].bytes / 1024).toFixed(1)} КБ</span>}
+          {info?.files?.length > 1 && <span style={{ marginLeft: 8 }}>история: {info.files.length}</span>}
+        </div>
+      </div>
+      <div className="send-task" style={{ marginTop: 8, alignItems: 'flex-start' }}>
+        <span className="lab" style={{ paddingTop: 6 }}>UI URL →</span>
+        {editing ? (
+          <>
+            <input
+              className="composer-input"
+              placeholder="https://your-app.example.com/feature"
+              value={urlDraft}
+              onChange={(e) => setUrlDraft(e.target.value)}
+              style={{ flex: 1, minWidth: 200 }}
+            />
+            <button onClick={saveUrl}>💾 сохранить</button>
+            <button onClick={() => { setEditing(false); setUrlDraft(block.ui_url || ''); }}>отмена</button>
+          </>
+        ) : (
+          <>
+            <span className="mono" style={{ fontSize: 11, color: 'var(--ink-3)', flex: 1 }}>
+              {block.ui_url || '_(не задан)_'}
+            </span>
+            <button onClick={() => setEditing(true)}>✎ изменить</button>
+          </>
+        )}
+        <button onClick={capture} disabled={busy || !block.ui_url}>{busy ? 'снимаю…' : '📸 снять скрин'}</button>
+        {urlSaveMsg && <span className={`composer-result ${urlSaveMsg.kind}`} style={{ fontSize: 11, padding: '2px 8px', marginLeft: 4 }}>{urlSaveMsg.text}</span>}
       </div>
     </>
   );

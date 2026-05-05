@@ -386,7 +386,12 @@ kpi / acceptance**. Сейчас этого нет.
 ## Что осталось из ТЗ (P1 — приоритет средний)
 
 - [x] Счётчики «N/M задач, K/L KPI» на карточках в графе (Phase P-1.1)
-- [ ] screenshots/<block>/ + автозахват per-block
+- [x] screenshots/<block>/ + автозахват per-block (Phase P-3) —
+      `scripts/screenshot_block.mjs` через Playwright; `block.ui_url`
+      редактируется в Overview; «📸 Снять скрин» + thumbnail.
+      POST /atlas/blocks/<id>/screenshot + GET /atlas/blocks/<id>/screenshots +
+      GET /atlas/blocks/<id>/screenshot-file?name= (binary serve).
+      Cap при 10 версиях per block. End-to-end smoke: example.com → 4.7KB PNG.
 - [x] history/<block>/ diff-версии mission при patchBlockFile (Phase P-1.2)
 - [x] Sync-report viewer (Phase O-1)
 - [x] Демо-проект `atlas/clients/example/` (Phase P-2.1) — Habit

@@ -182,7 +182,7 @@
     },
     {
       "id": "b.docs",
-      "_raw_updated_at": null,
+      "_raw_updated_at": "2026-05-05T11:12:06.843Z",
       "title": "Docs Builder",
       "tag": "docs",
       "layer": "backend",
@@ -1778,7 +1778,7 @@
     }
   ],
   "_meta": {
-    "generated_at": "2026-05-05T10:57:54.715Z",
+    "generated_at": "2026-05-05T11:13:18.442Z",
     "atlas_root": "atlas",
     "client_id": null,
     "block_count": 10,

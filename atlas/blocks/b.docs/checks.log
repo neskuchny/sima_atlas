@@ -50,3 +50,6 @@
 2026-05-02T11:34:35Z	pr4_1_windows_fixes	pass	provider cascade respects LLM_DEFAULT_PROVIDER pin; llm_check.mjs diag; index.html for http.server; analyze --text/--stdin for PowerShell; HOWTO Windows section
 2026-05-02T13:03:53Z	pr5_demo_project	pass	atlas/projects/demo-todo with 5 blocks; bootstrap multi-project; validate_projects gate; smoke checks both projects
 2026-05-04T13:00:00Z	pr_2_mermaid_in_nightly	pass	A2 fixed: nightly_consolidation.mjs now runs render_wiki_html.mjs after generate_wiki.mjs so wiki.html carries the live mermaid graph (line 20: `<div class="mermaid">flowchart TB...`). Root cause was that generate_wiki always emitted ```mermaid fence in WIKI.md, but render_wiki_html (which converts the fence into a div with class="mermaid") wasn't part of nightly. Verifier now reports A2 pass via log_grep on `class="mermaid"` in atlas/wiki.html. b.docs verdict: pass (3/0/2 — A1+A2+A4 deterministic green; A3+A5 stay llm_judge as semantic claims).
+2026-05-05T11:11:52.412Z	design_patch	pass	{"ui_url":"https://example.com","updated_at":"2026-05-05T11:11:52.412Z"}
+2026-05-05T11:11:53.445Z	screenshot	pass	https://example.com
+2026-05-05T11:12:06.843Z	design_patch	pass	{"ui_url":"","updated_at":"2026-05-05T11:12:06.843Z"}
