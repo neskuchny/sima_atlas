@@ -235,6 +235,8 @@
     filesMark:    async (path_, status, block_id, reason) => await postJson('/atlas/files/mark', { path: path_, status, block_id, reason }),
     filesSyncFromBlock: async (block_id) => await postJson('/atlas/files/sync-from-block', { block_id }),
     subagentRun:  async (name, body_) => await postJson('/atlas/subagents/run', { name, ...(body_ || {}) }),
+    userDocsRegenerate: async (block_id) => await postJson('/user-docs/regenerate', { block_id }),
+    operatorProfile:    async ()         => await getJson('/atlas/operator-profile/get'),
     proposalAccept:async (proposal_id)     => await postJson('/proposals/accept', { proposal_id }),
     proposalReject:async (proposal_id, reason) => await postJson('/proposals/reject', { proposal_id, reason }),
     cursorHooksStatus: async ()            => await getJson('/atlas/cursor-hooks/status'),

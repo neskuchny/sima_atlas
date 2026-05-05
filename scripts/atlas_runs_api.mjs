@@ -283,15 +283,43 @@ const ADVICE_PROMPTS = {
   gallery:         'Browsing artefacts. Suggest which artefact is most worth turning into a block right now.',
 };
 
+// Phase O-4: pull a tight operator-profile snippet for graph-level
+// advice so Sima can reference the user's stack history / don't-use
+// list when deciding what to suggest. Returns empty string when the
+// profile is warming up (no aggregated data yet) or absent.
+function readOperatorProfileSnippet() {
+  try {
+    const p = path.join(ATLAS_DEFAULT, 'operator_profile', 'profile.json');
+    if (!fs.existsSync(p)) return '';
+    const prof = JSON.parse(fs.readFileSync(p, 'utf8'));
+    if (prof._status === 'warming_up') return '';
+    const parts = [];
+    if (Array.isArray(prof.tech_stack_history) && prof.tech_stack_history.length) {
+      parts.push(`tech_stack_history: ${prof.tech_stack_history.slice(0, 8).map((t) => t.value || t).join(', ')}`);
+    }
+    if (Array.isArray(prof.dont_use) && prof.dont_use.length) {
+      parts.push(`dont_use: ${prof.dont_use.slice(0, 8).map((t) => t.value || t).join(', ')}`);
+    }
+    if (Array.isArray(prof.lesson) && prof.lesson.length) {
+      parts.push(`recent lessons: ${prof.lesson.slice(0, 4).map((l) => l.summary || l.note || '').filter(Boolean).join('; ')}`);
+    }
+    return parts.length ? `Operator profile (Sima knows about you): ${parts.join(' | ')}` : '';
+  } catch { return ''; }
+}
+
 export async function callAdvice({ block_id, prompt, context, context_kind } = {}) {
   const { callLLM } = await import('./llm_gateway.mjs');
   const kind = ADVICE_PROMPTS[context_kind] ? context_kind : 'block';
+  // Profile awareness only for graph-level advice — adding it to
+  // every block-level call would add noise without benefit.
+  const profileSnippet = ['graph_overview', 'gallery'].includes(kind) ? readOperatorProfileSnippet() : '';
   const sys = [
     'You are SIMA Atlas — a coding architect.',
     ADVICE_PROMPTS[kind],
+    profileSnippet ? `\n${profileSnippet}\nUse this to bias recommendations toward the operator's preferences.` : '',
     'Reply in the same language the user wrote in (Russian if Russian, English if English).',
     'Keep replies under 6 short sentences. No fluff, no preamble.',
-  ].join(' ');
+  ].filter(Boolean).join(' ');
   const ctx = context && typeof context === 'object'
     ? `\n\nContext: ${JSON.stringify(context).slice(0, 1500)}`
     : '';

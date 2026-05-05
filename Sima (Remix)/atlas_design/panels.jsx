@@ -204,8 +204,38 @@ function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSu
       <div className="send-task">
         <span className="lab">Сгенерировать / экспорт →</span>
         {onOpenTz && <button onClick={() => onOpenTz(m.id)}>✎ ТЗ блока</button>}
+        <UserDocsButton blockId={m.id} />
         {onClaudeAdvice && <button onClick={() => onClaudeAdvice(m)}>✨ Совет Клода</button>}
       </div>
+    </>
+  );
+}
+
+// O-3 button: regenerates the end-user click-walkthrough doc
+// (atlas/docs/end-user/<block>.md) via /user-docs/regenerate. The
+// generator already produces step-by-step {action, target, expected}
+// content via LLM; this just exposes the trigger from DetailPanel.
+function UserDocsButton({ blockId }) {
+  const [busy, setBusy] = useState2(false);
+  const [msg, setMsg] = useState2(null);
+  if (!blockId || !blockId.startsWith('b.')) return null;
+  const click = async () => {
+    setBusy(true); setMsg(null);
+    const r = await window.SIMA_API?.meta?.userDocsRegenerate(blockId);
+    setBusy(false);
+    if (!r) { setMsg({ kind: 'fail', text: 'нет ответа' }); return; }
+    setMsg({
+      kind: r.ok ? 'ok' : 'fail',
+      text: r.ok ? '✓ доки сгенерированы — открой 📖 Доки → Пользователю' : `✗ ${r.error || 'failed'}`,
+    });
+    setTimeout(() => setMsg(null), 3500);
+  };
+  return (
+    <>
+      <button onClick={click} disabled={busy} title="Сгенерировать пошаговый гайд для конечного пользователя (Click X → field Y → button Z)">
+        {busy ? '…' : '📖 Гайд пользователю'}
+      </button>
+      {msg && <span className={`composer-result ${msg.kind}`} style={{ fontSize: 11, padding: '2px 8px', marginLeft: 6 }}>{msg.text}</span>}
     </>
   );
 }

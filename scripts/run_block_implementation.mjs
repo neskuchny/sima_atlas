@@ -274,13 +274,22 @@ fsm(verifierVerdict === 'fail' ? 'Failed' : 'Succeeded', {
   diff_proposal_id: diffProposalId,
 });
 
-// Phase O-5: reflect on this run — pull lesson from log + verdicts and
-// append to the block's patterns.md / decisions.log so the NEXT run
-// already starts with this experience in its context-pack. Skipped via
-// ATLAS_SKIP_REFLECT=1 (e.g. for selftests). Mock-provider falls back
-// to a generic empty reflection but still advances the file (labelled
-// [demo]) — never fails the run.
+// Phase O-5 + O-2: post-run analysis pipeline (separate concerns).
+//   distill → atomic decisions from log → decisions.log     (history)
+//   reflect → short lesson worked/failed/next time → patterns.md (advice)
+// Future agent runs read both via context-pack. Skipped via
+// ATLAS_SKIP_REFLECT=1 (e.g. for selftests). Mock provider returns
+// empty/[demo] but never fails the run.
 if (process.env.ATLAS_SKIP_REFLECT !== '1' && runState?.run_id) {
+  try {
+    const { distillRunLog } = await import('./distill_run_log.mjs');
+    const d = await distillRunLog(runState.run_id);
+    if (d.ok && d.written) console.log(`  ✓ distill: ${d.written} decisions → ${blockId}/decisions.log${d.mock ? ' (demo)' : ''}`);
+    else if (d.ok && d.skipped) console.log(`  · distill: ${d.skipped}`);
+    else console.log(`  · distill: ${d.error || 'no decisions extracted'}`);
+  } catch (e) {
+    console.log(`  · distill: failed (${e.message})`);
+  }
   try {
     const { reflectAfterRun } = await import('./reflect_after_run.mjs');
     const r = await reflectAfterRun(runState.run_id);

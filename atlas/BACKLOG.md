@@ -410,10 +410,24 @@ kpi / acceptance**. Сейчас этого нет.
       Succeeded/Failed`. Skip via `ATLAS_SKIP_REFLECT=1`. Mock provider
       не падает — пишет «[demo]» секцию.
 
-- [ ] **O2** Auto-ingest run log → distillate в decisions.log блока
-      (отдельно от reflection — для длинного транскрипта)
-- [ ] **O3** Click-walkthrough tutorials с привязкой UI компонентов
-- [ ] **O4** Operator-profile-aware advice + «Профиль» tab
+- [x] **O2** `distill_run_log.mjs` извлекает 3-8 ADR-style decisions
+      из stdout агента (kind: choice/switch/add/remove/fix/discover/
+      block) → дописывает в `decisions.log` блока. Идемпотентно через
+      «уже видел этот run_id». Вызывается из run_block_implementation
+      рядом с reflect_after_run (distill = history, reflect = advice).
+- [x] **O3** Click-walkthrough tutorials. Backend (generate_user_docs)
+      уже умел `{action, target, expected}` пошаговые гайды.
+      Не хватало UI-триггера: добавил «📖 Гайд пользователю» в
+      DetailPanel.Overview → POST `/user-docs/regenerate` →
+      файл сразу видно в `📖 Доки → Пользователю`.
+- [x] **O4** Operator-profile awareness:
+      - `callAdvice` для kinds graph_overview / gallery читает
+        `atlas/operator_profile/profile.json` и подставляет
+        tech_stack_history + dont_use + recent lessons в system-prompt.
+      - Новая tab «Профиль» в `📖 Доки`: статус (warming_up / ready),
+        стек который используешь, dont-use list, последние уроки,
+        warming-up прогресс (X/5 done-блоков, Y/10 запусков).
+      - GET `/atlas/operator-profile/get` route.
 
 ---
 

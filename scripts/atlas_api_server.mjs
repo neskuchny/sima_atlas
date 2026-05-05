@@ -202,6 +202,18 @@ const server = http.createServer((req, res) => {
     }
   }
 
+  // Phase O-4 — operator profile (read-only). Frontend «Профиль» tab.
+  if (req.method === 'GET' && req.url === '/atlas/operator-profile/get') {
+    try {
+      const p = path.join(ATLAS, 'operator_profile', 'profile.json');
+      if (!fs.existsSync(p)) return json(res, 200, { ok: true, profile: null, hint: 'no profile yet — run aggregate_operator_profile.mjs' });
+      const profile = JSON.parse(fs.readFileSync(p, 'utf8'));
+      return json(res, 200, { ok: true, profile });
+    } catch (e) {
+      return json(res, 200, { ok: false, error: String(e.message || e) });
+    }
+  }
+
   // Phase N-2 — files registry (alive/dead/archived).
   if (req.method === 'GET' && req.url.startsWith('/atlas/files/list')) {
     try {

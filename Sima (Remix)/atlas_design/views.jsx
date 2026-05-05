@@ -788,6 +788,8 @@ function SystemDocs({ onClose }) {
   const [openDocFor, setOpenDocFor] = useStateV(null);
   const [docContent, setDocContent] = useStateV('');
   const [meta, setMeta] = useStateV(null);
+  // Phase O-4: operator profile tab data
+  const [profile, setProfile] = useStateV(null);
 
   const EDITABLE = new Set(['project.md', 'rules.md', 'tech_stack.md']);
   const tabToFile = (t) => ({
@@ -806,6 +808,9 @@ function SystemDocs({ onClose }) {
       } else if (tab === 'docs') {
         const r = await window.SIMA_API.meta.userDocsList();
         if (alive && r?.ok) setDocs(r.docs || []);
+      } else if (tab === 'profile') {
+        const r = await window.SIMA_API.meta.operatorProfile();
+        if (alive && r?.ok) setProfile(r.profile || null);
       }
     })();
     return () => { alive = false; };
@@ -837,6 +842,7 @@ function SystemDocs({ onClose }) {
   }, [openDocFor]);
 
   const tabs = [
+    { id: 'profile',  label: 'Профиль', special: 'profile' },
     { id: 'roadmap',  label: 'Roadmap' },
     { id: 'wiki',     label: 'Wiki (mermaid)' },
     { id: 'wiki-md',  label: 'WIKI.md' },
@@ -912,6 +918,70 @@ function SystemDocs({ onClose }) {
                   <span className="meta">→</span>
                 </div>
               ))}
+            </div>
+          )}
+          {tab === 'profile' && (
+            <div className="profile-body">
+              {!profile && <div className="meta" style={{ padding: 14 }}>Профиль не сгенерирован. Запустите node scripts/aggregate_operator_profile.mjs.</div>}
+              {profile && (
+                <>
+                  <div className="acc-counts mono" style={{ marginBottom: 12 }}>
+                    <span className="acc-pill">{profile._status || 'ready'}</span>
+                    {profile.updated_at && <span className="acc-pill">обновлено {String(profile.updated_at).slice(0, 16).replace('T', ' ')}</span>}
+                    <span className="acc-pill">operator: {profile.operator_id || 'default'}</span>
+                  </div>
+                  {profile._status === 'warming_up' && (
+                    <div className="lesson" style={{ marginBottom: 12 }}>
+                      Sima пока что собирает данные о тебе. Нужно ещё{' '}
+                      <strong>{(profile._min_data?.done_required || 5) - (profile._min_data?.done_transitions || 0)}</strong> done-блоков и{' '}
+                      <strong>{(profile._min_data?.invocations_required || 10) - (profile._min_data?.invocations || 0)}</strong> запусков агентов
+                      чтобы профиль стал готовым. Сейчас собрано: {profile._preview?.total_traces} LLM-трейсов · {profile._preview?.total_proposals} предложений.
+                    </div>
+                  )}
+                  {Array.isArray(profile.tech_stack_history) && profile.tech_stack_history.length > 0 && (
+                    <div className="profile-section">
+                      <h3>Стек, который ты обычно используешь</h3>
+                      <div className="chips">
+                        {profile.tech_stack_history.slice(0, 12).map((t, i) => (
+                          <span key={i} className="chip">{t.value || t} {t.count ? <span className="meta">×{t.count}</span> : null}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {Array.isArray(profile.dont_use) && profile.dont_use.length > 0 && (
+                    <div className="profile-section">
+                      <h3>Don't-use (Sima не предложит)</h3>
+                      <div className="chips">
+                        {profile.dont_use.slice(0, 12).map((t, i) => (
+                          <span key={i} className="chip" style={{ borderColor: 'var(--st-fail)', color: 'var(--st-fail)' }}>
+                            ✕ {t.value || t} {t.reason ? <span className="meta">— {t.reason}</span> : null}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {Array.isArray(profile.lesson) && profile.lesson.length > 0 && (
+                    <div className="profile-section">
+                      <h3>Уроки последних запусков</h3>
+                      <ul className="profile-lessons">
+                        {profile.lesson.slice(0, 10).map((l, i) => (
+                          <li key={i}>
+                            {l.summary || l.note || JSON.stringify(l).slice(0, 200)}
+                            {l.block && <span className="meta" style={{ fontSize: 10.5, marginLeft: 6 }}>· {l.block}</span>}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  <div className="profile-section">
+                    <h3>Сырые данные</h3>
+                    <pre className="sysdocs-md" style={{ fontSize: 11 }}>{JSON.stringify(profile, null, 2)}</pre>
+                  </div>
+                  <div className="meta" style={{ fontSize: 11, marginTop: 10, padding: '0 18px' }}>
+                    Sima использует этот профиль чтобы биасить «✨ Совет Клода» (graph_overview / gallery) под твои предпочтения.
+                  </div>
+                </>
+              )}
             </div>
           )}
           {tab === 'docs' && openDocFor && (
