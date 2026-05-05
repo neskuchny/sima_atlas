@@ -783,6 +783,34 @@ const server = http.createServer((req, res) => {
           reason: body.reason ? String(body.reason) : undefined,
         }));
       }
+      // Phase N-3 — Cursor subagents (schema-syncer / verifier / wiki-builder).
+      // Each is a small node script that returns structured JSON. The
+      // route exposes them so the design UI's «Подагенты» panel can
+      // launch them with one click; same scripts are MCP-callable.
+      if (req.url === '/atlas/subagents/run') {
+        const name = String(body.name || '');
+        const subagents = {
+          'schema-syncer': ['scripts/subagent_schema_syncer.mjs', '--json'],
+          'verifier':      body.block_id
+            ? ['scripts/subagent_verifier.mjs', String(body.block_id), '--json']
+            : ['scripts/subagent_verifier.mjs', '--all', '--json'],
+          'wiki-builder':  ['scripts/subagent_wiki_builder.mjs', '--json'],
+        };
+        if (!subagents[name]) return json(res, 200, { ok: false, error: `unknown subagent: ${name}` });
+        try {
+          const out = execFileSync('node', subagents[name], { cwd: ROOT, stdio: 'pipe' }).toString();
+          let parsed = null; try { parsed = JSON.parse(out); } catch {}
+          return json(res, 200, { ok: true, subagent: name, result: parsed || { raw: out } });
+        } catch (e) {
+          // Subagent exited non-zero (drift/broken found). Still return
+          // the parsed JSON if any, so UI can render it.
+          let parsed = null; try { parsed = JSON.parse((e.stdout || '').toString()); } catch {}
+          return json(res, 200, parsed
+            ? { ok: false, subagent: name, result: parsed }
+            : { ok: false, subagent: name, error: String(e.message || e), stderr: (e.stderr || '').toString().slice(-1500) });
+        }
+      }
+
       // /atlas/files/sync-from-block — bulk-import block's files.md
       if (req.url === '/atlas/files/sync-from-block') {
         const bid = String(body.block_id || '');

@@ -1194,6 +1194,154 @@ function TemplatesPanel({ onClose, onApplied }) {
   );
 }
 
+/* ====================== SUBAGENTS (Phase N-3) ======================
+   Three Cursor-style subagents callable from one panel:
+     schema-syncer — drift report on the whole atlas
+     verifier      — acceptance + LLM-validator combined
+     wiki-builder  — regenerate WIKI / wiki.html / roadmap / auto_tz
+   Same scripts are MCP-callable via sima-atlas server (subagent_*).
+*/
+function SubagentsPanel({ onClose, currentBlockId }) {
+  const [results, setResults] = useStateV({}); // { name: result }
+  const [busy, setBusy] = useStateV({});
+
+  const run = async (name, body) => {
+    setBusy((b) => ({ ...b, [name]: true }));
+    const r = await window.SIMA_API.meta.subagentRun(name, body);
+    setBusy((b) => { const c = { ...b }; delete c[name]; return c; });
+    setResults((R) => ({ ...R, [name]: r }));
+  };
+
+  const renderResult = (name) => {
+    const r = results[name];
+    if (!r) return null;
+    const result = r.result || r;
+    return (
+      <div className={`composer-result ${r.ok ? 'ok' : 'fail'}`} style={{ marginTop: 8 }}>
+        {name === 'schema-syncer' && result.summary && (
+          <>
+            <strong>{result.summary.ok}/{result.summary.total_blocks}</strong> ok ·
+            <strong style={{ color: result.summary.broken ? 'var(--st-fail)' : 'inherit', marginLeft: 6 }}>{result.summary.broken}</strong> broken ·
+            <strong style={{ color: result.summary.drift ? 'var(--st-progress)' : 'inherit', marginLeft: 6 }}>{result.summary.drift}</strong> drift ·
+            validators {result.summary.validators_pass}/{result.summary.validators_total}
+            {result.broken_blocks?.length > 0 && (
+              <ul style={{ margin: '6px 0 0 18px', fontSize: 11.5 }}>
+                {result.broken_blocks.map((b, i) => <li key={i}>✗ <span className="mono">{b.block_id}</span> — {b.reason}</li>)}
+              </ul>
+            )}
+            {result.drift_blocks?.length > 0 && (
+              <ul style={{ margin: '6px 0 0 18px', fontSize: 11.5 }}>
+                {result.drift_blocks.map((b, i) => <li key={i}>⚠ <span className="mono">{b.block_id}</span> — {b.reason}</li>)}
+              </ul>
+            )}
+          </>
+        )}
+        {name === 'verifier' && (result.verdict || result.block_count) && (
+          <>
+            {result.block_count
+              ? <>verifier (all): <strong>{result.aligned}</strong> aligned · <strong>{result.drift}</strong> drift · <strong>{result.broken}</strong> broken / {result.block_count} blocks</>
+              : <>{result.block_id}: <strong>{result.verdict}</strong>{result.validation?.summary && ` — ${result.validation.summary}`}</>}
+          </>
+        )}
+        {name === 'wiki-builder' && result.steps && (
+          <>
+            <strong>{result.steps.filter(s => s.ok).length}/{result.steps.length}</strong> steps in {result.duration_ms}ms
+            <ul style={{ margin: '6px 0 0 18px', fontSize: 11 }}>
+              {result.steps.map((s, i) => <li key={i}>{s.ok ? '✓' : '✗'} {s.name}</li>)}
+            </ul>
+          </>
+        )}
+        {!r.ok && r.error && <div style={{ marginTop: 4 }}>{r.error}</div>}
+      </div>
+    );
+  };
+
+  return (
+    <div className="cmd-bar" onClick={onClose}>
+      <div className="cmd-box subagents-box" onClick={(e) => e.stopPropagation()}>
+        <div className="sysdocs-head">
+          <div>
+            <div className="mono" style={{ fontSize: 11, color: 'var(--ink-4)', letterSpacing: '0.08em' }}>ПОДАГЕНТЫ</div>
+            <h3 style={{ margin: '4px 0 0', fontFamily: 'Newsreader, serif', fontStyle: 'italic', fontSize: 19 }}>
+              Те же скрипты, что подключены к Cursor / MCP — теперь под рукой
+            </h3>
+          </div>
+          <button className="pill" onClick={onClose}>✕</button>
+        </div>
+        <div className="subagents-body">
+          <div className="subagent-card">
+            <div className="subagent-card-head">
+              <div>
+                <div className="mono" style={{ fontSize: 11, color: 'var(--ink-3)' }}>schema-syncer · b.core-sync</div>
+                <h4 style={{ margin: '2px 0 0', fontFamily: 'Newsreader, serif', fontStyle: 'italic', fontSize: 16 }}>
+                  Полный drift-report по всему графу
+                </h4>
+              </div>
+              <button className="pill primary" onClick={() => run('schema-syncer')} disabled={!!busy['schema-syncer']}>
+                {busy['schema-syncer'] ? 'идёт…' : '▶ запустить'}
+              </button>
+            </div>
+            <div className="meta" style={{ fontSize: 12, marginTop: 6 }}>
+              Прогоняет 9 валидаторов (rules / tech_stack / dependency contracts / acceptance / cursor-hooks / agent parity / parity matrix / placeholders / projects).
+              Возвращает разбивку <code>ok / drift / broken</code> с причиной у каждого блока.
+            </div>
+            {renderResult('schema-syncer')}
+          </div>
+
+          <div className="subagent-card">
+            <div className="subagent-card-head">
+              <div>
+                <div className="mono" style={{ fontSize: 11, color: 'var(--ink-3)' }}>verifier · b.acceptance-verifier-loop</div>
+                <h4 style={{ margin: '2px 0 0', fontFamily: 'Newsreader, serif', fontStyle: 'italic', fontSize: 16 }}>
+                  Acceptance + LLM-судья (миссия vs реализация)
+                </h4>
+              </div>
+              <div style={{ display: 'flex', gap: 6 }}>
+                {currentBlockId && currentBlockId.startsWith('b.') && (
+                  <button className="pill" onClick={() => run('verifier', { block_id: currentBlockId })} disabled={!!busy['verifier']}>
+                    {busy['verifier'] ? 'идёт…' : `▶ ${currentBlockId}`}
+                  </button>
+                )}
+                <button className="pill primary" onClick={() => run('verifier')} disabled={!!busy['verifier']}>
+                  {busy['verifier'] ? 'идёт…' : '▶ все блоки'}
+                </button>
+              </div>
+            </div>
+            <div className="meta" style={{ fontSize: 12, marginTop: 6 }}>
+              Запускает <code>verify_block_acceptance.mjs</code> + <code>validateBlock</code> LLM-судью, мерджит в один verdict
+              <code>aligned / drift / broken</code>.
+            </div>
+            {renderResult('verifier')}
+          </div>
+
+          <div className="subagent-card">
+            <div className="subagent-card-head">
+              <div>
+                <div className="mono" style={{ fontSize: 11, color: 'var(--ink-3)' }}>wiki-builder · b.docs</div>
+                <h4 style={{ margin: '2px 0 0', fontFamily: 'Newsreader, serif', fontStyle: 'italic', fontSize: 16 }}>
+                  Пересобрать WIKI / wiki.html / roadmap / auto_tz
+                </h4>
+              </div>
+              <button className="pill primary" onClick={() => run('wiki-builder')} disabled={!!busy['wiki-builder']}>
+                {busy['wiki-builder'] ? 'идёт…' : '▶ пересобрать'}
+              </button>
+            </div>
+            <div className="meta" style={{ fontSize: 12, marginTop: 6 }}>
+              Идемпотентно — безопасно вызывать после каждой правки блока.
+            </div>
+            {renderResult('wiki-builder')}
+          </div>
+        </div>
+        <div className="sysdocs-foot">
+          <span className="meta" style={{ fontSize: 11 }}>
+            Те же подагенты доступны Cursor через <code>.cursor/agents.json</code> и MCP-клиентам как <code>subagent_*</code> tools.
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ====================== HELPERS ====================== */
 function pluralize(n, one, few, many) {
   const mod10 = n % 10;

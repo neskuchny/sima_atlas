@@ -1,0 +1,42 @@
+{
+  "_comment": "Phase N-3 — Cursor subagents. The Cursor SDK consumes this file to expose declarative subagents alongside MCP tools. Each entry maps to a script in scripts/subagent_*.mjs that returns structured JSON. They are also callable via the sima-atlas MCP server (same names, prefixed `subagent_`).",
+
+  "agents": {
+    "schema-syncer": {
+      "description": "Walks all atlas blocks, runs every consistency validator (rules / tech_stack / dependency contracts / acceptance assertions / cursor hooks / agent parity / parity matrix), classifies blocks as ok / drift / broken, and emits a structured drift report with the offending reason per block.",
+      "command": "node",
+      "args": ["scripts/subagent_schema_syncer.mjs", "--json"],
+      "owner_block": "b.core-sync",
+      "writes": ["atlas/llm_traces/", "(stdout JSON only)"],
+      "use_when": "Before promoting a block to done; before sending context-pack to a coding agent; on every nightly."
+    },
+
+    "verifier": {
+      "description": "For one block (or --all): runs scripts/verify_block_acceptance.mjs (deterministic acceptance) AND scripts/atlas_synthesis_api.mjs::validateBlock (LLM-judge: mission vs reality + rules + tech_stack + acceptance + KPI conditions). Returns combined verdict aligned/drift/broken with violations + matches.",
+      "command": "node",
+      "args": ["scripts/subagent_verifier.mjs", "{block_id_or_--all}", "--json"],
+      "args_template": {
+        "block_id": "b.<id>",
+        "or": "--all"
+      },
+      "owner_block": "b.acceptance-verifier-loop",
+      "writes": ["atlas/acceptance_runs/<block>/_latest.json", "atlas/validations/<block>/_latest.json"],
+      "use_when": "After every coding-agent run on a block; before allowing wip → done transition."
+    },
+
+    "wiki-builder": {
+      "description": "Regenerates atlas/WIKI.md, atlas/wiki.html (with Mermaid graph), atlas/roadmap.md, ТЗ/auto_tz.md from canonical graph + per-block files. Idempotent — safe to call after any block edit.",
+      "command": "node",
+      "args": ["scripts/subagent_wiki_builder.mjs", "--json"],
+      "owner_block": "b.docs",
+      "writes": ["atlas/WIKI.md", "atlas/wiki.html", "atlas/roadmap.md", "ТЗ/auto_tz.md"],
+      "use_when": "After a block's mission/kpi/acceptance changed; on every nightly; before exporting docs to the operator."
+    }
+  },
+
+  "mcp_aliases": {
+    "schema-syncer": "subagent_schema_syncer",
+    "verifier":      "subagent_verifier",
+    "wiki-builder":  "subagent_wiki_builder"
+  }
+}

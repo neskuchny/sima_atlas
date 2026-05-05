@@ -2073,3 +2073,13 @@ html, body {
 }
 .files-actions button:hover  { color: var(--ink); border-color: var(--ink-2); }
 .files-actions button[disabled] { opacity: 0.5; cursor: default; }
+
+/* N3 — Subagents panel */
+.subagents-box { width: min(820px, 92vw); max-height: 88vh; display: flex; flex-direction: column; background: var(--paper); padding: 0; }
+.subagents-body { flex: 1; overflow: auto; padding: 14px 18px; display: flex; flex-direction: column; gap: 14px; }
+.subagent-card {
+  background: var(--card); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 12px 14px;
+}
+.subagent-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.subagent-card-head h4 { font-weight: 500; }

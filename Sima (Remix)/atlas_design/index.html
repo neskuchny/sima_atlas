@@ -85,6 +85,7 @@ function App() {
   const [sysDocsOpen, setSysDocsOpen] = useState(false);
   const [proposalsOpen, setProposalsOpen] = useState(false);
   const [templatesOpen, setTemplatesOpen] = useState(false);
+  const [subagentsOpen, setSubagentsOpen] = useState(false);
   const [proposalsCount, setProposalsCount] = useState(0);
   const [hooksOk, setHooksOk] = useState(null); // null=unknown true=ok false=drift
   // J3 — project picker. Reads available namespaces from /atlas/clients/list,
@@ -836,6 +837,7 @@ function App() {
         <button className="pill" onClick={() => onClaudeAdvice(null, { kind: 'graph_overview' })} title="Sima посмотрит на весь граф и предложит, что делать">✨ Совет Клода</button>
         <button className="pill" onClick={() => setSysDocsOpen(true)} title="Roadmap, Wiki, документация">📖 Доки</button>
         <button className="pill" onClick={() => setTemplatesOpen(true)} title="Шаблоны схем">⌬ Шаблоны</button>
+        <button className="pill" onClick={() => setSubagentsOpen(true)} title="Подагенты Cursor: schema-syncer / verifier / wiki-builder">⚙ Подагенты</button>
         <button className="pill" onClick={() => setProposalsOpen(true)} title="Предложения Sima">
           <span className="dot" style={{ background: proposalsCount > 0 ? 'var(--st-progress)' : 'var(--st-done)' }} />
           ✦ Предложения{proposalsCount > 0 ? ` (${proposalsCount})` : ''}
@@ -1152,6 +1154,14 @@ function App() {
           onAfterAction={(kind, id) => {
             pushLog({ agent: 'SIMA Core', kind: kind === 'accept' ? 'ok' : 'note', msg: `${kind === 'accept' ? 'Принял' : 'Отклонил'} предложение ${id}` });
           }}
+        />
+      )}
+
+      {/* SUBAGENTS MODAL — Phase N-3 */}
+      {subagentsOpen && (
+        <SubagentsPanel
+          onClose={() => setSubagentsOpen(false)}
+          currentBlockId={selectedId}
         />
       )}
 

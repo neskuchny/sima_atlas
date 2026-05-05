@@ -2,7 +2,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import readline from 'node:readline';
-import { execSync } from 'node:child_process';
+import { execSync, execFileSync } from 'node:child_process';
 
 const root = process.cwd();
 const atlasRoot = path.join(root, 'atlas');
@@ -17,6 +17,9 @@ function toolList(){
     { name:'read_block', description:'Read all markdown files for block', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} }, required:['block_id'] } },
     { name:'list_dependencies', description:'List dependencies from depends_on.md', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} }, required:['block_id'] } },
     { name:'sync_check', description:'Run atlas validators (contracts/dependencies/acceptance)', inputSchema:{ type:'object', properties:{} } },
+    { name:'subagent_schema_syncer', description:'Phase N-3: walk all atlas blocks, run all consistency validators, return drift report.', inputSchema:{ type:'object', properties:{} } },
+    { name:'subagent_verifier', description:'Phase N-3: run acceptance verifier + LLM-validator (mission vs reality) on a block (or --all).', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} } } },
+    { name:'subagent_wiki_builder', description:'Phase N-3: regenerate WIKI.md / wiki.html / roadmap.md / auto_tz.md from canonical graph + block files.', inputSchema:{ type:'object', properties:{} } },
     { name:'create_block', description:'Create/init block in atlas graph and docs', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, title:{type:'string'} }, required:['block_id'] } },
     { name:'set_block_mission', description:'Update mission.md for block', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, mission:{type:'string'} }, required:['block_id','mission'] } },
     { name:'generate_wiki', description:'Generate atlas WIKI.md', inputSchema:{ type:'object', properties:{} } },
@@ -274,6 +277,26 @@ rl.on('line', (line) => {
       if (name === 'sync_check') {
         const report = runSync();
         return respond(id, { content:[{ type:'text', text: JSON.stringify(report, null, 2) }] });
+      }
+      // Phase N-3: subagents are exposed as MCP tools so any
+      // MCP-aware client (Cursor, Antigravity, etc.) can invoke them
+      // exactly the same way as the design UI.
+      if (name === 'subagent_schema_syncer' || name === 'subagent_verifier' || name === 'subagent_wiki_builder') {
+        const map = {
+          'subagent_schema_syncer': ['scripts/subagent_schema_syncer.mjs', '--json'],
+          'subagent_verifier':      args.block_id
+            ? ['scripts/subagent_verifier.mjs', String(args.block_id), '--json']
+            : ['scripts/subagent_verifier.mjs', '--all', '--json'],
+          'subagent_wiki_builder':  ['scripts/subagent_wiki_builder.mjs', '--json'],
+        };
+        try {
+          const out = execFileSync('node', map[name], { cwd: root, stdio: 'pipe' }).toString();
+          return respond(id, { content:[{ type:'text', text: out }] });
+        } catch (e) {
+          // Subagent may exit non-zero (drift/broken found); pass stdout if any
+          const stdoutText = (e.stdout || '').toString();
+          return respond(id, { content:[{ type:'text', text: stdoutText || `subagent ${name} failed: ${e.message}` }] });
+        }
       }
       if (name === 'create_block') {
         ensureBlock(args.block_id, args.title || '');

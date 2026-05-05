@@ -348,6 +348,53 @@ kpi / acceptance**. Сейчас этого нет.
 
 ---
 
+---
+
+## P0 — Phase N · Fixes from ТЗ audit (commit 496b7e2 + N3)
+
+После прочтения 4 ТЗ-файлов (`описание.md`, `новое_тз.md`, `старое_тз.md`,
+`аудит_выполнения_ТЗ.md`, `план_реализации_sync-first.md`,
+`юзерстори.md`) обнаружились explicit-требования, которые я пропустил.
+
+- [x] **N1** LLM-валидатор «миссия vs реализация». `validateBlock()`
+      собирает project.md + rules.md + tech_stack.md + блок (mission /
+      KPI / acceptance / tasks / depends / provides) + tail decisions.log
+      + tail checks.log + neighbor provides → LLM возвращает
+      `{verdict: aligned|drift|broken, summary, violations[{kind,
+      severity, evidence, fix}], matches[]}`. 7 kind: mission / kpi /
+      acceptance / rules / tech_stack / depends_on / condition.
+      Persisted в `atlas/validations/<id>/_latest.json`. UI: новая
+      вкладка «Соответствие» в DetailPanel. Selftest 10/10.
+- [x] **N2** Files registry alive/dead/archived. `atlas_files_api.mjs` +
+      `atlas/files_registry.json` (+ markdown mirror). 6 функций
+      (list/get/mark/remove/isAlive/filterAlive/syncFromBlockFilesMd).
+      `build_context_pack.mjs` теперь использует `filterAlive` →
+      агенты НЕ видят dead/archived файлы (закрывает «мёртвые файлы»
+      из новое_тз §5). UI: новая вкладка «Файлы» с alive/dead/archived
+      badges + per-file mark кнопками + import-from-block-files.md.
+      Selftest 5/5.
+- [x] **N3** Cursor subagents:
+      `subagent_schema_syncer.mjs` (drift report по всему графу — 9
+      валидаторов), `subagent_verifier.mjs` (acceptance + LLM-judge
+      объединённый verdict), `subagent_wiki_builder.mjs` (regenerate
+      WIKI/wiki.html/roadmap/auto_tz). Все три: (a) callable из CLI,
+      (b) MCP-tools `subagent_*` в `mcp_atlas_server.mjs`, (c) listed
+      в `.cursor/agents.json` для Cursor SDK, (d) UI panel ⚙ Подагенты
+      в topbar — каждый с кнопкой «▶ запустить» + structured render
+      результата.
+
+## Что осталось из ТЗ (P1 — приоритет средний)
+
+- [ ] Счётчики «N/M задач, K/L KPI» прямо на карточках в графе
+- [ ] screenshots/<block>/ + автозахват per-block
+- [ ] history/<block>/ diff-версии mission при patchBlockFile
+- [ ] Sync-report viewer с structured разбивкой ✓/⚠/✗ (сейчас activity log)
+- [ ] Демо-проект `atlas/clients/example/` (атлас описывает сам себя)
+- [ ] Кнопка «Запустить ревью продукта» в Gallery
+- [ ] tech_stack блока в DetailPanel
+
+---
+
 ## Order of attack
 
 1. **Phase D** (D1, D2, D5 — самые важные) — закрывает «вижу что агент
