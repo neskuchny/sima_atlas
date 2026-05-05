@@ -269,22 +269,35 @@ export function listRunFiles({ run_id, root } = {}) {
   return Array.from(files).sort();
 }
 
-// Convenience: callLLM-backed advice for the design UI's "Совет Клода"
-// button. Falls back to mock provider if no API keys are configured, so
-// the route is always usable in dev / sandbox.
-export async function callAdvice({ block_id, prompt, context } = {}) {
+// Per-screen system prompts so «Совет Клода» says something useful for
+// the actual surface the operator is looking at. Default = generic block
+// advice. Each kind gets a tailored angle without needing custom prompts
+// from the UI.
+const ADVICE_PROMPTS = {
+  block:           'Give concise, actionable advice on this BLOCK: name a concrete next step, a risk, and a simplification.',
+  block_acceptance:'Acceptance is failing. Reason about WHY this block might fail those criteria. Propose 1-2 focused fixes.',
+  block_field:     'The operator is editing one specific contract file. Suggest one concrete improvement to its content.',
+  block_connections:'Look at this block\'s incoming/outgoing edges and propose ONE missing dependency that would make it complete.',
+  tz:              'This is a TZ (technical spec) draft. Suggest how to tighten it: what to remove, what to make more testable.',
+  graph_overview:  'You are looking at the WHOLE product graph. Propose ONE highest-leverage thing to do next: which block, why now.',
+  gallery:         'Browsing artefacts. Suggest which artefact is most worth turning into a block right now.',
+};
+
+export async function callAdvice({ block_id, prompt, context, context_kind } = {}) {
   const { callLLM } = await import('./llm_gateway.mjs');
+  const kind = ADVICE_PROMPTS[context_kind] ? context_kind : 'block';
   const sys = [
-    'You are SIMA Atlas — a coding architect. Give concise, actionable advice.',
+    'You are SIMA Atlas — a coding architect.',
+    ADVICE_PROMPTS[kind],
     'Reply in the same language the user wrote in (Russian if Russian, English if English).',
-    'Be specific: name a concrete next step, a risk, and a simplification if any.',
-    'Keep replies under 6 short sentences.',
+    'Keep replies under 6 short sentences. No fluff, no preamble.',
   ].join(' ');
   const ctx = context && typeof context === 'object'
-    ? `\n\nContext: ${JSON.stringify(context).slice(0, 1000)}`
+    ? `\n\nContext: ${JSON.stringify(context).slice(0, 1500)}`
     : '';
   const blk = block_id ? `\nBlock id: ${block_id}` : '';
-  const userPrompt = `${prompt || 'Дай совет по этому блоку.'}${blk}${ctx}`;
+  const kindLine = `\nScreen kind: ${kind}`;
+  const userPrompt = `${prompt || 'Дай совет.'}${blk}${kindLine}${ctx}`;
   try {
     const r = await callLLM({
       provider: process.env.LLM_DEFAULT_PROVIDER || undefined,
@@ -294,19 +307,16 @@ export async function callAdvice({ block_id, prompt, context } = {}) {
       temperature: 0.4,
       op: 'design_ui_advice',
     });
-    // callLLM returns {value, provider, model, usage,...}; .value is text or object
+    const provider = r.trace?.provider || r.provider || null;
+    const model = r.trace?.model || r.model || null;
     const advice = typeof r.value === 'string' ? r.value : (r.value?.text || JSON.stringify(r.value));
-    // Detect the mock fallback (no API key configured) and label it so the
-    // UI can show a soft "demo mode" hint instead of pretending it's real.
-    const isMock = r.provider === 'mock';
+    const isMock = provider === 'mock';
     return {
       ok: true,
       advice: isMock
         ? 'Совет в demo-режиме: задайте ANTHROPIC_API_KEY (или GOOGLE_API_KEY) и Совет Клода вернёт реальный ответ модели.'
         : advice,
-      provider: r.provider,
-      model: r.model,
-      mock: isMock,
+      provider, model, kind, mock: isMock,
     };
   } catch (e) {
     return { ok: false, error: String(e.message || e) };

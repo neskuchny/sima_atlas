@@ -206,10 +206,10 @@
 
   // ─── "Совет Клода" — bridge to b.llm-gateway ─────────────────────
   // Sends a free-form prompt + optional block context, returns advice.
-  // Backend route /llm/advice is expected to exist; if not, the UI
-  // shows a graceful "функция готовится" message.
-  const claudeAdvice = async ({ block_id, prompt, context }) => {
-    return await postJson('/llm/advice', withClient({ block_id, prompt, context }));
+  // context_kind picks a per-screen system prompt server-side
+  // (block / block_acceptance / block_field / tz / graph_overview / etc).
+  const claudeAdvice = async ({ block_id, prompt, context, context_kind }) => {
+    return await postJson('/llm/advice', withClient({ block_id, prompt, context, context_kind }));
   };
 
   // ─── System docs / per-block files ───────────────────────────────

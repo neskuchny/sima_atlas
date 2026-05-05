@@ -623,7 +623,7 @@ function Library({ data, currentModuleId, onClose, onPick }) {
 // existing /atlas/payload endpoint that serves SIMA_BOOTSTRAP, then
 // renders a markdown TZ in-place. Save-as-artifact stores it for reuse.
 
-function TZExporter({ data, moduleId, onClose, onSendToAgent }) {
+function TZExporter({ data, moduleId, onClose, onSendToAgent, onClaudeAdvice }) {
   const m = data.modules.find(x => x.id === moduleId);
   const tasks = data.tasks[moduleId] || [];
   const [busy, setBusy] = useStateV(false);
@@ -726,6 +726,12 @@ function TZExporter({ data, moduleId, onClose, onSendToAgent }) {
             <button className="pill primary" onClick={saveAsArtifact} disabled={busy}>
               {busy ? 'Сохраняю…' : '💾 Сохранить как артефакт'}
             </button>
+            {onClaudeAdvice && (
+              <button className="pill" onClick={() => onClaudeAdvice(m, {
+                kind: 'tz',
+                context: { tz_md: tzMd.slice(0, 4000) },
+              })}>✨ Sima ужмёт ТЗ</button>
+            )}
           </div>
           {saved && (
             <div className={`composer-result ${saved.ok ? 'ok' : 'fail'}`}>

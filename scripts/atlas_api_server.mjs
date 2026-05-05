@@ -730,9 +730,10 @@ const server = http.createServer((req, res) => {
       // provider is configured (callLLM degrades gracefully).
       if (req.url === '/llm/advice') {
         return runsApi.callAdvice({
-          block_id: body.block_id ? String(body.block_id) : undefined,
-          prompt:   body.prompt   ? String(body.prompt)   : undefined,
-          context:  body.context,
+          block_id:     body.block_id ? String(body.block_id) : undefined,
+          prompt:       body.prompt   ? String(body.prompt)   : undefined,
+          context:      body.context,
+          context_kind: body.context_kind ? String(body.context_kind) : undefined,
         }).then((r) => json(res, 200, r), (e) => json(res, 200, { ok: false, error: String(e.message || e) }));
       }
 

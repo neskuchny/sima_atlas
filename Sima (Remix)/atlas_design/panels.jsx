@@ -137,10 +137,10 @@ function DetailPanel({ data, moduleId, onClose, desyncResolved, onSendToAgent, o
         {tab === 'contract' && <ContractSection moduleId={moduleId} layer={m.layer} />}
         {tab === 'tasks' && <TasksList tasks={tasks} desyncResolved={desyncResolved} moduleId={moduleId} onSendToAgent={onSendToAgent} missionText={(MODULE_DESC[moduleId] || {}).why || (MODULE_DESC[moduleId] || {}).logic || ''} layer={m.layer} />}
         {tab === 'runs' && <RunStatusSection moduleId={moduleId} />}
-        {tab === 'acceptance' && <AcceptanceSection moduleId={moduleId} />}
+        {tab === 'acceptance' && <AcceptanceSection moduleId={moduleId} moduleObj={m} onClaudeAdvice={onClaudeAdvice} />}
         {tab === 'subs' && <SubsList subs={subs} desyncResolved={desyncResolved} moduleId={moduleId} />}
         {tab === 'memory' && <Memory lessons={lessons} history={data.history.filter(h => h.module === moduleId)} moduleId={moduleId} />}
-        {tab === 'connections' && <ConnectionsTab inEdges={inEdges} outEdges={outEdges} moduleById={moduleById} moduleId={moduleId} allModules={data.modules} allEdges={data.edges} onAddEdge={onAddEdge} />}
+        {tab === 'connections' && <ConnectionsTab inEdges={inEdges} outEdges={outEdges} moduleById={moduleById} moduleId={moduleId} allModules={data.modules} allEdges={data.edges} onAddEdge={onAddEdge} onClaudeAdvice={onClaudeAdvice} />}
       </div>
     </aside>
   );
@@ -415,7 +415,7 @@ function Memory({ lessons, history, moduleId }) {
   );
 }
 
-function ConnectionsTab({ inEdges, outEdges, moduleById, moduleId, allModules, allEdges, onAddEdge }) {
+function ConnectionsTab({ inEdges, outEdges, moduleById, moduleId, allModules, allEdges, onAddEdge, onClaudeAdvice }) {
   const Row = ({ e, dir }) => {
     const other = moduleById[dir === 'in' ? e.from : e.to];
     if (!other) return null;
@@ -469,6 +469,16 @@ function ConnectionsTab({ inEdges, outEdges, moduleById, moduleId, allModules, a
           <div className="send-task" style={{ marginBottom: 8 }}>
             <span className="lab">На основе графа →</span>
             <button onClick={askSima} disabled={busy}>{busy ? 'думаю…' : '✦ предложить'}</button>
+            {onClaudeAdvice && (
+              <button onClick={() => onClaudeAdvice(allModules.find(x => x.id === moduleId), {
+                kind: 'block_connections',
+                context: {
+                  in: inEdges.map(e => e.from),
+                  out: outEdges.map(e => e.to),
+                  neighbors: allModules.filter(m => m.id !== moduleId).slice(0, 20).map(m => ({ id: m.id, title: m.title, layer: m.layer })),
+                },
+              })}>✨ что упускаю?</button>
+            )}
           </div>
           {suggested[0]?._mock && (
             <div className="composer-result fail" style={{ marginBottom: 8 }}>Demo-режим — нужен ANTHROPIC_API_KEY.</div>
@@ -926,7 +936,7 @@ function RunStatusSection({ moduleId }) {
    per-assertion drives the «улучшилось / регресс / новое» badges so the
    operator can see what changed after the last run.
 */
-function AcceptanceSection({ moduleId }) {
+function AcceptanceSection({ moduleId, onClaudeAdvice, moduleObj }) {
   const [data_, setData] = useState2(null);
   const [loading, setLoading] = useState2(true);
   const [reviseBusy, setReviseBusy] = useState2(false);
@@ -1006,12 +1016,20 @@ function AcceptanceSection({ moduleId }) {
         )}
         {checked_at && <div className="meta" style={{ fontSize: 11, marginTop: 6 }}>проверено: {short(checked_at)}</div>}
         {hasFailures && (
-          <div style={{ marginTop: 10 }}>
+          <div style={{ marginTop: 10, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             <button className="pill primary" onClick={reviseAndRerun} disabled={reviseBusy}>
               {reviseBusy ? 'Запускаю…' : '↻ Исправить и перезапустить'}
             </button>
+            {onClaudeAdvice && moduleObj && (
+              <button className="pill" onClick={() => onClaudeAdvice(moduleObj, {
+                kind: 'block_acceptance',
+                context: {
+                  failed: latest.assertions.filter(a => a.verdict === 'fail').map(a => ({ id: a.id, text: a.text, reasoning: a.reasoning })),
+                },
+              })}>✨ Почему упала?</button>
+            )}
             {reviseMsg && (
-              <div className={`composer-result ${reviseMsg.kind}`} style={{ marginTop: 8 }}>{reviseMsg.text}</div>
+              <div className={`composer-result ${reviseMsg.kind}`} style={{ marginTop: 8, flexBasis: '100%' }}>{reviseMsg.text}</div>
             )}
           </div>
         )}

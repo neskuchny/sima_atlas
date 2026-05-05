@@ -245,8 +245,13 @@ LLM-ом — только сохраняет сырой transcript.
 
 - [ ] **K1** Onboarding overhaul: туториал из 5 шагов как в PDF (а не
       текущая статичная карточка).
-- [ ] **K2** «Совет Клода» context-aware: разные промпты для разных
-      экранов (block detail vs gallery vs TZ).
+- [x] **K2** `callAdvice` принимает `context_kind` ∈ {block,
+      block_acceptance, block_field, block_connections, tz,
+      graph_overview, gallery}. Каждый kind имеет свой system-prompt
+      angle. UI сделал 4 entry-point: topbar pill «✨ Совет Клода»
+      (graph_overview), Acceptance «Почему упала?» (block_acceptance),
+      Connections «что упускаю?» (block_connections), TZ «Sima ужмёт ТЗ»
+      (tz). Возвращаемое поле `kind` echo'ится для UI-валидации.
 - [ ] **K3** Save layer as artifact (не только block): в drill-mode
       кнопка «Сохранить эту подсхему как артефакт».
 - [ ] **K4** Generic schema kinds в Composer: «Книга / Идея / Маркетинг
@@ -258,7 +263,15 @@ LLM-ом — только сохраняет сырой transcript.
 
 - [ ] **L1** ETag conflict resolution на `/atlas/blocks/patch` —
       возвращать 409 если block.updatedAt разошёлся с client_etag.
-- [ ] **L2** Undo / redo стек на mutations.
+- [x] **L2** Undo/redo стек на top-level graph mutations
+      (createBlock, addEdge, deleteEdge, addNote, deleteNote).
+      Ctrl+Z отменяет, Ctrl+Shift+Z / Ctrl+Y повторяет (skip когда
+      курсор в input/textarea). Topbar pills «↶ Undo (N)» / «↷ Redo
+      (N)» показывают глубину. Stack capped at 100, in-memory.
+      Subsystem mutations и contract-file edits — outside (свои
+      flows). recordHistory(label, undoFn) собирает inverse cmd,
+      `_noHistory` flag предотвращает рекурсивные записи при
+      undo↔redo.
 - [x] **L3** Activity log persistence: `pushLog()` теперь
       fire-and-forget пишет в `atlas/activity_log.jsonl` через
       `/atlas/activity-log/append`. На mount UI грузит последние 100

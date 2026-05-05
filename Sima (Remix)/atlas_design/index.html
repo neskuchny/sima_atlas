@@ -123,6 +123,58 @@ function App() {
     window.location.search = qs ? '?' + qs : '';
   };
 
+  // L2 — undo/redo for top-level graph mutations (block / edge / note).
+  // Each mutation pushes a {label, undo} record; Ctrl+Z pops + invokes,
+  // Ctrl+Shift+Z (or Ctrl+Y) replays from redoStack. Subsystem and
+  // contract-file edits stay outside this stack — they have their own
+  // debounced flows. Stack is in-memory only (cleared on reload).
+  const undoStack = useRef([]);
+  const redoStack = useRef([]);
+  const [undoTick, setUndoTick] = useState(0);
+  const recordHistory = (label, undoFn) => {
+    undoStack.current.push({ label, undo: undoFn });
+    if (undoStack.current.length > 100) undoStack.current.shift();
+    redoStack.current = []; // any new action invalidates redo
+    setUndoTick((t) => t + 1);
+  };
+  const performUndo = () => {
+    const last = undoStack.current.pop();
+    if (!last) return;
+    try {
+      const redo = last.undo();
+      if (typeof redo === 'function') redoStack.current.push({ label: last.label, undo: redo });
+    } catch (e) {
+      pushLog({ agent: 'SIMA Core', kind: 'fail', msg: `undo failed: ${e.message}` });
+    }
+    setUndoTick((t) => t + 1);
+  };
+  const performRedo = () => {
+    const last = redoStack.current.pop();
+    if (!last) return;
+    try {
+      const undoAgain = last.undo();
+      if (typeof undoAgain === 'function') undoStack.current.push({ label: last.label, undo: undoAgain });
+    } catch (e) {
+      pushLog({ agent: 'SIMA Core', kind: 'fail', msg: `redo failed: ${e.message}` });
+    }
+    setUndoTick((t) => t + 1);
+  };
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (!(e.metaKey || e.ctrlKey)) return;
+      const k = e.key.toLowerCase();
+      // Skip when typing in an input / textarea / contenteditable
+      const t = e.target;
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+      if (k === 'z' && !e.shiftKey) { e.preventDefault(); performUndo(); }
+      if ((k === 'z' && e.shiftKey) || k === 'y') { e.preventDefault(); performRedo(); }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Subsystem-local module/edge state, keyed by subsystem id
   const [subState, setSubState] = useState({});
   const subSaveTimers = useRef({});
@@ -195,30 +247,55 @@ function App() {
   };
 
   const updateEdge = (i, patch) => setEdges(E => E.map((e, idx) => idx === i ? { ...e, ...patch } : e));
-  const addEdge = async (e) => {
+  const addEdge = async (e, opts = {}) => {
     setEdges(E => [...E, e]);
     if (window.SIMA_API && e.from?.startsWith('b.') && e.to?.startsWith('b.')) {
       const r = await window.SIMA_API.addEdge({ from: e.from, to: e.to, capability: e.label });
       if (!r?.ok) pushLog({ agent: 'SIMA Core', kind: 'fail', msg: `addEdge failed: ${r?.error}` });
     }
+    if (!opts._noHistory) {
+      recordHistory(`+ связь ${e.from}→${e.to}`, () => {
+        const idx = edges.findIndex(x => x.from === e.from && x.to === e.to);
+        deleteEdge(idx >= 0 ? idx : edges.length, { _noHistory: true });
+        return () => addEdge(e, { _noHistory: true });
+      });
+    }
   };
-  const deleteEdge = async (i) => {
+  const deleteEdge = async (i, opts = {}) => {
     const target = edges[i];
+    if (!target) return;
     setEdges(E => E.filter((_, idx) => idx !== i));
     if (window.SIMA_API && target?.from?.startsWith('b.') && target?.to?.startsWith('b.')) {
       const r = await window.SIMA_API.deleteEdge({ from: target.from, to: target.to });
       if (!r?.ok) pushLog({ agent: 'SIMA Core', kind: 'fail', msg: `deleteEdge failed: ${r?.error}` });
     }
+    if (!opts._noHistory) {
+      recordHistory(`- связь ${target.from}→${target.to}`, () => {
+        addEdge(target, { _noHistory: true });
+        return () => {
+          const idx = edges.findIndex(x => x.from === target.from && x.to === target.to);
+          if (idx >= 0) deleteEdge(idx, { _noHistory: true });
+        };
+      });
+    }
   };
 
-  const addNote = async (n) => {
+  const addNote = async (n, opts = {}) => {
     const local = { id: `n${Date.now()}`, ...n };
     setNotes(N => [...N, local]);
+    let serverId = local.id;
     if (window.SIMA_API) {
       const r = await window.SIMA_API.addNote(n);
       if (r?.ok && r.note) {
+        serverId = r.note.id;
         setNotes(N => N.map(x => x.id === local.id ? r.note : x));
       }
+    }
+    if (!opts._noHistory) {
+      recordHistory('+ заметка', () => {
+        deleteNote(serverId, { _noHistory: true });
+        return () => addNote(n, { _noHistory: true });
+      });
     }
   };
   const updateNote = (id, patch) => {
@@ -233,7 +310,19 @@ function App() {
       }, 500);
     }
   };
-  const deleteNote = (id) => setNotes(N => N.filter(n => n.id !== id));
+  const deleteNote = (id, opts = {}) => {
+    const target = notes.find(n => n.id === id);
+    setNotes(N => N.filter(n => n.id !== id));
+    if (window.SIMA_API && id && !id.startsWith('n')) {
+      window.SIMA_API.deleteNote(id);
+    }
+    if (!opts._noHistory && target) {
+      recordHistory('- заметка', () => {
+        addNote(target, { _noHistory: true });
+        return () => deleteNote(target.id, { _noHistory: true });
+      });
+    }
+  };
 
   // Sima placeholder generator (just appends a draft so the UX makes sense)
   const onSimaGenerate = (kind, ref) => {
@@ -422,19 +511,31 @@ function App() {
     }
   };
 
-  // "Совет Клода" — sends block context + free-form prompt via
-  // SIMA_API.claudeAdvice → /llm/advice → b.llm-gateway. When no API
-  // key is configured the gateway returns a labelled mock response.
-  const onClaudeAdvice = async (mod) => {
+  // K2 — "Совет Клода" picks a per-screen system prompt via context_kind.
+  // The first arg is the module (or null for graph-level kinds); the
+  // second arg overrides defaults: { kind, prompt, context }.
+  const onClaudeAdvice = async (mod, opts = {}) => {
     if (!window.SIMA_API?.claudeAdvice) {
       pushLog({ agent: 'Claude', kind: 'note', msg: 'Совет Клода: функция готовится (требуется b.llm-gateway).' });
       return;
     }
-    pushLog({ agent: 'SIMA Core', kind: 'head', msg: `— спрашиваю Клода про @${mod.tag}…` });
+    const kind = opts.kind || 'block';
+    const tag = mod?.tag ? `@${mod.tag}` : '(весь граф)';
+    pushLog({ agent: 'SIMA Core', kind: 'head', msg: `— спрашиваю Клода про ${tag} (${kind})…` });
+    const defaultPrompts = {
+      block:            `Дай практический совет по блоку «${mod?.title || ''}» (слой: ${mod?.layer || ''}). Что упростить, что усилить, какие риски?`,
+      block_acceptance: `Блок «${mod?.title || ''}» не проходит приёмку. Почему он мог бы упасть? Дай 1-2 конкретных фикса.`,
+      block_connections:`Блок «${mod?.title || ''}» — посмотри на его связи. Какой одной зависимости здесь не хватает?`,
+      block_field:      `Помоги улучшить контент одного контрактного файла блока «${mod?.title || ''}».`,
+      tz:               `ТЗ блока «${mod?.title || ''}». Что убрать чтобы стало плотнее? Что сделать тестируемым?`,
+      graph_overview:   'Посмотри на весь граф продукта. Какое одно действие сейчас даст максимальный leverage?',
+      gallery:          'Какой артефакт из галереи стоит превратить в блок прямо сейчас?',
+    };
     const r = await window.SIMA_API.claudeAdvice({
-      block_id: mod.id,
-      prompt: `Дай практический совет по блоку «${mod.title}» (слой: ${mod.layer}). Что упростить, что усилить, какие риски?`,
-      context: { layer: mod.layer, status: mod.status },
+      block_id: mod?.id,
+      prompt: opts.prompt || defaultPrompts[kind] || defaultPrompts.block,
+      context: opts.context || (mod ? { layer: mod.layer, status: mod.status } : { module_count: data.modules.length, edge_count: data.edges.length }),
+      context_kind: kind,
     });
     if (r?.ok && r.advice) {
       pushLog({
@@ -493,6 +594,16 @@ function App() {
         pushLog({ agent: 'SIMA Core', kind: 'fail', msg: `Не удалось сохранить ${id}: ${r?.error || 'unknown'}. Откат.` });
       } else {
         pushLog({ agent: 'SIMA Core', kind: 'ok', msg: `Сохранено в atlas/graph.json (+8 контрактных файлов)` });
+        // Record undo: archive (soft-delete) the just-created block.
+        recordHistory(`+ блок ${id}`, async () => {
+          if (window.SIMA_API?.deleteBlock) await window.SIMA_API.deleteBlock(id, false);
+          setModules(M => M.filter(x => x.id !== id));
+          if (selectedId === id) setSelectedId(null);
+          return async () => {
+            if (window.SIMA_API?.patchBlock) await window.SIMA_API.patchBlock(id, { status: 'idea' });
+            setModules(M => [...M, created]);
+          };
+        });
       }
     }
   };
@@ -657,6 +768,18 @@ function App() {
           <button className={view === 'split' ? 'active' : ''} onClick={() => setTweak('primaryView', 'split')}>Граф + детали</button>
         </div>
 
+        <button
+          className="pill"
+          onClick={performUndo}
+          disabled={undoStack.current.length === 0}
+          title={undoStack.current.length ? `Отменить: ${undoStack.current[undoStack.current.length-1].label} (Ctrl+Z)` : 'Нет действий для отмены'}
+        >↶ Undo{undoStack.current.length > 0 ? ` (${undoStack.current.length})` : ''}</button>
+        <button
+          className="pill"
+          onClick={performRedo}
+          disabled={redoStack.current.length === 0}
+          title={redoStack.current.length ? `Повторить: ${redoStack.current[redoStack.current.length-1].label} (Ctrl+Shift+Z)` : 'Нет действий для повтора'}
+        >↷ Redo{redoStack.current.length > 0 ? ` (${redoStack.current.length})` : ''}</button>
         <button className="pill" onClick={runSyncCheck} disabled={scanState === 'scanning'}>
           <span className="dot" style={{ background: scanState === 'found' ? 'var(--st-desync)' : 'var(--st-done)' }} />
           {scanState === 'scanning' ? 'проверяю…' : scanState === 'found' ? '1 рассинхрон' : 'sync ok'}
@@ -664,6 +787,7 @@ function App() {
         <button className="pill" onClick={() => setComposerOpen(true)} title="Синтезировать артефакт из источника">＋ Артефакт</button>
         <button className="pill" onClick={() => setGalleryOpen(true)} title="Галерея артефактов">⊞ Галерея</button>
         <button className="pill" onClick={() => setLibraryOpen(true)} title="Библиотека блоков">⌘ Библиотека</button>
+        <button className="pill" onClick={() => onClaudeAdvice(null, { kind: 'graph_overview' })} title="Sima посмотрит на весь граф и предложит, что делать">✨ Совет Клода</button>
         <button className="pill" onClick={() => setSysDocsOpen(true)} title="Roadmap, Wiki, документация">📖 Доки</button>
         <button className="pill" onClick={() => setTemplatesOpen(true)} title="Шаблоны схем">⌬ Шаблоны</button>
         <button className="pill" onClick={() => setProposalsOpen(true)} title="Предложения Sima">
@@ -1003,6 +1127,7 @@ function App() {
           moduleId={tzOpenFor}
           onClose={() => setTzOpenFor(null)}
           onSendToAgent={(agentId, mod) => { onSendToAgent(agentId, mod); setTzOpenFor(null); }}
+          onClaudeAdvice={onClaudeAdvice}
         />
       )}
 
