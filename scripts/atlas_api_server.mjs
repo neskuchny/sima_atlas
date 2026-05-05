@@ -100,16 +100,18 @@ const server = http.createServer((req, res) => {
     try {
       const u = new URL(req.url, `http://localhost:${port}`);
       const id = u.searchParams.get('id') || '';
+      const client_id = u.searchParams.get('client') || undefined;
       if (id) {
-        const a = artifactsApi.getArtifact(id, { withBody: u.searchParams.get('with_body') === '1' });
+        const a = artifactsApi.getArtifact(id, { withBody: u.searchParams.get('with_body') === '1', client_id });
         if (!a) return json(res, 200, { ok: false, error: 'not_found' });
         return json(res, 200, { ok: true, artifact: a });
       }
       const list = artifactsApi.listArtifacts({
         kind: u.searchParams.get('kind') || undefined,
         search: u.searchParams.get('search') || undefined,
+        client_id,
       });
-      return json(res, 200, { ok: true, artifacts: list, total: list.length });
+      return json(res, 200, { ok: true, artifacts: list, total: list.length, client: client_id || null });
     } catch (e) {
       return json(res, 200, { ok: false, error: String(e.message || e) });
     }
@@ -183,6 +185,36 @@ const server = http.createServer((req, res) => {
       return json(res, 200, { ok: false, error: String(e.message || e) });
     }
   }
+  // Phase L-3 — persistent activity log. Append-only JSONL file.
+  // GET /atlas/activity-log/tail?limit=200 returns last N entries.
+  if (req.method === 'GET' && req.url.startsWith('/atlas/activity-log/tail')) {
+    try {
+      const u = new URL(req.url, `http://localhost:${port}`);
+      const limit = Math.max(1, Math.min(500, Number(u.searchParams.get('limit') || 100)));
+      const p = path.join(ATLAS, 'activity_log.jsonl');
+      if (!fs.existsSync(p)) return json(res, 200, { ok: true, entries: [] });
+      const lines = fs.readFileSync(p, 'utf8').split(/\n/).filter(Boolean);
+      const entries = lines.slice(-limit).map((ln) => { try { return JSON.parse(ln); } catch { return null; } }).filter(Boolean);
+      return json(res, 200, { ok: true, entries });
+    } catch (e) {
+      return json(res, 200, { ok: false, error: String(e.message || e) });
+    }
+  }
+
+  // Phase J-3 — list available client namespaces (folders under
+  // atlas/clients/). Always include 'main' (default namespace).
+  if (req.method === 'GET' && req.url === '/atlas/clients/list') {
+    try {
+      const dir = path.join(ATLAS, 'clients');
+      const clients = fs.existsSync(dir)
+        ? fs.readdirSync(dir).filter((f) => fs.statSync(path.join(dir, f)).isDirectory())
+        : [];
+      return json(res, 200, { ok: true, clients: ['main', ...clients] });
+    } catch (e) {
+      return json(res, 200, { ok: false, error: String(e.message || e) });
+    }
+  }
+
   // Phase F-5 — schema templates (atlas/schema_templates/<id>.json)
   if (req.method === 'GET' && req.url === '/atlas/schema-templates/list') {
     try {
@@ -329,8 +361,9 @@ const server = http.createServer((req, res) => {
     try {
       const u = new URL(req.url, `http://localhost:${port}`);
       const id = u.searchParams.get('id') || '';
+      const client_id = u.searchParams.get('client') || undefined;
       if (!id) return json(res, 200, { ok: false, error: 'id required' });
-      return json(res, 200, artifactsApi.deleteArtifact(id));
+      return json(res, 200, artifactsApi.deleteArtifact(id, { client_id }));
     } catch (e) {
       return json(res, 200, { ok: false, error: String(e.message || e) });
     }
@@ -550,17 +583,20 @@ const server = http.createServer((req, res) => {
         return tryFn(() => blocksApi.deleteNote({ note_id: id }));
       }
 
-      // /api/artifacts POST routes (create, patch, insert)
+      // /api/artifacts POST routes (create, patch, insert).
+      // client_id is taken from body._client (data_loader's withClient
+      // helper attaches it on every mutating call).
+      const artClient = body._client ? String(body._client) : undefined;
       if (req.url === '/api/artifacts') {
-        return tryFn(() => artifactsApi.createArtifact({ body }));
+        return tryFn(() => artifactsApi.createArtifact({ body, client_id: artClient }));
       }
       const artInsertM = req.url.match(/^\/api\/artifacts\/(art-[a-z0-9-]+)\/insert$/i);
       if (artInsertM) {
-        return tryFn(() => artifactsApi.insertArtifactToProject(artInsertM[1], { project_id: body.project_id || body.projectId || 'main' }));
+        return tryFn(() => artifactsApi.insertArtifactToProject(artInsertM[1], { project_id: body.project_id || body.projectId || 'main', client_id: artClient }));
       }
       const artPatchM = req.url.match(/^\/api\/artifacts\/(art-[a-z0-9-]+)$/i);
       if (artPatchM) {
-        return tryFn(() => artifactsApi.updateArtifact(artPatchM[1], body));
+        return tryFn(() => artifactsApi.updateArtifact(artPatchM[1], body, { client_id: artClient }));
       }
 
       // /atlas/meta/save — write a whitelisted top-level meta file.
@@ -628,6 +664,29 @@ const server = http.createServer((req, res) => {
         const pid = String(body.parent_id || body.block_id || '');
         if (!pid) return json(res, 400, { ok: false, error: 'parent_id required' });
         return tryFn(() => subsApi.saveSubsystem(pid, body));
+      }
+
+      // /atlas/activity-log/append — append a single JSON entry.
+      if (req.url === '/atlas/activity-log/append') {
+        try {
+          const entry = {
+            ts: body.ts || new Date().toISOString(),
+            agent: body.agent || 'unknown',
+            kind: body.kind || 'note',
+            msg: String(body.msg || '').slice(0, 1000),
+          };
+          const p = path.join(ATLAS, 'activity_log.jsonl');
+          fs.appendFileSync(p, JSON.stringify(entry) + '\n', 'utf8');
+          // Cap at ~5000 lines to keep file manageable; rotate when bigger.
+          const stat = fs.statSync(p);
+          if (stat.size > 1_000_000) {
+            const lines = fs.readFileSync(p, 'utf8').split(/\n/).filter(Boolean);
+            fs.writeFileSync(p, lines.slice(-3000).join('\n') + '\n', 'utf8');
+          }
+          return json(res, 200, { ok: true });
+        } catch (e) {
+          return json(res, 200, { ok: false, error: String(e.message || e) });
+        }
       }
 
       // /atlas/build-context-pack — wraps scripts/build_context_pack.mjs.

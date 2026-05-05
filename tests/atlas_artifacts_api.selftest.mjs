@@ -104,6 +104,28 @@ try {
     check('group5:body patched', /PKCE/.test(full.body));
   }
 
+  // ─── Group 5b: per-client namespace isolation (Phase J-1)
+  {
+    const a = createArtifact({ root: atlas, client_id: 'acme', body: {
+      kind: 'note', title: 'Acme Note', body: '# acme', tags: ['acme'],
+    }});
+    check('group5b:acme create ok', a.ok);
+    check('group5b:acme path', fs.existsSync(path.join(atlas, 'clients', 'acme', 'artifacts', a.artifact.id, 'index.json')));
+    // Default namespace doesn't see it
+    const defaultList = listArtifacts({ root: atlas, search: 'Acme Note' });
+    check('group5b:default ns isolated', defaultList.length === 0);
+    const acmeList = listArtifacts({ root: atlas, client_id: 'acme', search: 'Acme Note' });
+    check('group5b:acme ns sees it', acmeList.length === 1);
+    // Update + delete also scoped
+    const upd = updateArtifact(a.artifact.id, { title: 'Acme Renamed' }, { root: atlas, client_id: 'acme' });
+    check('group5b:scoped update ok', upd.ok && upd.artifact.title === 'Acme Renamed');
+    const del = deleteArtifact(a.artifact.id, { root: atlas, client_id: 'acme' });
+    check('group5b:scoped delete ok', del.ok && del.removed === 1);
+    // Reject malformed client_id (path traversal guard)
+    const badNs = listArtifacts({ root: atlas, client_id: '../../etc' });
+    check('group5b:bad client falls back to default', Array.isArray(badNs));
+  }
+
   // ─── Group 6: insert + delete
   {
     const ins = insertArtifactToProject(firstId, { project_id: 'lensa', root: atlas });
@@ -126,4 +148,4 @@ if (failures.length) {
   failures.forEach((f) => console.error(' ✗', f));
   process.exit(1);
 }
-console.log('atlas_artifacts_api.selftest: OK (6 test groups, all assertions green)');
+console.log('atlas_artifacts_api.selftest: OK (7 test groups, all assertions green)');

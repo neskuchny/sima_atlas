@@ -1949,3 +1949,22 @@ html, body {
   display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px;
   padding-top: 6px; border-top: 1px dashed var(--rule);
 }
+
+/* ============================================================
+   PR — Project picker (Phase J-3)
+   ============================================================ */
+.project-picker { position: relative; }
+.project-picker-menu {
+  position: absolute; top: calc(100% + 4px); left: 0;
+  background: var(--paper); border: 1px solid var(--rule); border-radius: 8px;
+  box-shadow: var(--shadow-2); padding: 4px 0; z-index: 50;
+  min-width: 180px;
+}
+.project-picker-item {
+  display: flex; gap: 8px; align-items: center;
+  width: 100%; padding: 7px 12px;
+  background: transparent; border: 0; font: inherit; font-size: 12.5px;
+  color: var(--ink); cursor: pointer; text-align: left;
+}
+.project-picker-item:hover { background: var(--card-2); }
+.project-picker-item.active { background: var(--card); font-weight: 500; }

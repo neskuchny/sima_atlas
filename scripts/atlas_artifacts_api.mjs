@@ -35,7 +35,16 @@ const __filename = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(__filename), '..');
 const ATLAS_DEFAULT = path.join(ROOT, 'atlas');
 
-function resolveDir(root) { return path.join(root || ATLAS_DEFAULT, 'artifacts'); }
+function resolveDir(root, client_id) {
+  // Phase J-1: per-client namespace. If client_id is provided, artifacts
+  // live under atlas/clients/<id>/artifacts/. Otherwise the legacy
+  // atlas/artifacts/ root. The directory is created lazily when the first
+  // write happens (see ensureDir at createArtifact).
+  if (client_id && /^[a-zA-Z0-9._-]+$/.test(String(client_id))) {
+    return path.join(root || ATLAS_DEFAULT, 'clients', String(client_id), 'artifacts');
+  }
+  return path.join(root || ATLAS_DEFAULT, 'artifacts');
+}
 function ensureDir(p) { fs.mkdirSync(p, { recursive: true }); }
 function writeAtomic(p, content) {
   const tmp = p + '.tmp';
@@ -64,8 +73,8 @@ function safeId(id) {
 function metaPath(dir, id) { return path.join(dir, id, 'index.json'); }
 function bodyPath(dir, id) { return path.join(dir, id, 'body.md'); }
 
-export function listArtifacts({ kind, search, root, limit } = {}) {
-  const dir = resolveDir(root);
+export function listArtifacts({ kind, search, root, limit, client_id } = {}) {
+  const dir = resolveDir(root, client_id);
   if (!fs.existsSync(dir)) return [];
   const entries = fs.readdirSync(dir).filter((f) => /^art-/.test(f));
   const out = [];
@@ -84,8 +93,8 @@ export function listArtifacts({ kind, search, root, limit } = {}) {
   return typeof limit === 'number' ? out.slice(0, limit) : out;
 }
 
-export function getArtifact(id, { root, withBody = false } = {}) {
-  const dir = resolveDir(root);
+export function getArtifact(id, { root, withBody = false, client_id } = {}) {
+  const dir = resolveDir(root, client_id);
   const meta = readJson(metaPath(dir, safeId(id)));
   if (!meta) return null;
   if (withBody) {
@@ -95,14 +104,14 @@ export function getArtifact(id, { root, withBody = false } = {}) {
   return meta;
 }
 
-export function createArtifact({ root, body } = {}) {
+export function createArtifact({ root, body, client_id } = {}) {
   if (!body || typeof body !== 'object') throw new Error('createArtifact: body required');
   const kind = String(body.kind || 'block');
   if (!VALID_KINDS.includes(kind)) throw new Error(`createArtifact: invalid kind "${kind}"`);
   const title = String(body.title || '').trim();
   if (!title) throw new Error('createArtifact: title required');
   const id = body.id ? safeId(body.id) : makeId();
-  const dir = resolveDir(root);
+  const dir = resolveDir(root, client_id);
   const adir = path.join(dir, id);
   if (fs.existsSync(adir)) throw new Error(`createArtifact: artifact "${id}" already exists`);
   ensureDir(adir);
@@ -129,9 +138,9 @@ export function createArtifact({ root, body } = {}) {
   return { ok: true, artifact: meta };
 }
 
-export function updateArtifact(id, patch, { root } = {}) {
+export function updateArtifact(id, patch, { root, client_id } = {}) {
   if (!patch || typeof patch !== 'object') throw new Error('updateArtifact: patch required');
-  const dir = resolveDir(root);
+  const dir = resolveDir(root, client_id);
   const sid = safeId(id);
   const meta = readJson(metaPath(dir, sid));
   if (!meta) throw new Error(`updateArtifact: not found "${id}"`);
@@ -145,8 +154,8 @@ export function updateArtifact(id, patch, { root } = {}) {
   return { ok: true, artifact: meta };
 }
 
-export function deleteArtifact(id, { root } = {}) {
-  const dir = resolveDir(root);
+export function deleteArtifact(id, { root, client_id } = {}) {
+  const dir = resolveDir(root, client_id);
   const sid = safeId(id);
   const adir = path.join(dir, sid);
   if (!fs.existsSync(adir)) return { ok: true, removed: 0 };
@@ -154,8 +163,8 @@ export function deleteArtifact(id, { root } = {}) {
   return { ok: true, removed: 1 };
 }
 
-export function insertArtifactToProject(id, { project_id, root } = {}) {
-  const dir = resolveDir(root);
+export function insertArtifactToProject(id, { project_id, root, client_id } = {}) {
+  const dir = resolveDir(root, client_id);
   const sid = safeId(id);
   const meta = readJson(metaPath(dir, sid));
   if (!meta) throw new Error(`insertArtifact: not found "${id}"`);

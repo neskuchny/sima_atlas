@@ -78,6 +78,12 @@ function App() {
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const [proposalsCount, setProposalsCount] = useState(0);
   const [hooksOk, setHooksOk] = useState(null); // null=unknown true=ok false=drift
+  // J3 — project picker. Reads available namespaces from /atlas/clients/list,
+  // displays them as a dropdown in the topbar. Switching changes the URL's
+  // ?client= and reloads the page so data_loader picks up the new namespace.
+  const [clients, setClients] = useState(['main']);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const currentClient = (typeof window.__SIMA_DATA_CLIENT === 'string' && window.__SIMA_DATA_CLIENT) || 'main';
 
   // Poll proposals count + cursor hooks status every 30s; cheap and gives
   // the topbar a live "чем-то внимание привлекают" indicator.
@@ -86,19 +92,36 @@ function App() {
     const tick = async () => {
       if (!window.SIMA_API?.meta) return;
       try {
-        const [pr, hs] = await Promise.all([
+        const [pr, hs, cl] = await Promise.all([
           window.SIMA_API.meta.proposalsList(),
           window.SIMA_API.meta.cursorHooksStatus(),
+          window.SIMA_API.meta.clientsList(),
         ]);
         if (!alive) return;
         if (pr?.ok) setProposalsCount(pr.items.filter((i) => !i.resolved && !i.accepted_at && !i.rejected_at).length);
         if (hs?.ok) setHooksOk(hs.status?.valid !== false);
+        if (cl?.ok) setClients(cl.clients || ['main']);
       } catch {}
     };
     tick();
     const itv = setInterval(tick, 30_000);
     return () => { alive = false; clearInterval(itv); };
   }, []);
+
+  useEffect(() => {
+    if (!pickerOpen) return;
+    const close = () => setPickerOpen(false);
+    window.addEventListener('click', close);
+    return () => window.removeEventListener('click', close);
+  }, [pickerOpen]);
+
+  const switchClient = (newClient) => {
+    const params = new URLSearchParams(window.location.search);
+    if (newClient === 'main' || !newClient) params.delete('client');
+    else params.set('client', newClient);
+    const qs = params.toString();
+    window.location.search = qs ? '?' + qs : '';
+  };
 
   // Subsystem-local module/edge state, keyed by subsystem id
   const [subState, setSubState] = useState({});
@@ -244,7 +267,38 @@ function App() {
     { ts: '12:42', agent: 'SIMA Core', kind: 'warn', msg: 'metrics ↔ ingest: рассинхрон field user_id → actor_id (см. T-202)' },
   ]);
 
-  const pushLog = (entry) => setLog(L => [...L, { ts: nowTs(), ...entry }]);
+  // L3 — pushLog also persists to atlas/activity_log.jsonl so reloading
+  // the page keeps history. Fire-and-forget; UI doesn't wait. We skip
+  // the synthetic editorial demo lines (kind=head with mass-marker '—').
+  const pushLog = (entry) => {
+    const enriched = { ts: nowTs(), ...entry };
+    setLog(L => [...L, enriched]);
+    if (window.SIMA_API?.meta?.activityLogAppend && entry?.msg) {
+      window.SIMA_API.meta.activityLogAppend({
+        ts: new Date().toISOString(),
+        agent: entry.agent || 'unknown',
+        kind: entry.kind || 'note',
+        msg: entry.msg,
+      });
+    }
+  };
+
+  // Load last 100 persisted entries on mount so reloading doesn't lose
+  // recent activity. We replace the editorial demo lines with the real
+  // history when the backend has any.
+  useEffect(() => {
+    if (!window.SIMA_API?.meta?.activityLogTail) return;
+    (async () => {
+      const r = await window.SIMA_API.meta.activityLogTail(100);
+      if (r?.ok && r.entries.length) {
+        const formatted = r.entries.map((e) => ({
+          ts: (e.ts || '').slice(11, 16) || nowTs(),
+          agent: e.agent, kind: e.kind, msg: e.msg,
+        }));
+        setLog(formatted);
+      }
+    })();
+  }, []);
 
   // ⌘K command bar
   useEffect(() => {
@@ -564,6 +618,33 @@ function App() {
       <div className="topbar">
         <div className="brand">
           <span className="brand-mark serif">sima</span>
+        </div>
+        <div className="project-picker" onClick={(e) => e.stopPropagation()}>
+          <button className="pill" onClick={() => setPickerOpen((o) => !o)} title="Сменить проект (multi-tenant)">
+            <span className="dot" style={{ background: currentClient === 'main' ? 'var(--ink-3)' : 'var(--st-progress)' }} />
+            {currentClient}
+          </button>
+          {pickerOpen && (
+            <div className="project-picker-menu">
+              <div className="meta" style={{ fontSize: 10.5, padding: '4px 10px', letterSpacing: '0.06em' }}>ПРОЕКТ</div>
+              {clients.map((c) => (
+                <button
+                  key={c}
+                  className={`project-picker-item ${c === currentClient ? 'active' : ''}`}
+                  onClick={() => { setPickerOpen(false); if (c !== currentClient) switchClient(c); }}
+                >
+                  <span style={{ flex: 1 }}>{c}</span>
+                  {c === currentClient && <span style={{ color: 'var(--st-done)' }}>✓</span>}
+                </button>
+              ))}
+              <div style={{ borderTop: '1px solid var(--rule)', marginTop: 4 }}>
+                <button className="project-picker-item" onClick={() => {
+                  const name = window.prompt('Имя нового клиента (a-z0-9_-):');
+                  if (name && /^[a-zA-Z0-9._-]+$/.test(name)) { setPickerOpen(false); switchClient(name); }
+                }}>＋ новый клиент</button>
+              </div>
+            </div>
+          )}
         </div>
         <div className="crumbs">
           <em>{data.product.title}</em> &nbsp;·&nbsp; {data.modules.filter(m => m.status === 'done').length}/{data.modules.length} готово &nbsp;·&nbsp; <span className="mono" style={{textTransform:'none'}}>main</span>

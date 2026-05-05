@@ -228,11 +228,16 @@ LLM-ом — только сохраняет сырой transcript.
 
 ## P2 — Phase J · Multi-tenant deepening
 
-- [ ] **J1** Per-client artifact namespace: `atlas/clients/<id>/artifacts/`.
-- [ ] **J2** Write auth: header `X-Atlas-Client-Token`; settings.json для
-      production.
-- [ ] **J3** Project picker UI: dropdown в topbar для смены `?client=`
-      без перезагрузки.
+- [x] **J1** `atlas_artifacts_api.mjs` функции принимают `client_id` →
+      `atlas/clients/<id>/artifacts/<art-id>/`. Path traversal защищён
+      regex'ом, malformed → fallback на default. Selftest group 5b
+      (7/7 green). API server route'ы read `_client` из body или
+      `?client=` query.
+- [ ] **J2** Write auth: header `X-Atlas-Client-Token`. Defer.
+- [x] **J3** Topbar pill «<client>» с цветной точкой; clicked открывает
+      dropdown со списком из `/atlas/clients/list`. Кнопка «＋ новый
+      клиент» с prompt'ом создаёт new namespace при первом write.
+      Switch меняет `?client=` в URL и reload.
 
 ---
 
@@ -254,9 +259,12 @@ LLM-ом — только сохраняет сырой transcript.
 - [ ] **L1** ETag conflict resolution на `/atlas/blocks/patch` —
       возвращать 409 если block.updatedAt разошёлся с client_etag.
 - [ ] **L2** Undo / redo стек на mutations.
-- [ ] **L3** Activity log persistence: текущий log живёт только в state,
-      пропадает при reload. Сохранять в `atlas/activity_log.jsonl`,
-      загружать последние 100 при mount.
+- [x] **L3** Activity log persistence: `pushLog()` теперь
+      fire-and-forget пишет в `atlas/activity_log.jsonl` через
+      `/atlas/activity-log/append`. На mount UI грузит последние 100
+      entries через `/atlas/activity-log/tail` и заменяет ими
+      editorial demo lines. Файл ротируется при > 1MB (хранится
+      хвост 3000 строк).
 
 ---
 

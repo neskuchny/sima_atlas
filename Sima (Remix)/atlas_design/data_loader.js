@@ -140,27 +140,33 @@
   }
 
   // ─── Artifacts CRUD ──────────────────────────────────────────────
-  // Backed by atlas/artifacts/<id>/{index.json,body.md}. Used by the
-  // Gallery / Composer / Library / TZ exporter views.
+  // Backed by atlas/artifacts/<id>/{index.json,body.md}, or
+  // atlas/clients/<client>/artifacts/<id>/ when a client is active.
+  // GET routes pick up `client` from query string; mutating routes
+  // ride on withClient() body augmentation.
   const artifacts = {
     list:    async (params = {}) => {
       const qs = new URLSearchParams();
       if (params.kind)    qs.set('kind', params.kind);
       if (params.search)  qs.set('search', params.search);
+      if (client)         qs.set('client', client);
       const tail = qs.toString() ? `?${qs.toString()}` : '';
       return await getJson('/api/artifacts' + tail);
     },
     get:     async (id, opts = {}) => {
       const qs = new URLSearchParams({ id });
       if (opts.withBody) qs.set('with_body', '1');
+      if (client)        qs.set('client', client);
       return await getJson('/api/artifacts?' + qs.toString());
     },
-    create:  async (body_)         => { return await postJson('/api/artifacts', body_); },
-    update:  async (id, patch)     => { return await postJson('/api/artifacts/' + encodeURIComponent(id), patch); },
-    insert:  async (id, body_)     => { return await postJson('/api/artifacts/' + encodeURIComponent(id) + '/insert', body_); },
+    create:  async (body_)         => { return await postJson('/api/artifacts', withClient(body_)); },
+    update:  async (id, patch)     => { return await postJson('/api/artifacts/' + encodeURIComponent(id), withClient(patch)); },
+    insert:  async (id, body_)     => { return await postJson('/api/artifacts/' + encodeURIComponent(id) + '/insert', withClient(body_)); },
     delete:  async (id)            => {
       try {
-        const r = await fetch(API_BASE.replace(/\/$/, '') + '/api/artifacts?id=' + encodeURIComponent(id), { method: 'DELETE' });
+        const qs = new URLSearchParams({ id });
+        if (client) qs.set('client', client);
+        const r = await fetch(API_BASE.replace(/\/$/, '') + '/api/artifacts?' + qs.toString(), { method: 'DELETE' });
         return await r.json().catch(() => ({}));
       } catch (e) { return { ok: false, error: String(e.message || e) }; }
     },
@@ -213,7 +219,10 @@
     userDocsList: async ()                 => await getJson('/atlas/user-docs/list'),
     userDocGet:   async (block_id)         => await getJson('/atlas/user-docs/get?block_id=' + encodeURIComponent(block_id)),
     blockFile:    async (block_id, name)   => await getJson('/atlas/blocks/' + encodeURIComponent(block_id) + '/file?name=' + encodeURIComponent(name)),
+    clientsList:   async ()                => await getJson('/atlas/clients/list'),
     proposalsList: async ()                => await getJson('/atlas/proposals/list'),
+    activityLogTail:   async (limit = 100) => await getJson('/atlas/activity-log/tail?limit=' + limit),
+    activityLogAppend: async (entry)       => await postJson('/atlas/activity-log/append', entry),
     proposalAccept:async (proposal_id)     => await postJson('/proposals/accept', { proposal_id }),
     proposalReject:async (proposal_id, reason) => await postJson('/proposals/reject', { proposal_id, reason }),
     cursorHooksStatus: async ()            => await getJson('/atlas/cursor-hooks/status'),
