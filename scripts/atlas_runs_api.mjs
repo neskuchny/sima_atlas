@@ -35,7 +35,7 @@ function safeReadJson(p) {
   try { return JSON.parse(fs.readFileSync(p, 'utf8')); } catch { return null; }
 }
 
-export function listRunsByBlock({ block_id, active_only = false, limit = 20, root } = {}) {
+export function listRunsByBlock({ block_id, active_only = false, limit = 20, root, enriched = false } = {}) {
   const dir = runStateDir(root);
   if (!fs.existsSync(dir)) return [];
   const files = fs.readdirSync(dir).filter((f) => f.endsWith('.json'));
@@ -48,7 +48,67 @@ export function listRunsByBlock({ block_id, active_only = false, limit = 20, roo
     runs.push(r);
   }
   runs.sort((a, b) => String(b.started_at || '').localeCompare(String(a.started_at || '')));
-  return runs.slice(0, limit);
+  const sliced = runs.slice(0, limit);
+  if (!enriched) return sliced;
+  // Phase I: attach acceptance_after + cost_usd + file_count to each run.
+  // Acceptance verdict is the verifier output that landed in the window
+  // [run.started_at, next-run.started_at). Cost is the sum of all
+  // llm_traces in that same window.
+  return enrichRunsBatch(sliced, root);
+}
+
+function enrichRunsBatch(runs, root) {
+  // Cache acceptance + traces per block to avoid re-reading per-run.
+  const accCache = new Map();
+  const traceList = listLlmTracesSummary(root);
+  const out = [];
+  for (let i = 0; i < runs.length; i++) {
+    const r = runs[i];
+    const next = runs[i - 1]; // newer-first sort: index i-1 is newer
+    const lo = r.started_at || '';
+    const hi = next?.started_at || '9999';
+    if (!accCache.has(r.block_id)) accCache.set(r.block_id, listAcceptanceForBlock(r.block_id, root));
+    const accs = accCache.get(r.block_id);
+    const acceptance = accs.find((a) => a.checked_at >= lo && a.checked_at < hi);
+    const tracesInWindow = traceList.filter((t) => t.at >= lo && t.at < hi);
+    const cost_usd = tracesInWindow.reduce((s, t) => s + (t.cost_usd || 0), 0);
+    const trace_count = tracesInWindow.length;
+    const file_count = listRunFiles({ run_id: r.run_id, root }).length;
+    out.push({
+      ...r,
+      enriched: {
+        acceptance_after: acceptance ? { verdict: acceptance.verdict, checked_at: acceptance.checked_at, counts: acceptance.counts || null } : null,
+        cost_usd: Math.round(cost_usd * 1e5) / 1e5,
+        trace_count,
+        file_count,
+      },
+    });
+  }
+  return out;
+}
+
+function listAcceptanceForBlock(block_id, root) {
+  const dir = path.join(acceptanceDir(root), block_id);
+  if (!fs.existsSync(dir)) return [];
+  const out = [];
+  for (const f of fs.readdirSync(dir)) {
+    if (!f.endsWith('.json') || f === '_latest.json' || f === '_previous.json') continue;
+    const r = safeReadJson(path.join(dir, f));
+    if (r) out.push({ verdict: r.verdict || null, checked_at: r.checked_at || '', counts: r.counts || null });
+  }
+  return out.sort((a, b) => a.checked_at.localeCompare(b.checked_at));
+}
+
+function listLlmTracesSummary(root) {
+  const dir = path.join(root || ATLAS_DEFAULT, 'llm_traces');
+  if (!fs.existsSync(dir)) return [];
+  const out = [];
+  for (const f of fs.readdirSync(dir)) {
+    if (!f.endsWith('.json')) continue;
+    const r = safeReadJson(path.join(dir, f));
+    if (r) out.push({ at: r.at || '', cost_usd: Number(r.cost_usd) || 0, op: r.op || '', provider: r.provider || '' });
+  }
+  return out;
 }
 
 export function getRun(run_id, { root } = {}) {

@@ -724,7 +724,9 @@ function RunStatusSection({ moduleId }) {
 
   const fetchRuns = async () => {
     try {
-      const r = await fetch(apiBase + '/runs/list?block_id=' + encodeURIComponent(moduleId) + '&limit=10', { cache: 'no-store' });
+      // enriched=1: each run carries acceptance_after, cost_usd,
+      // file_count so history cards can show what actually happened.
+      const r = await fetch(apiBase + '/runs/list?block_id=' + encodeURIComponent(moduleId) + '&limit=10&enriched=1', { cache: 'no-store' });
       const j = await r.json();
       if (j.ok) setRuns(j.runs || []);
     } catch {}
@@ -871,22 +873,47 @@ function RunStatusSection({ moduleId }) {
 
       <h3>История</h3>
       {!runs.length && <p style={{ color: 'var(--ink-3)' }}>Запусков пока нет — нажмите кнопку выше.</p>}
-      {runs.map((r) => (
-        <div
-          key={r.run_id}
-          className={`run-card ${r.current_state.toLowerCase()} ${openLogFor === r.run_id ? 'open' : ''}`}
-          onClick={() => setOpenLogFor(r.run_id)}
-        >
-          <div className="run-card-head">
-            <span className="run-phase">{r.current_state}</span>
-            <span className="mono" style={{ fontSize: 10.5, color: 'var(--ink-4)', flex: 1 }}>{short(r.started_at)}</span>
-            <span className="meta" style={{ fontSize: 10.5 }}>{r.agent}</span>
+      {runs.map((r) => {
+        const enr = r.enriched || {};
+        const acc = enr.acceptance_after;
+        return (
+          <div
+            key={r.run_id}
+            className={`run-card ${r.current_state.toLowerCase()} ${openLogFor === r.run_id ? 'open' : ''}`}
+            onClick={() => setOpenLogFor(r.run_id)}
+          >
+            <div className="run-card-head">
+              <span className="run-phase">{r.current_state}</span>
+              <span className="mono" style={{ fontSize: 10.5, color: 'var(--ink-4)', flex: 1 }}>{short(r.started_at)}</span>
+              <span className="meta" style={{ fontSize: 10.5 }}>{r.agent}</span>
+            </div>
+            {(acc || enr.file_count > 0 || enr.cost_usd > 0) && (
+              <div className="run-card-enriched">
+                {acc && (
+                  <span className={`acc-pill ${acc.verdict === 'pass' ? 'ok' : acc.verdict === 'fail' ? 'bad' : 'skip'}`}>
+                    приёмка {acc.verdict}
+                    {acc.counts && <span className="meta" style={{ fontSize: 10, marginLeft: 4 }}>{acc.counts.pass}/{(acc.counts.pass||0)+(acc.counts.fail||0)+(acc.counts.skipped||0)}</span>}
+                  </span>
+                )}
+                {enr.file_count > 0 && (
+                  <span className="acc-pill mono" title="изменено файлов">↑ {enr.file_count} файл{enr.file_count === 1 ? '' : enr.file_count < 5 ? 'а' : 'ов'}</span>
+                )}
+                {enr.cost_usd > 0 && (
+                  <span className="acc-pill mono" title={`${enr.trace_count} LLM-вызов(ов)`}>
+                    ${enr.cost_usd.toFixed(4)}
+                  </span>
+                )}
+                {enr.trace_count > 0 && enr.cost_usd === 0 && (
+                  <span className="acc-pill mono" title="LLM вызовы (mock, без оплаты)">{enr.trace_count} mock</span>
+                )}
+              </div>
+            )}
+            <div className="mono" style={{ fontSize: 10.5, color: 'var(--ink-3)', marginTop: 4 }}>
+              {r.run_id}
+            </div>
           </div>
-          <div className="mono" style={{ fontSize: 10.5, color: 'var(--ink-3)', marginTop: 4 }}>
-            {r.run_id}
-          </div>
-        </div>
-      ))}
+        );
+      })}
       <div className="meta" style={{ fontSize: 11, marginTop: 8 }}>
         Опрос каждые {live ? '2' : '12'} сек.
       </div>

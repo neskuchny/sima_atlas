@@ -209,12 +209,20 @@ LLM-ом — только сохраняет сырой transcript.
 
 После того как D1-D6 закроют базовый run-loop, нужно глубже:
 
-- [ ] **I1** Per-run files-changed list (git diff в workspace_path).
-- [ ] **I2** Per-run decisions log (дёргать `decisions.log` блока).
-- [ ] **I3** Per-block iteration history: timeline блока с runs + verdict +
-      revisions.
-- [ ] **I4** Run cost tracking: input/output tokens по run_id из
-      `atlas/llm_traces/`.
+- [x] **I1** `listRunFiles` уже сделан в Phase D (parses checks.log
+      filtered by started_at). Добавлено как chip-pill в run-card —
+      «↑ 4 файла» с подсчётом из `enrichRun`.
+- [~] **I2** `decisions.log` уже виден в Memory tab (Phase H-2);
+      per-run filter по timestamp — будущая итерация.
+- [x] **I3** Iteration history в «Запуски» tab: каждая run-card
+      показывает acceptance verdict pill (приёмка pass/fail с
+      pass/total counts), который пришёл в окне между этим и
+      следующим запуском. Закрывает loop run → verify → revise.
+- [x] **I4** Cost aggregation: `enrichRunsBatch` суммирует
+      `cost_usd` из всех `atlas/llm_traces/*.json` в окне run-а.
+      Показывается на run-card как `$0.0042` (или `N mock` если
+      provider=mock и cost=0). `trace_count` в title.
+      Selftest 8/8 (group 5b).
 
 ---
 

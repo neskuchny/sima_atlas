@@ -1943,3 +1943,9 @@ html, body {
 .chip.clickable { cursor: pointer; transition: 0.1s; }
 .chip.clickable:hover { background: var(--card); border-color: var(--ink-3); }
 .chip.clickable.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+/* Run card enriched (Phase I) */
+.run-card-enriched {
+  display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px;
+  padding-top: 6px; border-top: 1px dashed var(--rule);
+}

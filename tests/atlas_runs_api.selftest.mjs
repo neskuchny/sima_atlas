@@ -152,6 +152,26 @@ try {
     check('group5:tail still includes end', tail.text.endsWith('final line\n'));
   }
 
+  // ─── Group 5b: enriched run list with acceptance_after + cost
+  {
+    // Seed an llm_trace and an acceptance run between the two alpha runs.
+    fs.mkdirSync(path.join(atlas, 'llm_traces'), { recursive: true });
+    fs.writeFileSync(path.join(atlas, 'llm_traces', 'sample.json'),
+      JSON.stringify({ at: '2026-05-04T10:30:00Z', op: 'judge', provider: 'mock', cost_usd: 0.0042 }));
+    fs.writeFileSync(path.join(atlas, 'acceptance_runs', 'b.alpha', '2026-05-04T10-45-00.json'),
+      JSON.stringify({ block_id: 'b.alpha', verdict: 'pass', checked_at: '2026-05-04T10:45:00Z', counts: { pass: 5, fail: 0, skipped: 0 } }));
+    const enriched = listRunsByBlock({ root: atlas, block_id: 'b.alpha', enriched: true });
+    check('group5b:two alpha runs', enriched.length === 2);
+    // Newest run (b.alpha__2 at 11:00) is index 0 with no later trace
+    check('group5b:newest enriched present', !!enriched[0].enriched);
+    // The older run (10:00) should pick up the acceptance and cost in
+    // its window [10:00, 11:00).
+    const older = enriched[1];
+    check('group5b:older has cost', older.enriched.cost_usd > 0);
+    check('group5b:older acceptance_after pass', older.enriched.acceptance_after?.verdict === 'pass');
+    check('group5b:trace_count', older.enriched.trace_count === 1);
+  }
+
   // ─── Group 6: listRunFiles parses checks.log
   {
     const blockDir = path.join(atlas, 'blocks', 'b.alpha');
@@ -180,4 +200,4 @@ if (failures.length) {
   failures.forEach((f) => console.error(' ✗', f));
   process.exit(1);
 }
-console.log('atlas_runs_api.selftest: OK (7 test groups, all assertions green)');
+console.log('atlas_runs_api.selftest: OK (8 test groups, all assertions green)');

@@ -123,6 +123,7 @@ const server = http.createServer((req, res) => {
         block_id: u.searchParams.get('block_id') || undefined,
         active_only: u.searchParams.get('active') === '1',
         limit: Number(u.searchParams.get('limit') || 20),
+        enriched: u.searchParams.get('enriched') === '1',
       });
       return json(res, 200, { ok: true, runs });
     } catch (e) {
