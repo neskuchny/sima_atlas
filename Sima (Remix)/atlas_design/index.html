@@ -87,6 +87,7 @@ function App() {
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const [subagentsOpen, setSubagentsOpen] = useState(false);
   const [syncReportOpen, setSyncReportOpen] = useState(false);
+  const [productReviewOpen, setProductReviewOpen] = useState(false);
   const [proposalsCount, setProposalsCount] = useState(0);
   const [hooksOk, setHooksOk] = useState(null); // null=unknown true=ok false=drift
   // J3 — project picker. Reads available namespaces from /atlas/clients/list,
@@ -832,6 +833,7 @@ function App() {
           <span className="dot" style={{ background: scanState === 'found' ? 'var(--st-desync)' : 'var(--st-done)' }} />
           {scanState === 'scanning' ? 'проверяю…' : scanState === 'found' ? '⚠ есть дрейф' : '⟳ Sync'}
         </button>
+        <button className="pill" onClick={() => setProductReviewOpen(true)} title="Глубокое ревью продукта — schema-syncer + LLM-судья по каждому блоку (миссия vs реализация)">🔍 Ревью продукта</button>
         <button className="pill" onClick={() => setComposerOpen(true)} title="Синтезировать артефакт из источника">＋ Артефакт</button>
         <button className="pill" onClick={() => setGalleryOpen(true)} title="Галерея артефактов">⊞ Галерея</button>
         <button className="pill" onClick={() => setLibraryOpen(true)} title="Библиотека блоков">⌘ Библиотека</button>
@@ -1165,6 +1167,20 @@ function App() {
           onJumpToBlock={(bid) => {
             setSelectedId(bid);
             setSyncReportOpen(false);
+            setTweak('primaryView', 'split');
+            setDetailOpen(true);
+          }}
+        />
+      )}
+
+      {/* PRODUCT REVIEW MODAL — Phase P-2.2: same panel, auto-runs with LLM judge */}
+      {productReviewOpen && (
+        <SyncReportPanel
+          autoVerifier={true}
+          onClose={() => setProductReviewOpen(false)}
+          onJumpToBlock={(bid) => {
+            setSelectedId(bid);
+            setProductReviewOpen(false);
             setTweak('primaryView', 'split');
             setDetailOpen(true);
           }}

@@ -1271,9 +1271,9 @@ function TemplatesPanel({ onClose, onApplied }) {
    Combines schema-syncer (deterministic validators) + verifier --all
    (LLM-judge mission vs reality).
 */
-function SyncReportPanel({ onClose, onJumpToBlock }) {
+function SyncReportPanel({ onClose, onJumpToBlock, autoVerifier = false }) {
   const [busy, setBusy] = useStateV(false);
-  const [withVerifier, setWithVerifier] = useStateV(false);
+  const [withVerifier, setWithVerifier] = useStateV(autoVerifier);
   const [report, setReport] = useStateV(null);     // schema-syncer result
   const [verifier, setVerifier] = useStateV(null); // verifier --all result
   const [tab, setTab] = useStateV('overview');     // overview | validators | blocks
@@ -1293,6 +1293,14 @@ function SyncReportPanel({ onClose, onJumpToBlock }) {
     }
     setBusy(false);
   };
+
+  // Phase P-2.2: when invoked from «Ревью продукта», auto-run on mount
+  // with LLM-judge already on. The flag pre-checked from the prop;
+  // we kick off `run` as soon as the modal mounts.
+  useEffectV(() => {
+    if (autoVerifier) run();
+    // eslint-disable-next-line
+  }, []);
 
   // Combined per-block status: deterministic verdict from schema-syncer
   // (drift_blocks / broken_blocks lists), enriched with LLM-judge verdict

@@ -389,8 +389,11 @@ kpi / acceptance**. Сейчас этого нет.
 - [ ] screenshots/<block>/ + автозахват per-block
 - [x] history/<block>/ diff-версии mission при patchBlockFile (Phase P-1.2)
 - [x] Sync-report viewer (Phase O-1)
-- [ ] Демо-проект `atlas/clients/example/` (атлас описывает сам себя)
-- [ ] Кнопка «Запустить ревью продукта» в Gallery
+- [x] Демо-проект `atlas/clients/example/` (Phase P-2.1) — Habit
+      Tracker, 5 блоков (auth/habits/tracker/streak/dashboard) +
+      8 связей, полные mission/kpi/acceptance/tech_stack
+- [x] Кнопка «🔍 Ревью продукта» (Phase P-2.2) — topbar pill
+      открывает SyncReportPanel с auto-run + LLM-судья
 - [x] tech_stack блока в DetailPanel (Phase P-1.5)
 
 ## Phase O — gaps from re-read of ТЗ
