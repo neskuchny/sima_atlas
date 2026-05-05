@@ -184,6 +184,17 @@ function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSu
         <div className="chips">{desc.frontend.map(x => <span key={x} className="chip">{x}</span>)}</div>
       </>}
 
+      {/* P1.5 — tech_stack from graph.json (live) */}
+      {Array.isArray(m.tech_stack) && m.tech_stack.length > 0 && (
+        <>
+          <h3>Tech stack блока</h3>
+          <div className="chips">{m.tech_stack.map(x => <span key={x} className="chip mono" style={{ fontSize: 11 }}>{x}</span>)}</div>
+          <div className="meta" style={{ fontSize: 11, marginTop: 4 }}>
+            из <code>graph.json</code> блока — будет проверено sync-check'ом против глобального <code>tech_stack.md</code>.
+          </div>
+        </>
+      )}
+
       <h3>KPI блока</h3>
       {(desc.kpi || []).map(k => (
         <div key={k.code} className="kpi-row" style={{ borderBottom: '1px dashed var(--rule)', padding: '5px 0', display: 'flex', justifyContent: 'space-between' }}>

@@ -53,6 +53,20 @@
           "provides.md"
         ]
       },
+      "progress": {
+        "tasks": {
+          "done": 0,
+          "total": 7
+        },
+        "kpi": {
+          "checked": 0,
+          "total": 5
+        }
+      },
+      "tech_stack": [
+        "react",
+        "babel-standalone"
+      ],
       "x": 80,
       "y": 540
     },
@@ -75,6 +89,20 @@
           "provides.md"
         ]
       },
+      "progress": {
+        "tasks": {
+          "done": 0,
+          "total": 6
+        },
+        "kpi": {
+          "checked": 0,
+          "total": 5
+        }
+      },
+      "tech_stack": [
+        "nodejs",
+        "esm"
+      ],
       "x": 80,
       "y": 320
     },
@@ -97,6 +125,21 @@
           "provides.md"
         ]
       },
+      "progress": {
+        "tasks": {
+          "done": 0,
+          "total": 6
+        },
+        "kpi": {
+          "checked": 0,
+          "total": 5
+        }
+      },
+      "tech_stack": [
+        "filesystem",
+        "json",
+        "markdown"
+      ],
       "x": 400,
       "y": 100
     },
@@ -119,6 +162,21 @@
           "provides.md"
         ]
       },
+      "progress": {
+        "tasks": {
+          "done": 3,
+          "total": 9
+        },
+        "kpi": {
+          "checked": 0,
+          "total": 5
+        }
+      },
+      "tech_stack": [
+        "nodejs",
+        "esm",
+        "mcp"
+      ],
       "x": 400,
       "y": 320
     },
@@ -141,6 +199,21 @@
           "provides.md"
         ]
       },
+      "progress": {
+        "tasks": {
+          "done": 0,
+          "total": 6
+        },
+        "kpi": {
+          "checked": 0,
+          "total": 5
+        }
+      },
+      "tech_stack": [
+        "nodejs",
+        "esm",
+        "markdown"
+      ],
       "x": 80,
       "y": 100
     },
@@ -162,6 +235,21 @@
           "depends_on.md"
         ]
       },
+      "progress": {
+        "tasks": {
+          "done": 0,
+          "total": 9
+        },
+        "kpi": {
+          "checked": 0,
+          "total": 5
+        }
+      },
+      "tech_stack": [
+        "nodejs",
+        "anthropic-api",
+        "google-genai-api"
+      ],
       "x": 720,
       "y": 320
     },
@@ -181,6 +269,21 @@
         "total": 5,
         "missing": []
       },
+      "progress": {
+        "tasks": {
+          "done": 31,
+          "total": 31
+        },
+        "kpi": {
+          "checked": 0,
+          "total": 7
+        }
+      },
+      "tech_stack": [
+        "nodejs",
+        "esm",
+        "json"
+      ],
       "x": 1040,
       "y": 320
     },
@@ -200,6 +303,21 @@
         "total": 5,
         "missing": []
       },
+      "progress": {
+        "tasks": {
+          "done": 26,
+          "total": 27
+        },
+        "kpi": {
+          "checked": 0,
+          "total": 7
+        }
+      },
+      "tech_stack": [
+        "nodejs",
+        "esm",
+        "json-schema"
+      ],
       "x": 80,
       "y": 760
     },
@@ -219,6 +337,22 @@
         "total": 5,
         "missing": []
       },
+      "progress": {
+        "tasks": {
+          "done": 22,
+          "total": 22
+        },
+        "kpi": {
+          "checked": 0,
+          "total": 7
+        }
+      },
+      "tech_stack": [
+        "nodejs",
+        "esm",
+        "markdown",
+        "playwright"
+      ],
       "x": 720,
       "y": 100
     },
@@ -241,6 +375,17 @@
           "provides.md"
         ]
       },
+      "progress": {
+        "tasks": {
+          "done": 0,
+          "total": 0
+        },
+        "kpi": {
+          "checked": 0,
+          "total": 3
+        }
+      },
+      "tech_stack": [],
       "x": 400,
       "y": 760
     }
@@ -1633,7 +1778,7 @@
     }
   ],
   "_meta": {
-    "generated_at": "2026-05-05T07:22:14.349Z",
+    "generated_at": "2026-05-05T07:45:23.480Z",
     "atlas_root": "atlas",
     "client_id": null,
     "block_count": 10,

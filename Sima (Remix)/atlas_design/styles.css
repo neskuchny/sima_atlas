@@ -2124,3 +2124,14 @@ html, body {
   background: var(--card-2); border-left: 2px solid var(--ink-3);
   border-radius: 4px;
 }
+
+/* P1.1 — progress counters on graph cards */
+.nprogress {
+  display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px;
+}
+.np-pill {
+  font-size: 9.5px; padding: 1px 6px; border-radius: 999px;
+  background: var(--card-2); color: var(--ink-3);
+  font-family: 'JetBrains Mono', monospace;
+}
+.np-pill.done { background: rgba(60, 160, 100, 0.16); color: #2d6e3f; }

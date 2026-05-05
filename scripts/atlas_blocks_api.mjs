@@ -371,6 +371,27 @@ export function patchBlockFile({ atlas_root, block_id, file, content, if_match_m
       );
     }
   }
+  // Phase P-1.2: snapshot the current version into history/<file>.<ts>.md
+  // before writing so the operator can roll back. Capped at 20 versions
+  // per file to avoid unbounded growth — oldest dropped LRU-style.
+  if (fs.existsSync(p)) {
+    const histDir = path.join(dir, 'history');
+    fs.mkdirSync(histDir, { recursive: true });
+    const stamp = ts().replace(/[:.]/g, '-');
+    const hist = path.join(histDir, `${file}.${stamp}.md`);
+    try { fs.copyFileSync(p, hist); } catch {}
+    // Trim to last 20 per file
+    try {
+      const prefix = `${file}.`;
+      const versions = fs.readdirSync(histDir)
+        .filter((f) => f.startsWith(prefix))
+        .sort();
+      while (versions.length > 20) {
+        const oldest = versions.shift();
+        try { fs.unlinkSync(path.join(histDir, oldest)); } catch {}
+      }
+    } catch {}
+  }
   const tmp = p + '.tmp';
   fs.writeFileSync(tmp, content, 'utf8');
   fs.renameSync(tmp, p);

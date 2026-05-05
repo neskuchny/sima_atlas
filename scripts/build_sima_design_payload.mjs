@@ -266,12 +266,39 @@ export function buildSimaDesignPayload({ atlas_root, client_id } = {}) {
     return { score: filled / FILES.length, filled, total: FILES.length, missing };
   }
 
+  // Phase P-1.1: per-block progress counters for the graph card
+  // {tasks: {done, total}, kpi: {checked, total}}. KPI parsed from
+  // kpi.md as `- ...` lines; checked when checks.log has `kpi/...`
+  // matching the line text fragment.
+  function progressCounts(block_id) {
+    const dir = path.join(blocksDir, block_id);
+    if (!fs.existsSync(dir)) return null;
+    const tasksMd  = (() => { try { return fs.readFileSync(path.join(dir, 'tasks.md'),  'utf8'); } catch { return ''; } })();
+    const kpiMd    = (() => { try { return fs.readFileSync(path.join(dir, 'kpi.md'),    'utf8'); } catch { return ''; } })();
+    const checksLog= (() => { try { return fs.readFileSync(path.join(dir, 'checks.log'),'utf8'); } catch { return ''; } })();
+    const tasksParsed = parseTasks(tasksMd);
+    const tasksDone  = tasksParsed.filter((t) => t.status === 'done').length;
+    const kpiLines = String(kpiMd || '')
+      .split(/\n/)
+      .map((l) => l.replace(/^[-*]\s*/, '').trim())
+      .filter((l) => l && !l.startsWith('#') && l.length > 5);
+    const checked = kpiLines.filter((line) => {
+      const head = line.split(/[—–:-]/)[0].trim().slice(0, 30).toLowerCase();
+      return head && checksLog.toLowerCase().includes(head);
+    }).length;
+    return {
+      tasks: { done: tasksDone, total: tasksParsed.length },
+      kpi:   { checked, total: kpiLines.length },
+    };
+  }
+
   const modules = (graph.blocks || [])
     .filter((b) => b.status !== 'archived')
     .map((b) => {
       const visualStatus = STATUS_MAP[b.status] || 'todo';
       const visualLayer = LAYER_MAP[b.layer] || 'logic';
       const contract = contractScore(b.id);
+      const progress = progressCounts(b.id);
       return {
         id: b.id,
         _raw_status: b.status,
@@ -285,6 +312,9 @@ export function buildSimaDesignPayload({ atlas_root, client_id } = {}) {
         size: b.canvas_size || autoSize(b),
         warn: (visualStatus === 'fail' || visualStatus === 'desync') ? (b.status_reason || '').slice(0, 140) : undefined,
         contract: contract || undefined,
+        progress: progress || undefined,
+        // Phase P-1.5: expose tech_stack for DetailPanel chips
+        tech_stack: Array.isArray(b.tech_stack) ? b.tech_stack : [],
         // Canvas coordinates: persisted (canvas_x/canvas_y) win over
         // auto-layout. Adapter writes both modes side-by-side so a fresh
         // graph.json gets useful default placement, AND user-dragged

@@ -350,6 +350,20 @@ function GraphCanvas({
                 )}
                 <span className="lvl">L{m.layer === 'frontend' ? 3 : m.layer === 'logic' ? 2 : m.layer === 'tests' ? 4 : 1}</span>
               </div>
+              {detailed && m.progress && (m.progress.tasks.total > 0 || m.progress.kpi.total > 0) && (
+                <div className="nprogress mono" title="Задачи · KPI">
+                  {m.progress.tasks.total > 0 && (
+                    <span className={`np-pill ${m.progress.tasks.done === m.progress.tasks.total ? 'done' : ''}`}>
+                      ✓ {m.progress.tasks.done}/{m.progress.tasks.total}
+                    </span>
+                  )}
+                  {m.progress.kpi.total > 0 && (
+                    <span className={`np-pill ${m.progress.kpi.checked === m.progress.kpi.total ? 'done' : ''}`}>
+                      ◎ {m.progress.kpi.checked}/{m.progress.kpi.total} KPI
+                    </span>
+                  )}
+                </div>
+              )}
               <div className="nhead">
                 <span className="status-dot" />
                 <EditableText

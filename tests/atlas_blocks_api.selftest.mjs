@@ -174,6 +174,36 @@ try {
     check('group9:file stale mtime throws', fileCaught instanceof EtagMismatchError);
     check('group9:file error has live mtime', typeof fileCaught?.current?.mtime === 'string');
   }
+
+  // ─── Group 10: history snapshots (Phase P-1.2)
+  {
+    createBlock({ atlas_root: atlas, body: { id: 'b.hist-test', title: 'HistTest', layer: 'logic' } });
+    const histDir = path.join(atlas, 'blocks', 'b.hist-test', 'history');
+    // First write — there's already seeded mission.md from createBlock,
+    // so a snapshot of the seed should land in history/.
+    patchBlockFile({ atlas_root: atlas, block_id: 'b.hist-test', file: 'mission.md', content: '# v1\nfirst' });
+    let versions = fs.existsSync(histDir) ? fs.readdirSync(histDir).filter((f) => f.startsWith('mission.md.')) : [];
+    check('group10:first write snapshots seed', versions.length === 1);
+
+    // Wait then write again; second snapshot should appear
+    const wait = Date.now(); while (Date.now() - wait < 5) {}
+    patchBlockFile({ atlas_root: atlas, block_id: 'b.hist-test', file: 'mission.md', content: '# v2\nsecond' });
+    versions = fs.readdirSync(histDir).filter((f) => f.startsWith('mission.md.'));
+    check('group10:second snapshot present', versions.length === 2);
+
+    // The most recent history file should contain the v1 content (NOT v2)
+    versions.sort();
+    const newest = fs.readFileSync(path.join(histDir, versions[versions.length - 1]), 'utf8');
+    check('group10:newest history is v1 (the just-replaced)', /first/.test(newest));
+
+    // Cap at 20 — write 25 more, expect history to stay at 20
+    for (let i = 0; i < 25; i++) {
+      const w = Date.now(); while (Date.now() - w < 2) {}
+      patchBlockFile({ atlas_root: atlas, block_id: 'b.hist-test', file: 'mission.md', content: `# vN-${i}\nbody-${i}` });
+    }
+    versions = fs.readdirSync(histDir).filter((f) => f.startsWith('mission.md.'));
+    check('group10:capped at 20', versions.length === 20);
+  }
 } finally {
   fs.rmSync(tmp, { recursive: true, force: true });
 }
@@ -183,4 +213,4 @@ if (failures.length) {
   failures.forEach((f) => console.error(' ✗', f));
   process.exit(1);
 }
-console.log('atlas_blocks_api.selftest: OK (9 test groups, all assertions green)');
+console.log('atlas_blocks_api.selftest: OK (10 test groups, all assertions green)');

@@ -385,13 +385,13 @@ kpi / acceptance**. Сейчас этого нет.
 
 ## Что осталось из ТЗ (P1 — приоритет средний)
 
-- [ ] Счётчики «N/M задач, K/L KPI» прямо на карточках в графе
+- [x] Счётчики «N/M задач, K/L KPI» на карточках в графе (Phase P-1.1)
 - [ ] screenshots/<block>/ + автозахват per-block
-- [ ] history/<block>/ diff-версии mission при patchBlockFile
+- [x] history/<block>/ diff-версии mission при patchBlockFile (Phase P-1.2)
 - [x] Sync-report viewer (Phase O-1)
 - [ ] Демо-проект `atlas/clients/example/` (атлас описывает сам себя)
 - [ ] Кнопка «Запустить ревью продукта» в Gallery
-- [ ] tech_stack блока в DetailPanel
+- [x] tech_stack блока в DetailPanel (Phase P-1.5)
 
 ## Phase O — gaps from re-read of ТЗ
 
