@@ -39,9 +39,23 @@
   async function fetchLive() {
     try {
       const r = await fetch(endpoint(), { cache: 'no-store' });
-      if (!r.ok) return null;
+      // Distinguish "API up but client missing" from "API down". When
+      // graph.json is missing for the requested client, we want to render
+      // an empty canvas (with a banner) — NOT silently fall back to the
+      // baked-in demo data, which led to «I created a project but old
+      // schema is still there».
+      if (!r.ok) {
+        if (client && r.status >= 400) {
+          window.__SIMA_DATA_CLIENT_MISSING = true;
+        }
+        return null;
+      }
       const j = await r.json();
-      if (!j || !j.ok || !j.data) return null;
+      if (!j || !j.ok || !j.data) {
+        if (client) window.__SIMA_DATA_CLIENT_MISSING = true;
+        return null;
+      }
+      window.__SIMA_DATA_CLIENT_MISSING = false;
       return j.data;
     } catch { return null; }
   }
@@ -74,6 +88,25 @@
       window.SIMA_DATA = live;
       window.__SIMA_DATA_SOURCE = 'live';
       window.__SIMA_DATA_CLIENT = client || 'default';
+    } else if (window.__SIMA_DATA_CLIENT_MISSING && client) {
+      // Phase J-3 fix: explicit «client doesn't exist on disk» state.
+      // Don't fall back to data_static.js (Lensa demo) — that would
+      // confuse the operator. Instead show a true empty atlas with a
+      // banner inviting them to create the project.
+      window.SIMA_DATA = {
+        product: { codename: client, title: client, subtitle: 'Проект ещё не создан', goal: '', mission: '', quality: [], conditions: { backend: [], frontend: [], logic: [], checks: [] } },
+        modules: [], edges: [], tasks: {}, moduleDocs: {}, history: [], lessons: [],
+        agents: [
+          { id: 'claude', title: 'Claude Code', tag: 'claude-code', color: 'warm' },
+          { id: 'cursor', title: 'Cursor',       tag: 'cursor',      color: 'blue' },
+          { id: 'codex',  title: 'Codex',        tag: 'codex',       color: 'violet' },
+          { id: 'sima',   title: 'SIMA Core',    tag: 'sima-core',   color: 'ink' },
+        ],
+        lanes: [],
+        _meta: { generated_at: new Date().toISOString(), client_id: client, missing: true },
+      };
+      window.__SIMA_DATA_SOURCE = 'client_missing';
+      window.__SIMA_DATA_CLIENT = client;
     } else {
       window.__SIMA_DATA_SOURCE = window.SIMA_DATA ? 'offline_fallback' : 'missing';
       // Continue trying in the background — don't block.
@@ -225,6 +258,7 @@
     userDocGet:   async (block_id)         => await getJson('/atlas/user-docs/get?block_id=' + encodeURIComponent(block_id)),
     blockFile:    async (block_id, name)   => await getJson('/atlas/blocks/' + encodeURIComponent(block_id) + '/file?name=' + encodeURIComponent(name)),
     clientsList:   async ()                => await getJson('/atlas/clients/list'),
+    clientCreate:  async (id)              => await postJson('/atlas/clients/create', { id }),
     proposalsList: async ()                => await getJson('/atlas/proposals/list'),
     activityLogTail:   async (limit = 100) => await getJson('/atlas/activity-log/tail?limit=' + limit),
     activityLogAppend: async (entry)       => await postJson('/atlas/activity-log/append', entry),

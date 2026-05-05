@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-05T11:14:19.439Z",
+  "generated_at": "2026-05-05T11:35:52.779Z",
   "block_id": "b.docs",
   "project": {
     "project": "# Sima Atlas\n\nЦель: единая визуально-документная система, которая устраняет рассинхрон между кодом, агентами и документацией.\n\n## North Star\n- Любой агент работает по одному и тому же block-context.\n- Человек видит статус реализации на схеме без чтения всего кода.\n",
@@ -34,9 +34,7 @@
         "atlas/wiki.html",
         "atlas/roadmap.md",
         "ТЗ/auto_tz.md"
-      ],
-      "ui_url": "",
-      "updated_at": "2026-05-05T11:12:06.843Z"
+      ]
     },
     "mission": "# b.docs — mission\n\nДокумент-генератор Атласа: на каждый блок собирает живую страницу wiki из его `mission.md / kpi.md / acceptance.md / depends_on.md / provides.md / files.md / patterns.md`. На каждый проект собирает `auto_tz.md` (агрегированное ТЗ) и `roadmap.md` (приоритизированный список блоков по статусу и зависимостям).\n\nГлавное правило — **никакой генерации текста, не основанной на содержимом блоков**. Если у блока mission.md шаблонный или пустой, в wiki это блок попадает с явной пометкой `[требует заполнения]`, а не «Ключевая цель блока…».\n\nРеализация: `scripts/generate_wiki.mjs`, `scripts/generate_tz_from_atlas.mjs`, `scripts/render_wiki_html.mjs`, `scripts/rebuild_atlas_roadmap.mjs`.\n\n## Layer\ncontent\n\n## Что должен делать в done-версии\n1. Wiki содержит секции по слоям (front/back/ai/data/...) и навигацию между блоками по `depends_on`.\n2. Mermaid-диаграмма графа в `wiki.html` (по `graph.json`).\n3. ТЗ автогенерируется только из non-template mission/kpi (контракт `validate_no_template_placeholders`).\n4. Roadmap учитывает не только статус блока, но и `depends_on` (топологическая сортировка).\n5. Скриншоты блоков (когда `b.ui-control` дойдёт до этой фичи) встраиваются в wiki.\n\n## Out of scope\n- Извлечение содержимого блоков из чата (это `b.llm-gateway` + `b.agent-orchestrator`).\n",
     "kpi": "# b.docs — KPI\n\n- **KPI-1 (no template leakage)**: ни одна страница wiki не содержит шаблонных фраз («Ключевая цель блока», «Автосоздано», «определить»). Сейчас: ✗ (пока проверка не подключена; PR1 чинит).\n- **KPI-2 (graph diagram)**: `wiki.html` содержит Mermaid-диаграмму с блоками и зависимостями. Сейчас: ✗ (`render_wiki_html.mjs` рендерит plain markdown).\n- **KPI-3 (layer navigation)**: wiki разбит на разделы по слоям (front/logic/ai/data/...). Сейчас: ✗ (зависит от поля `layer` в graph.json — добавляется в PR2).\n- **KPI-4 (roadmap topo-sort)**: при двух блоках A→B (A зависит от B), B всегда раньше A в roadmap, даже если у B статус `done`, а у A `wip`. Сейчас: ✗ (`rebuild_atlas_roadmap.mjs` сортирует только по статусу).\n- **KPI-5 (auto_tz coverage)**: auto_tz.md содержит секции для каждого активного блока с заполненной mission, и пропускает блоки в статусе `idea` без mission. Сейчас: △ (генерирует все, без фильтра по template).\n",

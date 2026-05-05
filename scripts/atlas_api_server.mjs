@@ -1142,6 +1142,33 @@ const server = http.createServer((req, res) => {
           hint: 'Установите WHISPER_API_KEY и реализуйте provider в scripts/atlas_synthesis_api.mjs::transcribe(). Пока что вставьте транскрипт в поле «Текст».',
         });
       }
+      // Phase J-3 fix: scaffold an empty client namespace.
+      // body: { id }. Creates atlas/clients/<id>/ with empty graph.json
+      // + minimal project.md/rules.md/tech_stack.md placeholders + blocks/.
+      // Idempotent: returns ok:true with `created: false` if already exists.
+      if (req.url === '/atlas/clients/create') {
+        try {
+          const id = String(body.id || '').trim();
+          if (!/^[a-zA-Z0-9._-]{1,32}$/.test(id)) {
+            return json(res, 200, { ok: false, error: 'invalid id (a-z, 0-9, ., _, -; ≤32 chars)' });
+          }
+          if (id === 'main') return json(res, 200, { ok: false, error: '«main» is reserved for the default namespace' });
+          const dir = path.join(ATLAS, 'clients', id);
+          if (fs.existsSync(dir)) {
+            return json(res, 200, { ok: true, id, created: false, hint: 'already exists' });
+          }
+          fs.mkdirSync(path.join(dir, 'blocks'), { recursive: true });
+          const ts = new Date().toISOString();
+          fs.writeFileSync(path.join(dir, 'graph.json'), JSON.stringify({ blocks: [], edges: [] }, null, 2) + '\n', 'utf8');
+          fs.writeFileSync(path.join(dir, 'project.md'),    `# ${id}\n\n## Цель\n_(заполни через 📖 Доки)_\n\n## Миссия\n\n## JTBD\n\n## Аудитория\n\n_Создан ${ts}_\n`, 'utf8');
+          fs.writeFileSync(path.join(dir, 'rules.md'),      `# Rules\n\n_(правила кода для этого проекта — стиль, запреты, conventions)_\n`, 'utf8');
+          fs.writeFileSync(path.join(dir, 'tech_stack.md'), `# Tech stack\n\n## Frontend\n\n## Backend\n\n## Infra\n\n## Запреты\n`, 'utf8');
+          return json(res, 200, { ok: true, id, created: true });
+        } catch (e) {
+          return json(res, 200, { ok: false, error: String(e.message || e) });
+        }
+      }
+
       // Phase P-3 — capture a screenshot of a block's UI. body:
       //   { block_id, url? (optional override), full? }
       // If url not given, falls back to graph.json block.ui_url. Returns

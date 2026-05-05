@@ -97,6 +97,14 @@ function App() {
   const [clients, setClients] = useState(['main']);
   const [pickerOpen, setPickerOpen] = useState(false);
   const currentClient = (typeof window.__SIMA_DATA_CLIENT === 'string' && window.__SIMA_DATA_CLIENT) || 'main';
+  const clientMissing = !!window.__SIMA_DATA_CLIENT_MISSING || (data?._meta?.missing === true);
+
+  const createMissingClient = async () => {
+    if (!currentClient || currentClient === 'main') return;
+    const r = await window.SIMA_API?.meta?.clientCreate(currentClient);
+    if (r?.ok) window.location.reload();
+    else window.alert(`Не удалось создать: ${r?.error || 'unknown'}`);
+  };
 
   // Poll proposals count + cursor hooks status every 30s; cheap and gives
   // the topbar a live "чем-то внимание привлекают" indicator.
@@ -799,10 +807,25 @@ function App() {
                 </button>
               ))}
               <div style={{ borderTop: '1px solid var(--rule)', marginTop: 4 }}>
-                <button className="project-picker-item" onClick={() => {
-                  const name = window.prompt('Имя нового клиента (a-z0-9_-):');
-                  if (name && /^[a-zA-Z0-9._-]+$/.test(name)) { setPickerOpen(false); switchClient(name); }
-                }}>＋ новый клиент</button>
+                <button className="project-picker-item" onClick={async () => {
+                  const name = window.prompt('Имя нового проекта (a-z, 0-9, ., _, -; ≤32 символа):');
+                  if (!name) return;
+                  const id = name.trim();
+                  if (!/^[a-zA-Z0-9._-]{1,32}$/.test(id)) {
+                    window.alert(`Имя «${id}» содержит недопустимые символы. Можно: a-z, 0-9, точка, подчёркивание, дефис.`);
+                    return;
+                  }
+                  // Phase J-3 fix: actually scaffold the directory before
+                  // switching, so the new project loads as a real empty
+                  // canvas (not as offline-fallback demo data).
+                  const r = await window.SIMA_API.meta.clientCreate(id);
+                  if (!r?.ok) {
+                    window.alert(`Не удалось создать проект: ${r?.error || 'unknown'}`);
+                    return;
+                  }
+                  setPickerOpen(false);
+                  switchClient(id);
+                }}>＋ новый проект</button>
               </div>
             </div>
           )}
@@ -867,6 +890,23 @@ function App() {
 
       {/* CANVAS STAGE — positioned wrapper so absolute overlays anchor to it */}
       <div className="canvas-stage">
+      {clientMissing && currentClient && currentClient !== 'main' && (
+        <div className="client-missing-banner">
+          <div>
+            <div className="mono" style={{ fontSize: 11, color: 'var(--ink-4)', letterSpacing: '0.06em' }}>ПРОЕКТ НЕ НАЙДЕН</div>
+            <div style={{ fontFamily: 'Newsreader, serif', fontStyle: 'italic', fontSize: 16, marginTop: 2 }}>
+              «{currentClient}» ещё не создан на диске
+            </div>
+            <div className="meta" style={{ fontSize: 12, marginTop: 4 }}>
+              Канвас пуст — это ожидаемо. Создайте проект, чтобы Sima могла читать и писать в <code>atlas/clients/{currentClient}/</code>.
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <button className="pill primary" onClick={createMissingClient}>＋ Создать здесь</button>
+            <button className="pill" onClick={() => switchClient('main')}>← вернуться в main</button>
+          </div>
+        </div>
+      )}
       {view !== 'layered' ? (
         <>
           <GraphCanvas

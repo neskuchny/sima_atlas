@@ -2155,3 +2155,13 @@ html, body {
   border: 1px dashed var(--rule); border-radius: 4px;
 }
 .block-screenshot-meta { font-size: 11px; color: var(--ink-3); display: flex; gap: 12px; }
+
+/* J-3 fix — missing client banner */
+.client-missing-banner {
+  position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+  z-index: 30; max-width: 640px;
+  background: var(--paper); border: 1px solid var(--st-progress); border-left: 4px solid var(--st-progress);
+  border-radius: 10px; padding: 14px 18px;
+  display: flex; gap: 16px; justify-content: space-between; align-items: center;
+  box-shadow: var(--shadow-2);
+}
