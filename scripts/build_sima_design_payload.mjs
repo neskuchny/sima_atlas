@@ -242,11 +242,36 @@ export function buildSimaDesignPayload({ atlas_root, client_id } = {}) {
   if (!fs.existsSync(graphPath)) throw new Error(`graph.json not found: ${graphPath}`);
   const graph = JSON.parse(fs.readFileSync(graphPath, 'utf8'));
 
+  // Phase E-4: per-block contract score so graph cards can show a `!`
+  // when mission/kpi/acceptance/depends_on/provides are empty or weak.
+  // 0 = empty, 1 = all five filled. Cheap: read each block's 5 contract
+  // files once during payload build. Skipped when blocks dir missing.
+  const blocksDir = path.join(root, 'blocks');
+  function contractScore(block_id) {
+    const dir = path.join(blocksDir, block_id);
+    if (!fs.existsSync(dir)) return null;
+    const FILES = ['mission.md', 'kpi.md', 'acceptance.md', 'depends_on.md', 'provides.md'];
+    let filled = 0;
+    const missing = [];
+    for (const f of FILES) {
+      const p = path.join(dir, f);
+      if (!fs.existsSync(p)) { missing.push(f); continue; }
+      const body = fs.readFileSync(p, 'utf8').replace(/^#[^\n]*\n+/, '').trim();
+      const isPlaceholder =
+        /Заполни через детальную панель|добавь конкретную метрику/i.test(body) ||
+        /^- none\s*$/im.test(body);
+      if (!body || isPlaceholder || body.length < 80) missing.push(f);
+      else filled++;
+    }
+    return { score: filled / FILES.length, filled, total: FILES.length, missing };
+  }
+
   const modules = (graph.blocks || [])
     .filter((b) => b.status !== 'archived')
     .map((b) => {
       const visualStatus = STATUS_MAP[b.status] || 'todo';
       const visualLayer = LAYER_MAP[b.layer] || 'logic';
+      const contract = contractScore(b.id);
       return {
         id: b.id,
         _raw_status: b.status,
@@ -258,6 +283,7 @@ export function buildSimaDesignPayload({ atlas_root, client_id } = {}) {
         checked: b.status === 'done',
         size: b.canvas_size || autoSize(b),
         warn: (visualStatus === 'fail' || visualStatus === 'desync') ? (b.status_reason || '').slice(0, 140) : undefined,
+        contract: contract || undefined,
         // Canvas coordinates: persisted (canvas_x/canvas_y) win over
         // auto-layout. Adapter writes both modes side-by-side so a fresh
         // graph.json gets useful default placement, AND user-dragged

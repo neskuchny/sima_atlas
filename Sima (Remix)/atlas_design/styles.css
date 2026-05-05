@@ -1833,3 +1833,65 @@ html, body {
   background: var(--card); border: 1px solid var(--rule); border-radius: 8px;
   padding: 8px 12px; margin-bottom: 6px;
 }
+
+/* ============================================================
+   PR — Phase E field-level AI assist (Contract tab + dot)
+   ============================================================ */
+.contract-list { display: flex; flex-direction: column; gap: 10px; }
+.contract-row {
+  background: var(--card); border: 1px solid var(--rule); border-radius: 8px;
+  padding: 10px 12px;
+}
+.contract-row.contract-empty  { border-left: 3px solid var(--st-fail); }
+.contract-row.contract-weak   { border-left: 3px solid var(--st-progress); }
+.contract-row.contract-filled { border-left: 3px solid var(--st-done); }
+.contract-row-head {
+  display: flex; gap: 10px; align-items: center; margin-bottom: 6px;
+}
+.contract-flag {
+  font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700;
+  width: 22px; height: 22px; border-radius: 50%; display: inline-flex;
+  align-items: center; justify-content: center;
+}
+.contract-flag.flag-empty  { background: rgba(190, 60, 60, 0.16);  color: var(--st-fail); }
+.contract-flag.flag-weak   { background: rgba(220, 150, 60, 0.18); color: #7a4a00; }
+.contract-flag.flag-filled { background: rgba(60, 160, 100, 0.16); color: var(--st-done); }
+.contract-label { font-family: 'Newsreader', serif; font-size: 14px; }
+.contract-actions { margin-left: auto; }
+.contract-body {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; line-height: 1.5;
+  white-space: pre-wrap; word-wrap: break-word;
+  background: var(--card-2); border-radius: 6px; padding: 8px 10px; margin: 0;
+  max-height: 160px; overflow: auto; color: var(--ink-2);
+}
+
+.contract-modal { width: min(820px, 92vw); max-height: 90vh; display: flex; flex-direction: column; background: var(--paper); padding: 0; }
+.contract-modal-body {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+  padding: 14px 18px; overflow: auto; flex: 1;
+}
+.contract-modal-body > div:only-child { grid-column: 1 / -1; }
+.contract-modal-pre {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; line-height: 1.5;
+  white-space: pre-wrap; word-wrap: break-word;
+  background: var(--card-2); border: 1px solid var(--rule); border-radius: 6px;
+  padding: 10px 12px; margin: 0; max-height: 360px; overflow: auto;
+}
+.contract-modal-pre.dim { color: var(--ink-3); }
+.contract-modal-edit {
+  width: 100%; min-height: 320px; padding: 10px 12px; box-sizing: border-box;
+  font: inherit; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; line-height: 1.55;
+  border: 1px solid var(--rule); border-radius: 6px;
+  background: var(--card); color: var(--ink); resize: vertical;
+}
+.contract-modal-edit:focus { outline: 0; border-color: var(--ink-2); }
+
+/* Contract status dot on graph cards */
+.contract-dot {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 16px; height: 16px; border-radius: 50%;
+  font-size: 10px; font-weight: 700; font-family: 'JetBrains Mono', monospace;
+  margin-left: 4px; cursor: help;
+}
+.contract-dot.empty { background: rgba(190, 60, 60, 0.18); color: var(--st-fail); }
+.contract-dot.weak  { background: rgba(220, 150, 60, 0.18); color: #7a4a00; }

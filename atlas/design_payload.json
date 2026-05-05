@@ -43,6 +43,15 @@
       "priority": 1,
       "checked": false,
       "size": "lg",
+      "contract": {
+        "score": 0.6,
+        "filled": 3,
+        "total": 5,
+        "missing": [
+          "depends_on.md",
+          "provides.md"
+        ]
+      },
       "x": 80,
       "y": 540
     },
@@ -55,6 +64,15 @@
       "priority": 1,
       "checked": false,
       "size": "md",
+      "contract": {
+        "score": 0.6,
+        "filled": 3,
+        "total": 5,
+        "missing": [
+          "depends_on.md",
+          "provides.md"
+        ]
+      },
       "x": 80,
       "y": 320
     },
@@ -67,6 +85,15 @@
       "priority": 1,
       "checked": false,
       "size": "lg",
+      "contract": {
+        "score": 0.6,
+        "filled": 3,
+        "total": 5,
+        "missing": [
+          "depends_on.md",
+          "provides.md"
+        ]
+      },
       "x": 400,
       "y": 100
     },
@@ -79,6 +106,15 @@
       "priority": 1,
       "checked": false,
       "size": "lg",
+      "contract": {
+        "score": 0.6,
+        "filled": 3,
+        "total": 5,
+        "missing": [
+          "depends_on.md",
+          "provides.md"
+        ]
+      },
       "x": 400,
       "y": 320
     },
@@ -91,6 +127,15 @@
       "priority": 1,
       "checked": false,
       "size": "md",
+      "contract": {
+        "score": 0.6,
+        "filled": 3,
+        "total": 5,
+        "missing": [
+          "depends_on.md",
+          "provides.md"
+        ]
+      },
       "x": 80,
       "y": 100
     },
@@ -103,6 +148,14 @@
       "priority": 1,
       "checked": false,
       "size": "lg",
+      "contract": {
+        "score": 0.8,
+        "filled": 4,
+        "total": 5,
+        "missing": [
+          "depends_on.md"
+        ]
+      },
       "x": 720,
       "y": 320
     },
@@ -115,6 +168,12 @@
       "priority": 3,
       "checked": false,
       "size": "lg",
+      "contract": {
+        "score": 1,
+        "filled": 5,
+        "total": 5,
+        "missing": []
+      },
       "x": 1040,
       "y": 320
     },
@@ -127,6 +186,12 @@
       "priority": 3,
       "checked": false,
       "size": "lg",
+      "contract": {
+        "score": 1,
+        "filled": 5,
+        "total": 5,
+        "missing": []
+      },
       "x": 80,
       "y": 760
     },
@@ -139,6 +204,12 @@
       "priority": 3,
       "checked": false,
       "size": "lg",
+      "contract": {
+        "score": 1,
+        "filled": 5,
+        "total": 5,
+        "missing": []
+      },
       "x": 720,
       "y": 100
     },
@@ -151,6 +222,15 @@
       "priority": 3,
       "checked": false,
       "size": "sm",
+      "contract": {
+        "score": 0.6,
+        "filled": 3,
+        "total": 5,
+        "missing": [
+          "depends_on.md",
+          "provides.md"
+        ]
+      },
       "x": 400,
       "y": 760
     }
@@ -1542,7 +1622,7 @@
     }
   ],
   "_meta": {
-    "generated_at": "2026-05-04T23:55:48.162Z",
+    "generated_at": "2026-05-05T00:08:34.358Z",
     "atlas_root": "atlas",
     "client_id": null,
     "block_count": 10,

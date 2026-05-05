@@ -596,6 +596,23 @@ const server = http.createServer((req, res) => {
           layer:    body.layer ? String(body.layer) : undefined,
         }).then((r) => json(res, 200, r), (e) => json(res, 200, { ok: false, error: String(e.message || e) }));
       }
+      if (req.url === '/llm/fill-field') {
+        return synthApi.fillField({
+          block_id: String(body.block_id || ''),
+          field:    String(body.field || ''),
+          mission_context: body.mission_context ? String(body.mission_context) : undefined,
+          layer:    body.layer ? String(body.layer) : undefined,
+          neighbors: body.neighbors || undefined,
+        }).then((r) => json(res, 200, r), (e) => json(res, 200, { ok: false, error: String(e.message || e) }));
+      }
+      if (req.url === '/llm/rewrite-field') {
+        return synthApi.rewriteField({
+          block_id: String(body.block_id || ''),
+          field:    String(body.field || ''),
+          current_content: body.current_content ? String(body.current_content) : undefined,
+          mission_context: body.mission_context ? String(body.mission_context) : undefined,
+        }).then((r) => json(res, 200, r), (e) => json(res, 200, { ok: false, error: String(e.message || e) }));
+      }
       // /atlas/blocks/patch-file — write a block's mission.md/kpi.md/etc.
       if (req.url === '/atlas/blocks/patch-file') {
         const id = String(body.block_id || body.id || '');

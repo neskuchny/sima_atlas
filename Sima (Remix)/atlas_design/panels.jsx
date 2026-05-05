@@ -92,6 +92,7 @@ function DetailPanel({ data, moduleId, onClose, desyncResolved, onSendToAgent, o
 
   const tabs = [
     { id: 'overview', label: 'Обзор' },
+    { id: 'contract', label: 'Контракт' },
     { id: 'tasks', label: 'Задачи', count: tasks.length },
     { id: 'runs', label: 'Запуски' },
     { id: 'acceptance', label: 'Приёмка' },
@@ -133,6 +134,7 @@ function DetailPanel({ data, moduleId, onClose, desyncResolved, onSendToAgent, o
 
       <div className="dbody">
         {tab === 'overview' && <Overview m={m} status={status} desyncResolved={desyncResolved} onSendToAgent={onSendToAgent} onDrillDown={onDrillDown} hasSubsystem={!!data.subsystems?.[m.id]} onOpenTz={onOpenTz} onClaudeAdvice={onClaudeAdvice} />}
+        {tab === 'contract' && <ContractSection moduleId={moduleId} layer={m.layer} />}
         {tab === 'tasks' && <TasksList tasks={tasks} desyncResolved={desyncResolved} moduleId={moduleId} onSendToAgent={onSendToAgent} missionText={(MODULE_DESC[moduleId] || {}).why || (MODULE_DESC[moduleId] || {}).logic || ''} layer={m.layer} />}
         {tab === 'runs' && <RunStatusSection moduleId={moduleId} />}
         {tab === 'acceptance' && <AcceptanceSection moduleId={moduleId} />}
@@ -1022,4 +1024,188 @@ function short(ts) {
   if (!ts) return '—';
   try { return new Date(ts).toLocaleString('ru-RU', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }); }
   catch { return String(ts).slice(0, 16); }
+}
+
+/* ====================== CONTRACT (Phase E) ======================
+   Shows the 5 contract files of a block (mission/kpi/acceptance/
+   depends_on/provides). For each file:
+     · status indicator: ! (empty) / ⚠ (weak <80 chars) / ✓ (filled)
+     · current content preview
+     · ✨ Заполнить через Sima — for empty files
+     · ✏ Переформулировать — for filled files
+     · approve modal with side-by-side preview before writing to disk
+*/
+const CONTRACT_FILES = [
+  { file: 'mission.md',    label: 'Миссия', placeholder: 'Зачем существует этот блок?' },
+  { file: 'kpi.md',        label: 'KPI', placeholder: 'Измеримые метрики успеха.' },
+  { file: 'acceptance.md', label: 'Приёмка', placeholder: 'Тестируемые критерии готовности.' },
+  { file: 'depends_on.md', label: 'Зависит от', placeholder: 'Какие блоки нужны для работы.' },
+  { file: 'provides.md',   label: 'Даёт', placeholder: 'Какие capability отдаёт.' },
+];
+
+function classifyContent(file, content) {
+  const body = String(content || '').replace(/^#[^\n]*\n+/, '').trim();
+  // Drop seeded placeholder text as if empty
+  const isPlaceholder =
+    /Заполни через детальную панель|добавь конкретную метрику|Заполни через детальную/i.test(body) ||
+    /^- none\s*$/im.test(body) ||
+    /^- T1: первая задача/.test(body);
+  if (!body || isPlaceholder) return 'empty';
+  if (body.length < 80) return 'weak';
+  return 'filled';
+}
+
+function ContractSection({ moduleId, layer }) {
+  const [files, setFiles] = useState2({});
+  const [loading, setLoading] = useState2(true);
+  const [editing, setEditing] = useState2(null); // { file, mode, draft, original }
+  const [busy, setBusy] = useState2(false);
+  const [error, setError] = useState2(null);
+
+  const fetchAll = async () => {
+    if (!moduleId || !moduleId.startsWith('b.')) { setFiles({}); setLoading(false); return; }
+    setLoading(true);
+    const results = await Promise.all(
+      CONTRACT_FILES.map(async ({ file }) => {
+        const r = await window.SIMA_API?.meta?.blockFile(moduleId, file);
+        return [file, r?.ok ? r.content : ''];
+      })
+    );
+    setFiles(Object.fromEntries(results));
+    setLoading(false);
+  };
+  useEffect2(() => { fetchAll(); /* eslint-disable-next-line */ }, [moduleId]);
+
+  const startFill = async (file) => {
+    setEditing({ file, mode: 'fill', draft: '', original: files[file] || '' });
+    setBusy(true); setError(null);
+    const r = await window.SIMA_API.synthesis.fillField({
+      block_id: moduleId, field: file, layer,
+      mission_context: files['mission.md'] || '',
+      neighbors: { kpi: files['kpi.md'], acceptance: files['acceptance.md'], depends_on: files['depends_on.md'] },
+    });
+    setBusy(false);
+    if (!r?.ok) { setError(r?.error || 'fill failed'); setEditing(null); return; }
+    setEditing({ file, mode: 'fill', draft: r.content, original: files[file] || '', mock: r.mock });
+  };
+
+  const startRewrite = async (file) => {
+    setEditing({ file, mode: 'rewrite', draft: '', original: files[file] || '' });
+    setBusy(true); setError(null);
+    const r = await window.SIMA_API.synthesis.rewriteField({
+      block_id: moduleId, field: file,
+      current_content: files[file] || '',
+      mission_context: files['mission.md'] || '',
+    });
+    setBusy(false);
+    if (!r?.ok) { setError(r?.error || 'rewrite failed'); setEditing(null); return; }
+    setEditing({ file, mode: 'rewrite', draft: r.content, original: files[file] || '', mock: r.mock });
+  };
+
+  const approve = async () => {
+    if (!editing) return;
+    setBusy(true);
+    // Wrap content with the standard H1 if missing (each file's first line
+    // is `# <block_id> — <file basename>`).
+    const heading = `# ${moduleId} — ${editing.file.replace(/\.md$/, '')}`;
+    const body = editing.draft.trim();
+    const content = body.startsWith('#') ? body + '\n' : `${heading}\n\n${body}\n`;
+    const r = await window.SIMA_API.synthesis.patchBlockFile(moduleId, editing.file, content);
+    setBusy(false);
+    if (r?.ok) {
+      setFiles((F) => ({ ...F, [editing.file]: content }));
+      setEditing(null);
+    } else {
+      setError(r?.error || 'save failed');
+    }
+  };
+
+  if (loading) return <p style={{ color: 'var(--ink-3)' }}>Загрузка контракта…</p>;
+  if (!moduleId || !moduleId.startsWith('b.')) {
+    return <p style={{ color: 'var(--ink-3)' }}>Контракт доступен только для b.* блоков atlas.</p>;
+  }
+
+  return (
+    <>
+      <h3>Контракт блока</h3>
+      <div className="meta" style={{ fontSize: 11.5, marginBottom: 10 }}>
+        ! пусто · ⚠ слабо · ✓ заполнено. Sima может предложить черновик через ✨ или переформулировать через ✏.
+      </div>
+      {error && <div className="lesson bad" style={{ marginBottom: 10 }}>{error}</div>}
+      <div className="contract-list">
+        {CONTRACT_FILES.map(({ file, label, placeholder }) => {
+          const content = files[file] || '';
+          const klass = classifyContent(file, content);
+          const symbol = klass === 'empty' ? '!' : klass === 'weak' ? '⚠' : '✓';
+          return (
+            <div key={file} className={`contract-row contract-${klass}`}>
+              <div className="contract-row-head">
+                <span className={`contract-flag flag-${klass}`}>{symbol}</span>
+                <span className="contract-label">{label}</span>
+                <span className="mono" style={{ fontSize: 10.5, color: 'var(--ink-4)' }}>{file}</span>
+                <div className="contract-actions">
+                  {klass === 'empty' && (
+                    <button className="pill primary" onClick={() => startFill(file)} disabled={busy}>✨ Заполнить</button>
+                  )}
+                  {klass !== 'empty' && (
+                    <button className="pill" onClick={() => startRewrite(file)} disabled={busy}>✏ Переформулировать</button>
+                  )}
+                </div>
+              </div>
+              <pre className="contract-body">{content || `(${placeholder})`}</pre>
+            </div>
+          );
+        })}
+      </div>
+
+      {editing && (
+        <div className="cmd-bar" onClick={() => !busy && setEditing(null)}>
+          <div className="cmd-box contract-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="sysdocs-head">
+              <div>
+                <div className="mono" style={{ fontSize: 11, color: 'var(--ink-4)', letterSpacing: '0.08em' }}>
+                  {editing.mode === 'fill' ? 'SIMA · ЗАПОЛНЯЕТ' : 'SIMA · ПЕРЕФОРМУЛИРУЕТ'}
+                </div>
+                <h3 style={{ margin: '4px 0 0', fontFamily: 'Newsreader, serif', fontStyle: 'italic', fontSize: 18 }}>
+                  {moduleId} · {editing.file}
+                </h3>
+              </div>
+              <button className="pill" onClick={() => setEditing(null)} disabled={busy}>✕</button>
+            </div>
+            {editing.mock && (
+              <div className="composer-result fail" style={{ margin: '8px 18px 0' }}>
+                Demo-режим: задайте ANTHROPIC_API_KEY чтобы получать реальные предложения.
+              </div>
+            )}
+            <div className="contract-modal-body">
+              {editing.mode === 'rewrite' && editing.original && (
+                <div>
+                  <div className="meta" style={{ fontSize: 10.5, marginBottom: 4, letterSpacing: '0.06em' }}>БЫЛО</div>
+                  <pre className="contract-modal-pre dim">{editing.original}</pre>
+                </div>
+              )}
+              <div>
+                <div className="meta" style={{ fontSize: 10.5, marginBottom: 4, letterSpacing: '0.06em' }}>
+                  {editing.mode === 'rewrite' ? 'СТАЛО (можно поправить)' : 'ЧЕРНОВИК (можно поправить)'}
+                </div>
+                <textarea
+                  className="contract-modal-edit"
+                  value={editing.draft}
+                  onChange={(e) => setEditing({ ...editing, draft: e.target.value })}
+                  disabled={busy}
+                  rows={14}
+                />
+              </div>
+            </div>
+            <div className="sysdocs-foot" style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+              <button className="pill" onClick={() => setEditing(null)} disabled={busy}>Отмена</button>
+              <button className="pill primary" onClick={approve} disabled={busy || !editing.draft.trim()}>
+                {busy ? 'сохраняю…' : '💾 Принять и записать'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
 }

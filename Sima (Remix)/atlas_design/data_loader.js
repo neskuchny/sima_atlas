@@ -171,6 +171,8 @@
     block:   async (body_)             => await postJson('/llm/synthesize-block', body_),
     edges:   async (body_)             => await postJson('/llm/suggest-edges',    body_),
     tasks:   async (body_)             => await postJson('/llm/decompose-tasks',  body_),
+    fillField:    async (body_)        => await postJson('/llm/fill-field',    body_),
+    rewriteField: async (body_)        => await postJson('/llm/rewrite-field', body_),
     patchBlockFile: async (block_id, file, content) => await postJson('/atlas/blocks/patch-file', { block_id, file, content }),
   };
 

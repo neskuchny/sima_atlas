@@ -83,18 +83,23 @@
 «Восклицательный знак + Sima предложит заполнить» — самая характерная фича
 PDF-видения, которой сейчас вообще нет.
 
-- [ ] **E1** EditableField компонент с состоянием `empty | draft | filled`.
-      Если поле empty (mission / kpi / acceptance / depends_on / provides) —
-      показывать иконку «!» + кнопку «Заполнить через Sima».
-- [ ] **E2** «Заполнить через Sima» вызывает `/llm/fill-field` body
-      `{ block_id, field, context: { layer, neighbors, kpi } }` →
-      возвращает draft → пользователь approve → сохраняется в `<field>.md`.
-- [ ] **E3** «Переформулировать через Клода» на filled field — отдельная
-      кнопка-молния, не overrides, а pop-up «было / стало → принять / отменить».
-- [ ] **E4** Validation indicator на блок-карточке: красная точка если
-      acceptance.md пустой, оранжевая если mission ≤ 80 символов.
-- [ ] **E5** Backend-route `/llm/fill-field` — обёртка callLLM с правильным
-      system-промптом (Atlas conventions: ru/en, конкретные критерии и т.д.).
+- [x] **E1** ContractSection в DetailPanel показывает 5 контрактных
+      файлов с цветным флагом-индикатором: `!` empty (red), `⚠` weak (orange),
+      `✓` filled (green). Классификация — на основе длины + распознавания
+      seeded-плейсхолдеров.
+- [x] **E2** «✨ Заполнить» для empty полей → `/llm/fill-field` с контекстом
+      (mission + neighbors) → modal с черновиком (можно поправить) →
+      «💾 Принять и записать» атомарно через `patchBlockFile`.
+- [x] **E3** «✏ Переформулировать» для filled полей → `/llm/rewrite-field` →
+      modal с двумя колонками «БЫЛО / СТАЛО» и редактируемой правой частью.
+- [x] **E4** `build_sima_design_payload.mjs` считает `contract` per
+      module: `{score, filled, total, missing[]}`. На карточках в графе
+      появляется красный/оранжевый `!` dot с tooltip «Контракт: 2/5
+      заполнено (отсутствует: kpi.md, acceptance.md, provides.md)».
+- [x] **E5** `synthesizeBlock` API расширен: `fillField()` и
+      `rewriteField()` с structured schema `{content}`, system-prompt
+      содержит per-field guidance + ru/en autodetect. Routes
+      `/llm/fill-field`, `/llm/rewrite-field`. Selftest 8/8.
 
 ---
 

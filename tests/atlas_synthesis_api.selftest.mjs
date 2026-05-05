@@ -15,7 +15,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {
-  synthesizeBlock, suggestEdges, decomposeTasks,
+  synthesizeBlock, suggestEdges, decomposeTasks, fillField, rewriteField,
 } from '../scripts/atlas_synthesis_api.mjs';
 import { createBlock, patchBlockFile } from '../scripts/atlas_blocks_api.mjs';
 
@@ -103,6 +103,37 @@ try {
     check('group6:tasks array', Array.isArray(r.tasks));
   }
 
+  // ─── Group 6b: fillField + rewriteField envelope
+  {
+    let threw = false;
+    try { await fillField({}); } catch { threw = true; }
+    check('group6b:fillField missing required rejected', threw);
+    threw = false;
+    try { await fillField({ block_id: 'b.x', field: 'unknown.md' }); } catch { threw = true; }
+    check('group6b:fillField unsupported field rejected', threw);
+
+    const r = await fillField({
+      block_id: 'b.test', field: 'mission.md',
+      mission_context: 'Test block for E1-E5',
+      layer: 'logic',
+    });
+    check('group6b:fillField envelope', r.ok && typeof r.content === 'string');
+    check('group6b:fillField mock flag', r.mock === true);
+
+    threw = false;
+    try { await rewriteField({}); } catch { threw = true; }
+    check('group6b:rewriteField missing required rejected', threw);
+    threw = false;
+    try { await rewriteField({ block_id: 'b.x', field: 'mission.md' }); } catch { threw = true; }
+    check('group6b:rewriteField empty current rejected', threw);
+
+    const rw = await rewriteField({
+      block_id: 'b.test', field: 'mission.md',
+      current_content: '# header\nSome existing draft.',
+    });
+    check('group6b:rewriteField envelope', rw.ok && typeof rw.content === 'string' && rw.original);
+  }
+
   // ─── Group 7: patchBlockFile round-trip
   {
     createBlock({ atlas_root: atlas, body: { id: 'b.synth-test', title: 'Synth Test', layer: 'logic' } });
@@ -134,4 +165,4 @@ if (failures.length) {
   failures.forEach((f) => console.error(' ✗', f));
   process.exit(1);
 }
-console.log('atlas_synthesis_api.selftest: OK (7 test groups, all assertions green)');
+console.log('atlas_synthesis_api.selftest: OK (8 test groups, all assertions green)');

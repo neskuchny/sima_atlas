@@ -261,3 +261,93 @@ export async function decomposeTasks({ block_id, title, mission, layer } = {}) {
     }));
   return { ok: true, tasks, provider: r.trace?.provider || null, model: r.trace?.model || null, mock: r.trace?.provider === 'mock' };
 }
+
+// ─── fillField / rewriteField ───────────────────────────────────────
+// Per-field AI assist for the design UI's «Контракт» tab. Each block has
+// 5 markdown files (mission, kpi, acceptance, depends_on, provides);
+// these helpers generate or refine one of them given the rest as context.
+
+const FIELD_SCHEMA = {
+  type: 'object',
+  properties: { content: { type: 'string' } },
+  required: ['content'],
+};
+
+const FIELD_GUIDANCE = {
+  'mission.md':    'Markdown — 4-8 sentences. Why does this block exist? What problem does it solve in the product?',
+  'kpi.md':        'Markdown — 2-5 measurable KPI lines as a bulleted list. Each line is one metric (latency, error rate, throughput, business KPI).',
+  'acceptance.md': 'Markdown — 3-6 testable acceptance criteria as a checkbox list (- [ ] **A1.** ...). Each criterion must be verifiable from code or output.',
+  'depends_on.md': 'Markdown — short bulleted list of blocks this depends on with the capability name (e.g. `- b.auth: rbac_check`).',
+  'provides.md':   'Markdown — short bulleted list of capabilities this block provides to others (snake_case identifiers).',
+  'tasks.md':      'Markdown — 4-8 task lines starting with `- [ ] T-N:`',
+};
+
+function buildFieldSystemPrompt(field) {
+  return [
+    'You are SIMA Atlas, an architect helping the operator fill in a block contract file.',
+    `Target file: ${field}`,
+    'Conventions:',
+    `  ${FIELD_GUIDANCE[field] || 'Markdown — concise, factual, no fluff.'}`,
+    'Reply ONLY with structured JSON: { "content": "..." }.',
+    'Keep the language matching the surrounding context (Russian if Russian, English if English).',
+    'Do not include the leading H1 — the file already has it.',
+  ].join('\n');
+}
+
+export async function fillField({ block_id, field, mission_context, layer, neighbors } = {}) {
+  if (!block_id || !field) throw new Error('fillField: block_id and field required');
+  if (!FIELD_GUIDANCE[field]) throw new Error(`fillField: unsupported field "${field}"`);
+  const prompt = [
+    `Block: ${block_id}  (layer: ${layer || 'logic'})`,
+    '',
+    'Mission / context:',
+    String(mission_context || '').slice(0, 4000) || '(empty — infer from id and layer)',
+    '',
+    neighbors?.kpi ? `Existing KPI:\n${String(neighbors.kpi).slice(0, 600)}\n` : '',
+    neighbors?.acceptance ? `Existing acceptance:\n${String(neighbors.acceptance).slice(0, 600)}\n` : '',
+    neighbors?.depends_on ? `depends_on:\n${String(neighbors.depends_on).slice(0, 400)}\n` : '',
+    '',
+    `Generate the body of ${field} now. Reply with JSON.`,
+  ].join('\n');
+  const r = await callLLM({
+    system: buildFieldSystemPrompt(field),
+    prompt,
+    schema: FIELD_SCHEMA,
+    max_tokens: 700,
+    temperature: 0.4,
+    op: 'synthesis_fill_field',
+  });
+  const content = String(r.value?.content || '').trim();
+  return { ok: true, block_id, field, content, provider: r.trace?.provider || null, model: r.trace?.model || null, mock: r.trace?.provider === 'mock' };
+}
+
+export async function rewriteField({ block_id, field, current_content, mission_context } = {}) {
+  if (!block_id || !field) throw new Error('rewriteField: block_id and field required');
+  if (!FIELD_GUIDANCE[field]) throw new Error(`rewriteField: unsupported field "${field}"`);
+  if (!current_content) throw new Error('rewriteField: current_content required');
+  const sys = [
+    'You are SIMA Atlas. Rewrite the operator-supplied draft to:',
+    '  - keep all factual info — do NOT drop or invent content',
+    '  - improve clarity, tighten language, fix obvious typos',
+    '  - keep markdown structure (headings/bullets/checkboxes)',
+    '  - preserve the language (Russian → Russian, English → English)',
+    `  - target file: ${field} — ${FIELD_GUIDANCE[field] || ''}`,
+    'Reply ONLY with structured JSON: { "content": "..." }.',
+  ].join('\n');
+  const prompt = [
+    `Block: ${block_id}`,
+    mission_context ? `Mission context:\n${String(mission_context).slice(0, 2000)}\n` : '',
+    'Current draft (rewrite it):',
+    String(current_content).slice(0, 6000),
+  ].join('\n');
+  const r = await callLLM({
+    system: sys,
+    prompt,
+    schema: FIELD_SCHEMA,
+    max_tokens: 800,
+    temperature: 0.25,
+    op: 'synthesis_rewrite_field',
+  });
+  const content = String(r.value?.content || '').trim();
+  return { ok: true, block_id, field, content, original: String(current_content), provider: r.trace?.provider || null, model: r.trace?.model || null, mock: r.trace?.provider === 'mock' };
+}

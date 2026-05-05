@@ -342,6 +342,12 @@ function GraphCanvas({
             >
               <div className="ntag mono">
                 <span>@{m.tag}</span>
+                {m.contract && m.contract.score < 1 && (
+                  <span
+                    className={`contract-dot ${m.contract.score === 0 ? 'empty' : 'weak'}`}
+                    title={`Контракт: ${m.contract.filled}/${m.contract.total} заполнено (отсутствует: ${(m.contract.missing || []).join(', ')})`}
+                  >!</span>
+                )}
                 <span className="lvl">L{m.layer === 'frontend' ? 3 : m.layer === 'logic' ? 2 : m.layer === 'tests' ? 4 : 1}</span>
               </div>
               <div className="nhead">
