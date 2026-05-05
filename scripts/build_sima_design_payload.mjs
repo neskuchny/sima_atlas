@@ -275,6 +275,7 @@ export function buildSimaDesignPayload({ atlas_root, client_id } = {}) {
       return {
         id: b.id,
         _raw_status: b.status,
+        _raw_updated_at: b.updated_at || null,
         title: b.title || b.id,
         tag: tagFromId(b.id),
         layer: visualLayer,

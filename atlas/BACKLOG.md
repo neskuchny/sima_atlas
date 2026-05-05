@@ -277,8 +277,17 @@ LLM-ом — только сохраняет сырой transcript.
 
 ## P2 — Phase L · Robustness
 
-- [ ] **L1** ETag conflict resolution на `/atlas/blocks/patch` —
-      возвращать 409 если block.updatedAt разошёлся с client_etag.
+- [x] **L1** ETag conflict resolution. Backend:
+      `EtagMismatchError` class, `block.updated_at` стампится на
+      каждый createBlock/patchBlock/deleteBlock. patchBlock принимает
+      `if_match_updated_at` → throws → API server конвертирует в 409
+      `{ok:false, error:'etag_mismatch', current:{...}}`. patchBlockFile
+      использует mtime файла как ETag. Selftest 9/9 (group 9).
+      Frontend: `blockEtags` ref хранит последний known updated_at,
+      `persistBlock` шлёт его на каждый patch. На 409 поднимается
+      conflict-modal с двумя колонками «СЕРВЕР / ВАША ПРАВКА» и
+      кнопками «↻ Загрузить серверную» (+refresh) или «⚠ Перезаписать
+      своим» (re-patch без if_match).
 - [x] **L2** Undo/redo стек на top-level graph mutations
       (createBlock, addEdge, deleteEdge, addNote, deleteNote).
       Ctrl+Z отменяет, Ctrl+Shift+Z / Ctrl+Y повторяет (skip когда

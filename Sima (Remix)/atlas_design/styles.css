@@ -2019,3 +2019,15 @@ html, body {
   padding: 12px 18px; border-bottom: 1px solid var(--rule);
   background: var(--card-2);
 }
+
+/* L1 ETag conflict modal */
+.conflict-box { width: min(820px, 92vw); max-height: 86vh; display: flex; flex-direction: column; background: var(--paper); padding: 0; }
+.conflict-body { padding: 14px 18px; overflow: auto; flex: 1; }
+.conflict-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.conflict-side { display: flex; flex-direction: column; }
+.conflict-pre {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; line-height: 1.5;
+  background: var(--card-2); border: 1px solid var(--rule); border-radius: 6px;
+  padding: 10px 12px; margin: 0; max-height: 280px; overflow: auto;
+  white-space: pre-wrap; word-wrap: break-word;
+}

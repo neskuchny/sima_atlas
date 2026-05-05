@@ -16,9 +16,10 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  createBlock, patchBlock, deleteBlock,
+  createBlock, patchBlock, patchBlockFile, deleteBlock,
   addEdge, deleteEdge,
   addNote, patchNote, deleteNote, listNotes,
+  EtagMismatchError,
 } from '../scripts/atlas_blocks_api.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -129,6 +130,50 @@ try {
     check('group8:delete ok', d.ok && d.removed === 1);
     check('group8:list empty', listNotes({ atlas_root: atlas }).length === 0);
   }
+
+  // ─── Group 9: ETag conflict (Phase L-1)
+  {
+    const r = createBlock({ atlas_root: atlas, body: { id: 'b.etag-test', title: 'EtagTest', layer: 'logic' } });
+    check('group9:create ok', r.ok && typeof r.block.updated_at === 'string');
+    const original = r.block.updated_at;
+
+    // Same etag → patch succeeds and bumps updated_at
+    const wait = Date.now(); while (Date.now() - wait < 5) {}
+    const r1 = patchBlock({
+      atlas_root: atlas, block_id: 'b.etag-test',
+      body: { title: 'Renamed', if_match_updated_at: original },
+    });
+    check('group9:matching etag patches', r1.ok && r1.updated_at !== original);
+
+    // Stale etag → throws EtagMismatchError with current state
+    let caught = null;
+    try {
+      patchBlock({
+        atlas_root: atlas, block_id: 'b.etag-test',
+        body: { title: 'Renamed Again', if_match_updated_at: original },
+      });
+    } catch (e) { caught = e; }
+    check('group9:stale etag throws', caught instanceof EtagMismatchError);
+    check('group9:error carries current', caught?.current?.updated_at === r1.updated_at);
+    check('group9:error code', caught?.code === 'etag_mismatch');
+
+    // No etag passed → still works (back-compat)
+    const r2 = patchBlock({ atlas_root: atlas, block_id: 'b.etag-test', body: { title: 'No Etag Patch' } });
+    check('group9:no etag still works', r2.ok);
+
+    // patchBlockFile with stale mtime
+    const fileR1 = patchBlockFile({ atlas_root: atlas, block_id: 'b.etag-test', file: 'mission.md', content: '# v1\nfirst' });
+    check('group9:file write ok', fileR1.ok && fileR1.mtime);
+    const file_wait = Date.now(); while (Date.now() - file_wait < 50) {}
+    const fileR2 = patchBlockFile({ atlas_root: atlas, block_id: 'b.etag-test', file: 'mission.md', content: '# v2\nsecond', if_match_mtime: fileR1.mtime });
+    check('group9:file matching mtime ok', fileR2.ok);
+    let fileCaught = null;
+    try {
+      patchBlockFile({ atlas_root: atlas, block_id: 'b.etag-test', file: 'mission.md', content: '# v3\nthird', if_match_mtime: fileR1.mtime });
+    } catch (e) { fileCaught = e; }
+    check('group9:file stale mtime throws', fileCaught instanceof EtagMismatchError);
+    check('group9:file error has live mtime', typeof fileCaught?.current?.mtime === 'string');
+  }
 } finally {
   fs.rmSync(tmp, { recursive: true, force: true });
 }
@@ -138,4 +183,4 @@ if (failures.length) {
   failures.forEach((f) => console.error(' ✗', f));
   process.exit(1);
 }
-console.log('atlas_blocks_api.selftest: OK (8 test groups, all assertions green)');
+console.log('atlas_blocks_api.selftest: OK (9 test groups, all assertions green)');

@@ -63,13 +63,15 @@ export function createBlock({ atlas_root, body } = {}) {
     throw new Error(`createBlock: block "${id}" already exists`);
   }
 
+  const initialTs = ts();
   const block = {
     id,
     title: body.title || id,
     status: body.status || 'idea',
-    status_reason: body.status_reason || `Created via design UI at ${ts()}`,
+    status_reason: body.status_reason || `Created via design UI at ${initialTs}`,
     layer: body.layer || 'logic',
     type: body.type || 'module',
+    updated_at: initialTs,
     mvp: body.mvp === true,
     subschema_id: body.subschema_id || null,
     depends_on: Array.isArray(body.depends_on) ? body.depends_on : [],
@@ -102,8 +104,23 @@ export function createBlock({ atlas_root, body } = {}) {
 }
 
 // ─────────────────────────── patchBlock ──────────────────────────────
+// L1 — ETag conflict signalling. Thrown by mutators when the caller
+// supplied an `if_match_updated_at` that doesn't match the on-disk
+// timestamp; the API server unwraps this into a `409 etag_mismatch`
+// response with the current state so the UI can offer reload / force.
+export class EtagMismatchError extends Error {
+  constructor(message, current) {
+    super(message);
+    this.name = 'EtagMismatchError';
+    this.code = 'etag_mismatch';
+    this.current = current;
+  }
+}
+
 // Body: any subset of { title, status, layer, x, y, size, status_reason,
 //   tech_stack, mvp, depends_on (replaces), provides (replaces in provides.md) }
+// Optional: if_match_updated_at — if set and != block.updated_at, throws
+//   EtagMismatchError with the live block payload.
 // We never overwrite mission/kpi/acceptance/tasks markdown — those are
 // human territory. Only structural fields and tech_stack go through here.
 export function patchBlock({ atlas_root, block_id, body } = {}) {
@@ -112,6 +129,14 @@ export function patchBlock({ atlas_root, block_id, body } = {}) {
   const graph = readGraph(root);
   const block = (graph.blocks || []).find((b) => b.id === block_id);
   if (!block) throw new Error(`patchBlock: block "${block_id}" not found`);
+
+  // ETag check — surface conflict before any mutation.
+  if (body.if_match_updated_at && block.updated_at && body.if_match_updated_at !== block.updated_at) {
+    throw new EtagMismatchError(
+      `block "${block_id}" was modified since you read it (mine=${body.if_match_updated_at}, current=${block.updated_at})`,
+      { block_id, updated_at: block.updated_at, title: block.title, status: block.status, canvas_x: block.canvas_x, canvas_y: block.canvas_y },
+    );
+  }
 
   const changed = {};
   for (const f of ['title', 'status', 'layer', 'type', 'status_reason']) {
@@ -158,13 +183,21 @@ export function patchBlock({ atlas_root, block_id, body } = {}) {
     changed.provides = body.provides;
   }
 
+  // L1 — stamp the new ETag and persist. Done last so changes that fail
+  // mid-write don't bump the version (caller sees old etag → safe retry).
+  if (Object.keys(changed).length) {
+    block.updated_at = ts();
+    changed.updated_at = block.updated_at;
+    writeGraph(graph, root);
+  }
+
   // Audit
   const checks = path.join(blockDir(root, block_id), 'checks.log');
   if (fs.existsSync(path.dirname(checks))) {
     fs.appendFileSync(checks, `${ts()}\tdesign_patch\tpass\t${JSON.stringify(changed)}\n`, 'utf8');
   }
 
-  return { ok: true, block_id, changed };
+  return { ok: true, block_id, changed, updated_at: block.updated_at };
 }
 
 // ─────────────────────────── deleteBlock ──────────────────────────────
@@ -187,8 +220,10 @@ export function deleteBlock({ atlas_root, block_id, hard = false } = {}) {
   }
 
   // Soft: status = archived
+  const archivedAt = ts();
   graph.blocks[idx].status = 'archived';
-  graph.blocks[idx].status_reason = `Archived via design UI at ${ts()}`;
+  graph.blocks[idx].status_reason = `Archived via design UI at ${archivedAt}`;
+  graph.blocks[idx].updated_at = archivedAt;
   writeGraph(graph, root);
 
   const checks = path.join(blockDir(root, block_id), 'checks.log');
@@ -315,7 +350,10 @@ const WRITABLE_BLOCK_FILES = new Set([
   'mission.md', 'kpi.md', 'acceptance.md', 'tasks.md',
   'depends_on.md', 'provides.md', 'files.md',
 ]);
-export function patchBlockFile({ atlas_root, block_id, file, content } = {}) {
+// Optional `if_match_mtime`: ISO mtime of the file when the caller read it.
+// If the on-disk mtime has advanced past it, throws EtagMismatchError so
+// the UI can offer to reload the latest content before overwriting.
+export function patchBlockFile({ atlas_root, block_id, file, content, if_match_mtime } = {}) {
   if (!block_id) throw new Error('patchBlockFile: block_id required');
   if (!WRITABLE_BLOCK_FILES.has(file)) throw new Error(`patchBlockFile: forbidden file "${file}"`);
   if (typeof content !== 'string') throw new Error('patchBlockFile: content must be string');
@@ -324,13 +362,23 @@ export function patchBlockFile({ atlas_root, block_id, file, content } = {}) {
   const dir = blockDir(root, block_id);
   if (!fs.existsSync(dir)) throw new Error(`patchBlockFile: block "${block_id}" not found`);
   const p = path.join(dir, file);
+  if (if_match_mtime && fs.existsSync(p)) {
+    const liveMtime = fs.statSync(p).mtime.toISOString();
+    if (liveMtime !== if_match_mtime) {
+      throw new EtagMismatchError(
+        `file ${block_id}/${file} was modified since you read it (mine=${if_match_mtime}, current=${liveMtime})`,
+        { block_id, file, mtime: liveMtime },
+      );
+    }
+  }
   const tmp = p + '.tmp';
   fs.writeFileSync(tmp, content, 'utf8');
   fs.renameSync(tmp, p);
+  const newMtime = fs.statSync(p).mtime.toISOString();
   // Audit line in checks.log so the run-files extractor can pick it up.
   const log = path.join(dir, 'checks.log');
   fs.appendFileSync(log, `${ts()}\tdesign_patch\tpass\tatlas/blocks/${block_id}/${file}\n`);
-  return { ok: true, block_id, file, bytes: content.length };
+  return { ok: true, block_id, file, bytes: content.length, mtime: newMtime };
 }
 
 export function listNotes({ atlas_root } = {}) {

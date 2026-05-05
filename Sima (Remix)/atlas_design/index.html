@@ -222,15 +222,52 @@ function App() {
   // per second; we don't want to POST on every frame. Buffer per-block
   // and flush 500ms after the last update.
   const persistTimers = useRef({});
+  // L1 — track latest known updated_at per block so we can send it as
+  // if_match_updated_at on every patch. Seeded from payload, refreshed
+  // on every successful patch response.
+  const blockEtags = useRef({});
+  useEffect(() => {
+    for (const m of (data.modules || [])) {
+      if (m.id?.startsWith('b.') && m._raw_updated_at) blockEtags.current[m.id] = m._raw_updated_at;
+    }
+  }, [data]);
+  const [conflictBlock, setConflictBlock] = useState(null); // { id, current, pending }
+
   const persistBlock = (id, patchAccum) => {
     if (!window.SIMA_API || !window.SIMA_API.patchBlock) return;
     if (id.startsWith('m-') || !id.startsWith('b.')) return; // local-only ids
     if (persistTimers.current[id]) clearTimeout(persistTimers.current[id]);
     persistTimers.current[id] = setTimeout(async () => {
       delete persistTimers.current[id];
-      const r = await window.SIMA_API.patchBlock(id, patchAccum);
-      if (!r?.ok) pushLog({ agent: 'SIMA Core', kind: 'fail', msg: `patch ${id} failed: ${r?.error}` });
+      const etag = blockEtags.current[id];
+      const r = await window.SIMA_API.patchBlock(id, etag ? { ...patchAccum, if_match_updated_at: etag } : patchAccum);
+      if (r?.ok) {
+        if (r.updated_at) blockEtags.current[id] = r.updated_at;
+        return;
+      }
+      if (r?.error === 'etag_mismatch') {
+        // Surface conflict modal: the operator can «Reload from server»
+        // (drop our pending change + re-fetch) or «Overwrite» (re-patch
+        // without if_match, will succeed unconditionally).
+        setConflictBlock({ id, current: r.current, pending: patchAccum });
+        return;
+      }
+      pushLog({ agent: 'SIMA Core', kind: 'fail', msg: `patch ${id} failed: ${r?.error}` });
     }, 500);
+  };
+
+  const resolveConflictReload = async () => {
+    if (!conflictBlock) return;
+    if (conflictBlock.current?.updated_at) blockEtags.current[conflictBlock.id] = conflictBlock.current.updated_at;
+    await (window.SIMA_API?.refresh && window.SIMA_API.refresh());
+    setConflictBlock(null);
+  };
+  const resolveConflictOverwrite = async () => {
+    if (!conflictBlock) return;
+    const r = await window.SIMA_API.patchBlock(conflictBlock.id, conflictBlock.pending); // no if_match → unconditional
+    if (r?.ok && r.updated_at) blockEtags.current[conflictBlock.id] = r.updated_at;
+    if (!r?.ok) pushLog({ agent: 'SIMA Core', kind: 'fail', msg: `force-patch ${conflictBlock.id} failed: ${r?.error}` });
+    setConflictBlock(null);
   };
 
   const updateModule = (id, patch) => {
@@ -1184,6 +1221,42 @@ function App() {
             onClick={() => { setDesyncResolved(false); setScanState('idle'); setSelectedId(null); setFilters(new Set()); setDrillId(null); setEdges(data.edges.map(e => ({ ...e }))); setModules(data.modules.map(m => ({ ...m }))); }} />
         </TweakSection>
       </TweaksPanel>
+
+      {/* L1 — ETag conflict modal */}
+      {conflictBlock && (
+        <div className="cmd-bar" onClick={() => {/* require explicit choice */}}>
+          <div className="cmd-box conflict-box" onClick={e => e.stopPropagation()}>
+            <div className="sysdocs-head">
+              <div>
+                <div className="mono" style={{ fontSize: 11, color: 'var(--st-fail)', letterSpacing: '0.08em' }}>КОНФЛИКТ ВЕРСИЙ</div>
+                <h3 style={{ margin: '4px 0 0', fontFamily: 'Newsreader, serif', fontStyle: 'italic', fontSize: 19 }}>
+                  Блок «{conflictBlock.id}» был изменён другим клиентом
+                </h3>
+              </div>
+            </div>
+            <div className="conflict-body">
+              <div className="meta" style={{ fontSize: 12, marginBottom: 10 }}>
+                Сервер пришёл с обновлением <span className="mono">{conflictBlock.current?.updated_at || 'неизвестно'}</span>,
+                но вы уже начали свою правку. Что сделать?
+              </div>
+              <div className="conflict-pair">
+                <div className="conflict-side">
+                  <div className="meta" style={{ fontSize: 10.5, marginBottom: 4 }}>СЕРВЕР (свежий)</div>
+                  <pre className="conflict-pre">{JSON.stringify(conflictBlock.current || {}, null, 2)}</pre>
+                </div>
+                <div className="conflict-side">
+                  <div className="meta" style={{ fontSize: 10.5, marginBottom: 4 }}>ВАША ПРАВКА</div>
+                  <pre className="conflict-pre">{JSON.stringify(conflictBlock.pending || {}, null, 2)}</pre>
+                </div>
+              </div>
+            </div>
+            <div className="sysdocs-foot" style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+              <button className="pill" onClick={resolveConflictReload}>↻ Загрузить серверную версию</button>
+              <button className="pill primary" onClick={resolveConflictOverwrite} style={{ background: 'var(--st-fail)', borderColor: 'var(--st-fail)' }}>⚠ Перезаписать своим</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ONBOARDING */}
       {onboarding && (() => {

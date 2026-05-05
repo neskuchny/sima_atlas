@@ -233,6 +233,8 @@
     // Returns immediately; UI should optimistically update its local
     // state and rely on the next refresh to confirm.
     createBlock: async (body_)         => { const r = await postJson('/atlas/blocks/create', withClient(body_)); if (r.ok) await refresh(); return r; },
+    // L1 — patchBlock accepts optional `if_match_updated_at` from caller.
+    // 409 etag_mismatch is surfaced to the UI via {ok:false, error:'etag_mismatch', current}.
     patchBlock:  async (block_id, body_) => { const r = await postJson('/atlas/blocks/patch',  withClient({ block_id, ...body_ })); if (r.ok) await refresh(); return r; },
     deleteBlock: async (block_id, hard=false) => { const r = await postJson('/atlas/blocks/delete', withClient({ block_id, hard })); if (r.ok) await refresh(); return r; },
     addEdge:     async (body_)         => { const r = await postJson('/atlas/edges/add',    withClient(body_)); if (r.ok) await refresh(); return r; },

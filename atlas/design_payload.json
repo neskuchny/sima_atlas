@@ -36,6 +36,7 @@
   "modules": [
     {
       "id": "b.ui-control",
+      "_raw_updated_at": null,
       "title": "UI Control Plane",
       "tag": "ui-control",
       "layer": "frontend",
@@ -57,6 +58,7 @@
     },
     {
       "id": "b.core-sync",
+      "_raw_updated_at": null,
       "title": "Sync Engine",
       "tag": "core-sync",
       "layer": "logic",
@@ -78,6 +80,7 @@
     },
     {
       "id": "b.db",
+      "_raw_updated_at": null,
       "title": "Atlas Database",
       "tag": "db",
       "layer": "backend",
@@ -99,6 +102,7 @@
     },
     {
       "id": "b.agent-orchestrator",
+      "_raw_updated_at": null,
       "title": "Agent Orchestrator",
       "tag": "agent-orchestrator",
       "layer": "logic",
@@ -120,6 +124,7 @@
     },
     {
       "id": "b.docs",
+      "_raw_updated_at": null,
       "title": "Docs Builder",
       "tag": "docs",
       "layer": "backend",
@@ -141,6 +146,7 @@
     },
     {
       "id": "b.llm-gateway",
+      "_raw_updated_at": null,
       "title": "LLM Gateway",
       "tag": "llm-gateway",
       "layer": "logic",
@@ -161,6 +167,7 @@
     },
     {
       "id": "b.operator-profile-learner",
+      "_raw_updated_at": null,
       "title": "Operator Profile Learner",
       "tag": "operator-profile-learner",
       "layer": "logic",
@@ -179,6 +186,7 @@
     },
     {
       "id": "b.acceptance-verifier-loop",
+      "_raw_updated_at": null,
       "title": "Acceptance Verifier Loop",
       "tag": "acceptance-verifier-loop",
       "layer": "tests",
@@ -197,6 +205,7 @@
     },
     {
       "id": "b.user-docs-generator",
+      "_raw_updated_at": null,
       "title": "End-User Docs Generator",
       "tag": "user-docs-generator",
       "layer": "backend",
@@ -215,6 +224,7 @@
     },
     {
       "id": "b.smoke-sandbox",
+      "_raw_updated_at": null,
       "title": "Smoke Sandbox (test target)",
       "tag": "smoke-sandbox",
       "layer": "tests",
@@ -1623,7 +1633,7 @@
     }
   ],
   "_meta": {
-    "generated_at": "2026-05-05T04:05:44.172Z",
+    "generated_at": "2026-05-05T05:59:30.870Z",
     "atlas_root": "atlas",
     "client_id": null,
     "block_count": 10,

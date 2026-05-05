@@ -556,12 +556,21 @@ const server = http.createServer((req, res) => {
       // inline (rather than CORS-mangled 4xx).
       const tryFn = (fn) => {
         try { return json(res, 200, fn()); }
-        catch (e) { return json(res, 200, { ok: false, error: String(e.message || e) }); }
+        catch (e) {
+          // L1 — surface ETag conflicts as 409 with the live state so
+          // the UI can offer reload / discard / force-overwrite.
+          if (e && e.code === 'etag_mismatch') {
+            return json(res, 409, { ok: false, error: 'etag_mismatch', message: String(e.message || ''), current: e.current || null });
+          }
+          return json(res, 200, { ok: false, error: String(e.message || e) });
+        }
       };
       if (req.url === '/atlas/blocks/create') return tryFn(() => blocksApi.createBlock({ body }));
       if (req.url === '/atlas/blocks/patch') {
         const id = String(body.block_id || body.id || '');
         if (!id) return json(res, 400, { ok: false, error: 'block_id required' });
+        // L1 — body.if_match_updated_at flows through to patchBlock for
+        // optimistic-concurrency checks. Absent → no check (back-compat).
         return tryFn(() => blocksApi.patchBlock({ block_id: id, body }));
       }
       if (req.url === '/atlas/blocks/delete') {
@@ -878,11 +887,16 @@ const server = http.createServer((req, res) => {
         });
       }
       // /atlas/blocks/patch-file — write a block's mission.md/kpi.md/etc.
+      // body.if_match_mtime (ISO) → ETag-style guard against clobbering
+      // changes made between read and write.
       if (req.url === '/atlas/blocks/patch-file') {
         const id = String(body.block_id || body.id || '');
         if (!id) return json(res, 400, { ok: false, error: 'block_id required' });
         return tryFn(() => blocksApi.patchBlockFile({
-          block_id: id, file: String(body.file || ''), content: String(body.content || ''),
+          block_id: id,
+          file: String(body.file || ''),
+          content: String(body.content || ''),
+          if_match_mtime: body.if_match_mtime || undefined,
         }));
       }
 
