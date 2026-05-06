@@ -3,8 +3,9 @@
 > **Visual contract-first development for AI coding agents.**
 > The graph of contracts between you and Claude Code / Cursor / Codex / your favorite agent — so the AI builds what you actually meant.
 
-Built by **Synlabs** as a subproject of **Tessent**. Maintained by Anton Kalabukhov and contributors.
-License: **MIT**. Status: **early but live**.
+Open-sourced by **Synlabs**. Sima Atlas grew out of an internal idea (originally meant for our main product, **Tessent**) and was extracted into a standalone open-source project so the **concept** of contract-first AI development reaches the market — independently of how any specific company implements it. Maintained by Anton Kalabukhov and contributors.
+
+License: **MIT**. Status: **early but live**. We care more about the principles than the polish — see [Why these principles, not others](ТЗ/статья.md#почему-именно-эти-принципы) in the article.
 
 📖 Full methodology (Russian, ~3000 words): [ТЗ/статья.md](ТЗ/статья.md)
 🔌 Plug into your AI tool: [docs/integrations.md](docs/integrations.md)
@@ -119,9 +120,9 @@ MIT. See [LICENSE](LICENSE).
 
 **Sima Atlas** — open-source инструмент для разработки с AI-агентом в формате визуального графа контрактов. Каждый блок продукта живёт как набор MD-файлов с миссией, KPI, критериями приёмки и связями. Агент (Claude Code / Cursor / Codex) ходит в граф через MCP, получает точный context-pack под текущую задачу и отдаёт обратно факт-чекаемый патч. Acceptance loop проверяет каждое утверждение детерминистически.
 
-Разработка ведётся в **Synlabs** как часть проекта **Tessent**. Maintainer — Anton Kalabukhov + контрибьюторы.
+Sima Atlas разрабатывается в нашей компании **Synlabs**. Идея «Sima» изначально появилась внутри нашего основного продукта **Tessent**; Sima Atlas — её opensource-инкарнация, которую мы выкладываем рынку как самостоятельный продукт **ради концепции**, а не ради конкретной реализации. Maintainer — Anton Kalabukhov + контрибьюторы.
 
-**Это первый из двух инструментов, которые мы открываем рынку.** Второй — `Sima Core` — про runtime-память и принципы для самих агентов; тоже разрабатывается в Synlabs / Tessent, отдельно (в работе).
+> **Главное — концепция, а не идеальная реализация.** Мы не утверждаем, что у нас всё работает идеально. Многое работает (см. self-audit в Приложении А статьи), кое-что в roadmap, кое-что упрощено. **В opensource мы выкладываем именно концепцию**: контракт первичен, граф знает связи, acceptance loop встроен, память типизированная, контекст под задачу, canvas — truth. Эти принципы можно (и нужно!) дорабатывать, главное — двигаться по этим направляющим. См. в статье «Почему именно эти принципы».
 
 📖 **Полная методология** (~3000 слов, 11 частей + 2 приложения с self-audit): [ТЗ/статья.md](ТЗ/статья.md)
 🔌 **Подключить к своему IDE** (Claude Code / Cursor / Codex / Continue / Zed / Windsurf / Antigravity): [docs/integrations.md](docs/integrations.md)
