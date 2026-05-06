@@ -126,6 +126,22 @@ function DetailPanel({ data, moduleId, onClose, desyncResolved, onSendToAgent, o
           <span className="status-pill mono">layer/{m.layer}</span>
           {m.checked && <span className="status-pill">✓ проверено</span>}
         </div>
+        {/* Phase R-5 — soft-gate hint. We don't block status transitions,
+            but we make missing contract pieces visible upfront so the
+            operator sees what's needed before pushing into todo/progress. */}
+        {m.contract && Array.isArray(m.contract.missing) && m.contract.missing.length > 0 && (
+          <div className="gate-hint" style={{
+            marginTop: 8, padding: '6px 9px', borderRadius: 6,
+            background: 'var(--ink-bg-soft, rgba(120, 120, 140, 0.08))',
+            color: 'var(--ink-3)', fontSize: 12, lineHeight: 1.45,
+          }}>
+            <strong style={{ color: 'var(--ink-2)' }}>чтобы продвинуть статус — заполни:</strong>{' '}
+            {m.contract.missing.map((f) => f.replace(/\.md$/, '')).join(' · ')}
+            <span style={{ marginLeft: 6, color: 'var(--ink-4)' }}>
+              ({m.contract.filled}/{m.contract.total})
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="tabs">
