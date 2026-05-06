@@ -52,6 +52,7 @@ const checks = [
   ['atlas_subsystems_api_selftest', 'node tests/atlas_subsystems_api.selftest.mjs'],
   ['atlas_files_api_selftest', 'node tests/atlas_files_api.selftest.mjs'],
   ['cleanup_block_memory_selftest', 'node tests/cleanup_block_memory.selftest.mjs'],
+  ['sima_watch_chats_selftest', 'node tests/sima_watch_chats.selftest.mjs'],
   ['build_sima_design_payload', 'node scripts/build_sima_design_payload.mjs'],
   ['playwright_sima_design', 'npx playwright test tests/playwright/sima_design.spec.ts --reporter=line'],
   ['parse_acceptance_selftest', 'node tests/parse_acceptance.selftest.mjs'],

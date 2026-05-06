@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-05-05T18:24:23.980Z_
+_Generated: 2026-05-06T16:29:21.402Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -33,7 +33,7 @@ _Generated: 2026-05-05T18:24:23.980Z_
 - ✅ operator_profile_selftest: ok
   - output: operator_profile.selftest: OK (7 test groups, all assertions green)
 - ✅ aggregate_operator_profile: ok
-  - output: operator_profile: warming_up (done=2, invocations=3, traces=10318, proposals=166)
+  - output: operator_profile: warming_up (done=2, invocations=3, traces=10713, proposals=169)
 - ✅ operator_profile_lessons_smoke: ok
   - output: operator_profile_lessons.smoke: OK (6 test groups, all assertions green)
 - ✅ operator_profile_inject_smoke: ok
@@ -78,6 +78,8 @@ _Generated: 2026-05-05T18:24:23.980Z_
   - output: atlas_files_api.selftest: OK (5 test groups, all assertions green)
 - ✅ cleanup_block_memory_selftest: ok
   - output: cleanup_block_memory.selftest: OK (4 test groups, all assertions green)
+- ✅ sima_watch_chats_selftest: ok
+  - output: sima_watch_chats.selftest: OK (4 passes, mock provider, noise filtered, cursor + rotation handled)
 - ✅ build_sima_design_payload: ok
   - output: Built /home/user/sima_atlas/atlas/design_payload.json
 - ✅ playwright_sima_design: ok
@@ -133,4 +135,4 @@ _Generated: 2026-05-05T18:24:23.980Z_
 - ✅ intelligence_health: ok
   - output: Intelligence health: 1 (10/10)
 
-Summary: PASS (65/65)
+Summary: PASS (66/66)

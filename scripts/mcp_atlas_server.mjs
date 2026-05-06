@@ -21,6 +21,7 @@ function toolList(){
     { name:'subagent_verifier', description:'Phase N-3: run acceptance verifier + LLM-validator (mission vs reality) on a block (or --all).', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} } } },
     { name:'subagent_wiki_builder', description:'Phase N-3: regenerate WIKI.md / wiki.html / roadmap.md / auto_tz.md from canonical graph + block files.', inputSchema:{ type:'object', properties:{} } },
     { name:'sima_fill_from_chat', description:'Phase R-2: take a chat transcript and orchestrate the full pipeline — extract insights, fill weak fields on existing blocks (mission/user_story/kpi/acceptance), propose 1-3 new blocks. Saves a plan to atlas/proposals/<ts>__chat_fill.json which the operator reviews in the «✦ Предложения» panel. The agent (Claude Code / Cursor) calls this tool to «fill the schema from this conversation» without the operator copying anything by hand.', inputSchema:{ type:'object', properties:{ transcript:{type:'string'}, target_block_ids:{type:'array', items:{type:'string'}}, propose_new:{type:'boolean'}, dry_run:{type:'boolean'} }, required:['transcript'] } },
+    { name:'sima_watch_chats', description:'Phase R-3: scan Claude Code session jsonl files (~/.claude/projects/*/), detect new conversational turns since the last run, and either propose (dry-run plan) or auto-apply via sima_fill_from_chat. Use this when the operator says «sima, check the latest chats» or to power a periodic background sweep. Returns {plan, new_turns, skipped_reason?}.', inputSchema:{ type:'object', properties:{ mode:{type:'string', enum:['propose','auto']}, min_new_chars:{type:'number'} } } },
     { name:'create_block', description:'Create/init block in atlas graph and docs', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, title:{type:'string'} }, required:['block_id'] } },
     { name:'set_block_mission', description:'Update mission.md for block', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, mission:{type:'string'} }, required:['block_id','mission'] } },
     { name:'generate_wiki', description:'Generate atlas WIKI.md', inputSchema:{ type:'object', properties:{} } },
@@ -317,6 +318,21 @@ rl.on('line', (line) => {
         } catch (e) {
           const stdoutText = (e.stdout || '').toString();
           return respond(id, { content:[{ type:'text', text: stdoutText || `sima_fill_from_chat failed: ${e.message}` }] });
+        }
+      }
+      // Phase R-3: trigger one watcher pass over ~/.claude/projects.
+      // Defers to scripts/sima_watch_chats.mjs --once --json so the same
+      // entry-point powers CLI + cron + MCP without divergent code paths.
+      if (name === 'sima_watch_chats') {
+        const cliArgs = ['scripts/sima_watch_chats.mjs', '--once', '--json'];
+        if (args.mode === 'auto' || args.mode === 'propose') cliArgs.push(`--mode=${args.mode}`);
+        if (Number.isFinite(args.min_new_chars)) cliArgs.push(`--min-new-chars=${args.min_new_chars}`);
+        try {
+          const out = execFileSync('node', cliArgs, { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] }).toString();
+          return respond(id, { content:[{ type:'text', text: out }] });
+        } catch (e) {
+          const stdoutText = (e.stdout || '').toString();
+          return respond(id, { content:[{ type:'text', text: stdoutText || `sima_watch_chats failed: ${e.message}` }] });
         }
       }
       if (name === 'create_block') {

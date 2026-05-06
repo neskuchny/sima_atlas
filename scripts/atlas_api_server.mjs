@@ -1160,6 +1160,29 @@ const server = http.createServer((req, res) => {
         }
       }
 
+      // Phase R-3 — trigger the chat watcher one-shot. body: {mode?, min_new_chars?}
+      if (req.url === '/atlas/sima/watch-chats') {
+        try {
+          const { watchOnce } = await import('./sima_watch_chats.mjs');
+          return watchOnce({
+            mode: body.mode === 'auto' ? 'auto' : 'propose',
+            minNewChars: Number.isFinite(body.min_new_chars) ? body.min_new_chars : undefined,
+          }).then((r) => json(res, 200, { ok: true, ...r }), (e) => json(res, 200, { ok: false, error: String(e.message || e) }));
+        } catch (e) {
+          return json(res, 200, { ok: false, error: String(e.message || e) });
+        }
+      }
+      // Phase R-3 — read the most recent watcher status for UI polling.
+      if (req.url === '/atlas/sima/watch-chats/status' && req.method === 'GET') {
+        try {
+          const p = path.join(ROOT, 'atlas', 'run_state', 'chat_watch_status.json');
+          if (!fs.existsSync(p)) return json(res, 200, { ok: true, status: null });
+          return json(res, 200, { ok: true, status: JSON.parse(fs.readFileSync(p, 'utf8')) });
+        } catch (e) {
+          return json(res, 200, { ok: false, error: String(e.message || e) });
+        }
+      }
+
       // Phase J-3 fix: scaffold an empty client namespace.
       // body: { id }. Creates atlas/clients/<id>/ with empty graph.json
       // + minimal project.md/rules.md/tech_stack.md placeholders + blocks/.

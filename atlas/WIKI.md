@@ -1,6 +1,6 @@
 # Sima Atlas Wiki
 
-_Auto-generated: 2026-05-05T18:27:25.374Z_
+_Auto-generated: 2026-05-06T16:31:49.369Z_
 
 ## Граф продукта
 
