@@ -3,7 +3,8 @@
 > **Visual contract-first development for AI coding agents.**
 > The graph of contracts between you and Claude Code / Cursor / Codex / your favorite agent — so the AI builds what you actually meant.
 
-License: **MIT**. Status: **early but live**. Built in Russian, written for everyone — see English / Русский sections below.
+Built by **Synlabs** as a subproject of **Tessent**. Maintained by Anton Kalabukhov and contributors.
+License: **MIT**. Status: **early but live**.
 
 📖 Full methodology (Russian, ~3000 words): [ТЗ/статья.md](ТЗ/статья.md)
 🔌 Plug into your AI tool: [docs/integrations.md](docs/integrations.md)
@@ -118,7 +119,9 @@ MIT. See [LICENSE](LICENSE).
 
 **Sima Atlas** — open-source инструмент для разработки с AI-агентом в формате визуального графа контрактов. Каждый блок продукта живёт как набор MD-файлов с миссией, KPI, критериями приёмки и связями. Агент (Claude Code / Cursor / Codex) ходит в граф через MCP, получает точный context-pack под текущую задачу и отдаёт обратно факт-чекаемый патч. Acceptance loop проверяет каждое утверждение детерминистически.
 
-**Это первый из двух инструментов, которые мы открываем рынку.** Второй — `Sima Core` — про runtime-память и принципы для самих агентов; о нём отдельно (в работе).
+Разработка ведётся в **Synlabs** как часть проекта **Tessent**. Maintainer — Anton Kalabukhov + контрибьюторы.
+
+**Это первый из двух инструментов, которые мы открываем рынку.** Второй — `Sima Core` — про runtime-память и принципы для самих агентов; тоже разрабатывается в Synlabs / Tessent, отдельно (в работе).
 
 📖 **Полная методология** (~3000 слов, 11 частей + 2 приложения с self-audit): [ТЗ/статья.md](ТЗ/статья.md)
 🔌 **Подключить к своему IDE** (Claude Code / Cursor / Codex / Continue / Zed / Windsurf / Antigravity): [docs/integrations.md](docs/integrations.md)
