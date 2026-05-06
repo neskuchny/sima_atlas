@@ -1698,6 +1698,7 @@
       "short": "Целевой блок для всех e2e/smoke-тестов Атласа. Реальный код продукта на него не ссылается. MCP smoke-сценарии (`scripts/mcp_smoke_e2e.mjs`, future smoke harnesses) пишут сюда mission/tasks/ingestion-queue, чтобы не повреждать содержание реа"
     }
   },
+  "submodules": {},
   "history": [
     {
       "ts": "12:40",
@@ -1778,7 +1779,7 @@
     }
   ],
   "_meta": {
-    "generated_at": "2026-05-06T17:22:21.570Z",
+    "generated_at": "2026-05-06T18:43:43.465Z",
     "atlas_root": "atlas",
     "client_id": null,
     "block_count": 10,

@@ -239,8 +239,24 @@ export function buildSimaDesignPayload({ atlas_root, client_id } = {}) {
   }
 
   const graphPath = path.join(root, 'graph.json');
-  if (!fs.existsSync(graphPath)) throw new Error(`graph.json not found: ${graphPath}`);
-  const graph = JSON.parse(fs.readFileSync(graphPath, 'utf8'));
+  // Phase R-5 fix: a client directory may exist without graph.json (e.g.
+  // half-bootstrapped projects, or a leftover from a crashed `clients/create`).
+  // Returning a real 500 to the UI for that case meant the canvas couldn't
+  // even render the empty state — and the React tree died on undefined
+  // `data.submodules`. Treat missing graph as «empty atlas» instead.
+  let graph;
+  if (!fs.existsSync(graphPath)) {
+    graph = { blocks: [], edges: [] };
+  } else {
+    try {
+      graph = JSON.parse(fs.readFileSync(graphPath, 'utf8'));
+    } catch (e) {
+      // Malformed graph.json: degrade to empty rather than crash. The
+      // operator will still see the empty-canvas banner from the UI.
+      console.error(`build_sima_design_payload: graph.json parse failed at ${graphPath}: ${e.message}; using empty.`);
+      graph = { blocks: [], edges: [] };
+    }
+  }
 
   // Phase E-4: per-block contract score so graph cards can show a `!`
   // when mission/kpi/acceptance/depends_on/provides are empty or weak.
@@ -399,6 +415,10 @@ export function buildSimaDesignPayload({ atlas_root, client_id } = {}) {
     edges,
     tasks,
     moduleDocs,
+    // Phase R-5 — UI graph.jsx:303 / panels.jsx:89 read data.submodules[id].
+    // The payload didn't include the field, so an empty client crashed
+    // the React tree on first block create. Always return at least {}.
+    submodules: {},
     history,
     lessons,
     subsystems,

@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-05-06T17:21:12.790Z_
+_Generated: 2026-05-06T18:42:29.745Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -33,7 +33,7 @@ _Generated: 2026-05-06T17:21:12.790Z_
 - ✅ operator_profile_selftest: ok
   - output: operator_profile.selftest: OK (7 test groups, all assertions green)
 - ✅ aggregate_operator_profile: ok
-  - output: operator_profile: warming_up (done=2, invocations=3, traces=10979, proposals=172)
+  - output: operator_profile: warming_up (done=2, invocations=3, traces=11250, proposals=175)
 - ✅ operator_profile_lessons_smoke: ok
   - output: operator_profile_lessons.smoke: OK (6 test groups, all assertions green)
 - ✅ operator_profile_inject_smoke: ok
@@ -44,6 +44,8 @@ _Generated: 2026-05-06T17:21:12.790Z_
   - output: dont_use_management.selftest: OK (7 test groups, all assertions green)
 - ✅ validate_dont_use_compliance: ok
   - output: validate_dont_use_compliance: banned=0 (none); checked=10; warnings=0
+- ✅ validate_lifecycle_gates: ok
+  - output: validate_lifecycle_gates — 10 blocks, 0 fail, 0 warn
 - ✅ introspect_block_ui_selftest: ok
   - output: introspect_block_ui.selftest: OK (7 test groups, all assertions green)
 - ✅ user_docs_smoke: ok
@@ -80,6 +82,8 @@ _Generated: 2026-05-06T17:21:12.790Z_
   - output: cleanup_block_memory.selftest: OK (4 test groups, all assertions green)
 - ✅ sima_watch_chats_selftest: ok
   - output: sima_watch_chats.selftest: OK (4 passes, mock provider, noise filtered, cursor + rotation handled)
+- ✅ chat_fill_accept_selftest: ok
+  - output: chat_fill_accept.selftest: OK (plan listed, accepted, blocks created, contract files written, re-accept refused)
 - ✅ build_sima_design_payload: ok
   - output: Built /home/user/sima_atlas/atlas/design_payload.json
 - ✅ playwright_sima_design: ok
@@ -135,4 +139,4 @@ _Generated: 2026-05-06T17:21:12.790Z_
 - ✅ intelligence_health: ok
   - output: Intelligence health: 1 (10/10)
 
-Summary: PASS (66/66)
+Summary: PASS (68/68)

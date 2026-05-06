@@ -300,11 +300,13 @@ function GraphCanvas({
           const isWarn = (m.status === 'desync' && !desyncResolved) || m.status === 'fail';
           const flash = activeFlash === m.id;
           const status = (m.id === 'metrics' && desyncResolved) ? 'progress' : m.status;
-          const subs = data.submodules[m.id] || [];
-          const tasks = data.tasks[m.id] || [];
+          // Phase R-5 — empty/legacy payloads may not have these maps.
+          // Optional-chain so a partial backend never blanks the canvas.
+          const subs = data.submodules?.[m.id] || [];
+          const tasks = data.tasks?.[m.id] || [];
           const tProg = taskProgress(m.id);
           const sProg = subModuleProgress(m.id);
-          const desc = data.moduleDocs[m.id] || {};
+          const desc = data.moduleDocs?.[m.id] || {};
           return (
             <div
               key={m.id}

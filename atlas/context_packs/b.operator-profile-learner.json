@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-06T17:23:21.564Z",
+  "generated_at": "2026-05-06T18:44:43.298Z",
   "block_id": "b.operator-profile-learner",
   "project": {
     "project": "# Sima Atlas\n\nЦель: единая визуально-документная система, которая устраняет рассинхрон между кодом, агентами и документацией.\n\n## North Star\n- Любой агент работает по одному и тому же block-context.\n- Человек видит статус реализации на схеме без чтения всего кода.\n",
@@ -112,5 +112,9 @@
       "mission": "# b.docs — mission\n\nДокумент-генератор Атласа: на каждый блок собирает живую страницу wiki из его `mission.md / kpi.md / acceptance.md / depends_on.md / provides.md / files.md / patterns.md`. На каждый проект собирает `auto_tz.md` (агрегированное ТЗ) и `roadmap.md` (приоритизированный список блоков по статусу и зависимостям).\n\nГлавное правило — **никакой генерации текста, не основанной на содержимом блоков**. Если у блока mission.md шаблонный или пустой, в wiki это блок попадает с явной пометкой `[требует заполнения]`, а не «Ключевая цель блока…».\n\nРеализация: `scripts/generate_wiki.mjs`, `scripts/generate_tz_from_atlas.mjs`, `scripts/render_wiki_html.mjs`, `scripts/rebuild_atlas_roadmap.mjs`.\n\n## Layer\ncontent\n\n## Что должен делать в done-версии\n1. Wiki содержит секции по слоям (front/back/ai/data/...) и навигацию между блоками по `depends_on`.\n2. Mermaid-диаграмма графа в `wiki.html` (по `graph.json`).\n3. ТЗ автогенерируется только из non-template mission/kpi (контракт `validate_no_template_placeholders`).\n4. Roadmap учитывает не только статус блока, но и `depends_on` (топологическая сортировка).\n5. Скриншоты блоков (когда `b.ui-control` дойдёт до этой фичи) встраиваются в wiki.\n\n## Out of scope\n- Извлечение содержимого блоков из чата (это `b.llm-gateway` + `b.agent-orchestrator`).\n",
       "provides": "# b.docs — provides\n\n- wiki_bundle\n- tz_bundle\n"
     }
-  ]
+  ],
+  "_meta": {
+    "size_bytes": 51610,
+    "estimated_tokens": 12903
+  }
 }

@@ -95,7 +95,7 @@
       // banner inviting them to create the project.
       window.SIMA_DATA = {
         product: { codename: client, title: client, subtitle: 'Проект ещё не создан', goal: '', mission: '', quality: [], conditions: { backend: [], frontend: [], logic: [], checks: [] } },
-        modules: [], edges: [], tasks: {}, moduleDocs: {}, history: [], lessons: [],
+        modules: [], edges: [], tasks: {}, moduleDocs: {}, submodules: {}, history: [], lessons: [],
         agents: [
           { id: 'claude', title: 'Claude Code', tag: 'claude-code', color: 'warm' },
           { id: 'cursor', title: 'Cursor',       tag: 'cursor',      color: 'blue' },

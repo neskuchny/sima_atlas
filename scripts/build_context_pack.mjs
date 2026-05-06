@@ -67,5 +67,15 @@ const pack = {
 const outDir = path.join(atlas,'context_packs');
 if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive:true });
 const out = path.join(outDir, `${blockId}.json`);
-fs.writeFileSync(out, JSON.stringify(pack,null,2)+'\n','utf8');
-console.log(`Context-pack written: ${out}`);
+const serialized = JSON.stringify(pack, null, 2);
+// Phase R-5 — emit size metadata so agents (and CI) see what they pay for.
+// 4 chars ≈ 1 token is the conservative GPT-style estimate; Claude tokenises
+// slightly tighter, so this overestimates a bit, which is fine.
+const sizeBytes = Buffer.byteLength(serialized, 'utf8');
+const estTokens = Math.ceil(sizeBytes / 4);
+pack._meta = { size_bytes: sizeBytes, estimated_tokens: estTokens };
+fs.writeFileSync(out, JSON.stringify(pack, null, 2) + '\n', 'utf8');
+console.log(`Context-pack written: ${out} (${sizeBytes} bytes ≈ ${estTokens} tokens)`);
+if (estTokens > 8000) {
+  console.warn(`⚠ pack is large (${estTokens} tokens). Consider trimming patterns.md / acceptance.md, or use Phase R-5 compact mode (TODO).`);
+}

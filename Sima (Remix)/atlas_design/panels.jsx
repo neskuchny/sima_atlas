@@ -85,9 +85,11 @@ function DetailPanel({ data, moduleId, onClose, desyncResolved, onSendToAgent, o
   }
 
   const m = data.modules.find(x => x.id === moduleId);
-  const tasks = data.tasks[moduleId] || [];
-  const subs = data.submodules[moduleId] || [];
-  const lessons = data.lessons.filter(l => l.module === moduleId || (m.layer === 'frontend' && l.module === 'frontend'));
+  // Phase R-5 — never trust the payload to have every map. Optional-chain.
+  if (!m) return null;
+  const tasks = data.tasks?.[moduleId] || [];
+  const subs = data.submodules?.[moduleId] || [];
+  const lessons = (data.lessons || []).filter(l => l.module === moduleId || (m.layer === 'frontend' && l.module === 'frontend'));
   const status = (moduleId === 'metrics' && desyncResolved) ? 'progress' : m.status;
 
   const tabs = [

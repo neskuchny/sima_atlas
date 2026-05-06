@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-06T17:23:21.665Z",
+  "generated_at": "2026-05-06T18:44:43.405Z",
   "block_id": "b.user-docs-generator",
   "project": {
     "project": "# Sima Atlas\n\nЦель: единая визуально-документная система, которая устраняет рассинхрон между кодом, агентами и документацией.\n\n## North Star\n- Любой агент работает по одному и тому же block-context.\n- Человек видит статус реализации на схеме без чтения всего кода.\n",
@@ -94,5 +94,9 @@
       "mission": "# b.llm-gateway — mission\n\nЕдиная точка входа для всех LLM-вызовов внутри Атласа. Реализовано в `scripts/llm_gateway.mjs`:\n\n- **Provider-agnostic API**: `callLLM({provider, model, system, prompt, schema, max_tokens, temperature, op, strict})` для anthropic / google / mock.\n- **Structured output** через JSON Schema: для Anthropic — через tool-use (`submit_structured_response`), для Gemini — через `responseSchema`.\n- **Mock-провайдер** с двумя уровнями lookup: точный hash (provider+model+prompt) и prompt-only hash. При отсутствии fixture — детерминированный пустой объект по schema. Используется в CI, golden-set eval'ах и при отсутствии API-ключей.\n- **Trace-логирование**: каждый вызов пишет `atlas/llm_traces/<UTC>__<provider>__<hash>.json` с провайдером, моделью, в/о токенами, оценкой стоимости в USD, schema-валидностью и причинами ошибок. `.gitignore` отсекает шум, оставляя `.gitkeep`.\n- **Token budget** (`LLM_MAX_INPUT_TOKENS`) и **per-run cost cap** (`LLM_MAX_USD_PER_RUN`) — оба читаются из `.env`. Превышение → выброс при `strict: true`.\n- **Provider fallback**: если запрошенный провайдер недоступен или отвалился (5xx / timeout / auth), gateway без `strict` падает обратно на mock и логирует это в trace (`fallback_to_mock: true`).\n- **Sugar-функция** `extractBlockSchema(dialogText)` принимает диалог и возвращает `{ blocks: [{id, title, mission, layer, type, mvp, status, depends_on, provides, tech_stack, confidence}] }` — это и есть «извлечение блоков из чата», которое требует ТЗ.\n\nВ PR3 заменён regex `/(?:block|блок)\\s+([a-z0-9._-]+)/giu` в `scripts/analyze_conversation_to_atlas.mjs` на вызов `extractBlockSchema()` через этот gateway. Результат: новый блок создаётся в `graph.json` со всеми структурными полями и заметкой о происхождении (LLM extraction, confidence). Для существующих блоков LLM-предложения **не перезаписывают** content — только дописывают `llm_extraction` запись в `checks.log` (это будущий human-in-loop accept/reject в UI).\n\nGolden eval: 5 эталонных диалогов, средняя точность ≥ 0.7 (на mock — 1.0).\n\n## Layer\nai\n\n## Что должен делать в done-версии (после review)\n1. Live-test против реального Anthropic / Gemini API (нужен ключ в `.env`).\n2. UI confidence/diff flow (composer.jsx) — accept/reject предложенных LLM блоков.\n3. Eval на 30+ реальных диалогов вместо 5 синтетических.\n4. Persistent eval suite в nightly с историей точности.\n5. Подключить gateway во все остальные места, где имеет смысл LLM (sync semantic-check, distillate fact extraction).\n\n## Out of scope\n- Embeddings / vector search.\n- Streaming.\n- Fine-tuning или local-inference (vLLM и т.п.) — оставлено на enterprise mode.\n",
       "provides": "# b.llm-gateway — provides\n\n- llm_call_structured\n- llm_extract_block_schema\n- llm_validate_drift\n- llm_summarize_distillate\n"
     }
-  ]
+  ],
+  "_meta": {
+    "size_bytes": 44088,
+    "estimated_tokens": 11022
+  }
 }

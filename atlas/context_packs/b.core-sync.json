@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-06T17:23:21.312Z",
+  "generated_at": "2026-05-06T18:44:43.038Z",
   "block_id": "b.core-sync",
   "project": {
     "project": "# Sima Atlas\n\nЦель: единая визуально-документная система, которая устраняет рассинхрон между кодом, агентами и документацией.\n\n## North Star\n- Любой агент работает по одному и тому же block-context.\n- Человек видит статус реализации на схеме без чтения всего кода.\n",
@@ -72,5 +72,9 @@
       "mission": "# b.db — mission\n\nAtlas storage слой: единый источник правды для графа продукта (`graph.json`), блоков (`blocks/<id>/*.md`), очереди ingestion (`ingestion_queue.jsonl`), журналов transitions/decisions/checks. Цель — предоставить детерминированный API для чтения/записи без дрейфа.\n\nВ MVP — это plain markdown + JSON файлы на диске + localStorage-кеш на клиенте через `atlas_sync.js`. В production-варианте — миграция на SQLite или Postgres с тем же файловым API через MCP-сервер (атомарность, версии, multi-tenant).\n\n## Layer\ndata\n\n## Что должен делать в done-версии\n1. Атомарные write-операции (block update = single transaction, не оставляем half-written файлы при сбое).\n2. Версионирование блока: каждое изменение mission/kpi/depends/provides пишется в `history/<timestamp>.diff`.\n3. Migration runner: если схема `graph.json` меняется (как в PR2 при добавлении `layer/type/mvp`), мигратор обновляет старые блоки.\n4. Read-API: `getBlock(id)`, `listBlocks(filter)`, `getDependencies(id)`, `getHistory(id)` — единый интерфейс для UI и MCP.\n\n## Out of scope\n- Векторный поиск (это backup-память, не основная).\n- Multi-project namespacing (PR в стек после PR4).\n",
       "provides": "# b.db — provides\n\n- atlas_state_store\n- file_registry\n"
     }
-  ]
+  ],
+  "_meta": {
+    "size_bytes": 15020,
+    "estimated_tokens": 3755
+  }
 }

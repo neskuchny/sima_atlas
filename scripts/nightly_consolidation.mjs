@@ -35,6 +35,7 @@ const checks = [
   ['analyze_lessons_from_history', 'node scripts/analyze_lessons_from_history.mjs --window-days 30'],
   ['dont_use_management_selftest', 'node tests/dont_use_management.selftest.mjs'],
   ['validate_dont_use_compliance', 'node scripts/validate_dont_use_compliance.mjs'],
+  ['validate_lifecycle_gates', 'node scripts/validate_lifecycle_gates.mjs'],
   ['introspect_block_ui_selftest', 'node tests/introspect_block_ui.selftest.mjs'],
   ['user_docs_smoke', 'node tests/user_docs.smoke.mjs'],
   ['screenshots_integration_selftest', 'node tests/screenshots_integration.selftest.mjs'],
