@@ -606,7 +606,14 @@ function App() {
     }
   };
 
-  const onAddModule = async (preset) => {
+  const onAddModule = async (presetArg) => {
+    // Phase R-4 — defensive normalize. Toolbar `<button onClick={onAddModule}>`
+    // hands us a SyntheticEvent (which has its own .x/.y!), and CommandBar
+    // calls with no args. Ignore anything that doesn't look like our preset
+    // shape so we don't accidentally place a block at screen-coords or hit
+    // an undefined access deep in this fn and crash the React tree.
+    const preset = (presetArg && typeof presetArg === 'object' && !presetArg.nativeEvent && !presetArg.target) ? presetArg : null;
+    try {
     // Generate a unique id (`b.<base>-<n>` until free).
     // Atlas convention: block IDs start with `b.`. We prefix automatically
     // so design-UI-created blocks are indistinguishable from CLI-created.
@@ -639,13 +646,18 @@ function App() {
     pushLog({ agent: 'SIMA Core', kind: 'head', msg: `Создан модуль ${created.title} (${id}).` });
     // Persist to atlas/graph.json. On failure rollback the optimistic add.
     if (window.SIMA_API && window.SIMA_API.createBlock) {
-      const r = await window.SIMA_API.createBlock({
-        id,
-        title: created.title,
-        layer: REV_LAYER[created.layer] || 'logic',
-        status: 'idea',
-        x: created.x, y: created.y, size: created.size,
-      });
+      let r;
+      try {
+        r = await window.SIMA_API.createBlock({
+          id,
+          title: created.title,
+          layer: REV_LAYER[created.layer] || 'logic',
+          status: 'idea',
+          x: created.x, y: created.y, size: created.size,
+        });
+      } catch (e) {
+        r = { ok: false, error: String(e.message || e) };
+      }
       if (!r || !r.ok) {
         setModules(M => M.filter(x => x.id !== id));
         setSelectedId(null);
@@ -663,6 +675,12 @@ function App() {
           };
         });
       }
+    }
+    } catch (e) {
+      // Phase R-4 — never blank the canvas. Surface the error in the log
+      // strip so the operator sees what failed and the React tree stays up.
+      console.error('onAddModule failed:', e);
+      pushLog({ agent: 'SIMA Core', kind: 'fail', msg: `Ошибка при создании модуля: ${String(e?.message || e)}` });
     }
   };
 

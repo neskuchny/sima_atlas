@@ -152,10 +152,13 @@ export async function simaFillFromChat({
     }
   }
 
-  // ── Step 5: persist proposal so it shows in «✦ Предложения» panel
+  // ── Step 5: persist proposal so it shows in «✦ Предложения» panel.
+  // Phase R-4: verdict='pending' is required for list_proposals to surface
+  // it; without this the chat_fill plans were silently dropped.
   const plan = {
     id: `${startedAt.replace(/[:.]/g, '-')}__chat_fill`,
     kind: 'chat_fill',
+    verdict: 'pending',
     block_id: null,
     created_at: startedAt,
     source: { provider: insights.provider || null, model: insights.model || null, mock },

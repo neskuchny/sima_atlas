@@ -260,7 +260,8 @@
     blockFile:    async (block_id, name)   => await getJson('/atlas/blocks/' + encodeURIComponent(block_id) + '/file?name=' + encodeURIComponent(name)),
     clientsList:   async ()                => await getJson('/atlas/clients/list'),
     clientCreate:  async (id)              => await postJson('/atlas/clients/create', { id }),
-    proposalsList: async ()                => await getJson('/atlas/proposals/list'),
+    // Phase R-4 — client-scoped so a fresh client tab doesn't see the root pile.
+    proposalsList: async ()                => await getJson('/atlas/proposals/list' + (client ? `?client=${encodeURIComponent(client)}` : '')),
     activityLogTail:   async (limit = 100) => await getJson('/atlas/activity-log/tail?limit=' + limit),
     activityLogAppend: async (entry)       => await postJson('/atlas/activity-log/append', entry),
     filesList:    async (block_id, status) => {
@@ -277,8 +278,8 @@
     screenshotsList:    async (block_id) => await getJson('/atlas/blocks/' + encodeURIComponent(block_id) + '/screenshots'),
     screenshotCapture:  async (block_id, body_) => await postJson('/atlas/blocks/' + encodeURIComponent(block_id) + '/screenshot', body_ || {}),
     screenshotUrl:      (block_id, name = 'latest.png') => (API_BASE.replace(/\/$/, '') + '/atlas/blocks/' + encodeURIComponent(block_id) + '/screenshot-file?name=' + encodeURIComponent(name)),
-    proposalAccept:async (proposal_id)     => await postJson('/proposals/accept', { proposal_id }),
-    proposalReject:async (proposal_id, reason) => await postJson('/proposals/reject', { proposal_id, reason }),
+    proposalAccept:async (proposal_id)     => { const r = await postJson('/proposals/accept', withClient({ proposal_id })); if (r.ok) await refresh(); return r; },
+    proposalReject:async (proposal_id, reason) => await postJson('/proposals/reject', withClient({ proposal_id, reason })),
     cursorHooksStatus: async ()            => await getJson('/atlas/cursor-hooks/status'),
   };
 

@@ -82,10 +82,19 @@ const PROVIDERS = {
   // (or omit and the cascade picks it last after anthropic/google).
   claude_cli: {
     available: () => {
-      try {
-        execFileSync('claude', ['--version'], { stdio: ['ignore', 'pipe', 'ignore'], timeout: 4000 });
-        return true;
-      } catch { return false; }
+      // Phase R-4 — on Windows the binary is `claude.cmd`, and execFileSync
+      // does NOT do PATHEXT resolution (only execSync does). Try both names
+      // so a Windows install is detected. Cache the resolved binary on the
+      // provider so callClaudeCli reuses it.
+      const candidates = process.platform === 'win32' ? ['claude.cmd', 'claude'] : ['claude'];
+      for (const bin of candidates) {
+        try {
+          execFileSync(bin, ['--version'], { stdio: ['ignore', 'pipe', 'ignore'], timeout: 4000, shell: process.platform === 'win32' });
+          PROVIDERS.claude_cli._bin = bin;
+          return true;
+        } catch {}
+      }
+      return false;
     },
     defaultModel: 'claude-cli', // actual model is whatever CLI is configured for
     pricePerMTokenIn: 0,        // user's subscription — zero from Sima's POV
@@ -379,7 +388,11 @@ async function callClaudeCli({ system, prompt, schema, max_tokens, temperature }
 
   const stdout = await new Promise((resolve, reject) => {
     const args = ['--print', '--output-format', 'json'];
-    const child = spawn('claude', args, { stdio: ['pipe', 'pipe', 'pipe'], timeout: 120_000 });
+    // Phase R-4: reuse the binary name that available() resolved (claude.cmd
+    // on Windows, plain `claude` elsewhere). Without this, the available
+    // check would pass but the actual call would fail on Windows.
+    const bin = PROVIDERS.claude_cli._bin || 'claude';
+    const child = spawn(bin, args, { stdio: ['pipe', 'pipe', 'pipe'], timeout: 120_000, shell: process.platform === 'win32' });
     let out = '', err = '';
     child.stdout.on('data', (d) => { out += d; });
     child.stderr.on('data', (d) => { err += d; });

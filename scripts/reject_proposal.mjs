@@ -2,7 +2,7 @@
 // PR3.5: reject a pending LLM proposal.
 //
 // Usage:
-//   node scripts/reject_proposal.mjs <proposal_id> [reason]
+//   node scripts/reject_proposal.mjs <proposal_id> [reason] [--client <id>]
 //
 // Marks the proposal verdict='rejected' (we keep the file for audit) and
 // appends one line to the block's decisions.log so the next LLM pass knows
@@ -14,12 +14,20 @@ import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(__filename), '..');
-const ATLAS = path.join(ROOT, 'atlas');
+
+const argv = process.argv.slice(2);
+const clientIdx = argv.indexOf('--client');
+const client = clientIdx >= 0 ? argv[clientIdx + 1] : null;
+// Strip the --client pair so the remaining positional args are id + reason.
+const positional = argv.filter((a, i) => a !== '--client' && argv[i - 1] !== '--client');
+const idArg = positional[0];
+const reasonParts = positional.slice(1);
+
+const ATLAS = client ? path.join(ROOT, 'atlas', 'clients', client) : path.join(ROOT, 'atlas');
 const PROPOSALS_DIR = path.join(ATLAS, 'proposals');
 
-const [, , idArg, ...reasonParts] = process.argv;
 if (!idArg) {
-  console.error('Usage: node scripts/reject_proposal.mjs <proposal_id> [reason]');
+  console.error('Usage: node scripts/reject_proposal.mjs <proposal_id> [reason] [--client <id>]');
   process.exit(1);
 }
 const reason = reasonParts.join(' ').trim() || '(no reason)';

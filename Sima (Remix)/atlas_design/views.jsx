@@ -102,12 +102,17 @@ function Composer({ onClose, onPublished, productContext, onBlocksCreated }) {
   // acceptance / depends_on / provides files.
   const accept = async (p) => {
     setAccepting((a) => ({ ...a, [p.id]: 'creating' }));
-    const c = await window.SIMA_API.createBlock({
-      id: p.id,
-      title: p.title,
-      layer: p.layer,
-      status: 'idea',
-    });
+    let c;
+    try {
+      c = await window.SIMA_API.createBlock({
+        id: p.id,
+        title: p.title,
+        layer: p.layer,
+        status: 'idea',
+      });
+    } catch (e) {
+      c = { ok: false, error: String(e?.message || e) };
+    }
     if (!c?.ok) {
       setAccepting((a) => ({ ...a, [p.id]: `failed: ${c?.error || 'create'}` }));
       return;

@@ -5,6 +5,7 @@
 //   node scripts/list_proposals.mjs                  → human-readable
 //   node scripts/list_proposals.mjs --json           → array of {id, block_id, ...}
 //   node scripts/list_proposals.mjs --block b.docs   → filter by block
+//   node scripts/list_proposals.mjs --client my-saas → read atlas/clients/<id>/proposals
 //
 // Reads atlas/proposals/*.json. Each file represents one suggestion the LLM
 // made for an existing block; verdict starts as "pending" and the user
@@ -16,13 +17,20 @@ import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(__filename), '..');
-const DIR = path.join(ROOT, 'atlas', 'proposals');
 
 const argv = process.argv.slice(2);
 const asJson = argv.includes('--json');
 const writeIndex = argv.includes('--write-index');
 const blockIdx = argv.indexOf('--block');
 const blockFilter = blockIdx >= 0 ? argv[blockIdx + 1] : null;
+const clientIdx = argv.indexOf('--client');
+const client = clientIdx >= 0 ? argv[clientIdx + 1] : null;
+
+// Phase R-4 fix: per-client proposal directories. The UI passes the active
+// client id; without this, every client tab showed the root atlas pile (the
+// "160 одинаковых" bug).
+const ATLAS = client ? path.join(ROOT, 'atlas', 'clients', client) : path.join(ROOT, 'atlas');
+const DIR = path.join(ATLAS, 'proposals');
 
 if (!fs.existsSync(DIR)) {
   if (asJson) console.log('[]');

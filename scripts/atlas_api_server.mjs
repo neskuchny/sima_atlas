@@ -343,9 +343,15 @@ const server = http.createServer((req, res) => {
     }
   }
 
-  if (req.method === 'GET' && req.url === '/atlas/proposals/list') {
+  if (req.method === 'GET' && req.url.startsWith('/atlas/proposals/list')) {
     try {
-      const out = execFileSync('node', ['scripts/list_proposals.mjs', '--json'], { cwd: ROOT, stdio: 'pipe' }).toString();
+      // Phase R-4 — honor ?client=X so each client tab sees only its own
+      // proposals (root-pile leak was the "160 одинаковых" bug).
+      const u = new URL(req.url, 'http://localhost');
+      const clientArg = u.searchParams.get('client');
+      const args = ['scripts/list_proposals.mjs', '--json'];
+      if (clientArg) { args.push('--client', clientArg); }
+      const out = execFileSync('node', args, { cwd: ROOT, stdio: 'pipe' }).toString();
       const items = JSON.parse(out);
       return json(res, 200, { ok: true, items });
     } catch (e) {
@@ -534,24 +540,27 @@ const server = http.createServer((req, res) => {
         const out = runNode(['scripts/ingest_chat_batches.mjs', transcriptPath, blockId, batch]);
         return json(res, 200, { ok: true, out });
       }
-      // PR3.5: proposals Accept/Reject UI flow
+      // PR3.5 + Phase R-4: proposals Accept/Reject UI flow, client-aware.
       if (req.url === '/proposals/accept') {
         const pid = String(body.proposal_id || '');
         if (!pid) return json(res, 400, { ok: false, error: 'proposal_id required' });
-        const out = runNode(['scripts/accept_proposal.mjs', pid]);
-        runNode(['scripts/list_proposals.mjs', '--write-index', '--json']);
+        const cli = body._client ? ['--client', String(body._client)] : [];
+        const out = runNode(['scripts/accept_proposal.mjs', pid, ...cli]);
+        runNode(['scripts/list_proposals.mjs', '--write-index', '--json', ...cli]);
         return json(res, 200, { ok: true, out });
       }
       if (req.url === '/proposals/reject') {
         const pid = String(body.proposal_id || '');
         if (!pid) return json(res, 400, { ok: false, error: 'proposal_id required' });
         const reason = String(body.reason || '');
-        const out = runNode(['scripts/reject_proposal.mjs', pid, reason]);
-        runNode(['scripts/list_proposals.mjs', '--write-index', '--json']);
+        const cli = body._client ? ['--client', String(body._client)] : [];
+        const out = runNode(['scripts/reject_proposal.mjs', pid, reason, ...cli]);
+        runNode(['scripts/list_proposals.mjs', '--write-index', '--json', ...cli]);
         return json(res, 200, { ok: true, out });
       }
       if (req.url === '/proposals/refresh') {
-        const out = runNode(['scripts/list_proposals.mjs', '--write-index', '--json']);
+        const cli = body._client ? ['--client', String(body._client)] : [];
+        const out = runNode(['scripts/list_proposals.mjs', '--write-index', '--json', ...cli]);
         return json(res, 200, { ok: true, out });
       }
       // PR-3 (b.operator-profile-learner): UI-friendly mutation endpoints
