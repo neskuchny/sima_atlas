@@ -39,3 +39,8 @@ claude mcp add sima-atlas node scripts/mcp_atlas_server.mjs
 
 UI поднимается отдельной командой: `npm run dev` (API на 8787, canvas
 на 8000/atlas_design/).
+
+Подключение к другим инструментам (Cursor / Codex / Continue / Zed /
+Windsurf / Antigravity) — см. **`docs/integrations.md`**: там готовые
+блоки для каждого MCP-клиента + CLI fallback для тех, что MCP не
+поддерживают.
