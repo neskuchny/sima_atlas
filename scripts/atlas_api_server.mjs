@@ -127,6 +127,7 @@ const server = http.createServer((req, res) => {
         active_only: u.searchParams.get('active') === '1',
         limit: Number(u.searchParams.get('limit') || 20),
         enriched: u.searchParams.get('enriched') === '1',
+        client_id: u.searchParams.get('client') || undefined,
       });
       return json(res, 200, { ok: true, runs });
     } catch (e) {
@@ -136,7 +137,7 @@ const server = http.createServer((req, res) => {
   if (req.method === 'GET' && req.url.startsWith('/runs/get')) {
     try {
       const u = new URL(req.url, `http://localhost:${port}`);
-      const run = runsApi.getRun(u.searchParams.get('run_id') || '');
+      const run = runsApi.getRun(u.searchParams.get('run_id') || '', { client_id: u.searchParams.get('client') || undefined });
       return json(res, 200, run ? { ok: true, run } : { ok: false, error: 'not_found' });
     } catch (e) {
       return json(res, 200, { ok: false, error: String(e.message || e) });
@@ -156,7 +157,10 @@ const server = http.createServer((req, res) => {
   if (req.method === 'GET' && req.url.startsWith('/runs/files')) {
     try {
       const u = new URL(req.url, `http://localhost:${port}`);
-      const files = runsApi.listRunFiles({ run_id: u.searchParams.get('run_id') || '' });
+      const files = runsApi.listRunFiles({
+        run_id: u.searchParams.get('run_id') || '',
+        client_id: u.searchParams.get('client') || undefined,
+      });
       return json(res, 200, { ok: true, files });
     } catch (e) {
       return json(res, 200, { ok: false, error: String(e.message || e) });
@@ -690,8 +694,15 @@ const server = http.createServer((req, res) => {
         const rid = String(body.run_id || '');
         if (!rid) return json(res, 400, { ok: false, error: 'run_id required' });
         const reason = String(body.reason || '');
+        const clientId = body.client_id ? String(body.client_id) : (body._client ? String(body._client) : '');
         try {
-          const out = execFileSync('node', ['scripts/run_state.mjs', 'cancel', rid, reason], { cwd: ROOT, stdio: 'pipe' }).toString().trim();
+          // R-7.22: run_state.mjs honors ATLAS_ROOT, so multi-tenant cancels
+          // need it set to atlas/clients/<id>/ to find the run_state file.
+          const env = { ...process.env };
+          if (clientId && /^[a-zA-Z0-9._-]+$/.test(clientId)) {
+            env.ATLAS_ROOT = path.join(ROOT, 'atlas', 'clients', clientId);
+          }
+          const out = execFileSync('node', ['scripts/run_state.mjs', 'cancel', rid, reason], { cwd: ROOT, stdio: 'pipe', env }).toString().trim();
           return json(res, 200, { ok: true, out });
         } catch (e) {
           return json(res, 200, { ok: false, error: String(e.message || e) });
@@ -1042,10 +1053,14 @@ const server = http.createServer((req, res) => {
       // implementation script detached and returns immediately. The UI
       // polls /runs/list?block_id=...&active=1 to track FSM progression.
       if (req.url === '/runs/start') {
+        // R-7.22: client_id (or _client, matching the rest of the
+        // mutator routes) tells startRunAsync to pass --client=<id>
+        // and ATLAS_ROOT=atlas/clients/<id>/ to the spawned child.
         return tryFn(() => runsApi.startRunAsync({
-          block_id: String(body.block_id || ''),
-          agent:    body.agent ? String(body.agent) : undefined,
-          prompt:   body.prompt ? String(body.prompt) : undefined,
+          block_id:  String(body.block_id || ''),
+          agent:     body.agent ? String(body.agent) : undefined,
+          prompt:    body.prompt ? String(body.prompt) : undefined,
+          client_id: body.client_id ? String(body.client_id) : (body._client ? String(body._client) : undefined),
         }));
       }
       // /llm/advice — bridge to b.llm-gateway. Returns ok:true with

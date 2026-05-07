@@ -950,12 +950,18 @@ function RunStatusSection({ moduleId }) {
   const [files, setFiles] = useState2([]);
   const [openLogFor, setOpenLogFor] = useState2(null); // run_id whose log is shown
   const apiBase = (window.SIMA_API_BASE || 'http://localhost:8787').replace(/\/$/, '');
+  // R-7.22: every /runs/* call must scope to the active client so multi-tenant
+  // run_state files are picked up. window.__SIMA_DATA_CLIENT is set by
+  // data_loader after the first refresh.
+  const client = (typeof window !== 'undefined' && window.__SIMA_DATA_CLIENT && window.__SIMA_DATA_CLIENT !== 'default')
+    ? window.__SIMA_DATA_CLIENT : '';
+  const clientQs = client ? `&client=${encodeURIComponent(client)}` : '';
 
   const fetchRuns = async () => {
     try {
       // enriched=1: each run carries acceptance_after, cost_usd,
       // file_count so history cards can show what actually happened.
-      const r = await fetch(apiBase + '/runs/list?block_id=' + encodeURIComponent(moduleId) + '&limit=10&enriched=1', { cache: 'no-store' });
+      const r = await fetch(apiBase + '/runs/list?block_id=' + encodeURIComponent(moduleId) + '&limit=10&enriched=1' + clientQs, { cache: 'no-store' });
       const j = await r.json();
       if (j.ok) setRuns(j.runs || []);
     } catch {}
@@ -984,7 +990,7 @@ function RunStatusSection({ moduleId }) {
   };
   const fetchFiles = async (run_id) => {
     try {
-      const r = await fetch(apiBase + '/runs/files?run_id=' + encodeURIComponent(run_id), { cache: 'no-store' });
+      const r = await fetch(apiBase + '/runs/files?run_id=' + encodeURIComponent(run_id) + clientQs, { cache: 'no-store' });
       const j = await r.json();
       if (j.ok) setFiles(j.files || []);
     } catch {}
@@ -1018,7 +1024,7 @@ function RunStatusSection({ moduleId }) {
       const r = await fetch(apiBase + '/runs/start', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ block_id: moduleId, agent }),
+        body: JSON.stringify({ block_id: moduleId, agent, ...(client ? { client_id: client } : {}) }),
       });
       const j = await r.json();
       if (!j.ok) setError(j.error || 'failed');
@@ -1039,7 +1045,7 @@ function RunStatusSection({ moduleId }) {
       const r = await fetch(apiBase + '/runs/cancel', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ run_id, reason: 'cancelled from UI' }),
+        body: JSON.stringify({ run_id, reason: 'cancelled from UI', ...(client ? { client_id: client } : {}) }),
       });
       const j = await r.json();
       if (!j.ok) setError(j.error || 'cancel failed');
@@ -1189,10 +1195,13 @@ function AcceptanceSection({ moduleId, onClaudeAdvice, moduleObj }) {
       'После исправления убедись что acceptance-verifier пройдёт. Не вноси изменения за пределами зоны ответственности блока.',
     ];
     try {
+      // R-7.22: «Исправить и перезапустить» тоже multi-tenant aware.
+      const ac = (typeof window !== 'undefined' && window.__SIMA_DATA_CLIENT && window.__SIMA_DATA_CLIENT !== 'default')
+        ? window.__SIMA_DATA_CLIENT : '';
       const r = await fetch(apiBase + '/runs/start', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ block_id: moduleId, agent: 'claude', prompt: lines.join('\n') }),
+        body: JSON.stringify({ block_id: moduleId, agent: 'claude', prompt: lines.join('\n'), ...(ac ? { client_id: ac } : {}) }),
       });
       const j = await r.json();
       if (j.ok) setReviseMsg({ kind: 'ok', text: `Запуск создан: ${j.run_id}. Откройте «Запуски» для прогресса.` });

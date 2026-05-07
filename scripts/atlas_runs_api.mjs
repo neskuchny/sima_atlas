@@ -27,6 +27,18 @@ const ATLAS_DEFAULT = path.join(ROOT, 'atlas');
 
 const TERMINAL_STATES = new Set(['Succeeded', 'Failed', 'Stalled', 'Canceled']);
 
+// Phase R-7.22 — every read-side helper now accepts either an explicit
+// `root` (legacy) OR a `client_id`. clientRoot() resolves a client to its
+// atlas/clients/<id>/ subdir; bare ROOT is the unscoped legacy path.
+function clientRoot(client_id) {
+  if (!client_id) return ATLAS_DEFAULT;
+  if (!/^[a-zA-Z0-9._-]+$/.test(String(client_id))) return ATLAS_DEFAULT;
+  return path.join(ROOT, 'atlas', 'clients', String(client_id));
+}
+function resolveRoot({ root, client_id } = {}) {
+  if (root) return root;
+  return clientRoot(client_id);
+}
 function runStateDir(root) { return path.join(root || ATLAS_DEFAULT, 'run_state'); }
 function acceptanceDir(root) { return path.join(root || ATLAS_DEFAULT, 'acceptance_runs'); }
 
@@ -35,8 +47,9 @@ function safeReadJson(p) {
   try { return JSON.parse(fs.readFileSync(p, 'utf8')); } catch { return null; }
 }
 
-export function listRunsByBlock({ block_id, active_only = false, limit = 20, root, enriched = false } = {}) {
-  const dir = runStateDir(root);
+export function listRunsByBlock({ block_id, active_only = false, limit = 20, root, client_id, enriched = false } = {}) {
+  const eff = resolveRoot({ root, client_id });
+  const dir = runStateDir(eff);
   if (!fs.existsSync(dir)) return [];
   const files = fs.readdirSync(dir).filter((f) => f.endsWith('.json'));
   const runs = [];
@@ -54,7 +67,7 @@ export function listRunsByBlock({ block_id, active_only = false, limit = 20, roo
   // Acceptance verdict is the verifier output that landed in the window
   // [run.started_at, next-run.started_at). Cost is the sum of all
   // llm_traces in that same window.
-  return enrichRunsBatch(sliced, root);
+  return enrichRunsBatch(sliced, eff);
 }
 
 function enrichRunsBatch(runs, root) {
@@ -111,9 +124,10 @@ function listLlmTracesSummary(root) {
   return out;
 }
 
-export function getRun(run_id, { root } = {}) {
+export function getRun(run_id, { root, client_id } = {}) {
   if (!run_id) return null;
-  const p = path.join(runStateDir(root), `${run_id}.json`);
+  const eff = resolveRoot({ root, client_id });
+  const p = path.join(runStateDir(eff), `${run_id}.json`);
   return safeReadJson(p);
 }
 
@@ -190,12 +204,22 @@ export function getAcceptanceDiff({ block_id, root } = {}) {
 // /runs/log endpoint can tail them. Run id is derived in the same way
 // run_state.startRun does (block_id__<UTC ts>) so we know it up-front
 // without racing the child.
-export function startRunAsync({ block_id, agent, prompt } = {}) {
+export function startRunAsync({ block_id, agent, prompt, client_id } = {}) {
   if (!block_id) throw new Error('startRunAsync: block_id required');
-  const args = ['scripts/run_block_implementation.mjs', String(block_id)];
+  if (client_id && !/^[a-zA-Z0-9._-]+$/.test(String(client_id))) {
+    throw new Error(`startRunAsync: invalid client_id "${client_id}"`);
+  }
+  const args = ['scripts/run_block_implementation.mjs'];
+  if (client_id) args.push(`--client=${String(client_id)}`);
+  args.push(String(block_id));
   if (prompt) args.push('--', String(prompt));
   const env = { ...process.env };
   if (agent) env.ATLAS_AGENT = String(agent);
+
+  // R-7.22: child + its grand-children (run_state, verify_block_acceptance)
+  // honor ATLAS_ROOT, so we set it once here. This is what makes
+  // run_state/<run_id>.json land under atlas/clients/<id>/run_state/.
+  if (client_id) env.ATLAS_ROOT = path.join(ROOT, 'atlas', 'clients', String(client_id));
 
   // Predict run_id same way run_state.startRun does, then pass it via env
   // so the child uses our id instead of computing its own. This lets the
@@ -204,12 +228,15 @@ export function startRunAsync({ block_id, agent, prompt } = {}) {
   const run_id = `${block_id}__${ts}`;
   env.ATLAS_PRESET_RUN_ID = run_id;
 
+  // run_logs are kept in a single shared dir at ROOT/atlas/run_logs/ —
+  // run_id is unique enough across clients (block_id__UTC). The UI's
+  // /runs/log endpoint reads from here regardless of client.
   const logsDir = path.join(ROOT, 'atlas', 'run_logs');
   fs.mkdirSync(logsDir, { recursive: true });
   const logPath = path.join(logsDir, `${run_id}.log`);
   const out = fs.openSync(logPath, 'a');
   const err = fs.openSync(logPath, 'a');
-  fs.writeFileSync(logPath, `# run ${run_id}  block=${block_id}  agent=${agent || '(default)'}  started=${new Date().toISOString()}\n`);
+  fs.writeFileSync(logPath, `# run ${run_id}  block=${block_id}  agent=${agent || '(default)'}  client=${client_id || '(default)'}  started=${new Date().toISOString()}\n`);
 
   const child = spawn('node', args, {
     cwd: ROOT,
@@ -221,7 +248,7 @@ export function startRunAsync({ block_id, agent, prompt } = {}) {
   fs.closeSync(out);
   fs.closeSync(err);
 
-  return { ok: true, pid: child.pid, run_id, block_id, agent: agent || null };
+  return { ok: true, pid: child.pid, run_id, block_id, agent: agent || null, client_id: client_id || null };
 }
 
 // Tail the captured run log starting at byte offset `since`. Returns the
@@ -249,13 +276,14 @@ export function readRunLog({ run_id, since = 0, tail_bytes = 16000, root } = {})
 //   2. git diff in the workspace, if a workspace was created
 // For now we read checks.log entries newer than the run's started_at and
 // extract any file paths mentioned. The list is best-effort.
-export function listRunFiles({ run_id, root } = {}) {
+export function listRunFiles({ run_id, root, client_id } = {}) {
   if (!run_id) return [];
-  const run = getRun(run_id, { root });
+  const eff = resolveRoot({ root, client_id });
+  const run = getRun(run_id, { root: eff });
   if (!run) return [];
   const block_id = run.block_id;
   const startedAt = run.started_at;
-  const checks = path.join(root || ATLAS_DEFAULT, 'blocks', block_id, 'checks.log');
+  const checks = path.join(eff, 'blocks', block_id, 'checks.log');
   if (!fs.existsSync(checks)) return [];
   const lines = fs.readFileSync(checks, 'utf8').split(/\n/);
   const files = new Set();

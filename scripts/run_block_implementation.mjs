@@ -17,6 +17,8 @@
 // Env:
 //   ATLAS_AGENT       — 'claude' (default) | 'codex' | 'cursor' | 'print-only'
 //   ATLAS_AGENT_FLAGS — extra flags forwarded to the CLI (e.g. "--model claude-haiku-4-5")
+//   ATLAS_ROOT        — overrides atlas root (set automatically when --client= is passed,
+//                       so run_state, verifier, etc. write under atlas/clients/<id>/)
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -27,16 +29,33 @@ import { createWorkspace, captureDiff, writeDiffProposal, cleanupWorkspace } fro
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(__filename), '..');
-const ATLAS = path.join(ROOT, 'atlas');
+
+// Phase R-7.22 — multi-tenant orchestrator. `--client=<id>` redirects the
+// atlas root to atlas/clients/<id>/ so blocks, rules, tech_stack, run_state
+// and acceptance verdicts all land under the active client. Without it we
+// fall back to the legacy single-tenant atlas/ root.
+const argv = process.argv.slice(2);
+const clientFlagIdx = argv.findIndex((a) => a.startsWith('--client='));
+const clientId = clientFlagIdx >= 0 ? argv[clientFlagIdx].slice('--client='.length).trim() : '';
+if (clientFlagIdx >= 0) argv.splice(clientFlagIdx, 1);
+if (clientId && !/^[a-zA-Z0-9._-]+$/.test(clientId)) {
+  console.error(`run_block_implementation: invalid --client value "${clientId}"`);
+  process.exit(1);
+}
+
+const ATLAS = clientId ? path.join(ROOT, 'atlas', 'clients', clientId) : path.join(ROOT, 'atlas');
 const BLOCKS = path.join(ATLAS, 'blocks');
 const INVOCATIONS_DIR = path.join(ATLAS, 'agent_invocations');
 
-const argv = process.argv.slice(2);
+// Children (run_state, verify_block_acceptance) honor ATLAS_ROOT, so set it
+// once here and they all redirect to the client root automatically.
+if (clientId) process.env.ATLAS_ROOT = ATLAS;
+
 const dashDash = argv.indexOf('--');
 const blockId = argv[0];
 const extraPrompt = dashDash >= 0 ? argv.slice(dashDash + 1).join(' ').trim() : '';
 if (!blockId) {
-  console.error('Usage: node scripts/run_block_implementation.mjs <block_id> [-- "<extra prompt>"]');
+  console.error('Usage: node scripts/run_block_implementation.mjs [--client=<id>] <block_id> [-- "<extra prompt>"]');
   process.exit(1);
 }
 
@@ -46,12 +65,14 @@ if (!fs.existsSync(blockDir)) {
   process.exit(2);
 }
 
-// 1. Build context-pack (rebuilds atlas/context_packs/<id>.json)
+// 1. Build context-pack (rebuilds atlas/context_packs/<id>.json).
+// build_context_pack does not honor ATLAS_ROOT yet — for multi-tenant
+// runs we let it fail soft with a warning. The agent still has the
+// inline prompt + block dir mounted, so it can work without the pack.
 try {
   execFileSync('node', ['scripts/build_context_pack.mjs', blockId], { cwd: ROOT, stdio: 'pipe' });
 } catch (e) {
-  console.error(`run_block_implementation: build_context_pack failed → ${e.message}`);
-  process.exit(3);
+  console.warn(`run_block_implementation: build_context_pack failed (non-fatal) → ${e.message}`);
 }
 
 // 2. Compose the prompt
@@ -90,7 +111,7 @@ const prompt = [
   '',
   extraPrompt ? `## Operator note\n${extraPrompt}\n` : '',
   '## How to report progress',
-  `Append a line to \`atlas/blocks/${blockId}/checks.log\` with the test/check result.`,
+  `Append a line to \`${path.relative(ROOT, blockDir).split(path.sep).join('/')}/checks.log\` with the test/check result.`,
   'When done, set status to `review` via MCP transition_block.',
   '',
 ].filter(Boolean).join('\n');
@@ -179,13 +200,18 @@ if (agent === 'print-only' || (agent === 'claude' && !which('claude')) || (agent
   process.exit(0);
 }
 
+// Multi-tenant: --add-dir paths must point at the actual block dir under
+// the active client, not the legacy atlas/blocks/<id>.
+const blockDirRel = path.relative(ROOT, blockDir).split(path.sep).join('/');
+const atlasDirRel = path.relative(ROOT, ATLAS).split(path.sep).join('/');
+
 let cmd, args;
 if (agent === 'claude') {
   cmd = 'claude';
-  args = ['--print', '--add-dir', `atlas/blocks/${blockId}`, '--add-dir', 'atlas', ...extraFlags];
+  args = ['--print', '--add-dir', blockDirRel, '--add-dir', atlasDirRel, ...extraFlags];
 } else if (agent === 'codex') {
   cmd = 'codex';
-  args = ['exec', '--add-dir', `atlas/blocks/${blockId}`, ...extraFlags];
+  args = ['exec', '--add-dir', blockDirRel, ...extraFlags];
 } else if (agent === 'cursor') {
   cmd = 'cursor-agent';
   args = ['--print', ...extraFlags];

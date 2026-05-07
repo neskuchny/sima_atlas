@@ -35,8 +35,13 @@ import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(__filename), '..');
-const ATLAS = process.env.ATLAS_ROOT || path.join(ROOT, 'atlas');
-const RUN_STATE_DIR = path.join(ATLAS, 'run_state');
+
+// R-7.22: ATLAS_ROOT is resolved LAZILY (per call) instead of at module
+// load time. run_block_implementation.mjs sets it AFTER parsing --client=,
+// which is after this module is imported — so a top-level snapshot would
+// miss the redirect and run_state files would land in the legacy ROOT.
+function atlasRoot() { return process.env.ATLAS_ROOT || path.join(ROOT, 'atlas'); }
+function runStateDir() { return path.join(atlasRoot(), 'run_state'); }
 
 // State graph — the order matches the typical happy path; transitionRunState
 // enforces "you can only enter state X from one of these previous states".
@@ -65,9 +70,9 @@ export const TERMINAL_STATES = new Set([
 
 const DEFAULT_MAX_IDLE_MS = Number(process.env.ATLAS_RUN_MAX_IDLE_MS || 10 * 60 * 1000);
 
-function ensureDir() { fs.mkdirSync(RUN_STATE_DIR, { recursive: true }); }
+function ensureDir() { fs.mkdirSync(runStateDir(), { recursive: true }); }
 
-function pathFor(run_id) { return path.join(RUN_STATE_DIR, `${run_id}.json`); }
+function pathFor(run_id) { return path.join(runStateDir(), `${run_id}.json`); }
 
 function readState(run_id) {
   const p = pathFor(run_id);
@@ -131,9 +136,10 @@ export function transitionRunState(run_id, new_state, meta = {}) {
 export function getRun(run_id) { return readState(run_id); }
 
 export function listRuns({ active_only = false } = {}) {
-  if (!fs.existsSync(RUN_STATE_DIR)) return [];
+  const dir = runStateDir();
+  if (!fs.existsSync(dir)) return [];
   const out = [];
-  for (const f of fs.readdirSync(RUN_STATE_DIR)) {
+  for (const f of fs.readdirSync(dir)) {
     if (!f.endsWith('.json')) continue;
     const s = readState(f.replace(/\.json$/, ''));
     if (!s) continue;
