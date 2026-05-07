@@ -324,3 +324,194 @@ The six principles above are not "what we felt like." Each is chosen against a s
 When we say "the concept matters more than the implementation" — we mean these principles. The actual code of Sima Atlas can be improved, simplified, rewritten; but if you remove any of the principles and replace it with a more "convenient" alternative, the system will sag exactly along that failure mode. **This is what we're handing to the market — directional vectors, not code.**
 
 ---
+
+## Part 3. System architecture
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│  OPERATOR (human)                                                    │
+│  ↕ visual canvas, composer, proposals panel                          │
+└──────────────────────────────────────────────────────────────────────┘
+       ↕ HTTP                                       ↕ MCP / CLI
+┌────────────────────────┐               ┌─────────────────────────────┐
+│  atlas_api_server      │               │  Claude Code / Cursor /     │
+│  /atlas/blocks/*       │               │  Codex (external agent)     │
+│  /atlas/proposals/*    │←──────────────│                             │
+│  /atlas/sima/*         │  read_block,  │  → reads context-pack       │
+│  /api/artifacts/*      │  fill-from-   │  → commits changes          │
+└────────────────────────┘  chat,        │  → calls MCP tools          │
+       ↕                    accept       └─────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────┐
+│  atlas/  (source of truth)                                           │
+│  ├── graph.json                  (blocks + layers + positions + edges)│
+│  ├── blocks/<id>/                (contracts, see Part 2.1)           │
+│  ├── proposals/<ts>__*.json      (LLM proposals with verdict)        │
+│  ├── operator_profile/           (lessons, dont_use, archetype)      │
+│  ├── acceptance_runs/<id>/       (acceptance verdict history)        │
+│  ├── context_packs/<id>.json     (deterministic slice for the agent) │
+│  ├── llm_traces/                 (audit log of every LLM call)       │
+│  ├── run_state/                  (cursor for chat-watcher etc.)      │
+│  ├── WIKI.md / wiki.html         (auto-wiki)                         │
+│  ├── auto_tz.md                  (auto-spec)                         │
+│  └── roadmap.md                  (auto-roadmap)                      │
+└──────────────────────────────────────────────────────────────────────┘
+       ↑                                                ↑
+┌──────┴──────────────┐                ┌────────────────┴────────────┐
+│  LLM gateway        │                │  Acceptance verifier loop   │
+│  cascade providers: │                │  parser → evidence collector│
+│  anthropic →        │                │       → llm-judge fallback  │
+│  google →           │                │  outputs: pass/fail/         │
+│  claude_cli →       │                │           inconclusive       │
+│  mock               │                │                              │
+└─────────────────────┘                └─────────────────────────────┘
+```
+
+### Layer 1 — `atlas/` as the source of truth
+
+Everything the system knows about the product lives on disk in plain text. Which means:
+
+- **Git-diffable.** Every change shows up in normal `git diff`.
+- **Backup-safe.** No databases, no vendor lock-in.
+- **Tool-compatible.** Any Python/Node/Bash script just works.
+- **Multi-tenant.** Multiple projects live under `atlas/clients/<id>/`. Graphs and proposals are strictly partitioned; the nightly run and some global validators currently still walk the root atlas — full isolation is on the roadmap (T-1).
+
+### Layer 2 — API server (`scripts/atlas_api_server.mjs`)
+
+REST routes around `atlas/`. Main groups:
+
+- **Graph operations:** `POST /atlas/blocks/{create,patch,delete}`, `POST /atlas/edges/{add,delete}`. All go through `atlas_blocks_api.mjs`, validate contract format, and audit the trace into `checks.log`.
+- **Acceptance:** `POST /atlas/acceptance/verify` (one block) / `POST /atlas/acceptance/verify-all`.
+- **Sima orchestrators:** `/atlas/sima/fill-from-chat`, `/atlas/sima/watch-chats`. Entry points for "take this transcript and fill the schema."
+- **Proposals:** `/atlas/proposals/list?client=X`, `POST /proposals/{accept,reject}`. Multi-tenant aware.
+- **Artifacts:** uploading documents / references with auto-splitting into blocks.
+
+All endpoints return `200 + {ok: false, error}` instead of HTTP 4xx — this avoids CORS-mangled errors, simplifies the UI, and gives a uniform error contract.
+
+### Layer 3 — UI (`Sima (Remix)/atlas_design/`)
+
+A React canvas with drag-and-drop blocks, coloured layers, status filters, predictive validation. Under the hood — plain SVG + React hooks, no Redux. Data source: `data_loader.js` polls the API and keeps `window.SIMA_DATA` fresh.
+
+Key invariant: **the UI computes nothing about the graph beyond rendering**. All validation, drift checks, acceptance — server-side. The UI is a "pretty viewer for `atlas/`."
+
+### Layer 4 — LLM gateway (`scripts/llm_gateway.mjs`)
+
+A single point for every LLM call in the system. Supports a cascade of providers:
+
+```
+ATLAS_FORCE_MOCK_LLM=1 ────────────┐ (option: nightly / CI / determinism)
+                                    ↓
+   pickProvider:                  mock
+   ┌─────────────┐
+   │  anthropic  │ ← API_KEY        ─→ if key is present
+   └─────────────┘
+   ┌─────────────┐
+   │   google    │ ← Vertex AI      ─→ if key is present
+   └─────────────┘
+   ┌─────────────┐
+   │ claude_cli  │ ← claude CLI     ─→ user's Claude.ai (Pro/Max)
+   └─────────────┘                       subscription — NO API key!
+   ┌─────────────┐
+   │    mock     │ ← deterministic  ─→ always available
+   └─────────────┘
+```
+
+This is critical for open-source distribution: the user **doesn't need to buy an API key**. If they already have a Claude.ai/Cursor subscription, they use it via the CLI; the provider is auto-detected via `claude --version`. That's the "zerocost" mode. Paid keys are for those who need parallelism or speed.
+
+Beyond provider cascading, the gateway also gives:
+
+- **Schema-aware retry.** Requests with a JSON schema retry with "return JSON matching this schema"; the fallback parses ```json fences or the first balanced object.
+- **Audit trace.** Every call writes to `atlas/llm_traces/<ts>.json` — for post-hoc analysis, eval datasets, and debugging.
+- **Cost tracking.** Per-million-token pricing computed live; usage metrics return alongside the value.
+
+### Layer 5 — Acceptance verifier loop (`b.acceptance-verifier-loop`)
+
+The system's most important "police officer." Algorithm:
+
+```
+parse_acceptance(block_id)            # parse acceptance.md → assertions[]
+    ↓
+for each assertion:
+    if assertion.evidence_kind ∈ {exit_code, fs_glob, file_diff,
+                                   log_grep, selftest_run}:
+        verdict = collect_evidence(...)         # deterministic
+    elif assertion.evidence_kind == 'llm_judge':
+        verdict = judge_assertion(...)          # LLM judge with reasoning
+    else:
+        verdict = 'inconclusive'                # better explicit than silent pass
+
+aggregate verdicts → block_verdict ∈ {pass, fail, inconclusive}
+write atlas/acceptance_runs/<block_id>/{<ts>.json, _latest.json}
+```
+
+If even one assertion is `fail` or `inconclusive` — the block is not considered done.
+
+`Inconclusive` is a unique feature. Most acceptance frameworks emit binary pass/fail, which produces fake passes. Sima Atlas honestly says "I have no evidence." The operator sees this and either adds an `evidence_spec` or wires up `llm_judge`.
+
+### Layer 6 — Operator profile (`b.operator-profile-learner`)
+
+Accumulates the "operator's personality" from their actions:
+
+- **archetype:** "explorer / pragmatist / perfectionist / shipper" — derived from the ratio of `idea→todo→progress→done` transitions.
+- **lessons:** "don't use eval," but only if there are ≥ 2 evidence items (links into `checks.log`) — to filter out one-off complaints.
+- **dont_use:** hard bans (`eval`, `MD5`, `cdn.tailwindcss.com`) with reasons. The pre-commit validator `validate_dont_use_compliance.mjs` runs in nightly and flags conflicting proposals; an interactive cursor-hook that blocks the command at execution time is in development (S-3 in the roadmap).
+- **always_use:** canonical defaults (`language=typescript`, `runtime=node`, `db=postgres`).
+- **patterns:** dev environments, typical builds, flows.
+
+This whole structure gets embedded into the block's context-pack — the agent sees "operator always uses TypeScript, dislikes eval, recently learned about a CSRF problem" and doesn't repeat those mistakes.
+
+### Layer 7 — MCP / Agent integration (`scripts/mcp_atlas_server.mjs`)
+
+65 MCP tools cover everything an agent needs to do with `atlas/`:
+
+- `read_block(block_id)` — reads all files of a block.
+- `list_dependencies(block_id)` — who refers to what.
+- `update_block(block_id, ...)` — atomic contract patch.
+- `sync_check()` — runs all validators.
+- `verify_block_acceptance(block_id)` — runs the acceptance loop.
+- `build_context_pack(block_id)` — assembles a context-pack per Principle 4.
+- `sima_fill_from_chat(transcript)` — takes a transcript, extracts insights, fills contracts, proposes new blocks.
+- `sima_watch_chats()` — scans Claude Code sessions (`~/.claude/projects/`), pulls in fresh content, drops a plan into `proposals/`.
+- `accept_proposal(proposal_id)` / `reject_proposal(proposal_id, reason)` — UI flow for plans.
+
+The agent in Claude Code or Cursor connects to the MCP server and gets these tools as if they were local. You can tell the agent "sima, check the chats" or "sima, fill the schema from this conversation" — it'll figure it out.
+
+### Layer 8 — Auto-artifacts
+
+Generated from the same contract:
+
+- **WIKI.md / wiki.html** — structured documentation across all blocks.
+- **auto_tz.md** — a technical specification for an external contractor.
+- **roadmap.md** — what's in work, what's left.
+- **user_docs** (`b.user-docs-generator`) — end-user tutorials written in "user language" via JSX introspection (which buttons, which inputs).
+- **Playwright screenshots** (`b.user-docs-generator + canvas_screenshots.spec.ts`) — actual canvas screenshots for documentation; help the agent "see" the screen without launching a browser.
+
+This isn't manual work: each of these artifacts is regenerated by `nightly_consolidation` and validated by selftests.
+
+---
+
+## Part 4. Block lifecycle
+
+```
+   IDEA           TODO            PROGRESS          REVIEW           DONE
+    │              │                  │                │              │
+    │              │                  │                │              │
+    ▼              ▼                  ▼                ▼              ▼
+ "appeared      "contract        "agent codes     "acceptance     "operator
+  on canvas,    agreed,          its files only,   green,          confirmed;
+  mission       acceptance       drift-guard       awaiting        block is
+  weak,         defined,         catches strays;   manual          canonical"
+  no KPI"       depends/         pack ≤ 2K        review by
+                provides         tokens"           operator"
+                wired"
+```
+
+Between statuses there are **recommended gates** (the UI composer hints at them; in v0.x they're soft — the status transition isn't blocked by a validator, but the composer shows "mission too short, fill it before promoting"):
+
+- `IDEA → TODO` — mission ≥ 80 chars, ≥ 1 KPI, ≥ 1 acceptance assertion.
+- `TODO → PROGRESS` — `depends_on`/`provides` wired to real neighbour capabilities.
+- `PROGRESS → REVIEW` — the acceptance loop returned `pass` for most assertions.
+- `REVIEW → DONE` — operator confirmed.
+
+Every transition appends a line to the block's `checks.log`. The nightly `verify_done_blocks_still_green` makes sure blocks in `done` **stay** green — otherwise they're auto-flipped back to `regression`. A hard-blocking version of gates is on the roadmap (S-2: `enforce_lifecycle_gates`).
+
+---
