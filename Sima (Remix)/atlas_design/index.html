@@ -946,7 +946,7 @@ function App() {
 
       {/* CANVAS STAGE — positioned wrapper so absolute overlays anchor to it */}
       <div className="canvas-stage">
-      {clientMissing && currentClient && currentClient !== 'main' && (
+      {clientMissing && currentClient && currentClient !== 'main' && (data?.modules?.length ?? 0) === 0 && (
         <div className="client-missing-banner">
           <div>
             <div className="mono" style={{ fontSize: 11, color: 'var(--ink-4)', letterSpacing: '0.06em' }}>ПРОЕКТ НЕ НАЙДЕН</div>
