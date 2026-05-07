@@ -399,6 +399,24 @@ function GraphCanvas({
               onMouseLeave={() => setHoveredId(null)}
               onContextMenu={(e) => onNodeContextMenu(e, m)}
             >
+              {/* R-7.32 — anchor-точки по краям ноды для создания связи
+                  без Shift. mousedown по точке = старт edge-mode сразу,
+                  не трогая обычный node-drag. Точки подсвечиваются на
+                  hover ноды (CSS .node:hover .node-anchor). */}
+              {['top','right','bottom','left'].map((side) => (
+                <div
+                  key={side}
+                  className={`node-anchor anchor-${side}`}
+                  title="Зажми и тяни на другую ноду — создаст связь"
+                  onMouseDown={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    const c = screenToCanvas(e.clientX, e.clientY);
+                    drag.current = { active: true, mode: 'edge', id: m.id, sx: e.clientX, sy: e.clientY, moved: false };
+                    setEdgeDraft({ fromId: m.id, x: c.x, y: c.y });
+                  }}
+                />
+              ))}
               <div className="ntag mono">
                 <span>@{m.tag}</span>
                 {m.contract && m.contract.score < 1 && (

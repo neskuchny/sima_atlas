@@ -385,6 +385,34 @@ html, body {
   overflow: hidden;
 }
 .node.expanded { overflow: visible; }
+
+/* R-7.32 — anchor-точки по краям ноды для создания связи без Shift.
+   .node имеет overflow:hidden, поэтому anchor выезжает за край через
+   отрицательное позиционирование. Видны на hover, drag начинается
+   по mousedown.
+   Чтобы anchor работал, нужен overflow:visible на ноде во время hover. */
+.node:hover { overflow: visible; }
+.node-anchor {
+  position: absolute;
+  width: 12px; height: 12px;
+  background: var(--ink);
+  border: 2px solid var(--paper);
+  border-radius: 50%;
+  opacity: 0;
+  cursor: crosshair;
+  transition: opacity 0.15s, transform 0.15s;
+  z-index: 4;
+}
+.node:hover .node-anchor { opacity: 0.85; }
+.node-anchor:hover { opacity: 1 !important; transform: scale(1.25); }
+.anchor-top    { top: -7px;    left: 50%;   transform: translateX(-50%); }
+.anchor-right  { right: -7px;  top: 50%;    transform: translateY(-50%); }
+.anchor-bottom { bottom: -7px; left: 50%;   transform: translateX(-50%); }
+.anchor-left   { left: -7px;   top: 50%;    transform: translateY(-50%); }
+.node-anchor.anchor-top:hover    { transform: translateX(-50%) scale(1.25); }
+.node-anchor.anchor-right:hover  { transform: translateY(-50%) scale(1.25); }
+.node-anchor.anchor-bottom:hover { transform: translateX(-50%) scale(1.25); }
+.node-anchor.anchor-left:hover   { transform: translateY(-50%) scale(1.25); }
 .node .ntag {
   display: flex;
   align-items: center;
