@@ -11,7 +11,7 @@ Open-sourced by **Synlabs**. Sima Atlas grew out of an internal idea (originally
 
 License: **MIT**. Status: **early but live**. We care more about the principles than the polish — see [Why these principles, not others](ТЗ/статья.md#почему-именно-эти-принципы) in the article.
 
-📖 Full methodology (Russian, ~4000 words): [ТЗ/статья.md](ТЗ/статья.md)
+📖 Full methodology: [English](docs/article.en.md) · [Русский](ТЗ/статья.md) (~10K / ~4K words respectively, 11 parts + 2 appendices)
 🔌 Plug into your AI tool: [docs/integrations.md](docs/integrations.md)
 🤖 Agent rules in this repo: [CLAUDE.md](CLAUDE.md)
 📋 [CHANGELOG](CHANGELOG.md) · [CONTRIBUTING](CONTRIBUTING.md) · [SECURITY](SECURITY.md) · [Code of Conduct](CODE_OF_CONDUCT.md)
