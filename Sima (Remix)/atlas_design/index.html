@@ -430,6 +430,18 @@ function App() {
     }
   };
 
+  // Phase R-7.11 — bridge для child-компонентов (panels.jsx, etc.)
+  // которые не имеют прямого доступа к pushLog. Они dispatch'ят
+  // CustomEvent 'sima-log-push' с {detail: entry}, App слушает и
+  // прокидывает в pushLog. Без этого save-успех/save-fail в Контракт-
+  // табе были невидимы оператору (только в modal'е, который сразу
+  // закрывался).
+  useEffect(() => {
+    const onPush = (ev) => { if (ev?.detail) pushLog(ev.detail); };
+    window.addEventListener('sima-log-push', onPush);
+    return () => window.removeEventListener('sima-log-push', onPush);
+  }, []);
+
   // Load last 100 persisted entries on mount so reloading doesn't lose
   // recent activity. We replace the editorial demo lines with the real
   // history when the backend has any.
@@ -664,7 +676,10 @@ function App() {
       // collide — give up with a useful message that points to /reset.
       let r;
       let attemptedId = id;
-      for (let attempt = 0; attempt < 5; attempt++) {
+      // Phase R-7.11 — поднял retry с 5 до 100. Реальный кейс оператора:
+      // в graph.json накопилось b.block-1 ... b.block-12 от прошлых
+      // попыток до R-6/R-7 фиксов; 5 retry-ев не хватало.
+      for (let attempt = 0; attempt < 100; attempt++) {
         try {
           r = await window.SIMA_API.createBlock({
             id: attemptedId,
@@ -926,6 +941,23 @@ function App() {
           <span className="dot" style={{ background: proposalsCount > 0 ? 'var(--st-progress)' : 'var(--st-done)' }} />
           ✦ Предложения{proposalsCount > 0 ? ` (${proposalsCount})` : ''}
         </button>
+        {/* Phase R-7.11 — кнопка сброса клиента, доступная всегда (не только
+            из «Проект не найден» banner). Полезно когда в graph.json
+            накопилось много стале b.block-N от прошлых попыток до R-6/R-7
+            фиксов и create-loop не удаётся даже с 100 retry-попытками. */}
+        {currentClient && currentClient !== 'main' && (
+          <button className="pill" onClick={async () => {
+            if (!window.SIMA_API?.clientReset) return;
+            if (!window.confirm(`Сбросить «${currentClient}»? Будут удалены все блоки, предложения и истории acceptance в atlas/clients/${currentClient}/. project.md / rules.md / tech_stack.md останутся.`)) return;
+            const r = await window.SIMA_API.clientReset(currentClient);
+            if (r?.ok) {
+              pushLog({ agent: 'SIMA Core', kind: 'ok', msg: `Клиент ${currentClient} сброшен (${r.counts?.blocks_dirs || 0} блоков, ${r.counts?.proposals_files || 0} proposals).` });
+              if (window.SIMA_API?.refresh) await window.SIMA_API.refresh();
+            } else {
+              pushLog({ agent: 'SIMA Core', kind: 'fail', msg: `Reset не удался: ${r?.error || 'unknown'}` });
+            }
+          }} title={`Снести graph + blocks + proposals + acceptance_runs внутри atlas/clients/${currentClient}/. project.md / rules.md / tech_stack.md останутся.`}>⟲ Сбросить клиента</button>
+        )}
         {hooksOk !== null && (
           <span className="pill" title={hooksOk ? 'Cursor hooks валидны' : 'Cursor hooks: drift'} style={{ cursor: 'default' }}>
             <span className="dot" style={{ background: hooksOk ? 'var(--st-done)' : 'var(--st-fail)' }} />

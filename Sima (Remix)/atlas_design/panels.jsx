@@ -1551,8 +1551,14 @@ function ContractSection({ moduleId, layer }) {
     if (r?.ok) {
       setFiles((F) => ({ ...F, [editing.file]: content }));
       setEditing(null);
+      // Phase R-7.11 — push к лог-у успеха, чтобы операор видел что save
+      // дошёл до диска. Раньше «Sохранил блок» молчало — оператору
+      // казалось что ничего не происходит, и он перепроверял.
+      try { window.dispatchEvent(new CustomEvent('sima-log-push', { detail: { agent: 'SIMA Core', kind: 'ok', msg: `💾 Сохранено ${moduleId} · ${editing.file}` } })); } catch {}
     } else {
       setError(r?.error || 'save failed');
+      // Push errror в общий лог тоже — иначе error виден только в modal'е.
+      try { window.dispatchEvent(new CustomEvent('sima-log-push', { detail: { agent: 'SIMA Core', kind: 'fail', msg: `Save ${editing.file} не дошёл до диска: ${r?.error || 'unknown'}` } })); } catch {}
     }
   };
 
