@@ -676,9 +676,31 @@ const server = http.createServer((req, res) => {
       // Without this, UI on `?client=my-saas` invisibly wrote to root atlas
       // and got "block already exists" loops because root atlas had stale
       // entries from earlier failed attempts.
+      //
+      // Phase R-6.1 — auto-scaffold the client dir if it doesn't exist yet.
+      // Without this, R-6 traded one bug for another: pointing atlas_root at
+      // a non-existent dir made createBlock throw ENOENT on missing
+      // graph.json. Now any mutator transparently creates the empty client
+      // skeleton if needed (idempotent — safe on every call).
       const clientRoot = body._client
         ? path.join(ROOT, 'atlas', 'clients', String(body._client))
         : undefined;
+      if (clientRoot && !fs.existsSync(path.join(clientRoot, 'graph.json'))) {
+        try {
+          fs.mkdirSync(path.join(clientRoot, 'blocks'), { recursive: true });
+          const tsNow = new Date().toISOString();
+          fs.writeFileSync(path.join(clientRoot, 'graph.json'), JSON.stringify({ blocks: [], edges: [] }, null, 2) + '\n', 'utf8');
+          if (!fs.existsSync(path.join(clientRoot, 'project.md')))
+            fs.writeFileSync(path.join(clientRoot, 'project.md'), `# ${body._client}\n\n## Цель\n_(заполни через 📖 Доки)_\n\n## Миссия\n\n## JTBD\n\n## Аудитория\n\n_Создан ${tsNow} автоматически при первой операции._\n`, 'utf8');
+          if (!fs.existsSync(path.join(clientRoot, 'rules.md')))
+            fs.writeFileSync(path.join(clientRoot, 'rules.md'), `# Rules\n\n_(правила кода для этого проекта — стиль, запреты, conventions)_\n`, 'utf8');
+          if (!fs.existsSync(path.join(clientRoot, 'tech_stack.md')))
+            fs.writeFileSync(path.join(clientRoot, 'tech_stack.md'), `# Tech stack\n\n## Frontend\n\n## Backend\n\n## Infra\n\n## Запреты\n`, 'utf8');
+          console.log(`[atlas] auto-scaffolded client ${body._client} on first write`);
+        } catch (e) {
+          console.error(`[atlas] auto-scaffold failed for client ${body._client}: ${e.message}`);
+        }
+      }
       if (req.url === '/atlas/blocks/create') return tryFn(() => blocksApi.createBlock({ atlas_root: clientRoot, body }));
       if (req.url === '/atlas/blocks/patch') {
         const id = String(body.block_id || body.id || '');

@@ -29,8 +29,9 @@ const ROOT = path.resolve(path.dirname(__filename), '..');
 
 const c = `selftest-r6-${Date.now()}`;
 const cdir = path.join(ROOT, 'atlas', 'clients', c);
-fs.mkdirSync(path.join(cdir, 'blocks'), { recursive: true });
-fs.writeFileSync(path.join(cdir, 'graph.json'), JSON.stringify({ blocks: [], edges: [] }, null, 2), 'utf8');
+// Phase R-6.1 — на старте client dir НЕ создаём специально, чтобы
+// проверить auto-scaffold на первой записи (баг возник у оператора:
+// после R-6 createBlock падал с ENOENT, если client dir отсутствовал).
 
 const port = 18800 + (Date.now() % 100);
 const env = { ...process.env, ATLAS_API_PORT: String(port), ATLAS_FORCE_MOCK_LLM: '1' };
@@ -69,9 +70,19 @@ async function postJson(p, body) {
 
   const blockId = 'b.r6-multi-tenant-test';
 
-  // 1. createBlock with _client → must land in client atlas, not root.
+  // Pre-check: client dir does NOT exist before first call (R-6.1 invariant)
+  assert.ok(!fs.existsSync(cdir), `precondition violated: ${cdir} should not exist yet`);
+
+  // 1. createBlock with _client → must auto-scaffold client dir AND land in
+  //    client atlas (not root). This exercises both R-6 routing and
+  //    R-6.1 auto-scaffold in one call.
   const createRes = await postJson('/atlas/blocks/create', { _client: c, id: blockId, title: 'R-6 test', layer: 'logic' });
   assert.equal(createRes.ok, true, `createBlock failed: ${JSON.stringify(createRes)}`);
+
+  // Auto-scaffold should have created project.md / rules.md / tech_stack.md too
+  assert.ok(fs.existsSync(path.join(cdir, 'project.md')), 'auto-scaffold must create project.md');
+  assert.ok(fs.existsSync(path.join(cdir, 'rules.md')),   'auto-scaffold must create rules.md');
+  assert.ok(fs.existsSync(path.join(cdir, 'tech_stack.md')), 'auto-scaffold must create tech_stack.md');
 
   const clientGraph = JSON.parse(fs.readFileSync(path.join(cdir, 'graph.json'), 'utf8'));
   assert.ok((clientGraph.blocks || []).some((b) => b.id === blockId), 'block must be in CLIENT graph.json');
