@@ -326,7 +326,7 @@ function Composer({ onClose, onPublished, productContext, onBlocksCreated }) {
                   предложено новых: <strong>{fillResult.plan.summary.proposed_new_blocks}</strong>;
                   ambiguities: {fillResult.plan.summary.ambiguities}.
                   <div className="meta" style={{ fontSize: 11, marginTop: 4 }}>
-                    План сохранён в <code>atlas/proposals/{fillResult.plan.id}.json</code> — открой <strong>✦ Предложения</strong> чтобы принять/отклонить.
+                    План сохранён в <code>{fillResult.plan.saved_at || `atlas/proposals/${fillResult.plan.id}.json`}</code> — открой <strong>✦ Предложения</strong> чтобы принять/отклонить.
                   </div>
                 </>
               ) : (

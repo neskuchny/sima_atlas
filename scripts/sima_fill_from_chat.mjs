@@ -182,13 +182,21 @@ export async function simaFillFromChat({
     ambiguities,
   };
 
+  // Phase R-7.1 — return the actual save path so the UI / CLI doesn't lie
+  // to the user. Earlier the stdout was hardcoded to `atlas/proposals/...`
+  // even when the plan went into `atlas/clients/<id>/proposals/` — that
+  // confused operators looking for their plan in the wrong directory.
+  let savedAt = null;
   if (!dryRun) {
     try {
       const dir = path.join(atlas, 'proposals');
       fs.mkdirSync(dir, { recursive: true });
-      fs.writeFileSync(path.join(dir, `${plan.id}.json`), JSON.stringify(plan, null, 2) + '\n', 'utf8');
+      const fullPath = path.join(dir, `${plan.id}.json`);
+      fs.writeFileSync(fullPath, JSON.stringify(plan, null, 2) + '\n', 'utf8');
+      savedAt = path.relative(ROOT, fullPath);
     } catch {}
   }
+  plan.saved_at = savedAt;
 
   return { ok: true, dry_run: dryRun, plan, mock };
 }
@@ -232,7 +240,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
         console.log(`  filled blocks:     ${p.summary.filled_blocks_count}/${p.summary.target_blocks_count} (${p.summary.total_fields_filled} fields)`);
         console.log(`  new proposals:     ${p.summary.proposed_new_blocks}`);
         console.log(`  ambiguities:       ${p.summary.ambiguities}`);
-        if (!dryRun) console.log(`  plan saved:        atlas/proposals/${p.id}.json`);
+        if (!dryRun) console.log(`  plan saved:        ${p.saved_at || '(write failed — see stderr)'}`);
       }
     } catch (e) {
       console.error('sima_fill_from_chat: FAIL —', e.message);
