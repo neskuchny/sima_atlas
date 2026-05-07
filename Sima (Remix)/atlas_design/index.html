@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>SIMA Atlas — визуальное программирование с памятью</title>
-<link rel="stylesheet" href="styles.css?v=r7-28" />
+<link rel="stylesheet" href="styles.css?v=r7-29" />
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
@@ -24,12 +24,12 @@
        `sima-data-changed` CustomEvent so the React tree can react. Set
        window.SIMA_API_BASE before this script loads to point at a
        remote backend in production. -->
-<script src="data_static.js?v=r7-28"></script>
-<script src="data_loader.js?v=r7-28"></script>
-<script type="text/babel" src="tweaks-panel.jsx?v=r7-28"></script>
-<script type="text/babel" src="graph.jsx?v=r7-28"></script>
-<script type="text/babel" src="panels.jsx?v=r7-28"></script>
-<script type="text/babel" src="views.jsx?v=r7-28"></script>
+<script src="data_static.js?v=r7-29"></script>
+<script src="data_loader.js?v=r7-29"></script>
+<script type="text/babel" src="tweaks-panel.jsx?v=r7-29"></script>
+<script type="text/babel" src="graph.jsx?v=r7-29"></script>
+<script type="text/babel" src="panels.jsx?v=r7-29"></script>
+<script type="text/babel" src="views.jsx?v=r7-29"></script>
 <script type="text/babel">
 const { useState, useEffect, useRef, useMemo, useCallback } = React;
 
@@ -67,6 +67,9 @@ function App() {
   const [drillId, setDrillId] = useState(null);
   const [drillStack, setDrillStack] = useState([]); // path of parent ids when descending into subsystems
   const [showEdgeLabels, setShowEdgeLabels] = useState(true);
+  // R-7.29 — canvas-tools панель плотно перекрывала канвас и его overlay'и.
+  // По дефолту свёрнута, оператор сам разворачивает по chevron.
+  const [canvasToolsOpen, setCanvasToolsOpen] = useState(false);
   const [onboarding, setOnboarding] = useState(true);
   const [onbStep, setOnbStep] = useState(0);
   const skipOnboarding = () => {
@@ -1137,34 +1140,47 @@ function App() {
       {/* Canvas tools — only over graph */}
       {view !== 'layered' && (
         <>
-          <div className="canvas-tools">
-            <div className="grp">
-              <button onClick={() => setShowEdgeLabels(s => !s)} className={showEdgeLabels ? 'on' : ''}>
-                ⇄ Подписи связей <span className="badge">{showEdgeLabels ? 'on' : 'off'}</span>
-              </button>
-              <button onClick={() => setTweak('showLayers', !tweaks.showLayers)} className={tweaks.showLayers ? 'on' : ''}>
-                ▦ Слои стэка <span className="badge">{tweaks.showLayers ? 'on' : 'off'}</span>
-              </button>
-              <button onClick={onAddModule}>＋ Новый модуль <span className="badge">пкм</span></button>
-            </div>
-            <div className="grp">
-              <div style={{ fontSize: 10, color: 'var(--ink-4)', padding: '4px 8px 2px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Фильтр статуса</div>
-              {filtersList.map(f => (
-                <button
-                  key={f.id}
-                  onClick={() => toggleFilter(f.id)}
-                  className={filters.has(f.id) ? 'on' : ''}
-                  style={{ fontSize: 11 }}
-                >
-                  <span className="status-dot" style={{ width: 7, height: 7, borderRadius: '50%', background: `var(--st-${f.id})`, display: 'inline-block', marginRight: 6 }} />
-                  {f.label}
-                  <span className="badge">{data.modules.filter(m => m.status === f.id).length}</span>
-                </button>
-              ))}
-              {filters.size > 0 && (
-                <button onClick={() => setFilters(new Set())} style={{ color: 'var(--ink-3)', fontSize: 10.5 }}>сбросить</button>
+          <div className={`canvas-tools ${canvasToolsOpen ? 'open' : 'collapsed'}`}>
+            {/* R-7.29 — chevron toggle. Свёрнуто = только бейдж активных
+                фильтров + ▾, развёрнуто = full controls. */}
+            <button className="canvas-tools-toggle" onClick={() => setCanvasToolsOpen(o => !o)} title={canvasToolsOpen ? 'Свернуть панель' : 'Развернуть панель'}>
+              <span style={{ marginRight: 4 }}>{canvasToolsOpen ? '▾' : '▸'}</span>
+              <span style={{ fontSize: 11 }}>Канвас</span>
+              {!canvasToolsOpen && filters.size > 0 && (
+                <span className="badge" style={{ marginLeft: 6 }}>{filters.size}</span>
               )}
-            </div>
+            </button>
+            {canvasToolsOpen && (
+              <>
+                <div className="grp">
+                  <button onClick={() => setShowEdgeLabels(s => !s)} className={showEdgeLabels ? 'on' : ''}>
+                    ⇄ Подписи связей <span className="badge">{showEdgeLabels ? 'on' : 'off'}</span>
+                  </button>
+                  <button onClick={() => setTweak('showLayers', !tweaks.showLayers)} className={tweaks.showLayers ? 'on' : ''}>
+                    ▦ Слои стэка <span className="badge">{tweaks.showLayers ? 'on' : 'off'}</span>
+                  </button>
+                  <button onClick={onAddModule}>＋ Новый модуль <span className="badge">пкм</span></button>
+                </div>
+                <div className="grp">
+                  <div style={{ fontSize: 10, color: 'var(--ink-4)', padding: '4px 8px 2px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Фильтр статуса</div>
+                  {filtersList.map(f => (
+                    <button
+                      key={f.id}
+                      onClick={() => toggleFilter(f.id)}
+                      className={filters.has(f.id) ? 'on' : ''}
+                      style={{ fontSize: 11 }}
+                    >
+                      <span className="status-dot" style={{ width: 7, height: 7, borderRadius: '50%', background: `var(--st-${f.id})`, display: 'inline-block', marginRight: 6 }} />
+                      {f.label}
+                      <span className="badge">{data.modules.filter(m => m.status === f.id).length}</span>
+                    </button>
+                  ))}
+                  {filters.size > 0 && (
+                    <button onClick={() => setFilters(new Set())} style={{ color: 'var(--ink-3)', fontSize: 10.5 }}>сбросить</button>
+                  )}
+                </div>
+              </>
+            )}
           </div>
 
           <div className="canvas-legend">

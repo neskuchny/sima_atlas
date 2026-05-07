@@ -935,12 +935,12 @@ function SystemDocs({ onClose }) {
           )}
           {(tab === 'roadmap' || tab === 'wiki-md') && (
             content
-              ? <pre className="sysdocs-md">{content}</pre>
+              ? <div className="sysdocs-md contract-body md" dangerouslySetInnerHTML={{ __html: (window.marked?.parse?.(content) ?? content) }} />
               : <div className="meta" style={{ padding: 14 }}>файл не найден или пуст</div>
           )}
           {isEditableTab && !editing && (
             content
-              ? <pre className="sysdocs-md">{content}</pre>
+              ? <div className="sysdocs-md contract-body md" dangerouslySetInnerHTML={{ __html: (window.marked?.parse?.(content) ?? content) }} />
               : <div className="meta" style={{ padding: 14 }}>пусто</div>
           )}
           {isEditableTab && editing && (
@@ -1031,7 +1031,7 @@ function SystemDocs({ onClose }) {
                 <button className="pill" onClick={() => setOpenDocFor(null)}>← список</button>
                 <span className="mono" style={{ fontSize: 12 }}>{openDocFor}.md</span>
               </div>
-              <pre className="sysdocs-md">{docContent}</pre>
+              <div className="sysdocs-md contract-body md" dangerouslySetInnerHTML={{ __html: (window.marked?.parse?.(docContent || '') ?? docContent) }} />
             </>
           )}
         </div>
