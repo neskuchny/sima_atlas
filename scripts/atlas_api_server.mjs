@@ -1106,6 +1106,7 @@ const server = http.createServer((req, res) => {
           mission_context: body.mission_context ? String(body.mission_context) : undefined,
           layer:    body.layer ? String(body.layer) : undefined,
           neighbors: body.neighbors || undefined,
+          client_id: body._client ? String(body._client) : (body.client_id ? String(body.client_id) : undefined),
         }).then((r) => json(res, 200, r), (e) => json(res, 200, { ok: false, error: String(e.message || e) }));
       }
       // Phase Q-3: architecture review across the whole product.
@@ -1223,6 +1224,7 @@ const server = http.createServer((req, res) => {
           field:    String(body.field || ''),
           current_content: body.current_content ? String(body.current_content) : undefined,
           mission_context: body.mission_context ? String(body.mission_context) : undefined,
+          client_id: body._client ? String(body._client) : (body.client_id ? String(body.client_id) : undefined),
         }).then((r) => json(res, 200, r), (e) => json(res, 200, { ok: false, error: String(e.message || e) }));
       }
 

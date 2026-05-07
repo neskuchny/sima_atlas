@@ -16,8 +16,106 @@
 // degrades to "demo-режим" with a clear label rather than a stack trace.
 
 import { callLLM } from './llm_gateway.mjs';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const ROOT = path.resolve(path.dirname(__filename), '..');
 
 const VALID_LAYERS = ['logic', 'data', 'front', 'testing'];
+
+// R-7.39 — собираем «полный контекст для LLM» по блоку: project.md /
+// rules.md / tech_stack.md, граф (все блоки + их короткие миссии),
+// для текущего блока — список depends_on соседей с их mission.md.
+// Это даёт LLM достаточный контекст чтобы fillField/rewriteField
+// учитывал структуру всего проекта, а не сидел в вакууме одного блока.
+function safeRead(p) { try { return fs.existsSync(p) ? fs.readFileSync(p, 'utf8') : ''; } catch { return ''; } }
+function buildBlockContext({ client_id, block_id }) {
+  if (!block_id) return null;
+  const clientRoot = client_id && /^[a-zA-Z0-9._-]+$/.test(client_id)
+    ? path.join(ROOT, 'atlas', 'clients', client_id)
+    : path.join(ROOT, 'atlas');
+  const projectMd = safeRead(path.join(clientRoot, 'project.md')).slice(0, 4000);
+  const rulesMd   = safeRead(path.join(clientRoot, 'rules.md')).slice(0, 2000);
+  const stackMd   = safeRead(path.join(clientRoot, 'tech_stack.md')).slice(0, 2000);
+  const graphP = path.join(clientRoot, 'graph.json');
+  let graph = null;
+  try { graph = fs.existsSync(graphP) ? JSON.parse(fs.readFileSync(graphP, 'utf8')) : null; } catch {}
+  const blocks = (graph?.blocks || []);
+  const edges = (graph?.edges || []);
+  const focal = blocks.find((b) => b.id === block_id);
+  // Соседи: блоки, на которые ссылается this.depends_on (R-7 формат graph
+  // хранит depends_on как `<block_id>:<capability>`) — резолвим до block_id.
+  const depsRaw = focal?.depends_on || [];
+  const depBlockIds = new Set();
+  for (const d of depsRaw) {
+    const m = String(d || '').match(/^(b\.[\w.-]+)/);
+    if (m) depBlockIds.add(m[1]);
+  }
+  // Дополнительно — edges from current block (если другие блоки указывают на нас).
+  // Контекст inbound полезен «кто меня использует».
+  const inbound = edges.filter((e) => e.to === block_id);
+  const outbound = edges.filter((e) => e.from === block_id);
+  const neighborMissions = [];
+  for (const id of depBlockIds) {
+    const nb = blocks.find((b) => b.id === id);
+    if (!nb) continue;
+    const mission = safeRead(path.join(clientRoot, 'blocks', id, 'mission.md')).slice(0, 600);
+    neighborMissions.push({ id, title: nb.title || id, mission: mission.trim() });
+  }
+  // Краткий «индекс всех блоков проекта» (id + title + layer) — даёт LLM
+  // понимание масштаба и места текущего блока в общей картине.
+  const blockIndex = blocks.map((b) => ({ id: b.id, title: b.title || b.id, layer: b.layer || '' }));
+  return {
+    client_id: client_id || null,
+    project: { project_md: projectMd, rules_md: rulesMd, tech_stack_md: stackMd },
+    focal: focal ? { id: focal.id, title: focal.title, layer: focal.layer } : null,
+    block_index: blockIndex,
+    neighbors: {
+      depends_on: neighborMissions,
+      inbound_edges:  inbound.map((e) => ({ from: e.from, capability: e.capability || e.label || '' })),
+      outbound_edges: outbound.map((e) => ({ to: e.to, capability: e.capability || e.label || '' })),
+    },
+  };
+}
+function renderContextForPrompt(ctx) {
+  if (!ctx) return '';
+  const lines = [];
+  if (ctx.project.project_md.trim()) {
+    lines.push('## Project context (project.md)', ctx.project.project_md.trim(), '');
+  }
+  if (ctx.project.rules_md.trim()) {
+    lines.push('## Project rules (rules.md)', ctx.project.rules_md.trim(), '');
+  }
+  if (ctx.project.tech_stack_md.trim()) {
+    lines.push('## Tech stack (tech_stack.md)', ctx.project.tech_stack_md.trim(), '');
+  }
+  if (ctx.block_index.length) {
+    lines.push('## All blocks in this project (id · title · layer)');
+    for (const b of ctx.block_index) lines.push(`  - ${b.id} · ${b.title} · ${b.layer || '-'}`);
+    lines.push('');
+  }
+  if (ctx.neighbors.depends_on.length) {
+    lines.push('## Blocks THIS block depends on (their missions):');
+    for (const n of ctx.neighbors.depends_on) {
+      lines.push(`### ${n.id} — ${n.title}`);
+      lines.push(n.mission || '(empty)');
+      lines.push('');
+    }
+  }
+  if (ctx.neighbors.inbound_edges.length) {
+    lines.push('## Blocks that depend on THIS block:');
+    for (const e of ctx.neighbors.inbound_edges) lines.push(`  - ${e.from} (capability: ${e.capability || '-'})`);
+    lines.push('');
+  }
+  if (ctx.neighbors.outbound_edges.length) {
+    lines.push('## Capabilities THIS block provides:');
+    for (const e of ctx.neighbors.outbound_edges) lines.push(`  - → ${e.to} (capability: ${e.capability || '-'})`);
+    lines.push('');
+  }
+  return lines.join('\n');
+}
 
 // ─── synthesizeBlock ─────────────────────────────────────────────────
 const BLOCK_SCHEMA = {
@@ -309,26 +407,31 @@ function buildFieldSystemPrompt(field) {
   ].join('\n');
 }
 
-export async function fillField({ block_id, field, mission_context, layer, neighbors } = {}) {
+export async function fillField({ block_id, field, mission_context, layer, neighbors, client_id } = {}) {
   if (!block_id || !field) throw new Error('fillField: block_id and field required');
   if (!FIELD_GUIDANCE[field]) throw new Error(`fillField: unsupported field "${field}"`);
+  // R-7.39 — собираем контекст проекта (project.md, rules.md, tech_stack.md
+  // + индекс блоков + миссии соседей по depends_on). LLM теперь видит весь
+  // граф, а не только файлы текущего блока.
+  const ctx = buildBlockContext({ client_id, block_id });
+  const ctxBlock = renderContextForPrompt(ctx);
   const prompt = [
-    `Block: ${block_id}  (layer: ${layer || 'logic'})`,
+    ctxBlock ? '# Project & graph context (READ FIRST)\n' + ctxBlock : '',
+    `# Current block: ${block_id}  (layer: ${layer || ctx?.focal?.layer || 'logic'})`,
     '',
-    'Mission / context:',
-    String(mission_context || '').slice(0, 4000) || '(empty — infer from id and layer)',
+    'Existing files of THIS block:',
+    `- mission.md:\n${String(mission_context || '').slice(0, 4000) || '(empty — infer from id, layer, project context)'}`,
+    neighbors?.kpi ? `- kpi.md:\n${String(neighbors.kpi).slice(0, 600)}` : '',
+    neighbors?.acceptance ? `- acceptance.md:\n${String(neighbors.acceptance).slice(0, 600)}` : '',
+    neighbors?.depends_on ? `- depends_on.md:\n${String(neighbors.depends_on).slice(0, 400)}` : '',
     '',
-    neighbors?.kpi ? `Existing KPI:\n${String(neighbors.kpi).slice(0, 600)}\n` : '',
-    neighbors?.acceptance ? `Existing acceptance:\n${String(neighbors.acceptance).slice(0, 600)}\n` : '',
-    neighbors?.depends_on ? `depends_on:\n${String(neighbors.depends_on).slice(0, 400)}\n` : '',
-    '',
-    `Generate the body of ${field} now. Reply with JSON.`,
-  ].join('\n');
+    `Generate the body of ${field} now. Use the project context + neighbor missions above to make this block fit cleanly into the existing graph (no duplication of capabilities, no contradictions with rules). Reply with JSON.`,
+  ].filter(Boolean).join('\n');
   const r = await callLLM({
     system: buildFieldSystemPrompt(field),
     prompt,
     schema: FIELD_SCHEMA,
-    max_tokens: 700,
+    max_tokens: 1200,
     temperature: 0.4,
     op: 'synthesis_fill_field',
   });
@@ -611,30 +714,35 @@ export async function validateBlock({
   };
 }
 
-export async function rewriteField({ block_id, field, current_content, mission_context } = {}) {
+export async function rewriteField({ block_id, field, current_content, mission_context, client_id } = {}) {
   if (!block_id || !field) throw new Error('rewriteField: block_id and field required');
   if (!FIELD_GUIDANCE[field]) throw new Error(`rewriteField: unsupported field "${field}"`);
   if (!current_content) throw new Error('rewriteField: current_content required');
+  // R-7.39 — добавляем project + neighbor контекст так же как fillField.
+  const ctx = buildBlockContext({ client_id, block_id });
+  const ctxBlock = renderContextForPrompt(ctx);
   const sys = [
     'You are SIMA Atlas. Rewrite the operator-supplied draft to:',
     '  - keep all factual info — do NOT drop or invent content',
     '  - improve clarity, tighten language, fix obvious typos',
     '  - keep markdown structure (headings/bullets/checkboxes)',
     '  - preserve the language (Russian → Russian, English → English)',
+    '  - reference the project / neighbor context only if it sharpens the draft',
     `  - target file: ${field} — ${FIELD_GUIDANCE[field] || ''}`,
     'Reply ONLY with structured JSON: { "content": "..." }.',
   ].join('\n');
   const prompt = [
-    `Block: ${block_id}`,
-    mission_context ? `Mission context:\n${String(mission_context).slice(0, 2000)}\n` : '',
-    'Current draft (rewrite it):',
+    ctxBlock ? '# Project & graph context (READ FIRST)\n' + ctxBlock : '',
+    `# Current block: ${block_id}`,
+    mission_context ? `Mission context (this block):\n${String(mission_context).slice(0, 2000)}\n` : '',
+    'Current draft (rewrite it without losing facts):',
     String(current_content).slice(0, 6000),
-  ].join('\n');
+  ].filter(Boolean).join('\n');
   const r = await callLLM({
     system: sys,
     prompt,
     schema: FIELD_SCHEMA,
-    max_tokens: 800,
+    max_tokens: 1200,
     temperature: 0.25,
     op: 'synthesis_rewrite_field',
   });
