@@ -137,3 +137,190 @@ Historically you could pick **two out of three**:
 Sima Atlas doesn't deny the triangle, it redraws it: **if the AI agent has a contract, it works fast, clean, and cheap simultaneously, because it doesn't do anything unnecessary**.
 
 ---
+
+## Part 2. Hypothesis
+
+> **The contract is primary. Code is a derivative of the contract. The graph of contracts is what should be on the screen, not a folder of files.**
+
+Six principles the system rests on:
+
+### Principle 1. Block = contract, not code
+
+Each block is a directory `atlas/blocks/<id>/`. The minimum required contract (what `validate_block_contracts.mjs` enforces) is five files:
+
+```
+atlas/blocks/b.auth/
+├── mission.md          # why it exists                   [required]
+├── kpi.md              # measurable goals                [required]
+├── acceptance.md       # "done" criteria with evidence   [required]
+├── tasks.md            # what's left                     [required]
+└── checks.log          # check history (append-only)     [required]
+```
+
+On top of this minimum, the `createBlock` template seeds seven more files "as needed" — they don't block validation, but most live blocks have most of them:
+
+```
+├── user_story.md       # who calls it and when
+├── depends_on.md       # what it relies on (capabilities)
+├── provides.md         # what it offers others (capabilities)
+├── code_summary.md     # 30-line implementation overview
+├── decisions.log       # decision history (append-only)
+├── patterns.md         # recurring patterns / anti-patterns
+└── dont_use.md         # what's banned in this block
+```
+
+`graph.json` stores the topology: list of blocks, layers (`user / front / logic / ai / data / ext / content / testing`), canvas positions, edges. Files plus graph together are the single source of truth; UI and agents only observe and edit this source.
+
+### Principle 2. The graph knows the connections (via capability matching)
+
+`depends_on` and `provides` are **named capabilities**, not file paths. `b.notifications` `depends_on: [user-store, session-token]`. `b.auth` `provides: [session-token]`. This gives the system:
+
+- **Drift detection.** If `b.auth` stops `provides session-token` while someone still depends on the capability, `validate_dependency_contracts.mjs` fails the nightly run with an explicit list of broken bindings. Auto-marking dependent blocks with `status: desync` is on the roadmap (S-8).
+- **Order of operations.** Block B's acceptance doesn't run until A (which it depends on) is green.
+- **Impact-aware change.** When the operator wants to change `b.auth`'s mission, the UI shows: "this affects 3 downstream blocks — review their contracts."
+
+### Principle 3. The acceptance loop is built into the block lifecycle
+
+Every assertion in `acceptance.md` carries an **evidence_kind** — a way to prove the condition is met:
+
+```markdown
+- [ ] **A1.** POST /auth/login with a valid password returns a JWT with exp ≥ 15 min
+  ```yaml
+  evidence_kind: log_grep
+  evidence_spec:
+    file: tests/api.log
+    pattern: 'auth/login.*200.*exp'
+    min_count: 1
+  ```
+```
+
+Evidence collectors come in five flavours: `exit_code`, `fs_glob`, `file_diff`, `log_grep`, `selftest_run`. All deterministic, all cheap, all work offline. If none fits — `evidence_kind: llm_judge`, and the model returns a verdict, but this is **the last line, not the first**.
+
+Verdict: `pass` / `fail` / `inconclusive`. *Inconclusive* is its own category, meaning "evidence is insufficient — ask the operator to clarify"; this beats a silent false-pass.
+
+### Principle 4. Memory — structured and small. Context — precise, not short
+
+These are two distinct principles often conflated.
+
+**Memory** — what accumulates between sessions (lessons, bans, patterns, operator profile). It must be **typed and small**, otherwise it turns into a bloating `CLAUDE.md`. On disk:
+
+```
+atlas/operator_profile/
+├── profile.json        # archetype, preferences, aggregates
+├── history/            # profile snapshots over time
+├── patterns/           # dev environments, typical builds, flows
+└── templates/          # operator prompt templates
+```
+
+Plus three more typed stores accessible via MCP tools `list_lessons` / `set_dont_use` / `set_always_use`: lessons (with evidence ≥ 2), personal technology bans (`eval`, `MD5`, `cdn.tailwindcss.com`) with reasons, canonical defaults (`language=typescript`, `runtime=node`). The pre-commit drift-guard reads `dont_use` and flags conflicting proposals.
+
+**Context** — what gets assembled per request. That's the `context-pack`. And here the paradigm is fundamentally different, and we openly disagree with part of the industry:
+
+> **The goal isn't a "small" context-pack, it's the "right-sized" one.** Trimming noise — required. Cutting meaning (a block's mission, an important link, a neighbour's logic) — a critical mistake that triggers rework, and rework eats more tokens than the "extra" context in the first request.
+
+When the agent picks up `b.auth`, it gets a **context-pack** — a JSON of roughly this shape:
+
+```json
+{
+  "block_id": "b.auth",
+  "mission": "...",
+  "acceptance": [...],
+  "depends_on": ["user-store", "session-token"],
+  "neighbors": {
+    "b.user-store": { "mission": "...", "provides": [...] }
+  },
+  "dont_use": ["eval()", "MD5"],
+  "lessons": ["JWT secret via env, never hardcoded"],
+  "patterns": ["bcrypt with cost=12"],
+  "_meta": { "size_bytes": 12340, "estimated_tokens": 3085 }
+}
+```
+
+Pack size in current code is **3–12K tokens**, and that's fine — not "we failed to hit 1–2K." No `CLAUDE.md` of 4800 tokens on every turn, no full chat history — only what's needed **for this block in this task**. The pack reports its own size (`_meta.estimated_tokens`), and the tool warns when the pack is obviously bloated (e.g. `patterns.md` got out of hand).
+
+Further optimisation (S-4 in roadmap) follows not "fit into 2K" but **selective neighbour traversal**: for one task you only need to read the backend neighbour, for another only the UI contract, for a third all five neighbours. The decision of *which* neighbours to load and *how deeply* should be made the way a human would — by task type. That's the right path to a smaller pack, not a naive size cap.
+
+A second consequence of the "context per task" principle is **two phases of work, two context modes**:
+
+- **Design phase** (new blocks, synthesizing from a transcript, restating a mission). Context is wide: product mission, all blocks, overall connections. You can't economise here — otherwise the agent misses an important relation and proposes an inconsistent block.
+- **Execution phase** (the agent codes a specific todo block). Context is narrow: the block itself + 1–2 relevant neighbours + lessons. Noise hurts here.
+
+Sima Atlas currently uses one pack for both phases; mode separation is task `S-4 context-pack profiles`.
+
+### Principle 5. One agent — one block at a time
+
+This is the opposite of Auto-Mode. When the operator wants to "add a new feature," the system:
+
+1. Proposes one to three blocks (via the `synthesizeBlock` LLM call).
+2. The operator accepts (or writes them by hand).
+3. The agent picks **one** block and codes **only its files**; the cursor-hook drift-guard catches violations.
+4. That block's acceptance runs separately.
+5. Only then — the next block.
+
+Multiple agents can work in parallel **only if their blocks don't intersect via `depends_on`/`provides`** — the graph knows.
+
+### Principle 6. The visual canvas is *the* truth
+
+Not Notion, not Excel, not a separate architecture document. **The graph is the architecture diagram, the kanban, the new-hire onboarding, and the progress view, all at once.** You glance at it: 8 blocks done, 2 progress, 1 todo, this one has acceptance failing on A2.
+
+---
+
+## Part 2.5. Why these principles — and not others <a id="why-these-principles"></a>
+
+The six principles above are not "what we felt like." Each is chosen against a specific alternative that's popular in the industry but **systematically delivers bad results at scale**. If anyone forks or extends the concept, it's important to understand **what cannot be cut**.
+
+### Why the contract is primary, not the code
+
+**Alternative:** the agent works directly with code and comments. This is the default in today's Cursor / Claude Code.
+
+**Why it's bad.** Code describes "how," not "what and why." When you give the agent only code, it reverse-engineers intent — and is often wrong. "This function returns `null` — probably means error" (when it's actually deferred initialisation). A contract (mission + acceptance) doesn't have this ambiguity: "the function returns session-token; null means not-authenticated; acceptance criterion A1 tests for it."
+
+**Why it matters.** Without a contract the acceptance loop is impossible. Without an acceptance loop autonomy is impossible. Without autonomy the rest of the chain (auto-docs, drift detection, lifecycle gates) collapses. This is the **root principle**; the other five rest on it.
+
+### Why the graph holds the connections, not the developer
+
+**Alternative:** connections live in the developer's head and in `README.md`.
+
+**Why it's bad.** Human working memory holds 7±2 items at a time. On a fifty-block product that means **80% of the connections are held by nobody**. You change A, accidentally break a non-obviously-connected B, and find out three weeks later in production.
+
+**Why it matters.** The connection graph delivers three things you can't get otherwise: (1) impact analysis before a change; (2) drift detection when a capability breaks; (3) cross-cutting transactions, in which the agent traverses **only** affected blocks, not "the whole repo just in case." This solves not "convenience" but the very mechanism by which long sessions fall apart: **loss of cohesion**.
+
+### Why the acceptance loop, not "tests passed"
+
+**Alternative:** "done = tests passed," tests written by the same agent.
+
+**Why it's bad.** The agent has a direct economic incentive to write tests that flatter its own implementation. This isn't malice — it's gradient descent in any LLM. Ask the model to "write a test for this code" and you'll get a test that passes on this code. It won't catch the bug.
+
+**Why it matters.** Acceptance with deterministic evidence collectors (exit_code, fs_glob, log_grep, file_diff, selftest_run) is **an independent referee**. They check assertions written **before the code**, and they check them **externally** (a real process's exit, a real file's existence). LLM-judge is the last line, not the first. Tri-state pass/fail/inconclusive eliminates "silent false-pass" (the worst class of bugs). Without this, no autonomy — it's just a faster path to garbage.
+
+### Why typed memory, not one CLAUDE.md
+
+**Alternative:** one `CLAUDE.md` for everything ("don't use eval, always use bcrypt, we're a SaaS, ...").
+
+**Why it's bad.** It bloats nonlinearly. Every read — all 4800 tokens. After a month there are forty contradictory rules, and the LLM carefully ignores them. The "73% tokens leaked" viral post attributes 14% to exactly this — and it's the cheapest piece to fix.
+
+**Why it matters.** Typed memory (`lessons / dont_use / always_use / patterns / archetype`) enables **selective loading**: for the current block the agent sees only relevant lessons, only relevant bans. This is mathematically a different regime: instead of "feed everything in every request" — "pick the right slice." Without this, even a perfect context-pack is wasted, because the prefix keeps bloating.
+
+### Why precise context, not small or large
+
+**Alternative A:** "compress everything into 1-2K, the agent will manage." **Alternative B:** "give it the whole repo, let it figure it out."
+
+**Why both are bad.** "1-2K" is a guaranteed path to rework: the agent didn't see the neighbour's mission, wrote the wrong thing, rework costs 2-4× the first request. "Whole repo" hits Lost-in-the-Middle (Liu 2023): the model loses meaning from the middle of long contexts, plus cost grows quadratically without caching.
+
+**Why it matters.** Precise context is a **dependent variable**, not a target. Size is chosen by task: design phase — wide; narrow fix — narrow. Selective neighbour traversal (S-4): for each task type, decide which neighbours to read fully, which partially, which to skip. This is **algorithmically a different formulation** than "minimise tokens."
+
+### Why the canvas is the only truth, not separate documents
+
+**Alternative:** Notion / Excel / `architecture.md` from 2024.
+
+**Why it's bad.** Architectural documents diverge from the code by week two. Six months in they're lying — and both the agent and the human have forgotten. Notion has no auto-validation, no MCP integration, no connection to acceptance.
+
+**Why it matters.** When canvas, contracts, and code live in one repository + the agent traverses through MCP — divergence **physically can't accumulate**. Every change either passes acceptance or doesn't. Every block is either in the graph or it isn't. A "Architecture v3" Notion page doesn't have this property: it can be stale and still look authoritative.
+
+---
+
+**What unites the six principles.** Each defends the system against a **specific failure mode at scale**: extracting intent from code (1), loss of cohesion (2), confirmation-bias of self-written tests (3), prefix bloat (4), Lost-in-the-Middle vs. trimmed meaning (5), drift between docs and code (6).
+
+When we say "the concept matters more than the implementation" — we mean these principles. The actual code of Sima Atlas can be improved, simplified, rewritten; but if you remove any of the principles and replace it with a more "convenient" alternative, the system will sag exactly along that failure mode. **This is what we're handing to the market — directional vectors, not code.**
+
+---
