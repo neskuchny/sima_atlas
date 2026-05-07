@@ -1,7 +1,7 @@
 {
   "id": "2026-05-07T17-47-05-733Z__chat_fill",
   "kind": "chat_fill",
-  "verdict": "pending",
+  "verdict": "accepted",
   "block_id": null,
   "created_at": "2026-05-07T17:47:05.733Z",
   "source": {
@@ -26,5 +26,10 @@
   },
   "filled": [],
   "new_block_proposals": [],
-  "ambiguities": []
+  "ambiguities": [],
+  "applied_at": "2026-05-07T17:55:22.089Z",
+  "applied": {
+    "created": [],
+    "skipped": []
+  }
 }
