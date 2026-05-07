@@ -70,7 +70,14 @@ const PROVIDERS = {
   },
   google: {
     available: () => !!process.env.GOOGLE_API_KEY,
-    defaultModel: 'gemini-2.0-flash',
+    // Phase R-7: default model name overridable via LLM_GOOGLE_MODEL.
+    // Google переименовывает / снимает с поддержки модели чаще, чем мы
+    // успеваем релизить — env-переменная позволяет любому контрибьютору
+    // или оператору переключить на актуальную без правки кода.
+    // Найти актуальное имя: https://ai.google.dev/gemini-api/docs/models
+    // Дефолт `gemini-2.5-flash` — стабильный, бесплатный tier с квотой;
+    // если он тоже устареет — поставь свой через ENV.
+    defaultModel: process.env.LLM_GOOGLE_MODEL || 'gemini-2.5-flash',
     pricePerMTokenIn: 0.10,
     pricePerMTokenOut: 0.40,
   },
