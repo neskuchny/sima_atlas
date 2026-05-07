@@ -209,7 +209,7 @@
   const templates = {
     list:     async ()         => await getJson('/atlas/schema-templates/list'),
     get:      async (id)       => await getJson('/atlas/schema-templates/get?id=' + encodeURIComponent(id)),
-    apply:    async (template_id, prefix) => await postJson('/atlas/schema-templates/apply', { template_id, prefix }),
+    apply:    async (template_id, prefix) => await postJson('/atlas/schema-templates/apply', withClient({ template_id, prefix })),
     snapshot: async (body_)    => await postJson('/atlas/schema-templates/snapshot', withClient(body_)),
   };
 
@@ -217,7 +217,7 @@
   const subsystems = {
     list:   async ()              => await getJson('/atlas/subsystems/list'),
     get:    async (block_id)      => await getJson('/atlas/subsystems/get?block_id=' + encodeURIComponent(block_id)),
-    save:   async (parent_id, body_) => await postJson('/atlas/subsystems/save', { parent_id, ...body_ }),
+    save:   async (parent_id, body_) => await postJson('/atlas/subsystems/save', withClient({ parent_id, ...body_ })),
     delete: async (block_id)      => {
       try {
         const r = await fetch(API_BASE.replace(/\/$/, '') + '/atlas/subsystems/delete?block_id=' + encodeURIComponent(block_id), { method: 'DELETE' });
@@ -231,8 +231,8 @@
     block:   async (body_)             => await postJson('/llm/synthesize-block', body_),
     edges:   async (body_)             => await postJson('/llm/suggest-edges',    body_),
     tasks:   async (body_)             => await postJson('/llm/decompose-tasks',  body_),
-    fillField:    async (body_)        => await postJson('/llm/fill-field',    body_),
-    rewriteField: async (body_)        => await postJson('/llm/rewrite-field', body_),
+    fillField:    async (body_)        => await postJson('/llm/fill-field',    withClient(body_)),
+    rewriteField: async (body_)        => await postJson('/llm/rewrite-field', withClient(body_)),
     extract:      async (body_)        => await postJson('/api/intake/extract', body_),
     transcribe:   async (body_)        => await postJson('/api/intake/transcribe', body_),
     // Phase R-7.1 — fill-from-chat must respect the active client. Without
@@ -240,11 +240,16 @@
     // and the client tab's «✦ Предложения» panel showed «0 в ожидании»
     // because list_proposals (after R-4) reads atlas/clients/<id>/proposals/.
     fillFromChat: async (body_)        => await postJson('/atlas/sima/fill-from-chat', withClient(body_)),
-    validateBlock:    async (block_id) => await postJson('/llm/validate-block', { block_id }),
+    validateBlock:    async (block_id) => await postJson('/llm/validate-block', withClient({ block_id })),
     validationLatest: async (block_id) => await getJson('/llm/validate-block/get?block_id=' + encodeURIComponent(block_id)),
     architectureReview:       async () => await postJson('/llm/architecture-review', {}),
     architectureReviewLatest: async () => await getJson('/llm/architecture-review/get'),
-    patchBlockFile: async (block_id, file, content) => await postJson('/atlas/blocks/patch-file', { block_id, file, content }),
+    // Phase R-7.6 — withClient так же критично здесь, как в createBlock
+    // (R-6) и fillFromChat (R-7.1). Без него правка mission/kpi/acceptance
+    // через UI ✏ кнопку шла в ROOT atlas, а не в client. UI на
+    // ?client=my-saas потом читал из client пути — пустой файл — и
+    // operator видел «ничего не подтягивается».
+    patchBlockFile: async (block_id, file, content) => { const r = await postJson('/atlas/blocks/patch-file', withClient({ block_id, file, content })); if (r.ok) await refresh(); return r; },
   };
 
   // ─── "Совет Клода" — bridge to b.llm-gateway ─────────────────────
@@ -258,7 +263,7 @@
   // ─── System docs / per-block files ───────────────────────────────
   const meta = {
     get:          async (file)             => await getJson('/atlas/meta?file=' + encodeURIComponent(file)),
-    save:         async (file, content)    => await postJson('/atlas/meta/save', { file, content }),
+    save:         async (file, content)    => await postJson('/atlas/meta/save', withClient({ file, content })),
     userDocsList: async ()                 => await getJson('/atlas/user-docs/list'),
     userDocGet:   async (block_id)         => await getJson('/atlas/user-docs/get?block_id=' + encodeURIComponent(block_id)),
     blockFile:    async (block_id, name)   => await getJson('/atlas/blocks/' + encodeURIComponent(block_id) + '/file?name=' + encodeURIComponent(name)),
@@ -278,13 +283,13 @@
       if (status)   qs.set('status', status);
       return await getJson('/atlas/files/list' + (qs.toString() ? '?' + qs.toString() : ''));
     },
-    filesMark:    async (path_, status, block_id, reason) => await postJson('/atlas/files/mark', { path: path_, status, block_id, reason }),
-    filesSyncFromBlock: async (block_id) => await postJson('/atlas/files/sync-from-block', { block_id }),
+    filesMark:    async (path_, status, block_id, reason) => await postJson('/atlas/files/mark', withClient({ path: path_, status, block_id, reason })),
+    filesSyncFromBlock: async (block_id) => await postJson('/atlas/files/sync-from-block', withClient({ block_id })),
     subagentRun:  async (name, body_) => await postJson('/atlas/subagents/run', { name, ...(body_ || {}) }),
-    userDocsRegenerate: async (block_id) => await postJson('/user-docs/regenerate', { block_id }),
+    userDocsRegenerate: async (block_id) => await postJson('/user-docs/regenerate', withClient({ block_id })),
     operatorProfile:    async ()         => await getJson('/atlas/operator-profile/get'),
     screenshotsList:    async (block_id) => await getJson('/atlas/blocks/' + encodeURIComponent(block_id) + '/screenshots'),
-    screenshotCapture:  async (block_id, body_) => await postJson('/atlas/blocks/' + encodeURIComponent(block_id) + '/screenshot', body_ || {}),
+    screenshotCapture:  async (block_id, body_) => await postJson('/atlas/blocks/' + encodeURIComponent(block_id) + '/screenshot', withClient(body_ || {})),
     screenshotUrl:      (block_id, name = 'latest.png') => (API_BASE.replace(/\/$/, '') + '/atlas/blocks/' + encodeURIComponent(block_id) + '/screenshot-file?name=' + encodeURIComponent(name)),
     proposalAccept:async (proposal_id)     => { const r = await postJson('/proposals/accept', withClient({ proposal_id })); if (r.ok) await refresh(); return r; },
     proposalReject:async (proposal_id, reason) => await postJson('/proposals/reject', withClient({ proposal_id, reason })),
