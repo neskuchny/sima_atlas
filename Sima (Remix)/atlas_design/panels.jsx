@@ -1599,6 +1599,7 @@ function ContractSection({ moduleId, layer }) {
       mission_context: files['mission.md'] || '',
       neighbors: { kpi: files['kpi.md'], acceptance: files['acceptance.md'], depends_on: files['depends_on.md'] },
     });
+    try { console.log('[panels] fillField response', { ok: r?.ok, mock: r?.mock, contentLen: (r?.content || '').length, error: r?.error }); } catch {}
     setBusy(false);
     if (!r?.ok) { setError(r?.error || 'fill failed'); setEditing(null); return; }
     setEditing({ file, mode: 'fill', draft: r.content, original: files[file] || '', mock: r.mock });
@@ -1621,6 +1622,7 @@ function ContractSection({ moduleId, layer }) {
       current_content: files[file] || '',
       mission_context: files['mission.md'] || '',
     });
+    try { console.log('[panels] rewriteField response', { ok: r?.ok, mock: r?.mock, contentLen: (r?.content || '').length, error: r?.error }); } catch {}
     setBusy(false);
     if (!r?.ok) { setError(r?.error || 'rewrite failed'); setEditing(null); return; }
     setEditing({ file, mode: 'rewrite', draft: r.content, original: files[file] || '', mock: r.mock });
