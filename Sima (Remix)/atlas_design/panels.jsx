@@ -1585,8 +1585,15 @@ function ContractSection({ moduleId, layer }) {
   useEffect2(() => { fetchAll(); /* eslint-disable-next-line */ }, [moduleId]);
 
   const startFill = async (file) => {
+    try { console.log('[panels] startFill invoked', { block_id: moduleId, file, hasApi: !!window.SIMA_API?.synthesis?.fillField }); } catch {}
     setEditing({ file, mode: 'fill', draft: '', original: files[file] || '' });
     setBusy(true); setError(null);
+    if (!window.SIMA_API?.synthesis?.fillField) {
+      setError('SIMA_API.synthesis.fillField недоступен. Открой DevTools → Console.');
+      setBusy(false); setEditing(null);
+      try { console.error('[panels] SIMA_API.synthesis.fillField is undefined', window.SIMA_API); } catch {}
+      return;
+    }
     const r = await window.SIMA_API.synthesis.fillField({
       block_id: moduleId, field: file, layer,
       mission_context: files['mission.md'] || '',
@@ -1598,8 +1605,17 @@ function ContractSection({ moduleId, layer }) {
   };
 
   const startRewrite = async (file) => {
+    // R-7.36 — diagnostic: чтобы понять, click handler вообще вызывается
+    // или нет (юзер: «нажимаю — ничего не происходит, в Network тоже»).
+    try { console.log('[panels] startRewrite invoked', { block_id: moduleId, file, hasApi: !!window.SIMA_API?.synthesis?.rewriteField }); } catch {}
     setEditing({ file, mode: 'rewrite', draft: '', original: files[file] || '' });
     setBusy(true); setError(null);
+    if (!window.SIMA_API?.synthesis?.rewriteField) {
+      setError('SIMA_API.synthesis.rewriteField недоступен. Открой DevTools → Console.');
+      setBusy(false); setEditing(null);
+      try { console.error('[panels] SIMA_API.synthesis.rewriteField is undefined', window.SIMA_API); } catch {}
+      return;
+    }
     const r = await window.SIMA_API.synthesis.rewriteField({
       block_id: moduleId, field: file,
       current_content: files[file] || '',
