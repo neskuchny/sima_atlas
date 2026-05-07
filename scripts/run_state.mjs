@@ -169,7 +169,7 @@ export function detectStalledRuns({ max_idle_ms = DEFAULT_MAX_IDLE_MS } = {}) {
   return { flipped, max_idle_ms };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (fileURLToPath(import.meta.url) === process.argv[1]) {
   const argv = process.argv.slice(2);
   const cmd = argv[0];
   const json = argv.includes('--json');

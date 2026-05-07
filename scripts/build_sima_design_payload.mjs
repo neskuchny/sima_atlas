@@ -438,7 +438,15 @@ export function buildSimaDesignPayload({ atlas_root, client_id } = {}) {
   };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+// Phase R-7.18 — Windows-safe «is this script the entry point?» check.
+// Раньше: `import.meta.url === \`file://${process.argv[1]}\``. На Linux/macOS
+// работает (forward slashes). На Windows import.meta.url выглядит как
+// `file:///E:/path/foo.mjs`, а argv[1] — `E:\path\foo.mjs` — никогда не
+// совпадают. CLI-entry молча НЕ запускался, скрипт давал empty stdout,
+// API server получал JSON.parse('') = «Unexpected end of JSON input»,
+// весь multi-tenant flow ломался невидимо на Windows. Через
+// fileURLToPath обе стороны нормализуются.
+if (fileURLToPath(import.meta.url) === process.argv[1]) {
   const argv = process.argv.slice(2);
   const stdoutOnly = argv.includes('--stdout');
   const clientIdx = argv.indexOf('--client');

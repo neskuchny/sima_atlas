@@ -93,7 +93,7 @@ export function runSchemaSyncer() {
   };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (fileURLToPath(import.meta.url) === process.argv[1]) {
   const out = runSchemaSyncer();
   if (process.argv.includes('--json')) {
     console.log(JSON.stringify(out, null, 2));

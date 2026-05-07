@@ -215,7 +215,7 @@ export function pickTemplate({ scope, profile_path } = {}) {
 }
 
 // ────────────────────── CLI
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (fileURLToPath(import.meta.url) === process.argv[1]) {
   const argv = process.argv.slice(2);
   const scope = argv[0];
   if (!scope || !SCOPE_DEFAULTS[scope]) {

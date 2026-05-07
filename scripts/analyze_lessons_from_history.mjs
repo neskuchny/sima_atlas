@@ -218,7 +218,7 @@ export function listLessons({ atlas_root } = {}) {
   return loadLessons(atlas_root || ATLAS);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (fileURLToPath(import.meta.url) === process.argv[1]) {
   const argv = process.argv.slice(2);
   const dry = argv.includes('--dry-run');
   const json = argv.includes('--json');

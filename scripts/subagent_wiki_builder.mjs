@@ -56,7 +56,7 @@ export function runWikiBuilder() {
   };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (fileURLToPath(import.meta.url) === process.argv[1]) {
   const out = runWikiBuilder();
   if (process.argv.includes('--json')) {
     console.log(JSON.stringify(out, null, 2));

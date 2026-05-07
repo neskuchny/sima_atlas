@@ -339,7 +339,7 @@ export function seedExampleClient({ force = false } = {}) {
   };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (fileURLToPath(import.meta.url) === process.argv[1]) {
   const force = process.argv.includes('--force');
   const wantJson = process.argv.includes('--json');
   const r = seedExampleClient({ force });

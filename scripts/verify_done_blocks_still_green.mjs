@@ -82,7 +82,7 @@ async function run() {
   return out;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (fileURLToPath(import.meta.url) === process.argv[1]) {
   const summary = await run();
   if (process.argv.includes('--json')) {
     console.log(JSON.stringify(summary, null, 2));

@@ -198,7 +198,7 @@ export function activeBlockIdsFromGraph() {
   return Array.from(out);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (fileURLToPath(import.meta.url) === process.argv[1]) {
   const argv = process.argv.slice(2);
   const cmd = argv[0];
   if (cmd === 'detect') {

@@ -250,7 +250,7 @@ function fmtSummary(s) {
   return `sima_watch_chats: ${tag} plan ${p.id} — filled ${p.filled_blocks}/${p.target_blocks} blocks (${p.fields_filled} fields), new=${p.new_proposals}, ambig=${p.ambiguities}${p.mock ? ' (mock)' : ''}`;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (fileURLToPath(import.meta.url) === process.argv[1]) {
   const argv = process.argv.slice(2);
   const arg = (k, def) => {
     const e = argv.find((a) => a === `--${k}` || a.startsWith(`--${k}=`));

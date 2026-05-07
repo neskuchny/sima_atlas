@@ -110,7 +110,7 @@ export async function screenshotBlock({ block_id, url, fullPage = false, root, v
   };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (fileURLToPath(import.meta.url) === process.argv[1]) {
   const args = process.argv.slice(2);
   const wantJson = args.includes('--json');
   const fullPage = args.includes('--full');

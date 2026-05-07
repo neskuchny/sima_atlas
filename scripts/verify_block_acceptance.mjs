@@ -74,7 +74,7 @@ export async function verifyAndPersist(blockId) {
   return result;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (fileURLToPath(import.meta.url) === process.argv[1]) {
   const argv = process.argv.slice(2);
   const blockId = argv.find((a) => !a.startsWith('--'));
   const json = argv.includes('--json');

@@ -201,7 +201,7 @@ export async function simaFillFromChat({
   return { ok: true, dry_run: dryRun, plan, mock };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (fileURLToPath(import.meta.url) === process.argv[1]) {
   const args = process.argv.slice(2);
   const wantJson = args.includes('--json');
   const dryRun = args.includes('--dry-run');

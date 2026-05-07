@@ -231,7 +231,7 @@ export function lockUserDocs({ block_id, locked = true, reason = '' }) {
   return { block_id, status: 'updated', locked: meta.locked };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (fileURLToPath(import.meta.url) === process.argv[1]) {
   const argv = process.argv.slice(2);
   const dry = argv.includes('--dry-run');
   const json = argv.includes('--json');

@@ -163,7 +163,7 @@ export async function summarizeBlockCode(block_id, { dryRun = false, maxFiles = 
   return { ok: true, block_id, files_read: snippets.length, summary };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (fileURLToPath(import.meta.url) === process.argv[1]) {
   const args = process.argv.slice(2);
   const wantJson = args.includes('--json');
   const dry = args.includes('--dry-run');

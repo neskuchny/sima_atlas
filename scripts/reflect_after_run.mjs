@@ -167,7 +167,7 @@ export async function reflectAfterRun(run_id, { dryRun = false } = {}) {
   return { ok: true, run_id, block_id, verdict: run.current_state, reflection };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (fileURLToPath(import.meta.url) === process.argv[1]) {
   const args = process.argv.slice(2);
   const wantJson = args.includes('--json');
   const dry = args.includes('--dry-run');

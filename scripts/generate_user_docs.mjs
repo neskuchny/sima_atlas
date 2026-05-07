@@ -351,7 +351,7 @@ export async function generateUserDocs({ block_id, lang = DEFAULT_LANG, dry_run 
   };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (fileURLToPath(import.meta.url) === process.argv[1]) {
   const argv = process.argv.slice(2);
   const blockId = argv.find((a) => !a.startsWith('--'));
   const json = argv.includes('--json');

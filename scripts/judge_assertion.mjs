@@ -166,7 +166,7 @@ export async function judgeAssertionCli({ block_id, assertion_id }) {
   return judgeAssertion({ assertion: a, block_id });
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (fileURLToPath(import.meta.url) === process.argv[1]) {
   const argv = process.argv.slice(2);
   const blockIdx = argv.indexOf('--block');
   const idIdx = argv.indexOf('--id');
