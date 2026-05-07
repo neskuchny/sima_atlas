@@ -171,7 +171,19 @@ function DetailPanel({ data, modules: liveModules, moduleId, onClose, desyncReso
             }}>✕</button>
           </div>
         </div>
-        <h1>{m.title}</h1>
+        <h1>
+          {/* R-7.32 — заголовок блока редактируется одним кликом.
+              Раньше это можно было только через ✎ Руками → mission.md
+              или через вкладку Контракт. */}
+          {window.SIMA_API?.patchBlock ? (
+            <EditableText
+              editOnClick
+              value={m.title}
+              onChange={(v) => { if (v && v !== m.title) window.SIMA_API.patchBlock(m.id, { title: v }); }}
+              placeholder="название блока…"
+            />
+          ) : m.title}
+        </h1>
         <div className="meta">
           <span className="status-pill"><span className="dot" style={{ background: `var(--st-${status})` }} />{statusLabel(status)}</span>
           <span className="status-pill mono">P{m.priority}</span>
@@ -981,18 +993,20 @@ function RunStatusSection({ moduleId }) {
   const [files, setFiles] = useState2([]);
   const [openLogFor, setOpenLogFor] = useState2(null); // run_id whose log is shown
   const apiBase = (window.SIMA_API_BASE || 'http://localhost:8787').replace(/\/$/, '');
-  // R-7.22: every /runs/* call must scope to the active client so multi-tenant
-  // run_state files are picked up. window.__SIMA_DATA_CLIENT is set by
-  // data_loader after the first refresh.
-  const client = (typeof window !== 'undefined' && window.__SIMA_DATA_CLIENT && window.__SIMA_DATA_CLIENT !== 'default')
+  // R-7.32: client должен читаться при КАЖДОМ запросе, не при mount.
+  // Иначе race: data_loader ставит window.__SIMA_DATA_CLIENT после
+  // первого refresh, а компонент уже смонтирован с client=''. Все
+  // /runs/* уходили без клиента → run_state ложился в ROOT atlas/,
+  // оркестратор смотрел ROOT/atlas/blocks/<id> и крашился.
+  const getClient = () => (typeof window !== 'undefined' && window.__SIMA_DATA_CLIENT && window.__SIMA_DATA_CLIENT !== 'default')
     ? window.__SIMA_DATA_CLIENT : '';
-  const clientQs = client ? `&client=${encodeURIComponent(client)}` : '';
+  const clientQs = () => { const c = getClient(); return c ? `&client=${encodeURIComponent(c)}` : ''; };
 
   const fetchRuns = async () => {
     try {
       // enriched=1: each run carries acceptance_after, cost_usd,
       // file_count so history cards can show what actually happened.
-      const r = await fetch(apiBase + '/runs/list?block_id=' + encodeURIComponent(moduleId) + '&limit=10&enriched=1' + clientQs, { cache: 'no-store' });
+      const r = await fetch(apiBase + '/runs/list?block_id=' + encodeURIComponent(moduleId) + '&limit=10&enriched=1' + clientQs(), { cache: 'no-store' });
       const j = await r.json();
       if (j.ok) setRuns(j.runs || []);
     } catch {}
@@ -1021,7 +1035,7 @@ function RunStatusSection({ moduleId }) {
   };
   const fetchFiles = async (run_id) => {
     try {
-      const r = await fetch(apiBase + '/runs/files?run_id=' + encodeURIComponent(run_id) + clientQs, { cache: 'no-store' });
+      const r = await fetch(apiBase + '/runs/files?run_id=' + encodeURIComponent(run_id) + clientQs(), { cache: 'no-store' });
       const j = await r.json();
       if (j.ok) setFiles(j.files || []);
     } catch {}
@@ -1055,7 +1069,7 @@ function RunStatusSection({ moduleId }) {
       const r = await fetch(apiBase + '/runs/start', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ block_id: moduleId, agent, ...(client ? { client_id: client } : {}) }),
+        body: JSON.stringify({ block_id: moduleId, agent, ...((c => c ? { client_id: c } : {})(getClient())) }),
       });
       const j = await r.json();
       if (!j.ok) setError(j.error || 'failed');
@@ -1076,7 +1090,7 @@ function RunStatusSection({ moduleId }) {
       const r = await fetch(apiBase + '/runs/cancel', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ run_id, reason: 'cancelled from UI', ...(client ? { client_id: client } : {}) }),
+        body: JSON.stringify({ run_id, reason: 'cancelled from UI', ...((c => c ? { client_id: c } : {})(getClient())) }),
       });
       const j = await r.json();
       if (!j.ok) setError(j.error || 'cancel failed');

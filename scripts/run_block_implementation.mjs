@@ -175,7 +175,9 @@ function fsm(state, meta) {
   catch (e) { console.warn(`fsm: ${state} transition failed: ${e.message}`); }
 }
 
-if (agent === 'print-only' || (agent === 'claude' && !which('claude')) || (agent === 'codex' && !which('codex'))) {
+if (agent === 'print-only' || (agent === 'claude' && !which('claude')) || (agent === 'codex' && !which('codex')) || (agent === 'cursor' && !which('cursor-agent'))) {
+  // R-7.32 — добавил cursor-agent в fallback. Раньше при отсутствии
+  // cursor-agent CLI оркестратор крашился `spawnSync ENOENT` exit 5.
   // Graceful fallback: print the prompt for the user to paste anywhere.
   console.log(`run_block_implementation: agent CLI "${agent}" not on PATH or print-only mode`);
   console.log(`  prompt saved to: ${path.relative(ROOT, invocationPath)}`);
