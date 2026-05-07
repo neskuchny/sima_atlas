@@ -464,12 +464,6 @@ function App() {
   // are actually doing something. Flip on via tweaks-panel for the demo.
   useEffect(() => {
     if (!tweaks.liveActivity) return;
-    // Phase R-7.2 — auto-disable demo activity for client sessions; only
-    // keep it on for the bare /atlas_design/ root URL where it's used as
-    // a marketing teaser. Operators with ?client=<id> see real events
-    // only (or empty until their agents start emitting).
-    const isClientSession = !!new URLSearchParams(window.location.search).get('client');
-    if (isClientSession) return;
     const lines = [
       { agent: 'Cursor',      kind: 'note', msg: '[demo] datasets: уточнил RLS политику', flash: 'datasets' },
       { agent: 'Claude Code', kind: 'ok',   msg: '[demo] charts/funnel: добавлен conversion-tooltip', flash: 'charts' },
@@ -479,6 +473,13 @@ function App() {
     ];
     let i = 0;
     const t = setInterval(() => {
+      // Phase R-7.9 — re-check URL on EVERY tick (dynamic), not just at
+      // effect mount. Earlier R-7.8 captured search at render and used it
+      // as a useEffect dep — but window.location.search isn't reactive,
+      // so SPA-style navigation between root and ?client=X didn't trigger
+      // re-subscribe. Now demo skips the tick entirely if URL has client.
+      const isClientSession = !!new URLSearchParams(window.location.search).get('client');
+      if (isClientSession) return;
       const e = lines[i % lines.length];
       pushLog({ agent: e.agent, kind: e.kind, msg: e.msg });
       setActiveFlash(e.flash);
@@ -488,11 +489,7 @@ function App() {
       i++;
     }, 5500);
     return () => clearInterval(t);
-    // Phase R-7.8 — re-run effect on URL change so client switching turns
-    // off demo activity immediately, not "next reload". Without
-    // window.location.search in deps, useEffect was sticky on first
-    // value (root URL → demo on; switching to ?client=X kept old subscription).
-  }, [tweaks.liveActivity, typeof window !== 'undefined' ? window.location.search : '']);
+  }, [tweaks.liveActivity]);
 
   // Sync check flow — calls real /atlas/sync-check (b.core-sync runs the
   // sync_audit_context process). Falls back to the editorial mock when the
