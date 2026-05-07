@@ -421,11 +421,29 @@ function GraphCanvas({
           {ctxMenu.moduleId ? (
             <>
               <button onClick={() => { onSelect(ctxMenu.moduleId); setCtxMenu(null); }}>📂 Открыть детали</button>
-              <button onClick={() => { onDrillDown(ctxMenu.moduleId); setCtxMenu(null); }}>🔍 Провалиться внутрь</button>
+              <button onClick={() => { onDrillDown(ctxMenu.moduleId); setCtxMenu(null); }}>🔍 Провалиться внутрь (подсистема)</button>
               <button onClick={() => { onSimaGenerate('module', ctxMenu.moduleId); setCtxMenu(null); }}>✨ Sima: дополнить описание</button>
               <hr/>
               <button onClick={() => setCtxMenu(null)}>📤 Отправить в агента…</button>
               <button onClick={() => setCtxMenu(null)}>🧪 Запустить проверки</button>
+              {/* Phase R-7.21 — удаление блока через context-menu. API
+                  /atlas/blocks/delete уже client-aware (R-6); UI просто
+                  не предлагал кнопку. confirm обязательно — действие
+                  необратимое, плюс blocks dir на диске может содержать
+                  history. */}
+              <hr/>
+              <button onClick={async () => {
+                const id = ctxMenu.moduleId;
+                setCtxMenu(null);
+                if (!window.SIMA_API?.deleteBlock) return;
+                if (!window.confirm(`Удалить блок ${id}? Запись в graph.json и директория atlas/clients/<...>/blocks/${id}/ будут удалены. Действие необратимо (но файлы остаются в git-истории).`)) return;
+                const r = await window.SIMA_API.deleteBlock(id, true /* hard */);
+                if (r?.ok) {
+                  try { window.dispatchEvent(new CustomEvent('sima-log-push', { detail: { agent: 'SIMA Core', kind: 'ok', msg: `🗑 Удалён блок ${id}` } })); } catch {}
+                } else {
+                  try { window.dispatchEvent(new CustomEvent('sima-log-push', { detail: { agent: 'SIMA Core', kind: 'fail', msg: `Удаление ${id} не удалось: ${r?.error || 'unknown'}` } })); } catch {}
+                }
+              }} style={{ color: 'var(--st-fail, #c33)' }}>🗑 Удалить блок</button>
             </>
           ) : (
             <>
