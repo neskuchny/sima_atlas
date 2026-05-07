@@ -515,3 +515,150 @@ Between statuses there are **recommended gates** (the UI composer hints at them;
 Every transition appends a line to the block's `checks.log`. The nightly `verify_done_blocks_still_green` makes sure blocks in `done` **stay** green — otherwise they're auto-flipped back to `regression`. A hard-blocking version of gates is on the roadmap (S-2: `enforce_lifecycle_gates`).
 
 ---
+
+## Part 5. What changes
+
+### For the solo developer
+
+"You don't have to keep the product in your head" — because the product is **physically on the screen**. Come back to a project after two weeks — one glance at the canvas and you see: 8 blocks done, 1 progress, 1 todo. Click a block — see what it does, what's left, who needs it. Open `decisions.log` — see which architectural choices were already made, and why.
+
+### For the AI agent
+
+Context is **precise, not short**. Each request is:
+
+- **a context-pack** for the current block (typically 3–12K tokens today; selective neighbour traversal is on the roadmap, so a narrow fix gets a smaller pack naturally, while design phase keeps it wide);
+- + the operator profile's `dont_use` / lessons / patterns (≤ 1K);
+- + the prompt itself.
+
+No `CLAUDE.md` of 4800 tokens on every turn. No "full chat history." No 12 MCP tools "just in case" — the agent sees only the tools relevant to the block.
+
+And most importantly — **rework drops dramatically**. This is what doesn't show up in the 73/27 token-leak ratio, but it's the dominant factor on a serious product (see Part 6.1).
+
+### For the team
+
+Multiple agents / developers can work **in parallel on different blocks**, and the graph stops them from intersecting via `depends_on`/`provides`. The drift-guard catches anyone reaching into someone else's block without justification.
+
+### For the market
+
+Vibe coding becomes an engineering discipline — without losing speed. Open-source code and the MCP protocol mean any tool (Claude Code, Cursor, Codex, your future hypothetical "AI Studio") can plug in and work with the same graph.
+
+### For the end user
+
+Documentation, tutorials, and — over time — marketing collateral become **a side-effect** of development. The mere fact that each block has a mission and a user_story means we know how to explain its existence to a human.
+
+- **Technical docs** (WIKI, spec, function index) — generated directly from the contract, always in sync with code.
+- **User-facing tutorials** ("click here to do X") — assembled from `mission` + JSX UI introspection (`b.user-docs-generator`); already working.
+- **Marketing materials** (landing, deck) — a second LLM pass over structural docs plus `product/positioning.md`. That's the **S-5 skill** in the roadmap; see Appendix B.5 for limits of the achievable.
+
+The point: documentation stops being "the separate task there's never time for." If a block exists, it has a mission, KPI, and acceptance — that's enough for technical docs and user tutorials today, and enough for a marketing-narrative wrapper in S-5.
+
+---
+
+## Part 6. The three effects this is all aimed at
+
+Sometimes it helps to drop the architecture and ask: aimed at what? We have three measurable goals — and the whole product stands or falls on how well it hits them.
+
+### 6.1 Lower the cost of AI development
+
+Every LLM call is money (an API key) or quota (Pro/Max subscription). On long sessions both run out faster than you can do anything useful.
+
+The main source of waste is **rework**. The viral 73%-leak post barely discusses it, but it's fundamental. When the agent did the wrong thing (because it didn't see an important detail in a neighbour's mission, or got snagged on a stale rule in a bloated `CLAUDE.md`), rework costs **multiples more** than the original task:
+
+```
+original task:                   prompt P + answer R
+   │
+   ↓ result didn't fit
+rework:           prompt P′ ⊃ P (old + explanation of what's wrong)
+                + re-reading what was done
+                + analysing the error
+                + answer R′ (often longer because it explains the fix)
+```
+
+Roughly: rework eats 2–4× the original budget. If 30% of your requests go to rework — total token spend grows not by 30%, but by 60–120%. So **"saving" 1500 tokens on the first request by trimming a neighbour's mission usually means spending 4–8K on rework plus your time** (salary, opportunity cost — those are also money). A contract-oriented context-pack saves not "input tokens," it saves **rework**.
+
+Counterexample from current practice: a long session with a bloated `CLAUDE.md` × 30 turns = 144K leaked per session, just on the prefix, before counting redos. A contract-oriented pack 5K × 30 turns = 150K, but **they're relevant**: the agent lands on target the first time and rework is rare.
+
+Additionally — the **claude_cli provider** lets you work without an API key at all: a Claude.ai Pro (or Cursor Pro) subscription is auto-detected via `claude --version` or an equivalent CLI. You paid for the subscription — you use Sima as its frontend. Commercial users can keep `ANTHROPIC_API_KEY` alongside for speed — but it's optional, not a requirement.
+
+And finally — local models (Part 7.1) drive operational cost to zero for those with the hardware. That's the endgame of "lower the cost": cloud providers stay for quality, local models for everyday tasks where Llama 3.3 70B or Qwen Coder 32B is enough.
+
+### 6.2 Reduce AI hallucinations
+
+The agent hallucinates when it has no firm anchor to verify against. "Write a notification service" — it'll write anything. "Write a notification service whose mission is X, whose KPIs are Y, whose acceptance is Z, depends_on `[user-store, ext-email]`" — the space of "plausible but wrong" answers shrinks dramatically.
+
+Then the acceptance loop kicks in: every "it works" is backed by **evidence** — a test's exit code, a file's existence, a log grep. If the LLM produced a "plausible but non-working" patch, the evidence collector catches it. Not via review, not via tests-the-LLM-wrote-itself, but via a deterministic collector that doesn't answer to the LLM.
+
+The LLM judge is invoked only when deterministic checks aren't enough (e.g. "does the block's mission actually reflect what the code does"). At that point the agent calls another model as an independent referee — yet another layer of hallucination defence.
+
+### 6.3 Open the path to autonomous development
+
+If you have a graph of contracts and an acceptance loop, you're **no longer obligated** to eyeball every change. The agent can:
+
+1. Open a block in `todo`.
+2. Read the context-pack.
+3. Write a patch.
+4. Run the acceptance verifier.
+5. If pass — flip the block to `review` and pick the next block.
+6. If fail — try again; after three consecutive failures — flag the block as problematic and leave it for the operator.
+
+This isn't "AGI writes your product for you." It's closer to CI/CD: **routine** is automated (write code from a clear spec, run tests, hit the linter), and the operator stays as **architect and acceptor** — they create blocks, formulate missions, set KPIs, accept or reject results. Put differently, we raise the bar of "what the human must do by hand" from per-commit to per-decision-of-whether-to-do-it-at-all.
+
+Fully autonomous mode is in roadmap (**V-1 agent-loop daemon**) — the foundation is already there: graph + contracts + acceptance + soft gates + `inconclusive` verdict. On it you can build any level of autonomy, from conservative "ask the human at every gate" to aggressive "work overnight on your own."
+
+Where human touchpoints remain even in maximally-autonomous mode (see Appendix B.6 for the detailed breakdown): architectural principles not derivable from acceptance (closed by **S-6** via `architecture_decisions.md`); production bugs of the "didn't think to specify" variety (closed by **V-3** production-monitor); architectural pivots — moving to a new stack / multi-tenant / a different backend — are always human work. Between those points, the machine.
+
+---
+
+## Part 7. Local models, sandboxes, and the second tool
+
+Sima Atlas currently relies on "cloud" LLMs (Claude Sonnet/Opus, Gemini, GPT through an adapter). That gives quality but imposes constraints: network dependency, privacy, cost. Where we want to go:
+
+### 7.1 Local models as first-class providers
+
+Hypothesis: for most Sima tasks — **insight extraction, weak-field filling, drift-judge** — a mid-tier local model in the class of **Llama 3.3 70B**, **Qwen 2.5 Coder 32B**, or **DeepSeek V3 (via Ollama)** is enough. Such models:
+
+- run on a single 24–48 GB GPU or a modern Mac with unified memory;
+- return an answer in 1–3 seconds on an M3 Max;
+- cost $0 operationally;
+- work without a network.
+
+What needs to happen:
+
+- add an `ollama` / `vllm` / `lm-studio` provider to the LLM gateway cascade (~150 lines of code, drop-in after `claude_cli`);
+- assemble an eval dataset from `atlas/llm_traces/` over the last month and benchmark local models, so we know the quality floor;
+- cache the context-pack prefix (it's stable across turns on one block) — that gives 5–10× speedup for all providers.
+
+Goal: **the "zero-cost / zero-latency" mode**, in which an enthusiast with a working Mac or an RTX 4090 can develop a whole product without a single outbound API call.
+
+### 7.2 A coding shell that runs local models
+
+Claude Code and Cursor are great shells, but they're tied to specific cloud models. We need somewhere to test the local-models hypothesis — hence the roadmap item **U-2: "Sima Shell"** — a lightweight MCP client optimised for local models:
+
+- works with any model via Ollama / OpenAI-compatible API;
+- has a built-in chat interface with Sima Atlas tool support;
+- knows how to do cheap "idle moves" (formatting, renaming) on a small model and complex ones on a large model;
+- treats the context-pack as a first-class object, not stuffed into a free-form system prompt.
+
+This turns Sima from "a tool for working with an agent" into "a full stack for AI development," where even the agent runtime is ours.
+
+### 7.3 Where Sima lives — and why we're open-sourcing Sima Atlas
+
+To not confuse the reader, here's the layout:
+
+- **Synlabs** — our company.
+- **Tessent** — our main product at Synlabs (commercial).
+- **Sima** — an internal idea born as part of Tessent: a set of principles and tools for keeping AI development from falling apart at scale. Sima may stay inside Tessent, or may at some point become open-source — we're open to either path.
+- **Sima Atlas (this repository)** — the open-source incarnation of the "contract-first AI coding" concept. We took a portion of Sima's ideas, built it as a separate standalone product, and **published it for the concept** — so the industry has a working prototype of what AI development should look like, in our opinion.
+- **Sima Core** — a runtime layer of memory and principles for the agents themselves. Currently developed **inside Tessent**. May become open-source later (as Sima Atlas did), or may stay part of Tessent — that decision is open.
+
+| | Sima Atlas | Sima Core |
+|---|---|---|
+| Where it lives | this open-source repo (MIT) | inside Tessent (Synlabs); open-source — possibly, later |
+| For whom | the human developer | the programmer agent |
+| Artifact | a graph of contracts on the canvas | a stack of principles and episodes in memory |
+| Goal | ship a product to production with an AI agent | make the agent itself more responsible and predictable |
+| When you need it | when developing any product | when the agent works long and/or autonomously |
+
+They work together: Sima Atlas tells the agent **what** to do (the block contract); Sima Core tells it **how** to think about the work (principles, episodic memory, decision lineage). If we ever open Sima Core, both tools will close two sides of one problem: the external product contract (Atlas) + the agent's internal discipline (Core). For now, you have Atlas, and that's enough to genuinely change how you work with Cursor / Claude Code / Codex.
+
+---
