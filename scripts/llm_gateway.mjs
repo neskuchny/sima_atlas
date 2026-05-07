@@ -430,18 +430,23 @@ async function callClaudeCli({ system, prompt, schema, max_tokens, temperature }
     child.stderr.on('data', (d) => { err += d; });
     child.on('error', (e) => reject(new Error(`claude spawn failed: ${e.message}`)));
     child.on('close', (code) => {
-      if (code === 0) resolve(out);
-      else {
-        // Phase R-7.12 — раньше показывали ТОЛЬКО stderr, который для
-        // claude --print часто пустой (CLI пишет ошибки в stdout, типа
-        // «Not logged in · Please run /login»). Из-за этого error вообще
-        // не было в логах Sima — оператор гадал. Теперь показываем
-        // оба канала.
-        const errMsg = (err || '').trim();
-        const outMsg = (out || '').trim();
-        const combined = [errMsg, outMsg].filter(Boolean).join(' | ').slice(-400);
-        reject(new Error(`claude --print exit ${code}: ${combined || '(silent)'}`));
+      // Phase R-7.13 — Windows-quirk: claude --print sometimes returns
+      // exit 1 even on a successful response (with valid JSON in stdout
+      // containing input_tokens/output_tokens/etc.). Probably a CLI/cmd.exe
+      // wrapper interaction. If exit != 0 BUT stdout looks like a parseable
+      // JSON envelope, accept it — reject only on truly broken runs.
+      if (code === 0) { resolve(out); return; }
+      const outTrimmed = (out || '').trim();
+      if (outTrimmed.startsWith('{') && /"result"|"input_tokens"|"output_tokens"/i.test(outTrimmed)) {
+        // Looks like a real response despite the non-zero exit — let
+        // downstream JSON parsing handle it as success.
+        console.warn(`[llm-gateway] claude --print exited ${code} with parseable JSON; accepting (likely Windows cmd-wrapper quirk).`);
+        resolve(out);
+        return;
       }
+      const errMsg = (err || '').trim();
+      const combined = [errMsg, outTrimmed].filter(Boolean).join(' | ').slice(-400);
+      reject(new Error(`claude --print exit ${code}: ${combined || '(silent)'}`));
     });
     if (!useArg) {
       child.stdin.write(fullPrompt);

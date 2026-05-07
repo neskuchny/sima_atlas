@@ -1562,10 +1562,19 @@ function ContractSection({ moduleId, layer }) {
   // была главная блокировка «не могу руками заполнить миссию».
   const startManual = (file) => {
     const current = files[file] || '';
-    // Strip the auto-heading так чтобы оператор редактировал тело,
-    // не обвязку. При save мы её добавим обратно.
-    const stripped = current.replace(/^#[^\n]*\n+/, '').trim();
-    setEditing({ file, mode: 'manual', draft: stripped, original: current });
+    // Phase R-7.13 — для template-content (свежесозданные блоки имеют
+    // дефолтный «Описание модуля X. Заполни через детальную панель...»)
+    // textarea стартует ПУСТАЯ. Без этого оператор путался: видел
+    // template + ## Layer block + дописывал свой текст под шаблоном →
+    // в файле получалась мешанина. Чистый старт значит «напиши свою
+    // миссию с нуля». Если контент НЕ template — оставляем как есть для
+    // правки.
+    const stripHeading = (s) => s.replace(/^#[^\n]*\n+/, '').replace(/\n+##\s+Layer[\s\S]*$/i, '').trim();
+    const body = stripHeading(current);
+    const isTemplate =
+      /Заполни через детальную панель|добавь конкретную метрику|^- none\s*$/im.test(body) ||
+      body.length < 20;
+    setEditing({ file, mode: 'manual', draft: isTemplate ? '' : body, original: current });
     setError(null);
   };
 
