@@ -419,6 +419,14 @@ export function buildSimaDesignPayload({ atlas_root, client_id } = {}) {
     // The payload didn't include the field, so an empty client crashed
     // the React tree on first block create. Always return at least {}.
     submodules: {},
+    // Phase R-7.20 — UI App reads data.lanes для horizontal-bands layout
+    // (App строки 782 / 841: activeLanes = activeSub ? activeSub.lanes :
+    // data.lanes). Скрипт раньше молча валился на Windows (R-7.18 fix
+    // открыл это поле), так что UI получал fallback с lanes:[]. Теперь
+    // скрипт реально выполняется и должен возвращать lanes — пустой
+    // массив минимум, чтобы App не крэшился на activeLanes[0].
+    // (lanes per-subsystem уже идут через subsystems сверху.)
+    lanes: [],
     history,
     lessons,
     subsystems,

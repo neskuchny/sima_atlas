@@ -22,12 +22,12 @@
        `sima-data-changed` CustomEvent so the React tree can react. Set
        window.SIMA_API_BASE before this script loads to point at a
        remote backend in production. -->
-<script src="data_static.js?v=r7-15"></script>
-<script src="data_loader.js?v=r7-15"></script>
-<script type="text/babel" src="tweaks-panel.jsx?v=r7-15"></script>
-<script type="text/babel" src="graph.jsx?v=r7-15"></script>
-<script type="text/babel" src="panels.jsx?v=r7-15"></script>
-<script type="text/babel" src="views.jsx?v=r7-15"></script>
+<script src="data_static.js?v=r7-20"></script>
+<script src="data_loader.js?v=r7-20"></script>
+<script type="text/babel" src="tweaks-panel.jsx?v=r7-20"></script>
+<script type="text/babel" src="graph.jsx?v=r7-20"></script>
+<script type="text/babel" src="panels.jsx?v=r7-20"></script>
+<script type="text/babel" src="views.jsx?v=r7-20"></script>
 <script type="text/babel">
 const { useState, useEffect, useRef, useMemo, useCallback } = React;
 
@@ -779,7 +779,10 @@ function App() {
   const activeModules = curSub ? curSub.modules : modules;
   const activeEdges = curSub ? curSub.edges : edges;
   const activeNotes = curSub ? curSub.notes : notes;
-  const activeLanes = activeSub ? activeSub.lanes : data.lanes;
+  // Phase R-7.20 — defensive: data.lanes может отсутствовать в payload-е
+  // (как было до этого commit'а), не должны валить React-tree на
+  // activeLanes[0]. Empty array — нейтральный fallback.
+  const activeLanes = (activeSub ? activeSub.lanes : data.lanes) || [];
 
   // Wrapped subState mutators — every change triggers a debounced save
   // of the corresponding subsystem to disk. Local state still updates
