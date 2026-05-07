@@ -81,10 +81,16 @@ function GraphCanvas({
       }
     };
     const onUp = (e) => {
-      // R-7.28: edge-mode завершился — hit-test над какой нодой курсор?
+      // R-7.30: edge-mode завершился. Курсор может быть над SVG-листом
+      // (внутри которого летает temp-edge), а не над node-DIV — тогда
+      // e.target.closest('.node') ничего не найдёт. elementFromPoint
+      // отдаёт ВЕРХНИЙ visible элемент в точке курсора, скипая
+      // pointer-events:none (что у нас как раз temp edge), поэтому
+      // нода-цель находится надёжно.
       if (drag.current.mode === 'edge' && drag.current.moved) {
         const fromId = drag.current.id;
-        const target = e?.target?.closest?.('.node');
+        const hit = document.elementFromPoint(e.clientX, e.clientY);
+        const target = hit?.closest?.('.node');
         const toId = target?.getAttribute('data-mid') || null;
         if (toId && toId !== fromId && onAddEdge) {
           onAddEdge({ from: fromId, to: toId, label: '' });
@@ -316,7 +322,7 @@ function GraphCanvas({
             }} onClick={(ev) => { ev.stopPropagation(); setEditingEdge(i); }}>
               {isEdit ? (
                 <div style={{ minWidth: 240, whiteSpace: 'normal' }}>
-                  <EditableText value={e.label || ''} onChange={(v) => onUpdateEdge(i, { label: v })} placeholder="что эта связь делает…" style={{ fontWeight: 600 }} />
+                  <EditableText autoStart value={e.label || ''} onChange={(v) => onUpdateEdge(i, { label: v })} placeholder="что эта связь делает…" style={{ fontWeight: 600 }} />
                   <div style={{ fontSize: 10.5, marginTop: 4, color: isDesync ? '#fff8' : 'var(--ink-3)' }}>
                     <EditableText value={e.biz || ''} onChange={(v) => onUpdateEdge(i, { biz: v })} placeholder="Зачем эта связь, бизнес-смысл…" multiline />
                   </div>
@@ -532,8 +538,11 @@ function StickyNote({ note, onUpdate, onDelete }) {
   );
 }
 
-function EditableText({ value, onChange, placeholder, multiline, className, style, stopPropagation }) {
-  const [editing, setEditing] = useState(false);
+function EditableText({ value, onChange, placeholder, multiline, className, style, stopPropagation, autoStart }) {
+  // R-7.30 — autoStart=true: компонент сразу в режиме editing после
+  // монтирования (нужно для edge-label, который уже открыли через
+  // setEditingEdge — двойной клик дополнительно не нужен).
+  const [editing, setEditing] = useState(!!autoStart);
   const [tmp, setTmp] = useState(value);
   useEffect(() => { setTmp(value); }, [value]);
   const ref = useRef();

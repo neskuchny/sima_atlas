@@ -795,15 +795,20 @@ html, body {
 .detail .tabs {
   gap: 0;
   border-bottom: 1px solid var(--rule);
-  padding: 0 20px;
+  padding: 0 16px;
   background: var(--card);
   position: sticky;
   top: 109px;
   z-index: 2;
+  /* R-7.30 — раньше nowrap → последние табы («Файлы / Подмодули /
+     Память / Связи») обрезались за правым краем panel'и. flex-wrap +
+     row-gap позволяет переносить во вторую строку без поломки. */
+  flex-wrap: wrap;
+  row-gap: 0;
 }
 .detail .tabs button {
-  padding: 10px 0;
-  margin-right: 18px;
+  padding: 9px 0;
+  margin-right: 14px;
   font-size: 12px;
 }
 .detail .tabs button .ct {
