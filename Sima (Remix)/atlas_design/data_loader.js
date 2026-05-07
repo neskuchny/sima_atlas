@@ -264,6 +264,10 @@
     blockFile:    async (block_id, name)   => await getJson('/atlas/blocks/' + encodeURIComponent(block_id) + '/file?name=' + encodeURIComponent(name)),
     clientsList:   async ()                => await getJson('/atlas/clients/list'),
     clientCreate:  async (id)              => await postJson('/atlas/clients/create', { id }),
+    // Phase R-7.4 — nuke client state when stale data blocks creating new
+    // blocks (graph.json full of orphan b.block-1 entries, etc.). Requires
+    // explicit `confirm: true` to prevent wholesale accidental wipes.
+    clientReset:   async (id)              => await postJson('/atlas/clients/reset', { id, confirm: true }),
     // Phase R-4 — client-scoped so a fresh client tab doesn't see the root pile.
     proposalsList: async ()                => await getJson('/atlas/proposals/list' + (client ? `?client=${encodeURIComponent(client)}` : '')),
     activityLogTail:   async (limit = 100) => await getJson('/atlas/activity-log/tail?limit=' + limit),

@@ -1249,6 +1249,60 @@ const server = http.createServer((req, res) => {
         }
       }
 
+      // Phase R-7.4 — nuke-option for stuck client state.
+      // body: { id, confirm: true }. Wipes graph.json + blocks/ + proposals/
+      // + acceptance_runs/ for that client, keeps the dir + project.md /
+      // rules.md / tech_stack.md (those carry operator notes that are
+      // independent of code). Returns counts of what was deleted.
+      if (req.url === '/atlas/clients/reset') {
+        try {
+          const id = String(body.id || '').trim();
+          if (!/^[a-zA-Z0-9._-]{1,32}$/.test(id)) {
+            return json(res, 200, { ok: false, error: 'invalid id' });
+          }
+          if (id === 'main') {
+            return json(res, 200, { ok: false, error: '«main» reset is refused — it would wipe the root atlas; use git revert if you really mean it' });
+          }
+          if (body.confirm !== true) {
+            return json(res, 200, { ok: false, error: 'reset requires {"confirm": true} to prevent accidental wipes' });
+          }
+          const dir = path.join(ATLAS, 'clients', id);
+          if (!fs.existsSync(dir)) {
+            return json(res, 200, { ok: true, id, reset: false, hint: 'client not found, nothing to reset' });
+          }
+          const counts = { blocks_dirs: 0, proposals_files: 0, acceptance_runs_dirs: 0 };
+          // graph.json → empty
+          fs.writeFileSync(path.join(dir, 'graph.json'), JSON.stringify({ blocks: [], edges: [] }, null, 2) + '\n', 'utf8');
+          // blocks/ subtree
+          const blocksDir = path.join(dir, 'blocks');
+          if (fs.existsSync(blocksDir)) {
+            for (const entry of fs.readdirSync(blocksDir)) {
+              try { fs.rmSync(path.join(blocksDir, entry), { recursive: true, force: true }); counts.blocks_dirs += 1; } catch {}
+            }
+          } else {
+            fs.mkdirSync(blocksDir, { recursive: true });
+          }
+          // proposals/ subtree
+          const proposalsDir = path.join(dir, 'proposals');
+          if (fs.existsSync(proposalsDir)) {
+            for (const entry of fs.readdirSync(proposalsDir)) {
+              try { fs.rmSync(path.join(proposalsDir, entry), { recursive: true, force: true }); counts.proposals_files += 1; } catch {}
+            }
+          }
+          // acceptance_runs/ subtree
+          const accDir = path.join(dir, 'acceptance_runs');
+          if (fs.existsSync(accDir)) {
+            for (const entry of fs.readdirSync(accDir)) {
+              try { fs.rmSync(path.join(accDir, entry), { recursive: true, force: true }); counts.acceptance_runs_dirs += 1; } catch {}
+            }
+          }
+          console.log(`[atlas] reset client ${id}: cleared ${counts.blocks_dirs} blocks, ${counts.proposals_files} proposals, ${counts.acceptance_runs_dirs} acceptance_runs`);
+          return json(res, 200, { ok: true, id, reset: true, counts });
+        } catch (e) {
+          return json(res, 200, { ok: false, error: String(e.message || e) });
+        }
+      }
+
       // Phase P-3 — capture a screenshot of a block's UI. body:
       //   { block_id, url? (optional override), full? }
       // If url not given, falls back to graph.json block.ui_url. Returns

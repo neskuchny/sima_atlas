@@ -958,6 +958,20 @@ function App() {
           </div>
           <div style={{ display: 'flex', gap: 6 }}>
             <button className="pill primary" onClick={createMissingClient}>＋ Создать здесь</button>
+            <button className="pill" onClick={async () => {
+              // Phase R-7.4 — nuke option for the «my-saas got stuck on
+              // already-exists loop» scenario. Wipes graph + blocks/ +
+              // proposals/ + acceptance_runs/, keeps the dir + project.md.
+              if (!window.SIMA_API?.clientReset) return;
+              if (!window.confirm(`Сбросить «${currentClient}»? Будут удалены все блоки, предложения и истории acceptance в atlas/clients/${currentClient}/. project.md / rules.md / tech_stack.md останутся.`)) return;
+              const r = await window.SIMA_API.clientReset(currentClient);
+              if (r?.ok) {
+                pushLog({ agent: 'SIMA Core', kind: 'ok', msg: `Клиент ${currentClient} сброшен (${r.counts?.blocks_dirs || 0} блоков, ${r.counts?.proposals_files || 0} proposals).` });
+                if (window.SIMA_API?.refresh) await window.SIMA_API.refresh();
+              } else {
+                pushLog({ agent: 'SIMA Core', kind: 'fail', msg: `Reset не удался: ${r?.error || 'unknown'}` });
+              }
+            }} title="Снести всё внутри клиента (полезно если graph.json застрял в неконсистентном состоянии — например, после сбоев createBlock-а с «already exists»)">⟲ сбросить состояние</button>
             <button className="pill" onClick={() => switchClient('main')}>← вернуться в main</button>
           </div>
         </div>
