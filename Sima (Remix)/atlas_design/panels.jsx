@@ -1525,6 +1525,19 @@ function ContractSection({ moduleId, layer }) {
     setEditing({ file, mode: 'rewrite', draft: r.content, original: files[file] || '', mock: r.mock });
   };
 
+  // Phase R-7.7 — manual edit без LLM-вызова. До этого все три действия
+  // в контракт-табе шли через LLM (fillField / rewriteField), и при
+  // mock/demo-режиме оператор не мог сохранить ничего вручную. Это и
+  // была главная блокировка «не могу руками заполнить миссию».
+  const startManual = (file) => {
+    const current = files[file] || '';
+    // Strip the auto-heading так чтобы оператор редактировал тело,
+    // не обвязку. При save мы её добавим обратно.
+    const stripped = current.replace(/^#[^\n]*\n+/, '').trim();
+    setEditing({ file, mode: 'manual', draft: stripped, original: current });
+    setError(null);
+  };
+
   const approve = async () => {
     if (!editing) return;
     setBusy(true);
@@ -1567,11 +1580,14 @@ function ContractSection({ moduleId, layer }) {
                 <span className="contract-label">{label}</span>
                 <span className="mono" style={{ fontSize: 10.5, color: 'var(--ink-4)' }}>{file}</span>
                 <div className="contract-actions">
+                  {/* Phase R-7.7 — Руками доступно ВСЕГДА, без LLM. Главное действие
+                      когда LLM в demo-режиме (нет API-ключа / claude_cli не работает). */}
+                  <button className="pill" onClick={() => startManual(file)} disabled={busy} title="Открыть текстовое поле и отредактировать содержимое вручную (без LLM)">✎ Руками</button>
                   {klass === 'empty' && (
-                    <button className="pill primary" onClick={() => startFill(file)} disabled={busy}>✨ Заполнить</button>
+                    <button className="pill primary" onClick={() => startFill(file)} disabled={busy} title="Sima сгенерирует черновик через LLM">✨ Заполнить (LLM)</button>
                   )}
                   {klass !== 'empty' && (
-                    <button className="pill" onClick={() => startRewrite(file)} disabled={busy}>✏ Переформулировать</button>
+                    <button className="pill" onClick={() => startRewrite(file)} disabled={busy} title="Sima переформулирует существующий текст через LLM">✏ Переформулировать (LLM)</button>
                   )}
                 </div>
               </div>
@@ -1587,7 +1603,9 @@ function ContractSection({ moduleId, layer }) {
             <div className="sysdocs-head">
               <div>
                 <div className="mono" style={{ fontSize: 11, color: 'var(--ink-4)', letterSpacing: '0.08em' }}>
-                  {editing.mode === 'fill' ? 'SIMA · ЗАПОЛНЯЕТ' : 'SIMA · ПЕРЕФОРМУЛИРУЕТ'}
+                  {editing.mode === 'fill' ? 'SIMA · ЗАПОЛНЯЕТ' :
+                   editing.mode === 'rewrite' ? 'SIMA · ПЕРЕФОРМУЛИРУЕТ' :
+                   'РЕДАКТИРОВАНИЕ ВРУЧНУЮ'}
                 </div>
                 <h3 style={{ margin: '4px 0 0', fontFamily: 'Newsreader, serif', fontStyle: 'italic', fontSize: 18 }}>
                   {moduleId} · {editing.file}
@@ -1609,7 +1627,9 @@ function ContractSection({ moduleId, layer }) {
               )}
               <div>
                 <div className="meta" style={{ fontSize: 10.5, marginBottom: 4, letterSpacing: '0.06em' }}>
-                  {editing.mode === 'rewrite' ? 'СТАЛО (можно поправить)' : 'ЧЕРНОВИК (можно поправить)'}
+                  {editing.mode === 'rewrite' ? 'СТАЛО (можно поправить)' :
+                   editing.mode === 'manual' ? 'ТЕКУЩЕЕ СОДЕРЖИМОЕ (правьте напрямую)' :
+                   'ЧЕРНОВИК (можно поправить)'}
                 </div>
                 <textarea
                   className="contract-modal-edit"
