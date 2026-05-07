@@ -76,5 +76,7 @@
   "suggested_template_id": "backend-mvp",
   "suggested_template_scope": "backend",
   "suggested_template_profile_state": "warming_up",
-  "verdict": "pending"
+  "verdict": "rejected",
+  "rejected_at": "2026-05-05T20:18:24.917Z",
+  "reject_reason": "rejected from UI"
 }

@@ -15,3 +15,4 @@
 2026-05-02T17:44:54Z	pr2_5_drift_visualization	pass	ArchBlock red ring on broken / amber on drift + corner badge + native title-tooltip with issues; ArchInspector issues panel for selected block
 2026-05-02T18:23:43Z	pr_sub_recursion	pass	atlas/blocks/<id>/subschemas/<sub>/graph.json + 6 child blocks; bootstrap emits synthetic 'parent:block:sub' project; double-click navigates; breadcrumb stack with back; validate_subschemas gate
 2026-05-02T23:25:04Z	pr_live_polling	pass	atlas_api_server GET /atlas/state (hash) + /atlas/payload (full bootstrap); UI polls every 5s; on hash change merges payload + bumps liveTick + toast
+2026-05-07T09:47:52.735Z	design_patch	pass	atlas/blocks/b.ui-control/user_story.md

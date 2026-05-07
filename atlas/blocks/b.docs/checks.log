@@ -53,3 +53,4 @@
 2026-05-05T11:11:52.412Z	design_patch	pass	{"ui_url":"https://example.com","updated_at":"2026-05-05T11:11:52.412Z"}
 2026-05-05T11:11:53.445Z	screenshot	pass	https://example.com
 2026-05-05T11:12:06.843Z	design_patch	pass	{"ui_url":"","updated_at":"2026-05-05T11:12:06.843Z"}
+2026-05-05T20:19:53.775Z	design_patch	pass	atlas/blocks/b.docs/user_story.md

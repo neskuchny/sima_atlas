@@ -76,5 +76,10 @@
   "suggested_template_id": "backend-mvp",
   "suggested_template_scope": "backend",
   "suggested_template_profile_state": "warming_up",
-  "verdict": "pending"
+  "verdict": "accepted",
+  "applied_at": "2026-05-07T15:49:19.257Z",
+  "applied": [
+    "status=done",
+    "tech_stack+=[typescript,fastify,zod,drizzle-orm,sqlite,session-cookies,pino,vitest]"
+  ]
 }

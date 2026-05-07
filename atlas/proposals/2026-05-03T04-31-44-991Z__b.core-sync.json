@@ -49,5 +49,7 @@
     ],
     "mission_preview": "Sync Engine — движок проверки синхронизации блоков продукта; подтверждаем переход в done после прохождения acceptance."
   },
-  "verdict": "pending"
+  "verdict": "rejected",
+  "rejected_at": "2026-05-05T20:18:13.927Z",
+  "reject_reason": "rejected from UI"
 }

@@ -39,26 +39,106 @@ window.SIMA_BOOTSTRAP = {
               ]
             },
             {
-              "id": "b.core-sync",
+              "id": "b.product-dashboard",
               "type": "artifact",
               "x": 350,
               "y": 200,
               "w": 220,
               "h": 130,
-              "source": "logic · wip",
+              "source": "front · idea",
+              "title": "Dashboard",
+              "meta": "b.product-dashboard",
+              "take": "Drag-n-drop конструктор дашбордов — главный пользовательский UI.",
+              "tags": [
+                "#idea",
+                "#front"
+              ]
+            },
+            {
+              "id": "b.core-sync",
+              "type": "artifact",
+              "x": 580,
+              "y": 200,
+              "w": 220,
+              "h": 130,
+              "source": "logic · done",
               "title": "Sync Engine",
               "meta": "b.core-sync",
               "take": "Sync Engine — движок проверки синхронизации блоков продукта с миссией, KPI, стэком и кодом.",
               "tags": [
-                "#wip",
+                "#done",
+                "#logic"
+              ]
+            },
+            {
+              "id": "b.product-auth",
+              "type": "artifact",
+              "x": 810,
+              "y": 200,
+              "w": 220,
+              "h": 130,
+              "source": "logic · idea",
+              "title": "Auth",
+              "meta": "b.product-auth",
+              "take": "Многотенантная авторизация, RBAC на уровне dataset, SSO через OIDC.",
+              "tags": [
+                "#idea",
+                "#logic"
+              ]
+            },
+            {
+              "id": "b.product-ingest",
+              "type": "artifact",
+              "x": 120,
+              "y": 360,
+              "w": 220,
+              "h": 130,
+              "source": "logic · idea",
+              "title": "Ingest",
+              "meta": "b.product-ingest",
+              "take": "Принимает события от SDK, валидирует по схеме, гарантирует exactly-once в Warehouse.",
+              "tags": [
+                "#idea",
+                "#logic"
+              ]
+            },
+            {
+              "id": "b.product-billing",
+              "type": "artifact",
+              "x": 350,
+              "y": 360,
+              "w": 220,
+              "h": 130,
+              "source": "logic · idea",
+              "title": "Billing",
+              "meta": "b.product-billing",
+              "take": "Подписки, лимиты по событиям/seat, возвраты.",
+              "tags": [
+                "#idea",
+                "#logic"
+              ]
+            },
+            {
+              "id": "b.block-1",
+              "type": "artifact",
+              "x": 580,
+              "y": 360,
+              "w": 220,
+              "h": 130,
+              "source": "logic · idea",
+              "title": "Новый модуль",
+              "meta": "b.block-1",
+              "take": "Описание модуля Новый модуль.",
+              "tags": [
+                "#idea",
                 "#logic"
               ]
             },
             {
               "id": "b.agent-orchestrator",
               "type": "artifact",
-              "x": 580,
-              "y": 200,
+              "x": 810,
+              "y": 360,
               "w": 220,
               "h": 130,
               "source": "ai · review",
@@ -73,8 +153,8 @@ window.SIMA_BOOTSTRAP = {
             {
               "id": "b.llm-gateway",
               "type": "artifact",
-              "x": 810,
-              "y": 200,
+              "x": 120,
+              "y": 520,
               "w": 220,
               "h": 130,
               "source": "ai · review",
@@ -89,8 +169,8 @@ window.SIMA_BOOTSTRAP = {
             {
               "id": "b.operator-profile-learner",
               "type": "artifact",
-              "x": 120,
-              "y": 360,
+              "x": 350,
+              "y": 520,
               "w": 220,
               "h": 130,
               "source": "ai · idea",
@@ -105,8 +185,8 @@ window.SIMA_BOOTSTRAP = {
             {
               "id": "b.db",
               "type": "artifact",
-              "x": 350,
-              "y": 360,
+              "x": 580,
+              "y": 520,
               "w": 220,
               "h": 130,
               "source": "data · idea",
@@ -119,10 +199,26 @@ window.SIMA_BOOTSTRAP = {
               ]
             },
             {
+              "id": "b.product-warehouse",
+              "type": "artifact",
+              "x": 810,
+              "y": 520,
+              "w": 220,
+              "h": 130,
+              "source": "data · idea",
+              "title": "Warehouse",
+              "meta": "b.product-warehouse",
+              "take": "Хранилище событий: миллиарды строк, OLAP-агрегации.",
+              "tags": [
+                "#idea",
+                "#data"
+              ]
+            },
+            {
               "id": "b.docs",
               "type": "artifact",
-              "x": 580,
-              "y": 360,
+              "x": 120,
+              "y": 680,
               "w": 220,
               "h": 130,
               "source": "content · wip",
@@ -137,8 +233,8 @@ window.SIMA_BOOTSTRAP = {
             {
               "id": "b.user-docs-generator",
               "type": "artifact",
-              "x": 810,
-              "y": 360,
+              "x": 350,
+              "y": 680,
               "w": 220,
               "h": 130,
               "source": "content · idea",
@@ -153,8 +249,8 @@ window.SIMA_BOOTSTRAP = {
             {
               "id": "b.acceptance-verifier-loop",
               "type": "artifact",
-              "x": 120,
-              "y": 520,
+              "x": 580,
+              "y": 680,
               "w": 220,
               "h": 130,
               "source": "testing · idea",
@@ -169,8 +265,8 @@ window.SIMA_BOOTSTRAP = {
             {
               "id": "b.smoke-sandbox",
               "type": "artifact",
-              "x": 350,
-              "y": 520,
+              "x": 810,
+              "y": 680,
               "w": 220,
               "h": 130,
               "source": "testing · idea",
@@ -373,7 +469,7 @@ window.SIMA_BOOTSTRAP = {
                 "filled": true
               },
               {
-                "label": "Sync Engine (logic · wip)",
+                "label": "Sync Engine (logic · done)",
                 "filled": true
               },
               {
@@ -414,6 +510,17 @@ window.SIMA_BOOTSTRAP = {
                 ]
               },
               {
+                "id": "b.product-dashboard",
+                "title": "Dashboard",
+                "kind": "блок · front",
+                "filled": true,
+                "body": "Drag-n-drop конструктор дашбордов — главный пользовательский UI.",
+                "hasSubschema": false,
+                "sources": [
+                  "atlas/blocks/b.product-dashboard/mission.md [alive]"
+                ]
+              },
+              {
                 "id": "b.core-sync",
                 "title": "Sync Engine",
                 "kind": "блок · logic",
@@ -426,6 +533,50 @@ window.SIMA_BOOTSTRAP = {
                   "scripts/validate_dependency_contracts.mjs [alive]",
                   "scripts/validate_acceptance_assertions.mjs [alive]",
                   "scripts/validate_no_template_placeholders.mjs [alive] (PR1)"
+                ]
+              },
+              {
+                "id": "b.product-auth",
+                "title": "Auth",
+                "kind": "блок · logic",
+                "filled": true,
+                "body": "Многотенантная авторизация, RBAC на уровне dataset, SSO через OIDC.",
+                "hasSubschema": false,
+                "sources": [
+                  "atlas/blocks/b.product-auth/mission.md [alive]"
+                ]
+              },
+              {
+                "id": "b.product-ingest",
+                "title": "Ingest",
+                "kind": "блок · logic",
+                "filled": true,
+                "body": "Принимает события от SDK, валидирует по схеме, гарантирует exactly-once в Warehouse.",
+                "hasSubschema": false,
+                "sources": [
+                  "atlas/blocks/b.product-ingest/mission.md [alive]"
+                ]
+              },
+              {
+                "id": "b.product-billing",
+                "title": "Billing",
+                "kind": "блок · logic",
+                "filled": true,
+                "body": "Подписки, лимиты по событиям/seat, возвраты.",
+                "hasSubschema": false,
+                "sources": [
+                  "atlas/blocks/b.product-billing/mission.md [alive]"
+                ]
+              },
+              {
+                "id": "b.block-1",
+                "title": "Новый модуль",
+                "kind": "блок · logic",
+                "filled": true,
+                "body": "Описание модуля Новый модуль.",
+                "hasSubschema": false,
+                "sources": [
+                  "atlas/blocks/b.block-1/mission.md [alive]"
                 ]
               },
               {
@@ -486,6 +637,17 @@ window.SIMA_BOOTSTRAP = {
                   "atlas/project.md [alive]",
                   "atlas/rules.md [alive]",
                   "atlas/tech_stack.md [alive] (project-wide stack lock)"
+                ]
+              },
+              {
+                "id": "b.product-warehouse",
+                "title": "Warehouse",
+                "kind": "блок · data",
+                "filled": true,
+                "body": "Хранилище событий: миллиарды строк, OLAP-агрегации.",
+                "hasSubschema": false,
+                "sources": [
+                  "atlas/blocks/b.product-warehouse/mission.md [alive]"
                 ]
               },
               {
@@ -779,9 +941,39 @@ window.SIMA_BOOTSTRAP = {
               "layer": "front"
             },
             {
+              "id": "b.product-dashboard",
+              "title": "Dashboard",
+              "status": "idea",
+              "layer": "front"
+            },
+            {
               "id": "b.core-sync",
               "title": "Sync Engine",
-              "status": "wip",
+              "status": "done",
+              "layer": "logic"
+            },
+            {
+              "id": "b.product-auth",
+              "title": "Auth",
+              "status": "idea",
+              "layer": "logic"
+            },
+            {
+              "id": "b.product-ingest",
+              "title": "Ingest",
+              "status": "idea",
+              "layer": "logic"
+            },
+            {
+              "id": "b.product-billing",
+              "title": "Billing",
+              "status": "idea",
+              "layer": "logic"
+            },
+            {
+              "id": "b.block-1",
+              "title": "Новый модуль",
+              "status": "idea",
               "layer": "logic"
             },
             {
@@ -805,6 +997,12 @@ window.SIMA_BOOTSTRAP = {
             {
               "id": "b.db",
               "title": "Atlas Database",
+              "status": "idea",
+              "layer": "data"
+            },
+            {
+              "id": "b.product-warehouse",
+              "title": "Warehouse",
               "status": "idea",
               "layer": "data"
             },
@@ -1614,11 +1812,28 @@ window.SIMA_BOOTSTRAP = {
           ]
         },
         {
+          "id": "b.product-dashboard",
+          "title": "Dashboard",
+          "layer": "front",
+          "type": "module",
+          "status": "idea",
+          "status_reason": "Created via design UI at 2026-05-05T20:57:52.242Z",
+          "mvp": false,
+          "subschema": null,
+          "x": 270,
+          "w": 210,
+          "note": "Drag-n-drop конструктор дашбордов — главный пользовательский UI.",
+          "sources": [
+            "atlas/blocks/b.product-dashboard/mission.md [alive]"
+          ],
+          "tech_stack": []
+        },
+        {
           "id": "b.core-sync",
           "title": "Sync Engine",
           "layer": "logic",
           "type": "module",
-          "status": "wip",
+          "status": "done",
           "status_reason": "syncCheck only validates file presence, not mission/KPI semantics",
           "mvp": true,
           "subschema": null,
@@ -1634,8 +1849,84 @@ window.SIMA_BOOTSTRAP = {
           ],
           "tech_stack": [
             "nodejs",
-            "esm"
+            "esm",
+            "typescript",
+            "fastify",
+            "zod",
+            "drizzle-orm",
+            "sqlite",
+            "session-cookies",
+            "pino",
+            "vitest"
           ]
+        },
+        {
+          "id": "b.product-auth",
+          "title": "Auth",
+          "layer": "logic",
+          "type": "module",
+          "status": "idea",
+          "status_reason": "Created via design UI at 2026-05-05T20:57:52.201Z",
+          "mvp": false,
+          "subschema": null,
+          "x": 270,
+          "w": 210,
+          "note": "Многотенантная авторизация, RBAC на уровне dataset, SSO через OIDC.",
+          "sources": [
+            "atlas/blocks/b.product-auth/mission.md [alive]"
+          ],
+          "tech_stack": []
+        },
+        {
+          "id": "b.product-ingest",
+          "title": "Ingest",
+          "layer": "logic",
+          "type": "module",
+          "status": "idea",
+          "status_reason": "Created via design UI at 2026-05-05T20:57:52.212Z",
+          "mvp": false,
+          "subschema": null,
+          "x": 500,
+          "w": 210,
+          "note": "Принимает события от SDK, валидирует по схеме, гарантирует exactly-once в Warehouse.",
+          "sources": [
+            "atlas/blocks/b.product-ingest/mission.md [alive]"
+          ],
+          "tech_stack": []
+        },
+        {
+          "id": "b.product-billing",
+          "title": "Billing",
+          "layer": "logic",
+          "type": "module",
+          "status": "idea",
+          "status_reason": "Created via design UI at 2026-05-05T20:57:52.257Z",
+          "mvp": false,
+          "subschema": null,
+          "x": 730,
+          "w": 210,
+          "note": "Подписки, лимиты по событиям/seat, возвраты.",
+          "sources": [
+            "atlas/blocks/b.product-billing/mission.md [alive]"
+          ],
+          "tech_stack": []
+        },
+        {
+          "id": "b.block-1",
+          "title": "Новый модуль",
+          "layer": "logic",
+          "type": "module",
+          "status": "idea",
+          "status_reason": "Created via design UI at 2026-05-05T20:58:12.722Z",
+          "mvp": false,
+          "subschema": null,
+          "x": 960,
+          "w": 210,
+          "note": "Описание модуля Новый модуль.",
+          "sources": [
+            "atlas/blocks/b.block-1/mission.md [alive]"
+          ],
+          "tech_stack": []
         },
         {
           "id": "b.agent-orchestrator",
@@ -1736,6 +2027,23 @@ window.SIMA_BOOTSTRAP = {
             "json",
             "markdown"
           ]
+        },
+        {
+          "id": "b.product-warehouse",
+          "title": "Warehouse",
+          "layer": "data",
+          "type": "module",
+          "status": "idea",
+          "status_reason": "Created via design UI at 2026-05-05T20:57:52.230Z",
+          "mvp": false,
+          "subschema": null,
+          "x": 270,
+          "w": 210,
+          "note": "Хранилище событий: миллиарды строк, OLAP-агрегации.",
+          "sources": [
+            "atlas/blocks/b.product-warehouse/mission.md [alive]"
+          ],
+          "tech_stack": []
         },
         {
           "id": "b.docs",

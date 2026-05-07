@@ -84,7 +84,7 @@
     {
       "id": "b.core-sync",
       "title": "Sync Engine",
-      "status": "wip",
+      "status": "done",
       "status_reason": "syncCheck only validates file presence, not mission/KPI semantics",
       "layer": "logic",
       "type": "module",
@@ -95,7 +95,15 @@
       ],
       "tech_stack": [
         "nodejs",
-        "esm"
+        "esm",
+        "typescript",
+        "fastify",
+        "zod",
+        "drizzle-orm",
+        "sqlite",
+        "session-cookies",
+        "pino",
+        "vitest"
       ],
       "files": [
         "Sima (Remix)/atlas_sync.js",
@@ -365,6 +373,141 @@
         "scripts/mcp_smoke_e2e.mjs",
         "tests/atlas_sync.selftest.mjs"
       ]
+    },
+    {
+      "id": "b.product-auth",
+      "title": "Auth",
+      "status": "idea",
+      "status_reason": "Created via design UI at 2026-05-05T20:57:52.201Z",
+      "layer": "logic",
+      "type": "module",
+      "updated_at": "2026-05-05T20:57:52.201Z",
+      "mvp": false,
+      "subschema_id": null,
+      "depends_on": [
+        "b.product-dashboard: session_check",
+        "b.product-ingest: api_key_check"
+      ],
+      "tech_stack": [],
+      "files": [
+        "atlas/blocks/b.product-auth/mission.md"
+      ],
+      "canvas_x": 200,
+      "canvas_y": 200
+    },
+    {
+      "id": "b.product-ingest",
+      "title": "Ingest",
+      "status": "idea",
+      "status_reason": "Created via design UI at 2026-05-05T20:57:52.212Z",
+      "layer": "logic",
+      "type": "module",
+      "updated_at": "2026-05-05T20:57:52.212Z",
+      "mvp": false,
+      "subschema_id": null,
+      "depends_on": [
+        "b.product-warehouse: events_stream"
+      ],
+      "tech_stack": [],
+      "files": [
+        "atlas/blocks/b.product-ingest/mission.md"
+      ],
+      "canvas_x": 420,
+      "canvas_y": 200
+    },
+    {
+      "id": "b.product-warehouse",
+      "title": "Warehouse",
+      "status": "idea",
+      "status_reason": "Created via design UI at 2026-05-05T20:57:52.230Z",
+      "layer": "data",
+      "type": "module",
+      "updated_at": "2026-05-05T20:57:52.230Z",
+      "mvp": false,
+      "subschema_id": null,
+      "depends_on": [],
+      "tech_stack": [],
+      "files": [
+        "atlas/blocks/b.product-warehouse/mission.md"
+      ],
+      "canvas_x": 640,
+      "canvas_y": 200
+    },
+    {
+      "id": "b.product-dashboard",
+      "title": "Dashboard",
+      "status": "idea",
+      "status_reason": "Created via design UI at 2026-05-05T20:57:52.242Z",
+      "layer": "front",
+      "type": "module",
+      "updated_at": "2026-05-05T20:57:52.242Z",
+      "mvp": false,
+      "subschema_id": null,
+      "depends_on": [
+        "b.product-warehouse: metric_query"
+      ],
+      "tech_stack": [],
+      "files": [
+        "atlas/blocks/b.product-dashboard/mission.md"
+      ],
+      "canvas_x": 860,
+      "canvas_y": 200
+    },
+    {
+      "id": "b.product-billing",
+      "title": "Billing",
+      "status": "idea",
+      "status_reason": "Created via design UI at 2026-05-05T20:57:52.257Z",
+      "layer": "logic",
+      "type": "module",
+      "updated_at": "2026-05-05T20:57:52.257Z",
+      "mvp": false,
+      "subschema_id": null,
+      "depends_on": [],
+      "tech_stack": [],
+      "files": [
+        "atlas/blocks/b.product-billing/mission.md"
+      ],
+      "canvas_x": 1080,
+      "canvas_y": 200
+    },
+    {
+      "id": "b.block-1",
+      "title": "Новый модуль",
+      "status": "idea",
+      "status_reason": "Created via design UI at 2026-05-05T20:58:12.722Z",
+      "layer": "logic",
+      "type": "module",
+      "updated_at": "2026-05-05T20:58:12.722Z",
+      "mvp": false,
+      "subschema_id": null,
+      "depends_on": [],
+      "tech_stack": [],
+      "files": [
+        "atlas/blocks/b.block-1/mission.md"
+      ],
+      "canvas_x": 440,
+      "canvas_y": 340,
+      "canvas_size": "md"
+    },
+    {
+      "id": "b.block-2",
+      "title": "Новый модуль",
+      "status": "idea",
+      "status_reason": "Created via design UI at 2026-05-07T16:27:02.089Z",
+      "layer": "logic",
+      "type": "module",
+      "updated_at": "2026-05-07T16:27:02.089Z",
+      "mvp": false,
+      "subschema_id": null,
+      "depends_on": [],
+      "tech_stack": [],
+      "files": [
+        "atlas/blocks/b.block-2/mission.md"
+      ],
+      "canvas_x": 743,
+      "canvas_y": 470,
+      "canvas_size": "md"
     }
   ]
 }

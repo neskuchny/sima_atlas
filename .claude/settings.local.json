@@ -1,0 +1,6 @@
+{
+  "enabledMcpjsonServers": [
+    "sima-atlas"
+  ],
+  "enableAllProjectMcpServers": true
+}
