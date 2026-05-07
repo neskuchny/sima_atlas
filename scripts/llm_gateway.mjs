@@ -463,6 +463,19 @@ async function callClaudeCli({ system, prompt, schema, max_tokens, temperature }
     output_tokens: envelope?.usage?.output_tokens || 0,
   };
 
+  // R-7.37 — детектируем error-паттерны от claude CLI: «Invalid API key»,
+  // «Not logged in», «Rate limit», «Network error» и т.п. CLI отдаёт их
+  // как обычный текст в .result, и без явной проверки мы treat'ом их как
+  // valid model output (юзер видит ошибку в поле контракта). Throw'ом
+  // переключаем cascade на следующего провайдера (anthropic API).
+  const errPatterns = [
+    /^invalid api key/i, /api key/i, /not logged in/i, /please log in/i,
+    /rate limit/i, /quota.*exceeded/i, /network error/i, /authentication/i,
+  ];
+  if (typeof text === 'string' && text.trim().length < 200 && errPatterns.some((p) => p.test(text.trim()))) {
+    throw new Error(`claude_cli error: ${text.trim().slice(0, 160)}`);
+  }
+
   if (!schema) {
     return { value: typeof text === 'string' ? text : String(text), usage };
   }
