@@ -1,0 +1,70 @@
+name: Feature request
+description: Новая возможность, улучшение существующей, или предложение по архитектуре
+title: "[feature] "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Спасибо за идею. Прежде чем заполнять — **посмотрите roadmap в [статье, Часть 10](../ТЗ/статья.md)**.
+        Возможно, ваш запрос там уже есть как пункт S-N / T-N / U-N / V-N / W-N — тогда лучше прокомментировать его, чем заводить новый.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Какую проблему решает
+      description: Симптом / болевая точка / что сейчас работает плохо. **Не** «добавить кнопку X», а «у меня не получается Y».
+      placeholder: "Когда я работаю с большим продуктом (50+ блоков), context-pack для одного блока вытягивает всех соседей подряд, и pack распухает до 12K токенов..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed
+    attributes:
+      label: Предложенное решение
+      description: Что должно происходить вместо текущего поведения. Чем конкретнее, тем быстрее обсуждение.
+      placeholder: "Selective neighbor traversal: для типа задачи `backend-fix` читать только соседей, в provides которых есть API-capabilities..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Альтернативы
+      description: Какие ещё подходы вы рассматривали и почему они хуже
+      placeholder: "Можно было бы просто капнуть размер pack'а на 4K — но тогда мы режем смысл, переделки дороже сэкономленных токенов..."
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Какую часть Sima это затронет
+      multiple: true
+      options:
+        - UI canvas
+        - MCP-сервер / новые tools
+        - LLM gateway / новый провайдер
+        - Acceptance verifier / новые evidence_kinds
+        - Block contracts / новые поля
+        - Multi-tenant / клиентская изоляция
+        - Documentation / переводы
+        - CI / dev-tooling
+        - Новый блок
+        - Другое
+    validations:
+      required: true
+
+  - type: textarea
+    id: roadmap-link
+    attributes:
+      label: Связь с roadmap
+      description: Это вписывается в существующий пункт S/T/U/V/W из статьи? Какой?
+      placeholder: "Это часть S-4 (context-pack profiles), но я предлагаю чуть другую формулировку..."
+
+  - type: checkboxes
+    id: ready
+    attributes:
+      label: Готовность участвовать
+      options:
+        - label: Я готов(а) сделать PR сам(а) (с code review от maintainer'а)
+        - label: Я могу помочь с дизайном / обсуждением, но реализовать не смогу
+        - label: Это идея, я хочу, чтобы её сделал кто-то ещё

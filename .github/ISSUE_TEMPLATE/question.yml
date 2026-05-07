@@ -1,0 +1,61 @@
+name: Question / Help
+description: Что-то непонятно в документации, как-то применить Sima, как интегрировать с моим инструментом
+title: "[question] "
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Прежде чем задать вопрос — пожалуйста, проверьте:
+
+        - **README** ([English](../README.md) + Русский раздел)
+        - **Статья**: [ТЗ/статья.md](../ТЗ/статья.md) — методология + архитектура + roadmap (~4000 слов)
+        - **Интеграции**: [docs/integrations.md](../docs/integrations.md) — Claude Code / Cursor / Codex / Continue / Zed / Windsurf / Antigravity
+        - **Existing issues и discussions** — может, на ваш вопрос уже отвечали
+
+        Если ответ нашёлся в каком-то из этих документов, но **должен был быть проще найден** — это тоже валидный issue, заведите его.
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Вопрос
+      description: Чем подробнее контекст, тем точнее ответ
+      placeholder: "Я пытаюсь подключить Sima к Codex CLI, но `codex mcp list` показывает sima-atlas как 'failed to start'. Что я делаю не так?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: tried
+    attributes:
+      label: Что я уже попробовал
+      placeholder: |
+        - Запустил `node scripts/mcp_atlas_server.mjs` руками — работает
+        - Добавил блок в `~/.codex/config.toml` по примеру из docs/integrations.md
+        - Перезапустил Codex
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Контекст
+      description: OS, версии инструментов, версия Sima Atlas (commit / tag)
+      render: shell
+
+  - type: dropdown
+    id: topic
+    attributes:
+      label: Тема
+      options:
+        - Установка / запуск
+        - Интеграция с AI-инструментом (Claude Code / Cursor / Codex / ...)
+        - MCP-сервер
+        - LLM-провайдеры (anthropic / google / claude_cli)
+        - Контракты блоков
+        - Acceptance verifier
+        - Multi-tenant
+        - Roadmap / архитектура
+        - Документация
+        - Другое
+    validations:
+      required: true

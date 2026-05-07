@@ -1,0 +1,100 @@
+name: Bug report
+description: Что-то работает не так, как описано в документации или в article
+title: "[bug] "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Спасибо, что нашли время сообщить о проблеме. Чем подробнее repro — тем быстрее починим.
+
+        Для **security-issues** не используйте этот шаблон, см. [SECURITY.md](../SECURITY.md).
+
+  - type: input
+    id: version
+    attributes:
+      label: Версия Sima Atlas
+      description: commit hash (`git rev-parse HEAD`) или tag
+      placeholder: "1c915f7 или v0.1.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Где проявляется
+      multiple: true
+      options:
+        - UI canvas (browser)
+        - MCP-сервер (агент → Claude Code / Cursor / ...)
+        - CLI скрипт (scripts/*.mjs)
+        - HTTP API (atlas_api_server)
+        - nightly / verify_all
+        - LLM gateway / провайдер
+        - Документация
+        - Другое
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: Что произошло
+      description: Симптом одной фразой
+      placeholder: "При нажатии «Создать модуль» canvas уходит в белый экран..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Что ожидалось
+      placeholder: "Должен был появиться новый блок на canvas..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Шаги воспроизведения
+      description: Минимальный набор шагов, которыми мы сами сможем повторить
+      placeholder: |
+        1. `npm run dev`
+        2. Открыть http://localhost:8000/atlas_design/?client=my-saas
+        3. Click ПКМ по фону → «＋ Новый модуль»
+        4. Видим белый экран
+    validations:
+      required: true
+
+  - type: textarea
+    id: env
+    attributes:
+      label: Окружение
+      description: OS, Node version, какой LLM-провайдер настроен (anthropic / google / claude_cli / mock), браузер если UI
+      render: shell
+      placeholder: |
+        OS: Windows 11 / macOS 14 / Ubuntu 22.04
+        Node: 20.x
+        LLM provider: claude_cli (Pro подписка)
+        Browser: Chrome 130
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Логи / стектрейс / скриншоты
+      description: Console-output, stderr, скрин canvas-а если применимо. Соберите чувствительные данные перед публикацией.
+      render: shell
+
+  - type: checkboxes
+    id: pre-checks
+    attributes:
+      label: Перед сабмитом
+      options:
+        - label: Я попробовал на свежем clone main / последнем tagged release
+          required: true
+        - label: Я искал среди существующих issues и не нашёл дубликата
+          required: true
+        - label: Я понимаю, что это **не** security-issue (см. SECURITY.md если сомневаюсь)
+          required: true
