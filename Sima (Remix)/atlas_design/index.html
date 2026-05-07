@@ -656,27 +656,54 @@ function App() {
     pushLog({ agent: 'SIMA Core', kind: 'head', msg: `Создан модуль ${created.title} (${id}).` });
     // Persist to atlas/graph.json. On failure rollback the optimistic add.
     if (window.SIMA_API && window.SIMA_API.createBlock) {
+      // Phase R-7.3 — auto-retry on "already exists". UI's local state
+      // and server graph.json can drift (stale state from previous failed
+      // sessions, manual file edits, etc.). Instead of dying with «Откат»,
+      // pick the next free suffix and try again. Up to 5 attempts; if all
+      // collide — give up with a useful message that points to /reset.
       let r;
-      try {
-        r = await window.SIMA_API.createBlock({
-          id,
-          title: created.title,
-          layer: REV_LAYER[created.layer] || 'logic',
-          status: 'idea',
-          x: created.x, y: created.y, size: created.size,
-        });
-      } catch (e) {
-        r = { ok: false, error: String(e.message || e) };
+      let attemptedId = id;
+      for (let attempt = 0; attempt < 5; attempt++) {
+        try {
+          r = await window.SIMA_API.createBlock({
+            id: attemptedId,
+            title: created.title,
+            layer: REV_LAYER[created.layer] || 'logic',
+            status: 'idea',
+            x: created.x, y: created.y, size: created.size,
+          });
+        } catch (e) {
+          r = { ok: false, error: String(e.message || e) };
+        }
+        if (r?.ok) break;
+        if (!/already exists/i.test(String(r?.error || ''))) break;
+        // Server says id is taken; drift between UI and server state.
+        n++;
+        attemptedId = `b.${base}-${n}`;
       }
       if (!r || !r.ok) {
         setModules(M => M.filter(x => x.id !== id));
         setSelectedId(null);
-        pushLog({ agent: 'SIMA Core', kind: 'fail', msg: `Не удалось сохранить ${id}: ${r?.error || 'unknown'}. Откат.` });
+        const isCollision = /already exists/i.test(String(r?.error || ''));
+        pushLog({
+          agent: 'SIMA Core',
+          kind: 'fail',
+          msg: isCollision
+            ? `Не удалось создать блок: graph.json клиента содержит много стале b.${base}-N. Снеси atlas/clients/${currentClient}/blocks/ + перепиши graph.json (или дождись /reset endpoint в R-7.4). Откат.`
+            : `Не удалось сохранить ${id}: ${r?.error || 'unknown'}. Откат.`,
+        });
       } else {
-        pushLog({ agent: 'SIMA Core', kind: 'ok', msg: `Сохранено в atlas/graph.json (+8 контрактных файлов)` });
+        // Reflect the actually-saved id back into local state if it drifted
+        // from the optimistic one (R-7.3 retry might have bumped suffix).
+        if (attemptedId !== id) {
+          setModules(M => M.map(x => x.id === id ? { ...x, id: attemptedId, tag: attemptedId.replace(/^b\./, '') } : x));
+          setSelectedId(attemptedId);
+          pushLog({ agent: 'SIMA Core', kind: 'note', msg: `id ${id} был занят на сервере; создан как ${attemptedId}.` });
+        }
+        pushLog({ agent: 'SIMA Core', kind: 'ok', msg: `Сохранено в atlas/clients/${currentClient}/graph.json (+8 контрактных файлов)` });
         // Record undo: archive (soft-delete) the just-created block.
-        recordHistory(`+ блок ${id}`, async () => {
-          if (window.SIMA_API?.deleteBlock) await window.SIMA_API.deleteBlock(id, false);
+        recordHistory(`+ блок ${attemptedId}`, async () => {
+          if (window.SIMA_API?.deleteBlock) await window.SIMA_API.deleteBlock(attemptedId, false);
           setModules(M => M.filter(x => x.id !== id));
           if (selectedId === id) setSelectedId(null);
           return async () => {
