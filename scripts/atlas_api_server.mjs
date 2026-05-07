@@ -411,7 +411,18 @@ const server = http.createServer((req, res) => {
         const u = new URLSearchParams(m[2]);
         const name = u.get('name') || '';
         if (!BLOCK_FILE_WHITELIST.has(name)) return json(res, 200, { ok: false, error: 'forbidden' });
-        const p = path.join(ATLAS, 'blocks', block_id, name);
+        // Phase R-7.14 — read-side multi-tenant. R-6 закрыл write-routes
+        // (createBlock/patchBlockFile/etc.), но read GET для файлов блока
+        // оставался на ROOT atlas. Из-за этого operator писал в
+        // atlas/clients/<id>/blocks/.../mission.md, но при reload
+        // ContractSection читал из atlas/blocks/.../mission.md (не
+        // существует) → not_found → placeholder → operator видел «всё
+        // пропало». Теперь читаем из правильного scope.
+        const clientArg = u.get('client') || '';
+        const root = clientArg
+          ? path.join(ROOT, 'atlas', 'clients', clientArg)
+          : ATLAS;
+        const p = path.join(root, 'blocks', block_id, name);
         if (!fs.existsSync(p)) return json(res, 200, { ok: false, error: 'not_found' });
         return json(res, 200, { ok: true, block_id, name, content: fs.readFileSync(p, 'utf8'), mtime: fs.statSync(p).mtime.toISOString() });
       } catch (e) {

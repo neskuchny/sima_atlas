@@ -266,7 +266,14 @@
     save:         async (file, content)    => await postJson('/atlas/meta/save', withClient({ file, content })),
     userDocsList: async ()                 => await getJson('/atlas/user-docs/list'),
     userDocGet:   async (block_id)         => await getJson('/atlas/user-docs/get?block_id=' + encodeURIComponent(block_id)),
-    blockFile:    async (block_id, name)   => await getJson('/atlas/blocks/' + encodeURIComponent(block_id) + '/file?name=' + encodeURIComponent(name)),
+    // Phase R-7.14 — read-side multi-tenant. Без ?client=X GET читал из
+    // ROOT atlas даже когда UI на ?client=my-saas, и operator видел
+    // not_found → placeholder вместо своих сохранений.
+    blockFile:    async (block_id, name)   => {
+      const qs = new URLSearchParams({ name });
+      if (client) qs.set('client', client);
+      return await getJson('/atlas/blocks/' + encodeURIComponent(block_id) + '/file?' + qs.toString());
+    },
     clientsList:   async ()                => await getJson('/atlas/clients/list'),
     clientCreate:  async (id)              => await postJson('/atlas/clients/create', { id }),
     // Phase R-7.4 — nuke client state when stale data blocks creating new
