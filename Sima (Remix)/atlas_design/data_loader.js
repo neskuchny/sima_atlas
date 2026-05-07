@@ -158,6 +158,16 @@
       window.SIMA_DATA = live;
       window.__SIMA_DATA_SOURCE = 'live_polled';
       announce('mutation');
+      // Phase R-7.16 — diagnostic. Раньше «refresh не сработал» было
+      // невидимо для оператора. Теперь в DevTools Console можно увидеть
+      // таймстамп, размер payload, и ключи moduleDocs у клиента.
+      try {
+        const docCount = Object.keys(live.moduleDocs || {}).length;
+        const blockCount = (live.modules || []).length;
+        console.log(`[sima-refresh] ok · ${blockCount} blocks · ${docCount} moduleDocs · meta=${live._meta?.generated_at || 'n/a'}`);
+      } catch {}
+    } else {
+      try { console.warn('[sima-refresh] fetchLive returned null — payload not updated'); } catch {}
     }
   }
   function withClient(body_) {
