@@ -26,6 +26,9 @@ function GraphCanvas({
   const [tx, setTx] = useState({ x: 30, y: 20, k: 0.7 });
   const drag = useRef({ active: false, mode: null, sx: 0, sy: 0, ox: 0, oy: 0, id: null });
   const [ctxMenu, setCtxMenu] = useState(null);
+  // R-7.28 — Shift+drag from node creates an edge: track temp line tip
+  // (in canvas coords) so we can draw a hint while the operator drags.
+  const [edgeDraft, setEdgeDraft] = useState(null); // { fromId, x, y } or null
   const [editingEdge, setEditingEdge] = useState(null);
 
   const screenToCanvas = (sx, sy) => {
@@ -45,6 +48,15 @@ function GraphCanvas({
 
   const startNodeDrag = (e, m) => {
     e.stopPropagation();
+    // R-7.28 — Shift-mod = create edge (источник = текущая нода). Без shift —
+    // обычное перемещение ноды. Курсор и логика hit-test'а target-ноды
+    // делается в onUp ниже через elementFromPoint.
+    if (e.shiftKey) {
+      const c = screenToCanvas(e.clientX, e.clientY);
+      drag.current = { active: true, mode: 'edge', id: m.id, sx: e.clientX, sy: e.clientY, moved: false };
+      setEdgeDraft({ fromId: m.id, x: c.x, y: c.y });
+      return;
+    }
     drag.current = { active: true, mode: 'node', id: m.id, sx: e.clientX, sy: e.clientY, ox: m.x, oy: m.y, moved: false };
   };
 
@@ -61,9 +73,24 @@ function GraphCanvas({
         const dy = (e.clientY - drag.current.sy) / tx.k;
         if (Math.abs(dx) > 3 || Math.abs(dy) > 3) drag.current.moved = true;
         onUpdateModule(drag.current.id, { x: drag.current.ox + dx, y: drag.current.oy + dy });
+      } else if (drag.current.mode === 'edge') {
+        // R-7.28: тянем виртуальную линию от источника до курсора
+        const c = screenToCanvas(e.clientX, e.clientY);
+        if (Math.abs(e.clientX - drag.current.sx) > 3 || Math.abs(e.clientY - drag.current.sy) > 3) drag.current.moved = true;
+        setEdgeDraft((d) => d ? { ...d, x: c.x, y: c.y } : null);
       }
     };
-    const onUp = () => {
+    const onUp = (e) => {
+      // R-7.28: edge-mode завершился — hit-test над какой нодой курсор?
+      if (drag.current.mode === 'edge' && drag.current.moved) {
+        const fromId = drag.current.id;
+        const target = e?.target?.closest?.('.node');
+        const toId = target?.getAttribute('data-mid') || null;
+        if (toId && toId !== fromId && onAddEdge) {
+          onAddEdge({ from: fromId, to: toId, label: '' });
+        }
+        setEdgeDraft(null);
+      }
       // Remember whether the just-finished drag actually moved. The next
       // click handler reads `recentlyDragged` and bails out — this fixes
       // the bug where drag-end-on-node also opened the detail panel.
@@ -239,6 +266,25 @@ function GraphCanvas({
             if (scanState === 'scanning') cls.push('scanning');
             return <path key={`v${i}`} d={edgePath(a, b)} className={cls.join(' ')} style={{ pointerEvents: 'none' }} />;
           })}
+          {/* R-7.28 — temporary line while shift+dragging from a node */}
+          {edgeDraft && (() => {
+            const a = moduleById[edgeDraft.fromId];
+            if (!a) return null;
+            const aw = nodeWidth(a.size, detailed);
+            const ah = nodeHeight(a.size, detailed);
+            const ax = a.x + aw / 2;
+            const ay = a.y + ah / 2;
+            return (
+              <path
+                d={`M ${ax} ${ay} L ${edgeDraft.x} ${edgeDraft.y}`}
+                stroke="var(--ink-3)"
+                strokeWidth="2"
+                strokeDasharray="6 4"
+                fill="none"
+                style={{ pointerEvents: 'none' }}
+              />
+            );
+          })()}
         </g>
       </svg>
 
@@ -325,6 +371,7 @@ function GraphCanvas({
               ].join(' ')}
               data-st={status}
               data-layer={m.layer}
+              data-mid={m.id}
               style={{
                 left: m.x, top: m.y,
                 width: nodeWidth(m.size, detailed),

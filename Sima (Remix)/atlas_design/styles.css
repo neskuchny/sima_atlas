@@ -1524,9 +1524,31 @@ html, body {
 .composer-result.ok   { background: rgba(60, 160, 100, 0.08); border-color: var(--st-done); color: var(--ink); }
 .composer-result.fail { background: rgba(190, 60, 60, 0.06); border-color: var(--st-fail); color: var(--ink); }
 
+/* R-7.28 — базовый стиль pill для использования вне .topbar:
+   contract-actions, run-cards, modal-footer и пр. Раньше .pill вне топбара
+   был неявным <button> и выглядел как стоковая кнопка браузера.
+   font-family НЕ задаём — наследуется от родителя, чтобы не ломать
+   существующие места с моно-шрифтом. */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border: 1px solid var(--rule-2);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--ink);
+  font-size: 12.5px;
+  line-height: 1.3;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.pill:hover { background: var(--card-2); border-color: var(--ink-3); }
 .pill.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-.pill.primary:hover { opacity: 0.9; }
+.pill.primary:hover { background: var(--ink-2, #333); border-color: var(--ink-2, #333); opacity: 1; }
 .pill[disabled] { opacity: 0.5; cursor: default; }
+.pill[disabled]:hover { background: var(--card); border-color: var(--rule-2); }
 
 /* Gallery */
 .gallery-box {
@@ -1878,9 +1900,47 @@ html, body {
   background: var(--card-2); border-radius: 6px; padding: 12px 14px; margin: 0;
   max-height: 320px; overflow: auto; color: var(--ink-2);
 }
-/* Inline markdown-style accents — пока не рендерим MD, но хотя бы
-   подчёркиваем строки заголовков (## / ### в начале строки). */
 .contract-body { font-variant-ligatures: common-ligatures; }
+/* R-7.28 — markdown-rendered contract content. marked.parse() выдаёт
+   стандартный HTML; стили ниже делают его читаемым в узкой панели
+   и согласованным с типографикой остального дизайна. */
+.contract-body.md h1, .contract-body.md h2, .contract-body.md h3, .contract-body.md h4 {
+  font-family: 'Newsreader', Georgia, serif;
+  margin: 14px 0 6px; line-height: 1.25; color: var(--ink);
+}
+.contract-body.md h1 { font-size: 18px; font-weight: 600; }
+.contract-body.md h2 { font-size: 15.5px; font-weight: 600; }
+.contract-body.md h3 { font-size: 14px;   font-weight: 600; }
+.contract-body.md h4 { font-size: 13px;   font-weight: 600; color: var(--ink-2); }
+.contract-body.md > *:first-child { margin-top: 0; }
+.contract-body.md p { margin: 0 0 8px; }
+.contract-body.md ul, .contract-body.md ol { margin: 0 0 10px; padding-left: 22px; }
+.contract-body.md li { margin: 2px 0; }
+.contract-body.md li > p { margin: 0; }
+.contract-body.md strong { color: var(--ink); }
+.contract-body.md em { font-style: italic; color: var(--ink-2); }
+.contract-body.md code {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  background: var(--card); padding: 1px 5px; border-radius: 4px;
+  border: 1px solid var(--rule-2);
+}
+.contract-body.md pre {
+  font-family: 'JetBrains Mono', monospace; font-size: 11.5px; line-height: 1.45;
+  background: var(--card); border: 1px solid var(--rule-2); border-radius: 6px;
+  padding: 8px 10px; overflow: auto; margin: 8px 0;
+  white-space: pre; word-wrap: normal;
+}
+.contract-body.md pre code { background: transparent; border: 0; padding: 0; }
+.contract-body.md blockquote {
+  margin: 6px 0; padding: 4px 12px; border-left: 3px solid var(--rule-2);
+  color: var(--ink-2); font-style: italic;
+}
+.contract-body.md a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--rule-2); }
+.contract-body.md a:hover { text-decoration-color: var(--ink); }
+.contract-body.md table { border-collapse: collapse; margin: 8px 0; font-size: 12.5px; }
+.contract-body.md th, .contract-body.md td { border: 1px solid var(--rule-2); padding: 4px 8px; }
+.contract-body.md hr { border: 0; border-top: 1px solid var(--rule-2); margin: 10px 0; }
+.contract-body.empty { color: var(--ink-3); font-style: italic; }
 
 .contract-modal { width: min(820px, 92vw); max-height: 90vh; display: flex; flex-direction: column; background: var(--paper); padding: 0; }
 .contract-modal-body {

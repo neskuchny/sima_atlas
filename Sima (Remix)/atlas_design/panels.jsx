@@ -1678,7 +1678,12 @@ function ContractSection({ moduleId, layer }) {
                   <button className="pill" onClick={() => startRewrite(file)} disabled={busy} title="Sima переформулирует существующий текст через LLM">✏ Переписать</button>
                 )}
               </div>
-              <pre className="contract-body">{content || `(${placeholder})`}</pre>
+              {/* R-7.28 — рендерим mission/kpi/acceptance/etc. как markdown
+                  (заголовки, списки, code, bold) вместо raw <pre>. Контент
+                  доверенный (оператор + LLM) — sanitize не делаем. */}
+              {content
+                ? <div className="contract-body md" dangerouslySetInnerHTML={{ __html: (window.marked?.parse?.(content) ?? content) }} />
+                : <pre className="contract-body empty">({placeholder})</pre>}
             </div>
           );
         })}
