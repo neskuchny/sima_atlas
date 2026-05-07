@@ -198,6 +198,20 @@ html, body {
 
 /* ===== Left rail (Context) ===== */
 
+/* R-7.31 — visual hint для редактируемых полей. EditableText в режиме
+   editOnClick получает class .editable-hint — на hover лёгкая dotted
+   underline + чуть темнее цвет, чтобы оператор видел "это можно
+   редактировать". */
+.editable-hint:hover {
+  text-decoration: underline dotted var(--ink-3);
+  text-underline-offset: 3px;
+}
+.rail-edit {
+  background: transparent; border: 0; cursor: pointer;
+  color: var(--ink-3); font-size: 12px; padding: 2px 6px;
+  border-radius: 4px; margin-left: 6px; transition: background 0.15s, color 0.15s;
+}
+.rail-edit:hover { background: var(--card-2); color: var(--ink); }
 .rail {
   grid-area: rail;
   border-right: 1px solid var(--rule);

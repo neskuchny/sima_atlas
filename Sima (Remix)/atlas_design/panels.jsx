@@ -2,8 +2,15 @@
 const { useState: useState2, useEffect: useEffect2, useMemo: useMemo2 } = React;
 
 /* ====================== LEFT RAIL ====================== */
-function ContextRail({ data, onClose, onUpdateField }) {
+function ContextRail({ data, onClose, onUpdateField, onOpenDocs }) {
   const p = data.product;
+  // R-7.31 — editOnClick: single-click активирует edit (раньше нужен был
+  // double-click, оператор не догадывался). Для structured данных
+  // (KPI / Условия / стек) — кнопка ✎ ведёт в 📖 Доки (там лежит
+  // первичный источник: project.md / tech_stack.md).
+  const editPencil = (label) => onOpenDocs ? (
+    <button className="rail-edit" onClick={(e) => { e.stopPropagation(); onOpenDocs(); }} title={`Редактировать ${label} в 📖 Доки`}>✎</button>
+  ) : null;
   return (
     <aside className="rail">
       {onClose && <button className="rail-collapse" onClick={onClose} title="Свернуть">◀</button>}
@@ -11,39 +18,40 @@ function ContextRail({ data, onClose, onUpdateField }) {
       <div className="product-card">
         <div className="codename">{p.codename}</div>
         <div className="name serif">
-          {onUpdateField ? <EditableText value={p.title} onChange={(v) => onUpdateField('title', v)} /> : p.title}
+          {onUpdateField ? <EditableText editOnClick value={p.title} onChange={(v) => onUpdateField('title', v)} /> : p.title}
         </div>
         <div className="sub">
-          {onUpdateField ? <EditableText value={p.subtitle} onChange={(v) => onUpdateField('subtitle', v)} multiline /> : p.subtitle}
+          {onUpdateField ? <EditableText editOnClick value={p.subtitle} onChange={(v) => onUpdateField('subtitle', v)} multiline /> : p.subtitle}
         </div>
       </div>
 
       <div className="field italic">
         <div className="lbl">Цель <span className="tag">@goal</span></div>
         <div className="val">
-          {onUpdateField ? <EditableText value={p.goal} onChange={(v) => onUpdateField('goal', v)} multiline /> : p.goal}
+          {onUpdateField ? <EditableText editOnClick value={p.goal} onChange={(v) => onUpdateField('goal', v)} multiline /> : p.goal}
         </div>
       </div>
 
       <div className="field italic">
         <div className="lbl">Миссия <span className="tag">@mission</span></div>
         <div className="val">
-          {onUpdateField ? <EditableText value={p.mission} onChange={(v) => onUpdateField('mission', v)} multiline /> : p.mission}
+          {onUpdateField ? <EditableText editOnClick value={p.mission} onChange={(v) => onUpdateField('mission', v)} multiline /> : p.mission}
         </div>
       </div>
 
       <div className="field">
-        <div className="lbl">Качество / KPI <span className="tag">@quality</span></div>
+        <div className="lbl">Качество / KPI <span className="tag">@quality</span>{editPencil('KPI (project.md)')}</div>
         {p.quality.map(q => (
           <div key={q.code} className="kpi-row">
             <span className="code">{q.code}</span>
             <span className="lbl2">{q.label}</span>
           </div>
         ))}
+        {!p.quality.length && <div className="meta" style={{ fontSize: 11.5, color: 'var(--ink-4)' }}>Заполни в 📖 Доки → project.md</div>}
       </div>
 
       <div className="field">
-        <div className="lbl">Условия / стек <span className="tag">@conditions</span></div>
+        <div className="lbl">Условия / стек <span className="tag">@conditions</span>{editPencil('стек (tech_stack.md)')}</div>
         <div style={{ marginBottom: 8 }}>
           <div style={{ fontSize: 10.5, color: 'var(--ink-4)', marginBottom: 4, letterSpacing: '0.06em' }}>BACKEND</div>
           <div className="chips">{p.conditions.backend.map(x => <span key={x} className="chip">{x}</span>)}</div>

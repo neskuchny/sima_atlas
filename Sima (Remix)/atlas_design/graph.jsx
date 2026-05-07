@@ -538,10 +538,11 @@ function StickyNote({ note, onUpdate, onDelete }) {
   );
 }
 
-function EditableText({ value, onChange, placeholder, multiline, className, style, stopPropagation, autoStart }) {
-  // R-7.30 — autoStart=true: компонент сразу в режиме editing после
-  // монтирования (нужно для edge-label, который уже открыли через
-  // setEditingEdge — двойной клик дополнительно не нужен).
+function EditableText({ value, onChange, placeholder, multiline, className, style, stopPropagation, autoStart, editOnClick }) {
+  // R-7.30 — autoStart=true: компонент сразу в режиме editing.
+  // R-7.31 — editOnClick=true: одиночный клик активирует edit (вместо
+  // двойного). Для контекст-rail полей (title/subtitle/goal/mission)
+  // пользователю было непонятно, что нужен double-click.
   const [editing, setEditing] = useState(!!autoStart);
   const [tmp, setTmp] = useState(value);
   useEffect(() => { setTmp(value); }, [value]);
@@ -560,7 +561,18 @@ function EditableText({ value, onChange, placeholder, multiline, className, styl
       <input ref={ref} value={tmp} onChange={e => setTmp(e.target.value)} onBlur={onBlur} onKeyDown={onKey} onClick={e => e.stopPropagation()} className={className} style={{...style, fontFamily: 'inherit', fontSize: 'inherit', color: 'inherit', background: 'transparent', border: 0, outline: 'none', width: '100%', padding: 0 }} />
     );
   }
-  return <span className={className} style={{...style, cursor: 'text' }} onDoubleClick={(e) => { if (stopPropagation) e.stopPropagation(); setEditing(true); }}>{value || <span style={{ color: 'var(--ink-4)', fontStyle: 'italic' }}>{placeholder}</span>}</span>;
+  const startEdit = (e) => { if (stopPropagation) e.stopPropagation(); setEditing(true); };
+  const handlers = editOnClick ? { onClick: startEdit } : { onDoubleClick: startEdit };
+  return (
+    <span
+      className={`${className || ''} editable-hint`}
+      style={{...style, cursor: 'text' }}
+      title={editOnClick ? 'Клик — редактировать' : 'Двойной клик — редактировать'}
+      {...handlers}
+    >
+      {value || <span style={{ color: 'var(--ink-4)', fontStyle: 'italic' }}>{placeholder}</span>}
+    </span>
+  );
 }
 
 function statusLabel(s) {
