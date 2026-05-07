@@ -662,3 +662,139 @@ To not confuse the reader, here's the layout:
 They work together: Sima Atlas tells the agent **what** to do (the block contract); Sima Core tells it **how** to think about the work (principles, episodic memory, decision lineage). If we ever open Sima Core, both tools will close two sides of one problem: the external product contract (Atlas) + the agent's internal discipline (Core). For now, you have Atlas, and that's enough to genuinely change how you work with Cursor / Claude Code / Codex.
 
 ---
+
+## Part 8. What we are NOT
+
+To avoid disappointments:
+
+- **NOT an IDE replacement.** Sima Atlas works on top of Claude Code / Cursor / VS Code — as a control plane, not as an editor.
+- **NOT no-code.** Code gets written as usual, just smarter. The graph is a **contract layer**, not an implementation layer.
+- **NOT an ML startup.** We're AI tooling, agnostic to the model. Today Claude, tomorrow Gemini — without a rewrite.
+- **NOT ProductBoard / Linear.** We're about code and architecture, not tasks and sprints. Our "board" is a canvas of blocks where status = state of the implementation, not "due Friday."
+- **NOT a review replacement.** The acceptance loop is a layer of automatic checks; human review isn't going anywhere — it just has something solid to lean on.
+
+---
+
+## Part 9. What already works
+
+As of publication (May 2026), Sima Atlas is:
+
+| Block | Status | What it does |
+|-------|--------|--------------|
+| `b.core-sync`             | done | contract consistency, drift detection, validator passes |
+| `b.db`                    | done | `atlas/` as a file-based DB with migrations |
+| `b.llm-gateway`           | done | provider cascade (anthropic/google/claude_cli/mock), trace, schema-retry |
+| `b.acceptance-verifier-loop` | done | parsing acceptance.md, 5 evidence kinds, llm-judge fallback |
+| `b.operator-profile-learner` | done | archetype, lessons, dont_use, always_use, patterns |
+| `b.agent-orchestrator`    | done | per-block agent invocations, run_state tracking, stalled detection |
+| `b.docs`                  | done | WIKI.md, wiki.html, auto_tz.md, roadmap.md auto-generation |
+| `b.user-docs-generator`   | done | end-user tutorials from JSX introspection |
+| `b.ui-control`            | done | visual canvas, composer, proposals panel |
+| `b.smoke-sandbox`         | done | end-to-end smoke test for regression |
+
+Every block has:
+- a green acceptance verifier (10/10 in the latest `nightly_consolidation`);
+- a selftest in nightly;
+- a `code_summary` of up to 30 lines;
+- a `decisions.log` with the choice history.
+
+`verify_all` is the single command you need before a commit. It covers: `nightly_consolidation` (68 checks), acceptance verdicts, cursor hooks, MCP smoke, Playwright screenshots. Observed wall-clock time ~150 seconds (depends entirely on hardware and whether you have an LLM key; nightly with `ATLAS_FORCE_MOCK_LLM=1` is deterministic and cheap).
+
+---
+
+## Part 10. Roadmap
+
+This is a living roadmap — adjusted after each phase. Markers: ✅ done, 🟡 partial / in progress, ⬜ planned.
+
+**Done (October 2025 – May 2026):**
+- **B–H** — foundation: graph + blocks + slot validators + UI canvas + LLM gateway + auto-WIKI/auto-spec.
+- **I–O** — operator profile, dont_use bans, acceptance verifier loop, MCP integration with Claude Code/Cursor/Codex.
+- **P-1..P-3** — per-block Playwright screenshots, cursor-hook drift validation, demo client.
+- **Q-1..Q-4** — closing architectural gaps (drift detection, parity matrix).
+- **R-1** — `claude_cli` provider (zero-cost via Claude.ai subscription) ✅
+- **R-2** — `sima_fill_from_chat` orchestrator (one button: "take this transcript and fill the schema") ✅
+- **R-3** — chat watcher daemon (periodically pulls fresh turns from `~/.claude/projects/`) ✅
+- **R-4** — multi-tenant proposals routing (fix for the "160 identical proposals in a fresh project" bug) ✅
+- **R-5** — soft lifecycle gates + design-payload protected from 500 on empty client + defensive UI ✅
+
+**In progress (Q3 2026):**
+- **S-1** 🟡 — block templates marketplace: baseline contract templates (auth, payments, search, ingestion) with ready-made KPIs and acceptance.
+- **S-2** ❌ wontfix — hard lifecycle gates. Originally on the roadmap, now decided canonically: hard mode **is not happening** (see Appendix B.2). Gates remain soft with explicit hints visible everywhere in the UI. Hard-blocking status transitions is an anti-feature for the design phase.
+- **S-3** ⬜ — runtime cursor-hook drift-guard: block commands that violate `dont_use` at execution time.
+- **S-4** ⬜ — context-pack profiles: instead of one pack per block — different profiles per task type (design / backend-fix / ui-fix / acceptance-only). Selective neighbour traversal: each profile decides which neighbours to read fully, which partially, which to skip. Goal: **context precision**, size becomes a derivative.
+- **S-5** ⬜ — marketing-narrative skill: a second LLM pass over auto-WIKI + `product/positioning.md` (a new file the operator fills out once: what we sell, to whom, how we differ). Output: three landing-copy variants, a deck, a "why us" piece. Closes the gap between "structurally accurate auto-docs" and "production-ready marketing material." See Appendix B.5.
+- **S-6** ⬜ — architecture-decisions skeleton: a new project-level artifact `atlas/architecture_decisions.md` where the operator records agreements not derivable from acceptance (sync vs. async calls, queueing, caching strategy, error handling). Embedded into every block's context-pack; functions as the "architectural voice of the project." See Appendix B.6.
+- **S-7** ⬜ — transactional change-sets: an atomic multi-block change for cross-cutting modifications (REST→GraphQL, capability rename, DB migration). Commit metadata explicitly lists `affected_blocks: [...]`; the acceptance loop runs over each; the UI canvas shows "these 5 blocks are touched by transaction T" and the state of each. See Appendix B.4.
+- **S-8** ⬜ — drift auto-mark: when `validate_dependency_contracts.mjs` catches broken capability bindings, automatically set `status: desync` + reason on dependents in `graph.json` (currently it just fails CI). Makes drift visible on the canvas without manually re-reading CI logs.
+
+**Mid-term (Q4 2026):**
+- **T-1** ⬜ — multi-operator collaboration + full client isolation: CRDT-merging contract files; nightly respects client scope.
+- **U-1** ⬜ — local models as first-class providers: Ollama / vLLM / LM Studio adapters in the LLM gateway, eval against Llama 3.3 70B / Qwen Coder 32B / DeepSeek V3.
+- **U-2** ⬜ — `Sima Shell`: a lightweight MCP client shell optimised for local models; cheap moves on small models, complex moves on large ones.
+- **U-3** ⬜ — Continue / Aider / Zed-AI MCP integration parity.
+
+**Long-term (2027+):**
+- **V-1** ⬜ — agent-loop daemon: overnight autonomous mode, in which the agent picks `todo` blocks, codes, runs acceptance, marks success/rollback. Works in steady state: no architectural pivots, watched by `verify_done_blocks_still_green` + V-3.
+- **V-2** ⬜ — one-click deployment: block → docker → cloud, with bound acceptance running in production.
+- **V-3** ⬜ — production-monitor: a dedicated observer block that catches unknown-unknowns (production bugs, metric anomalies) and lifts them back into the graph as new acceptance assertions on the affected blocks. Closes autonomy's blind spot — what the operator didn't think to specify but production saw. See Appendix B.6.
+- **W-1** ⬜ — cross-project pattern transfer: lessons from one project (via `lessons.json`) enrich others; opt-in "community experience."
+- **W-2** ⬜ — batch mode: an agency-style operator manages 10 projects in parallel, each with its own `atlas/` under one dashboard.
+- **W-3** ⬜ — community archetypes: shared operator profiles (vibe-coding novice / mid-stage startup / enterprise) as a starting point for cross-product memory. Closes the cold-start of the operator's first project. See Appendix B.6.
+
+**Parallel development inside Tessent:**
+- **X-Core** 🟡 — `Sima Core`: runtime stack of memory, principles, and episodes for AI agents; developed inside our main product Tessent. May become open-source in the future (see Part 7.3).
+
+---
+
+## Part 11. How to join
+
+Open source, MIT. Repo: <https://github.com/neskuchny/sima_atlas>.
+
+Quickstart:
+
+```bash
+git clone https://github.com/neskuchny/sima_atlas
+cd sima_atlas
+npm install
+npm run dev          # API + UI on http://localhost:8000/atlas_design/
+```
+
+If you have a Claude.ai (Pro/Max) subscription, install the Claude CLI and Sima will automatically use your subscription — no API key required.
+
+**Connecting to AI tools.** A `.mcp.json` lives at the root of the repo — Claude Code picks it up automatically when you open a session in this directory. For Cursor / Codex / Continue / Zed / Windsurf / Antigravity and others — see ready-made config blocks in [`docs/integrations.md`](integrations.md). If your tool doesn't support MCP, the same doc has the CLI fallback (calling Sima through bash) and the HTTP API description.
+
+**What we need from the community — concrete invitations:**
+
+Below is a list of specific tasks where your help would matter immediately. We're available for code review, API design, and mentorship on each.
+
+1. **Native MCP clients** — for Codex, Continue, Aider, Zed-AI. The API contract is stable; porting takes ~200 lines, and you instantly get the full Sima toolset inside your IDE.
+2. **Local providers in the LLM gateway** — Ollama, vLLM, LM Studio (see **U-1** in roadmap). This is what makes Sima genuinely zero-cost for enthusiasts with decent hardware.
+3. **`Sima Shell` MVP** — a lightweight chat shell with a local model (see **U-2**). Open architecture discussion in `discussions/u2-shell`.
+4. **Block templates** — auth, payments, search, ingestion, notifications, billing, analytics: each with its own mission/kpi/acceptance/depends_on/provides. There'll be a marketplace inside the UI; the first templates are the first showcase.
+5. **Evidence collectors** — extend the five built-in types with your own: HTTP status, JSON-shape match, snapshot diff, type coverage, Lighthouse score. Any deterministic collector increases acceptance-loop coverage.
+6. **UI translations** — currently Russian + English. Ukrainian, Kazakh, Chinese, Spanish — and any other you'd like — needed.
+7. **IDE adapters** — VS Code extension, JetBrains plugin, so the canvas lives in a side panel next to your code.
+8. **Hard lifecycle gates** (**S-2**) — turn the soft validator into a gate that actually blocks invalid status transitions. A useful entry-level contribution: all the logic is already in `validate_lifecycle_gates.mjs`; what's left is to wire it into `atlas_blocks_api.mjs`.
+9. **CRDT for contract files** (**T-1**) — we want two operators to be able to edit `mission.md` simultaneously without conflicts. Yjs / Automerge — both options on the table.
+10. **Documentation and video tutorials** — we love text, but a screencast of "how Sima catches an agent that wrote a hard-coded if instead of an LLM call" would be content we don't yet have.
+
+If you're working on something nearby — open an issue or an RFC in `discussions/`. We try to respond within 48 hours and welcome even raw drafts of ideas.
+
+**Who this is most useful for right now:**
+
+- **Solo founder-developers** taking a product from MVP to production alone or in a tiny team.
+- **AI researchers** who'd like a dataset of real contract-oriented agent dialogues (`atlas/llm_traces/`).
+- **Teams inside corporations** looking for a way to apply vibe coding without losing quality.
+- **Authors of other AI tools** — we're open to integrations; the MCP protocol is bidirectional.
+
+We believe the direction **"everything moves to visual interfaces and contract graphs"** is the next stage of development, and we want to get there together with the community, not alone.
+
+---
+
+## Conclusion
+
+73% of tokens leaked is not a Claude Code problem. It's a symptom of using AI agents like Word instead of like engineering tools. Give the agent a contract — and most of the unnecessary spend disappears on its own. Give it an acceptance loop — and most of the hallucinations stop reaching production. Give it a connection graph — and the product stops being a graveyard of forty unconnected files.
+
+Sima Atlas is not a silver bullet. It's a **set of engineering disciplines** packaged into a tool: contract first, graph knows the connections, acceptance is automatic, memory is typed, **context is per-task — not "small," but precise**. Each principle works on its own — we just connected them into a single open-source product and put them next to a canvas interface where the architecture of the product looks like a picture, not like Excel.
+
+Sima Atlas is the open-source incarnation of the Sima idea, which was born inside our main product Tessent (Synlabs). We're publishing it **for the concept**: the market needs a working prototype of what AI development should, in our opinion, look like — independent of who eventually implements it. Sima itself may stay inside Tessent, may go open-source later; the runtime layer Sima Core lives there for now. Atlas is the part we're ready to give right away.
