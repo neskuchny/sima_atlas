@@ -130,22 +130,39 @@ function pickProvider(requested) {
   if (requested && !PROVIDERS[requested]) {
     console.warn(`[llm-gateway] unknown provider "${requested}" (allowed: ${Object.keys(PROVIDERS).join(', ')}); ignoring`);
   }
-  // Phase R-1: claude_cli sits between paid APIs and mock — if a user
-  // has Anthropic/Google keys, those take priority; otherwise prefer the
-  // local CLI (uses the user's subscription) over mock.
-  const order = ['anthropic', 'google', 'claude_cli', 'mock'];
+  // Phase R-7: subscription-first cascade. Главный use-case Sima — у
+  // оператора есть Claude.ai Pro/Max подписка, и он хочет тратить **её**,
+  // не отдельный API-ключ. Поэтому если `claude` CLI установлен (значит
+  // подписка активна) — он берётся первым, до anthropic/google ключей.
+  // Кому нужен старый порядок (API-key first, для скорости / параллельности):
+  // `LLM_PREFER_CLI=0` или явный `LLM_DEFAULT_PROVIDER=anthropic`.
+  const preferCli = process.env.LLM_PREFER_CLI !== '0';
+  const order = preferCli
+    ? ['claude_cli', 'anthropic', 'google', 'mock']
+    : ['anthropic', 'google', 'claude_cli', 'mock'];
   const dfltRaw = process.env.LLM_DEFAULT_PROVIDER;
   const dflt = typeof dfltRaw === 'string' ? dfltRaw.trim() : dfltRaw;
   if (dflt) {
     if (!PROVIDERS[dflt]) {
       console.warn(`[llm-gateway] LLM_DEFAULT_PROVIDER="${dfltRaw}" is not one of ${Object.keys(PROVIDERS).join(', ')}; check your .env (do not put inline comments without a # at column 0).`);
     } else if (PROVIDERS[dflt].available()) {
+      console.log(`[llm-gateway] using provider=${dflt} (explicit LLM_DEFAULT_PROVIDER)`);
       return dflt;
     } else {
       console.warn(`[llm-gateway] LLM_DEFAULT_PROVIDER=${dflt} but its API key env var is empty; will fall back according to availability order.`);
     }
   }
-  for (const p of order) if (PROVIDERS[p].available()) return p;
+  for (const p of order) {
+    if (PROVIDERS[p].available()) {
+      const reason = p === 'claude_cli' ? 'subscription via claude CLI' :
+                     p === 'anthropic'  ? 'ANTHROPIC_API_KEY' :
+                     p === 'google'     ? 'GOOGLE_API_KEY' :
+                     p === 'mock'       ? 'no provider available — fallback to deterministic mock' :
+                                          'available';
+      console.log(`[llm-gateway] using provider=${p} (${reason})`);
+      return p;
+    }
+  }
   return 'mock';
 }
 
