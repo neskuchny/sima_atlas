@@ -411,10 +411,18 @@ async function callClaudeCli({ system, prompt, schema, max_tokens, temperature }
   }
 
   const stdout = await new Promise((resolve, reject) => {
+    // Phase R-7.12 — pass prompt as positional CLI arg, not via stdin.
+    // Background: на Windows headless `echo "..." | claude --print` падал с
+    // «Not logged in» даже когда interactive `claude` показывал «Welcome
+    // back, ... · Claude Max» (auth-сессии у CLI разделены между tty и
+    // pipe режимами). Передача промпта аргументом обходит этот разрыв
+    // и совпадает со standard documented Claude Code CLI usage.
+    //
+    // Trade-off: cmd-line на Windows ограничен ~8K символов. Если
+    // fullPrompt больше — fall back на stdin (там длина не лимитирована).
     const args = ['--print', '--output-format', 'json'];
-    // Phase R-4: reuse the binary name that available() resolved (claude.cmd
-    // on Windows, plain `claude` elsewhere). Without this, the available
-    // check would pass but the actual call would fail on Windows.
+    const useArg = fullPrompt.length < 7000;
+    if (useArg) args.push(fullPrompt);
     const bin = PROVIDERS.claude_cli._bin || 'claude';
     const child = spawn(bin, args, { stdio: ['pipe', 'pipe', 'pipe'], timeout: 120_000, shell: process.platform === 'win32' });
     let out = '', err = '';
@@ -423,9 +431,21 @@ async function callClaudeCli({ system, prompt, schema, max_tokens, temperature }
     child.on('error', (e) => reject(new Error(`claude spawn failed: ${e.message}`)));
     child.on('close', (code) => {
       if (code === 0) resolve(out);
-      else reject(new Error(`claude --print exit ${code}: ${err.slice(-400)}`));
+      else {
+        // Phase R-7.12 — раньше показывали ТОЛЬКО stderr, который для
+        // claude --print часто пустой (CLI пишет ошибки в stdout, типа
+        // «Not logged in · Please run /login»). Из-за этого error вообще
+        // не было в логах Sima — оператор гадал. Теперь показываем
+        // оба канала.
+        const errMsg = (err || '').trim();
+        const outMsg = (out || '').trim();
+        const combined = [errMsg, outMsg].filter(Boolean).join(' | ').slice(-400);
+        reject(new Error(`claude --print exit ${code}: ${combined || '(silent)'}`));
+      }
     });
-    child.stdin.write(fullPrompt);
+    if (!useArg) {
+      child.stdin.write(fullPrompt);
+    }
     child.stdin.end();
   });
 

@@ -191,6 +191,37 @@ function DetailPanel({ data, modules: liveModules, moduleId, onClose, desyncReso
 
 function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSubsystem, onOpenTz, onClaudeAdvice }) {
   const desc = MODULE_DESC[m.id] || {};
+  // Phase R-7.12 — для НОВЫХ блоков (не из захардкоженного MODULE_DESC)
+  // подгружаем реальный mission.md из контракта. Без этого «Обзор» tab
+  // показывал плейсхолдер «Описание модуля будет дополнено...» даже после
+  // того как оператор сохранил миссию через ✎ Руками — операор справедливо
+  // жаловался «всё пропадает».
+  const [missionText, setMissionText] = useState2('');
+  const [missionLoaded, setMissionLoaded] = useState2(false);
+  useEffect2(() => {
+    setMissionLoaded(false);
+    if (!m.id || !m.id.startsWith('b.')) { setMissionText(''); setMissionLoaded(true); return; }
+    let cancelled = false;
+    (async () => {
+      try {
+        const r = await window.SIMA_API?.meta?.blockFile(m.id, 'mission.md');
+        if (cancelled) return;
+        const raw = r?.ok ? String(r.content || '') : '';
+        // Strip the auto-heading (`# <id> — mission`) and trailing layer block
+        const body = raw.replace(/^#[^\n]*\n+/, '').replace(/\n+##\s+Layer[\s\S]*$/i, '').trim();
+        setMissionText(body);
+      } catch {}
+      if (!cancelled) setMissionLoaded(true);
+    })();
+    return () => { cancelled = true; };
+  }, [m.id]);
+  // Resolution priority for «Зачем»:
+  //   1. live mission.md (operator wrote / agent filled it on disk)
+  //   2. hardcoded MODULE_DESC fallback (legacy demo blocks)
+  //   3. placeholder
+  const isPlaceholderText = (s) => !s || /Заполни через детальную панель|добавь конкретную метрику/i.test(s);
+  const liveMission = !isPlaceholderText(missionText) ? missionText : '';
+  const whyText = liveMission || desc.why || (missionLoaded ? 'Описание модуля будет дополнено во время работы с агентом. Откройте таб «Контракт» и нажмите ✎ Руками рядом с mission.md, чтобы заполнить.' : 'Загрузка…');
   return (
     <>
       {hasSubsystem && (
@@ -210,7 +241,7 @@ function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSu
         </div>
       )}
       <h3>Зачем</h3>
-      <p className="lede">{desc.why || 'Описание модуля будет дополнено во время работы с агентом.'}</p>
+      <p className="lede" style={{ whiteSpace: 'pre-wrap' }}>{whyText}</p>
 
       <h3>Логика</h3>
       <p>{desc.logic}</p>
