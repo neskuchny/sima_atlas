@@ -798,3 +798,119 @@ We believe the direction **"everything moves to visual interfaces and contract g
 Sima Atlas is not a silver bullet. It's a **set of engineering disciplines** packaged into a tool: contract first, graph knows the connections, acceptance is automatic, memory is typed, **context is per-task — not "small," but precise**. Each principle works on its own — we just connected them into a single open-source product and put them next to a canvas interface where the architecture of the product looks like a picture, not like Excel.
 
 Sima Atlas is the open-source incarnation of the Sima idea, which was born inside our main product Tessent (Synlabs). We're publishing it **for the concept**: the market needs a working prototype of what AI development should, in our opinion, look like — independent of who eventually implements it. Sima itself may stay inside Tessent, may go open-source later; the runtime layer Sima Core lives there for now. Atlas is the part we're ready to give right away.
+
+If you share our principles — you'll get **visual, cheap, accurate AI development** without the need to keep everything in your head. If you don't — you'll keep arguing "AI coding is the future vs. AI coding is garbage," which doesn't get resolved by Twitter arguments but by architecture.
+
+The invitation is open.
+
+---
+
+## Appendix A. Honest self-audit (what actually works vs. what's on the roadmap)
+
+In open source it's customary to honestly separate the implemented from the aspirational. Below is an independent audit of the article's claims against the code (run on 2026-05-06, Sima v0.x):
+
+| # | Article claim | Status |
+|---|---|---|
+| 1 | 12-file block contract | 🟡 5 files required (`mission/kpi/acceptance/tasks/checks.log`); the other 7 are seeded by the template but not enforced |
+| 2 | Capability matching (`depends_on/provides`) with drift detection | ✅ for CI (the validator fails on broken bindings); 🟡 auto-marking dependents with `status: desync` is in S-8 |
+| 3 | 5 evidence_kinds + llm_judge | ✅ fully |
+| 4 | Verdict tri-state (`pass/fail/inconclusive`) | ✅ fully |
+| 5 | Operator profile typed memory | 🟡 `profile.json + history + patterns + templates` on disk; `lessons/dont_use/always_use` exposed via MCP, not as separate top-level files |
+| 6 | Compact context-pack | ✅ pack reports its own `_meta.estimated_tokens` and warns when over-sized; typical pack is 3–12K tokens; the first version of the article had an erroneous "1-2K" target, restated as "context precise per task," see S-4 |
+| 7 | LLM gateway 4-cascade | ✅ fully |
+| 8 | Claude CLI without an API key | ✅ fully |
+| 9 | MCP with 40+ tools | ✅ actually 65 |
+| 10 | `sima_fill_from_chat` | ✅ fully |
+| 11 | `sima_watch_chats` daemon | ✅ fully |
+| 12 | Multi-tenant `atlas/clients/<id>/` | 🟡 graphs/proposals partitioned; nightly and some validators are still global |
+| 13 | Auto WIKI / auto_tz / roadmap | ✅ fully |
+| 14 | User-docs from JSX introspection | ✅ fully |
+| 15 | Hard lifecycle gates | 🟡 soft-enforced (R-5): `validate_lifecycle_gates.mjs` runs in nightly and reports violations; hard blocking is in S-2 |
+| 16 | `verify_all` ~150 seconds | 🟡 observed, not guaranteed |
+| 17 | 10 blocks all green | ✅ fully (`intelligence_health.json`) |
+| 18 | Cursor hook drift-guard blocks runtime | 🟡 currently post-hoc validation; runtime block is on the roadmap (S-3) |
+| 19 | `verify_done_blocks_still_green` | ✅ fully |
+| 20 | nightly with ~50 validators | ✅ actually 67 |
+
+**After the R-5 fixes:** 9 ✅ fully, 11 🟡 partial or with caveats, 0 ❌ aspirational. Lifecycle gates were the headline shift of this phase (was ❌, became 🟡 with soft enforcement in nightly). The open-source code lets anyone re-check this — every mentioned file and its acceptance verdicts live in the repo. If you find a divergence between the article and the reality — issue / PR welcome.
+
+---
+
+## Appendix B. Where this breaks logically
+
+Beyond the claims we fixed in R-5, there's a set of promises that **in their full form aren't deliverable** — not because we slacked but because they have internal contradictions. The earlier we say so, the less the reader feels misled later.
+
+**1. A hard cap on context-pack size is an anti-pattern, not a goal.** Earlier we declared "1–2K tokens" as a goal and the first version of the article called it "unreachable." That was a bad framing: the right goal is **context precise per task**, not "small." Five `depends_on` neighbours can be wholly necessary (the design phase of a new block) or completely unneeded (a narrow UI-binding fix). Cutting a neighbour's mission to "fit into 2K" is a guaranteed path to rework, and rework eats 2–4× of what you "saved." So we'll optimise the pack going forward **not by size** but by relevance: which neighbours are needed for the current task type, which can be skipped entirely, which read partially. The final size becomes a derivative variable, not a target. See S-4 "context-pack profiles" in the roadmap.
+
+**2. Gates — soft with explicit hints; hard mode is not happening.** This is locked in as canon. If every `idea → todo` transition required a mission ≥ 80 chars and ≥ 1 acceptance — the operator stops drafting (you scribbled ten ideas at 3 AM, you want to sort them in the morning, but every transition requires an 80-character form). That breaks the very speed of iteration the tool exists for.
+
+Canon: **gates remain soft, but hints about what's missing must be visible everywhere**. On the canvas — a dot indicator with a tooltip "missing: mission, kpi". In DetailPanel — an explicit hint line in the header: "to advance status — fill: mission · kpi (3/5)". In the CLI — `validate_lifecycle_gates --json` returns per-block `fails: ["mission too short", "no KPI bullets"]`. The operator decides whether to push forward. A hard-blocking version of gates is **not planned** — it would be an anti-feature for the design stage.
+
+**3. Multi-tenant runs in hybrid mode — this is canon.** Locked in as final policy. Full client isolation kills experience transfer: if the operator figured out "never put keys in env, always in secret-store" on project A, they shouldn't trip over it again in project B. A fully shared profile is the other extreme: projects A and B mix, breaking data isolation.
+
+Canon **hybrid**:
+
+- `graphs/blocks/proposals` — **per-tenant** (product data isolation; project A doesn't see B's blocks);
+- `operator_profile` (lessons / dont_use / always_use / archetype) — **per-operator** (shared across all that person's projects);
+- `llm_traces` — per-tenant with a global aggregate for cost-tracking on top.
+
+Implementation in T-1 (roadmap). Currently in code, `operator_profile` lives at the root atlas, which is de-facto = shared-with-everyone — works for one operator + N projects; will become a problem when several operators share a Sima. T-1 will draw that boundary explicitly.
+
+**4. "One agent — one block" in strict form vs. cross-cutting changes — this is not a contradiction; it's where Sima is strongest.**
+
+In the first version I wrote that cross-cutting changes (e.g. renaming capability `session-token` → `auth-jwt` across five blocks; or migrating REST → GraphQL) "violate" the "one block at a time" rule. In fact it's the exact opposite: **the contract graph is what makes these pivots possible for an AI agent**.
+
+Without Sima, an agent in Cursor / Claude Code on a long product gets lost on a "REST → GraphQL" pivot: the context is choked with files, half the connections are lost in summarisation, some modules get touched, others get missed, and in some it doesn't realise they're connected through the same endpoint. With the graph it:
+
+- finds all blocks whose `provides` mentions a REST endpoint;
+- sees who refers to those capabilities through `depends_on`;
+- walks the list, changes what's needed in each (adapter / full replacement / leave with an adapter block);
+- runs the acceptance loop over the affected blocks and sees where it broke.
+
+This isn't a "violation of singular discipline," it's a **transaction in the graph**: one intent, an explicitly-listed set of affected blocks in the commit metadata (`affected_blocks: [b.api, b.user-fetcher, ...]`), acceptance run over each.
+
+So the proper rule is "**one logical change-set — one transaction**," and the transaction can affect N blocks if the connection graph requires it. Cross-cutting isn't a challenge to the architecture, it's its core. Roadmap task **S-7 transactional change-sets** formalises this in code.
+
+**5. Auto-documentation: what really works, what needs a second pass, and where the real ceiling is.**
+
+In the first version of the article I wrote "auto-docs ≠ marketing" as a fundamental constraint. That was inaccurate. More honestly:
+
+- **Technically accurate structural docs** are produced fully automatically: WIKI, spec, function index, roadmap. This works today (`b.docs`, `b.user-docs-generator`).
+- **User-facing tutorials** ("click here to do X") are produced automatically from "block mission + JSX UI introspection." This works today, validated in `b.user-docs-generator`. The tutorial speaks the user's language, not the developer's.
+- **Marketing storylines** (landing page, deck, "why us" piece) are produced by a **second LLM pass** over the structural docs. A skill of "take WIKI + product.md + decision history → draft three positioning options" is absolutely realistic, and that's a new roadmap item (**S-5 marketing-narrative skill**, see the Roadmap).
+
+Where the **real** constraints are, that a second LLM pass doesn't close:
+
+- **Output quality is bounded by input quality.** If a block's mission is "notification service" in one line, no second pass will draw "the product that solves pain X in segment Y because Z." The fix: an explicit `product/positioning.md` file (what we sell, to whom, how we differ), filled out once by the operator; the narrative skill uses it as scaffolding.
+- **Emotional resonance and anecdotes.** Customer cases, quotes, the founder's personal story aren't in the code. That's always by hand. But it's not specific to Sima — it's a general property of any auto-generator.
+- **Brand voice consistency.** If a brand has an established voice ("friendly techie, no emoji"), few-shot examples are needed. By hand, once.
+- **Freshness and publication control.** Auto-docs update on every commit; marketing collateral usually freezes per campaign. That's a workflow issue, not a design constraint.
+
+So: "auto-docs cover all documentation, including marketing" is **achievable** through a pass chain (structure → narrative); the ceiling is not in Sima, it's in input quality (mission, positioning) and in purely-human stuff (anecdotes, voice). It's not an architectural limit — it's a specific roadmap item.
+
+**6. Autonomy is a realistic goal. Its operating costs are modest, and each is closed by a specific roadmap task.**
+
+In the first version I wrote "autonomy requires strict acceptance" as a fundamental constraint, then "four obstacles." On reflection these aren't **obstacles** but **operating costs**, and each is closed by a specific Sima feature.
+
+For clarity — what we mean by "autonomous programming": the operator describes the product and its modules in detail; the system writes the code, runs acceptance, moves to the next module; eventually the operator deploys, watches production, and feeds discovered bugs back into the system. This is **iterative autonomy with a production loop**, not "perfect code that never breaks" (which doesn't exist even with professional teams).
+
+Under that definition autonomy is reachable. Operating costs:
+
+- **Spec quality is a skill.** "Describe the product" is non-trivial work: clear missions, precise acceptance, proper positioning. Vibe-coders are often strong in "feel for what's right" but not in crisp documentation. Sima helps: composer, `sima_fill_from_chat` (the agent extracts structure from a transcript), MCP tools for agents. Not zero operator effort, but not "write the code yourself" either.
+
+- **Cost of attention on judgement-calls.** When the system frames a choice in operationally understandable terms ("for case X latency Y, for Z throughput W — which matters more?"), there can be 30-50 such choices per project. Not hours, but not "press a button and walk away" either. Solved through cross-product memory (roles, archetypes, the user's past choice patterns; partly working in `b.operator-profile-learner`), letting the system NOT ask a question whose answer can be inferred from history.
+
+- **First-project ramp-up.** Cross-product memory pays off from project №2 onward. On the first project the system only has general domain familiarity. Closed by **S-1 block templates marketplace** (ready contract templates for typical blocks — auth, payments, search) and **W-3 community archetypes** (a new item: shared operator profiles — vibe-coding novice / mid-stage startup / enterprise — as a starting point for memory).
+
+- **Unknown unknowns + deployment reality.** Acceptance checks what's written; production bugs almost always come from what wasn't. Doesn't make autonomy pointless — makes it iterative. Closed by **V-3 production-monitor** (an observer for prod metrics, lifts anomalies into the graph as new acceptance) + **V-2 one-click deployment** (without which V-3 has nothing to monitor).
+
+Architectural pivots, which I previously called "human work," are actually **exactly Sima's strong suit** (see B.4): the graph makes them tractable where a regular AI agent gets lost in a choked context. Principled decisions on "where to pivot to" — yes, the human; but **the mechanical follow-through across all modules** is machine work in the literal sense.
+
+To sum up: **between classical vibe coding** ("I write something, it kind of works, we'll see later") **and autonomous programming in Sima** there are two qualitatively different regimes, and the transition between them isn't a fantasy. It's not "AGI writes your product for you," it's "the AI writes routine, the human does design and acceptance." Operating costs are small and addressable; they're **fixed in the roadmap as S-1 / S-6 / W-3 / V-2 / V-3 / S-7**, not left dangling.
+
+These six points aren't "punt to backlog and forget." They're the **boundary conditions of the design**: if you build something similar, don't promise infinite freedom where it's logically impossible. Better to acknowledge a trade-off explicitly than to promise the impossible.
+
+---
+
+*Author: Anton Kalabukhov, Synlabs. Sima Atlas is the open-source spin-off of the internal Sima idea (our main product is Tessent, see Part 7.3). License: MIT.*
+*Document version: v4 / 2026-05-06. Russian original: [`ТЗ/статья.md`](../ТЗ/статья.md).*
