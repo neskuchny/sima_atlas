@@ -1641,17 +1641,20 @@ function ContractSection({ moduleId, layer }) {
                 <span className={`contract-flag flag-${klass}`}>{symbol}</span>
                 <span className="contract-label">{label}</span>
                 <span className="mono" style={{ fontSize: 10.5, color: 'var(--ink-4)' }}>{file}</span>
-                <div className="contract-actions">
-                  {/* Phase R-7.7 — Руками доступно ВСЕГДА, без LLM. Главное действие
-                      когда LLM в demo-режиме (нет API-ключа / claude_cli не работает). */}
-                  <button className="pill" onClick={() => startManual(file)} disabled={busy} title="Открыть текстовое поле и отредактировать содержимое вручную (без LLM)">✎ Руками</button>
-                  {klass === 'empty' && (
-                    <button className="pill primary" onClick={() => startFill(file)} disabled={busy} title="Sima сгенерирует черновик через LLM">✨ Заполнить (LLM)</button>
-                  )}
-                  {klass !== 'empty' && (
-                    <button className="pill" onClick={() => startRewrite(file)} disabled={busy} title="Sima переформулирует существующий текст через LLM">✏ Переформулировать (LLM)</button>
-                  )}
-                </div>
+              </div>
+              <div className="contract-actions">
+                {/* Phase R-7.7 — Руками доступно ВСЕГДА, без LLM. Главное действие
+                    когда LLM в demo-режиме (нет API-ключа / claude_cli не работает).
+                    Phase R-7.22-vis: actions поехали из head в свой row, чтобы
+                    в узкой панели (~370px) кнопки не наезжали на label. */}
+                <button className="pill" onClick={() => startManual(file)} disabled={busy} title="Открыть текстовое поле и отредактировать содержимое вручную (без LLM)">✎ Руками</button>
+                {klass === 'empty' && (
+                  <button className="pill primary" onClick={() => startFill(file)} disabled={busy} title="Sima сгенерирует черновик через LLM">✨ Заполнить</button>
+                )}
+                {klass !== 'empty' && (
+                  <button className="pill" onClick={() => startRewrite(file)} disabled={busy} title="Sima переформулирует существующий текст через LLM">✏ Переписать</button>
+                )}
+              </div>
               </div>
               <pre className="contract-body">{content || `(${placeholder})`}</pre>
             </div>
