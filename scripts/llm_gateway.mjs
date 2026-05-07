@@ -21,6 +21,7 @@
 //   LLM_MAX_INPUT_TOKENS  — hard cap on input (default 30000)
 
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
@@ -411,25 +412,46 @@ async function callClaudeCli({ system, prompt, schema, max_tokens, temperature }
   }
 
   const stdout = await new Promise((resolve, reject) => {
-    // Phase R-7.12 — pass prompt as positional CLI arg, not via stdin.
-    // Background: на Windows headless `echo "..." | claude --print` падал с
-    // «Not logged in» даже когда interactive `claude` показывал «Welcome
-    // back, ... · Claude Max» (auth-сессии у CLI разделены между tty и
-    // pipe режимами). Передача промпта аргументом обходит этот разрыв
-    // и совпадает со standard documented Claude Code CLI usage.
-    //
-    // Trade-off: cmd-line на Windows ограничен ~8K символов. Если
-    // fullPrompt больше — fall back на stdin (там длина не лимитирована).
-    const args = ['--print', '--output-format', 'json'];
-    const useArg = fullPrompt.length < 7000;
-    if (useArg) args.push(fullPrompt);
+    // R-7.38 — на Windows многострочный prompt-arg ломается cmd.exe-обёрткой
+    // (видно по «It looks like your message ended at 'You' — did you mean
+    // to ask something specific?» в ответе claude). Решение: пишем промпт
+    // во временный файл и пайпим в claude через cmd.exe < redirect.
+    // На Linux/macOS — продолжаем pass'ить как arg (там cmd-парсинг чище).
+    const isWin = process.platform === 'win32';
     const bin = PROVIDERS.claude_cli._bin || 'claude';
-    const child = spawn(bin, args, { stdio: ['pipe', 'pipe', 'pipe'], timeout: 120_000, shell: process.platform === 'win32' });
+    let tmpFile = null;
+    let child;
+
+    if (isWin) {
+      // Phase R-7.38: temp-файл + stdin
+      tmpFile = path.join(os.tmpdir(), `sima_claude_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.txt`);
+      fs.writeFileSync(tmpFile, fullPrompt, 'utf8');
+      // Quote bin path (может содержать пробелы, e.g. C:\Program Files\...)
+      // и tmpFile тоже. cmd.exe < redirect пайпит файл в stdin.
+      const cmdStr = `"${bin}" --print --output-format json < "${tmpFile}"`;
+      child = spawn('cmd.exe', ['/c', cmdStr], {
+        stdio: ['ignore', 'pipe', 'pipe'],
+        timeout: 120_000,
+      });
+    } else {
+      // Phase R-7.12 — pass prompt as positional CLI arg на unix-like
+      // (там shell-quoting корректный, multiline OK).
+      const args = ['--print', '--output-format', 'json', fullPrompt];
+      child = spawn(bin, args, {
+        stdio: ['ignore', 'pipe', 'pipe'],
+        timeout: 120_000,
+      });
+    }
+
     let out = '', err = '';
     child.stdout.on('data', (d) => { out += d; });
     child.stderr.on('data', (d) => { err += d; });
-    child.on('error', (e) => reject(new Error(`claude spawn failed: ${e.message}`)));
+    child.on('error', (e) => {
+      if (tmpFile) { try { fs.unlinkSync(tmpFile); } catch {} }
+      reject(new Error(`claude spawn failed: ${e.message}`));
+    });
     child.on('close', (code) => {
+      if (tmpFile) { try { fs.unlinkSync(tmpFile); } catch {} }
       // Phase R-7.13 — Windows-quirk: claude --print sometimes returns
       // exit 1 even on a successful response (with valid JSON in stdout
       // containing input_tokens/output_tokens/etc.). Probably a CLI/cmd.exe
@@ -448,10 +470,6 @@ async function callClaudeCli({ system, prompt, schema, max_tokens, temperature }
       const combined = [errMsg, outTrimmed].filter(Boolean).join(' | ').slice(-400);
       reject(new Error(`claude --print exit ${code}: ${combined || '(silent)'}`));
     });
-    if (!useArg) {
-      child.stdin.write(fullPrompt);
-    }
-    child.stdin.end();
   });
 
   // Try the documented JSON-output shape first.
