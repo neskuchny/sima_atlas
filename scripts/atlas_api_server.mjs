@@ -499,7 +499,46 @@ const server = http.createServer((req, res) => {
       const data = JSON.parse(out);
       return json(res, 200, { ok: true, data });
     } catch (e) {
-      return json(res, 500, { ok: false, error: String(e.message || e), stderr: (e.stderr || '').toString().slice(0, 500) });
+      // Phase R-7.17 — design-payload скрипт никогда не должен валить
+      // UI в 500. Если внутри скрипта вылезла ошибка (broken
+      // operator_profile, corrupted subsystems json, etc.) — отдаём
+      // ПУСТОЙ payload с пометкой error в _meta, чтобы UI мог
+      // отрендерить пустой canvas и показать диагностику. Stderr пишем
+      // в API server лог + payload._meta.error.
+      const errMsg = String(e.message || e);
+      const stderrTail = (e.stderr || '').toString().slice(-500);
+      const stdoutTail = (e.stdout || '').toString().slice(-500);
+      console.error(`[design-payload] script crashed: ${errMsg}\n  stderr: ${stderrTail}\n  stdout: ${stdoutTail}`);
+      const u = new URL(req.url, `http://localhost:${port}`);
+      const clientArg = u.searchParams.get('client') || null;
+      return json(res, 200, {
+        ok: true,
+        data: {
+          product: { codename: clientArg || 'sima-atlas', title: clientArg || 'Sima Atlas', subtitle: 'Payload script crashed — empty fallback', goal: '', mission: '', quality: [], conditions: { backend: [], frontend: [], logic: [], checks: [] } },
+          modules: [],
+          edges: [],
+          tasks: {},
+          moduleDocs: {},
+          submodules: {},
+          history: [],
+          lessons: [],
+          subsystems: {},
+          agents: [
+            { id: 'claude', title: 'Claude Code', tag: 'claude-code', color: 'warm' },
+            { id: 'cursor', title: 'Cursor',       tag: 'cursor',      color: 'blue' },
+            { id: 'codex',  title: 'Codex',        tag: 'codex',       color: 'violet' },
+            { id: 'sima',   title: 'SIMA Core',    tag: 'sima-core',   color: 'ink' },
+          ],
+          lanes: [],
+          _meta: {
+            generated_at: new Date().toISOString(),
+            client_id: clientArg,
+            error: errMsg,
+            stderr_tail: stderrTail,
+            stdout_tail: stdoutTail,
+          },
+        },
+      });
     }
   }
   if (req.method === 'GET' && req.url === '/atlas/payload') {

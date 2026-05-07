@@ -98,6 +98,9 @@ function App() {
   const [pickerOpen, setPickerOpen] = useState(false);
   const currentClient = (typeof window.__SIMA_DATA_CLIENT === 'string' && window.__SIMA_DATA_CLIENT) || 'main';
   const clientMissing = !!window.__SIMA_DATA_CLIENT_MISSING || (data?._meta?.missing === true);
+  // Phase R-7.17 — payload-script crashed: surface error to operator instead
+  // of pretending everything's normal with empty canvas.
+  const payloadError = data?._meta?.error || null;
 
   const createMissingClient = async () => {
     if (!currentClient || currentClient === 'main') return;
@@ -978,7 +981,24 @@ function App() {
 
       {/* CANVAS STAGE — positioned wrapper so absolute overlays anchor to it */}
       <div className="canvas-stage">
-      {clientMissing && currentClient && currentClient !== 'main' && (data?.modules?.length ?? 0) === 0 && (
+      {/* Phase R-7.17 — payload-script крэш: явно покажем оператору что
+          именно сломалось, чтобы не думал «UI пустой непонятно почему». */}
+      {payloadError && (
+        <div className="client-missing-banner" style={{ background: 'rgba(220, 80, 80, 0.07)', borderColor: 'rgba(220, 80, 80, 0.4)' }}>
+          <div>
+            <div className="mono" style={{ fontSize: 11, color: 'var(--ink-4)', letterSpacing: '0.06em' }}>СБОЙ DESIGN-PAYLOAD</div>
+            <div style={{ fontFamily: 'Newsreader, serif', fontStyle: 'italic', fontSize: 16, marginTop: 2 }}>
+              Скрипт построения схемы упал — UI работает в пустом fallback'е
+            </div>
+            <div className="meta" style={{ fontSize: 12, marginTop: 4 }}>
+              Ошибка: <code>{payloadError}</code>
+              {data?._meta?.stderr_tail && <><br/>stderr: <code style={{ fontSize: 10 }}>{data._meta.stderr_tail.slice(-200)}</code></>}
+              <br/>Что делать: <code>node scripts/build_sima_design_payload.mjs --client {currentClient} --stdout</code> в терминале — увидишь полный stack trace.
+            </div>
+          </div>
+        </div>
+      )}
+      {clientMissing && currentClient && currentClient !== 'main' && (data?.modules?.length ?? 0) === 0 && !payloadError && (
         <div className="client-missing-banner">
           <div>
             <div className="mono" style={{ fontSize: 11, color: 'var(--ink-4)', letterSpacing: '0.06em' }}>ПРОЕКТ НЕ НАЙДЕН</div>
