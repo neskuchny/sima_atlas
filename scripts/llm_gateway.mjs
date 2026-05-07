@@ -490,7 +490,25 @@ async function callClaudeCli({ system, prompt, schema, max_tokens, temperature }
       if (end > startCh) parsed = tryParse(text.slice(startCh, end + 1));
     }
   }
-  if (!parsed) parsed = deterministicEmptyForSchema(schema);
+  // R-7.37 — graceful fallback: claude --print иногда отвечает обычным
+  // markdown-текстом ВМЕСТО JSON-объекта, несмотря на инструкцию schema.
+  // Если в схеме одно строковое поле (как FIELD_SCHEMA: {content: string})
+  // и parse не удался, а text непустой — оборачиваем сырой текст в это
+  // поле. Это превращает «пустую LLM-ответ» (виден как пустая модалка
+  // «Переписать») в реальный полезный draft.
+  if (!parsed && schema?.type === 'object' && schema.properties && typeof text === 'string') {
+    const stringProps = Object.entries(schema.properties).filter(([, v]) => v?.type === 'string');
+    if (stringProps.length === 1 && text.trim().length > 0) {
+      parsed = { [stringProps[0][0]]: text.trim() };
+    }
+  }
+  if (!parsed) {
+    parsed = deterministicEmptyForSchema(schema);
+    // R-7.37: явная диагностика, когда LLM провалила structured-output
+    // (видно в API-логе оператора → понятно, что чинить — у себя schema
+    // или у LLM провайдера).
+    console.warn(`[llm-gateway] claude_cli schema-parse failed; envelope=${typeof envelope === 'object' ? 'json' : 'raw'}, text-head=${(typeof text === 'string' ? text : '').slice(0, 160).replace(/\n/g, '\\n')}`);
+  }
   return { value: parsed, usage };
 }
 
