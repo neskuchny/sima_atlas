@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>SIMA Atlas — визуальное программирование с памятью</title>
-<link rel="stylesheet" href="styles.css?v=r7-33" />
+<link rel="stylesheet" href="styles.css?v=r7-34" />
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
@@ -24,12 +24,12 @@
        `sima-data-changed` CustomEvent so the React tree can react. Set
        window.SIMA_API_BASE before this script loads to point at a
        remote backend in production. -->
-<script src="data_static.js?v=r7-33"></script>
-<script src="data_loader.js?v=r7-33"></script>
-<script type="text/babel" src="tweaks-panel.jsx?v=r7-33"></script>
-<script type="text/babel" src="graph.jsx?v=r7-33"></script>
-<script type="text/babel" src="panels.jsx?v=r7-33"></script>
-<script type="text/babel" src="views.jsx?v=r7-33"></script>
+<script src="data_static.js?v=r7-34"></script>
+<script src="data_loader.js?v=r7-34"></script>
+<script type="text/babel" src="tweaks-panel.jsx?v=r7-34"></script>
+<script type="text/babel" src="graph.jsx?v=r7-34"></script>
+<script type="text/babel" src="panels.jsx?v=r7-34"></script>
+<script type="text/babel" src="views.jsx?v=r7-34"></script>
 <script type="text/babel">
 const { useState, useEffect, useRef, useMemo, useCallback } = React;
 
@@ -770,16 +770,24 @@ function App() {
   const view = tweaks.primaryView;
 
   // Resolve current subsystem (drilled-into) — gives modules/edges/lanes for the active graph
-  const activeSub = drillStack.length ? data.subsystems[drillStack[drillStack.length - 1]] : null;
+  // R-7.34 — drill-down работает ДЛЯ ЛЮБОГО блока, даже если у него
+  // ещё нет подсистемы. Раньше fallback'или в drillId (single-focus
+  // mode), что не давало возможности создать модули внутри. Теперь
+  // ensureSubState возвращает пустую подсистему — оператор кликает
+  // «+ Новый модуль» внутри drill-view, persistSubsystem сохраняет
+  // на disk при первом изменении.
+  const drillTarget = drillStack.length ? drillStack[drillStack.length - 1] : null;
+  const activeSub = drillTarget ? (data.subsystems[drillTarget] || null) : null;
   const ensureSubState = (id) => {
     if (subState[id]) return subState[id];
     const sub = data.subsystems[id];
-    if (!sub) return null;
-    const fresh = { modules: sub.modules.map(m => ({ ...m })), edges: sub.edges.map(e => ({ ...e })), notes: [] };
+    const fresh = sub
+      ? { modules: sub.modules.map(m => ({ ...m })), edges: sub.edges.map(e => ({ ...e })), notes: [] }
+      : { modules: [], edges: [], notes: [] };
     setSubState(s => ({ ...s, [id]: fresh }));
     return fresh;
   };
-  const curSub = activeSub ? (subState[drillStack[drillStack.length - 1]] || ensureSubState(drillStack[drillStack.length - 1])) : null;
+  const curSub = drillTarget ? (subState[drillTarget] || ensureSubState(drillTarget)) : null;
 
   const activeModules = curSub ? curSub.modules : modules;
   const activeEdges = curSub ? curSub.edges : edges;
@@ -816,15 +824,43 @@ function App() {
     ? (e) => { setSubState(s => { const kk = k(); return { ...s, [kk]: { ...s[kk], edges: [...s[kk].edges, e] } }; }); subsystemTouched(k()); }
     : addEdge;
 
+  // R-7.34 — добавление модулей в drill-view. В drill mode «+ Новый модуль»
+  // должно класть блок в subState (подсистему текущего блока), а не в
+  // outer graph.json. После disk-persist'а через subsystems.save модуль
+  // появится у data.subsystems[parent_id] на следующем refresh.
+  const addActiveBlock = curSub
+    ? (preset) => {
+        const parent = k();
+        const existing = (subState[parent]?.modules || []).map(m => m.id);
+        let n = 1; let id;
+        do { id = `${parent}.s${n++}`; } while (existing.includes(id));
+        const tag = id.replace(/^b\./, '');
+        const newMod = {
+          id, tag,
+          title: 'Новый подмодуль',
+          layer: 'logic', size: 'M', priority: 3, status: 'todo',
+          x: preset?.x ?? 80, y: preset?.y ?? 80,
+        };
+        setSubState(s => ({ ...s, [parent]: { ...s[parent], modules: [...(s[parent]?.modules || []), newMod] } }));
+        subsystemTouched(parent);
+      }
+    : onAddModule;
+
   const onDrillDown = (id) => {
-    if (data.subsystems && data.subsystems[id]) {
-      setDrillStack(s => [...s, id]);
-      setSelectedId(null);
-      pushLog({ agent: 'SIMA Core', kind: 'note', msg: `↳ открыл подсистему @${data.modules.find(m=>m.id===id)?.tag} (${data.subsystems[id].modules.length} модулей)` });
-    } else {
-      // Fallback: single-module focus on current graph
-      setDrillId(id);
-    }
+    // R-7.34 — всегда проваливаемся, даже если subsystems[id] ещё пуст.
+    // ensureSubState создаст пустую подсистему в local state, оператор
+    // добавит первый модуль через «+ Новый модуль», и persistSubsystem
+    // запишет на disk. Раньше был fallback в drillId (single-focus mode),
+    // оператор оставался в том же layer и не мог создать подмодули.
+    setDrillStack(s => [...s, id]);
+    setSelectedId(null);
+    const has = !!(data.subsystems && data.subsystems[id]);
+    pushLog({
+      agent: 'SIMA Core', kind: 'note',
+      msg: has
+        ? `↳ открыл подсистему @${data.modules.find(m=>m.id===id)?.tag} (${data.subsystems[id].modules.length} модулей)`
+        : `↳ открыл пустую подсистему @${data.modules.find(m=>m.id===id)?.tag}. Жми «+ Новый модуль» внутри.`,
+    });
   };
   const drillUp = () => {
     if (drillStack.length) {
@@ -1053,7 +1089,7 @@ function App() {
             onUpdateNote={updateActiveNote}
             onDeleteNote={deleteActiveNote}
             onAddEdge={curSub ? addActiveEdge : addEdge}
-            onAddModule={onAddModule}
+            onAddModule={curSub ? addActiveBlock : onAddModule}
             onDeleteEdge={deleteActiveEdge}
             selectedId={selectedId}
             onSelect={(id) => { setSelectedId(id); if (view === 'graph') setTweak('primaryView', 'split'); setDetailOpen(true); }}
@@ -1159,7 +1195,7 @@ function App() {
                   <button onClick={() => setTweak('showLayers', !tweaks.showLayers)} className={tweaks.showLayers ? 'on' : ''}>
                     ▦ Слои стэка <span className="badge">{tweaks.showLayers ? 'on' : 'off'}</span>
                   </button>
-                  <button onClick={onAddModule}>＋ Новый модуль <span className="badge">пкм</span></button>
+                  <button onClick={curSub ? addActiveBlock : onAddModule}>＋ Новый модуль <span className="badge">пкм</span></button>
                 </div>
                 <div className="grp">
                   <div style={{ fontSize: 10, color: 'var(--ink-4)', padding: '4px 8px 2px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Фильтр статуса</div>
