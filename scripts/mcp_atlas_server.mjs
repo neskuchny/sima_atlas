@@ -20,7 +20,7 @@ function toolList(){
     { name:'subagent_schema_syncer', description:'Phase N-3: walk all atlas blocks, run all consistency validators, return drift report.', inputSchema:{ type:'object', properties:{} } },
     { name:'subagent_verifier', description:'Phase N-3: run acceptance verifier + LLM-validator (mission vs reality) on a block (or --all).', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} } } },
     { name:'subagent_wiki_builder', description:'Phase N-3: regenerate WIKI.md / wiki.html / roadmap.md / auto_tz.md from canonical graph + block files.', inputSchema:{ type:'object', properties:{} } },
-    { name:'sima_fill_from_chat', description:'Phase R-2: take a chat transcript and orchestrate the full pipeline — extract insights, fill weak fields on existing blocks (mission/user_story/kpi/acceptance), propose 1-3 new blocks. Saves a plan to atlas/proposals/<ts>__chat_fill.json which the operator reviews in the «✦ Предложения» panel. The agent (Claude Code / Cursor) calls this tool to «fill the schema from this conversation» without the operator copying anything by hand.', inputSchema:{ type:'object', properties:{ transcript:{type:'string'}, target_block_ids:{type:'array', items:{type:'string'}}, propose_new:{type:'boolean'}, dry_run:{type:'boolean'} }, required:['transcript'] } },
+    { name:'sima_fill_from_chat', description:'Phase R-2/R-7.19: take a chat transcript and orchestrate the full pipeline — extract insights, fill weak fields on existing blocks, propose 1-3 new blocks. Saves a plan to atlas/proposals/ (root) or atlas/clients/<client_id>/proposals/ (per-tenant). The operator reviews the plan in the «✦ Предложения» panel. **Pass client_id to target a specific tenant; otherwise root atlas is used.**', inputSchema:{ type:'object', properties:{ transcript:{type:'string'}, client_id:{type:'string', description:'Optional client tenant id (e.g. my-saas). When provided, plan is saved into atlas/clients/<id>/proposals/ and blocks come from that tenant graph.'}, target_block_ids:{type:'array', items:{type:'string'}}, propose_new:{type:'boolean'}, dry_run:{type:'boolean'} }, required:['transcript'] } },
     { name:'sima_watch_chats', description:'Phase R-3: scan Claude Code session jsonl files (~/.claude/projects/*/), detect new conversational turns since the last run, and either propose (dry-run plan) or auto-apply via sima_fill_from_chat. Use this when the operator says «sima, check the latest chats» or to power a periodic background sweep. Returns {plan, new_turns, skipped_reason?}.', inputSchema:{ type:'object', properties:{ mode:{type:'string', enum:['propose','auto']}, min_new_chars:{type:'number'} } } },
     { name:'create_block', description:'Create/init block in atlas graph and docs', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, title:{type:'string'} }, required:['block_id'] } },
     { name:'set_block_mission', description:'Update mission.md for block', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, mission:{type:'string'} }, required:['block_id','mission'] } },
@@ -310,6 +310,13 @@ rl.on('line', (line) => {
         const cliArgs = ['scripts/sima_fill_from_chat.mjs', '--stdin', '--json'];
         if (Array.isArray(args.target_block_ids)) {
           for (const t of args.target_block_ids) cliArgs.push(`--target=${String(t)}`);
+        }
+        // Phase R-7.19 — pass client_id through to CLI so MCP-invoked
+        // fill-from-chat lands in the right tenant (atlas/clients/<id>/),
+        // not in root atlas. Без этого MCP-вызов с client_id молча
+        // сохранял план в root proposals.
+        if (args.client_id && /^[a-zA-Z0-9._-]+$/.test(String(args.client_id))) {
+          cliArgs.push(`--client=${String(args.client_id)}`);
         }
         if (args.dry_run) cliArgs.push('--dry-run');
         try {
