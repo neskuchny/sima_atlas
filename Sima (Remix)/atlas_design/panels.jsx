@@ -1591,13 +1591,20 @@ function ContractSection({ moduleId, layer }) {
     if (r?.ok) {
       setFiles((F) => ({ ...F, [editing.file]: content }));
       setEditing(null);
-      // Phase R-7.11 — push к лог-у успеха, чтобы операор видел что save
-      // дошёл до диска. Раньше «Sохранил блок» молчало — оператору
-      // казалось что ничего не происходит, и он перепроверял.
       try { window.dispatchEvent(new CustomEvent('sima-log-push', { detail: { agent: 'SIMA Core', kind: 'ok', msg: `💾 Сохранено ${moduleId} · ${editing.file}` } })); } catch {}
+      // Phase R-7.15 — force a second refresh shortly after save so the
+      // canvas card preview (`data.moduleDocs[id].short`) actually
+      // re-renders. patchBlockFile already calls refresh() once, but in
+      // some Windows environments the OS-level file cache or React
+      // batching can leave the canvas with stale moduleDocs. Belt-and-
+      // suspenders extra refresh covers that race.
+      if (window.SIMA_API?.refresh) {
+        setTimeout(() => {
+          try { window.SIMA_API.refresh(); } catch {}
+        }, 250);
+      }
     } else {
       setError(r?.error || 'save failed');
-      // Push errror в общий лог тоже — иначе error виден только в modal'е.
       try { window.dispatchEvent(new CustomEvent('sima-log-push', { detail: { agent: 'SIMA Core', kind: 'fail', msg: `Save ${editing.file} не дошёл до диска: ${r?.error || 'unknown'}` } })); } catch {}
     }
   };
