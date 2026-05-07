@@ -1180,6 +1180,7 @@ function App() {
       {detailOpen ? (
         <DetailPanel
           data={data}
+          modules={modules}
           moduleId={selectedId}
           onClose={() => setDetailOpen(false)}
           desyncResolved={desyncResolved}

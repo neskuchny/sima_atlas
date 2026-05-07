@@ -66,7 +66,7 @@ function ContextRail({ data, onClose, onUpdateField }) {
 }
 
 /* ====================== DETAIL PANEL ====================== */
-function DetailPanel({ data, moduleId, onClose, desyncResolved, onSendToAgent, onDrillDown, onOpenTz, onClaudeAdvice, onAddEdge }) {
+function DetailPanel({ data, modules: liveModules, moduleId, onClose, desyncResolved, onSendToAgent, onDrillDown, onOpenTz, onClaudeAdvice, onAddEdge }) {
   const [tab, setTab] = useState2('overview');
   useEffect2(() => { setTab('overview'); }, [moduleId]);
 
@@ -84,9 +84,30 @@ function DetailPanel({ data, moduleId, onClose, desyncResolved, onSendToAgent, o
     );
   }
 
-  const m = data.modules.find(x => x.id === moduleId);
-  // Phase R-5 — never trust the payload to have every map. Optional-chain.
-  if (!m) return null;
+  // Phase R-7.5 — prefer App's optimistic modules state (which includes
+  // freshly-created blocks before the server payload caught up) over
+  // data.modules (snapshot from last fetchLive). Without this, DetailPanel
+  // silently returned null right after createBlock if refresh() hadn't
+  // re-fetched yet — the panel container appeared but had no contents.
+  const fromLive = (liveModules || []).find(x => x.id === moduleId);
+  const fromPayload = (data?.modules || []).find(x => x.id === moduleId);
+  const m = fromLive || fromPayload;
+  if (!m) {
+    // Block id is selected but neither source has it. Show a friendly
+    // placeholder instead of `return null` — that previously hid the
+    // panel completely and confused the operator.
+    return (
+      <aside className="detail">
+        <div className="dhead">
+          <div className="layer-tag mono">@{moduleId.replace(/^b\./, '')}</div>
+          <h1>{moduleId}</h1>
+          <div style={{ fontSize: 13, color: 'var(--ink-3)', lineHeight: 1.5, marginTop: 8 }}>
+            Блок ещё не подгружен. Возможно, страница не обновилась после создания — нажмите Sync вверху или Ctrl+R.
+          </div>
+        </div>
+      </aside>
+    );
+  }
   const tasks = data.tasks?.[moduleId] || [];
   const subs = data.submodules?.[moduleId] || [];
   const lessons = (data.lessons || []).filter(l => l.module === moduleId || (m.layer === 'frontend' && l.module === 'frontend'));
