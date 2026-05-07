@@ -133,12 +133,35 @@ function DetailPanel({ data, modules: liveModules, moduleId, onClose, desyncReso
   return (
     <aside className="detail">
       <div className="dhead">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
           <div className="layer-tag mono">@{m.tag} · layer:{m.layer}</div>
-          <button onClick={onClose} style={{
-            background: 'transparent', border: 0, color: 'var(--ink-3)',
-            cursor: 'pointer', fontSize: 16, padding: 0, lineHeight: 1,
-          }}>✕</button>
+          <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+            {/* R-7.25 — кнопка удаления вынесена из спрятанного context-menu
+                в шапку панели (UX: основной way для оператора). hard delete
+                с confirm, после ok закрываем панель и обновляем canvas. */}
+            <button
+              onClick={async () => {
+                if (!window.SIMA_API?.deleteBlock) return;
+                if (!window.confirm(`Удалить блок ${m.id}? Запись в graph.json и директория atlas/clients/<...>/blocks/${m.id}/ будут удалены. Действие необратимо (но файлы остаются в git-истории).`)) return;
+                const r = await window.SIMA_API.deleteBlock(m.id, true /* hard */);
+                if (r?.ok) {
+                  try { window.dispatchEvent(new CustomEvent('sima-log-push', { detail: { agent: 'SIMA Core', kind: 'ok', msg: `🗑 Удалён блок ${m.id}` } })); } catch {}
+                  if (onClose) onClose();
+                } else {
+                  try { window.dispatchEvent(new CustomEvent('sima-log-push', { detail: { agent: 'SIMA Core', kind: 'fail', msg: `Удаление ${m.id} не удалось: ${r?.error || 'unknown'}` } })); } catch {}
+                }
+              }}
+              title="Удалить блок (hard, с диска)"
+              style={{
+                background: 'transparent', border: 0, color: 'var(--st-fail, #c33)',
+                cursor: 'pointer', fontSize: 14, padding: '0 4px', lineHeight: 1,
+              }}
+            >🗑</button>
+            <button onClick={onClose} style={{
+              background: 'transparent', border: 0, color: 'var(--ink-3)',
+              cursor: 'pointer', fontSize: 16, padding: 0, lineHeight: 1,
+            }}>✕</button>
+          </div>
         </div>
         <h1>{m.title}</h1>
         <div className="meta">
