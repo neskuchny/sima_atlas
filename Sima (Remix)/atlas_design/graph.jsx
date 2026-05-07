@@ -34,7 +34,11 @@ function GraphCanvas({
   };
 
   const onMouseDown = (e) => {
-    if (e.target.closest('.node, .canvas-tools, .canvas-overlay-top, .sticky-note, .lane-label, .edge-label, .schema-title')) return;
+    // R-7.26 — .ctx-menu добавлен в early-return: при клике на кнопку
+    // внутри меню mousedown канваса срабатывал РАНЬШЕ click и сбрасывал
+    // ctxMenu=null → меню анмаунтилось → кнопка не успевала вызвать onClick.
+    // (Поэтому через right-click не работала ни одна кнопка меню.)
+    if (e.target.closest('.node, .canvas-tools, .canvas-overlay-top, .sticky-note, .lane-label, .edge-label, .schema-title, .ctx-menu')) return;
     drag.current = { active: true, mode: 'pan', sx: e.clientX, sy: e.clientY, ox: tx.x, oy: tx.y };
     setCtxMenu(null);
   };
