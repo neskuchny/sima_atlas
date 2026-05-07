@@ -671,31 +671,39 @@ const server = http.createServer((req, res) => {
           return json(res, 200, { ok: false, error: String(e.message || e) });
         }
       };
-      if (req.url === '/atlas/blocks/create') return tryFn(() => blocksApi.createBlock({ body }));
+      // Phase R-6 fix: every blocksApi mutator must honour body._client so
+      // multi-tenant writes land in atlas/clients/<id>/, not in root.
+      // Without this, UI on `?client=my-saas` invisibly wrote to root atlas
+      // and got "block already exists" loops because root atlas had stale
+      // entries from earlier failed attempts.
+      const clientRoot = body._client
+        ? path.join(ROOT, 'atlas', 'clients', String(body._client))
+        : undefined;
+      if (req.url === '/atlas/blocks/create') return tryFn(() => blocksApi.createBlock({ atlas_root: clientRoot, body }));
       if (req.url === '/atlas/blocks/patch') {
         const id = String(body.block_id || body.id || '');
         if (!id) return json(res, 400, { ok: false, error: 'block_id required' });
         // L1 — body.if_match_updated_at flows through to patchBlock for
         // optimistic-concurrency checks. Absent → no check (back-compat).
-        return tryFn(() => blocksApi.patchBlock({ block_id: id, body }));
+        return tryFn(() => blocksApi.patchBlock({ atlas_root: clientRoot, block_id: id, body }));
       }
       if (req.url === '/atlas/blocks/delete') {
         const id = String(body.block_id || body.id || '');
         if (!id) return json(res, 400, { ok: false, error: 'block_id required' });
-        return tryFn(() => blocksApi.deleteBlock({ block_id: id, hard: !!body.hard }));
+        return tryFn(() => blocksApi.deleteBlock({ atlas_root: clientRoot, block_id: id, hard: !!body.hard }));
       }
-      if (req.url === '/atlas/edges/add')    return tryFn(() => blocksApi.addEdge({ body }));
-      if (req.url === '/atlas/edges/delete') return tryFn(() => blocksApi.deleteEdge({ body }));
-      if (req.url === '/atlas/notes/add')    return tryFn(() => blocksApi.addNote({ body }));
+      if (req.url === '/atlas/edges/add')    return tryFn(() => blocksApi.addEdge({ atlas_root: clientRoot, body }));
+      if (req.url === '/atlas/edges/delete') return tryFn(() => blocksApi.deleteEdge({ atlas_root: clientRoot, body }));
+      if (req.url === '/atlas/notes/add')    return tryFn(() => blocksApi.addNote({ atlas_root: clientRoot, body }));
       if (req.url === '/atlas/notes/patch') {
         const id = String(body.note_id || body.id || '');
         if (!id) return json(res, 400, { ok: false, error: 'note_id required' });
-        return tryFn(() => blocksApi.patchNote({ note_id: id, body }));
+        return tryFn(() => blocksApi.patchNote({ atlas_root: clientRoot, note_id: id, body }));
       }
       if (req.url === '/atlas/notes/delete') {
         const id = String(body.note_id || body.id || '');
         if (!id) return json(res, 400, { ok: false, error: 'note_id required' });
-        return tryFn(() => blocksApi.deleteNote({ note_id: id }));
+        return tryFn(() => blocksApi.deleteNote({ atlas_root: clientRoot, note_id: id }));
       }
 
       // /api/artifacts POST routes (create, patch, insert).
@@ -1245,7 +1253,13 @@ const server = http.createServer((req, res) => {
       if (req.url === '/atlas/blocks/patch-file') {
         const id = String(body.block_id || body.id || '');
         if (!id) return json(res, 400, { ok: false, error: 'block_id required' });
+        // Phase R-6 — honour _client so per-tenant block edits land in
+        // atlas/clients/<id>/blocks/<block>/, not in root.
+        const cRoot = body._client
+          ? path.join(ROOT, 'atlas', 'clients', String(body._client))
+          : undefined;
         return tryFn(() => blocksApi.patchBlockFile({
+          atlas_root: cRoot,
           block_id: id,
           file: String(body.file || ''),
           content: String(body.content || ''),

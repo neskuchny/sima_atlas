@@ -55,6 +55,7 @@ const checks = [
   ['cleanup_block_memory_selftest', 'node tests/cleanup_block_memory.selftest.mjs'],
   ['sima_watch_chats_selftest', 'node tests/sima_watch_chats.selftest.mjs'],
   ['chat_fill_accept_selftest', 'node tests/chat_fill_accept.selftest.mjs'],
+  ['multi_tenant_block_routing_selftest', 'node tests/multi_tenant_block_routing.selftest.mjs'],
   ['build_sima_design_payload', 'node scripts/build_sima_design_payload.mjs'],
   ['playwright_sima_design', 'npx playwright test tests/playwright/sima_design.spec.ts --reporter=line'],
   ['parse_acceptance_selftest', 'node tests/parse_acceptance.selftest.mjs'],
