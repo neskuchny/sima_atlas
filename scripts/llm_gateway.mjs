@@ -412,30 +412,29 @@ async function callClaudeCli({ system, prompt, schema, max_tokens, temperature }
   }
 
   const stdout = await new Promise((resolve, reject) => {
-    // R-7.38 — на Windows многострочный prompt-arg ломается cmd.exe-обёрткой
-    // (видно по «It looks like your message ended at 'You' — did you mean
-    // to ask something specific?» в ответе claude). Решение: пишем промпт
-    // во временный файл и пайпим в claude через cmd.exe < redirect.
-    // На Linux/macOS — продолжаем pass'ить как arg (там cmd-парсинг чище).
+    // R-7.38b — на Windows многострочный prompt-arg ломается shell:true
+    // (cmd.exe режет по newlines/spaces → claude видит «You»). R-7.38
+    // пытался cmd.exe /c "..." < "tmp" — кавычки внутри /c строки cmd
+    // парсит криво («Синтаксическая ошибка в имени файла» в cp866).
+    //
+    // Финал: на Windows спавним cmd.exe /c <bin> и пайпим promptв stdin
+    // через Node child.stdin.write. Это обходит ВСЕ cmd-quoting issues.
+    // (R-7.12 говорил «stdin → Not logged in», но это было через
+    // PowerShell echo-pipe; Node child.stdin это другой механизм и
+    // у юзера сейчас свежая сессия после /login.)
     const isWin = process.platform === 'win32';
     const bin = PROVIDERS.claude_cli._bin || 'claude';
-    let tmpFile = null;
     let child;
 
     if (isWin) {
-      // Phase R-7.38: temp-файл + stdin
-      tmpFile = path.join(os.tmpdir(), `sima_claude_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.txt`);
-      fs.writeFileSync(tmpFile, fullPrompt, 'utf8');
-      // Quote bin path (может содержать пробелы, e.g. C:\Program Files\...)
-      // и tmpFile тоже. cmd.exe < redirect пайпит файл в stdin.
-      const cmdStr = `"${bin}" --print --output-format json < "${tmpFile}"`;
-      child = spawn('cmd.exe', ['/c', cmdStr], {
-        stdio: ['ignore', 'pipe', 'pipe'],
+      // cmd.exe /c <bin> --print --output-format json
+      // Node автоматически escape'ит args между cmd.exe и /c.
+      child = spawn('cmd.exe', ['/c', bin, '--print', '--output-format', 'json'], {
+        stdio: ['pipe', 'pipe', 'pipe'],
         timeout: 120_000,
       });
     } else {
-      // Phase R-7.12 — pass prompt as positional CLI arg на unix-like
-      // (там shell-quoting корректный, multiline OK).
+      // Linux/macOS — pass prompt as positional arg (R-7.12).
       const args = ['--print', '--output-format', 'json', fullPrompt];
       child = spawn(bin, args, {
         stdio: ['ignore', 'pipe', 'pipe'],
@@ -446,12 +445,8 @@ async function callClaudeCli({ system, prompt, schema, max_tokens, temperature }
     let out = '', err = '';
     child.stdout.on('data', (d) => { out += d; });
     child.stderr.on('data', (d) => { err += d; });
-    child.on('error', (e) => {
-      if (tmpFile) { try { fs.unlinkSync(tmpFile); } catch {} }
-      reject(new Error(`claude spawn failed: ${e.message}`));
-    });
+    child.on('error', (e) => reject(new Error(`claude spawn failed: ${e.message}`)));
     child.on('close', (code) => {
-      if (tmpFile) { try { fs.unlinkSync(tmpFile); } catch {} }
       // Phase R-7.13 — Windows-quirk: claude --print sometimes returns
       // exit 1 even on a successful response (with valid JSON in stdout
       // containing input_tokens/output_tokens/etc.). Probably a CLI/cmd.exe
@@ -470,6 +465,11 @@ async function callClaudeCli({ system, prompt, schema, max_tokens, temperature }
       const combined = [errMsg, outTrimmed].filter(Boolean).join(' | ').slice(-400);
       reject(new Error(`claude --print exit ${code}: ${combined || '(silent)'}`));
     });
+
+    if (isWin) {
+      child.stdin.write(fullPrompt);
+      child.stdin.end();
+    }
   });
 
   // Try the documented JSON-output shape first.
