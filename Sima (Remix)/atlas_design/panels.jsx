@@ -1655,7 +1655,6 @@ function ContractSection({ moduleId, layer }) {
                   <button className="pill" onClick={() => startRewrite(file)} disabled={busy} title="Sima переформулирует существующий текст через LLM">✏ Переписать</button>
                 )}
               </div>
-              </div>
               <pre className="contract-body">{content || `(${placeholder})`}</pre>
             </div>
           );
