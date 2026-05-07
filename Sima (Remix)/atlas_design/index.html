@@ -457,15 +457,25 @@ function App() {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  // Live activity loop
+  // Live activity loop — synthetic placeholder strings that demo «как
+  // будет выглядеть, когда живые агенты работают». NOT real events: this
+  // is a 5-line round-robin every 5.5s. Off by default in real client
+  // sessions to avoid confusing the operator into thinking Cursor/Codex
+  // are actually doing something. Flip on via tweaks-panel for the demo.
   useEffect(() => {
     if (!tweaks.liveActivity) return;
+    // Phase R-7.2 — auto-disable demo activity for client sessions; only
+    // keep it on for the bare /atlas_design/ root URL where it's used as
+    // a marketing teaser. Operators with ?client=<id> see real events
+    // only (or empty until their agents start emitting).
+    const isClientSession = !!new URLSearchParams(window.location.search).get('client');
+    if (isClientSession) return;
     const lines = [
-      { agent: 'Cursor',      kind: 'note', msg: 'datasets: уточнил RLS политику', flash: 'datasets' },
-      { agent: 'Claude Code', kind: 'ok',   msg: 'charts/funnel: добавлен conversion-tooltip', flash: 'charts' },
-      { agent: 'SIMA Core',   kind: 'info', msg: 'обновил wiki: dashboard.tile-editor', flash: 'dashboard' },
-      { agent: 'Codex',       kind: 'note', msg: 'tests: прогон unit · 312/312 ok', flash: 'tests' },
-      { agent: 'Cursor',      kind: 'ok',   msg: 'observ: добавил трейс на /v1/query', flash: 'observ' },
+      { agent: 'Cursor',      kind: 'note', msg: '[demo] datasets: уточнил RLS политику', flash: 'datasets' },
+      { agent: 'Claude Code', kind: 'ok',   msg: '[demo] charts/funnel: добавлен conversion-tooltip', flash: 'charts' },
+      { agent: 'SIMA Core',   kind: 'info', msg: '[demo] обновил wiki: dashboard.tile-editor', flash: 'dashboard' },
+      { agent: 'Codex',       kind: 'note', msg: '[demo] tests: прогон unit · 312/312 ok', flash: 'tests' },
+      { agent: 'Cursor',      kind: 'ok',   msg: '[demo] observ: добавил трейс на /v1/query', flash: 'observ' },
     ];
     let i = 0;
     const t = setInterval(() => {
