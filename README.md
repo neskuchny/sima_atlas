@@ -3,13 +3,18 @@
 > **Visual contract-first development for AI coding agents.**
 > The graph of contracts between you and Claude Code / Cursor / Codex / your favorite agent — so the AI builds what you actually meant.
 
+[![verify](https://github.com/neskuchny/sima_atlas/actions/workflows/verify.yml/badge.svg)](https://github.com/neskuchny/sima_atlas/actions/workflows/verify.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+
 Open-sourced by **Synlabs**. Sima Atlas grew out of an internal idea (originally meant for our main product, **Tessent**) and was extracted into a standalone open-source project so the **concept** of contract-first AI development reaches the market — independently of how any specific company implements it. Maintained by Anton Kalabukhov and contributors.
 
 License: **MIT**. Status: **early but live**. We care more about the principles than the polish — see [Why these principles, not others](ТЗ/статья.md#почему-именно-эти-принципы) in the article.
 
-📖 Full methodology (Russian, ~3000 words): [ТЗ/статья.md](ТЗ/статья.md)
+📖 Full methodology (Russian, ~4000 words): [ТЗ/статья.md](ТЗ/статья.md)
 🔌 Plug into your AI tool: [docs/integrations.md](docs/integrations.md)
 🤖 Agent rules in this repo: [CLAUDE.md](CLAUDE.md)
+📋 [CHANGELOG](CHANGELOG.md) · [CONTRIBUTING](CONTRIBUTING.md) · [SECURITY](SECURITY.md) · [Code of Conduct](CODE_OF_CONDUCT.md)
 
 ![Canvas overview](tests/playwright/screenshots/sima_design_live.png)
 
@@ -94,6 +99,53 @@ To plug Sima into your AI agent (Claude Code, Cursor, Codex, Continue, Zed, Wind
 | `atlas/blocks/<id>/` | Per-block contracts (mission / kpi / acceptance / depends_on / provides / decisions.log / patterns.md) |
 | [`atlas/WIKI.md`](atlas/WIKI.md) | Auto-generated wiki across all blocks |
 | [`atlas/roadmap.md`](atlas/roadmap.md) | Auto-generated roadmap from block statuses |
+
+### FAQ
+
+**Do I need an API key?**
+No. Sima Atlas detects the local `claude` CLI (`claude --version`) and uses your Claude.ai Pro/Max subscription for free. API keys (`ANTHROPIC_API_KEY`, `GEMINI_API_KEY`) are optional — they win the cascade when present, but the system runs fine without them. There's also a `mock` provider for fully-offline / deterministic CI runs (`ATLAS_FORCE_MOCK_LLM=1`).
+
+**Where does my data go?**
+Locally. Everything in `atlas/` lives on your disk. The only external network calls are to whichever LLM provider you configured (Anthropic API, Google Vertex, or your local `claude` CLI which talks to Anthropic). Telemetry is not collected by Sima Atlas itself. `atlas/llm_traces/` is gitignored to keep your prompts out of public repos.
+
+**Is this an alternative to LangChain / LlamaIndex / DSPy / LangGraph?**
+No, different layer. LangChain et al. are *frameworks for building agents*. Sima Atlas is a *control plane for an agent that already exists* (Claude Code, Cursor, Codex). It tells the agent **what** the product is supposed to be (via contracts), and verifies that the agent **actually built that** (via acceptance loop). They can co-exist — your LangGraph agent could use Sima Atlas through MCP as its memory of the product graph.
+
+**Is this an alternative to Cursor / Claude Code / Aider?**
+No. Sima Atlas is a *layer above* those. You keep using Cursor / Claude Code / Codex as your editing UI. Sima Atlas adds a visual canvas, contracts, acceptance verifier, and 65 MCP tools that your agent calls into. We're complementary, not competing.
+
+**Can I use only Atlas without the UI?**
+Yes. The MCP server (`scripts/mcp_atlas_server.mjs`) and CLI scripts (`scripts/sima_*.mjs`) work standalone. The React canvas is a nice visualizer but not required. See [docs/integrations.md](docs/integrations.md) for headless usage.
+
+**Is this production-ready?**
+Honest answer in the [self-audit (Article Appendix A)](ТЗ/статья.md): 9 ✅ fully-implemented claims, 11 🟡 partial-with-caveats, 0 ❌. Used in production by us for Sima Atlas's own development (we eat our own dog food). Not yet recommended for mission-critical commercial deployments — early adopters welcome.
+
+**Does it work on Windows?**
+Yes. Phase R-4 fixed the Windows-specific `claude_cli` detection (`execFileSync` doesn't honor PATHEXT, so we now try `claude.cmd` on win32). UI runs in any modern browser. We test on Linux + Windows; macOS should also work but isn't yet in CI.
+
+**How many tokens will this save me?**
+Honest answer: it depends. The biggest win is **fewer reworks** (the agent gets the contract upfront, doesn't drift, doesn't rebuild things in 3 iterations) — see [Article Part 6.1](ТЗ/статья.md). On a single-block task with a small product, savings are minor. On a 50-block product, they're substantial. We don't have public benchmarks yet (a roadmap item — community benchmarks welcome).
+
+**Is there a commercial / hosted version?**
+Sima Atlas itself is and will remain MIT open-source. Our company **Synlabs** has a commercial product called **Tessent** where the related runtime layer (`Sima Core`) lives — that's separate from this repo and may or may not be open-sourced later. See [Article Part 7.3](ТЗ/статья.md).
+
+**Why another opensource AI tooling project?**
+Because we believe the *concept* of contract-first AI development should reach the market regardless of which company implements it. We have working code; we open-source it as a starting point and reference implementation for the principles. If you take only the principles and build something better — that's a win for the community.
+
+### How Sima Atlas relates to other tools
+
+| Layer | Examples | Sima Atlas |
+|-------|----------|-----------|
+| Code editor | VS Code, JetBrains, Zed | not us — we live above |
+| AI coding agent | Cursor, Claude Code, Codex CLI, Aider, Continue | not us — we plug into them via MCP |
+| Agent framework | LangChain, LangGraph, AutoGen, CrewAI, DSPy | different layer; we provide *the product graph* the agent navigates, not the agent itself |
+| Code generation | GPT-Engineer, Plandex, MetaGPT | we partly overlap, but we focus on long-lived contracts + acceptance loop, not single-shot generation |
+| Project management | Linear, Notion, Jira | not us — we're about the code's *architecture*, not tasks/sprints |
+| Architecture diagramming | Structurizr, C4, Excalidraw | partly overlapping — we generate the diagram, but it's *live* (synced with code via acceptance loop), not static |
+| Acceptance / testing | pytest, jest, Cypress, Playwright | we use them as evidence collectors; we add the **assertion → evidence kind** mapping that makes "what does done mean" explicit |
+| Documentation generators | Docusaurus, MkDocs, Storybook | we auto-generate WIKI / TZ / user tutorials from the same contracts the code lives under |
+
+**TL;DR:** if you draw a stack, we sit between *agent* and *project documents*, providing a single graph of contracts both consult.
 
 ### Contributing
 
