@@ -91,7 +91,7 @@ html, body {
 
 .app {
   display: grid;
-  grid-template-columns: 280px 1fr 340px;
+  grid-template-columns: 280px 1fr 480px;
   grid-template-rows: 56px 1fr auto;
   grid-template-areas:
     "topbar topbar topbar"
@@ -1870,11 +1870,17 @@ html, body {
   white-space: nowrap;
 }
 .contract-body {
-  font-family: 'JetBrains Mono', monospace; font-size: 11px; line-height: 1.5;
+  /* R-7.27 — был JetBrains Mono 11px / max-height 160px: текст контракта
+     (markdown с заголовками/абзацами) читался плохо, многое съедалось
+     скроллом. Сделал proportional + крупнее + выше max-height. */
+  font-family: 'Newsreader', Georgia, serif; font-size: 13.5px; line-height: 1.55;
   white-space: pre-wrap; word-wrap: break-word;
-  background: var(--card-2); border-radius: 6px; padding: 8px 10px; margin: 0;
-  max-height: 160px; overflow: auto; color: var(--ink-2);
+  background: var(--card-2); border-radius: 6px; padding: 12px 14px; margin: 0;
+  max-height: 320px; overflow: auto; color: var(--ink-2);
 }
+/* Inline markdown-style accents — пока не рендерим MD, но хотя бы
+   подчёркиваем строки заголовков (## / ### в начале строки). */
+.contract-body { font-variant-ligatures: common-ligatures; }
 
 .contract-modal { width: min(820px, 92vw); max-height: 90vh; display: flex; flex-direction: column; background: var(--paper); padding: 0; }
 .contract-modal-body {
