@@ -47,7 +47,7 @@ Sima fixes that with five rules:
 4. **Memory is typed and small** — `lessons.json` / `dont_use.json` / `always_use.json` instead of one bloating `CLAUDE.md`.
 5. **Context-pack per task** — neither "everything" nor artificially small; reports its own size; optimized for relevance.
 
-Full methodology: [English article](docs/article.en.md) · [Русский](archive/ru-specs/статья.md) (11 parts + 2 appendices, including a self-audit).
+Full methodology: [English article](docs/article.en.md) · [Русский](docs/article.ru.md) (11 parts + 2 appendices, including a self-audit).
 
 ## What's in the box
 

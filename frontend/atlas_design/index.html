@@ -4,14 +4,14 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Sima Atlas — visual contract-first development for AI agents</title>
-<link rel="stylesheet" href="styles.css?v=r7-59" />
+<link rel="stylesheet" href="styles.css?v=r7-67" />
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 <!-- R-7.28: markdown renderer for contract bodies (mission.md / kpi.md / acceptance.md etc.) -->
 <script src="https://cdn.jsdelivr.net/npm/marked@13.0.3/marked.min.js"></script>
 <!-- R-7.52: i18n must load BEFORE jsx components so window.__SIMA_T is defined when React renders -->
-<script src="i18n.js?v=r7-59"></script>
+<script src="i18n.js?v=r7-67"></script>
 </head>
 <body>
 <div id="root"></div>
@@ -26,12 +26,12 @@
        `sima-data-changed` CustomEvent so the React tree can react. Set
        window.SIMA_API_BASE before this script loads to point at a
        remote backend in production. -->
-<script src="data_static.js?v=r7-59"></script>
-<script src="data_loader.js?v=r7-59"></script>
-<script type="text/babel" src="tweaks-panel.jsx?v=r7-59"></script>
-<script type="text/babel" src="graph.jsx?v=r7-59"></script>
-<script type="text/babel" src="panels.jsx?v=r7-59"></script>
-<script type="text/babel" src="views.jsx?v=r7-59"></script>
+<script src="data_static.js?v=r7-67"></script>
+<script src="data_loader.js?v=r7-67"></script>
+<script type="text/babel" src="tweaks-panel.jsx?v=r7-67"></script>
+<script type="text/babel" src="graph.jsx?v=r7-67"></script>
+<script type="text/babel" src="panels.jsx?v=r7-67"></script>
+<script type="text/babel" src="views.jsx?v=r7-67"></script>
 <script type="text/babel">
 const { useState, useEffect, useRef, useMemo, useCallback } = React;
 
@@ -413,14 +413,14 @@ function App() {
       const label = `${a?.title.toLowerCase()} → ${b?.title.toLowerCase()}`;
       const biz = `Sima предлагает: эта связь нужна, чтобы ${b?.title} получал ${e.kind === 'data' ? 'данные' : e.kind === 'rbac' ? 'права доступа' : e.kind === 'schema' ? 'схему полей' : 'контракт'} от ${a?.title}.`;
       updateEdge(ref, { label, biz });
-      pushLog({ agent: 'SIMA Core', kind: 'note', msg: `✨ описал связь @${a?.tag} → @${b?.tag}` });
+      pushLog({ agent: 'SIMA Core', kind: 'note', msg: `✨ ${(window.__SIMA_T||((_,fb)=>fb))('log.described_edge','described edge')} @${a?.tag} → @${b?.tag}` });
     } else if (kind === 'module') {
       const m = modules.find(x => x.id === ref);
       if (!m) return;
       const cur = data.moduleDocs[ref] || {};
       data.moduleDocs[ref] = { ...cur, short: cur.short || `Sima: ${m.title} — отвечает за слой ${m.layer}, контракт описан выше.` };
       setModules(M => [...M]); // force rerender
-      pushLog({ agent: 'SIMA Core', kind: 'note', msg: `✨ дополнил описание блока @${m.tag}` });
+      pushLog({ agent: 'SIMA Core', kind: 'note', msg: `✨ ${(window.__SIMA_T||((_,fb)=>fb))('log.expanded_block','expanded description for block')} @${m.tag}` });
     }
   };
 
@@ -530,7 +530,7 @@ function App() {
   // backend is unreachable so the demo still narrates.
   const runSyncCheck = async () => {
     setScanState('scanning');
-    pushLog({ agent: 'SIMA Core', kind: 'head', msg: '— запуск sync-check для блоков atlas/' });
+    pushLog({ agent: 'SIMA Core', kind: 'head', msg: (window.__SIMA_T||((_,fb)=>fb))('log.sync_check_start','— running sync-check across atlas/ blocks') });
     let live = false;
     try {
       const base = (window.SIMA_API_BASE || 'http://localhost:8787').replace(/\/$/, '');
@@ -549,11 +549,11 @@ function App() {
       }
       if (j.ok) {
         setScanState(/drift|mismatch/i.test(tail.join(' ')) ? 'found' : 'resolved');
-        if (/drift|mismatch/i.test(tail.join(' '))) pushLog({ agent: 'SIMA Core', kind: 'warn', msg: 'обнаружен рассинхрон — см. вывод выше' });
-        else pushLog({ agent: 'SIMA Core', kind: 'ok', msg: '✓ sync-check прошёл, схема синхронна' });
+        if (/drift|mismatch/i.test(tail.join(' '))) pushLog({ agent: 'SIMA Core', kind: 'warn', msg: (window.__SIMA_T||((_,fb)=>fb))('log.desync_detected','drift detected — see output above') });
+        else pushLog({ agent: 'SIMA Core', kind: 'ok', msg: (window.__SIMA_T||((_,fb)=>fb))('log.sync_ok','✓ sync-check passed, schema in sync') });
       } else {
         setScanState('found');
-        pushLog({ agent: 'SIMA Core', kind: 'fail', msg: `sync-check завершился с ошибкой: ${j.error || 'unknown'}` });
+        pushLog({ agent: 'SIMA Core', kind: 'fail', msg: `${(window.__SIMA_T||((_,fb)=>fb))('log.sync_failed','sync-check failed:')} ${j.error || 'unknown'}` });
       }
     } catch (e) {
       // Fallback editorial narration when API unreachable
@@ -582,8 +582,8 @@ function App() {
 
   const onSendToAgent = async (agentId, mod) => {
     const agent = data.agents.find(a => a.id === agentId)?.title || agentId;
-    pushLog({ agent: 'SIMA Core', kind: 'head', msg: `— пакую контекст блока @${mod.tag} → ${agent}` });
-    pushLog({ agent: 'SIMA Core', kind: 'note', msg: `включено: описание · KPI · логика · ${(data.tasks[mod.id]||[]).length} задач · история (${data.lessons.filter(l=>l.module===mod.id).length} уроков)` });
+    pushLog({ agent: 'SIMA Core', kind: 'head', msg: `— ${(window.__SIMA_T||((_,fb)=>fb))('log.packing_context','packing context for block')} @${mod.tag} → ${agent}` });
+    pushLog({ agent: 'SIMA Core', kind: 'note', msg: `${(window.__SIMA_T||((_,fb)=>fb))('log.context_includes','included:')} ${(window.__SIMA_T||((_,fb)=>fb))('log.context_desc','description')} · KPI · ${(window.__SIMA_T||((_,fb)=>fb))('log.context_logic','logic')} · ${(data.tasks[mod.id]||[]).length} ${(window.__SIMA_T||((_,fb)=>fb))('log.context_tasks_word','tasks')} · ${(window.__SIMA_T||((_,fb)=>fb))('log.context_history','history')} (${data.lessons.filter(l=>l.module===mod.id).length} ${(window.__SIMA_T||((_,fb)=>fb))('log.context_lessons_word','lessons')})` });
     setActiveAgent('all');
     setDockCollapsed(false);
     setActiveFlash(mod.id);
@@ -624,7 +624,7 @@ function App() {
     }
     const kind = opts.kind || 'block';
     const tag = mod?.tag ? `@${mod.tag}` : '(весь граф)';
-    pushLog({ agent: 'SIMA Core', kind: 'head', msg: `— спрашиваю Клода про ${tag} (${kind})…` });
+    pushLog({ agent: 'SIMA Core', kind: 'head', msg: `— ${(window.__SIMA_T||((_,fb)=>fb))('log.asking_claude','asking Claude about')} ${tag} (${kind})…` });
     const defaultPrompts = {
       block:            `Дай практический совет по блоку «${mod?.title || ''}» (слой: ${mod?.layer || ''}). Что упростить, что усилить, какие риски?`,
       block_acceptance: `Блок «${mod?.title || ''}» не проходит приёмку. Почему он мог бы упасть? Дай 1-2 конкретных фикса.`,
@@ -679,7 +679,7 @@ function App() {
       : { x: 400, y: 300 };
     const created = {
       id,
-      title: preset?.title || 'Новый модуль',
+      title: preset?.title || (window.__SIMA_T||((_,fb)=>fb))('log.new_block_title','New block'),
       tag: preset?.tag || id.replace(/^b\./, ''),
       layer: preset?.layer || 'logic',
       x: preset?.x ?? Math.round(avg.x + 40),
@@ -692,7 +692,7 @@ function App() {
     // Optimistic update: show on canvas immediately
     setModules(M => [...M, created]);
     setSelectedId(id);
-    pushLog({ agent: 'SIMA Core', kind: 'head', msg: `Создан модуль ${created.title} (${id}).` });
+    pushLog({ agent: 'SIMA Core', kind: 'head', msg: `${(window.__SIMA_T||((_,fb)=>fb))('log.block_created','Created block')} ${created.title} (${id}).` });
     // Persist to atlas/graph.json. On failure rollback the optimistic add.
     if (window.SIMA_API && window.SIMA_API.createBlock) {
       // Phase R-7.3 — auto-retry on "already exists". UI's local state
@@ -731,8 +731,8 @@ function App() {
           agent: 'SIMA Core',
           kind: 'fail',
           msg: isCollision
-            ? `Не удалось создать блок: graph.json клиента содержит много стале b.${base}-N. Снеси atlas/clients/${currentClient}/blocks/ + перепиши graph.json (или дождись /reset endpoint в R-7.4). Откат.`
-            : `Не удалось сохранить ${id}: ${r?.error || 'unknown'}. Откат.`,
+            ? `${(window.__SIMA_T||((_,fb)=>fb))('log.create_collision','Failed to create block: graph.json contains many stale')} b.${base}-N. ${(window.__SIMA_T||((_,fb)=>fb))('log.create_collision_hint','Clear atlas/clients/<client>/blocks/ + rewrite graph.json (or wait for /reset endpoint in R-7.4). Rolled back.')}`
+            : `${(window.__SIMA_T||((_,fb)=>fb))('log.save_failed','Failed to save')} ${id}: ${r?.error || 'unknown'}. ${(window.__SIMA_T||((_,fb)=>fb))('log.rolled_back','Rolled back.')}`,
         });
       } else {
         // Reflect the actually-saved id back into local state if it drifted
@@ -742,7 +742,7 @@ function App() {
           setSelectedId(attemptedId);
           pushLog({ agent: 'SIMA Core', kind: 'note', msg: `id ${id} был занят на сервере; создан как ${attemptedId}.` });
         }
-        pushLog({ agent: 'SIMA Core', kind: 'ok', msg: `Сохранено в atlas/clients/${currentClient}/graph.json (+8 контрактных файлов)` });
+        pushLog({ agent: 'SIMA Core', kind: 'ok', msg: `${(window.__SIMA_T||((_,fb)=>fb))('log.saved_to','Saved to')} atlas/clients/${currentClient}/graph.json (+8 ${(window.__SIMA_T||((_,fb)=>fb))('log.contract_files','contract files')})` });
         // Record undo: archive (soft-delete) the just-created block.
         recordHistory(`+ блок ${attemptedId}`, async () => {
           if (window.SIMA_API?.deleteBlock) await window.SIMA_API.deleteBlock(attemptedId, false);
@@ -923,7 +923,7 @@ function App() {
         const layerTitleHint = ({ backend: 'Backend', frontend: 'Frontend', logic: 'Logic', tests: 'Tests' })[layer] || 'Logic';
         const r = await window.SIMA_API.createBlock({
           id,
-          title: preset?.title || `${layerTitleHint} подмодуль`,
+          title: preset?.title || `${layerTitleHint} ${(window.__SIMA_T||((_,fb)=>fb))('log.submodule_title_suffix','submodule')}`,
           layer,
           parent_block_id: parent,
           x: preset?.x ?? 80,

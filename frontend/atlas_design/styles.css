@@ -102,18 +102,34 @@ html, body {
   transition: background 0.3s;
 }
 
-.app.no-detail { grid-template-columns: 280px 1fr 0px; }
+/* R-7.65 — when right detail panel is closed, canvas takes the freed
+   space; rail keeps its width unchanged. data-detail="closed" attribute
+   override at the bottom of this file (L1502-1505) does the actual
+   slide-out animation; this class is kept as a defensive fallback for
+   no-JS / very-early-render. */
+.app.no-detail { grid-template-columns: 280px 1fr 0; }
 .app.no-detail .detail { display: none; }
 
 .topbar {
   grid-area: topbar;
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 0 20px;
+  gap: 12px;
+  padding: 8px 20px;
   border-bottom: 1px solid var(--rule);
   background: var(--paper);
   z-index: 10;
+  /* R-7.66 — wrap pills onto a second line on narrow viewports.
+     Without this, on <1500px screens the rightmost pills overflowed
+     past the viewport edge (operator: "all buttons don't fit on the
+     top panel"). flex-wrap + row-gap keeps them readable; .spacer
+     loses its 1fr push when wrapping but that's preferable to
+     hidden-overflow buttons. */
+  flex-wrap: wrap;
+  row-gap: 6px;
+}
+@media (min-width: 1700px) {
+  .topbar { flex-wrap: nowrap; padding: 0 20px; gap: 16px; }
 }
 
 .topbar .brand {
@@ -212,6 +228,18 @@ html, body {
   border-radius: 4px; margin-left: 6px; transition: background 0.15s, color 0.15s;
 }
 .rail-edit:hover { background: var(--card-2); color: var(--ink); }
+
+/* R-7.65 — empty-state CTA inside rail (Conditions/stack when nothing yet) */
+.rail-empty-cta {
+  display: flex; align-items: center; gap: 8px;
+  width: 100%; padding: 9px 12px;
+  background: var(--card-2); border: 1px dashed var(--rule); border-radius: 8px;
+  color: var(--ink-3); font-size: 12px; line-height: 1.4;
+  text-align: left; cursor: pointer;
+  transition: all 0.12s;
+}
+.rail-empty-cta:hover { background: var(--card); border-color: var(--ink-3); color: var(--ink); }
+.rail-empty-cta-icon { font-size: 14px; flex-shrink: 0; }
 .rail {
   grid-area: rail;
   border-right: 1px solid var(--rule);

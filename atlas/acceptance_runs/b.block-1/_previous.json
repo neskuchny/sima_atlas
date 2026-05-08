@@ -1,0 +1,147 @@
+{
+  "block_id": "b.block-1",
+  "source_path": "/home/user/sima_atlas/atlas/blocks/b.block-1/acceptance.md",
+  "parsed_warnings": [],
+  "assertions": [
+    {
+      "id": "A1",
+      "label": null,
+      "text": "Модуль успешно обрабатывает запросы в соответствии с KPI-1 (среднее время обработки менее 200 мс) при тестировании с нагрузкой, имитирующей типичное использование.",
+      "checked": false,
+      "line": 3,
+      "evidence_kind": "llm_judge",
+      "evidence_spec": null,
+      "verdict": "skipped",
+      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
+      "raw": {
+        "judge_verdict": "inconclusive",
+        "provider": "mock",
+        "model": "mock-1",
+        "prompt_hash": "25e67e2a9aa93301",
+        "cost_usd": 0,
+        "cost_capped": false,
+        "evidence_quote": ""
+      },
+      "duration_ms": 0
+    },
+    {
+      "id": "A2",
+      "label": null,
+      "text": "Модуль демонстрирует процент ошибок при обработке запросов, не превышающий 1% (KPI-2) в течение длительного периода тестирования с различными входными данными.",
+      "checked": false,
+      "line": 4,
+      "evidence_kind": "llm_judge",
+      "evidence_spec": null,
+      "verdict": "skipped",
+      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
+      "raw": {
+        "judge_verdict": "inconclusive",
+        "provider": "mock",
+        "model": "mock-1",
+        "prompt_hash": "9445456044e2b50f",
+        "cost_usd": 0,
+        "cost_capped": false,
+        "evidence_quote": ""
+      },
+      "duration_ms": 0
+    },
+    {
+      "id": "A3",
+      "label": null,
+      "text": "Модуль обеспечивает пропускную способность не менее 500 запросов в секунду (KPI-3) при нагрузочном тестировании, что подтверждает его способность справляться с ожидаемой нагрузкой.",
+      "checked": false,
+      "line": 5,
+      "evidence_kind": "llm_judge",
+      "evidence_spec": null,
+      "verdict": "skipped",
+      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
+      "raw": {
+        "judge_verdict": "inconclusive",
+        "provider": "mock",
+        "model": "mock-1",
+        "prompt_hash": "1fce042e9236f981",
+        "cost_usd": 0,
+        "cost_capped": false,
+        "evidence_quote": ""
+      },
+      "duration_ms": 1
+    },
+    {
+      "id": "A4",
+      "label": null,
+      "text": "Успешное выполнение ключевых бизнес-задач (например, создание, обновление, удаление сущностей) происходит в 99% случаев (KPI-4) при автоматизированном тестировании.",
+      "checked": false,
+      "line": 6,
+      "evidence_kind": "llm_judge",
+      "evidence_spec": null,
+      "verdict": "skipped",
+      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
+      "raw": {
+        "judge_verdict": "inconclusive",
+        "provider": "mock",
+        "model": "mock-1",
+        "prompt_hash": "65c6e6daa8b2b38e",
+        "cost_usd": 0,
+        "cost_capped": false,
+        "evidence_quote": ""
+      },
+      "duration_ms": 0
+    },
+    {
+      "id": "A5",
+      "label": null,
+      "text": "Время восстановления модуля после искусственно вызванного сбоя не превышает 5 минут (KPI-5), что подтверждается автоматическим мониторингом и системой оповещений.",
+      "checked": false,
+      "line": 7,
+      "evidence_kind": "llm_judge",
+      "evidence_spec": null,
+      "verdict": "skipped",
+      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
+      "raw": {
+        "judge_verdict": "inconclusive",
+        "provider": "mock",
+        "model": "mock-1",
+        "prompt_hash": "1b247e44e8f123e6",
+        "cost_usd": 0,
+        "cost_capped": false,
+        "evidence_quote": ""
+      },
+      "duration_ms": 0
+    },
+    {
+      "id": "A6",
+      "label": null,
+      "text": "Все зависимости модуля (другие модули или компоненты) успешно интегрированы и функционируют корректно, что подтверждается сквозным тестированием связанных функций.",
+      "checked": false,
+      "line": 8,
+      "evidence_kind": "llm_judge",
+      "evidence_spec": null,
+      "verdict": "skipped",
+      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
+      "raw": {
+        "judge_verdict": "inconclusive",
+        "provider": "mock",
+        "model": "mock-1",
+        "prompt_hash": "b3bc5b2549936ade",
+        "cost_usd": 0,
+        "cost_capped": false,
+        "evidence_quote": ""
+      },
+      "duration_ms": 0
+    }
+  ],
+  "counts": {
+    "pass": 0,
+    "fail": 0,
+    "skipped": 6
+  },
+  "verdict": "inconclusive",
+  "duration_ms": 1,
+  "checked_at": "2026-05-08T22:02:01.096Z"
+}

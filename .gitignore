@@ -7,17 +7,57 @@ atlas/eval_history/*
 !atlas/eval_history/.gitkeep
 !atlas/eval_history/baseline.json
 
+# Acceptance verifier per-run snapshots — verifier overwrites _latest.json
+# every run; per-timestamp files are historical and don't need to be in git.
+# Keep _latest.json + _previous.json + _summary.json as those are the
+# current state surfaces consumed by the UI / nightly.
+atlas/acceptance_runs/**/2*.json
+!atlas/acceptance_runs/**/_latest.json
+!atlas/acceptance_runs/**/_previous.json
+!atlas/acceptance_runs/**/_summary.json
+
+# Context-pack regen artifacts — built from contracts on every nightly,
+# zero source-of-truth value.
+atlas/context_packs/*.json
+
+# Operator profile history — per-operator interaction trace, may contain
+# privacy-sensitive content from the operator's own sessions.
+atlas/operator_profile/history/*
+!atlas/operator_profile/history/.gitkeep
+
+# Process-run traces (cursor observations etc.) — verbose runtime logs.
+atlas/process_runs/**/*
+
+# Pending UI proposals — runtime queue, not source of truth.
+atlas/proposals/*
+!atlas/proposals/.gitkeep
+
+# Per-run agent log files — written on every /runs/start.
+atlas/run_logs/*
+!atlas/run_logs/.gitkeep
+
+# Run-state snapshots (FSM mid-flight); _summary surfaces the final outcome.
+atlas/run_state/*.json
+!atlas/run_state/_summary.json
+
 # Chat watcher artefacts (Phase R-3) — local cursor maps full session
 # paths under ~/.claude/projects, which leak session UUIDs and home path.
 atlas/run_state/chat_watch_cursor.json
 atlas/run_state/chat_watch_status.json
+
+# Ingestion scratch space.
+atlas/ingestion_scratch/*
+
+# Activity log — append-only runtime trace.
+atlas/activity_log.jsonl
+atlas/transitions.log
+atlas/ingestion_queue.jsonl
 
 # Misc
 node_modules/
 .env
 .env.local
 *.log.bak
-node_modules/
 tests/playwright/_report/
 tests/playwright/test-results/
 test-results/
