@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>SIMA Atlas — визуальное программирование с памятью</title>
-<link rel="stylesheet" href="styles.css?v=r7-47" />
+<link rel="stylesheet" href="styles.css?v=r7-48" />
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
@@ -24,12 +24,12 @@
        `sima-data-changed` CustomEvent so the React tree can react. Set
        window.SIMA_API_BASE before this script loads to point at a
        remote backend in production. -->
-<script src="data_static.js?v=r7-47"></script>
-<script src="data_loader.js?v=r7-47"></script>
-<script type="text/babel" src="tweaks-panel.jsx?v=r7-47"></script>
-<script type="text/babel" src="graph.jsx?v=r7-47"></script>
-<script type="text/babel" src="panels.jsx?v=r7-47"></script>
-<script type="text/babel" src="views.jsx?v=r7-47"></script>
+<script src="data_static.js?v=r7-48"></script>
+<script src="data_loader.js?v=r7-48"></script>
+<script type="text/babel" src="tweaks-panel.jsx?v=r7-48"></script>
+<script type="text/babel" src="graph.jsx?v=r7-48"></script>
+<script type="text/babel" src="panels.jsx?v=r7-48"></script>
+<script type="text/babel" src="views.jsx?v=r7-48"></script>
 <script type="text/babel">
 const { useState, useEffect, useRef, useMemo, useCallback } = React;
 
@@ -652,8 +652,12 @@ function App() {
     const base = (preset?.title || 'block').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 32) || 'block';
     let n = 1; while (existingIds.has(`b.${base}-${n}`)) n++;
     const id = preset?.id || `b.${base}-${n}`;
-    // Layer mapping: design layer → atlas layer (reverse of adapter)
-    const REV_LAYER = { backend: 'logic', frontend: 'front', logic: 'logic', tests: 'testing' };
+    // R-7.48 — REV_LAYER killed. До R-7.48 backend→logic, frontend→front,
+    // tests→testing — это легаси-маппинг с тех времён, когда design-layers
+    // и atlas-layers различались. Сейчас же atlas_blocks_api ожидает
+    // ровно {backend|frontend|logic|tests}, а маппинг ломал даже B/L/F/T
+    // picker в drill-view (выбираешь backend → на сервер летит logic).
+    const ATLAS_LAYERS = new Set(['backend', 'frontend', 'logic', 'tests']);
     // Default placement near current modules' centroid
     const avg = modules.length
       ? { x: modules.reduce((s, m) => s + m.x, 0) / modules.length,
@@ -692,7 +696,7 @@ function App() {
           r = await window.SIMA_API.createBlock({
             id: attemptedId,
             title: created.title,
-            layer: REV_LAYER[created.layer] || 'logic',
+            layer: ATLAS_LAYERS.has(created.layer) ? created.layer : 'logic',
             status: 'idea',
             x: created.x, y: created.y, size: created.size,
           });
@@ -1227,15 +1231,13 @@ function App() {
                   <button onClick={() => setTweak('showLayers', !tweaks.showLayers)} className={tweaks.showLayers ? 'on' : ''}>
                     ▦ Слои стэка <span className="badge">{tweaks.showLayers ? 'on' : 'off'}</span>
                   </button>
-                  <button onClick={drillTarget ? () => addActiveBlock({ layer: 'logic' }) : onAddModule}>＋ Новый модуль <span className="badge">пкм</span></button>
-                  {drillTarget && (
-                    <div style={{ display: 'flex', gap: 4, paddingLeft: 8 }}>
-                      <button onClick={() => addActiveBlock({ layer: 'backend' })} style={{ fontSize: 10.5, padding: '3px 8px' }} title="+ Backend подмодуль">B</button>
-                      <button onClick={() => addActiveBlock({ layer: 'logic' })} style={{ fontSize: 10.5, padding: '3px 8px' }} title="+ Logic подмодуль">L</button>
-                      <button onClick={() => addActiveBlock({ layer: 'frontend' })} style={{ fontSize: 10.5, padding: '3px 8px' }} title="+ Frontend подмодуль">F</button>
-                      <button onClick={() => addActiveBlock({ layer: 'tests' })} style={{ fontSize: 10.5, padding: '3px 8px' }} title="+ Tests подмодуль">T</button>
-                    </div>
-                  )}
+                  <button onClick={drillTarget ? () => addActiveBlock({ layer: 'logic' }) : () => onAddModule({ layer: 'logic' })}>＋ Новый модуль <span className="badge">пкм</span></button>
+                  <div className="layer-picker-row" title="Создать новый блок с конкретным слоем — цвет на канвасе">
+                    <button className="lp-btn lp-backend"  onClick={drillTarget ? () => addActiveBlock({ layer: 'backend' })  : () => onAddModule({ layer: 'backend' })}  title={drillTarget ? '+ Backend подмодуль'  : '+ Backend блок'}>B</button>
+                    <button className="lp-btn lp-logic"    onClick={drillTarget ? () => addActiveBlock({ layer: 'logic' })    : () => onAddModule({ layer: 'logic' })}    title={drillTarget ? '+ Logic подмодуль'    : '+ Logic блок'}>L</button>
+                    <button className="lp-btn lp-frontend" onClick={drillTarget ? () => addActiveBlock({ layer: 'frontend' }) : () => onAddModule({ layer: 'frontend' })} title={drillTarget ? '+ Frontend подмодуль' : '+ Frontend блок'}>F</button>
+                    <button className="lp-btn lp-tests"    onClick={drillTarget ? () => addActiveBlock({ layer: 'tests' })    : () => onAddModule({ layer: 'tests' })}    title={drillTarget ? '+ Tests подмодуль'    : '+ Tests блок'}>T</button>
+                  </div>
                 </div>
                 <div className="grp">
                   <div style={{ fontSize: 10, color: 'var(--ink-4)', padding: '4px 8px 2px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Фильтр статуса</div>

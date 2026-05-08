@@ -1849,6 +1849,52 @@ html, body {
 }
 
 /* ============================================================
+   LAYER PICKER (R-7.48) — toolbar B/L/F/T + DetailPanel pills
+   ============================================================ */
+.layer-picker-row { display: flex; gap: 4px; padding-left: 8px; align-items: center; }
+.layer-picker-row .lp-btn {
+  font-family: 'JetBrains Mono', monospace; font-size: 10.5px;
+  padding: 3px 8px; border-radius: 4px;
+  border: 1px solid var(--rule); background: var(--card-2);
+  color: var(--ink-3); cursor: pointer; transition: all 0.12s;
+  min-width: 22px;
+}
+.layer-picker-row .lp-btn.lp-backend  { color: var(--layer-backend); }
+.layer-picker-row .lp-btn.lp-frontend { color: var(--layer-frontend); }
+.layer-picker-row .lp-btn.lp-logic    { color: var(--layer-logic); }
+.layer-picker-row .lp-btn.lp-tests    { color: var(--layer-tests); }
+.layer-picker-row .lp-btn:hover {
+  background: var(--card); border-color: currentColor;
+  transform: translateY(-1px);
+}
+
+.layer-pill-row {
+  display: flex; gap: 6px; align-items: center;
+  padding: 8px 10px; border: 1px solid var(--rule); border-radius: 8px;
+  background: var(--card-2); flex-wrap: wrap;
+}
+.layer-pill-row .lp-label {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  color: var(--ink-3); letter-spacing: 0.08em; text-transform: uppercase;
+  margin-right: 4px;
+}
+.layer-pill-row .lp-pill {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  padding: 4px 10px; border-radius: 12px;
+  border: 1px solid var(--rule); background: var(--card);
+  color: var(--ink-3); cursor: pointer; transition: all 0.12s;
+}
+.layer-pill-row .lp-pill:hover { background: var(--paper); transform: translateY(-1px); }
+.layer-pill-row .lp-pill.active.lp-backend  { background: var(--layer-backend);  color: var(--paper); border-color: var(--layer-backend); }
+.layer-pill-row .lp-pill.active.lp-frontend { background: var(--layer-frontend); color: var(--paper); border-color: var(--layer-frontend); }
+.layer-pill-row .lp-pill.active.lp-logic    { background: var(--layer-logic);    color: var(--paper); border-color: var(--layer-logic); }
+.layer-pill-row .lp-pill.active.lp-tests    { background: var(--layer-tests);    color: var(--paper); border-color: var(--layer-tests); }
+.layer-pill-row .lp-pill:not(.active).lp-backend  { color: var(--layer-backend); }
+.layer-pill-row .lp-pill:not(.active).lp-frontend { color: var(--layer-frontend); }
+.layer-pill-row .lp-pill:not(.active).lp-logic    { color: var(--layer-logic); }
+.layer-pill-row .lp-pill:not(.active).lp-tests    { color: var(--layer-tests); }
+
+/* ============================================================
    PR — Run log + cancel + files-changed (Phase D1/D5/D6)
    ============================================================ */
 .run-card { cursor: pointer; }

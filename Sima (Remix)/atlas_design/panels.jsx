@@ -248,6 +248,42 @@ function DetailPanel({ data, modules: liveModules, moduleId, onClose, desyncReso
   );
 }
 
+// R-7.48 — выбор слоя блока inline. Цвет ноды на канвасе и фильтрация
+// в layered-view зависят от поля layer (backend/frontend/logic/tests).
+// До R-7.48 у нас не было способа сменить layer уже созданного блока —
+// все top-level блоки оставались дефолтным `logic`, канвас был одного
+// цвета. Теперь — клик по пилюле → patchBlock → refresh.
+function LayerPicker({ block }) {
+  if (!block || !block.id || !String(block.id).startsWith('b.')) return null;
+  const current = block.layer || 'logic';
+  const LAYERS = [
+    { id: 'backend',  label: 'Backend',  hint: 'API, persistence, серверная логика' },
+    { id: 'logic',    label: 'Logic',    hint: 'бизнес-правила, чистые функции' },
+    { id: 'frontend', label: 'Frontend', hint: 'UI-компоненты, экраны' },
+    { id: 'tests',    label: 'Tests',    hint: 'unit, e2e, проверки' },
+  ];
+  const onPick = async (layer) => {
+    if (layer === current) return;
+    if (!window.SIMA_API?.patchBlock) return;
+    await window.SIMA_API.patchBlock(block.id, { layer });
+  };
+  return (
+    <div className="layer-pill-row" style={{ marginBottom: 14 }}>
+      <span className="lp-label">Слой</span>
+      {LAYERS.map((L) => (
+        <button
+          key={L.id}
+          className={`lp-pill lp-${L.id} ${L.id === current ? 'active' : ''}`}
+          onClick={() => onPick(L.id)}
+          title={L.hint}
+        >
+          {L.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSubsystem, onOpenTz, onClaudeAdvice }) {
   const desc = MODULE_DESC[m.id] || {};
   // Phase R-7.12 — для НОВЫХ блоков (не из захардкоженного MODULE_DESC)
@@ -299,6 +335,7 @@ function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSu
           {m.warn}
         </div>
       )}
+      <LayerPicker block={m} />
       <h3>Зачем</h3>
       <p className="lede" style={{ whiteSpace: 'pre-wrap' }}>{whyText}</p>
 
