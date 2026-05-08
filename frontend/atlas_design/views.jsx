@@ -28,6 +28,7 @@ const { useState: useStateV, useEffect: useEffectV, useMemo: useMemoV } = React;
 // the Gallery and TZ generation.
 
 function Composer({ onClose, onPublished, productContext, onBlocksCreated }) {
+  const t = window.__SIMA_T || ((_, fb) => fb);
   const [source, setSource] = useStateV('text');     // text | file | url | meeting
   const [title, setTitle] = useStateV('');
   const [text, setText] = useStateV('');
@@ -48,10 +49,10 @@ function Composer({ onClose, onPublished, productContext, onBlocksCreated }) {
   const [fillResult, setFillResult] = useStateV(null);
 
   const sources = [
-    { id: 'text',    label: 'Текст',     hint: 'паста / заметка' },
-    { id: 'meeting', label: 'Встреча',   hint: 'транскрипт' },
-    { id: 'file',    label: 'Файл',      hint: '.md / .txt' },
-    { id: 'url',     label: 'Ссылка',    hint: 'веб-источник' },
+    { id: 'text',    label: t('composer.source.text', 'Text'),       hint: t('composer.source.text_hint', 'paste / note') },
+    { id: 'meeting', label: t('composer.source.meeting', 'Meeting'), hint: t('composer.source.meeting_hint', 'transcript') },
+    { id: 'file',    label: t('composer.source.file', 'File'),       hint: t('composer.source.file_hint', '.md / .txt') },
+    { id: 'url',     label: t('composer.source.url', 'Link'),        hint: t('composer.source.url_hint', 'web source') },
   ];
 
   const onFile = async (e) => {
@@ -63,8 +64,8 @@ function Composer({ onClose, onPublished, productContext, onBlocksCreated }) {
   };
 
   const publish = async () => {
-    if (!title.trim()) { setResult({ ok: false, error: 'Укажите заголовок' }); return; }
-    if (!text.trim() && source !== 'url') { setResult({ ok: false, error: 'Контент пуст' }); return; }
+    if (!title.trim()) { setResult({ ok: false, error: t('composer.error.no_title', 'Title is required') }); return; }
+    if (!text.trim() && source !== 'url') { setResult({ ok: false, error: t('composer.error.empty', 'Content is empty') }); return; }
     setBusy(true);
     setResult(null);
     setProposals([]);
@@ -173,7 +174,7 @@ function Composer({ onClose, onPublished, productContext, onBlocksCreated }) {
         const r = await window.SIMA_API.artifacts.create({
           kind: bucket === 'ideas' ? 'note' : 'document',
           title: itemText.slice(0, 60) + (itemText.length > 60 ? '…' : ''),
-          description: `Извлечено из «${title || 'untitled'}»`,
+          description: `${t('composer.extract.from', 'Extracted from')} «${title || 'untitled'}»`,
           body: itemText,
           tags: [bucket, ...(insights.terms || []).slice(0, 3)],
           sourceProjectId: result?.artifact?.id,
@@ -198,15 +199,15 @@ function Composer({ onClose, onPublished, productContext, onBlocksCreated }) {
       <div className="composer-inner">
         <div className="composer-head">
           <div>
-            <div className="mono" style={{ fontSize: 11, color: 'var(--ink-4)', letterSpacing: '0.08em' }}>SIMA · СИНТЕЗАТОР</div>
+            <div className="mono" style={{ fontSize: 11, color: 'var(--ink-4)', letterSpacing: '0.08em' }}>{t('composer.kicker', 'SIMA · SYNTHESIZER')}</div>
             <h2 style={{ fontFamily: 'Newsreader, serif', fontStyle: 'italic', fontSize: 22, margin: '4px 0 4px' }}>
-              Положите сюда любой источник — Sima извлечёт смысл
+              {t('composer.headline', 'Drop any source here — Sima extracts the meaning')}
             </h2>
             <div className="meta" style={{ fontSize: 12.5 }}>
-              Заметка, транскрипт встречи, файл или ссылка → артефакт, который видят галерея и блоки.
+              {t('composer.subline', 'Note, meeting transcript, file or link → artifact visible to gallery and blocks.')}
             </div>
           </div>
-          {onClose && <button className="pill" onClick={onClose} title="Закрыть">✕</button>}
+          {onClose && <button className="pill" onClick={onClose} title={t('composer.close', 'Close')}>✕</button>}
         </div>
 
         <div className="tabs" style={{ marginTop: 14 }}>
@@ -219,30 +220,30 @@ function Composer({ onClose, onPublished, productContext, onBlocksCreated }) {
 
         {/* K4 — intent picker. What kind of thing are we modelling? */}
         <div className="composer-intent">
-          <span className="meta" style={{ fontSize: 11.5 }}>Тип:</span>
+          <span className="meta" style={{ fontSize: 11.5 }}>{t('composer.intent_label', 'Type:')}</span>
           {[
-            { id: 'product',   label: 'Продукт' },
-            { id: 'book',      label: 'Книга' },
-            { id: 'idea',      label: 'Идея' },
-            { id: 'marketing', label: 'Маркетинг' },
-            { id: 'custom',    label: 'Своё' },
+            { id: 'product',   label: t('composer.intent.product', 'Product') },
+            { id: 'book',      label: t('composer.intent.book', 'Book') },
+            { id: 'idea',      label: t('composer.intent.idea', 'Idea') },
+            { id: 'marketing', label: t('composer.intent.marketing', 'Marketing') },
+            { id: 'custom',    label: t('composer.intent.custom', 'Custom') },
           ].map((k) => (
             <button
               key={k.id}
               className={`intent-pill ${intent === k.id ? 'active' : ''}`}
               onClick={() => setIntent(k.id)}
-              title={`Sima будет интерпретировать источник как ${k.label.toLowerCase()}`}
+              title={`${t('composer.intent_title_prefix', 'Sima will interpret the source as ')}${k.label.toLowerCase()}`}
             >{k.label}</button>
           ))}
           <span className="meta" style={{ fontSize: 11, marginLeft: 'auto' }}>
-            влияет на «Sima предложит блоки»
+            {t('composer.intent_hint', 'affects «Sima will propose blocks»')}
           </span>
         </div>
 
         <div className="composer-body">
           <input
             className="composer-input"
-            placeholder="Название артефакта"
+            placeholder={t('composer.title_placeholder', 'Artifact title')}
             value={title}
             onChange={e => setTitle(e.target.value)}
           />
@@ -250,7 +251,7 @@ function Composer({ onClose, onPublished, productContext, onBlocksCreated }) {
           {source === 'file' && (
             <div className="composer-file">
               <input type="file" accept=".md,.txt,.json,.csv" onChange={onFile} />
-              <span className="meta" style={{ fontSize: 11.5 }}>Поддержка: markdown / txt / json / csv</span>
+              <span className="meta" style={{ fontSize: 11.5 }}>{t('composer.file_support', 'Supports: markdown / txt / json / csv')}</span>
             </div>
           )}
 
@@ -267,8 +268,8 @@ function Composer({ onClose, onPublished, productContext, onBlocksCreated }) {
             <textarea
               className="composer-textarea"
               placeholder={source === 'meeting'
-                ? 'Вставьте транскрипт встречи. Sima найдёт ключевые цели, ограничения, идеи и сохранит как артефакт.'
-                : 'Текст / содержимое файла…'}
+                ? t('composer.textarea.meeting', 'Paste the meeting transcript. Sima will find key goals, constraints, ideas and save as an artifact.')
+                : t('composer.textarea.text', 'Text / file content…')}
               value={text}
               onChange={e => setText(e.target.value)}
               rows={12}
@@ -277,24 +278,24 @@ function Composer({ onClose, onPublished, productContext, onBlocksCreated }) {
 
           <input
             className="composer-input"
-            placeholder="Теги через запятую — например: продукт, marketing, idea"
+            placeholder={t('composer.tags_placeholder', 'Comma-separated tags — e.g. product, marketing, idea')}
             value={tags}
             onChange={e => setTags(e.target.value)}
           />
 
           <div className="composer-actions">
             <button className="pill primary" onClick={publish} disabled={busy}>
-              {busy ? 'Публикую…' : '＋ Опубликовать как артефакт'}
+              {busy ? t('composer.publishing', 'Publishing…') : t('composer.publish', '＋ Publish as artifact')}
             </button>
             <span className="meta" style={{ fontSize: 11.5 }}>
-              Артефакт появится в галерее и сможет быть подцеплен к любому блоку.
+              {t('composer.publish_hint', 'The artifact will appear in the gallery and can be attached to any block.')}
             </span>
           </div>
 
           {result && (
             <div className={`composer-result ${result.ok ? 'ok' : 'fail'}`}>
               {result.ok
-                ? <>✓ Опубликовано как <span className="mono">{result.artifact.id}</span> — «{result.artifact.title}»</>
+                ? <>{t('composer.published_prefix', '✓ Published as')} <span className="mono">{result.artifact.id}</span> — «{result.artifact.title}»</>
                 : <>✗ {result.error}</>}
             </div>
           )}
@@ -302,17 +303,17 @@ function Composer({ onClose, onPublished, productContext, onBlocksCreated }) {
           {/* Phase M — Sima synthesis */}
           {result?.ok && text && (
             <div className="synthesis-cta">
-              <button className="pill primary" onClick={fillFromChat} disabled={fillBusy} title="Один клик: извлечь смыслы + заполнить слабые поля существующих блоков + предложить новые блоки. План сохраняется в ✦ Предложения для review.">
-                {fillBusy ? '✦ Sima идёт по плану…' : '✦ Sima — заполни всё по этой переписке'}
+              <button className="pill primary" onClick={fillFromChat} disabled={fillBusy} title={t('composer.fill_title', 'One click: extract insights + fill weak fields of existing blocks + propose new blocks. Plan saved to ✦ Proposals for review.')}>
+                {fillBusy ? t('composer.fill_busy', '✦ Sima is following the plan…') : t('composer.fill_btn', '✦ Sima — fill from this chat')}
               </button>
               <button className="pill" onClick={synthesize} disabled={synthBusy}>
-                {synthBusy ? 'думаю…' : '＋ только новые блоки'}
+                {synthBusy ? t('composer.synth_busy', 'thinking…') : t('composer.synth_only', '＋ new blocks only')}
               </button>
               <button className="pill" onClick={runExtract} disabled={insightsBusy}>
-                {insightsBusy ? 'извлекаю…' : '◔ только смыслы'}
+                {insightsBusy ? t('composer.extract_busy', 'extracting…') : t('composer.extract_only', '◔ insights only')}
               </button>
               <span className="meta" style={{ fontSize: 11.5 }}>
-                Большая кнопка — для «иди и заполни всё». Меньшие — отдельные шаги.
+                {t('composer.steps_hint', 'Big button — for «just go fill everything». Smaller ones — separate steps.')}
               </span>
             </div>
           )}
@@ -320,17 +321,17 @@ function Composer({ onClose, onPublished, productContext, onBlocksCreated }) {
             <div className={`composer-result ${fillResult.ok ? 'ok' : 'fail'}`} style={{ marginTop: 8 }}>
               {fillResult.ok && fillResult.plan ? (
                 <>
-                  ✓ {fillResult.mock ? '(demo mode) ' : ''}заполнено блоков: <strong>{fillResult.plan.summary.filled_blocks_count}</strong>
+                  ✓ {fillResult.mock ? t('composer.fill.demo', '(demo mode) ') : ''}{t('composer.fill.filled', 'blocks filled:')} <strong>{fillResult.plan.summary.filled_blocks_count}</strong>
                   /{fillResult.plan.summary.target_blocks_count}{' '}
-                  ({fillResult.plan.summary.total_fields_filled} полей);
-                  предложено новых: <strong>{fillResult.plan.summary.proposed_new_blocks}</strong>;
-                  ambiguities: {fillResult.plan.summary.ambiguities}.
+                  ({fillResult.plan.summary.total_fields_filled} {t('composer.fill.fields', 'fields);')}
+                  {' '}{t('composer.fill.proposed', 'new proposed:')} <strong>{fillResult.plan.summary.proposed_new_blocks}</strong>;
+                  {' '}{t('composer.fill.ambiguities', 'ambiguities:')} {fillResult.plan.summary.ambiguities}.
                   <div className="meta" style={{ fontSize: 11, marginTop: 4 }}>
-                    План сохранён в <code>{fillResult.plan.saved_at || `atlas/proposals/${fillResult.plan.id}.json`}</code> — открой <strong>✦ Предложения</strong> чтобы принять/отклонить.
+                    {t('composer.fill.plan_saved_pre', 'Plan saved to')} <code>{fillResult.plan.saved_at || `atlas/proposals/${fillResult.plan.id}.json`}</code> {t('composer.fill.plan_saved_post', '— open')} <strong>{t('composer.fill.proposals_link', '✦ Proposals')}</strong> {t('composer.fill.plan_saved_end', 'to accept/reject.')}
                   </div>
                 </>
               ) : (
-                <>✗ {fillResult.error || 'failed'}</>
+                <>✗ {fillResult.error || t('composer.fill.failed', 'failed')}</>
               )}
             </div>
           )}
@@ -340,18 +341,18 @@ function Composer({ onClose, onPublished, productContext, onBlocksCreated }) {
             <div className="insights-panel">
               {insights.mock && (
                 <div className="composer-result fail" style={{ marginBottom: 8 }}>
-                  Demo-режим: задайте ANTHROPIC_API_KEY для реального извлечения.
+                  {t('composer.insights.demo', 'Demo mode: set ANTHROPIC_API_KEY for real extraction.')}
                 </div>
               )}
               {insights.summary && (
                 <div className="insights-summary">
-                  <div className="meta" style={{ fontSize: 10.5, marginBottom: 2 }}>SIMA РЕЗЮМИРУЕТ</div>
+                  <div className="meta" style={{ fontSize: 10.5, marginBottom: 2 }}>{t('composer.insights.summary_label', 'SIMA SUMMARIZES')}</div>
                   {insights.summary}
                 </div>
               )}
               {insights.terms && insights.terms.length > 0 && (
                 <div style={{ marginTop: 8 }}>
-                  <div className="meta" style={{ fontSize: 10.5, marginBottom: 4 }}>ТЕРМИНЫ — клик добавит в теги</div>
+                  <div className="meta" style={{ fontSize: 10.5, marginBottom: 4 }}>{t('composer.insights.terms_label', 'TERMS — click to add as tags')}</div>
                   <div className="chips">
                     {insights.terms.map((t) => (
                       <span
@@ -364,10 +365,10 @@ function Composer({ onClose, onPublished, productContext, onBlocksCreated }) {
                 </div>
               )}
               {[
-                { k: 'goals', label: 'Цели', icon: '◎' },
-                { k: 'constraints', label: 'Ограничения', icon: '⊗' },
-                { k: 'ideas', label: 'Идеи', icon: '✦' },
-                { k: 'risks', label: 'Риски', icon: '⚠' },
+                { k: 'goals', label: t('composer.insights.goals', 'Goals'), icon: '◎' },
+                { k: 'constraints', label: t('composer.insights.constraints', 'Constraints'), icon: '⊗' },
+                { k: 'ideas', label: t('composer.insights.ideas', 'Ideas'), icon: '✦' },
+                { k: 'risks', label: t('composer.insights.risks', 'Risks'), icon: '⚠' },
               ].map(({ k, label, icon }) => {
                 const items = insights[k] || [];
                 if (!items.length) return null;
@@ -394,18 +395,17 @@ function Composer({ onClose, onPublished, productContext, onBlocksCreated }) {
               {Object.values(picked).some(Boolean) && (
                 <div className="insights-actions">
                   <button className="pill primary" onClick={savePickedAsArtifacts}>
-                    💾 Сохранить отмеченные как артефакты
+                    {t('composer.insights.save', '💾 Save selected as artifacts')}
                   </button>
                   <span className="meta" style={{ fontSize: 11.5 }}>
-                    Каждый отмеченный пункт станет отдельным артефактом
-                    (kind=document для goals/constraints/risks, note для ideas).
+                    {t('composer.insights.save_hint', 'Each selected item becomes a separate artifact (kind=document for goals/constraints/risks, note for ideas).')}
                   </span>
                 </div>
               )}
               {result?._extracted && (
                 <div className={`composer-result ${result._extracted.failed ? 'fail' : 'ok'}`} style={{ marginTop: 6 }}>
-                  ✓ создано артефактов: {result._extracted.created}
-                  {result._extracted.failed > 0 && <>; ошибок: {result._extracted.failed}</>}
+                  {t('composer.insights.created_prefix', '✓ artifacts created:')} {result._extracted.created}
+                  {result._extracted.failed > 0 && <>{t('composer.insights.errors', '; errors:')} {result._extracted.failed}</>}
                 </div>
               )}
             </div>
@@ -414,7 +414,7 @@ function Composer({ onClose, onPublished, productContext, onBlocksCreated }) {
             <div className="synthesis-list">
               {proposals[0]?._mock && (
                 <div className="composer-result fail" style={{ marginBottom: 8 }}>
-                  Demo-режим: задайте ANTHROPIC_API_KEY чтобы Sima генерировала реальные предложения.
+                  {t('composer.proposals.demo', 'Demo mode: set ANTHROPIC_API_KEY so Sima generates real proposals.')}
                 </div>
               )}
               {proposals.map((p) => (
@@ -441,20 +441,20 @@ function Composer({ onClose, onPublished, productContext, onBlocksCreated }) {
                   )}
                   {(p.provides_capabilities.length > 0 || p.depends_on_capabilities.length > 0) && (
                     <div className="synth-caps">
-                      {p.provides_capabilities.length > 0 && <span><span className="meta">даёт:</span> {p.provides_capabilities.slice(0, 4).join(', ')}</span>}
-                      {p.depends_on_capabilities.length > 0 && <span><span className="meta">зависит:</span> {p.depends_on_capabilities.slice(0, 4).join(', ')}</span>}
+                      {p.provides_capabilities.length > 0 && <span><span className="meta">{t('composer.proposals.gives', 'gives:')}</span> {p.provides_capabilities.slice(0, 4).join(', ')}</span>}
+                      {p.depends_on_capabilities.length > 0 && <span><span className="meta">{t('composer.proposals.depends', 'depends on:')}</span> {p.depends_on_capabilities.slice(0, 4).join(', ')}</span>}
                     </div>
                   )}
                   {p.rationale && <div className="meta" style={{ fontSize: 11, marginTop: 6 }}>{p.rationale}</div>}
                   <div className="synth-actions">
                     <button className="pill primary" onClick={() => accept(p)} disabled={!!accepting[p.id]}>
-                      {accepting[p.id] === 'creating' ? 'создаю…' :
-                        accepting[p.id] === 'writing' ? 'пишу файлы…' :
-                        accepting[p.id]?.startsWith('failed') ? 'ошибка' :
-                        '＋ Принять и создать блок'}
+                      {accepting[p.id] === 'creating' ? t('composer.proposals.creating', 'creating…') :
+                        accepting[p.id] === 'writing' ? t('composer.proposals.writing', 'writing files…') :
+                        accepting[p.id]?.startsWith('failed') ? t('composer.proposals.failed', 'error') :
+                        t('composer.proposals.accept', '＋ Accept and create block')}
                     </button>
                     <button className="pill" onClick={() => reject(p)} disabled={!!accepting[p.id]}>
-                      ✗ Пропустить
+                      {t('composer.proposals.skip', '✗ Skip')}
                     </button>
                     {accepting[p.id]?.startsWith('failed') && (
                       <span className="meta" style={{ fontSize: 11, color: 'var(--st-fail)' }}>{accepting[p.id]}</span>
@@ -475,6 +475,7 @@ function Composer({ onClose, onPublished, productContext, onBlocksCreated }) {
 // Modal frame: re-uses .cmd-bar / .cmd-box scaffolding for consistent feel.
 
 function Gallery({ onClose, onPick }) {
+  const t = window.__SIMA_T || ((_, fb) => fb);
   const [items, setItems] = useStateV([]);
   const [filter, setFilter] = useStateV('all');     // all | block | tz | document | transcript | note
   const [q, setQ] = useStateV('');
@@ -500,7 +501,7 @@ function Gallery({ onClose, onPick }) {
   }, [items, q]);
 
   const onDelete = async (id) => {
-    if (!window.confirm('Удалить артефакт?')) return;
+    if (!window.confirm(t('gallery.delete_confirm', 'Delete artifact?'))) return;
     await window.SIMA_API.artifacts.delete(id);
     setItems(I => I.filter(x => x.id !== id));
     if (selected === id) setSelected(null);
@@ -513,13 +514,13 @@ function Gallery({ onClose, onPick }) {
   };
 
   const filters = [
-    { id: 'all',        label: 'Все' },
-    { id: 'block',      label: 'Блоки' },
-    { id: 'tz',         label: 'ТЗ' },
-    { id: 'document',   label: 'Документы' },
-    { id: 'transcript', label: 'Транскрипты' },
-    { id: 'map',        label: 'Карты' },
-    { id: 'note',       label: 'Заметки' },
+    { id: 'all',        label: t('gallery.filter.all', 'All') },
+    { id: 'block',      label: t('gallery.filter.block', 'Blocks') },
+    { id: 'tz',         label: t('gallery.filter.tz', 'Specs') },
+    { id: 'document',   label: t('gallery.filter.document', 'Documents') },
+    { id: 'transcript', label: t('gallery.filter.transcript', 'Transcripts') },
+    { id: 'map',        label: t('gallery.filter.map', 'Maps') },
+    { id: 'note',       label: t('gallery.filter.note', 'Notes') },
   ];
 
   return (
@@ -528,7 +529,7 @@ function Gallery({ onClose, onPick }) {
         <div className="gallery-head">
           <input
             className="gallery-search"
-            placeholder="Поиск по заголовку / тегам / описанию…"
+            placeholder={t('gallery.search_placeholder', 'Search by title / tags / description…')}
             value={q}
             onChange={e => setQ(e.target.value)}
             autoFocus
@@ -543,10 +544,10 @@ function Gallery({ onClose, onPick }) {
         </div>
 
         <div className="gallery-grid">
-          {loading && <div className="meta" style={{ padding: 14 }}>Загрузка…</div>}
+          {loading && <div className="meta" style={{ padding: 14 }}>{t('gallery.loading', 'Loading…')}</div>}
           {!loading && !filtered.length && (
             <div className="meta" style={{ padding: 14 }}>
-              Артефакты не найдены. Откройте «Синтезировать» в шапке, чтобы добавить первый.
+              {t('gallery.empty', 'No artifacts found. Open «Synthesize» in the header to add the first one.')}
             </div>
           )}
           {filtered.map(a => (
@@ -566,8 +567,8 @@ function Gallery({ onClose, onPick }) {
               )}
               {selected === a.id && (
                 <div className="gallery-actions" onClick={e => e.stopPropagation()}>
-                  <button className="pill primary" onClick={() => onInsert(a)}>＋ Подцепить к проекту</button>
-                  <button className="pill" onClick={() => onDelete(a.id)} style={{ color: 'var(--st-fail)' }}>✕ Удалить</button>
+                  <button className="pill primary" onClick={() => onInsert(a)}>{t('gallery.attach', '＋ Attach to project')}</button>
+                  <button className="pill" onClick={() => onDelete(a.id)} style={{ color: 'var(--st-fail)' }}>{t('gallery.delete', '✕ Delete')}</button>
                 </div>
               )}
             </div>
@@ -575,8 +576,8 @@ function Gallery({ onClose, onPick }) {
         </div>
 
         <div className="gallery-foot">
-          <span className="meta">{filtered.length} {pluralize(filtered.length, 'артефакт', 'артефакта', 'артефактов')}</span>
-          <button className="pill" onClick={onClose}>Закрыть</button>
+          <span className="meta">{filtered.length} {(window.__SIMA_LOCALE === 'ru') ? pluralize(filtered.length, 'артефакт', 'артефакта', 'артефактов') : t('gallery.artifacts_label', 'artifacts')}</span>
+          <button className="pill" onClick={onClose}>{t('gallery.close', 'Close')}</button>
         </div>
       </div>
     </div>
@@ -588,6 +589,7 @@ function Gallery({ onClose, onPick }) {
 // blockType, optionally filtered by current module's layer.
 
 function Library({ data, currentModuleId, onClose, onPick }) {
+  const t = window.__SIMA_T || ((_, fb) => fb);
   const [items, setItems] = useStateV([]);
   const [q, setQ] = useStateV('');
   const [loading, setLoading] = useStateV(true);
@@ -628,15 +630,15 @@ function Library({ data, currentModuleId, onClose, onPick }) {
       <div className="cmd-box library-box" onClick={e => e.stopPropagation()}>
         <div className="library-head">
           <div>
-            <div className="mono" style={{ fontSize: 11, color: 'var(--ink-4)', letterSpacing: '0.08em' }}>БИБЛИОТЕКА БЛОКОВ</div>
+            <div className="mono" style={{ fontSize: 11, color: 'var(--ink-4)', letterSpacing: '0.08em' }}>{t('library.title', 'BLOCK LIBRARY')}</div>
             <h3 style={{ margin: 0, fontFamily: 'Newsreader, serif', fontStyle: 'italic', fontSize: 18 }}>
-              Готовые блоки, которые можно вставить в проект
-              {moduleLayer && <span className="meta" style={{ fontStyle: 'normal', fontSize: 12, marginLeft: 8 }}>· фильтр по слою <span className="mono">{moduleLayer}</span></span>}
+              {t('library.subtitle', 'Ready-made blocks you can drop into the project')}
+              {moduleLayer && <span className="meta" style={{ fontStyle: 'normal', fontSize: 12, marginLeft: 8 }}>{t('library.layer_filter', '· filter by layer')} <span className="mono">{moduleLayer}</span></span>}
             </h3>
           </div>
           <input
             className="gallery-search"
-            placeholder="Поиск…"
+            placeholder={t('library.search', 'Search…')}
             value={q}
             onChange={e => setQ(e.target.value)}
             autoFocus
@@ -644,10 +646,10 @@ function Library({ data, currentModuleId, onClose, onPick }) {
           />
         </div>
         <div className="library-body">
-          {loading && <div className="meta" style={{ padding: 14 }}>Загрузка…</div>}
+          {loading && <div className="meta" style={{ padding: 14 }}>{t('library.loading', 'Loading…')}</div>}
           {!loading && !grouped.length && (
             <div className="meta" style={{ padding: 14 }}>
-              Сохранённых блоков пока нет. Сохраните любой блок схемы как артефакт — он появится здесь.
+              {t('library.empty', 'No saved blocks yet. Save any schema block as an artifact — it will appear here.')}
             </div>
           )}
           {grouped.map(([type, list]) => (
@@ -675,8 +677,8 @@ function Library({ data, currentModuleId, onClose, onPick }) {
           ))}
         </div>
         <div className="gallery-foot">
-          <span className="meta">{filtered.length} {pluralize(filtered.length, 'блок', 'блока', 'блоков')}</span>
-          <button className="pill" onClick={onClose}>Закрыть</button>
+          <span className="meta">{filtered.length} {(window.__SIMA_LOCALE === 'ru') ? pluralize(filtered.length, 'блок', 'блока', 'блоков') : t('library.blocks_label', 'blocks')}</span>
+          <button className="pill" onClick={onClose}>{t('library.close', 'Close')}</button>
         </div>
       </div>
     </div>
@@ -690,6 +692,7 @@ function Library({ data, currentModuleId, onClose, onPick }) {
 // renders a markdown TZ in-place. Save-as-artifact stores it for reuse.
 
 function TZExporter({ data, moduleId, onClose, onSendToAgent, onClaudeAdvice }) {
+  const t = window.__SIMA_T || ((_, fb) => fb);
   const m = data.modules.find(x => x.id === moduleId);
   const tasks = data.tasks[moduleId] || [];
   const [busy, setBusy] = useStateV(false);
@@ -699,37 +702,37 @@ function TZExporter({ data, moduleId, onClose, onSendToAgent, onClaudeAdvice }) 
     if (!m) return '';
     const docs = data.moduleDocs?.[moduleId] || {};
     const lines = [
-      `# ТЗ: ${m.title}`,
+      `# ${t('tz.title_prefix', 'Spec:')} ${m.title}`,
       ``,
-      `**Слой:** ${m.layer}  ·  **Статус:** ${m.status}  ·  **Приоритет:** P${m.priority}`,
+      `**${t('tz.layer', 'Layer:')}** ${m.layer}  ·  **${t('tz.status', 'Status:')}** ${m.status}  ·  **${t('tz.priority', 'Priority:')}** P${m.priority}`,
       ``,
-      `## Зачем`,
-      docs.why || docs.short || '_не задано_',
+      `## ${t('tz.why', 'Why')}`,
+      docs.why || docs.short || t('tz.not_set', '_not set_'),
       ``,
-      `## Логика`,
-      docs.logic || '_не задано_',
+      `## ${t('tz.logic', 'Logic')}`,
+      docs.logic || t('tz.not_set', '_not set_'),
       ``,
     ];
     if (tasks.length) {
-      lines.push('## Декомпозиция');
-      for (const t of tasks) {
-        lines.push(`- **${t.id}** · ${t.title}${t.note ? ` _(${t.note})_` : ''}`);
+      lines.push(`## ${t('tz.decomposition', 'Decomposition')}`);
+      for (const tk of tasks) {
+        lines.push(`- **${tk.id}** · ${tk.title}${tk.note ? ` _(${tk.note})_` : ''}`);
       }
       lines.push('');
     }
     const inEdges = data.edges.filter(e => e.to === moduleId);
     const outEdges = data.edges.filter(e => e.from === moduleId);
     if (inEdges.length || outEdges.length) {
-      lines.push('## Связи');
+      lines.push(`## ${t('tz.connections', 'Connections')}`);
       if (inEdges.length) {
-        lines.push('### Входящие');
+        lines.push(`### ${t('tz.incoming', 'Incoming')}`);
         for (const e of inEdges) {
           const o = data.modules.find(x => x.id === e.from);
           lines.push(`- ← **${o?.title || e.from}** · ${e.kind}${e.label ? ' · ' + e.label : ''}`);
         }
       }
       if (outEdges.length) {
-        lines.push('### Исходящие');
+        lines.push(`### ${t('tz.outgoing', 'Outgoing')}`);
         for (const e of outEdges) {
           const o = data.modules.find(x => x.id === e.to);
           lines.push(`- → **${o?.title || e.to}** · ${e.kind}${e.label ? ' · ' + e.label : ''}`);
@@ -737,8 +740,8 @@ function TZExporter({ data, moduleId, onClose, onSendToAgent, onClaudeAdvice }) 
       }
       lines.push('');
     }
-    lines.push('## Приёмка');
-    lines.push('Критерии готовности — см. acceptance.md в каталоге блока.');
+    lines.push(`## ${t('tz.acceptance', 'Acceptance')}`);
+    lines.push(t('tz.acceptance_note', 'Readiness criteria — see acceptance.md in the block dir.'));
     return lines.join('\n');
   }, [moduleId]);
 
@@ -746,8 +749,8 @@ function TZExporter({ data, moduleId, onClose, onSendToAgent, onClaudeAdvice }) 
     setBusy(true);
     const r = await window.SIMA_API.artifacts.create({
       kind: 'tz',
-      title: `ТЗ: ${m.title}`,
-      description: `Сгенерировано из блока ${moduleId}`,
+      title: `${t('tz.title_prefix', 'Spec:')} ${m.title}`,
+      description: `${t('tz.from_block', 'Generated from block')} ${moduleId}`,
       body: tzMd,
       tags: ['tz', m.layer, moduleId],
       sourceBlockId: moduleId,
@@ -759,7 +762,7 @@ function TZExporter({ data, moduleId, onClose, onSendToAgent, onClaudeAdvice }) 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(tzMd).then(
       () => setSaved({ ok: true, _copied: true }),
-      () => setSaved({ ok: false, error: 'clipboard denied' })
+      () => setSaved({ ok: false, error: t('tz.clipboard_denied', 'clipboard denied') })
     );
   };
 
@@ -770,10 +773,10 @@ function TZExporter({ data, moduleId, onClose, onSendToAgent, onClaudeAdvice }) 
       <div className="cmd-box tz-box" onClick={e => e.stopPropagation()}>
         <div className="tz-head">
           <div>
-            <div className="mono" style={{ fontSize: 11, color: 'var(--ink-4)', letterSpacing: '0.08em' }}>ТЗ · {moduleId}</div>
+            <div className="mono" style={{ fontSize: 11, color: 'var(--ink-4)', letterSpacing: '0.08em' }}>{t('tz.kicker_prefix', 'SPEC ·')} {moduleId}</div>
             <h3 style={{ margin: '4px 0 0', fontFamily: 'Newsreader, serif', fontStyle: 'italic', fontSize: 19 }}>{m.title}</h3>
           </div>
-          <button className="pill" onClick={onClose} title="Закрыть">✕</button>
+          <button className="pill" onClick={onClose} title={t('tz.close', 'Close')}>✕</button>
         </div>
 
         <div className="tz-body">
@@ -782,27 +785,27 @@ function TZExporter({ data, moduleId, onClose, onSendToAgent, onClaudeAdvice }) 
 
         <div className="tz-actions">
           <div className="tz-actions-row">
-            <span className="meta" style={{ fontSize: 11.5 }}>Отправить в агента (с этим ТЗ как контекстом):</span>
+            <span className="meta" style={{ fontSize: 11.5 }}>{t('tz.send_label', 'Send to agent (with this spec as context):')}</span>
             <button className="pill" onClick={() => onSendToAgent && onSendToAgent('claude', m)}>Claude Code</button>
             <button className="pill" onClick={() => onSendToAgent && onSendToAgent('cursor', m)}>Cursor</button>
             <button className="pill" onClick={() => onSendToAgent && onSendToAgent('codex', m)}>Codex</button>
           </div>
           <div className="tz-actions-row">
-            <button className="pill" onClick={copyToClipboard}>⧉ Скопировать markdown</button>
+            <button className="pill" onClick={copyToClipboard}>{t('tz.copy_md', '⧉ Copy markdown')}</button>
             <button className="pill primary" onClick={saveAsArtifact} disabled={busy}>
-              {busy ? 'Сохраняю…' : '💾 Сохранить как артефакт'}
+              {busy ? t('tz.saving', 'Saving…') : t('tz.save_artifact', '💾 Save as artifact')}
             </button>
             {onClaudeAdvice && (
               <button className="pill" onClick={() => onClaudeAdvice(m, {
                 kind: 'tz',
                 context: { tz_md: tzMd.slice(0, 4000) },
-              })}>✨ Sima ужмёт ТЗ</button>
+              })}>{t('tz.sima_compress', '✨ Sima will compress spec')}</button>
             )}
           </div>
           {saved && (
             <div className={`composer-result ${saved.ok ? 'ok' : 'fail'}`}>
-              {saved._copied ? '✓ Скопировано в буфер' : saved.ok
-                ? <>✓ Сохранено как <span className="mono">{saved.artifact.id}</span></>
+              {saved._copied ? t('tz.copied', '✓ Copied to clipboard') : saved.ok
+                ? <>{t('tz.saved_prefix', '✓ Saved as')} <span className="mono">{saved.artifact.id}</span></>
                 : <>✗ {saved.error}</>}
             </div>
           )}
@@ -820,6 +823,7 @@ function TZExporter({ data, moduleId, onClose, onSendToAgent, onClaudeAdvice }) 
    exposes them.
 */
 function SystemDocs({ onClose }) {
+  const t = window.__SIMA_T || ((_, fb) => fb);
   const [tab, setTab] = useStateV('roadmap');
   const [content, setContent] = useStateV('');
   const [draft, setDraft] = useStateV('');
@@ -865,10 +869,10 @@ function SystemDocs({ onClose }) {
     if (r?.ok) {
       setContent(draft);
       setEditing(false);
-      setSaveMsg({ kind: 'ok', text: `✓ сохранено (${r.bytes} байт)` });
+      setSaveMsg({ kind: 'ok', text: `${t('sysdocs.save_ok_prefix', '✓ saved (')}${r.bytes}${t('sysdocs.save_ok_suffix', ' bytes)')}` });
       setTimeout(() => setSaveMsg(null), 2400);
     } else {
-      setSaveMsg({ kind: 'fail', text: r?.error || 'save failed' });
+      setSaveMsg({ kind: 'fail', text: r?.error || t('sysdocs.save_failed', 'save failed') });
     }
   };
 
@@ -877,20 +881,20 @@ function SystemDocs({ onClose }) {
     if (!openDocFor) { setDocContent(''); return; }
     (async () => {
       const r = await window.SIMA_API.meta.userDocGet(openDocFor);
-      if (alive) setDocContent(r?.ok ? r.content : `# Не сгенерировано\n\nЗапустите generate_user_docs ${openDocFor}`);
+      if (alive) setDocContent(r?.ok ? r.content : `${t('sysdocs.doc_not_generated', '# Not generated\n\nRun generate_user_docs')} ${openDocFor}`);
     })();
     return () => { alive = false; };
   }, [openDocFor]);
 
   const tabs = [
-    { id: 'profile',  label: 'Профиль', special: 'profile' },
-    { id: 'roadmap',  label: 'Roadmap' },
-    { id: 'wiki',     label: 'Wiki (mermaid)' },
-    { id: 'wiki-md',  label: 'WIKI.md' },
-    { id: 'docs',     label: 'Пользователю' },
-    { id: 'project',  label: 'project.md', editable: true },
-    { id: 'rules',    label: 'rules.md', editable: true },
-    { id: 'stack',    label: 'tech_stack.md', editable: true },
+    { id: 'profile',  label: t('sysdocs.tab.profile', 'Profile'), special: 'profile' },
+    { id: 'roadmap',  label: t('sysdocs.tab.roadmap', 'Roadmap') },
+    { id: 'wiki',     label: t('sysdocs.tab.wiki', 'Wiki (mermaid)') },
+    { id: 'wiki-md',  label: t('sysdocs.tab.wiki_md', 'WIKI.md') },
+    { id: 'docs',     label: t('sysdocs.tab.docs', 'For the user') },
+    { id: 'project',  label: t('sysdocs.tab.project', 'project.md'), editable: true },
+    { id: 'rules',    label: t('sysdocs.tab.rules', 'rules.md'), editable: true },
+    { id: 'stack',    label: t('sysdocs.tab.stack', 'tech_stack.md'), editable: true },
   ];
   const isEditableTab = !!tabs.find((t) => t.id === tab && t.editable);
 
@@ -899,19 +903,19 @@ function SystemDocs({ onClose }) {
       <div className="cmd-box sysdocs-box" onClick={e => e.stopPropagation()}>
         <div className="sysdocs-head">
           <div>
-            <div className="mono" style={{ fontSize: 11, color: 'var(--ink-4)', letterSpacing: '0.08em' }}>СИСТЕМНЫЕ ДОКИ</div>
+            <div className="mono" style={{ fontSize: 11, color: 'var(--ink-4)', letterSpacing: '0.08em' }}>{t('sysdocs.title', 'SYSTEM DOCS')}</div>
             <h3 style={{ margin: '4px 0 0', fontFamily: 'Newsreader, serif', fontStyle: 'italic', fontSize: 19 }}>
-              Авто-генерируемые + редактируемые артефакты Atlas
+              {t('sysdocs.subtitle', 'Auto-generated + editable Atlas artifacts')}
             </h3>
           </div>
           <div style={{ display: 'flex', gap: 6 }}>
             {isEditableTab && !editing && content !== null && (
-              <button className="pill" onClick={() => setEditing(true)}>✎ Редактировать</button>
+              <button className="pill" onClick={() => setEditing(true)}>{t('sysdocs.edit', '✎ Edit')}</button>
             )}
             {isEditableTab && editing && (
               <>
-                <button className="pill primary" onClick={saveMeta}>💾 Сохранить</button>
-                <button className="pill" onClick={() => { setDraft(content); setEditing(false); setSaveMsg(null); }}>Отмена</button>
+                <button className="pill primary" onClick={saveMeta}>{t('sysdocs.save', '💾 Save')}</button>
+                <button className="pill" onClick={() => { setDraft(content); setEditing(false); setSaveMsg(null); }}>{t('sysdocs.cancel', 'Cancel')}</button>
               </>
             )}
             <button className="pill" onClick={onClose}>✕</button>
@@ -931,17 +935,17 @@ function SystemDocs({ onClose }) {
           {tab === 'wiki' && (
             content
               ? <iframe className="sysdocs-iframe" srcDoc={content} title="wiki" />
-              : <div className="meta" style={{ padding: 14 }}>wiki.html не найден. Запустите node scripts/render_wiki_html.mjs.</div>
+              : <div className="meta" style={{ padding: 14 }}>{t('sysdocs.wiki_missing', 'wiki.html not found. Run node scripts/render_wiki_html.mjs.')}</div>
           )}
           {(tab === 'roadmap' || tab === 'wiki-md') && (
             content
               ? <div className="sysdocs-md contract-body md" dangerouslySetInnerHTML={{ __html: (window.marked?.parse?.(content) ?? content) }} />
-              : <div className="meta" style={{ padding: 14 }}>файл не найден или пуст</div>
+              : <div className="meta" style={{ padding: 14 }}>{t('sysdocs.file_missing', 'file not found or empty')}</div>
           )}
           {isEditableTab && !editing && (
             content
               ? <div className="sysdocs-md contract-body md" dangerouslySetInnerHTML={{ __html: (window.marked?.parse?.(content) ?? content) }} />
-              : <div className="meta" style={{ padding: 14 }}>пусто</div>
+              : <div className="meta" style={{ padding: 14 }}>{t('sysdocs.empty', 'empty')}</div>
           )}
           {isEditableTab && editing && (
             <textarea className="sysdocs-editor" value={draft} onChange={e => setDraft(e.target.value)} rows={26} />
@@ -949,13 +953,12 @@ function SystemDocs({ onClose }) {
           {tab === 'docs' && !openDocFor && (
             <div className="sysdocs-list">
               {!docs.length && <div className="meta" style={{ padding: 14 }}>
-                Ещё не сгенерировано. В DetailPanel нажмите «Сгенерировать пользовательский гайд» для блока,
-                либо запустите node scripts/generate_user_docs.mjs &lt;block_id&gt;.
+                {t('sysdocs.docs_empty', 'Not generated yet. In DetailPanel press «Generate user guide» for a block, or run node scripts/generate_user_docs.mjs <block_id>.')}
               </div>}
               {docs.map(d => (
                 <div key={d.block_id} className="sysdocs-list-row" onClick={() => setOpenDocFor(d.block_id)}>
                   <span className="mono" style={{ fontSize: 12 }}>{d.block_id}</span>
-                  <span className="meta" style={{ fontSize: 11 }}>{(d.bytes/1024).toFixed(1)} КБ · {String(d.mtime).slice(0, 16).replace('T', ' ')}</span>
+                  <span className="meta" style={{ fontSize: 11 }}>{(d.bytes/1024).toFixed(1)} {t('sysdocs.docs.kb', 'KB')} · {String(d.mtime).slice(0, 16).replace('T', ' ')}</span>
                   <span className="meta">→</span>
                 </div>
               ))}
@@ -963,39 +966,38 @@ function SystemDocs({ onClose }) {
           )}
           {tab === 'profile' && (
             <div className="profile-body">
-              {!profile && <div className="meta" style={{ padding: 14 }}>Профиль не сгенерирован. Запустите node scripts/aggregate_operator_profile.mjs.</div>}
+              {!profile && <div className="meta" style={{ padding: 14 }}>{t('sysdocs.profile.empty', 'Profile not generated. Run node scripts/aggregate_operator_profile.mjs.')}</div>}
               {profile && (
                 <>
                   <div className="acc-counts mono" style={{ marginBottom: 12 }}>
                     <span className="acc-pill">{profile._status || 'ready'}</span>
-                    {profile.updated_at && <span className="acc-pill">обновлено {String(profile.updated_at).slice(0, 16).replace('T', ' ')}</span>}
+                    {profile.updated_at && <span className="acc-pill">{t('sysdocs.profile.updated', 'updated')} {String(profile.updated_at).slice(0, 16).replace('T', ' ')}</span>}
                     <span className="acc-pill">operator: {profile.operator_id || 'default'}</span>
                   </div>
                   {profile._status === 'warming_up' && (
                     <div className="lesson" style={{ marginBottom: 12 }}>
-                      Sima пока что собирает данные о тебе. Нужно ещё{' '}
-                      <strong>{(profile._min_data?.done_required || 5) - (profile._min_data?.done_transitions || 0)}</strong> done-блоков и{' '}
-                      <strong>{(profile._min_data?.invocations_required || 10) - (profile._min_data?.invocations || 0)}</strong> запусков агентов
-                      чтобы профиль стал готовым. Сейчас собрано: {profile._preview?.total_traces} LLM-трейсов · {profile._preview?.total_proposals} предложений.
+                      {t('sysdocs.profile.warming_pre', 'Sima is still gathering data about you. Need')}{' '}
+                      <strong>{(profile._min_data?.done_required || 5) - (profile._min_data?.done_transitions || 0)}</strong> {t('sysdocs.profile.warming_done', 'more done blocks and')}{' '}
+                      <strong>{(profile._min_data?.invocations_required || 10) - (profile._min_data?.invocations || 0)}</strong> {t('sysdocs.profile.warming_runs', 'agent runs for the profile to be ready. Collected so far:')} {profile._preview?.total_traces} {t('sysdocs.profile.warming_traces', 'LLM traces ·')} {profile._preview?.total_proposals} {t('sysdocs.profile.warming_props', 'proposals.')}
                     </div>
                   )}
                   {Array.isArray(profile.tech_stack_history) && profile.tech_stack_history.length > 0 && (
                     <div className="profile-section">
-                      <h3>Стек, который ты обычно используешь</h3>
+                      <h3>{t('sysdocs.profile.stack', 'Stack you usually use')}</h3>
                       <div className="chips">
-                        {profile.tech_stack_history.slice(0, 12).map((t, i) => (
-                          <span key={i} className="chip">{t.value || t} {t.count ? <span className="meta">×{t.count}</span> : null}</span>
+                        {profile.tech_stack_history.slice(0, 12).map((tk, i) => (
+                          <span key={i} className="chip">{tk.value || tk} {tk.count ? <span className="meta">×{tk.count}</span> : null}</span>
                         ))}
                       </div>
                     </div>
                   )}
                   {Array.isArray(profile.dont_use) && profile.dont_use.length > 0 && (
                     <div className="profile-section">
-                      <h3>Don't-use (Sima не предложит)</h3>
+                      <h3>{t('sysdocs.profile.dont_use', "Don't-use (Sima won't propose)")}</h3>
                       <div className="chips">
-                        {profile.dont_use.slice(0, 12).map((t, i) => (
+                        {profile.dont_use.slice(0, 12).map((tk, i) => (
                           <span key={i} className="chip" style={{ borderColor: 'var(--st-fail)', color: 'var(--st-fail)' }}>
-                            ✕ {t.value || t} {t.reason ? <span className="meta">— {t.reason}</span> : null}
+                            ✕ {tk.value || tk} {tk.reason ? <span className="meta">— {tk.reason}</span> : null}
                           </span>
                         ))}
                       </div>
@@ -1003,7 +1005,7 @@ function SystemDocs({ onClose }) {
                   )}
                   {Array.isArray(profile.lesson) && profile.lesson.length > 0 && (
                     <div className="profile-section">
-                      <h3>Уроки последних запусков</h3>
+                      <h3>{t('sysdocs.profile.lessons', 'Lessons from recent runs')}</h3>
                       <ul className="profile-lessons">
                         {profile.lesson.slice(0, 10).map((l, i) => (
                           <li key={i}>
@@ -1015,11 +1017,11 @@ function SystemDocs({ onClose }) {
                     </div>
                   )}
                   <div className="profile-section">
-                    <h3>Сырые данные</h3>
+                    <h3>{t('sysdocs.profile.raw', 'Raw data')}</h3>
                     <pre className="sysdocs-md" style={{ fontSize: 11 }}>{JSON.stringify(profile, null, 2)}</pre>
                   </div>
                   <div className="meta" style={{ fontSize: 11, marginTop: 10, padding: '0 18px' }}>
-                    Sima использует этот профиль чтобы биасить «✨ Совет Клода» (graph_overview / gallery) под твои предпочтения.
+                    {t('sysdocs.profile.note', 'Sima uses this profile to bias «✨ Claude advice» (graph_overview / gallery) toward your preferences.')}
                   </div>
                 </>
               )}
@@ -1028,7 +1030,7 @@ function SystemDocs({ onClose }) {
           {tab === 'docs' && openDocFor && (
             <>
               <div className="sysdocs-back-bar">
-                <button className="pill" onClick={() => setOpenDocFor(null)}>← список</button>
+                <button className="pill" onClick={() => setOpenDocFor(null)}>{t('sysdocs.docs.back', '← list')}</button>
                 <span className="mono" style={{ fontSize: 12 }}>{openDocFor}.md</span>
               </div>
               <div className="sysdocs-md contract-body md" dangerouslySetInnerHTML={{ __html: (window.marked?.parse?.(docContent || '') ?? docContent) }} />
@@ -1037,7 +1039,7 @@ function SystemDocs({ onClose }) {
         </div>
         {meta && meta.mtime && (
           <div className="sysdocs-foot">
-            <span className="meta" style={{ fontSize: 11 }}>обновлено: {String(meta.mtime).slice(0, 16).replace('T', ' ')}</span>
+            <span className="meta" style={{ fontSize: 11 }}>{t('sysdocs.foot_updated', 'updated:')} {String(meta.mtime).slice(0, 16).replace('T', ' ')}</span>
           </div>
         )}
       </div>
@@ -1051,6 +1053,7 @@ function SystemDocs({ onClose }) {
    /atlas/proposals/list (read), /proposals/accept, /proposals/reject.
 */
 function ProposalsPanel({ onClose, onAfterAction }) {
+  const t = window.__SIMA_T || ((_, fb) => fb);
   const [items, setItems] = useStateV([]);
   const [loading, setLoading] = useStateV(true);
   const [busy, setBusy] = useStateV({});
@@ -1068,7 +1071,7 @@ function ProposalsPanel({ onClose, onAfterAction }) {
     setBusy((b) => ({ ...b, [id]: kind }));
     const r = kind === 'accept'
       ? await window.SIMA_API.meta.proposalAccept(id)
-      : await window.SIMA_API.meta.proposalReject(id, reason || 'rejected from UI');
+      : await window.SIMA_API.meta.proposalReject(id, reason || t('proposals.reject_default', 'rejected from UI'));
     setBusy((b) => { const c = { ...b }; delete c[id]; return c; });
     if (r?.ok) {
       onAfterAction && onAfterAction(kind, id);
@@ -1081,20 +1084,19 @@ function ProposalsPanel({ onClose, onAfterAction }) {
       <div className="cmd-box proposals-box" onClick={e => e.stopPropagation()}>
         <div className="sysdocs-head">
           <div>
-            <div className="mono" style={{ fontSize: 11, color: 'var(--ink-4)', letterSpacing: '0.08em' }}>ПРЕДЛОЖЕНИЯ SIMA</div>
+            <div className="mono" style={{ fontSize: 11, color: 'var(--ink-4)', letterSpacing: '0.08em' }}>{t('proposals.title', 'SIMA PROPOSALS')}</div>
             <h3 style={{ margin: '4px 0 0', fontFamily: 'Newsreader, serif', fontStyle: 'italic', fontSize: 19 }}>
-              {loading ? 'Загрузка…' : `${items.length} в ожидании`}
+              {loading ? t('proposals.loading', 'Loading…') : `${items.length} ${t('proposals.pending_suffix', 'pending')}`}
             </h3>
           </div>
           <div style={{ display: 'flex', gap: 6 }}>
-            <button className="pill" onClick={refresh}>↻ Обновить</button>
+            <button className="pill" onClick={refresh}>{t('proposals.refresh', '↻ Refresh')}</button>
             <button className="pill" onClick={onClose}>✕</button>
           </div>
         </div>
         <div className="proposals-body">
           {!loading && !items.length && <div className="meta" style={{ padding: 14 }}>
-            Нет открытых предложений. Sima добавляет их автоматически на основе chat-distillates,
-            sync-check и других процессов.
+            {t('proposals.empty', 'No open proposals. Sima adds them automatically based on chat distillates, sync-check, and other processes.')}
           </div>}
           {items.map((p) => (
             <div key={p.id} className="proposal-card">
@@ -1112,10 +1114,10 @@ function ProposalsPanel({ onClose, onAfterAction }) {
               )}
               <div className="proposal-actions">
                 <button className="pill primary" disabled={!!busy[p.id]} onClick={() => act(p.id, 'accept')}>
-                  {busy[p.id] === 'accept' ? 'применяю…' : '✓ принять'}
+                  {busy[p.id] === 'accept' ? t('proposals.applying', 'applying…') : t('proposals.accept', '✓ accept')}
                 </button>
                 <button className="pill" disabled={!!busy[p.id]} onClick={() => act(p.id, 'reject')}>
-                  {busy[p.id] === 'reject' ? 'отклоняю…' : '✗ отклонить'}
+                  {busy[p.id] === 'reject' ? t('proposals.rejecting', 'rejecting…') : t('proposals.reject', '✗ reject')}
                 </button>
               </div>
             </div>
@@ -1125,7 +1127,7 @@ function ProposalsPanel({ onClose, onAfterAction }) {
           <div className="sysdocs-foot">
             <input
               className="composer-input"
-              placeholder="Причина отклонения (по умолчанию)"
+              placeholder={t('proposals.reason_placeholder', 'Rejection reason (default)')}
               value={reason}
               onChange={e => setReason(e.target.value)}
               style={{ maxWidth: 360 }}
@@ -1143,6 +1145,7 @@ function ProposalsPanel({ onClose, onAfterAction }) {
    atomically. Used to bootstrap a new product / project quickly.
 */
 function TemplatesPanel({ onClose, onApplied }) {
+  const t = window.__SIMA_T || ((_, fb) => fb);
   const [items, setItems] = useStateV([]);
   const [loading, setLoading] = useStateV(true);
   const [picked, setPicked] = useStateV(null);
@@ -1162,7 +1165,7 @@ function TemplatesPanel({ onClose, onApplied }) {
     if (r?.ok) setItems(r.templates || []);
   };
   const doSnapshot = async () => {
-    if (!snapId.trim()) { setSnapResult({ ok: false, error: 'укажите id' }); return; }
+    if (!snapId.trim()) { setSnapResult({ ok: false, error: t('templates.snap_id_required', 'specify id') }); return; }
     setSnapBusy(true); setSnapResult(null);
     const r = await window.SIMA_API.templates.snapshot({
       template_id: snapId.trim(),
@@ -1202,14 +1205,14 @@ function TemplatesPanel({ onClose, onApplied }) {
       <div className="cmd-box templates-box" onClick={e => e.stopPropagation()}>
         <div className="sysdocs-head">
           <div>
-            <div className="mono" style={{ fontSize: 11, color: 'var(--ink-4)', letterSpacing: '0.08em' }}>ШАБЛОНЫ СХЕМ</div>
+            <div className="mono" style={{ fontSize: 11, color: 'var(--ink-4)', letterSpacing: '0.08em' }}>{t('templates.title', 'SCHEMA TEMPLATES')}</div>
             <h3 style={{ margin: '4px 0 0', fontFamily: 'Newsreader, serif', fontStyle: 'italic', fontSize: 19 }}>
-              Готовые скелеты — или сохрани свой граф как шаблон
+              {t('templates.subtitle', 'Ready-made skeletons — or save your graph as a template')}
             </h3>
           </div>
           <div style={{ display: 'flex', gap: 6 }}>
-            <button className="pill" onClick={() => setSnapMode((s) => !s)} title="Сохранить весь текущий граф как новый шаблон">
-              {snapMode ? '✕ Отмена' : '＋ Снимок графа'}
+            <button className="pill" onClick={() => setSnapMode((s) => !s)} title={t('templates.snapshot_title', 'Save the entire current graph as a new template')}>
+              {snapMode ? t('templates.snapshot_cancel', '✕ Cancel') : t('templates.snapshot_btn', '＋ Snapshot graph')}
             </button>
             <button className="pill" onClick={onClose}>✕</button>
           </div>
@@ -1219,14 +1222,14 @@ function TemplatesPanel({ onClose, onApplied }) {
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               <input
                 className="composer-input"
-                placeholder="id шаблона (a-z0-9-)"
+                placeholder={t('templates.snap_id', 'template id (a-z0-9-)')}
                 value={snapId}
                 onChange={(e) => setSnapId(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
                 style={{ maxWidth: 220 }}
               />
               <input
                 className="composer-input"
-                placeholder="Название (видно в галерее шаблонов)"
+                placeholder={t('templates.snap_title', 'Title (visible in templates gallery)')}
                 value={snapTitle}
                 onChange={(e) => setSnapTitle(e.target.value)}
                 style={{ flex: 1, minWidth: 220 }}
@@ -1234,50 +1237,50 @@ function TemplatesPanel({ onClose, onApplied }) {
             </div>
             <input
               className="composer-input"
-              placeholder="Краткое описание — что это за шаблон, для чего"
+              placeholder={t('templates.snap_desc', 'Short description — what is this template for')}
               value={snapDesc}
               onChange={(e) => setSnapDesc(e.target.value)}
             />
             <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
               <button className="pill primary" onClick={doSnapshot} disabled={snapBusy || !snapId.trim()}>
-                {snapBusy ? 'снимаю…' : '💾 Сохранить как шаблон'}
+                {snapBusy ? t('templates.snap_busy', 'snapshotting…') : t('templates.snap_save', '💾 Save as template')}
               </button>
               <span className="meta" style={{ fontSize: 11.5 }}>
-                Считает все живые блоки текущего графа + их mission/kpi/acceptance + связи.
+                {t('templates.snap_hint', 'Counts all live blocks of the current graph + their mission/kpi/acceptance + edges.')}
               </span>
               {snapResult && (
                 <span className={`composer-result ${snapResult.ok ? 'ok' : 'fail'}`} style={{ padding: '4px 10px' }}>
                   {snapResult.ok
-                    ? <>✓ создано: {snapResult.blocks_count} блоков, {snapResult.edges_count} связей</>
-                    : <>✗ {snapResult.error}{snapResult.error?.includes('exists') ? ' (нажмите ещё раз чтобы перезаписать)' : ''}</>}
+                    ? <>{t('templates.snap_created', '✓ created:')} {snapResult.blocks_count} {t('templates.snap_blocks', 'blocks,')} {snapResult.edges_count} {t('templates.snap_edges', 'edges')}</>
+                    : <>✗ {snapResult.error}{snapResult.error?.includes('exists') ? ` ${t('templates.snap_overwrite_hint', '(click again to overwrite)')}` : ''}</>}
                 </span>
               )}
             </div>
           </div>
         )}
         <div className="templates-body">
-          {loading && <div className="meta" style={{ padding: 14 }}>Загрузка…</div>}
+          {loading && <div className="meta" style={{ padding: 14 }}>{t('templates.loading', 'Loading…')}</div>}
           {!loading && !items.length && <div className="meta" style={{ padding: 14 }}>
-            Шаблоны не найдены. Положите JSON-файлы в atlas/schema_templates/.
+            {t('templates.empty', 'No templates found. Drop JSON files into atlas/schema_templates/.')}
           </div>}
-          {!loading && items.map((t) => (
+          {!loading && items.map((tpl) => (
             <div
-              key={t.id}
-              className={`template-card ${picked?.id === t.id ? 'picked' : ''}`}
-              onClick={() => setPicked(t)}
+              key={tpl.id}
+              className={`template-card ${picked?.id === tpl.id ? 'picked' : ''}`}
+              onClick={() => setPicked(tpl)}
             >
               <div className="template-card-head">
-                <span className="mono" style={{ fontSize: 11, color: 'var(--ink-3)' }}>{t.id}</span>
-                <span className="meta" style={{ fontSize: 11 }}>{t.blocks_count} блоков</span>
+                <span className="mono" style={{ fontSize: 11, color: 'var(--ink-3)' }}>{tpl.id}</span>
+                <span className="meta" style={{ fontSize: 11 }}>{tpl.blocks_count} {t('templates.blocks_count', 'blocks')}</span>
               </div>
-              <div className="template-title">{t.title}</div>
-              <div className="template-desc">{t.description}</div>
+              <div className="template-title">{tpl.title}</div>
+              <div className="template-desc">{tpl.description}</div>
             </div>
           ))}
         </div>
         {picked && (
           <div className="templates-foot">
-            <span className="meta" style={{ fontSize: 12 }}>Префикс ID:</span>
+            <span className="meta" style={{ fontSize: 12 }}>{t('templates.prefix_label', 'ID prefix:')}</span>
             <input
               className="composer-input"
               placeholder={picked.id}
@@ -1286,15 +1289,15 @@ function TemplatesPanel({ onClose, onApplied }) {
               style={{ maxWidth: 180 }}
             />
             <span className="meta mono" style={{ fontSize: 10.5 }}>
-              блоки получат id b.{(prefix || picked.id)}-&lt;suffix&gt;
+              {t('templates.prefix_hint_pre', 'blocks will get id b.')}{(prefix || picked.id)}{t('templates.prefix_hint_post', '-<suffix>')}
             </span>
             <button className="pill primary" onClick={apply} disabled={busy}>
-              {busy ? 'применяю…' : '＋ Применить шаблон'}
+              {busy ? t('templates.applying', 'applying…') : t('templates.apply', '＋ Apply template')}
             </button>
             {result && (
               <span className={`composer-result ${result.ok ? 'ok' : 'fail'}`} style={{ padding: '4px 10px' }}>
                 {result.ok
-                  ? <>✓ создано {result.created.length}{result.skipped.length ? `, пропущено ${result.skipped.length}` : ''}</>
+                  ? <>{t('templates.apply_created', '✓ created')} {result.created.length}{result.skipped.length ? `, ${t('templates.apply_skipped', 'skipped')} ${result.skipped.length}` : ''}</>
                   : <>✗ {result.error}</>}
               </span>
             )}
@@ -1313,6 +1316,7 @@ function TemplatesPanel({ onClose, onApplied }) {
    (LLM-judge mission vs reality).
 */
 function SyncReportPanel({ onClose, onJumpToBlock, autoVerifier = false }) {
+  const t = window.__SIMA_T || ((_, fb) => fb);
   const [busy, setBusy] = useStateV(false);
   const [withVerifier, setWithVerifier] = useStateV(autoVerifier);
   const [report, setReport] = useStateV(null);     // schema-syncer result
@@ -1379,58 +1383,56 @@ function SyncReportPanel({ onClose, onJumpToBlock, autoVerifier = false }) {
       <div className="cmd-box sync-report-box" onClick={(e) => e.stopPropagation()}>
         <div className="sysdocs-head">
           <div>
-            <div className="mono" style={{ fontSize: 11, color: 'var(--ink-4)', letterSpacing: '0.08em' }}>SYNC REPORT</div>
+            <div className="mono" style={{ fontSize: 11, color: 'var(--ink-4)', letterSpacing: '0.08em' }}>{t('sync.title', 'SYNC REPORT')}</div>
             <h3 style={{ margin: '4px 0 0', fontFamily: 'Newsreader, serif', fontStyle: 'italic', fontSize: 19 }}>
-              Что синхронно, что в дрейфе, что сломано
+              {t('sync.subtitle', 'What\'s synced, drifting, or broken')}
             </h3>
           </div>
           <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
             <label className="meta" style={{ fontSize: 11.5, display: 'flex', alignItems: 'center', gap: 4 }}>
               <input type="checkbox" checked={withVerifier} onChange={(e) => setWithVerifier(e.target.checked)} />
-              + LLM-судья (медленнее)
+              {t('sync.with_llm', '+ LLM judge (slower)')}
             </label>
-            <button className="pill primary" onClick={run} disabled={busy}>{busy ? 'считаю…' : '▶ запустить'}</button>
+            <button className="pill primary" onClick={run} disabled={busy}>{busy ? t('sync.computing', 'computing…') : t('sync.run', '▶ run')}</button>
             <button className="pill" onClick={onClose}>✕</button>
           </div>
         </div>
         {error && <div className="composer-result fail" style={{ margin: '8px 18px 0' }}>{error}</div>}
         {!report && !busy && (
           <div className="meta" style={{ padding: '20px 18px', fontSize: 13 }}>
-            Нажмите <strong>▶ запустить</strong> чтобы Sima прогнала 9 валидаторов по всем блокам и собрала
-            структурированный drift-report. Включите <strong>LLM-судью</strong> чтобы дополнительно проверить
-            совпадение реализации с миссией / KPI / acceptance / условиями каждого блока.
+            {t('sync.intro', 'Press ▶ run for Sima to execute 9 validators across all blocks and produce a structured drift report. Enable the LLM judge to additionally check that implementation matches mission / KPI / acceptance / conditions of each block.')}
           </div>
         )}
-        {busy && <div className="meta" style={{ padding: 14 }}>Прогон валидаторов{withVerifier ? ' + LLM-судьи (может занять 10–60 сек)' : ''}…</div>}
+        {busy && <div className="meta" style={{ padding: 14 }}>{withVerifier ? t('sync.busy_with_llm', 'Running validators + LLM judge (may take 10-60s)…') : t('sync.busy', 'Running validators…')}</div>}
         {report && (
           <>
             <div className="acc-summary" style={{ margin: '14px 18px 0' }}>
               <div className="acc-counts mono">
-                <span className="acc-pill ok">✓ ok {report.summary?.ok ?? 0}</span>
-                <span className="acc-pill" style={{ background: 'rgba(220, 150, 60, 0.18)', color: '#7a4a00' }}>⚠ drift {combined?.drift.length ?? 0}</span>
-                <span className="acc-pill bad">✗ broken {combined?.broken.length ?? 0}</span>
-                <span className="acc-pill mono">валидаторы {report.summary?.validators_pass}/{report.summary?.validators_total}</span>
+                <span className="acc-pill ok">✓ {t('sync.ok', 'ok')} {report.summary?.ok ?? 0}</span>
+                <span className="acc-pill" style={{ background: 'rgba(220, 150, 60, 0.18)', color: '#7a4a00' }}>⚠ {t('sync.drift', 'drift')} {combined?.drift.length ?? 0}</span>
+                <span className="acc-pill bad">✗ {t('sync.broken', 'broken')} {combined?.broken.length ?? 0}</span>
+                <span className="acc-pill mono">{t('sync.validators', 'validators')} {report.summary?.validators_pass}/{report.summary?.validators_total}</span>
                 <span className="acc-pill mono">{report.duration_ms}ms</span>
               </div>
             </div>
             <div className="tabs" style={{ padding: '12px 18px 0' }}>
-              <button className={tab === 'overview' ? 'active' : ''} onClick={() => setTab('overview')}>Обзор</button>
-              <button className={tab === 'blocks' ? 'active' : ''} onClick={() => setTab('blocks')}>По блокам</button>
-              <button className={tab === 'validators' ? 'active' : ''} onClick={() => setTab('validators')}>Валидаторы</button>
+              <button className={tab === 'overview' ? 'active' : ''} onClick={() => setTab('overview')}>{t('sync.tab.overview', 'Overview')}</button>
+              <button className={tab === 'blocks' ? 'active' : ''} onClick={() => setTab('blocks')}>{t('sync.tab.blocks', 'By blocks')}</button>
+              <button className={tab === 'validators' ? 'active' : ''} onClick={() => setTab('validators')}>{t('sync.tab.validators', 'Validators')}</button>
             </div>
             <div className="sync-report-body">
               {tab === 'overview' && (
                 <>
                   {combined?.broken.length === 0 && combined?.drift.length === 0 && (
                     <div className="lesson good" style={{ marginTop: 0 }}>
-                      <div className="verdict">✓ всё синхронно</div>
-                      Все {report.summary?.total_blocks} блоков прошли проверки.
-                      {!withVerifier && ' Включите LLM-судью чтобы дополнительно проверить смысл (миссия vs реализация).'}
+                      <div className="verdict">{t('sync.all_synced', '✓ all in sync')}</div>
+                      {t('sync.all_passed_prefix', 'All')} {report.summary?.total_blocks} {t('sync.all_passed_suffix', 'blocks passed.')}
+                      {!withVerifier && t('sync.all_passed_hint', ' Enable the LLM judge to additionally verify meaning (mission vs implementation).')}
                     </div>
                   )}
                   {combined?.broken.length > 0 && (
                     <>
-                      <h3 style={{ color: 'var(--st-fail)' }}>✗ Сломанные ({combined.broken.length})</h3>
+                      <h3 style={{ color: 'var(--st-fail)' }}>{t('sync.broken_heading', '✗ Broken')} ({combined.broken.length})</h3>
                       {combined.broken.map((bid) => (
                         <div key={bid} className="sync-block-row v-bad" onClick={() => onJumpToBlock?.(bid)}>
                           <span className="mono" style={{ flex: 1 }}>{bid}</span>
@@ -1441,7 +1443,7 @@ function SyncReportPanel({ onClose, onJumpToBlock, autoVerifier = false }) {
                   )}
                   {combined?.drift.length > 0 && (
                     <>
-                      <h3 style={{ color: '#7a4a00' }}>⚠ Дрейф ({combined.drift.length})</h3>
+                      <h3 style={{ color: '#7a4a00' }}>{t('sync.drift_heading', '⚠ Drift')} ({combined.drift.length})</h3>
                       {combined.drift.map((bid) => (
                         <div key={bid} className="sync-block-row v-warn" onClick={() => onJumpToBlock?.(bid)}>
                           <span className="mono" style={{ flex: 1 }}>{bid}</span>
@@ -1456,7 +1458,7 @@ function SyncReportPanel({ onClose, onJumpToBlock, autoVerifier = false }) {
                 <>
                   {!verifier && (
                     <div className="meta" style={{ marginBottom: 10 }}>
-                      Включите «+ LLM-судья» чтобы получить здесь mission-vs-реализация по каждому блоку.
+                      {t('sync.enable_llm_hint', 'Enable «+ LLM judge» to get mission-vs-implementation per block here.')}
                     </div>
                   )}
                   {verifier?.blocks?.length > 0 && verifier.blocks.map((b) => {
@@ -1512,6 +1514,7 @@ function SyncReportPanel({ onClose, onJumpToBlock, autoVerifier = false }) {
    blocks. Persisted to atlas/architecture_reviews/_latest.json.
 */
 function ArchReviewPanel({ onClose, onJumpToBlock }) {
+  const t = window.__SIMA_T || ((_, fb) => fb);
   const [latest, setLatest] = useStateV(null);
   const [busy, setBusy] = useStateV(false);
   const [error, setError] = useStateV(null);
@@ -1531,17 +1534,21 @@ function ArchReviewPanel({ onClose, onJumpToBlock }) {
   };
 
   const verdictClass = latest?.verdict === 'aligned' ? 'ok' : latest?.verdict === 'broken' ? 'bad' : 'warn';
-  const verdictLabel = { aligned: '✓ архитектура целостна', drift: '⚠ есть concerns', broken: '✗ серьёзные проблемы' }[latest?.verdict] || latest?.verdict;
+  const verdictLabel = {
+    aligned: t('arch.verdict_aligned', '✓ architecture is consistent'),
+    drift:   t('arch.verdict_drift', '⚠ concerns found'),
+    broken:  t('arch.verdict_broken', '✗ serious problems'),
+  }[latest?.verdict] || latest?.verdict;
 
   const KIND_LABEL = {
-    stack_consistency: 'Несогласованный стек',
-    scalability:       'Масштабируемость',
-    multi_tenant:      'Multi-tenant',
-    data_flow:         'Поток данных',
-    security:          'Безопасность',
-    missing_block:     'Не хватает блока',
-    redundancy:        'Дублирование',
-    condition:         'Условие проекта',
+    stack_consistency: t('arch.kind.stack_consistency', 'Inconsistent stack'),
+    scalability:       t('arch.kind.scalability', 'Scalability'),
+    multi_tenant:      t('arch.kind.multi_tenant', 'Multi-tenant'),
+    data_flow:         t('arch.kind.data_flow', 'Data flow'),
+    security:          t('arch.kind.security', 'Security'),
+    missing_block:     t('arch.kind.missing_block', 'Missing block'),
+    redundancy:        t('arch.kind.redundancy', 'Redundancy'),
+    condition:         t('arch.kind.condition', 'Project condition'),
   };
 
   return (
@@ -1549,13 +1556,13 @@ function ArchReviewPanel({ onClose, onJumpToBlock }) {
       <div className="cmd-box arch-review-box" onClick={(e) => e.stopPropagation()}>
         <div className="sysdocs-head">
           <div>
-            <div className="mono" style={{ fontSize: 11, color: 'var(--ink-4)', letterSpacing: '0.08em' }}>АРХИТЕКТУРА · ВЕСЬ ПРОДУКТ</div>
+            <div className="mono" style={{ fontSize: 11, color: 'var(--ink-4)', letterSpacing: '0.08em' }}>{t('arch.title', 'ARCHITECTURE · WHOLE PRODUCT')}</div>
             <h3 style={{ margin: '4px 0 0', fontFamily: 'Newsreader, serif', fontStyle: 'italic', fontSize: 19 }}>
-              Целостность фреймворков, масштаб, поток данных
+              {t('arch.subtitle', 'Framework consistency, scale, data flow')}
             </h3>
           </div>
           <div style={{ display: 'flex', gap: 6 }}>
-            <button className="pill primary" onClick={run} disabled={busy}>{busy ? 'анализирую…' : '▶ запустить'}</button>
+            <button className="pill primary" onClick={run} disabled={busy}>{busy ? t('arch.analyzing', 'analyzing…') : t('arch.run', '▶ run')}</button>
             <button className="pill" onClick={onClose}>✕</button>
           </div>
         </div>
@@ -1563,12 +1570,10 @@ function ArchReviewPanel({ onClose, onJumpToBlock }) {
           {error && <div className="composer-result fail">{error}</div>}
           {!latest && !busy && (
             <div className="meta" style={{ padding: 14, fontSize: 13 }}>
-              Sima прочитает <code>project.md</code> + <code>rules.md</code> + <code>tech_stack.md</code> + миссию каждого блока + связи —
-              и поднимет system-level concerns: совместимость стэков, масштаб под нагрузку, multi-tenant fit, поток данных, безопасность,
-              дубли, недостающие блоки. Это <strong>отдельно от per-block validation</strong> — там локально, тут системно.
+              {t('arch.description', 'Sima will read project.md + rules.md + tech_stack.md + each block\'s mission + edges — and surface system-level concerns: stack consistency, scale under load, multi-tenant fit, data flow, security, redundancy, missing blocks. This is separate from per-block validation — that\'s local, this is systemic.')}
             </div>
           )}
-          {busy && <div className="meta" style={{ padding: 14 }}>LLM анализирует архитектуру (10–60 сек)…</div>}
+          {busy && <div className="meta" style={{ padding: 14 }}>{t('arch.analyzing_long', 'LLM analyzing architecture (10–60s)…')}</div>}
           {latest && (
             <>
               <div className={`acc-summary acc-${verdictClass}`}>
@@ -1584,7 +1589,7 @@ function ArchReviewPanel({ onClose, onJumpToBlock }) {
               </div>
               {latest.concerns?.length > 0 && (
                 <>
-                  <h3>Concerns</h3>
+                  <h3>{t('arch.concerns', 'Concerns')}</h3>
                   <div className="arch-cards">
                     {latest.concerns.map((c, i) => (
                       <div key={i} className={`arch-card sev-${c.severity || 'low'}`}>
@@ -1594,18 +1599,18 @@ function ArchReviewPanel({ onClose, onJumpToBlock }) {
                         </div>
                         <div className="arch-card-body">
                           <div className="arch-section">
-                            <div className="arch-section-label">что не так</div>
+                            <div className="arch-section-label">{t('arch.what_wrong', 'what\'s wrong')}</div>
                             <div className="arch-section-text">{c.evidence}</div>
                           </div>
                           {c.fix && (
                             <div className="arch-section arch-fix">
-                              <div className="arch-section-label">как пофиксить</div>
+                              <div className="arch-section-label">{t('arch.how_fix', 'how to fix')}</div>
                               <div className="arch-section-text">{c.fix}</div>
                             </div>
                           )}
                           {c.blocks?.length > 0 && (
                             <div className="arch-section">
-                              <div className="arch-section-label">затрагивает блоки</div>
+                              <div className="arch-section-label">{t('arch.affects_blocks', 'affects blocks')}</div>
                               <div className="arch-blocks-row">
                                 {c.blocks.map((b) => (
                                   <span key={b} className="arch-block-chip mono" onClick={(e) => { e.stopPropagation(); onJumpToBlock?.(b); }}>{b}</span>
@@ -1621,7 +1626,7 @@ function ArchReviewPanel({ onClose, onJumpToBlock }) {
               )}
               {latest.strengths?.length > 0 && (
                 <>
-                  <h3>Что хорошо</h3>
+                  <h3>{t('arch.strengths', 'Strengths')}</h3>
                   <div className="arch-strengths">
                     {latest.strengths.map((s, i) => (
                       <div key={i} className="arch-strength-row">
@@ -1648,6 +1653,7 @@ function ArchReviewPanel({ onClose, onJumpToBlock }) {
    Same scripts are MCP-callable via sima-atlas server (subagent_*).
 */
 function SubagentsPanel({ onClose, currentBlockId }) {
+  const t = window.__SIMA_T || ((_, fb) => fb);
   const [results, setResults] = useStateV({}); // { name: result }
   const [busy, setBusy] = useStateV({});
 
@@ -1707,9 +1713,9 @@ function SubagentsPanel({ onClose, currentBlockId }) {
       <div className="cmd-box subagents-box" onClick={(e) => e.stopPropagation()}>
         <div className="sysdocs-head">
           <div>
-            <div className="mono" style={{ fontSize: 11, color: 'var(--ink-4)', letterSpacing: '0.08em' }}>ПОДАГЕНТЫ</div>
+            <div className="mono" style={{ fontSize: 11, color: 'var(--ink-4)', letterSpacing: '0.08em' }}>{t('subagents.title', 'SUBAGENTS')}</div>
             <h3 style={{ margin: '4px 0 0', fontFamily: 'Newsreader, serif', fontStyle: 'italic', fontSize: 19 }}>
-              Те же скрипты, что подключены к Cursor / MCP — теперь под рукой
+              {t('subagents.subtitle', 'The same scripts wired to Cursor / MCP — now at your fingertips')}
             </h3>
           </div>
           <button className="pill" onClick={onClose}>✕</button>
@@ -1720,16 +1726,15 @@ function SubagentsPanel({ onClose, currentBlockId }) {
               <div>
                 <div className="mono" style={{ fontSize: 11, color: 'var(--ink-3)' }}>schema-syncer · b.core-sync</div>
                 <h4 style={{ margin: '2px 0 0', fontFamily: 'Newsreader, serif', fontStyle: 'italic', fontSize: 16 }}>
-                  Полный drift-report по всему графу
+                  {t('subagents.schema.title', 'Full drift report across the graph')}
                 </h4>
               </div>
               <button className="pill primary" onClick={() => run('schema-syncer')} disabled={!!busy['schema-syncer']}>
-                {busy['schema-syncer'] ? 'идёт…' : '▶ запустить'}
+                {busy['schema-syncer'] ? t('subagents.busy', 'running…') : t('subagents.run', '▶ run')}
               </button>
             </div>
             <div className="meta" style={{ fontSize: 12, marginTop: 6 }}>
-              Прогоняет 9 валидаторов (rules / tech_stack / dependency contracts / acceptance / cursor-hooks / agent parity / parity matrix / placeholders / projects).
-              Возвращает разбивку <code>ok / drift / broken</code> с причиной у каждого блока.
+              {t('subagents.schema.desc_pre', 'Runs 9 validators (rules / tech_stack / dependency contracts / acceptance / cursor-hooks / agent parity / parity matrix / placeholders / projects). Returns')} <code>ok / drift / broken</code> {t('subagents.schema.desc_post', 'breakdown with the reason for each block.')}
             </div>
             {renderResult('schema-syncer')}
           </div>
@@ -1739,23 +1744,22 @@ function SubagentsPanel({ onClose, currentBlockId }) {
               <div>
                 <div className="mono" style={{ fontSize: 11, color: 'var(--ink-3)' }}>verifier · b.acceptance-verifier-loop</div>
                 <h4 style={{ margin: '2px 0 0', fontFamily: 'Newsreader, serif', fontStyle: 'italic', fontSize: 16 }}>
-                  Acceptance + LLM-судья (миссия vs реализация)
+                  {t('subagents.verifier.title', 'Acceptance + LLM judge (mission vs implementation)')}
                 </h4>
               </div>
               <div style={{ display: 'flex', gap: 6 }}>
                 {currentBlockId && currentBlockId.startsWith('b.') && (
                   <button className="pill" onClick={() => run('verifier', { block_id: currentBlockId })} disabled={!!busy['verifier']}>
-                    {busy['verifier'] ? 'идёт…' : `▶ ${currentBlockId}`}
+                    {busy['verifier'] ? t('subagents.busy', 'running…') : `▶ ${currentBlockId}`}
                   </button>
                 )}
                 <button className="pill primary" onClick={() => run('verifier')} disabled={!!busy['verifier']}>
-                  {busy['verifier'] ? 'идёт…' : '▶ все блоки'}
+                  {busy['verifier'] ? t('subagents.busy', 'running…') : t('subagents.run_all', '▶ all blocks')}
                 </button>
               </div>
             </div>
             <div className="meta" style={{ fontSize: 12, marginTop: 6 }}>
-              Запускает <code>verify_block_acceptance.mjs</code> + <code>validateBlock</code> LLM-судью, мерджит в один verdict
-              <code>aligned / drift / broken</code>.
+              {t('subagents.verifier.desc_pre', 'Runs')} <code>verify_block_acceptance.mjs</code> {t('subagents.verifier.desc_mid', '+')} <code>validateBlock</code> {t('subagents.verifier.desc_post', 'LLM judge, merges into one verdict')} <code>aligned / drift / broken</code>.
             </div>
             {renderResult('verifier')}
           </div>
@@ -1765,22 +1769,22 @@ function SubagentsPanel({ onClose, currentBlockId }) {
               <div>
                 <div className="mono" style={{ fontSize: 11, color: 'var(--ink-3)' }}>wiki-builder · b.docs</div>
                 <h4 style={{ margin: '2px 0 0', fontFamily: 'Newsreader, serif', fontStyle: 'italic', fontSize: 16 }}>
-                  Пересобрать WIKI / wiki.html / roadmap / auto_tz
+                  {t('subagents.wiki.title', 'Rebuild WIKI / wiki.html / roadmap / auto_tz')}
                 </h4>
               </div>
               <button className="pill primary" onClick={() => run('wiki-builder')} disabled={!!busy['wiki-builder']}>
-                {busy['wiki-builder'] ? 'идёт…' : '▶ пересобрать'}
+                {busy['wiki-builder'] ? t('subagents.busy', 'running…') : t('subagents.rebuild', '▶ rebuild')}
               </button>
             </div>
             <div className="meta" style={{ fontSize: 12, marginTop: 6 }}>
-              Идемпотентно — безопасно вызывать после каждой правки блока.
+              {t('subagents.wiki.desc', 'Idempotent — safe to call after every block edit.')}
             </div>
             {renderResult('wiki-builder')}
           </div>
         </div>
         <div className="sysdocs-foot">
           <span className="meta" style={{ fontSize: 11 }}>
-            Те же подагенты доступны Cursor через <code>.cursor/agents.json</code> и MCP-клиентам как <code>subagent_*</code> tools.
+            {t('subagents.foot_pre', 'The same subagents are available to Cursor via')} <code>.cursor/agents.json</code> {t('subagents.foot_mid', 'and to MCP clients as')} <code>subagent_*</code> {t('subagents.foot_post', 'tools.')}
           </span>
         </div>
       </div>

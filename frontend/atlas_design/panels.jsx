@@ -4,17 +4,18 @@ const { useState: useState2, useEffect: useEffect2, useMemo: useMemo2 } = React;
 /* ====================== LEFT RAIL ====================== */
 function ContextRail({ data, onClose, onUpdateField, onOpenDocs }) {
   const p = data.product;
+  const t = window.__SIMA_T || ((_, fb) => fb);
   // R-7.31 — editOnClick: single-click активирует edit (раньше нужен был
   // double-click, оператор не догадывался). Для structured данных
   // (KPI / Условия / стек) — кнопка ✎ ведёт в 📖 Доки (там лежит
   // первичный источник: project.md / tech_stack.md).
   const editPencil = (label) => onOpenDocs ? (
-    <button className="rail-edit" onClick={(e) => { e.stopPropagation(); onOpenDocs(); }} title={`Редактировать ${label} в 📖 Доки`}>✎</button>
+    <button className="rail-edit" onClick={(e) => { e.stopPropagation(); onOpenDocs(); }} title={`${t('rail.edit_in_docs_prefix', 'Edit')} ${label} ${t('rail.edit_in_docs_suffix', 'in 📖 Docs')}`}>✎</button>
   ) : null;
   return (
     <aside className="rail">
-      {onClose && <button className="rail-collapse" onClick={onClose} title="Свернуть">◀</button>}
-      <h2>Контекст продукта</h2>
+      {onClose && <button className="rail-collapse" onClick={onClose} title={t('rail.collapse_title', 'Collapse')}>◀</button>}
+      <h2>{t('rail.product_context', 'Product context')}</h2>
       <div className="product-card">
         <div className="codename">{p.codename}</div>
         <div className="name serif">
@@ -26,46 +27,46 @@ function ContextRail({ data, onClose, onUpdateField, onOpenDocs }) {
       </div>
 
       <div className="field italic">
-        <div className="lbl">Цель <span className="tag">@goal</span></div>
+        <div className="lbl">{t('rail.goal', 'Goal')} <span className="tag">@goal</span></div>
         <div className="val">
           {onUpdateField ? <EditableText editOnClick value={p.goal} onChange={(v) => onUpdateField('goal', v)} multiline /> : p.goal}
         </div>
       </div>
 
       <div className="field italic">
-        <div className="lbl">Миссия <span className="tag">@mission</span></div>
+        <div className="lbl">{t('rail.mission', 'Mission')} <span className="tag">@mission</span></div>
         <div className="val">
           {onUpdateField ? <EditableText editOnClick value={p.mission} onChange={(v) => onUpdateField('mission', v)} multiline /> : p.mission}
         </div>
       </div>
 
       <div className="field">
-        <div className="lbl">Качество / KPI <span className="tag">@quality</span>{editPencil('KPI (project.md)')}</div>
+        <div className="lbl">{t('rail.quality_kpi', 'Quality / KPI')} <span className="tag">@quality</span>{editPencil(t('rail.kpi_label', 'KPI (project.md)'))}</div>
         {p.quality.map(q => (
           <div key={q.code} className="kpi-row">
             <span className="code">{q.code}</span>
             <span className="lbl2">{q.label}</span>
           </div>
         ))}
-        {!p.quality.length && <div className="meta" style={{ fontSize: 11.5, color: 'var(--ink-4)' }}>Заполни в 📖 Доки → project.md</div>}
+        {!p.quality.length && <div className="meta" style={{ fontSize: 11.5, color: 'var(--ink-4)' }}>{t('rail.fill_in_docs', 'Fill in via 📖 Docs → project.md')}</div>}
       </div>
 
       <div className="field">
-        <div className="lbl">Условия / стек <span className="tag">@conditions</span>{editPencil('стек (tech_stack.md)')}</div>
+        <div className="lbl">{t('rail.conditions_stack', 'Conditions / stack')} <span className="tag">@conditions</span>{editPencil(t('rail.stack_label', 'stack (tech_stack.md)'))}</div>
         <div style={{ marginBottom: 8 }}>
-          <div style={{ fontSize: 10.5, color: 'var(--ink-4)', marginBottom: 4, letterSpacing: '0.06em' }}>BACKEND</div>
+          <div style={{ fontSize: 10.5, color: 'var(--ink-4)', marginBottom: 4, letterSpacing: '0.06em' }}>{t('rail.layer_backend', 'BACKEND')}</div>
           <div className="chips">{p.conditions.backend.map(x => <span key={x} className="chip">{x}</span>)}</div>
         </div>
         <div style={{ marginBottom: 8 }}>
-          <div style={{ fontSize: 10.5, color: 'var(--ink-4)', marginBottom: 4, letterSpacing: '0.06em' }}>FRONTEND</div>
+          <div style={{ fontSize: 10.5, color: 'var(--ink-4)', marginBottom: 4, letterSpacing: '0.06em' }}>{t('rail.layer_frontend', 'FRONTEND')}</div>
           <div className="chips">{p.conditions.frontend.map(x => <span key={x} className="chip">{x}</span>)}</div>
         </div>
         <div style={{ marginBottom: 8 }}>
-          <div style={{ fontSize: 10.5, color: 'var(--ink-4)', marginBottom: 4, letterSpacing: '0.06em' }}>ЛОГИКА</div>
+          <div style={{ fontSize: 10.5, color: 'var(--ink-4)', marginBottom: 4, letterSpacing: '0.06em' }}>{t('rail.layer_logic', 'LOGIC')}</div>
           <div className="chips">{p.conditions.logic.map(x => <span key={x} className="chip">{x}</span>)}</div>
         </div>
         <div>
-          <div style={{ fontSize: 10.5, color: 'var(--ink-4)', marginBottom: 4, letterSpacing: '0.06em' }}>ПРОВЕРКИ</div>
+          <div style={{ fontSize: 10.5, color: 'var(--ink-4)', marginBottom: 4, letterSpacing: '0.06em' }}>{t('rail.layer_checks', 'CHECKS')}</div>
           <div className="chips">{p.conditions.checks.map(x => <span key={x} className="chip">{x}</span>)}</div>
         </div>
       </div>
@@ -79,13 +80,14 @@ function DetailPanel({ data, modules: liveModules, moduleId, onClose, desyncReso
   useEffect2(() => { setTab('overview'); }, [moduleId]);
 
   if (!moduleId) {
+    const t = window.__SIMA_T || ((_, fb) => fb);
     return (
       <aside className="detail">
         <div className="dhead">
           <div className="layer-tag mono">no-selection</div>
-          <h1>Выберите модуль</h1>
+          <h1>{t('detail.select_module', 'Select a module')}</h1>
           <div style={{ fontSize: 13, color: 'var(--ink-3)', lineHeight: 1.5 }}>
-            Кликните на узел в схеме — здесь появится описание, KPI, задачи, логика и история решений. Через эту панель агенты (Claude Code, Cursor, Codex) получают контекст именно нужного блока.
+            {t('detail.select_module_hint', 'Click a node on the canvas — its description, KPIs, tasks, logic and decision history will appear here. Through this panel agents (Claude Code, Cursor, Codex) get the right block\'s context.')}
           </div>
         </div>
       </aside>
@@ -101,6 +103,7 @@ function DetailPanel({ data, modules: liveModules, moduleId, onClose, desyncReso
   const fromPayload = (data?.modules || []).find(x => x.id === moduleId);
   const m = fromLive || fromPayload;
   if (!m) {
+    const t = window.__SIMA_T || ((_, fb) => fb);
     // Block id is selected but neither source has it. Show a friendly
     // placeholder instead of `return null` — that previously hid the
     // panel completely and confused the operator.
@@ -110,7 +113,7 @@ function DetailPanel({ data, modules: liveModules, moduleId, onClose, desyncReso
           <div className="layer-tag mono">@{moduleId.replace(/^b\./, '')}</div>
           <h1>{moduleId}</h1>
           <div style={{ fontSize: 13, color: 'var(--ink-3)', lineHeight: 1.5, marginTop: 8 }}>
-            Блок ещё не подгружен. Возможно, страница не обновилась после создания — нажмите Sync вверху или Ctrl+R.
+            {t('detail.block_not_loaded', 'Block not yet loaded. Maybe the page didn\'t refresh after creation — press Sync above or Ctrl+R.')}
           </div>
         </div>
       </aside>
@@ -154,16 +157,16 @@ function DetailPanel({ data, modules: liveModules, moduleId, onClose, desyncReso
             <button
               onClick={async () => {
                 if (!window.SIMA_API?.deleteBlock) return;
-                if (!window.confirm(`Удалить блок ${m.id}? Запись в graph.json и директория atlas/clients/<...>/blocks/${m.id}/ будут удалены. Действие необратимо (но файлы остаются в git-истории).`)) return;
+                if (!window.confirm(`${t('detail.delete_confirm_a', 'Delete block')} ${m.id}${t('detail.delete_confirm_b', '? Entry in graph.json and directory atlas/clients/<...>/blocks/')}${m.id}${t('detail.delete_confirm_c', '/ will be deleted. Irreversible (but files remain in git history).')}`)) return;
                 const r = await window.SIMA_API.deleteBlock(m.id, true /* hard */);
                 if (r?.ok) {
-                  try { window.dispatchEvent(new CustomEvent('sima-log-push', { detail: { agent: 'SIMA Core', kind: 'ok', msg: `🗑 Удалён блок ${m.id}` } })); } catch {}
+                  try { window.dispatchEvent(new CustomEvent('sima-log-push', { detail: { agent: 'SIMA Core', kind: 'ok', msg: `${t('detail.deleted_log', '🗑 Deleted block')} ${m.id}` } })); } catch {}
                   if (onClose) onClose();
                 } else {
-                  try { window.dispatchEvent(new CustomEvent('sima-log-push', { detail: { agent: 'SIMA Core', kind: 'fail', msg: `Удаление ${m.id} не удалось: ${r?.error || 'unknown'}` } })); } catch {}
+                  try { window.dispatchEvent(new CustomEvent('sima-log-push', { detail: { agent: 'SIMA Core', kind: 'fail', msg: `${t('detail.delete_failed_log', 'Delete')} ${m.id} ${t('detail.delete_failed_log_b', 'failed:')} ${r?.error || 'unknown'}` } })); } catch {}
                 }
               }}
-              title="Удалить блок (hard, с диска)"
+              title={t('detail.delete_title', 'Delete block (hard, from disk)')}
               style={{
                 background: 'transparent', border: 0, color: 'var(--st-fail, #c33)',
                 cursor: 'pointer', fontSize: 14, padding: '0 4px', lineHeight: 1,
@@ -184,7 +187,7 @@ function DetailPanel({ data, modules: liveModules, moduleId, onClose, desyncReso
               editOnClick
               value={m.title}
               onChange={(v) => { if (v && v !== m.title) window.SIMA_API.patchBlock(m.id, { title: v }); }}
-              placeholder="название блока…"
+              placeholder={t('detail.title_placeholder', 'block name…')}
             />
           ) : m.title}
         </h1>
@@ -192,7 +195,7 @@ function DetailPanel({ data, modules: liveModules, moduleId, onClose, desyncReso
           <span className="status-pill"><span className="dot" style={{ background: `var(--st-${status})` }} />{statusLabel(status)}</span>
           <span className="status-pill mono">P{m.priority}</span>
           <span className="status-pill mono">layer/{m.layer}</span>
-          {m.checked && <span className="status-pill">✓ проверено</span>}
+          {m.checked && <span className="status-pill">{t('detail.checked', '✓ checked')}</span>}
           {/* R-7.44 — для подмодуля показываем родителя как clickable pill;
               кликом переключаемся на родителя в правой панели. */}
           {m.parent_block_id && (() => {
@@ -203,7 +206,7 @@ function DetailPanel({ data, modules: liveModules, moduleId, onClose, desyncReso
                 className="status-pill mono"
                 onClick={() => onSelect && onSelect(m.parent_block_id)}
                 style={{ cursor: onSelect ? 'pointer' : 'default', background: 'rgba(80, 120, 200, 0.12)', color: 'var(--ink)' }}
-                title={`Родительский блок: ${m.parent_block_id} (${parentTitle}). Клик — открыть.`}
+                title={`${t('detail.parent_title', 'Parent block:')} ${m.parent_block_id} (${parentTitle}). ${t('detail.parent_click', 'Click to open.')}`}
               >
                 ↑ parent: {m.parent_block_id}
               </span>
@@ -219,7 +222,7 @@ function DetailPanel({ data, modules: liveModules, moduleId, onClose, desyncReso
             background: 'var(--ink-bg-soft, rgba(120, 120, 140, 0.08))',
             color: 'var(--ink-3)', fontSize: 12, lineHeight: 1.45,
           }}>
-            <strong style={{ color: 'var(--ink-2)' }}>чтобы продвинуть статус — заполни:</strong>{' '}
+            <strong style={{ color: 'var(--ink-2)' }}>{t('detail.gate_hint', 'to advance status — fill:')}</strong>{' '}
             {m.contract.missing.map((f) => f.replace(/\.md$/, '')).join(' · ')}
             <span style={{ marginLeft: 6, color: 'var(--ink-4)' }}>
               ({m.contract.filled}/{m.contract.total})
@@ -291,6 +294,7 @@ function LayerPicker({ block }) {
 }
 
 function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSubsystem, onOpenTz, onClaudeAdvice }) {
+  const t = window.__SIMA_T || ((_, fb) => fb);
   const desc = MODULE_DESC[m.id] || {};
   // Phase R-7.12 — для НОВЫХ блоков (не из захардкоженного MODULE_DESC)
   // подгружаем реальный mission.md из контракта. Без этого «Обзор» tab
@@ -322,52 +326,52 @@ function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSu
   //   3. placeholder
   const isPlaceholderText = (s) => !s || /Заполни через детальную панель|добавь конкретную метрику/i.test(s);
   const liveMission = !isPlaceholderText(missionText) ? missionText : '';
-  const whyText = liveMission || desc.why || (missionLoaded ? 'Описание модуля будет дополнено во время работы с агентом. Откройте таб «Контракт» и нажмите ✎ Руками рядом с mission.md, чтобы заполнить.' : 'Загрузка…');
+  const whyText = liveMission || desc.why || (missionLoaded ? t('overview.module_desc_placeholder', 'The module description will be filled in as you work with the agent. Open the «Contract» tab and click ✎ Edit next to mission.md to fill it in.') : t('overview.loading', 'Loading…'));
   return (
     <>
       {hasSubsystem && (
         <div style={{ background: 'var(--ink)', color: 'var(--paper)', padding: '12px 14px', borderRadius: 8, marginBottom: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <div style={{ fontSize: 11, opacity: 0.7, fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.06em', marginBottom: 3 }}>SUBSYSTEM</div>
-            <div style={{ fontFamily: 'Newsreader, serif', fontStyle: 'italic', fontSize: 15 }}>Это — целая подсистема со своим контуром</div>
-            <div style={{ fontSize: 11.5, opacity: 0.7, marginTop: 2 }}>модули, KPI, стек, задачи — открой схему внутри</div>
+            <div style={{ fontSize: 11, opacity: 0.7, fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.06em', marginBottom: 3 }}>{t('overview.subsystem', 'SUBSYSTEM')}</div>
+            <div style={{ fontFamily: 'Newsreader, serif', fontStyle: 'italic', fontSize: 15 }}>{t('overview.subsystem_title', 'This is a whole subsystem with its own contour')}</div>
+            <div style={{ fontSize: 11.5, opacity: 0.7, marginTop: 2 }}>{t('overview.subsystem_sub', 'modules, KPIs, stack, tasks — open the schema inside')}</div>
           </div>
-          <button onClick={() => onDrillDown(m.id)} style={{ background: 'var(--paper)', color: 'var(--ink)', border: 0, padding: '8px 14px', borderRadius: 6, cursor: 'pointer', fontFamily: 'inherit', fontSize: 12, fontWeight: 600 }}>Открыть схему →</button>
+          <button onClick={() => onDrillDown(m.id)} style={{ background: 'var(--paper)', color: 'var(--ink)', border: 0, padding: '8px 14px', borderRadius: 6, cursor: 'pointer', fontFamily: 'inherit', fontSize: 12, fontWeight: 600 }}>{t('overview.open_schema', 'Open schema →')}</button>
         </div>
       )}
       {m.warn && status !== 'progress' && (
         <div className="lesson bad" style={{ marginBottom: 14 }}>
-          <div className="verdict">внимание · sima-core</div>
+          <div className="verdict">{t('overview.warn_attention', 'attention · sima-core')}</div>
           {m.warn}
         </div>
       )}
       <LayerPicker block={m} />
-      <h3>Зачем</h3>
+      <h3>{t('overview.why', 'Why')}</h3>
       <p className="lede" style={{ whiteSpace: 'pre-wrap' }}>{whyText}</p>
 
-      <h3>Логика</h3>
+      <h3>{t('overview.logic', 'Logic')}</h3>
       <p>{desc.logic}</p>
 
-      <h3>Бэкенд</h3>
+      <h3>{t('overview.backend', 'Backend')}</h3>
       <div className="chips" style={{ marginBottom: 4 }}>{(desc.backend || []).map(x => <span key={x} className="chip">{x}</span>)}</div>
 
       {desc.frontend && <>
-        <h3>Фронтенд</h3>
+        <h3>{t('overview.frontend', 'Frontend')}</h3>
         <div className="chips">{desc.frontend.map(x => <span key={x} className="chip">{x}</span>)}</div>
       </>}
 
       {/* P1.5 — tech_stack from graph.json (live) */}
       {Array.isArray(m.tech_stack) && m.tech_stack.length > 0 && (
         <>
-          <h3>Tech stack блока</h3>
+          <h3>{t('overview.tech_stack', 'Block tech stack')}</h3>
           <div className="chips">{m.tech_stack.map(x => <span key={x} className="chip mono" style={{ fontSize: 11 }}>{x}</span>)}</div>
           <div className="meta" style={{ fontSize: 11, marginTop: 4 }}>
-            из <code>graph.json</code> блока — будет проверено sync-check'ом против глобального <code>tech_stack.md</code>.
+            {t('overview.tech_stack_meta_pre', 'from')} <code>graph.json</code> {t('overview.tech_stack_meta_post', 'block — will be checked by sync-check against global')} <code>tech_stack.md</code>.
           </div>
         </>
       )}
 
-      <h3>KPI блока</h3>
+      <h3>{t('overview.kpi', 'Block KPIs')}</h3>
       {(desc.kpi || []).map(k => (
         <div key={k.code} className="kpi-row" style={{ borderBottom: '1px dashed var(--rule)', padding: '5px 0', display: 'flex', justifyContent: 'space-between' }}>
           <span className="mono" style={{ fontSize: 11, fontWeight: 500 }}>{k.code}</span>
@@ -375,9 +379,9 @@ function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSu
         </div>
       ))}
 
-      <h3>Отправить в агента</h3>
+      <h3>{t('overview.send_to_agent', 'Send to agent')}</h3>
       <div className="send-task">
-        <span className="lab">Контекст этого блока →</span>
+        <span className="lab">{t('overview.this_block_ctx', 'This block\'s context →')}</span>
         <button onClick={() => onSendToAgent('claude', m)}>Claude Code</button>
         <button onClick={() => onSendToAgent('cursor', m)}>Cursor</button>
         <button onClick={() => onSendToAgent('codex', m)}>Codex</button>
@@ -385,12 +389,12 @@ function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSu
 
       <BlockScreenshot block={m} />
 
-      <h3>Документы</h3>
+      <h3>{t('overview.documents', 'Documents')}</h3>
       <div className="send-task">
-        <span className="lab">Сгенерировать / экспорт →</span>
-        {onOpenTz && <button onClick={() => onOpenTz(m.id)}>✎ ТЗ блока</button>}
+        <span className="lab">{t('overview.generate_export', 'Generate / export →')}</span>
+        {onOpenTz && <button onClick={() => onOpenTz(m.id)}>{t('overview.tz_block', '✎ Block spec')}</button>}
         <UserDocsButton blockId={m.id} />
-        {onClaudeAdvice && <button onClick={() => onClaudeAdvice(m)}>✨ Совет Клода</button>}
+        {onClaudeAdvice && <button onClick={() => onClaudeAdvice(m)}>{t('overview.claude_advice', '✨ Claude\'s advice')}</button>}
       </div>
     </>
   );
@@ -400,6 +404,7 @@ function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSu
 // state) and a button to trigger a fresh capture against block.ui_url.
 // Operator can edit the ui_url inline; saves via patchBlock.
 function BlockScreenshot({ block }) {
+  const t = window.__SIMA_T || ((_, fb) => fb);
   const [busy, setBusy] = useState2(false);
   const [info, setInfo] = useState2(null);
   const [bumper, setBumper] = useState2(0); // cache-buster for <img src>
@@ -431,16 +436,16 @@ function BlockScreenshot({ block }) {
     setUrlSaveMsg(null);
     const u = urlDraft.trim();
     if (u && !/^https?:\/\//.test(u)) {
-      setUrlSaveMsg({ kind: 'fail', text: 'URL должен начинаться с http:// или https://' });
+      setUrlSaveMsg({ kind: 'fail', text: t('screenshot.url_invalid', 'URL must start with http:// or https://') });
       return;
     }
     const r = await window.SIMA_API.patchBlock(block.id, { ui_url: u });
     if (r?.ok) {
       setEditing(false);
-      setUrlSaveMsg({ kind: 'ok', text: '✓ сохранено' });
+      setUrlSaveMsg({ kind: 'ok', text: t('screenshot.saved', '✓ saved') });
       setTimeout(() => setUrlSaveMsg(null), 2200);
     } else {
-      setUrlSaveMsg({ kind: 'fail', text: r?.error || 'save failed' });
+      setUrlSaveMsg({ kind: 'fail', text: r?.error || t('screenshot.save_failed', 'save failed') });
     }
   };
 
@@ -451,7 +456,7 @@ function BlockScreenshot({ block }) {
 
   return (
     <>
-      <h3>Скрин блока</h3>
+      <h3>{t('screenshot.title', 'Block screenshot')}</h3>
       <div className="block-screenshot">
         {hasShot ? (
           <a href={imgSrc} target="_blank" rel="noreferrer" className="block-screenshot-img-wrap">
@@ -460,17 +465,17 @@ function BlockScreenshot({ block }) {
         ) : (
           <div className="block-screenshot-empty meta">
             {block.ui_url
-              ? 'Скрин ещё не снят. Нажмите ниже.'
-              : 'Задайте ui_url блока, чтобы Sima могла снять скрин.'}
+              ? t('screenshot.no_shot', 'Screenshot not taken yet. Click below.')
+              : t('screenshot.set_url', 'Set the block\'s ui_url so Sima can capture a screenshot.')}
           </div>
         )}
         <div className="block-screenshot-meta meta">
-          {info?.files?.[0] && <span>обновлено: {String(info.files[0].mtime).slice(0, 16).replace('T', ' ')} · {(info.files[0].bytes / 1024).toFixed(1)} КБ</span>}
-          {info?.files?.length > 1 && <span style={{ marginLeft: 8 }}>история: {info.files.length}</span>}
+          {info?.files?.[0] && <span>{t('screenshot.updated', 'updated:')} {String(info.files[0].mtime).slice(0, 16).replace('T', ' ')} · {(info.files[0].bytes / 1024).toFixed(1)} {t('screenshot.kb', 'KB')}</span>}
+          {info?.files?.length > 1 && <span style={{ marginLeft: 8 }}>{t('screenshot.history', 'history:')} {info.files.length}</span>}
         </div>
       </div>
       <div className="send-task" style={{ marginTop: 8, alignItems: 'flex-start' }}>
-        <span className="lab" style={{ paddingTop: 6 }}>UI URL →</span>
+        <span className="lab" style={{ paddingTop: 6 }}>{t('screenshot.ui_url', 'UI URL →')}</span>
         {editing ? (
           <>
             <input
@@ -480,18 +485,18 @@ function BlockScreenshot({ block }) {
               onChange={(e) => setUrlDraft(e.target.value)}
               style={{ flex: 1, minWidth: 200 }}
             />
-            <button onClick={saveUrl}>💾 сохранить</button>
-            <button onClick={() => { setEditing(false); setUrlDraft(block.ui_url || ''); }}>отмена</button>
+            <button onClick={saveUrl}>{t('screenshot.save', '💾 save')}</button>
+            <button onClick={() => { setEditing(false); setUrlDraft(block.ui_url || ''); }}>{t('screenshot.cancel', 'cancel')}</button>
           </>
         ) : (
           <>
             <span className="mono" style={{ fontSize: 11, color: 'var(--ink-3)', flex: 1 }}>
-              {block.ui_url || '_(не задан)_'}
+              {block.ui_url || t('screenshot.not_set', '_(not set)_')}
             </span>
-            <button onClick={() => setEditing(true)}>✎ изменить</button>
+            <button onClick={() => setEditing(true)}>{t('screenshot.edit', '✎ edit')}</button>
           </>
         )}
-        <button onClick={capture} disabled={busy || !block.ui_url}>{busy ? 'снимаю…' : '📸 снять скрин'}</button>
+        <button onClick={capture} disabled={busy || !block.ui_url}>{busy ? t('screenshot.taking', 'capturing…') : t('screenshot.take', '📸 take screenshot')}</button>
         {urlSaveMsg && <span className={`composer-result ${urlSaveMsg.kind}`} style={{ fontSize: 11, padding: '2px 8px', marginLeft: 4 }}>{urlSaveMsg.text}</span>}
       </div>
     </>
@@ -503,6 +508,7 @@ function BlockScreenshot({ block }) {
 // generator already produces step-by-step {action, target, expected}
 // content via LLM; this just exposes the trigger from DetailPanel.
 function UserDocsButton({ blockId }) {
+  const t = window.__SIMA_T || ((_, fb) => fb);
   const [busy, setBusy] = useState2(false);
   const [msg, setMsg] = useState2(null);
   if (!blockId || !blockId.startsWith('b.')) return null;
@@ -510,17 +516,17 @@ function UserDocsButton({ blockId }) {
     setBusy(true); setMsg(null);
     const r = await window.SIMA_API?.meta?.userDocsRegenerate(blockId);
     setBusy(false);
-    if (!r) { setMsg({ kind: 'fail', text: 'нет ответа' }); return; }
+    if (!r) { setMsg({ kind: 'fail', text: t('userdocs.no_response', 'no response') }); return; }
     setMsg({
       kind: r.ok ? 'ok' : 'fail',
-      text: r.ok ? '✓ доки сгенерированы — открой 📖 Доки → Пользователю' : `✗ ${r.error || 'failed'}`,
+      text: r.ok ? t('userdocs.ok', '✓ docs generated — open 📖 Docs → User') : `✗ ${r.error || 'failed'}`,
     });
     setTimeout(() => setMsg(null), 3500);
   };
   return (
     <>
-      <button onClick={click} disabled={busy} title="Сгенерировать пошаговый гайд для конечного пользователя (Click X → field Y → button Z)">
-        {busy ? '…' : '📖 Гайд пользователю'}
+      <button onClick={click} disabled={busy} title={t('userdocs.title', 'Generate a step-by-step guide for the end user (Click X → field Y → button Z)')}>
+        {busy ? '…' : t('userdocs.label', '📖 User guide')}
       </button>
       {msg && <span className={`composer-result ${msg.kind}`} style={{ fontSize: 11, padding: '2px 8px', marginLeft: 6 }}>{msg.text}</span>}
     </>
@@ -528,6 +534,7 @@ function UserDocsButton({ blockId }) {
 }
 
 function TasksList({ tasks, desyncResolved, moduleId, onSendToAgent, missionText, layer }) {
+  const t = window.__SIMA_T || ((_, fb) => fb);
   // Phase M-4 — Sima decomposes mission into tasks
   const [suggested, setSuggested] = useState2([]);
   const [busy, setBusy] = useState2(false);
@@ -542,24 +549,24 @@ function TasksList({ tasks, desyncResolved, moduleId, onSendToAgent, missionText
       layer: layer || 'logic',
     });
     setBusy(false);
-    if (r?.ok) setSuggested(r.tasks.map((t) => ({ ...t, _mock: r.mock })));
+    if (r?.ok) setSuggested(r.tasks.map((tk) => ({ ...tk, _mock: r.mock })));
   };
 
   return (
     <>
-      <h3>Декомпозиция</h3>
-      {!tasks.length && <p style={{ color: 'var(--ink-3)' }}>Задачи появятся, когда агент начнёт декомпозицию.</p>}
-      {tasks.map(t => {
-        const st = (moduleId === 'metrics' && t.id === 'T-202' && desyncResolved) ? 'progress' : t.status;
+      <h3>{t('tasks.decomposition', 'Decomposition')}</h3>
+      {!tasks.length && <p style={{ color: 'var(--ink-3)' }}>{t('tasks.no_tasks', 'Tasks will appear when the agent starts decomposition.')}</p>}
+      {tasks.map(tk => {
+        const st = (moduleId === 'metrics' && tk.id === 'T-202' && desyncResolved) ? 'progress' : tk.status;
         return (
-          <div key={t.id} className="task-row">
-            <span className="tid">{t.id}</span>
+          <div key={tk.id} className="task-row">
+            <span className="tid">{tk.id}</span>
             <div>
-              <div className="ttitle">{t.title}</div>
-              {t.note && st !== 'progress' && <div className="tnote">⚠ {t.note}</div>}
+              <div className="ttitle">{tk.title}</div>
+              {tk.note && st !== 'progress' && <div className="tnote">⚠ {tk.note}</div>}
               <div className="tmeta">
-                <span className="mono">{t.priority}</span>
-                {t.agent && <span className="agent-chip">{t.agent}</span>}
+                <span className="mono">{tk.priority}</span>
+                {tk.agent && <span className="agent-chip">{tk.agent}</span>}
               </div>
             </div>
             <div className="tstatus" data-st={st} title={statusLabel(st)} />
@@ -569,30 +576,30 @@ function TasksList({ tasks, desyncResolved, moduleId, onSendToAgent, missionText
 
       {moduleId && moduleId.startsWith('b.') && (
         <>
-          <h3>✦ Sima разложит на задачи</h3>
+          <h3>{t('tasks.sima_will_decompose', '✦ Sima will decompose into tasks')}</h3>
           <div className="send-task" style={{ marginBottom: 8 }}>
-            <span className="lab">Из mission блока →</span>
-            <button onClick={askSima} disabled={busy}>{busy ? 'думаю…' : '✦ предложить декомпозицию'}</button>
+            <span className="lab">{t('tasks.from_block_mission', 'From block mission →')}</span>
+            <button onClick={askSima} disabled={busy}>{busy ? t('tasks.thinking', 'thinking…') : t('tasks.propose_decomp', '✦ propose decomposition')}</button>
           </div>
           {suggested[0]?._mock && (
-            <div className="composer-result fail" style={{ marginBottom: 8 }}>Demo-режим — нужен ANTHROPIC_API_KEY.</div>
+            <div className="composer-result fail" style={{ marginBottom: 8 }}>{t('tasks.demo_need_key', 'Demo mode — ANTHROPIC_API_KEY required.')}</div>
           )}
-          {suggested.map((t) => (
-            <div key={t.id} className="synth-task">
-              <span className="mono" style={{ fontSize: 11, color: 'var(--ink-3)' }}>{t.id}</span>
+          {suggested.map((tk) => (
+            <div key={tk.id} className="synth-task">
+              <span className="mono" style={{ fontSize: 11, color: 'var(--ink-3)' }}>{tk.id}</span>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 13 }}>{t.title}</div>
-                {t.note && <div className="meta" style={{ fontSize: 11 }}>{t.note}</div>}
+                <div style={{ fontSize: 13 }}>{tk.title}</div>
+                {tk.note && <div className="meta" style={{ fontSize: 11 }}>{tk.note}</div>}
                 <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
-                  <span className="acc-pill mono">{t.priority}</span>
-                  <span className="acc-pill mono">{t.agent}</span>
+                  <span className="acc-pill mono">{tk.priority}</span>
+                  <span className="acc-pill mono">{tk.agent}</span>
                 </div>
               </div>
             </div>
           ))}
           {suggested.length > 0 && (
             <div className="meta" style={{ fontSize: 11, marginTop: 4 }}>
-              Предложения только показаны — записать их в tasks.md можно через «Send to Claude Code» с этим контекстом.
+              {t('tasks.suggestions_hint', 'Suggestions are display-only — to write them to tasks.md use «Send to Claude Code» with this context.')}
             </div>
           )}
         </>
@@ -602,10 +609,11 @@ function TasksList({ tasks, desyncResolved, moduleId, onSendToAgent, missionText
 }
 
 function SubsList({ subs, desyncResolved, moduleId }) {
-  if (!subs.length) return <p style={{ color: 'var(--ink-3)' }}>У этого блока пока нет подмодулей.</p>;
+  const t = window.__SIMA_T || ((_, fb) => fb);
+  if (!subs.length) return <p style={{ color: 'var(--ink-3)' }}>{t('subs.no_subs', 'This block has no submodules yet.')}</p>;
   return (
     <>
-      <h3>Подмодули</h3>
+      <h3>{t('subs.title', 'Submodules')}</h3>
       <div className="subm-list">
         {subs.map(s => {
           const st = (s.id === 'metrics-ast' && desyncResolved) ? 'progress' : s.status;
@@ -623,6 +631,7 @@ function SubsList({ subs, desyncResolved, moduleId }) {
 }
 
 function Memory({ lessons, history, moduleId }) {
+  const t = window.__SIMA_T || ((_, fb) => fb);
   // Pull real per-block trace from disk: decisions.log + patterns.md.
   // The static `lessons`/`history` props from the bootstrap are the
   // editorial fallback; if the block has its own decisions log we
@@ -671,8 +680,8 @@ function Memory({ lessons, history, moduleId }) {
     <>
       {moduleId && moduleId.startsWith('b.') && (
         <div className="send-task" style={{ marginBottom: 14 }}>
-          <span className="lab">Контекст-пак →</span>
-          <button onClick={buildPack} disabled={packBusy}>{packBusy ? 'Собираю…' : '🗂 Собрать context_pack'}</button>
+          <span className="lab">{t('memory.context_pack', 'Context pack →')}</span>
+          <button onClick={buildPack} disabled={packBusy}>{packBusy ? t('memory.collecting', 'Building…') : t('memory.build_pack', '🗂 Build context_pack')}</button>
           {packResult && (
             <span className={`composer-result ${packResult.ok ? 'ok' : 'fail'}`} style={{ marginLeft: 8, padding: '4px 10px' }}>
               {packResult.ok ? <>✓ <span className="mono">{packResult.file}</span></> : <>✗ {packResult.error}</>}
@@ -681,7 +690,7 @@ function Memory({ lessons, history, moduleId }) {
         </div>
       )}
 
-      <h3>Решения блока (decisions.log)</h3>
+      <h3>{t('memory.decisions_title', 'Block decisions (decisions.log)')}</h3>
       {decisionLines.length ? (
         <div className="memory-decisions">
           {decisionLines.map((ln, i) => {
@@ -700,26 +709,26 @@ function Memory({ lessons, history, moduleId }) {
         </div>
       ) : (
         <p style={{ color: 'var(--ink-3)' }}>
-          {moduleId && moduleId.startsWith('b.') ? 'decisions.log пуст для этого блока.' : 'Память — для b.* блоков atlas.'}
+          {moduleId && moduleId.startsWith('b.') ? t('memory.decisions_empty', 'decisions.log is empty for this block.') : t('memory.only_b_blocks', 'Memory — for b.* atlas blocks only.')}
         </p>
       )}
 
       {patterns && patterns.trim() && patterns.trim() !== '# patterns' && (
         <>
-          <h3>Паттерны (patterns.md)</h3>
+          <h3>{t('memory.patterns_title', 'Patterns (patterns.md)')}</h3>
           <pre className="memory-patterns">{patterns}</pre>
         </>
       )}
 
-      <h3>Уроки (бутстрап)</h3>
+      <h3>{t('memory.lessons_title', 'Lessons (bootstrap)')}</h3>
       {lessons.length ? lessons.map((l, i) => (
         <div key={i} className={`lesson ${l.verdict}`}>
-          <div className="verdict">{l.verdict === 'good' ? '✓ что сработало' : '✗ что не сработало'}</div>
+          <div className="verdict">{l.verdict === 'good' ? t('memory.lesson_good', '✓ what worked') : t('memory.lesson_bad', '✗ what didn\'t')}</div>
           {l.note}
         </div>
-      )) : <p style={{ color: 'var(--ink-3)' }}>Уроков по этому блоку нет.</p>}
+      )) : <p style={{ color: 'var(--ink-3)' }}>{t('memory.no_lessons', 'No lessons for this block.')}</p>}
 
-      <h3>События</h3>
+      <h3>{t('memory.events', 'Events')}</h3>
       {history.length ? history.map((h, i) => (
         <div key={i} style={{
           padding: '7px 0', borderBottom: '1px dashed var(--rule)',
@@ -731,12 +740,13 @@ function Memory({ lessons, history, moduleId }) {
             <div className="mono" style={{ fontSize: 10, color: 'var(--ink-4)', marginTop: 2 }}>← {h.agent}</div>
           </div>
         </div>
-      )) : <p style={{ color: 'var(--ink-3)' }}>Нет событий по этому блоку.</p>}
+      )) : <p style={{ color: 'var(--ink-3)' }}>{t('memory.no_events', 'No events for this block.')}</p>}
     </>
   );
 }
 
 function ConnectionsTab({ inEdges, outEdges, moduleById, moduleId, allModules, allEdges, onAddEdge, onClaudeAdvice }) {
+  const t = window.__SIMA_T || ((_, fb) => fb);
   const Row = ({ e, dir }) => {
     const other = moduleById[dir === 'in' ? e.from : e.to];
     if (!other) return null;
@@ -773,12 +783,12 @@ function ConnectionsTab({ inEdges, outEdges, moduleById, moduleId, allModules, a
 
   return (
     <>
-      <h3>Входящие ({inEdges.length})</h3>
+      <h3>{t('conn.incoming', 'Incoming')} ({inEdges.length})</h3>
       <div className="subm-list" style={{ marginBottom: 14 }}>
         {inEdges.map((e, i) => <Row key={i} e={e} dir="in" />)}
         {!inEdges.length && <p style={{ color: 'var(--ink-3)', margin: 0 }}>—</p>}
       </div>
-      <h3>Исходящие ({outEdges.length})</h3>
+      <h3>{t('conn.outgoing', 'Outgoing')} ({outEdges.length})</h3>
       <div className="subm-list" style={{ marginBottom: 14 }}>
         {outEdges.map((e, i) => <Row key={i} e={e} dir="out" />)}
         {!outEdges.length && <p style={{ color: 'var(--ink-3)', margin: 0 }}>—</p>}
@@ -786,10 +796,10 @@ function ConnectionsTab({ inEdges, outEdges, moduleById, moduleId, allModules, a
 
       {moduleId && moduleId.startsWith('b.') && (
         <>
-          <h3>✦ Sima предложит связи</h3>
+          <h3>{t('conn.sima_suggest_edges', '✦ Sima will suggest edges')}</h3>
           <div className="send-task" style={{ marginBottom: 8 }}>
-            <span className="lab">На основе графа →</span>
-            <button onClick={askSima} disabled={busy}>{busy ? 'думаю…' : '✦ предложить'}</button>
+            <span className="lab">{t('conn.based_on_graph', 'Based on the graph →')}</span>
+            <button onClick={askSima} disabled={busy}>{busy ? t('conn.thinking', 'thinking…') : t('conn.suggest', '✦ suggest')}</button>
             {onClaudeAdvice && (
               <button onClick={() => onClaudeAdvice(allModules.find(x => x.id === moduleId), {
                 kind: 'block_connections',
@@ -798,11 +808,11 @@ function ConnectionsTab({ inEdges, outEdges, moduleById, moduleId, allModules, a
                   out: outEdges.map(e => e.to),
                   neighbors: allModules.filter(m => m.id !== moduleId).slice(0, 20).map(m => ({ id: m.id, title: m.title, layer: m.layer })),
                 },
-              })}>✨ что упускаю?</button>
+              })}>{t('conn.what_missing', '✨ what am I missing?')}</button>
             )}
           </div>
           {suggested[0]?._mock && (
-            <div className="composer-result fail" style={{ marginBottom: 8 }}>Demo-режим — нужен ANTHROPIC_API_KEY.</div>
+            <div className="composer-result fail" style={{ marginBottom: 8 }}>{t('conn.demo_need_key', 'Demo mode — ANTHROPIC_API_KEY required.')}</div>
           )}
           {suggested.map((e) => {
             const key = edgeKey(e);
@@ -820,11 +830,11 @@ function ConnectionsTab({ inEdges, outEdges, moduleById, moduleId, allModules, a
                 {e.rationale && <div className="meta" style={{ fontSize: 11, marginTop: 2 }}>{e.rationale}</div>}
                 {!isAccepted && (
                   <div className="synth-actions" style={{ marginTop: 6 }}>
-                    <button className="pill primary" onClick={() => acceptSuggestion(e)}>＋ принять</button>
-                    <button className="pill" onClick={() => setSuggested((S) => S.filter((x) => edgeKey(x) !== key))}>✗ пропустить</button>
+                    <button className="pill primary" onClick={() => acceptSuggestion(e)}>{t('conn.accept', '＋ accept')}</button>
+                    <button className="pill" onClick={() => setSuggested((S) => S.filter((x) => edgeKey(x) !== key))}>{t('conn.skip', '✗ skip')}</button>
                   </div>
                 )}
-                {isAccepted && <div className="meta" style={{ fontSize: 11, marginTop: 4 }}>✓ добавлено</div>}
+                {isAccepted && <div className="meta" style={{ fontSize: 11, marginTop: 4 }}>{t('conn.added', '✓ added')}</div>}
               </div>
             );
           })}
@@ -857,6 +867,7 @@ const MODULE_DESC = {
 
 /* ====================== DOCK ====================== */
 function Dock({ data, log, onSendToAgent, collapsed, setCollapsed, activeAgent, setActiveAgent }) {
+  const t = window.__SIMA_T || ((_, fb) => fb);
   const termRef = React.useRef(null);
   useEffect2(() => {
     if (termRef.current) termRef.current.scrollTop = termRef.current.scrollHeight;
@@ -891,7 +902,7 @@ function Dock({ data, log, onSendToAgent, collapsed, setCollapsed, activeAgent, 
     <div className={`dock ${collapsed ? 'collapsed' : ''}`}>
       <div className="dock-tabs">
         <button className={`tab ${activeAgent === 'all' ? 'active' : ''}`} onClick={() => setActiveAgent('all')}>
-          <span className="agent-dot" style={{ background: 'var(--ink)' }} />Все агенты <span className="ct">{log.length}</span>
+          <span className="agent-dot" style={{ background: 'var(--ink)' }} />{t('dock.all_agents', 'All agents')} <span className="ct">{log.length}</span>
         </button>
         {data.agents.filter(a => a.id !== 'sima').map(a => (
           <button key={a.id} className={`tab ${activeAgent === a.title ? 'active' : ''}`} onClick={() => setActiveAgent(a.title)}>
@@ -901,9 +912,9 @@ function Dock({ data, log, onSendToAgent, collapsed, setCollapsed, activeAgent, 
         ))}
         <div className="spacer" />
         <span style={{ fontSize: 11, color: 'var(--ink-4)', marginRight: 8 }}>
-          <span className="kbd">⌘K</span> для команды
+          <span className="kbd">⌘K</span> {t('dock.cmd_for_command', 'for command')}
         </span>
-        <button className="icon-btn" onClick={() => setCollapsed(c => !c)} title={collapsed ? 'Раскрыть' : 'Свернуть'}>
+        <button className="icon-btn" onClick={() => setCollapsed(c => !c)} title={collapsed ? t('dock.expand', 'Expand') : t('dock.collapse', 'Collapse')}>
           {collapsed ? '⌃' : '⌄'}
         </button>
       </div>
@@ -918,10 +929,10 @@ function Dock({ data, log, onSendToAgent, collapsed, setCollapsed, activeAgent, 
                 <span style={{ flex: 1, minWidth: 0, wordBreak: 'break-word' }}>{l.msg}</span>
               </div>
             ))}
-            {filtered.length === 0 && <div className="ln note">Лог пуст. Отправьте задачу из детальной панели — здесь появятся события агента.</div>}
+            {filtered.length === 0 && <div className="ln note">{t('dock.log_empty', 'Log is empty. Send a task from the detail panel — agent events will appear here.')}</div>}
           </div>
           <div className="roadmap">
-            <h4>Дорожная карта</h4>
+            <h4>{t('dock.roadmap', 'Roadmap')}</h4>
             {data.modules
               .slice()
               .sort((a, b) => a.priority - b.priority)
@@ -1004,19 +1015,20 @@ window.LayeredView = LayeredView;
 
 /* ====================== LAYERED V2 — RICHER ====================== */
 function LayeredV2({ data, modules, onSelect, desyncResolved }) {
+  const t = window.__SIMA_T || ((_, fb) => fb);
   const order = [
-    { key: 'frontend', title: 'Frontend · UI', code: 'L3 · что видит пользователь' },
-    { key: 'logic',    title: 'Domain · Logic', code: 'L2 · как продукт думает' },
-    { key: 'backend',  title: 'Backend · Data', code: 'L1 · что хранит и считает' },
-    { key: 'tests',    title: 'Tests · Ops',    code: 'L4 · как мы это проверяем' },
+    { key: 'frontend', title: t('layered.fe_title', 'Frontend · UI'), code: t('layered.fe_code', 'L3 · what the user sees') },
+    { key: 'logic',    title: t('layered.lo_title', 'Domain · Logic'), code: t('layered.lo_code', 'L2 · how the product thinks') },
+    { key: 'backend',  title: t('layered.be_title', 'Backend · Data'), code: t('layered.be_code', 'L1 · what it stores and computes') },
+    { key: 'tests',    title: t('layered.te_title', 'Tests · Ops'),    code: t('layered.te_code', 'L4 · how we verify') },
   ];
   return (
     <div className="layered-v2">
       <div style={{ marginBottom: 22, paddingBottom: 14, borderBottom: '1px dashed var(--rule)' }}>
-        <div className="mono" style={{ fontSize: 10.5, color: 'var(--ink-4)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>view · layered</div>
-        <h2 style={{ fontFamily: 'Newsreader, serif', fontStyle: 'italic', fontSize: 28, fontWeight: 500, margin: '4px 0 6px' }}>{data.product.title} — по слоям</h2>
+        <div className="mono" style={{ fontSize: 10.5, color: 'var(--ink-4)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>{t('layered.view_label', 'view · layered')}</div>
+        <h2 style={{ fontFamily: 'Newsreader, serif', fontStyle: 'italic', fontSize: 28, fontWeight: 500, margin: '4px 0 6px' }}>{data.product.title} {t('layered.title_suffix', '— by layers')}</h2>
         <div style={{ fontSize: 13, color: 'var(--ink-3)', maxWidth: 720 }}>
-          Тот же продукт, что и в графе, но разложен по уровням ответственности. Слой → модули → описание + прогресс. Кликните любой модуль, чтобы открыть детали справа.
+          {t('layered.intro', 'Same product as in the graph, but split into layers of responsibility. Layer → modules → description + progress. Click any module to open its details on the right.')}
         </div>
       </div>
       {order.map(g => {
@@ -1025,13 +1037,13 @@ function LayeredV2({ data, modules, onSelect, desyncResolved }) {
           <div key={g.key} className={`layer-card ${g.key}`}>
             <div className="layer-head">
               <h3>{g.title}</h3>
-              <span className="lc">{g.code} · {mods.length} модул{mods.length === 1 ? 'ь' : mods.length < 5 ? 'я' : 'ей'}</span>
+              <span className="lc">{g.code} · {mods.length} {t('layered.modules', 'modules')}</span>
             </div>
             <div className="layer-mods">
               {mods.map(m => {
                 const st = (m.id === 'metrics' && desyncResolved) ? 'progress' : m.status;
                 const tasks = data.tasks[m.id] || [];
-                const done = tasks.filter(t => t.status === 'done').length;
+                const done = tasks.filter(tk => tk.status === 'done').length;
                 const pct = tasks.length ? (done / tasks.length) * 100 : (st === 'done' ? 100 : st === 'progress' ? 50 : 0);
                 const desc = data.moduleDocs[m.id]?.short || '';
                 return (
@@ -1049,7 +1061,7 @@ function LayeredV2({ data, modules, onSelect, desyncResolved }) {
                   </div>
                 );
               })}
-              {!mods.length && <div style={{ color: 'var(--ink-4)', fontStyle: 'italic', fontSize: 12 }}>пока пусто</div>}
+              {!mods.length && <div style={{ color: 'var(--ink-4)', fontStyle: 'italic', fontSize: 12 }}>{t('layered.empty', 'empty for now')}</div>}
             </div>
           </div>
         );
@@ -1066,6 +1078,7 @@ window.LayeredV2 = LayeredV2;
    and a "Send to ..." action that POSTs /runs/start (non-blocking).
 */
 function RunStatusSection({ moduleId }) {
+  const t = window.__SIMA_T || ((_, fb) => fb);
   const [runs, setRuns] = useState2([]);
   const [busy, setBusy] = useState2(false);
   const [error, setError] = useState2(null);
@@ -1168,7 +1181,7 @@ function RunStatusSection({ moduleId }) {
   };
 
   const cancelRun = async (run_id) => {
-    if (!window.confirm(`Отменить запуск ${run_id}?`)) return;
+    if (!window.confirm(`${t('detail.cancel_run_confirm', 'Cancel run')} ${run_id}?`)) return;
     try {
       const r = await fetch(apiBase + '/runs/cancel', {
         method: 'POST',
@@ -1188,9 +1201,9 @@ function RunStatusSection({ moduleId }) {
 
   return (
     <>
-      <h3>Запуск агента</h3>
+      <h3>{t('runs.start_agent', 'Agent run')}</h3>
       <div className="send-task" style={{ marginBottom: 14 }}>
-        <span className="lab">Запустить блок →</span>
+        <span className="lab">{t('runs.start_block', 'Run block →')}</span>
         <button onClick={() => startRun('claude')} disabled={busy}>Claude Code</button>
         <button onClick={() => startRun('cursor')} disabled={busy}>Cursor</button>
         <button onClick={() => startRun('codex')}  disabled={busy}>Codex</button>
@@ -1206,8 +1219,8 @@ function RunStatusSection({ moduleId }) {
             <button
               className="run-cancel"
               onClick={(e) => { e.stopPropagation(); cancelRun(live.run_id); }}
-              title="Отменить"
-            >✕ Отменить</button>
+              title={t('runs.cancel_title', 'Cancel')}
+            >{t('runs.cancel_btn', '✕ Cancel')}</button>
           </div>
           <div className="meta" style={{ fontSize: 11.5 }}>
             agent={live.agent} · started {short(live.started_at)} · last event {short(live.last_event_at)}
@@ -1218,8 +1231,8 @@ function RunStatusSection({ moduleId }) {
       {openLogFor && (
         <div className="run-log-wrap">
           <div className="run-log-head">
-            <span className="mono" style={{ fontSize: 10.5, color: 'var(--ink-3)' }}>лог · {openLogFor}</span>
-            <span className="meta" style={{ fontSize: 10.5 }}>{logSize} байт</span>
+            <span className="mono" style={{ fontSize: 10.5, color: 'var(--ink-3)' }}>{t('runs.log_label', 'log ·')} {openLogFor}</span>
+            <span className="meta" style={{ fontSize: 10.5 }}>{logSize} {t('runs.bytes', 'bytes')}</span>
           </div>
           {/* R-7.41 — external run'ы (запись в checks.log агентом напрямую,
               без orchestrator'а) не имеют отдельного run_logs/<id>.log.
@@ -1234,17 +1247,17 @@ function RunStatusSection({ moduleId }) {
                 `kind:  ${open.source_kind}`,
                 `at:    ${open.started_at}`,
                 ``,
-                open.summary || '(без описания в checks.log)',
+                open.summary || t('runs.external_no_desc', '(no description in checks.log)'),
                 ``,
-                `(этот прогон записан в atlas/clients/<id>/blocks/${open.block_id}/checks.log агентом напрямую,`,
-                `без вызова /runs/start; полного лога нет.)`,
+                `(${t('runs.external_note_a', 'this run was written to')} atlas/clients/<id>/blocks/${open.block_id}/checks.log ${t('runs.external_note_b', 'by the agent directly,')}`,
+                t('runs.external_note_c', 'without calling /runs/start; no full log.)'),
               ].join('\n');
             }
-            return logText || (live ? 'ожидаю вывод…' : 'лог пуст или удалён');
+            return logText || (live ? t('runs.waiting_output', 'waiting for output…') : t('runs.log_empty', 'log empty or deleted'));
           })()}</pre>
           {files.length > 0 && (
             <div className="run-files">
-              <div className="meta" style={{ fontSize: 10.5, marginBottom: 4, letterSpacing: '0.06em' }}>ИЗМЕНИЛ</div>
+              <div className="meta" style={{ fontSize: 10.5, marginBottom: 4, letterSpacing: '0.06em' }}>{t('runs.changed_label', 'CHANGED')}</div>
               <div className="chips">
                 {files.slice(0, 12).map((f) => <span key={f} className="chip mono">{f}</span>)}
                 {files.length > 12 && <span className="chip">+{files.length - 12}</span>}
@@ -1254,8 +1267,8 @@ function RunStatusSection({ moduleId }) {
         </div>
       )}
 
-      <h3>История</h3>
-      {!runs.length && <p style={{ color: 'var(--ink-3)' }}>Запусков пока нет — нажмите кнопку выше.</p>}
+      <h3>{t('runs.history', 'History')}</h3>
+      {!runs.length && <p style={{ color: 'var(--ink-3)' }}>{t('runs.no_runs', 'No runs yet — click the button above.')}</p>}
       {runs.map((r) => {
         const enr = r.enriched || {};
         const acc = enr.acceptance_after;
@@ -1270,27 +1283,27 @@ function RunStatusSection({ moduleId }) {
               <span className="mono" style={{ fontSize: 10.5, color: 'var(--ink-4)', flex: 1 }}>{short(r.started_at)}</span>
               <span className="meta" style={{ fontSize: 10.5 }}>{r.agent}</span>
               {r.external && (
-                <span className="meta" style={{ fontSize: 10, color: 'var(--ink-4)', border: '1px solid var(--rule-2)', borderRadius: 999, padding: '1px 6px' }} title="Внешний прогон — записан в checks.log агентом напрямую (Cursor IDE / Claude в другом терминале и т.д.)">extern</span>
+                <span className="meta" style={{ fontSize: 10, color: 'var(--ink-4)', border: '1px solid var(--rule-2)', borderRadius: 999, padding: '1px 6px' }} title={t('runs.extern_title', 'External run — written to checks.log by the agent directly (Cursor IDE / Claude in another terminal, etc.)')}>{t('runs.extern', 'extern')}</span>
               )}
             </div>
             {(acc || enr.file_count > 0 || enr.cost_usd > 0) && (
               <div className="run-card-enriched">
                 {acc && (
                   <span className={`acc-pill ${acc.verdict === 'pass' ? 'ok' : acc.verdict === 'fail' ? 'bad' : 'skip'}`}>
-                    приёмка {acc.verdict}
+                    {t('runs.acceptance', 'acceptance')} {acc.verdict}
                     {acc.counts && <span className="meta" style={{ fontSize: 10, marginLeft: 4 }}>{acc.counts.pass}/{(acc.counts.pass||0)+(acc.counts.fail||0)+(acc.counts.skipped||0)}</span>}
                   </span>
                 )}
                 {enr.file_count > 0 && (
-                  <span className="acc-pill mono" title="изменено файлов">↑ {enr.file_count} файл{enr.file_count === 1 ? '' : enr.file_count < 5 ? 'а' : 'ов'}</span>
+                  <span className="acc-pill mono" title={t('runs.changed_files', 'files changed')}>↑ {enr.file_count} {t('runs.changed_label2', 'files')}</span>
                 )}
                 {enr.cost_usd > 0 && (
-                  <span className="acc-pill mono" title={`${enr.trace_count} LLM-вызов(ов)`}>
+                  <span className="acc-pill mono" title={`${enr.trace_count} LLM calls`}>
                     ${enr.cost_usd.toFixed(4)}
                   </span>
                 )}
                 {enr.trace_count > 0 && enr.cost_usd === 0 && (
-                  <span className="acc-pill mono" title="LLM вызовы (mock, без оплаты)">{enr.trace_count} mock</span>
+                  <span className="acc-pill mono" title={t('runs.mock_title', 'LLM calls (mock, no charge)')}>{enr.trace_count} {t('runs.mock', 'mock')}</span>
                 )}
               </div>
             )}
@@ -1301,7 +1314,7 @@ function RunStatusSection({ moduleId }) {
         );
       })}
       <div className="meta" style={{ fontSize: 11, marginTop: 8 }}>
-        Опрос каждые {live ? '2' : '12'} сек.
+        {t('runs.poll_pre', 'Polling every')} {live ? '2' : '12'} {t('runs.poll_post', 's.')}
       </div>
     </>
   );
@@ -1313,6 +1326,7 @@ function RunStatusSection({ moduleId }) {
    operator can see what changed after the last run.
 */
 function AcceptanceSection({ moduleId, onClaudeAdvice, moduleObj }) {
+  const t = window.__SIMA_T || ((_, fb) => fb);
   const [data_, setData] = useState2(null);
   const [loading, setLoading] = useState2(true);
   const [reviseBusy, setReviseBusy] = useState2(false);
@@ -1338,12 +1352,12 @@ function AcceptanceSection({ moduleId, onClaudeAdvice, moduleObj }) {
     const failed = data_.latest.assertions.filter((a) => a.verdict === 'fail');
     const inconclusive = data_.latest.assertions.filter((a) => a.verdict === 'inconclusive');
     const lines = [
-      `Блок ${moduleId} не прошёл приёмку. Исправь следующее, минимально инвазивно.`,
+      `${t('acc.revise_prompt_intro', 'Block')} ${moduleId} ${t('acc.revise_prompt_intro2', 'failed acceptance. Fix the following, minimally invasive.')}`,
       '',
       ...failed.map((a) => `[FAIL] ${a.id}: ${a.text}\n   reasoning: ${a.reasoning || '(no reasoning)'}`),
       ...inconclusive.map((a) => `[INCONCL] ${a.id}: ${a.text}`),
       '',
-      'После исправления убедись что acceptance-verifier пройдёт. Не вноси изменения за пределами зоны ответственности блока.',
+      t('acc.revise_prompt_outro', 'After fixing make sure acceptance-verifier passes. Do not change anything outside this block\'s area of responsibility.'),
     ];
     try {
       // R-7.22: «Исправить и перезапустить» тоже multi-tenant aware.
@@ -1355,7 +1369,7 @@ function AcceptanceSection({ moduleId, onClaudeAdvice, moduleObj }) {
         body: JSON.stringify({ block_id: moduleId, agent: 'claude', prompt: lines.join('\n'), ...(ac ? { client_id: ac } : {}) }),
       });
       const j = await r.json();
-      if (j.ok) setReviseMsg({ kind: 'ok', text: `Запуск создан: ${j.run_id}. Откройте «Запуски» для прогресса.` });
+      if (j.ok) setReviseMsg({ kind: 'ok', text: `${t('acc.run_created', 'Run created:')} ${j.run_id}. ${t('acc.see_runs', 'Open «Runs» for progress.')}` });
       else setReviseMsg({ kind: 'fail', text: j.error || 'failed' });
     } catch (e) {
       setReviseMsg({ kind: 'fail', text: String(e.message || e) });
@@ -1363,8 +1377,8 @@ function AcceptanceSection({ moduleId, onClaudeAdvice, moduleObj }) {
     setReviseBusy(false);
   };
 
-  if (loading) return <p style={{ color: 'var(--ink-3)' }}>Загрузка…</p>;
-  if (!data_) return <p style={{ color: 'var(--ink-3)' }}>Нет данных приёмки. Запустите acceptance-verifier по этому блоку.</p>;
+  if (loading) return <p style={{ color: 'var(--ink-3)' }}>{t('acc.loading', 'Loading…')}</p>;
+  if (!data_) return <p style={{ color: 'var(--ink-3)' }}>{t('acc.no_data', 'No acceptance data. Run acceptance-verifier on this block.')}</p>;
 
   const { latest, previous, delta } = data_;
   const { verdict, checked_at, summary, assertions } = latest;
@@ -1375,7 +1389,7 @@ function AcceptanceSection({ moduleId, onClaudeAdvice, moduleObj }) {
 
   return (
     <>
-      <h3>Приёмка блока</h3>
+      <h3>{t('acc.title', 'Block acceptance')}</h3>
       <div className={`acc-summary acc-${cls}`}>
         <div className="acc-verdict">{verdict || 'inconclusive'}</div>
         <div className="acc-counts mono">
@@ -1386,18 +1400,18 @@ function AcceptanceSection({ moduleId, onClaudeAdvice, moduleObj }) {
         </div>
         {previous && (improvedCount + regressedCount > 0) && (
           <div className="acc-deltabar mono">
-            {improvedCount > 0 && <span className="acc-delta improved">↑ {improvedCount} улучшилось</span>}
-            {regressedCount > 0 && <span className="acc-delta regressed">↓ {regressedCount} регресс</span>}
+            {improvedCount > 0 && <span className="acc-delta improved">↑ {improvedCount} {t('acc.improved_count', 'improved')}</span>}
+            {regressedCount > 0 && <span className="acc-delta regressed">↓ {regressedCount} {t('acc.regressed_count', 'regressed')}</span>}
             <span className="meta" style={{ fontSize: 10.5 }}>
               vs {short(previous.checked_at)} (verdict={previous.verdict})
             </span>
           </div>
         )}
-        {checked_at && <div className="meta" style={{ fontSize: 11, marginTop: 6 }}>проверено: {short(checked_at)}</div>}
+        {checked_at && <div className="meta" style={{ fontSize: 11, marginTop: 6 }}>{t('acc.checked_at', 'checked:')} {short(checked_at)}</div>}
         {hasFailures && (
           <div style={{ marginTop: 10, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             <button className="pill primary" onClick={reviseAndRerun} disabled={reviseBusy}>
-              {reviseBusy ? 'Запускаю…' : '↻ Исправить и перезапустить'}
+              {reviseBusy ? t('acc.starting', 'Starting…') : t('acc.fix_and_rerun', '↻ Fix and re-run')}
             </button>
             {onClaudeAdvice && moduleObj && (
               <button className="pill" onClick={() => onClaudeAdvice(moduleObj, {
@@ -1405,7 +1419,7 @@ function AcceptanceSection({ moduleId, onClaudeAdvice, moduleObj }) {
                 context: {
                   failed: latest.assertions.filter(a => a.verdict === 'fail').map(a => ({ id: a.id, text: a.text, reasoning: a.reasoning })),
                 },
-              })}>✨ Почему упала?</button>
+              })}>{t('acc.why_failed', '✨ Why did it fail?')}</button>
             )}
             {reviseMsg && (
               <div className={`composer-result ${reviseMsg.kind}`} style={{ marginTop: 8, flexBasis: '100%' }}>{reviseMsg.text}</div>
@@ -1426,11 +1440,11 @@ function AcceptanceSection({ moduleId, onClaudeAdvice, moduleObj }) {
                 {changed && (
                   <div className="acc-changed mono">
                     {d.from} → {d.to}
-                    <span className="acc-changed-tag">{d.kind === 'improved' ? '↑ улучшилось' : '↓ регресс'}</span>
+                    <span className="acc-changed-tag">{d.kind === 'improved' ? t('acc.improved_tag', '↑ improved') : t('acc.regressed_tag', '↓ regressed')}</span>
                   </div>
                 )}
                 {d && d.kind === 'new' && (
-                  <div className="acc-changed mono"><span className="acc-changed-tag new">+ новое</span></div>
+                  <div className="acc-changed mono"><span className="acc-changed-tag new">{t('acc.new_tag', '+ new')}</span></div>
                 )}
               </div>
               <span className={`acc-dot v-${a.verdict}`} title={a.verdict}>
@@ -1459,14 +1473,15 @@ function short(ts) {
      · ✏ Переформулировать — for filled files
      · approve modal with side-by-side preview before writing to disk
 */
+// Labels/placeholders are i18n keys; resolved inside ContractSection via t().
 const CONTRACT_FILES = [
-  { file: 'mission.md',     label: 'Миссия', placeholder: 'Зачем существует этот блок?' },
-  { file: 'user_story.md',  label: 'User story', placeholder: 'Как X / Когда Y / Я хочу Z / Чтобы W — что пользователь реально хочет.' },
-  { file: 'kpi.md',         label: 'KPI', placeholder: 'Измеримые метрики успеха.' },
-  { file: 'acceptance.md',  label: 'Приёмка', placeholder: 'Тестируемые критерии готовности.' },
-  { file: 'depends_on.md',  label: 'Зависит от', placeholder: 'Какие блоки нужны для работы.' },
-  { file: 'provides.md',    label: 'Даёт', placeholder: 'Какие capability отдаёт.' },
-  { file: 'code_summary.md',label: 'Code summary', placeholder: 'Auto-gen после run-а: на чём написан, как, зачем (sub-summary вместо перечитывания всего кода).' },
+  { file: 'mission.md',      labelKey: 'contract.file_mission',      labelFallback: 'Mission',      phKey: 'contract.file_mission_ph',      phFallback: 'Why does this block exist?' },
+  { file: 'user_story.md',   labelKey: 'contract.file_user_story',   labelFallback: 'User story',   phKey: 'contract.file_user_story_ph',   phFallback: 'As X / When Y / I want Z / So that W — what the user actually wants.' },
+  { file: 'kpi.md',          labelKey: 'contract.file_kpi',          labelFallback: 'KPI',          phKey: 'contract.file_kpi_ph',          phFallback: 'Measurable success metrics.' },
+  { file: 'acceptance.md',   labelKey: 'contract.file_acceptance',   labelFallback: 'Acceptance',   phKey: 'contract.file_acceptance_ph',   phFallback: 'Testable readiness criteria.' },
+  { file: 'depends_on.md',   labelKey: 'contract.file_depends_on',   labelFallback: 'Depends on',   phKey: 'contract.file_depends_on_ph',   phFallback: 'Which blocks are needed.' },
+  { file: 'provides.md',     labelKey: 'contract.file_provides',     labelFallback: 'Provides',     phKey: 'contract.file_provides_ph',     phFallback: 'Which capabilities it exposes.' },
+  { file: 'code_summary.md', labelKey: 'contract.file_code_summary', labelFallback: 'Code summary', phKey: 'contract.file_code_summary_ph', phFallback: 'Auto-gen after a run: what it\'s written in, how, why (sub-summary instead of re-reading all the code).' },
 ];
 
 function classifyContent(file, content) {
@@ -1489,6 +1504,7 @@ function classifyContent(file, content) {
    разбивкой violations + matches.
 */
 function ValidationSection({ moduleId, moduleObj }) {
+  const t = window.__SIMA_T || ((_, fb) => fb);
   const [latest, setLatest] = useState2(null);
   const [busy, setBusy] = useState2(false);
   const [error, setError] = useState2(null);
@@ -1509,29 +1525,29 @@ function ValidationSection({ moduleId, moduleObj }) {
   };
 
   if (!moduleId || !moduleId.startsWith('b.')) {
-    return <p style={{ color: 'var(--ink-3)' }}>Доступно только для b.* блоков atlas.</p>;
+    return <p style={{ color: 'var(--ink-3)' }}>{t('val.b_only', 'Available only for b.* atlas blocks.')}</p>;
   }
 
   const verdictClass = latest?.verdict === 'aligned' ? 'ok' : latest?.verdict === 'broken' ? 'bad' : latest?.verdict === 'drift' ? 'warn' : '';
-  const verdictLabel = { aligned: '✓ соответствует', drift: '⚠ дрейф', broken: '✗ сломано' }[latest?.verdict] || latest?.verdict;
+  const verdictLabel = { aligned: t('val.aligned', '✓ aligned'), drift: t('val.drift', '⚠ drift'), broken: t('val.broken', '✗ broken') }[latest?.verdict] || latest?.verdict;
 
   return (
     <>
-      <h3>LLM-валидатор соответствия</h3>
+      <h3>{t('val.title', 'LLM compliance validator')}</h3>
       <div className="meta" style={{ fontSize: 11.5, marginBottom: 10 }}>
-        Sima сравнивает <strong>миссию / KPI / acceptance</strong> блока с тем, что <strong>реально сделано</strong> (decisions / checks / files), и проверяет соблюдение <strong>rules.md</strong> и <strong>tech_stack.md</strong>.
+        {t('val.intro', 'Sima compares the block\'s mission / KPI / acceptance with what\'s actually been done (decisions / checks / files), and checks compliance with rules.md and tech_stack.md.')}
       </div>
       <div className="send-task" style={{ marginBottom: 12 }}>
-        <span className="lab">Sima-судья →</span>
-        <button onClick={runCheck} disabled={busy}>{busy ? 'проверяю…' : '✦ Проверить соответствие'}</button>
+        <span className="lab">{t('val.judge', 'Sima judge →')}</span>
+        <button onClick={runCheck} disabled={busy}>{busy ? t('val.checking', 'checking…') : t('val.check_compliance', '✦ Check compliance')}</button>
         {latest?.checked_at && (
-          <span className="meta" style={{ fontSize: 11 }}>последняя: {short(latest.checked_at)}</span>
+          <span className="meta" style={{ fontSize: 11 }}>{t('val.last', 'last:')} {short(latest.checked_at)}</span>
         )}
       </div>
       {error && <div className="lesson bad" style={{ marginBottom: 10 }}>{error}</div>}
-      {!latest && !busy && <p style={{ color: 'var(--ink-3)' }}>Ещё не проверялось — нажмите кнопку выше.</p>}
+      {!latest && !busy && <p style={{ color: 'var(--ink-3)' }}>{t('val.not_yet', 'Not yet checked — click the button above.')}</p>}
       {latest?.mock && (
-        <div className="composer-result fail" style={{ marginBottom: 8 }}>Demo-режим — задайте ANTHROPIC_API_KEY для реальной проверки.</div>
+        <div className="composer-result fail" style={{ marginBottom: 8 }}>{t('val.demo_need_key', 'Demo mode — set ANTHROPIC_API_KEY for a real check.')}</div>
       )}
       {latest && (
         <div className={`acc-summary acc-${verdictClass}`}>
@@ -1545,14 +1561,14 @@ function ValidationSection({ moduleId, moduleObj }) {
       )}
       {latest?.violations?.length > 0 && (
         <>
-          <h3>Нарушения</h3>
+          <h3>{t('val.violations', 'Violations')}</h3>
           <div className="acc-list">
             {latest.violations.map((v, i) => (
               <div key={i} className={`acc-row v-${v.severity === 'high' ? 'fail' : v.severity === 'med' ? 'inconclusive' : 'skipped'}`}>
                 <span className="acc-id mono">{v.kind}</span>
                 <div style={{ flex: 1 }}>
                   <div className="acc-text">{v.evidence}</div>
-                  {v.fix && <div className="meta" style={{ fontSize: 11, marginTop: 3 }}>предлагаемый фикс: {v.fix}</div>}
+                  {v.fix && <div className="meta" style={{ fontSize: 11, marginTop: 3 }}>{t('val.fix_suggestion', 'suggested fix:')} {v.fix}</div>}
                 </div>
                 <span className={`val-sev sev-${v.severity || 'low'}`}>{v.severity || 'low'}</span>
               </div>
@@ -1562,7 +1578,7 @@ function ValidationSection({ moduleId, moduleObj }) {
       )}
       {latest?.matches?.length > 0 && (
         <>
-          <h3>Что хорошо</h3>
+          <h3>{t('val.matches', 'Strengths')}</h3>
           <ul className="val-matches">
             {latest.matches.map((m, i) => <li key={i}>✓ {m}</li>)}
           </ul>
@@ -1578,6 +1594,7 @@ function ValidationSection({ moduleId, moduleObj }) {
    agent never reads stale code.
 */
 function FilesSection({ moduleId }) {
+  const t = window.__SIMA_T || ((_, fb) => fb);
   const [files, setFiles] = useState2([]);
   const [loading, setLoading] = useState2(true);
   const [busy, setBusy] = useState2({}); // by path
@@ -1614,7 +1631,7 @@ function FilesSection({ moduleId }) {
   };
 
   if (!moduleId || !moduleId.startsWith('b.')) {
-    return <p style={{ color: 'var(--ink-3)' }}>Файловый реестр доступен только для b.* блоков atlas.</p>;
+    return <p style={{ color: 'var(--ink-3)' }}>{t('files.b_only', 'File registry available only for b.* atlas blocks.')}</p>;
   }
 
   const counts = {
@@ -1625,9 +1642,9 @@ function FilesSection({ moduleId }) {
 
   return (
     <>
-      <h3>Файлы блока (alive / dead / archived)</h3>
+      <h3>{t('files.title', 'Block files (alive / dead / archived)')}</h3>
       <div className="meta" style={{ fontSize: 11.5, marginBottom: 10 }}>
-        <strong>dead</strong> и <strong>archived</strong> файлы исключаются из context-pack, который читают агенты — так они никогда не натыкаются на старый код.
+        {t('files.intro', 'dead and archived files are excluded from the context-pack that agents read — so they never stumble on stale code.')}
       </div>
       <div className="acc-counts mono" style={{ marginBottom: 10 }}>
         <span className="acc-pill ok">alive {counts.alive}</span>
@@ -1635,19 +1652,19 @@ function FilesSection({ moduleId }) {
         <span className="acc-pill skip">archived {counts.archived}</span>
       </div>
       <div className="send-task" style={{ marginBottom: 10 }}>
-        <button onClick={importFromBlock} disabled={!!busy._import}>{busy._import ? 'импорт…' : '↻ импорт из files.md блока'}</button>
+        <button onClick={importFromBlock} disabled={!!busy._import}>{busy._import ? t('files.importing', 'importing…') : t('files.import_from_block', '↻ import from block\'s files.md')}</button>
         <input
           className="composer-input"
-          placeholder="src/path/file.ts — добавить новый"
+          placeholder={t('files.add_placeholder', 'src/path/file.ts — add new')}
           value={newPath}
           onChange={(e) => setNewPath(e.target.value)}
           style={{ flex: 1, minWidth: 180 }}
         />
-        <button onClick={addFile} disabled={!newPath.trim()}>＋ alive</button>
+        <button onClick={addFile} disabled={!newPath.trim()}>{t('files.add_alive', '＋ alive')}</button>
       </div>
-      {loading && <p style={{ color: 'var(--ink-3)' }}>Загрузка…</p>}
+      {loading && <p style={{ color: 'var(--ink-3)' }}>{t('files.loading', 'Loading…')}</p>}
       {!loading && !files.length && (
-        <p style={{ color: 'var(--ink-3)' }}>Нет файлов в реестре. Импортируйте из files.md блока или добавьте вручную.</p>
+        <p style={{ color: 'var(--ink-3)' }}>{t('files.empty', 'No files in registry. Import from block\'s files.md or add manually.')}</p>
       )}
       <div className="files-list">
         {files.map((f) => (
@@ -1659,7 +1676,7 @@ function FilesSection({ moduleId }) {
             </div>
             <div className="files-actions">
               {f.status !== 'alive'    && <button onClick={() => setStatus(f.path, 'alive')} disabled={busy[f.path]}>alive</button>}
-              {f.status !== 'dead'     && <button onClick={() => setStatus(f.path, 'dead', window.prompt('Причина (опционально):') || 'replaced')} disabled={busy[f.path]}>dead</button>}
+              {f.status !== 'dead'     && <button onClick={() => setStatus(f.path, 'dead', window.prompt(t('files.reason_prompt', 'Reason (optional):')) || 'replaced')} disabled={busy[f.path]}>dead</button>}
               {f.status !== 'archived' && <button onClick={() => setStatus(f.path, 'archived')} disabled={busy[f.path]}>archived</button>}
             </div>
           </div>
@@ -1670,6 +1687,7 @@ function FilesSection({ moduleId }) {
 }
 
 function ContractSection({ moduleId, layer }) {
+  const t = window.__SIMA_T || ((_, fb) => fb);
   const [files, setFiles] = useState2({});
   const [loading, setLoading] = useState2(true);
   const [editing, setEditing] = useState2(null); // { file, mode, draft, original }
@@ -1695,7 +1713,7 @@ function ContractSection({ moduleId, layer }) {
     setEditing({ file, mode: 'fill', draft: '', original: files[file] || '' });
     setBusy(true); setError(null);
     if (!window.SIMA_API?.synthesis?.fillField) {
-      setError('SIMA_API.synthesis.fillField недоступен. Открой DevTools → Console.');
+      setError(t('contract.fill_unavailable', 'SIMA_API.synthesis.fillField unavailable. Open DevTools → Console.'));
       setBusy(false); setEditing(null);
       try { console.error('[panels] SIMA_API.synthesis.fillField is undefined', window.SIMA_API); } catch {}
       return;
@@ -1718,7 +1736,7 @@ function ContractSection({ moduleId, layer }) {
     setEditing({ file, mode: 'rewrite', draft: '', original: files[file] || '' });
     setBusy(true); setError(null);
     if (!window.SIMA_API?.synthesis?.rewriteField) {
-      setError('SIMA_API.synthesis.rewriteField недоступен. Открой DevTools → Console.');
+      setError(t('contract.rewrite_unavailable', 'SIMA_API.synthesis.rewriteField unavailable. Open DevTools → Console.'));
       setBusy(false); setEditing(null);
       try { console.error('[panels] SIMA_API.synthesis.rewriteField is undefined', window.SIMA_API); } catch {}
       return;
@@ -1742,7 +1760,7 @@ function ContractSection({ moduleId, layer }) {
     setEditing({ file, mode: 'expand', draft: '', original: files[file] || '' });
     setBusy(true); setError(null);
     if (!window.SIMA_API?.synthesis?.expandField) {
-      setError('SIMA_API.synthesis.expandField недоступен. Открой DevTools → Console.');
+      setError(t('contract.expand_unavailable', 'SIMA_API.synthesis.expandField unavailable. Open DevTools → Console.'));
       setBusy(false); setEditing(null);
       return;
     }
@@ -1792,7 +1810,7 @@ function ContractSection({ moduleId, layer }) {
     if (r?.ok) {
       setFiles((F) => ({ ...F, [editing.file]: content }));
       setEditing(null);
-      try { window.dispatchEvent(new CustomEvent('sima-log-push', { detail: { agent: 'SIMA Core', kind: 'ok', msg: `💾 Сохранено ${moduleId} · ${editing.file}` } })); } catch {}
+      try { window.dispatchEvent(new CustomEvent('sima-log-push', { detail: { agent: 'SIMA Core', kind: 'ok', msg: `${t('contract.saved_log', '💾 Saved')} ${moduleId} · ${editing.file}` } })); } catch {}
       // Phase R-7.15 — force a second refresh shortly after save so the
       // canvas card preview (`data.moduleDocs[id].short`) actually
       // re-renders. patchBlockFile already calls refresh() once, but in
@@ -1806,27 +1824,29 @@ function ContractSection({ moduleId, layer }) {
       }
     } else {
       setError(r?.error || 'save failed');
-      try { window.dispatchEvent(new CustomEvent('sima-log-push', { detail: { agent: 'SIMA Core', kind: 'fail', msg: `Save ${editing.file} не дошёл до диска: ${r?.error || 'unknown'}` } })); } catch {}
+      try { window.dispatchEvent(new CustomEvent('sima-log-push', { detail: { agent: 'SIMA Core', kind: 'fail', msg: `${t('contract.save_failed_log_a', 'Save')} ${editing.file} ${t('contract.save_failed_log_b', 'didn\'t reach disk:')} ${r?.error || 'unknown'}` } })); } catch {}
     }
   };
 
-  if (loading) return <p style={{ color: 'var(--ink-3)' }}>Загрузка контракта…</p>;
+  if (loading) return <p style={{ color: 'var(--ink-3)' }}>{t('contract.loading', 'Loading contract…')}</p>;
   if (!moduleId || !moduleId.startsWith('b.')) {
-    return <p style={{ color: 'var(--ink-3)' }}>Контракт доступен только для b.* блоков atlas.</p>;
+    return <p style={{ color: 'var(--ink-3)' }}>{t('contract.b_only', 'Contract available only for b.* atlas blocks.')}</p>;
   }
 
   return (
     <>
-      <h3>Контракт блока</h3>
+      <h3>{t('contract.title', 'Block contract')}</h3>
       <div className="meta" style={{ fontSize: 11.5, marginBottom: 10 }}>
-        ! пусто · ⚠ слабо · ✓ заполнено. Sima может предложить черновик через ✨ или переформулировать через ✏.
+        {t('contract.intro', '! empty · ⚠ weak · ✓ filled. Sima can suggest a draft via ✨ or rephrase via ✏.')}
       </div>
       {error && <div className="lesson bad" style={{ marginBottom: 10 }}>{error}</div>}
       <div className="contract-list">
-        {CONTRACT_FILES.map(({ file, label, placeholder }) => {
+        {CONTRACT_FILES.map(({ file, labelKey, labelFallback, phKey, phFallback }) => {
           const content = files[file] || '';
           const klass = classifyContent(file, content);
           const symbol = klass === 'empty' ? '!' : klass === 'weak' ? '⚠' : '✓';
+          const label = t(labelKey, labelFallback);
+          const placeholder = t(phKey, phFallback);
           return (
             <div key={file} className={`contract-row contract-${klass}`}>
               <div className="contract-row-head">
@@ -1839,15 +1859,15 @@ function ContractSection({ moduleId, layer }) {
                     когда LLM в demo-режиме (нет API-ключа / claude_cli не работает).
                     Phase R-7.22-vis: actions поехали из head в свой row, чтобы
                     в узкой панели (~370px) кнопки не наезжали на label. */}
-                <button className="pill" onClick={() => startManual(file)} disabled={busy} title="Открыть текстовое поле и отредактировать содержимое вручную (без LLM)">✎ Руками</button>
+                <button className="pill" onClick={() => startManual(file)} disabled={busy} title={t('contract.manual_title', 'Open a textarea and edit content manually (no LLM)')}>{t('contract.manual_btn', '✎ Edit')}</button>
                 {klass === 'empty' && (
-                  <button className="pill primary" onClick={() => startFill(file)} disabled={busy} title="Sima сгенерирует черновик через LLM">✨ Заполнить</button>
+                  <button className="pill primary" onClick={() => startFill(file)} disabled={busy} title={t('contract.fill_title', 'Sima will generate a draft via LLM')}>{t('contract.fill_btn', '✨ Fill')}</button>
                 )}
                 {klass !== 'empty' && (
-                  <button className="pill" onClick={() => startRewrite(file)} disabled={busy} title="Sima правит черновик не добавляя новых фактов (ошибки/стиль/ясность)">✏ Переписать</button>
+                  <button className="pill" onClick={() => startRewrite(file)} disabled={busy} title={t('contract.rewrite_title', 'Sima rewrites the draft without adding new facts (errors/style/clarity)')}>{t('contract.rewrite_btn', '✏ Rewrite')}</button>
                 )}
                 {klass !== 'empty' && (
-                  <button className="pill" onClick={() => startExpand(file)} disabled={busy} title="Sima развернёт черновик: добавит акторов, edge cases, успех-критерии используя контекст проекта и соседей">✨ Развернуть</button>
+                  <button className="pill" onClick={() => startExpand(file)} disabled={busy} title={t('contract.expand_title', 'Sima expands the draft: adds actors, edge cases, success criteria using project & neighbor context')}>{t('contract.expand_btn', '✨ Expand')}</button>
                 )}
               </div>
               {/* R-7.28 — рендерим mission/kpi/acceptance/etc. как markdown
@@ -1867,10 +1887,10 @@ function ContractSection({ moduleId, layer }) {
             <div className="sysdocs-head">
               <div>
                 <div className="mono" style={{ fontSize: 11, color: 'var(--ink-4)', letterSpacing: '0.08em' }}>
-                  {editing.mode === 'fill' ? 'SIMA · ЗАПОЛНЯЕТ' :
-                   editing.mode === 'rewrite' ? 'SIMA · ПЕРЕФОРМУЛИРУЕТ' :
-                   editing.mode === 'expand' ? 'SIMA · РАЗВОРАЧИВАЕТ (добавляет контекст)' :
-                   'РЕДАКТИРОВАНИЕ ВРУЧНУЮ'}
+                  {editing.mode === 'fill' ? t('contract.mode_fill', 'SIMA · FILLING') :
+                   editing.mode === 'rewrite' ? t('contract.mode_rewrite', 'SIMA · REPHRASING') :
+                   editing.mode === 'expand' ? t('contract.mode_expand', 'SIMA · EXPANDING (adds context)') :
+                   t('contract.mode_manual', 'MANUAL EDIT')}
                 </div>
                 <h3 style={{ margin: '4px 0 0', fontFamily: 'Newsreader, serif', fontStyle: 'italic', fontSize: 18 }}>
                   {moduleId} · {editing.file}
@@ -1880,22 +1900,22 @@ function ContractSection({ moduleId, layer }) {
             </div>
             {editing.mock && (
               <div className="composer-result fail" style={{ margin: '8px 18px 0' }}>
-                Demo-режим: задайте ANTHROPIC_API_KEY чтобы получать реальные предложения.
+                {t('contract.demo_modal', 'Demo mode: set ANTHROPIC_API_KEY to receive real suggestions.')}
               </div>
             )}
             <div className="contract-modal-body">
               {(editing.mode === 'rewrite' || editing.mode === 'expand') && editing.original && (
                 <div>
-                  <div className="meta" style={{ fontSize: 10.5, marginBottom: 4, letterSpacing: '0.06em' }}>БЫЛО</div>
+                  <div className="meta" style={{ fontSize: 10.5, marginBottom: 4, letterSpacing: '0.06em' }}>{t('contract.was', 'WAS')}</div>
                   <pre className="contract-modal-pre dim">{editing.original}</pre>
                 </div>
               )}
               <div>
                 <div className="meta" style={{ fontSize: 10.5, marginBottom: 4, letterSpacing: '0.06em' }}>
-                  {editing.mode === 'rewrite' ? 'СТАЛО (можно поправить)' :
-                   editing.mode === 'expand' ? 'РАЗВЁРНУТО (можно поправить)' :
-                   editing.mode === 'manual' ? 'ТЕКУЩЕЕ СОДЕРЖИМОЕ (правьте напрямую)' :
-                   'ЧЕРНОВИК (можно поправить)'}
+                  {editing.mode === 'rewrite' ? t('contract.became_rewrite', 'BECAME (you can fix it)') :
+                   editing.mode === 'expand' ? t('contract.became_expand', 'EXPANDED (you can fix it)') :
+                   editing.mode === 'manual' ? t('contract.became_manual', 'CURRENT CONTENT (edit directly)') :
+                   t('contract.became_fill', 'DRAFT (you can fix it)')}
                 </div>
                 <textarea
                   className="contract-modal-edit"
@@ -1907,9 +1927,9 @@ function ContractSection({ moduleId, layer }) {
               </div>
             </div>
             <div className="sysdocs-foot" style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-              <button className="pill" onClick={() => setEditing(null)} disabled={busy}>Отмена</button>
+              <button className="pill" onClick={() => setEditing(null)} disabled={busy}>{t('contract.cancel', 'Cancel')}</button>
               <button className="pill primary" onClick={approve} disabled={busy || !editing.draft.trim()}>
-                {busy ? 'сохраняю…' : '💾 Принять и записать'}
+                {busy ? t('contract.saving', 'saving…') : t('contract.approve', '💾 Accept and write')}
               </button>
             </div>
           </div>
