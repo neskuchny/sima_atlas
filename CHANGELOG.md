@@ -102,6 +102,52 @@ the launch-readiness audit BLOCKERs + TIER-1 + selected TIER-2 items.
   real blocks with `parent_block_id`. Idempotent. Dry-run via
   `--dry-run`.
 
+### Honest gaps (vs. Article Appendix A)
+
+For full transparency, **what's NOT done from the article's claims**
+(after R-7.X polish — independently audited 2026-05-08, v0.1.0):
+
+- 🟡 **12-file block contract** — only 5 enforced (`mission/kpi/
+  acceptance/tasks/checks.log`); the other 7 are template-seeded but
+  not validated.
+- 🟡 **Drift auto-mark on canvas** — validator fails CI on broken
+  capability bindings; auto-marking dependents `status: desync`
+  inline on the canvas → phase **S-8**.
+- 🟡 **Operator typed memory as top-level files** — exposed via MCP
+  tools, not as separate `lessons.json` / `dont_use.json` /
+  `always_use.json` in `atlas/operator_profile/`.
+- 🟡 **Compact context-pack 1–2K tokens** — actually 3–12K. The
+  goal was restated: «context precise per task», not «small». See
+  Appendix B.1 + S-4 (context-pack profiles).
+- 🟡 **Multi-tenant full isolation** — graphs/proposals are per-
+  tenant; nightly + some validators are still global. **T-1** in
+  roadmap.
+- 🟡 **Hard lifecycle gates** — soft-enforced (R-5): nightly
+  validator reports violations, doesn't block. Hard-blocking is
+  **S-2** but is now formally cancelled (Appendix B.2 — would
+  break draft-stage iteration).
+- 🟡 **Cursor hook runtime drift-guard** — currently post-hoc
+  validation; runtime block at execution time → **S-3**.
+- 🟡 **`verify_all` ≈150 seconds** — observed, not guaranteed.
+
+Plus from the v1.x → v2 vision in README (none implemented yet):
+- ⬜ **Bidirectional Sima ↔ Agent sync** — chat watcher (R-3) gives
+  one-way feedback; full sync where agent's reasoning auto-updates
+  the canvas in-place is roadmap.
+- ⬜ **Autonomous coding loop (V-1)** — agent picks `todo` blocks
+  overnight and works through them. Long-term (2027+).
+- ⬜ **Live drift detection on canvas** — covered by S-3 + S-8.
+- ⬜ **Token economics dashboard** — gateway already records
+  per-call cost in `atlas/llm_traces/`; no aggregate UI yet. **S-9**.
+- ⬜ **Cross-project memory transfer** — `lessons.json` exists
+  per-project; transfer between projects → **W-1**.
+- ⬜ **Production-monitor → new acceptance assertions** — **V-3**.
+
+Total: **9 ✅ fully**, **11 🟡 partial-with-caveats**, **0 ❌
+abandoned-but-claimed-as-done**. The full audit lives at
+[`docs/article.en.md` Appendix A](docs/article.en.md); the table
+above is the operational summary for opensource visitors.
+
 ---
 
 ## [Unreleased]
