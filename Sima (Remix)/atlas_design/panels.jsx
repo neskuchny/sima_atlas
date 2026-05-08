@@ -74,7 +74,7 @@ function ContextRail({ data, onClose, onUpdateField, onOpenDocs }) {
 }
 
 /* ====================== DETAIL PANEL ====================== */
-function DetailPanel({ data, modules: liveModules, moduleId, onClose, desyncResolved, onSendToAgent, onDrillDown, onOpenTz, onClaudeAdvice, onAddEdge }) {
+function DetailPanel({ data, modules: liveModules, moduleId, onClose, desyncResolved, onSendToAgent, onDrillDown, onSelect, onOpenTz, onClaudeAdvice, onAddEdge }) {
   const [tab, setTab] = useState2('overview');
   useEffect2(() => { setTab('overview'); }, [moduleId]);
 
@@ -189,6 +189,22 @@ function DetailPanel({ data, modules: liveModules, moduleId, onClose, desyncReso
           <span className="status-pill mono">P{m.priority}</span>
           <span className="status-pill mono">layer/{m.layer}</span>
           {m.checked && <span className="status-pill">✓ проверено</span>}
+          {/* R-7.44 — для подмодуля показываем родителя как clickable pill;
+              кликом переключаемся на родителя в правой панели. */}
+          {m.parent_block_id && (() => {
+            const parent = (liveModules || data.modules || []).find(x => x.id === m.parent_block_id) || (data.modules || []).find(x => x.id === m.parent_block_id);
+            const parentTitle = parent?.title || m.parent_block_id;
+            return (
+              <span
+                className="status-pill mono"
+                onClick={() => onSelect && onSelect(m.parent_block_id)}
+                style={{ cursor: onSelect ? 'pointer' : 'default', background: 'rgba(80, 120, 200, 0.12)', color: 'var(--ink)' }}
+                title={`Родительский блок: ${m.parent_block_id} (${parentTitle}). Клик — открыть.`}
+              >
+                ↑ parent: {m.parent_block_id}
+              </span>
+            );
+          })()}
         </div>
         {/* Phase R-5 — soft-gate hint. We don't block status transitions,
             but we make missing contract pieces visible upfront so the
@@ -805,6 +821,29 @@ function Dock({ data, log, onSendToAgent, collapsed, setCollapsed, activeAgent, 
 
   const filtered = log.filter(l => activeAgent === 'all' || l.agent === activeAgent);
 
+  // R-7.43 — agent monogram badges. Раньше были однотонные цветные точки,
+  // не различимы между Cursor / Claude / Codex / SIMA Core. Теперь круг с
+  // буквой первой и фирменным оттенком — без trademark issues.
+  const AGENT_STYLE = {
+    'Claude Code': { letter: 'C', bg: '#c97a3a', fg: '#fff' }, // Anthropic warm orange
+    'Cursor':      { letter: 'C', bg: '#2c75d8', fg: '#fff' }, // Cursor blue
+    'Codex':       { letter: '⌘', bg: '#11a37f', fg: '#fff' }, // OpenAI green
+    'SIMA Core':   { letter: 'S', bg: '#222',    fg: '#fff' },
+    'Claude':      { letter: 'C', bg: '#c97a3a', fg: '#fff' },
+    'Claude (demo)':{letter: 'C', bg: '#c97a3a', fg: '#fff' },
+  };
+  const AgentBadge = ({ name, size = 14 }) => {
+    const cfg = AGENT_STYLE[name] || { letter: (name || '?')[0].toUpperCase(), bg: 'var(--ink-3)', fg: '#fff' };
+    return (
+      <span style={{
+        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+        width: size, height: size, borderRadius: '50%', fontSize: Math.round(size * 0.6),
+        fontFamily: 'JetBrains Mono, monospace', fontWeight: 700,
+        background: cfg.bg, color: cfg.fg, marginRight: 6, flexShrink: 0,
+      }}>{cfg.letter}</span>
+    );
+  };
+
   return (
     <div className={`dock ${collapsed ? 'collapsed' : ''}`}>
       <div className="dock-tabs">
@@ -813,7 +852,7 @@ function Dock({ data, log, onSendToAgent, collapsed, setCollapsed, activeAgent, 
         </button>
         {data.agents.filter(a => a.id !== 'sima').map(a => (
           <button key={a.id} className={`tab ${activeAgent === a.title ? 'active' : ''}`} onClick={() => setActiveAgent(a.title)}>
-            <span className="agent-dot" style={{ background: `var(--st-${a.color === 'warm' ? 'progress' : a.color === 'blue' ? 'desync' : a.color === 'violet' ? 'desync' : 'todo'})` }} />
+            <AgentBadge name={a.title} size={13} />
             {a.title} <span className="ct">{log.filter(l => l.agent === a.title).length}</span>
           </button>
         ))}
@@ -829,10 +868,11 @@ function Dock({ data, log, onSendToAgent, collapsed, setCollapsed, activeAgent, 
         <div className="dock-body">
           <div className="term" ref={termRef}>
             {filtered.map((l, i) => (
-              <div key={i} className={`ln ${l.kind}`}>
-                <span className="ts">{l.ts}</span>
-                {l.agent && <span style={{ color: 'var(--ink-4)' }}>[{l.agent}] </span>}
-                {l.msg}
+              <div key={i} className={`ln ${l.kind}`} style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+                <span className="ts" style={{ flexShrink: 0 }}>{l.ts}</span>
+                {l.agent && <AgentBadge name={l.agent} size={14} />}
+                {l.agent && <span style={{ color: 'var(--ink-4)', flexShrink: 0 }}>{l.agent}</span>}
+                <span style={{ flex: 1, minWidth: 0, wordBreak: 'break-word' }}>{l.msg}</span>
               </div>
             ))}
             {filtered.length === 0 && <div className="ln note">Лог пуст. Отправьте задачу из детальной панели — здесь появятся события агента.</div>}
