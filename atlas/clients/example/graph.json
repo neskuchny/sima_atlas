@@ -1,0 +1,176 @@
+{
+  "blocks": [
+    {
+      "id": "b.auth",
+      "title": "Auth",
+      "status": "idea",
+      "status_reason": "Demo block seeded at 2026-05-05T08:17:14.541Z",
+      "layer": "logic",
+      "type": "module",
+      "mvp": true,
+      "updated_at": "2026-05-05T08:17:14.541Z",
+      "depends_on": [],
+      "tech_stack": [
+        "fastify",
+        "jwt",
+        "oauth-google",
+        "oauth-apple"
+      ],
+      "canvas_x": 200,
+      "canvas_y": 220,
+      "canvas_size": "md",
+      "files": [
+        "atlas/blocks/b.auth/mission.md"
+      ]
+    },
+    {
+      "id": "b.habits",
+      "title": "Habits Storage",
+      "status": "idea",
+      "status_reason": "Demo block seeded at 2026-05-05T08:17:14.541Z",
+      "layer": "data",
+      "type": "module",
+      "mvp": true,
+      "updated_at": "2026-05-05T08:17:14.541Z",
+      "depends_on": [
+        "b.auth"
+      ],
+      "tech_stack": [
+        "postgresql",
+        "prisma",
+        "redis"
+      ],
+      "canvas_x": 540,
+      "canvas_y": 220,
+      "canvas_size": "md",
+      "files": [
+        "atlas/blocks/b.habits/mission.md"
+      ]
+    },
+    {
+      "id": "b.tracker",
+      "title": "Daily Tracker",
+      "status": "idea",
+      "status_reason": "Demo block seeded at 2026-05-05T08:17:14.541Z",
+      "layer": "logic",
+      "type": "module",
+      "mvp": true,
+      "updated_at": "2026-05-05T08:17:14.541Z",
+      "depends_on": [
+        "b.habits",
+        "b.auth"
+      ],
+      "tech_stack": [
+        "fastify",
+        "redis"
+      ],
+      "canvas_x": 880,
+      "canvas_y": 220,
+      "canvas_size": "md",
+      "files": [
+        "atlas/blocks/b.tracker/mission.md"
+      ]
+    },
+    {
+      "id": "b.streak",
+      "title": "Streak Engine",
+      "status": "idea",
+      "status_reason": "Demo block seeded at 2026-05-05T08:17:14.541Z",
+      "layer": "logic",
+      "type": "module",
+      "mvp": true,
+      "updated_at": "2026-05-05T08:17:14.541Z",
+      "depends_on": [
+        "b.tracker"
+      ],
+      "tech_stack": [
+        "redis",
+        "fastify"
+      ],
+      "canvas_x": 1220,
+      "canvas_y": 220,
+      "canvas_size": "md",
+      "files": [
+        "atlas/blocks/b.streak/mission.md"
+      ]
+    },
+    {
+      "id": "b.dashboard",
+      "title": "Dashboard UI",
+      "status": "idea",
+      "status_reason": "Demo block seeded at 2026-05-05T08:17:14.541Z",
+      "layer": "front",
+      "type": "module",
+      "mvp": true,
+      "updated_at": "2026-05-05T08:17:14.541Z",
+      "depends_on": [
+        "b.auth",
+        "b.habits",
+        "b.tracker",
+        "b.streak"
+      ],
+      "tech_stack": [
+        "react-native",
+        "expo",
+        "zustand",
+        "tanstack-query"
+      ],
+      "canvas_x": 720,
+      "canvas_y": 480,
+      "canvas_size": "lg",
+      "files": [
+        "atlas/blocks/b.dashboard/mission.md"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "b.auth",
+      "to": "b.habits",
+      "kind": "rbac",
+      "capability": "session_token"
+    },
+    {
+      "from": "b.auth",
+      "to": "b.tracker",
+      "kind": "rbac",
+      "capability": "session_token"
+    },
+    {
+      "from": "b.auth",
+      "to": "b.dashboard",
+      "kind": "rbac",
+      "capability": "session_token"
+    },
+    {
+      "from": "b.habits",
+      "to": "b.tracker",
+      "kind": "data",
+      "capability": "habit_query"
+    },
+    {
+      "from": "b.habits",
+      "to": "b.dashboard",
+      "kind": "data",
+      "capability": "habit_query"
+    },
+    {
+      "from": "b.tracker",
+      "to": "b.streak",
+      "kind": "event",
+      "capability": "checkin_event"
+    },
+    {
+      "from": "b.tracker",
+      "to": "b.dashboard",
+      "kind": "data",
+      "capability": "checkin_event"
+    },
+    {
+      "from": "b.streak",
+      "to": "b.dashboard",
+      "kind": "data",
+      "capability": "streak_count"
+    }
+  ]
+}

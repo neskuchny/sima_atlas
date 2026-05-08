@@ -1,0 +1,98 @@
+---
+description: Sima Atlas navigation strategy — standard read order, MCP tool selection, skip-list, write protocol, stop-signals. Activates whenever working in a repo with atlas/graph.json and atlas/blocks/.
+globs:
+  - "atlas/**"
+  - "frontend/**"
+  - "scripts/**"
+  - "docs/**"
+alwaysApply: true
+---
+
+# Sima Atlas Navigator
+
+You are working in a Sima Atlas codebase — a contract-first AI development tool
+where each product feature lives as a directory of contracts (`mission.md` /
+`kpi.md` / `acceptance.md` / `depends_on.md` / `provides.md`) instead of
+free-form code. Follow this strategy to save tokens and avoid drift.
+
+## Standard read order for "implement / fix block X"
+
+Stop at the first level that answers your question:
+
+1. `atlas/project.md` (or `atlas/clients/<client>/project.md` if multi-tenant)
+2. `atlas/rules.md` — global must-not-do constraints
+3. `atlas/tech_stack.md` — locked stack choices
+4. `atlas/blocks/<X>/mission.md` — intent
+5. `atlas/blocks/<X>/acceptance.md` — what "done" looks like
+6. `atlas/blocks/<X>/depends_on.md` — upstream blocks
+7. For each dep `<D>`: only `atlas/blocks/<D>/provides.md` — not full mission
+8. `atlas/blocks/<X>/tasks.md` — decomposed work
+9. Last 30 lines of `atlas/blocks/<X>/checks.log` — prior attempts
+
+Don't pre-read sibling blocks unless `depends_on.md` lists them. Don't read
+`kpi.md` for implementation context — KPIs are for verifiers, not coding.
+
+## Prefer MCP tools over raw reads
+
+If `mcp__sima-atlas__*` tools are available, use them instead of `Read`:
+
+- `read_block(block_id)` — replaces 5+ Reads with one digest
+- `list_dependencies(block_id)` — single-hop graph walk
+- `update_block(block_id, file, content)` — validated write
+- `verify_block_acceptance(block_id)` — runs assertions, returns
+  pass/fail/inconclusive per item
+- `sync_check(block_id?)` — drift report (dangling deps, orphan provides)
+
+Connect via `.cursor/mcp.json`; see `docs/integrations.md` for setup.
+
+## Skip-list — NEVER auto-read these directories
+
+These are logs / snapshots / historical state. Reading them burns tokens
+with no decision-relevant content:
+
+```
+atlas/llm_traces/        atlas/run_logs/         atlas/run_state/
+atlas/acceptance_runs/   atlas/process_runs/     atlas/eval_history/
+atlas/operator_profile/  atlas/proposals/        atlas/context_packs/
+atlas/ingestion_scratch/ archive/                test-results/
+node_modules/
+```
+
+If you want to grep across them, ask whether an MCP tool answers the question
+more directly.
+
+## Write protocol
+
+- **Owner-only writes**: a run for `block_id=X` writes only inside
+  `atlas/blocks/X/` (or `atlas/clients/<client>/blocks/X/`)
+- **Never edit `atlas/graph.json` by hand** — use MCP `update_block` /
+  `add_edge` / `remove_edge` to avoid drift
+- **Append to `checks.log` at end of session**:
+  `<ISO-timestamp>\t<step>\t<verdict>\t<note>`, verdict ∈ `pass|fail|inconclusive`
+- **`patterns.md` / `decisions.log`** — append-only memory; future runs read them
+
+## Stop-signals — break the loop instead of retrying
+
+- **Acceptance fails twice similarly** → mission/acceptance is ambiguous;
+  re-read both, propose mission edit before another run
+- **Tests pass but acceptance is `inconclusive`** → wrong `evidence_kind`,
+  not wrong code
+- **Sync-check shows orphan provides** → unused capability; ask operator
+- **`tech_stack.md` lock incompatible with mission** → architectural drift,
+  flag and stop
+
+## Edge traversal
+
+`depends_on.md` lists upstream blocks as `<block_id>: <capability>`. To
+implement X correctly:
+
+1. Read X's `depends_on.md`. For each line, read only the corresponding
+   `provides.md` of the dependency — that file states the contract X relies on.
+2. Read the dependency's `mission.md` only if `provides.md` is too terse.
+3. Don't recurse — deps-of-deps aren't your concern unless refactoring across
+   the boundary; use `sync_check(block_id=X)` for transitive impact.
+
+## Reference
+
+Full canonical version with rationale and task templates:
+[`docs/agent-navigation.md`](../docs/agent-navigation.md).

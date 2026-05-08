@@ -1,0 +1,5 @@
+2026-05-07T16:57:39.264Z	created	pass	Block created via design UI
+2026-05-07T16:57:51.225Z	design_patch	pass	atlas/blocks/b.block-10/mission.md
+2026-05-07T17:53:37.140Z	design_patch	pass	{"canvas_x":921,"canvas_y":197,"updated_at":"2026-05-07T17:53:37.139Z"}
+2026-05-07T17:56:12.994Z	cursor_run	pass	b.block-10: заполнены mission/acceptance/user_story/kpi; добавлен scripts/realtor_call_analytics.mjs; прогон --help и NDJSON OK; тестовый файл удалён
+2026-05-07T17:59:23.826Z	design_patch	pass	{"canvas_x":1204,"canvas_y":216,"updated_at":"2026-05-07T17:59:23.825Z"}

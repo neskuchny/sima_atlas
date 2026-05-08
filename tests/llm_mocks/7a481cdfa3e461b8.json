@@ -1,0 +1,17 @@
+{
+  "blocks": [
+    {
+      "id": "b.recommender",
+      "title": "Recommender",
+      "mission": "LLM категоризатор продуктов через OpenAI",
+      "layer": "ai",
+      "type": "module",
+      "mvp": false,
+      "status": "idea",
+      "depends_on": [],
+      "provides": [],
+      "tech_stack": [],
+      "confidence": 0.9
+    }
+  ]
+}

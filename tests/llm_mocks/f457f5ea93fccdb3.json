@@ -1,0 +1,17 @@
+{
+  "blocks": [
+    {
+      "id": "b.archive",
+      "title": "Archive",
+      "mission": "Холодное хранилище старых записей S3 Glacier",
+      "layer": "data",
+      "type": "module",
+      "mvp": false,
+      "status": "idea",
+      "depends_on": [],
+      "provides": [],
+      "tech_stack": [],
+      "confidence": 0.9
+    }
+  ]
+}

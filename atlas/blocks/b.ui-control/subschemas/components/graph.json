@@ -1,0 +1,91 @@
+{
+  "version": 2,
+  "_note": "Subschema of b.ui-control: the React component tree that powers the visual control plane. Each child here owns concrete .jsx file(s) under frontend/ and is independently statusable.",
+  "parent": { "block_id": "b.ui-control", "subschema_id": "components" },
+  "layers": [
+    { "id": "user",    "name": "Пользователь / JTBD",   "order": 0 },
+    { "id": "front",   "name": "Фронтенд",              "order": 1 },
+    { "id": "logic",   "name": "Логика",                "order": 2 },
+    { "id": "ai",      "name": "ИИ-интеграции",         "order": 3 }
+  ],
+  "blocks": [
+    {
+      "id": "b.canvas",
+      "title": "Arch Canvas",
+      "status": "review",
+      "status_reason": "PR2.5 added drift visualization; needs subschema double-click + zoom-to-fit (PR-Sub2)",
+      "layer": "front",
+      "type": "module",
+      "mvp": true,
+      "subschema_id": null,
+      "depends_on": ["b.atlas-sync"],
+      "tech_stack": ["react", "babel-standalone"],
+      "files": ["frontend/arch_canvas.jsx"]
+    },
+    {
+      "id": "b.inspector",
+      "title": "Arch Inspector",
+      "status": "review",
+      "status_reason": "PR2.5 surfaces drift issues; PR3.5 needs richer Accept/Reject layout for proposals",
+      "layer": "front",
+      "type": "module",
+      "mvp": true,
+      "subschema_id": null,
+      "depends_on": ["b.canvas", "b.atlas-sync"],
+      "tech_stack": ["react"],
+      "files": ["frontend/arch_canvas.jsx"]
+    },
+    {
+      "id": "b.tweaks-panel",
+      "title": "Tweaks Panel",
+      "status": "done",
+      "status_reason": "Density/accent toggles working; no live regressions",
+      "layer": "front",
+      "type": "module",
+      "mvp": false,
+      "subschema_id": null,
+      "depends_on": [],
+      "tech_stack": ["react"],
+      "files": ["frontend/tweaks-panel.jsx"]
+    },
+    {
+      "id": "b.composer",
+      "title": "Composer",
+      "status": "idea",
+      "status_reason": "Composer.jsx exists but not yet wired to /run-block — PR4.5 wires Run-agent button instead",
+      "layer": "front",
+      "type": "module",
+      "mvp": false,
+      "subschema_id": null,
+      "depends_on": [],
+      "tech_stack": ["react"],
+      "files": ["frontend/composer.jsx"]
+    },
+    {
+      "id": "b.proposals-panel",
+      "title": "Proposals Panel",
+      "status": "review",
+      "status_reason": "PR3.5 ready; needs live test against atlas_api_server to confirm Accept/Reject buttons fully round-trip",
+      "layer": "front",
+      "type": "module",
+      "mvp": true,
+      "subschema_id": null,
+      "depends_on": ["b.atlas-sync"],
+      "tech_stack": ["react"],
+      "files": ["frontend/proposals_panel.jsx"]
+    },
+    {
+      "id": "b.atlas-sync",
+      "title": "Atlas Sync (client)",
+      "status": "review",
+      "status_reason": "Client-side state machine + syncCheck; PR3.6 hardened against undefined-JSON crash",
+      "layer": "logic",
+      "type": "module",
+      "mvp": true,
+      "subschema_id": null,
+      "depends_on": [],
+      "tech_stack": ["javascript"],
+      "files": ["frontend/atlas_sync.js"]
+    }
+  ]
+}

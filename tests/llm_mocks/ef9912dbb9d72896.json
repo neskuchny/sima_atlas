@@ -1,0 +1,19 @@
+{
+  "blocks": [
+    {
+      "id": "b.billing",
+      "title": "Billing",
+      "mission": "Генерация счетов и инвойсов PDF отправка по email",
+      "layer": "logic",
+      "type": "module",
+      "mvp": false,
+      "status": "idea",
+      "depends_on": [
+        "b.db"
+      ],
+      "provides": [],
+      "tech_stack": [],
+      "confidence": 0.9
+    }
+  ]
+}

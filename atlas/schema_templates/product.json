@@ -1,0 +1,19 @@
+{
+  "id": "product",
+  "title": "Продукт",
+  "description": "SaaS / B2B продукт: фронтенд + backend + storage + биллинг + analytics.",
+  "default_layer": "logic",
+  "blocks": [
+    { "id_suffix": "auth",        "title": "Auth",       "layer": "logic",   "mission": "Многотенантная авторизация, RBAC на уровне dataset, SSO через OIDC.", "kpi": ["< 50ms verify p95", "0 CVE high", "99.9% uptime"], "acceptance": ["JWT + refresh работает", "Роли viewer/editor/admin развёрнуты"] },
+    { "id_suffix": "ingest",      "title": "Ingest",     "layer": "logic",   "mission": "Принимает события от SDK, валидирует по схеме, гарантирует exactly-once в Warehouse.", "kpi": ["< 25ms p95 ack", "50k/s throughput"] },
+    { "id_suffix": "warehouse",   "title": "Warehouse",  "layer": "data",    "mission": "Хранилище событий: миллиарды строк, OLAP-агрегации.", "kpi": ["< 200ms p95 на 10M строк"] },
+    { "id_suffix": "dashboard",   "title": "Dashboard",  "layer": "front",   "mission": "Drag-n-drop конструктор дашбордов — главный пользовательский UI.", "kpi": ["< 2s TTI", "< 5min до первого дашборда"] },
+    { "id_suffix": "billing",     "title": "Billing",    "layer": "logic",   "mission": "Подписки, лимиты по событиям/seat, возвраты.", "kpi": ["0 потерянных webhook"] }
+  ],
+  "edges": [
+    { "from": "ingest", "to": "warehouse", "kind": "data", "capability": "events_stream" },
+    { "from": "dashboard", "to": "warehouse", "kind": "data", "capability": "metric_query" },
+    { "from": "auth", "to": "dashboard", "kind": "rbac", "capability": "session_check" },
+    { "from": "auth", "to": "ingest", "kind": "rbac", "capability": "api_key_check" }
+  ]
+}

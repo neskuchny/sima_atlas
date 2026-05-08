@@ -1,0 +1,130 @@
+{
+  "block_id": "b.ui-control",
+  "source_path": "/home/user/sima_atlas/atlas/blocks/b.ui-control/acceptance.md",
+  "parsed_warnings": [],
+  "assertions": [
+    {
+      "id": "A1",
+      "label": null,
+      "text": "HTML открывается в браузере и `<div id=\"root\">` заполнен (smoke-тест: `headless run` грузит страницу, ловит `error`-события, ждёт что DOM содержит `.l2-top` и `.workarea`).",
+      "checked": false,
+      "line": 5,
+      "evidence_kind": "llm_judge",
+      "evidence_spec": null,
+      "verdict": "skipped",
+      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
+      "raw": {
+        "judge_verdict": "inconclusive",
+        "provider": "mock",
+        "model": "mock-1",
+        "prompt_hash": "66b5a452f1ae73c3",
+        "cost_usd": 0,
+        "cost_capped": false,
+        "evidence_quote": ""
+      },
+      "duration_ms": 2
+    },
+    {
+      "id": "A2",
+      "label": null,
+      "text": "Все JSX-зависимости `app_v2.jsx` подгружены (нет `useTweaks/SourcePalette/CanvasInspector is not defined` в консоли).",
+      "checked": false,
+      "line": 6,
+      "evidence_kind": "llm_judge",
+      "evidence_spec": null,
+      "verdict": "skipped",
+      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
+      "raw": {
+        "judge_verdict": "inconclusive",
+        "provider": "mock",
+        "model": "mock-1",
+        "prompt_hash": "2e9180b735dabc45",
+        "cost_usd": 0,
+        "cost_capped": false,
+        "evidence_quote": ""
+      },
+      "duration_ms": 0
+    },
+    {
+      "id": "A3",
+      "label": null,
+      "text": "При выбранном проекте `atlas-live` канвас архитектуры рисует ≥ 3 горизонтальных слоя; в каждом слое — корректные блоки из `graph.json` по полю `layer` (зависит от PR2).",
+      "checked": false,
+      "line": 7,
+      "evidence_kind": "llm_judge",
+      "evidence_spec": null,
+      "verdict": "skipped",
+      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
+      "raw": {
+        "judge_verdict": "inconclusive",
+        "provider": "mock",
+        "model": "mock-1",
+        "prompt_hash": "fd2403e958dec894",
+        "cost_usd": 0,
+        "cost_capped": false,
+        "evidence_quote": ""
+      },
+      "duration_ms": 1
+    },
+    {
+      "id": "A4",
+      "label": null,
+      "text": "Sync-check на 5 блоках возвращает либо ok, либо drift с конкретной причиной (`status_reason`) — без ложных «всё зелёное».",
+      "checked": false,
+      "line": 8,
+      "evidence_kind": "exit_code",
+      "evidence_spec": {
+        "cmd": "node scripts/validate_block_contracts.mjs",
+        "expect_in_stdout": "OK"
+      },
+      "verdict": "pass",
+      "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (50ms); first line: \"Block contract validation: OK\"",
+      "reasoning": "shell exit code 0 and stdout matches /OK/",
+      "raw": {
+        "cmd": "node scripts/validate_block_contracts.mjs",
+        "exit_code": 0,
+        "stdout": "Block contract validation: OK\n",
+        "stderr": "",
+        "duration_ms": 50,
+        "timed_out": false
+      },
+      "duration_ms": 50
+    },
+    {
+      "id": "A5",
+      "label": null,
+      "text": "Кнопка Done заблокирована, если `acceptance` чек-листа блока не отмечены полностью И в `checks.log` нет `acceptance pass` + `kpi pass`.",
+      "checked": false,
+      "line": 15,
+      "evidence_kind": "log_grep",
+      "evidence_spec": {
+        "file": "scripts/log_transition.mjs",
+        "pattern": "verdict !== 'pass'"
+      },
+      "verdict": "pass",
+      "evidence": "grep /verdict !== 'pass'/ scripts/log_transition.mjs → 1 matches; first: \"    if (latest && latest.verdict !== 'pass') {\"",
+      "reasoning": "1 matching lines found",
+      "raw": {
+        "file": "/home/user/sima_atlas/scripts/log_transition.mjs",
+        "pattern": "verdict !== 'pass'",
+        "since_time": null,
+        "match_count": 1,
+        "sample": [
+          "    if (latest && latest.verdict !== 'pass') {"
+        ]
+      },
+      "duration_ms": 0
+    }
+  ],
+  "counts": {
+    "pass": 2,
+    "fail": 0,
+    "skipped": 3
+  },
+  "verdict": "pass",
+  "duration_ms": 55,
+  "checked_at": "2026-05-05T07:10:57.459Z"
+}

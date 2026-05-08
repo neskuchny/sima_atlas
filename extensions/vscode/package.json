@@ -1,0 +1,135 @@
+{
+  "name": "sima-atlas",
+  "displayName": "Sima Atlas",
+  "description": "Visual contract-first development with AI agents — block graph, MCP tools, contract editor right inside VS Code.",
+  "version": "0.1.0",
+  "publisher": "synlabs",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/neskuchny/sima_atlas",
+    "directory": "extensions/vscode"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other",
+    "AI",
+    "Visualization"
+  ],
+  "keywords": [
+    "ai",
+    "claude-code",
+    "cursor",
+    "mcp",
+    "contract-first",
+    "agent"
+  ],
+  "main": "./src/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "sima-atlas",
+          "title": "Sima Atlas",
+          "icon": "$(graph)"
+        }
+      ]
+    },
+    "views": {
+      "sima-atlas": [
+        {
+          "id": "sima-atlas.canvas",
+          "name": "Canvas",
+          "type": "webview",
+          "icon": "$(graph)",
+          "contextualTitle": "Sima Atlas — block graph"
+        },
+        {
+          "id": "sima-atlas.blocks",
+          "name": "Blocks",
+          "icon": "$(symbol-class)",
+          "contextualTitle": "Sima Atlas — blocks tree"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "sima-atlas.openCanvas",
+        "title": "Sima Atlas: Open Canvas",
+        "icon": "$(graph)"
+      },
+      {
+        "command": "sima-atlas.startDevServer",
+        "title": "Sima Atlas: Start Dev Server (npm run dev)",
+        "icon": "$(play)"
+      },
+      {
+        "command": "sima-atlas.refreshBlocks",
+        "title": "Sima Atlas: Refresh Blocks",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "sima-atlas.openBlockContract",
+        "title": "Sima Atlas: Open Block Contract",
+        "icon": "$(book)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "sima-atlas.refreshBlocks",
+          "when": "view == sima-atlas.blocks",
+          "group": "navigation"
+        },
+        {
+          "command": "sima-atlas.startDevServer",
+          "when": "view == sima-atlas.canvas",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "sima-atlas.openBlockContract",
+          "when": "view == sima-atlas.blocks && viewItem == block",
+          "group": "inline"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Sima Atlas",
+      "properties": {
+        "simaAtlas.apiUrl": {
+          "type": "string",
+          "default": "http://localhost:8787",
+          "description": "Sima Atlas API server URL (set up by `npm run dev` in the repo)."
+        },
+        "simaAtlas.uiUrl": {
+          "type": "string",
+          "default": "http://localhost:8000/atlas_design/index.html",
+          "description": "Sima Atlas canvas UI URL (embedded in the sidebar webview)."
+        },
+        "simaAtlas.client": {
+          "type": "string",
+          "default": "example",
+          "description": "Default ?client=<id> for canvas + API queries. Use 'main' for Sima describing herself."
+        },
+        "simaAtlas.atlasRoot": {
+          "type": "string",
+          "default": "",
+          "description": "Path to atlas/ directory (autodetected from workspace root if empty)."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0"
+  }
+}

@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/neskuchny/sima_atlas/security/advisories/new
+    about: Не открывайте публичный issue для security-проблем — используйте приватный канал, см. SECURITY.md
+  - name: General discussion
+    url: https://github.com/neskuchny/sima_atlas/discussions
+    about: Общие вопросы про направление, дизайн, архитектуру — лучше в Discussions, чем в Issues
+  - name: Methodology article
+    url: https://github.com/neskuchny/sima_atlas/blob/main/%D0%A2%D0%97/%D1%81%D1%82%D0%B0%D1%82%D1%8C%D1%8F.md
+    about: Перед issue про архитектуру / принципы — прочитайте методологическую статью (~4000 слов)

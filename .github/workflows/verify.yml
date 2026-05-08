@@ -1,0 +1,81 @@
+name: verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {}
+
+# CI design (v0.1):
+# - Fast PR pass: nightly_consolidation + acceptance + cursor + mcp.
+#   Skip Playwright screenshots — они стоят минут и зависят от headless
+#   браузера; full e2e гоним nightly cron'ом отдельно.
+# - ATLAS_FORCE_MOCK_LLM=1 — детерминизм (никаких внешних API-вызовов
+#   в CI; реальный LLM — для интерактивной разработки).
+# - Node 20 LTS как baseline (proven stable for npm run dev / verify).
+
+jobs:
+  verify:
+    name: verify_all (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 12
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    env:
+      ATLAS_FORCE_MOCK_LLM: "1"
+      NODE_OPTIONS: "--max-old-space-size=2048"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run verify_all (skip Playwright)
+        run: node scripts/verify_all.mjs --skip-screenshots
+
+      - name: Show nightly report on failure
+        if: failure()
+        shell: bash
+        run: |
+          echo "::group::nightly_report.md"
+          cat atlas/nightly_report.md || echo "no report"
+          echo "::endgroup::"
+          echo "::group::acceptance summary"
+          cat atlas/acceptance_runs/_summary.json | head -50 || echo "no summary"
+          echo "::endgroup::"
+
+  selftests-explicit:
+    name: standalone selftests (sanity)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    env:
+      ATLAS_FORCE_MOCK_LLM: "1"
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci
+
+      # Эти тесты не зависят от nightly state, гоняем отдельно для
+      # быстрого фидбэка при изменении конкретных слайсов.
+      - run: node tests/sima_watch_chats.selftest.mjs
+      - run: node tests/chat_fill_accept.selftest.mjs
+      - run: node tests/validate_lifecycle_gates.selftest.mjs
+      - run: node tests/proposals_flow.smoke.mjs

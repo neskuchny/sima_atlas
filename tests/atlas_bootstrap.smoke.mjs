@@ -11,7 +11,7 @@ import path from 'node:path';
 import vm from 'node:vm';
 
 const root = process.cwd();
-const remix = path.join(root, 'Sima (Remix)');
+const remix = path.join(root, 'frontend');
 const archDataSrc = fs.readFileSync(path.join(remix, 'arch_data.js'), 'utf8');
 const bootstrapSrc = fs.readFileSync(path.join(remix, 'atlas_bootstrap.js'), 'utf8');
 
@@ -28,6 +28,46 @@ const win = ctx.window;
 
 if (!win.ARCH_LAYERS || typeof win.ARCH_LAYERS !== 'object') errors.push('ARCH_LAYERS not loaded');
 if (!win.ARCH_BY_PROJECT || !win.ARCH_BY_PROJECT['atlas-live']) errors.push('atlas-live not registered in ARCH_BY_PROJECT');
+
+// PR-Sub: every block in atlas-live with subschema_id="X" must produce a
+// synthetic project "atlas-live:<blockId>:X" in archByProject, with the same
+// non-empty layers/blocks shape as a top-level project.
+const archAtlasLive = win.ARCH_BY_PROJECT && win.ARCH_BY_PROJECT['atlas-live'];
+if (archAtlasLive && Array.isArray(archAtlasLive.blocks)) {
+  for (const b of archAtlasLive.blocks) {
+    if (!b.subschema) continue;
+    const subId = `atlas-live:${b.id}:${b.subschema}`;
+    const sub = win.ARCH_BY_PROJECT[subId];
+    if (!sub) {
+      errors.push(`PR-Sub: subschema project "${subId}" missing from ARCH_BY_PROJECT`);
+      continue;
+    }
+    if (!Array.isArray(sub.layers) || !sub.layers.length) errors.push(`PR-Sub: ${subId} has no layers`);
+    if (!Array.isArray(sub.blocks) || !sub.blocks.length) errors.push(`PR-Sub: ${subId} has no blocks`);
+  }
+}
+
+// PR5: multi-project smoke — every project under atlas/projects/<id>/ that
+// has a graph.json must show up in window.SIMA_DATA_V2.projects AND in
+// window.ARCH_BY_PROJECT, with non-empty layers/blocks.
+const PROJECTS_DIR = path.join(root, 'atlas', 'projects');
+if (fs.existsSync(PROJECTS_DIR)) {
+  for (const entry of fs.readdirSync(PROJECTS_DIR)) {
+    const projRoot = path.join(PROJECTS_DIR, entry);
+    if (!fs.statSync(projRoot).isDirectory()) continue;
+    if (!fs.existsSync(path.join(projRoot, 'graph.json'))) continue;
+    if (!win.ARCH_BY_PROJECT[entry]) {
+      errors.push(`PR5: project "${entry}" found on disk but missing from ARCH_BY_PROJECT`);
+      continue;
+    }
+    const a = win.ARCH_BY_PROJECT[entry];
+    if (!Array.isArray(a.layers) || !a.layers.length) errors.push(`PR5: project "${entry}" has no layers in archByProject`);
+    if (!Array.isArray(a.blocks) || !a.blocks.length) errors.push(`PR5: project "${entry}" has no blocks in archByProject`);
+    if (!(win.SIMA_DATA_V2.projects || []).find((p) => p.id === entry)) {
+      errors.push(`PR5: project "${entry}" missing from SIMA_DATA_V2.projects`);
+    }
+  }
+}
 
 const arch = win.ARCH_BY_PROJECT['atlas-live'];
 if (arch) {
@@ -54,6 +94,32 @@ if (arch) {
 
 const projects = win.SIMA_DATA_V2 && win.SIMA_DATA_V2.projects;
 if (!projects || !projects.find((p) => p.id === 'atlas-live')) errors.push('atlas-live not merged into SIMA_DATA_V2.projects');
+
+// PR4.4: validate the SIMA_DATA_V2 project shape that Layer1Canvas / Layer2Map need.
+const proj = projects && projects.find((p) => p.id === 'atlas-live');
+if (proj) {
+  if (!proj.canvas || !Array.isArray(proj.canvas.sources)) errors.push('atlas-live.canvas.sources missing or not an array');
+  if (!proj.map || typeof proj.map !== 'object') errors.push('atlas-live.map missing');
+  if (proj.map) {
+    const us = proj.map.userstory;
+    if (!us) errors.push('atlas-live.map.userstory missing');
+    else {
+      if (!Array.isArray(us.nodes)) errors.push('atlas-live.map.userstory.nodes must be an array');
+      // UserStoryMap accepts either `edges: [[a,b]]` or `links: [{from,to}]`. Require at least one.
+      const hasEdges = Array.isArray(us.edges);
+      const hasLinks = Array.isArray(us.links);
+      if (!hasEdges && !hasLinks) errors.push('atlas-live.map.userstory must have edges or links array');
+      if (hasEdges) {
+        for (const e of us.edges) {
+          if (!Array.isArray(e) || e.length !== 2 || typeof e[0] !== 'string' || typeof e[1] !== 'string') {
+            errors.push(`atlas-live.map.userstory.edges entries must be [from, to] string tuples; got ${JSON.stringify(e)}`);
+            break;
+          }
+        }
+      }
+    }
+  }
+}
 
 if (errors.length) {
   console.error('atlas_bootstrap smoke FAILED:');

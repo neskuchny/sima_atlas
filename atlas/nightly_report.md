@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-05-02T10:01:06.377Z_
+_Generated: 2026-05-06T18:42:29.745Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -11,9 +11,13 @@ _Generated: 2026-05-02T10:01:06.377Z_
 - ✅ block_contracts: ok
   - output: Block contract validation: OK
 - ✅ no_template_placeholders: ok
-  - output: Template-placeholder validation: OK (7 blocks scanned)
+  - output: Template-placeholder validation: OK (10 blocks scanned)
 - ✅ files_registry: ok
-  - output: Files registry validation: OK (alive=108, archived=4, dead=0)
+  - output: Files registry validation: OK (alive=197, archived=4, dead=0)
+- ✅ projects_contracts: ok
+  - output: validate_projects: OK (1 projects, 5 blocks)
+- ✅ subschemas_contracts: ok
+  - output: validate_subschemas: OK (projects=2, subschemas=1, child_blocks=6)
 - ✅ dependency_contracts: ok
   - output: Dependency contract validation: OK
 - ✅ acceptance_assertions: ok
@@ -21,28 +25,118 @@ _Generated: 2026-05-02T10:01:06.377Z_
 - ✅ atlas_selftest: ok
   - output: atlas_sync.selftest: OK
 - ✅ bootstrap_layered_smoke: ok
-  - output: atlas_bootstrap smoke: OK (layers=6, blocks=7, links=7)
+  - output: atlas_bootstrap smoke: OK (layers=6, blocks=10, links=21)
 - ✅ llm_gateway_selftest: ok
-  - output: llm_gateway.selftest: OK (4 cases)
+  - output: llm_gateway.selftest: OK (5 cases)
+- ✅ pick_template_selftest: ok
+  - output: pick_template.selftest: OK (8 test groups, all assertions green)
+- ✅ operator_profile_selftest: ok
+  - output: operator_profile.selftest: OK (7 test groups, all assertions green)
+- ✅ aggregate_operator_profile: ok
+  - output: operator_profile: warming_up (done=2, invocations=3, traces=11250, proposals=175)
+- ✅ operator_profile_lessons_smoke: ok
+  - output: operator_profile_lessons.smoke: OK (6 test groups, all assertions green)
+- ✅ operator_profile_inject_smoke: ok
+  - output: operator_profile_inject.smoke: OK (4 test groups, all assertions green)
+- ✅ analyze_lessons_from_history: ok
+  - output: analyze_lessons: added=0 total=0 provider=mock cost=$0.00000
+- ✅ dont_use_management_selftest: ok
+  - output: dont_use_management.selftest: OK (7 test groups, all assertions green)
+- ✅ validate_dont_use_compliance: ok
+  - output: validate_dont_use_compliance: banned=0 (none); checked=10; warnings=0
+- ✅ validate_lifecycle_gates: ok
+  - output: validate_lifecycle_gates — 10 blocks, 0 fail, 0 warn
+- ✅ introspect_block_ui_selftest: ok
+  - output: introspect_block_ui.selftest: OK (7 test groups, all assertions green)
+- ✅ user_docs_smoke: ok
+  - output: user_docs.smoke: OK (5 test groups, all assertions green)
+- ✅ screenshots_integration_selftest: ok
+  - output: screenshots_integration.selftest: OK (7 test groups, all assertions green)
+- ✅ user_docs_drift_selftest: ok
+  - output: user_docs_drift.selftest: OK (5 test groups, all assertions green)
+- ✅ run_state_selftest: ok
+  - output: run_state.selftest: OK (8 test groups, all assertions green)
+- ✅ agent_workspace_selftest: ok
+  - output: agent_workspace.selftest: OK (7 test groups, all assertions green)
+- ✅ detect_stalled_runs: ok
+  - output: {
+- ✅ cursor_live_headless_smoke: ok
+  - output: cursor_live.headless.smoke: OK (5 phases — hooks valid, drift guard fires, file-edit logged, context pack emitted, detailed suite green)
+- ✅ playwright_canvas: ok
+  - output: Running 2 tests using 1 worker
+- ✅ sima_design_payload_selftest: ok
+  - output: sima_design_payload.selftest: OK (8 test groups, all assertions green)
+- ✅ atlas_blocks_api_selftest: ok
+  - output: atlas_blocks_api.selftest: OK (10 test groups, all assertions green)
+- ✅ atlas_artifacts_api_selftest: ok
+  - output: atlas_artifacts_api.selftest: OK (7 test groups, all assertions green)
+- ✅ atlas_runs_api_selftest: ok
+  - output: atlas_runs_api.selftest: OK (8 test groups, all assertions green)
+- ✅ atlas_synthesis_api_selftest: ok
+  - output: atlas_synthesis_api.selftest: OK (10 test groups, all assertions green)
+- ✅ atlas_subsystems_api_selftest: ok
+  - output: atlas_subsystems_api.selftest: OK (5 test groups, all assertions green)
+- ✅ atlas_files_api_selftest: ok
+  - output: atlas_files_api.selftest: OK (5 test groups, all assertions green)
+- ✅ cleanup_block_memory_selftest: ok
+  - output: cleanup_block_memory.selftest: OK (4 test groups, all assertions green)
+- ✅ sima_watch_chats_selftest: ok
+  - output: sima_watch_chats.selftest: OK (4 passes, mock provider, noise filtered, cursor + rotation handled)
+- ✅ chat_fill_accept_selftest: ok
+  - output: chat_fill_accept.selftest: OK (plan listed, accepted, blocks created, contract files written, re-accept refused)
+- ✅ build_sima_design_payload: ok
+  - output: Built /home/user/sima_atlas/atlas/design_payload.json
+- ✅ playwright_sima_design: ok
+  - output: Running 2 tests using 1 worker
+- ✅ parse_acceptance_selftest: ok
+  - output: parse_acceptance.selftest: OK (9 test groups, all assertions green)
+- ✅ evidence_collectors_selftest: ok
+  - output: evidence_collectors.selftest: OK (11 test groups, all assertions green)
+- ✅ llm_judge_smoke: ok
+  - output: llm_judge.smoke: OK (4 test groups, all assertions green)
+- ✅ acceptance_verifier_e2e_smoke: ok
+  - output: acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)
+- ✅ seed_llm_mocks: ok
+  - output: seed_llm_mocks: 0 written, 30 unchanged, 30 total
 - ✅ llm_extraction_eval: ok
-  - output: llm_extraction.eval: OK — avg 1.00 on 5 cases (target 0.70)
+  - output: llm_extraction.eval — overall avg=1.000 (cases=30/30)
 - ✅ simulate_conversation_branches: ok
   - output: PASS: created b.realtime-ingestion in graph.json
+- ✅ validate_cursor_hooks: ok
+  - output: cursor hooks validation: OK (4 events, 4 commands)
+- ✅ cursor_hooks_actions: ok
+  - output: cursor_hooks_actions.test: OK (9 cases)
+- ✅ proposals_flow_smoke: ok
+  - output: proposals_flow.smoke: OK (accept + reject + filter, state restored)
+- ✅ list_proposals_index: ok
+  - output: [
+- ✅ agent_parity_real: ok
+  - output: agent_parity_real.smoke: OK (10 blocks, MCP pack ≡ disk)
+- ✅ connection_drift: ok
+  - output: connection_drift.smoke: OK (broken capability link detected and propagated to archByProject.links)
+- ✅ atlas_live_polling: ok
+  - output: atlas_live_polling.smoke: OK (state hash changes on disk mutation; payload returns bootstrap shape)
 - ✅ sync_context_packs: ok
-  - output: Context packs synced: 7
+  - output: Context packs synced: 10
 - ✅ agent_parity: ok
   - output: Agent parity validation: OK
 - ✅ parity_matrix: ok
   - output: Parity matrix validation: OK
 - ✅ generate_wiki: ok
   - output: Generated /home/user/sima_atlas/atlas/WIKI.md
+- ✅ render_wiki_html: ok
+  - output: Rendered /home/user/sima_atlas/atlas/wiki.html
 - ✅ generate_tz: ok
   - output: Generated /home/user/sima_atlas/ТЗ/auto_tz.md
 - ✅ rebuild_roadmap: ok
   - output: Rebuilt /home/user/sima_atlas/atlas/roadmap.md
+- ✅ verify_all_acceptance: ok
+  - output: verify_all_acceptance: 10 pass / 0 fail / 0 inconclusive (assertions: 46 pass / 0 fail / 13 skipped)
+- ✅ verify_done_blocks_still_green: ok
+  - output: verify_done_blocks_still_green: checked=0 green=0 regressions=0 inconclusive=0
 - ✅ mcp_smoke_e2e: ok
   - output: mcp_smoke_e2e: OK
 - ✅ intelligence_health: ok
-  - output: Intelligence health: 1 (7/7)
+  - output: Intelligence health: 1 (10/10)
 
-Summary: PASS (21/21)
+Summary: PASS (68/68)

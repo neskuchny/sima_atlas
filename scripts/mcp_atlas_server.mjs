@@ -2,7 +2,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import readline from 'node:readline';
-import { execSync } from 'node:child_process';
+import { execSync, execFileSync } from 'node:child_process';
 
 const root = process.cwd();
 const atlasRoot = path.join(root, 'atlas');
@@ -17,6 +17,11 @@ function toolList(){
     { name:'read_block', description:'Read all markdown files for block', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} }, required:['block_id'] } },
     { name:'list_dependencies', description:'List dependencies from depends_on.md', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} }, required:['block_id'] } },
     { name:'sync_check', description:'Run atlas validators (contracts/dependencies/acceptance)', inputSchema:{ type:'object', properties:{} } },
+    { name:'subagent_schema_syncer', description:'Phase N-3: walk all atlas blocks, run all consistency validators, return drift report.', inputSchema:{ type:'object', properties:{} } },
+    { name:'subagent_verifier', description:'Phase N-3: run acceptance verifier + LLM-validator (mission vs reality) on a block (or --all).', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} } } },
+    { name:'subagent_wiki_builder', description:'Phase N-3: regenerate WIKI.md / wiki.html / roadmap.md / auto_tz.md from canonical graph + block files.', inputSchema:{ type:'object', properties:{} } },
+    { name:'sima_fill_from_chat', description:'Phase R-2/R-7.19: take a chat transcript and orchestrate the full pipeline — extract insights, fill weak fields on existing blocks, propose 1-3 new blocks. Saves a plan to atlas/proposals/ (root) or atlas/clients/<client_id>/proposals/ (per-tenant). The operator reviews the plan in the «✦ Предложения» panel. **Pass client_id to target a specific tenant; otherwise root atlas is used.**', inputSchema:{ type:'object', properties:{ transcript:{type:'string'}, client_id:{type:'string', description:'Optional client tenant id (e.g. my-saas). When provided, plan is saved into atlas/clients/<id>/proposals/ and blocks come from that tenant graph.'}, target_block_ids:{type:'array', items:{type:'string'}}, propose_new:{type:'boolean'}, dry_run:{type:'boolean'} }, required:['transcript'] } },
+    { name:'sima_watch_chats', description:'Phase R-3: scan Claude Code session jsonl files (~/.claude/projects/*/), detect new conversational turns since the last run, and either propose (dry-run plan) or auto-apply via sima_fill_from_chat. Use this when the operator says «sima, check the latest chats» or to power a periodic background sweep. Returns {plan, new_turns, skipped_reason?}.', inputSchema:{ type:'object', properties:{ mode:{type:'string', enum:['propose','auto']}, min_new_chars:{type:'number'} } } },
     { name:'create_block', description:'Create/init block in atlas graph and docs', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, title:{type:'string'} }, required:['block_id'] } },
     { name:'set_block_mission', description:'Update mission.md for block', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, mission:{type:'string'} }, required:['block_id','mission'] } },
     { name:'generate_wiki', description:'Generate atlas WIKI.md', inputSchema:{ type:'object', properties:{} } },
@@ -37,6 +42,42 @@ function toolList(){
     { name:'enqueue_ingestion', description:'Queue distilled chat insight for nightly ingestion', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, note:{type:'string'}, apply_to_rules:{type:'boolean'}, conversation_text:{type:'string'} }, required:['block_id','note'] } },
     { name:'apply_ingestion_queue', description:'Apply queued distillates into block memory files', inputSchema:{ type:'object', properties:{} } },
     { name:'ingest_chat_batches', description:'Batch-ingest transcript JSONL into queue and apply automatically', inputSchema:{ type:'object', properties:{ transcript_path:{type:'string'}, block_id:{type:'string'}, batch_size:{type:'number'} }, required:['transcript_path'] } },
+    { name:'list_proposals', description:'PR3.5: list pending LLM proposals for existing blocks', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} } } },
+    { name:'accept_proposal', description:'PR3.5: accept a pending LLM proposal — applies structural changes to graph.json + checks.log trace', inputSchema:{ type:'object', properties:{ proposal_id:{type:'string'} }, required:['proposal_id'] } },
+    { name:'reject_proposal', description:'PR3.5: reject a pending LLM proposal with a reason', inputSchema:{ type:'object', properties:{ proposal_id:{type:'string'}, reason:{type:'string'} }, required:['proposal_id'] } },
+    { name:'run_block_implementation', description:'PR4.5: run the configured coding agent (claude / codex / cursor) on the given block; writes prompt to atlas/agent_invocations/ and logs an agent_invocation check', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, prompt:{type:'string'}, agent:{type:'string'} }, required:['block_id'] } },
+    { name:'read_operator_profile', description:'PR-1 (b.operator-profile-learner): read aggregated operator profile (profile.json). When no profile exists yet — returns warming_up.', inputSchema:{ type:'object', properties:{} } },
+    { name:'recompute_operator_profile', description:'PR-1 (b.operator-profile-learner): re-aggregate operator profile from current repo signals (transitions / checks.log / llm_traces / proposals). Idempotent.', inputSchema:{ type:'object', properties:{} } },
+    { name:'parse_acceptance', description:'PR-1 (b.acceptance-verifier-loop): parse atlas/blocks/<id>/acceptance.md into structured assertions (id, label, text, checked, evidence_kind, evidence_spec). Default evidence_kind = llm_judge when not declared in YAML block.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} }, required:['block_id'] } },
+    { name:'collect_evidence', description:'PR-2 (b.acceptance-verifier-loop): run a single deterministic evidence collector. evidence_kind ∈ {exit_code, fs_glob, file_diff, log_grep, selftest_run}. Returns {verdict, evidence, reasoning, raw, duration_ms}.', inputSchema:{ type:'object', properties:{ evidence_kind:{type:'string'}, evidence_spec:{type:'object'} }, required:['evidence_kind','evidence_spec'] } },
+    { name:'verify_block_acceptance', description:'PR-2 (b.acceptance-verifier-loop): parse acceptance.md AND collect evidence per assertion in one shot. Returns {block_id, assertions: [...], counts: {pass, fail, skipped}, verdict}.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} }, required:['block_id'] } },
+    { name:'judge_assertion', description:'PR-3 (b.acceptance-verifier-loop): LLM-judge fallback for an individual assertion. Returns {verdict: pass|fail|inconclusive, reasoning, evidence_quote, cost_usd, provider}. Inconclusive on missing API key — never silent pass.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, assertion_id:{type:'string'} }, required:['block_id','assertion_id'] } },
+    { name:'read_acceptance_run', description:'PR-4 (b.acceptance-verifier-loop): read atlas/acceptance_runs/<block>/_latest.json — full assertion-level verdict report from the most recent verifier run.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} }, required:['block_id'] } },
+    { name:'list_failed_acceptances', description:'PR-4 (b.acceptance-verifier-loop): list every block whose latest verifier verdict is fail or inconclusive (with sample failures).', inputSchema:{ type:'object', properties:{} } },
+    { name:'list_lessons', description:'PR-4 (b.operator-profile-learner): list operator lessons stored in atlas/operator_profile/lessons.json.', inputSchema:{ type:'object', properties:{} } },
+    { name:'add_lesson', description:'PR-4 (b.operator-profile-learner): manually add an operator lesson with ≥ 2 evidence items.', inputSchema:{ type:'object', properties:{ lesson:{type:'string'}, evidence:{type:'array', items:{type:'string'}}, expires_at:{type:'string'} }, required:['lesson','evidence'] } },
+    { name:'revoke_lesson', description:'PR-4 (b.operator-profile-learner): revoke a stored lesson by id.', inputSchema:{ type:'object', properties:{ lesson_id:{type:'string'} }, required:['lesson_id'] } },
+    { name:'analyze_lessons', description:'PR-4 (b.operator-profile-learner): trigger LLM-driven lessons analysis over the last N days of fail records.', inputSchema:{ type:'object', properties:{ window_days:{type:'number'}, dry_run:{type:'boolean'} } } },
+    { name:'list_dont_use', description:'PR-3 (b.operator-profile-learner): list operator dont_use bans.', inputSchema:{ type:'object', properties:{} } },
+    { name:'set_dont_use', description:'PR-3 (b.operator-profile-learner): add (or update reason of) a personal dont_use ban — guard_against_drift will block matching shell commands and ProposalsPanel will mark conflicting proposals.', inputSchema:{ type:'object', properties:{ value:{type:'string'}, reason:{type:'string'} }, required:['value'] } },
+    { name:'clear_dont_use', description:'PR-3 (b.operator-profile-learner): remove a personal dont_use ban.', inputSchema:{ type:'object', properties:{ value:{type:'string'} }, required:['value'] } },
+    { name:'list_always_use', description:'PR-3 (b.operator-profile-learner): list operator always_use entries (category → value).', inputSchema:{ type:'object', properties:{} } },
+    { name:'set_always_use', description:'PR-3 (b.operator-profile-learner): pin a category default (e.g. language=typescript). Surfaces in inject_context_pack alongside dont_use.', inputSchema:{ type:'object', properties:{ category:{type:'string'}, value:{type:'string'}, reason:{type:'string'} }, required:['category','value'] } },
+    { name:'clear_always_use', description:'PR-3 (b.operator-profile-learner): remove an always_use pin.', inputSchema:{ type:'object', properties:{ category:{type:'string'}, value:{type:'string'} }, required:['category','value'] } },
+    { name:'introspect_block_ui', description:'PR-1 (b.user-docs-generator): scan alive JSX/HTML files of a block and return structured UI elements (buttons, inputs, textareas, forms, links, routes, fetches). Used by PR-2 LLM tutorial writer.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} }, required:['block_id'] } },
+    { name:'generate_user_docs', description:'PR-2 (b.user-docs-generator): generate end-user tutorial markdown for a block via b.llm-gateway. Idempotent (skips if source hash unchanged). Writes atlas/docs/end-user/<block>.md + _meta/<block>.json. Cost cap $0.03/run.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, lang:{type:'string'}, dry_run:{type:'boolean'} }, required:['block_id'] } },
+    { name:'detect_playwright', description:'PR-3 (b.user-docs-generator): report whether Playwright is configured + installed (used to gate screenshot capture). Always available; returns {available, reason}.', inputSchema:{ type:'object', properties:{} } },
+    { name:'cleanup_orphan_screenshots', description:'PR-3 (b.user-docs-generator): remove screenshots whose block_id is no longer in graph.json (any project), and prune the manifest accordingly.', inputSchema:{ type:'object', properties:{ dry_run:{type:'boolean'} } } },
+    { name:'list_user_docs', description:'PR-4 (b.user-docs-generator): list every block that has an end-user tutorial in atlas/docs/end-user/_meta/.', inputSchema:{ type:'object', properties:{} } },
+    { name:'read_user_docs', description:'PR-4 (b.user-docs-generator): read end-user tutorial markdown + meta for a block.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} }, required:['block_id'] } },
+    { name:'lock_user_docs', description:'PR-4 (b.user-docs-generator): lock/unlock end-user docs to preserve manual edits across regen runs.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, locked:{type:'boolean'}, reason:{type:'string'} }, required:['block_id'] } },
+    { name:'regenerate_user_docs_drift', description:'PR-4 (b.user-docs-generator): nightly drift-check across all user-facing blocks; regen on hash drift, write user_docs_locked proposal when locked+drifted.', inputSchema:{ type:'object', properties:{ dry_run:{type:'boolean'} } } },
+    { name:'list_runs', description:'PR-7 (b.agent-orchestrator): list agent runs from atlas/run_state/ — all or active only.', inputSchema:{ type:'object', properties:{ active_only:{type:'boolean'} } } },
+    { name:'get_run', description:'PR-7 (b.agent-orchestrator): read full state of a specific agent run.', inputSchema:{ type:'object', properties:{ run_id:{type:'string'} }, required:['run_id'] } },
+    { name:'cancel_run', description:'PR-7 (b.agent-orchestrator): cancel an active agent run; flips FSM to Canceled (real process cancel requires Symphony-style supervisor — for now this only marks state).', inputSchema:{ type:'object', properties:{ run_id:{type:'string'}, reason:{type:'string'} }, required:['run_id'] } },
+    { name:'detect_stalled_runs', description:'PR-7 (b.agent-orchestrator): scan active runs and flip those whose last_event_at exceeds max_idle_ms to Stalled.', inputSchema:{ type:'object', properties:{ max_idle_ms:{type:'number'} } } },
+    { name:'list_workspaces', description:'PR-8 (b.agent-orchestrator): list active agent workspaces under ~/.atlas_workspaces/ (or ATLAS_WORKSPACES_ROOT).', inputSchema:{ type:'object', properties:{} } },
+    { name:'cleanup_workspace', description:'PR-8 (b.agent-orchestrator): remove a sandboxed agent workspace. Refuses paths outside WORKSPACES_ROOT or without .atlas_workspace.json marker.', inputSchema:{ type:'object', properties:{ workspace_path:{type:'string'}, force:{type:'boolean'} }, required:['workspace_path'] } },
 
   ];
 }
@@ -98,14 +139,11 @@ function setMission(blockId, mission){
 }
 
 function generateWiki(){
-  const graph = readJson(path.join(atlasRoot,'graph.json'));
-  let md = '# Sima Atlas Wiki\n\n';
-  for (const b of graph.blocks || []){
-    const dir = blockDir(b.id);
-    md += `## ${b.id} — ${b.title}\n- status: **${b.status}**\n\n`;
-    md += readText(path.join(dir,'mission.md')) + '\n\n';
-  }
-  fs.writeFileSync(path.join(atlasRoot,'WIKI.md'), md,'utf8');
+  // Delegate to the canonical generator so MCP and CLI produce identical
+  // output. Previously this stub wrote a no-mermaid WIKI.md that clobbered
+  // the layered + mermaid version produced by scripts/generate_wiki.mjs,
+  // which broke b.docs A2 verifier verdict whenever mcp_smoke_e2e ran.
+  execSync('node scripts/generate_wiki.mjs', { cwd: root, stdio: 'pipe' });
 }
 
 
@@ -242,6 +280,68 @@ rl.on('line', (line) => {
         const report = runSync();
         return respond(id, { content:[{ type:'text', text: JSON.stringify(report, null, 2) }] });
       }
+      // Phase N-3: subagents are exposed as MCP tools so any
+      // MCP-aware client (Cursor, Antigravity, etc.) can invoke them
+      // exactly the same way as the design UI.
+      if (name === 'subagent_schema_syncer' || name === 'subagent_verifier' || name === 'subagent_wiki_builder') {
+        const map = {
+          'subagent_schema_syncer': ['scripts/subagent_schema_syncer.mjs', '--json'],
+          'subagent_verifier':      args.block_id
+            ? ['scripts/subagent_verifier.mjs', String(args.block_id), '--json']
+            : ['scripts/subagent_verifier.mjs', '--all', '--json'],
+          'subagent_wiki_builder':  ['scripts/subagent_wiki_builder.mjs', '--json'],
+        };
+        try {
+          const out = execFileSync('node', map[name], { cwd: root, stdio: 'pipe' }).toString();
+          return respond(id, { content:[{ type:'text', text: out }] });
+        } catch (e) {
+          // Subagent may exit non-zero (drift/broken found); pass stdout if any
+          const stdoutText = (e.stdout || '').toString();
+          return respond(id, { content:[{ type:'text', text: stdoutText || `subagent ${name} failed: ${e.message}` }] });
+        }
+      }
+      // Phase R-2: orchestrate fill-from-chat. The transcript can be huge,
+      // so we pipe it via stdin to keep MCP request shape sane.
+      if (name === 'sima_fill_from_chat') {
+        const transcript = String(args.transcript || '');
+        if (!transcript || transcript.trim().length < 30) {
+          return respond(id, { content:[{ type:'text', text: 'sima_fill_from_chat: transcript (≥ 30 chars) required' }] });
+        }
+        const cliArgs = ['scripts/sima_fill_from_chat.mjs', '--stdin', '--json'];
+        if (Array.isArray(args.target_block_ids)) {
+          for (const t of args.target_block_ids) cliArgs.push(`--target=${String(t)}`);
+        }
+        // Phase R-7.19 — pass client_id through to CLI so MCP-invoked
+        // fill-from-chat lands in the right tenant (atlas/clients/<id>/),
+        // not in root atlas. Без этого MCP-вызов с client_id молча
+        // сохранял план в root proposals.
+        if (args.client_id && /^[a-zA-Z0-9._-]+$/.test(String(args.client_id))) {
+          cliArgs.push(`--client=${String(args.client_id)}`);
+        }
+        if (args.dry_run) cliArgs.push('--dry-run');
+        try {
+          const out = execFileSync('node', cliArgs, { cwd: root, stdio: ['pipe', 'pipe', 'pipe'], input: transcript }).toString();
+          return respond(id, { content:[{ type:'text', text: out }] });
+        } catch (e) {
+          const stdoutText = (e.stdout || '').toString();
+          return respond(id, { content:[{ type:'text', text: stdoutText || `sima_fill_from_chat failed: ${e.message}` }] });
+        }
+      }
+      // Phase R-3: trigger one watcher pass over ~/.claude/projects.
+      // Defers to scripts/sima_watch_chats.mjs --once --json so the same
+      // entry-point powers CLI + cron + MCP without divergent code paths.
+      if (name === 'sima_watch_chats') {
+        const cliArgs = ['scripts/sima_watch_chats.mjs', '--once', '--json'];
+        if (args.mode === 'auto' || args.mode === 'propose') cliArgs.push(`--mode=${args.mode}`);
+        if (Number.isFinite(args.min_new_chars)) cliArgs.push(`--min-new-chars=${args.min_new_chars}`);
+        try {
+          const out = execFileSync('node', cliArgs, { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] }).toString();
+          return respond(id, { content:[{ type:'text', text: out }] });
+        } catch (e) {
+          const stdoutText = (e.stdout || '').toString();
+          return respond(id, { content:[{ type:'text', text: stdoutText || `sima_watch_chats failed: ${e.message}` }] });
+        }
+      }
       if (name === 'create_block') {
         ensureBlock(args.block_id, args.title || '');
         appendCheck(args.block_id, 'sync', 'pass', 'create_block');
@@ -350,6 +450,259 @@ rl.on('line', (line) => {
         const batchSize = Number(args.batch_size || 6);
         execSync(`node scripts/ingest_chat_batches.mjs "${transcriptPath}" ${blockId} ${batchSize}`, { cwd: root, stdio:'pipe' });
         return respond(id, { content:[{ type:'text', text: `chat batches ingested: ${transcriptPath}` }] });
+      }
+
+      // PR3.5 — proposals (Accept/Reject flow for LLM-suggested updates)
+      if (name === 'list_proposals') {
+        const blockArg = args.block_id ? ['--block', String(args.block_id)] : [];
+        const out = execSync(`node scripts/list_proposals.mjs --json ${blockArg.join(' ')}`, { cwd: root, stdio:'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out || '[]' }] });
+      }
+      if (name === 'accept_proposal') {
+        const pid = String(args.proposal_id || '');
+        if (!pid) return respondErr(id, 'accept_proposal: proposal_id required');
+        const out = execSync(`node scripts/accept_proposal.mjs ${JSON.stringify(pid)}`, { cwd: root, stdio:'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'reject_proposal') {
+        const pid = String(args.proposal_id || '');
+        if (!pid) return respondErr(id, 'reject_proposal: proposal_id required');
+        const reason = String(args.reason || '').replace(/"/g, '\\"');
+        const out = execSync(`node scripts/reject_proposal.mjs ${JSON.stringify(pid)} "${reason}"`, { cwd: root, stdio:'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'run_block_implementation') {
+        const bid = String(args.block_id || '');
+        if (!bid) return respondErr(id, 'run_block_implementation: block_id required');
+        const userPrompt = String(args.prompt || '');
+        const agentEnv = args.agent ? { ATLAS_AGENT: String(args.agent) } : {};
+        const cmdArgs = userPrompt ? [bid, '--', userPrompt] : [bid];
+        const out = execSync(`node scripts/run_block_implementation.mjs ${cmdArgs.map(a => JSON.stringify(a)).join(' ')}`, { cwd: root, stdio:'pipe', env: { ...process.env, ...agentEnv } }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+
+      if (name === 'read_operator_profile') {
+        const p = path.join(atlasRoot, 'operator_profile', 'profile.json');
+        if (!fs.existsSync(p)) {
+          return respond(id, { content:[{ type:'text', text: JSON.stringify({ _status: 'warming_up', _note: 'profile.json not generated yet — run aggregate_operator_profile.mjs first.' }) }] });
+        }
+        return respond(id, { content:[{ type:'text', text: fs.readFileSync(p, 'utf8') }] });
+      }
+      if (name === 'recompute_operator_profile') {
+        const out = execSync('node scripts/aggregate_operator_profile.mjs', { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+
+      if (name === 'parse_acceptance') {
+        const bid = String(args.block_id || '');
+        if (!bid) return respondErr(id, 'parse_acceptance: block_id required');
+        const out = execSync(`node scripts/parse_acceptance.mjs ${JSON.stringify(bid)} --json`, { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'collect_evidence') {
+        const kind = String(args.evidence_kind || '');
+        const spec = JSON.stringify(args.evidence_spec || {});
+        if (!kind) return respondErr(id, 'collect_evidence: evidence_kind required');
+        const out = execSync(`node scripts/collect_evidence.mjs --kind ${JSON.stringify(kind)} --spec ${JSON.stringify(spec)} --json`, { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'verify_block_acceptance') {
+        const bid = String(args.block_id || '');
+        if (!bid) return respondErr(id, 'verify_block_acceptance: block_id required');
+        const out = execSync(`node scripts/collect_evidence.mjs --block ${JSON.stringify(bid)} --json`, { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'judge_assertion') {
+        const bid = String(args.block_id || '');
+        const aid = String(args.assertion_id || '');
+        if (!bid || !aid) return respondErr(id, 'judge_assertion: block_id + assertion_id required');
+        const out = execSync(`node scripts/judge_assertion.mjs --block ${JSON.stringify(bid)} --id ${JSON.stringify(aid)} --json`, { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'read_acceptance_run') {
+        const bid = String(args.block_id || '');
+        if (!bid) return respondErr(id, 'read_acceptance_run: block_id required');
+        const p = path.join(atlasRoot, 'acceptance_runs', bid, '_latest.json');
+        if (!fs.existsSync(p)) {
+          return respond(id, { content:[{ type:'text', text: JSON.stringify({ block_id: bid, _status: 'no_run', hint: `node scripts/verify_block_acceptance.mjs ${bid}` }) }] });
+        }
+        return respond(id, { content:[{ type:'text', text: fs.readFileSync(p, 'utf8') }] });
+      }
+      if (name === 'list_lessons') {
+        const out = execSync('node scripts/analyze_lessons_from_history.mjs list --json', { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out || '[]' }] });
+      }
+      if (name === 'add_lesson') {
+        const txt = String(args.lesson || '');
+        const ev = Array.isArray(args.evidence) ? args.evidence : [];
+        if (!txt || ev.length < 2) return respondErr(id, 'add_lesson: lesson + at least 2 evidence items required');
+        const evArg = ev.join(',');
+        const out = execSync(`node scripts/analyze_lessons_from_history.mjs add ${JSON.stringify(txt)} --evidence ${JSON.stringify(evArg)}`, { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'revoke_lesson') {
+        const lid = String(args.lesson_id || '');
+        if (!lid) return respondErr(id, 'revoke_lesson: lesson_id required');
+        const out = execSync(`node scripts/analyze_lessons_from_history.mjs revoke ${JSON.stringify(lid)}`, { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'analyze_lessons') {
+        const wd = Number(args.window_days || 30);
+        const dry = args.dry_run ? '--dry-run' : '';
+        const out = execSync(`node scripts/analyze_lessons_from_history.mjs --window-days ${wd} --json ${dry}`, { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'list_dont_use') {
+        const out = execSync('node scripts/manage_dont_use.mjs list --json', { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out || '[]' }] });
+      }
+      if (name === 'set_dont_use') {
+        const value = String(args.value || '');
+        const reason = String(args.reason || '');
+        if (!value) return respondErr(id, 'set_dont_use: value required');
+        const cmd = reason
+          ? `node scripts/manage_dont_use.mjs add ${JSON.stringify(value)} ${JSON.stringify(reason)} --json`
+          : `node scripts/manage_dont_use.mjs add ${JSON.stringify(value)} --json`;
+        const out = execSync(cmd, { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'clear_dont_use') {
+        const value = String(args.value || '');
+        if (!value) return respondErr(id, 'clear_dont_use: value required');
+        try {
+          const out = execSync(`node scripts/manage_dont_use.mjs clear ${JSON.stringify(value)} --json`, { cwd: root, stdio: 'pipe' }).toString().trim();
+          return respond(id, { content:[{ type:'text', text: out }] });
+        } catch (e) {
+          // exit 2 on not_found is normal — surface message anyway
+          return respond(id, { content:[{ type:'text', text: (e.stdout || '').toString().trim() || JSON.stringify({ cleared: false, reason: 'not_found' }) }] });
+        }
+      }
+      if (name === 'list_always_use') {
+        const out = execSync('node scripts/manage_dont_use.mjs always list --json', { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out || '[]' }] });
+      }
+      if (name === 'set_always_use') {
+        const cat = String(args.category || '');
+        const value = String(args.value || '');
+        const reason = String(args.reason || '');
+        if (!cat || !value) return respondErr(id, 'set_always_use: category + value required');
+        const cmd = reason
+          ? `node scripts/manage_dont_use.mjs always add ${JSON.stringify(cat)} ${JSON.stringify(value)} ${JSON.stringify(reason)} --json`
+          : `node scripts/manage_dont_use.mjs always add ${JSON.stringify(cat)} ${JSON.stringify(value)} --json`;
+        const out = execSync(cmd, { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'introspect_block_ui') {
+        const bid = String(args.block_id || '');
+        if (!bid) return respondErr(id, 'introspect_block_ui: block_id required');
+        const out = execSync(`node scripts/introspect_block_ui.mjs ${JSON.stringify(bid)} --json`, { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'generate_user_docs') {
+        const bid = String(args.block_id || '');
+        if (!bid) return respondErr(id, 'generate_user_docs: block_id required');
+        const lang = args.lang ? `--lang ${JSON.stringify(String(args.lang))}` : '';
+        const dry = args.dry_run ? '--dry-run' : '';
+        const out = execSync(`node scripts/generate_user_docs.mjs ${JSON.stringify(bid)} --json ${lang} ${dry}`, { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'detect_playwright') {
+        const out = execSync('node scripts/take_screenshots.mjs detect', { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'cleanup_orphan_screenshots') {
+        const dry = args.dry_run ? '--dry-run' : '';
+        const out = execSync(`node scripts/take_screenshots.mjs cleanup ${dry}`, { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'list_user_docs') {
+        const out = execSync('node -e "import(\'./scripts/regenerate_user_docs_drift.mjs\').then(m=>console.log(JSON.stringify(m.listUserDocs(),null,2)))"', { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out || '[]' }] });
+      }
+      if (name === 'read_user_docs') {
+        const bid = String(args.block_id || '');
+        if (!bid) return respondErr(id, 'read_user_docs: block_id required');
+        const out = execSync(`node -e "import('./scripts/regenerate_user_docs_drift.mjs').then(m=>console.log(JSON.stringify(m.readUserDocs({block_id:${JSON.stringify(bid)}}),null,2)))"`, { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out || '{}' }] });
+      }
+      if (name === 'lock_user_docs') {
+        const bid = String(args.block_id || '');
+        const locked = args.locked === false ? false : true;
+        const reason = args.reason ? JSON.stringify(String(args.reason)) : '""';
+        if (!bid) return respondErr(id, 'lock_user_docs: block_id required');
+        const out = execSync(`node -e "import('./scripts/regenerate_user_docs_drift.mjs').then(m=>console.log(JSON.stringify(m.lockUserDocs({block_id:${JSON.stringify(bid)},locked:${locked},reason:${reason}}),null,2)))"`, { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'regenerate_user_docs_drift') {
+        const dry = args.dry_run ? '--dry-run' : '';
+        const out = execSync(`node scripts/regenerate_user_docs_drift.mjs --json ${dry}`, { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'list_runs') {
+        const flag = args.active_only ? '--active' : '';
+        const out = execSync(`node scripts/run_state.mjs list ${flag} --json`, { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out || '[]' }] });
+      }
+      if (name === 'get_run') {
+        const rid = String(args.run_id || '');
+        if (!rid) return respondErr(id, 'get_run: run_id required');
+        try {
+          const out = execSync(`node scripts/run_state.mjs get ${JSON.stringify(rid)}`, { cwd: root, stdio: 'pipe' }).toString().trim();
+          return respond(id, { content:[{ type:'text', text: out }] });
+        } catch (e) {
+          return respond(id, { content:[{ type:'text', text: JSON.stringify({ error: 'not_found', run_id: rid }) }] });
+        }
+      }
+      if (name === 'cancel_run') {
+        const rid = String(args.run_id || '');
+        if (!rid) return respondErr(id, 'cancel_run: run_id required');
+        const reason = args.reason ? JSON.stringify(String(args.reason)) : '""';
+        const out = execSync(`node scripts/run_state.mjs cancel ${JSON.stringify(rid)} ${reason} --json`, { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'detect_stalled_runs') {
+        const ms = args.max_idle_ms ? `--max-idle-ms ${Number(args.max_idle_ms)}` : '';
+        const out = execSync(`node scripts/run_state.mjs detect-stalled ${ms} --json`, { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'list_workspaces') {
+        const out = execSync('node scripts/agent_workspace.mjs list --json', { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out || '[]' }] });
+      }
+      if (name === 'cleanup_workspace') {
+        const ws = String(args.workspace_path || '');
+        const force = args.force ? '--force' : '';
+        if (!ws) return respondErr(id, 'cleanup_workspace: workspace_path required');
+        const out = execSync(`node scripts/agent_workspace.mjs cleanup ${JSON.stringify(ws)} ${force}`, { cwd: root, stdio: 'pipe' }).toString().trim();
+        return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      if (name === 'clear_always_use') {
+        const cat = String(args.category || '');
+        const value = String(args.value || '');
+        if (!cat || !value) return respondErr(id, 'clear_always_use: category + value required');
+        try {
+          const out = execSync(`node scripts/manage_dont_use.mjs always clear ${JSON.stringify(cat)} ${JSON.stringify(value)} --json`, { cwd: root, stdio: 'pipe' }).toString().trim();
+          return respond(id, { content:[{ type:'text', text: out }] });
+        } catch (e) {
+          return respond(id, { content:[{ type:'text', text: (e.stdout || '').toString().trim() || JSON.stringify({ cleared: false, reason: 'not_found' }) }] });
+        }
+      }
+      if (name === 'list_failed_acceptances') {
+        const dir = path.join(atlasRoot, 'acceptance_runs');
+        const out = [];
+        if (fs.existsSync(dir)) {
+          for (const blockId of fs.readdirSync(dir)) {
+            const latest = path.join(dir, blockId, '_latest.json');
+            if (!fs.existsSync(latest)) continue;
+            try {
+              const j = JSON.parse(fs.readFileSync(latest, 'utf8'));
+              if (j.verdict === 'pass') continue;
+              const sample = (j.assertions || []).filter((a) => a.verdict === 'fail').slice(0, 3).map((a) => ({ id: a.id, evidence: a.evidence }));
+              out.push({ block_id: blockId, verdict: j.verdict, counts: j.counts, sample_failures: sample, checked_at: j.checked_at });
+            } catch {}
+          }
+        }
+        return respond(id, { content:[{ type:'text', text: JSON.stringify(out, null, 2) }] });
       }
 
       return respondErr(id, `unknown tool: ${name}`);

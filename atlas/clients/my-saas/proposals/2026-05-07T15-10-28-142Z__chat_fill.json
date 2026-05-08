@@ -1,0 +1,115 @@
+{
+  "id": "2026-05-07T15-10-28-142Z__chat_fill",
+  "kind": "chat_fill",
+  "verdict": "accepted",
+  "block_id": null,
+  "created_at": "2026-05-07T15:10:28.142Z",
+  "source": {
+    "provider": "mock",
+    "model": "mock-1",
+    "mock": true
+  },
+  "summary": {
+    "target_blocks_count": 3,
+    "filled_blocks_count": 0,
+    "total_fields_filled": 0,
+    "proposed_new_blocks": 0,
+    "ambiguities": 9
+  },
+  "insights": {
+    "summary": "",
+    "goals": [],
+    "constraints": [],
+    "ideas": [],
+    "risks": [],
+    "terms": []
+  },
+  "filled": [
+    {
+      "block_id": "b.block-1",
+      "title": "Новый модуль",
+      "fields_filled": [],
+      "fields_skipped": [
+        {
+          "file": "mission.md",
+          "reason": "LLM returned empty (likely demo mode)"
+        },
+        {
+          "file": "user_story.md",
+          "reason": "already filled"
+        },
+        {
+          "file": "kpi.md",
+          "reason": "LLM returned empty (likely demo mode)"
+        },
+        {
+          "file": "acceptance.md",
+          "reason": "LLM returned empty (likely demo mode)"
+        }
+      ]
+    },
+    {
+      "block_id": "b.block-2",
+      "title": "Новый модуль",
+      "fields_filled": [],
+      "fields_skipped": [
+        {
+          "file": "mission.md",
+          "reason": "LLM returned empty (likely demo mode)"
+        },
+        {
+          "file": "user_story.md",
+          "reason": "already filled"
+        },
+        {
+          "file": "kpi.md",
+          "reason": "LLM returned empty (likely demo mode)"
+        },
+        {
+          "file": "acceptance.md",
+          "reason": "LLM returned empty (likely demo mode)"
+        }
+      ]
+    },
+    {
+      "block_id": "b.block-3",
+      "title": "Новый модуль",
+      "fields_filled": [],
+      "fields_skipped": [
+        {
+          "file": "mission.md",
+          "reason": "LLM returned empty (likely demo mode)"
+        },
+        {
+          "file": "user_story.md",
+          "reason": "already filled"
+        },
+        {
+          "file": "kpi.md",
+          "reason": "LLM returned empty (likely demo mode)"
+        },
+        {
+          "file": "acceptance.md",
+          "reason": "LLM returned empty (likely demo mode)"
+        }
+      ]
+    }
+  ],
+  "new_block_proposals": [],
+  "ambiguities": [
+    "b.block-1/mission.md: LLM вернул пусто (demo mode без ключа?)",
+    "b.block-1/kpi.md: LLM вернул пусто (demo mode без ключа?)",
+    "b.block-1/acceptance.md: LLM вернул пусто (demo mode без ключа?)",
+    "b.block-2/mission.md: LLM вернул пусто (demo mode без ключа?)",
+    "b.block-2/kpi.md: LLM вернул пусто (demo mode без ключа?)",
+    "b.block-2/acceptance.md: LLM вернул пусто (demo mode без ключа?)",
+    "b.block-3/mission.md: LLM вернул пусто (demo mode без ключа?)",
+    "b.block-3/kpi.md: LLM вернул пусто (demo mode без ключа?)",
+    "b.block-3/acceptance.md: LLM вернул пусто (demo mode без ключа?)"
+  ],
+  "applied_at": "2026-05-07T15:11:51.815Z",
+  "applied": {
+    "created": [],
+    "skipped": []
+  }
+}

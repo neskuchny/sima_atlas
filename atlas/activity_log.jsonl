@@ -1,0 +1,49 @@
+{"ts":"2026-05-07T18:16:38.444Z","agent":"Codex","kind":"note","msg":"[demo] tests: прогон unit · 312/312 ok"}
+{"ts":"2026-05-07T18:16:38.386Z","agent":"Codex","kind":"note","msg":"[demo] tests: прогон unit · 312/312 ok"}
+{"ts":"2026-05-07T18:16:38.460Z","agent":"Codex","kind":"note","msg":"[demo] tests: прогон unit · 312/312 ok"}
+{"ts":"2026-05-07T18:16:38.441Z","agent":"Codex","kind":"note","msg":"[demo] tests: прогон unit · 312/312 ok"}
+{"ts":"2026-05-07T18:16:39.068Z","agent":"Codex","kind":"note","msg":"[demo] tests: прогон unit · 312/312 ok"}
+{"ts":"2026-05-07T18:16:38.832Z","agent":"Codex","kind":"note","msg":"[demo] tests: прогон unit · 312/312 ok"}
+{"ts":"2026-05-07T18:16:39.182Z","agent":"Codex","kind":"note","msg":"[demo] tests: прогон unit · 312/312 ok"}
+{"ts":"2026-05-07T18:16:46.234Z","agent":"Cursor","kind":"note","msg":"[demo] datasets: уточнил RLS политику"}
+{"ts":"2026-05-07T18:16:47.225Z","agent":"Cursor","kind":"note","msg":"[demo] datasets: уточнил RLS политику"}
+{"ts":"2026-05-07T18:16:47.225Z","agent":"Cursor","kind":"note","msg":"[demo] datasets: уточнил RLS политику"}
+{"ts":"2026-05-07T18:16:47.225Z","agent":"Cursor","kind":"note","msg":"[demo] datasets: уточнил RLS политику"}
+{"ts":"2026-05-07T18:16:47.228Z","agent":"Cursor","kind":"note","msg":"[demo] datasets: уточнил RLS политику"}
+{"ts":"2026-05-07T18:16:48.222Z","agent":"Cursor","kind":"note","msg":"[demo] datasets: уточнил RLS политику"}
+{"ts":"2026-05-07T18:16:49.230Z","agent":"Cursor","kind":"note","msg":"[demo] datasets: уточнил RLS политику"}
+{"ts":"2026-05-07T18:16:52.230Z","agent":"Claude Code","kind":"ok","msg":"[demo] charts/funnel: добавлен conversion-tooltip"}
+{"ts":"2026-05-07T18:16:52.237Z","agent":"Claude Code","kind":"ok","msg":"[demo] charts/funnel: добавлен conversion-tooltip"}
+{"ts":"2026-05-07T18:16:53.222Z","agent":"Claude Code","kind":"ok","msg":"[demo] charts/funnel: добавлен conversion-tooltip"}
+{"ts":"2026-05-07T18:16:53.227Z","agent":"Claude Code","kind":"ok","msg":"[demo] charts/funnel: добавлен conversion-tooltip"}
+{"ts":"2026-05-07T18:16:53.264Z","agent":"Claude Code","kind":"ok","msg":"[demo] charts/funnel: добавлен conversion-tooltip"}
+{"ts":"2026-05-07T18:16:54.230Z","agent":"Claude Code","kind":"ok","msg":"[demo] charts/funnel: добавлен conversion-tooltip"}
+{"ts":"2026-05-07T18:16:54.230Z","agent":"Claude Code","kind":"ok","msg":"[demo] charts/funnel: добавлен conversion-tooltip"}
+{"ts":"2026-05-07T18:16:57.231Z","agent":"SIMA Core","kind":"info","msg":"[demo] обновил wiki: dashboard.tile-editor"}
+{"ts":"2026-05-07T18:16:58.225Z","agent":"SIMA Core","kind":"info","msg":"[demo] обновил wiki: dashboard.tile-editor"}
+{"ts":"2026-05-07T18:16:58.230Z","agent":"SIMA Core","kind":"info","msg":"[demo] обновил wiki: dashboard.tile-editor"}
+{"ts":"2026-05-07T18:16:58.260Z","agent":"SIMA Core","kind":"info","msg":"[demo] обновил wiki: dashboard.tile-editor"}
+{"ts":"2026-05-07T18:16:58.261Z","agent":"SIMA Core","kind":"info","msg":"[demo] обновил wiki: dashboard.tile-editor"}
+{"ts":"2026-05-07T18:16:59.234Z","agent":"SIMA Core","kind":"info","msg":"[demo] обновил wiki: dashboard.tile-editor"}
+{"ts":"2026-05-07T18:17:00.227Z","agent":"SIMA Core","kind":"info","msg":"[demo] обновил wiki: dashboard.tile-editor"}
+{"ts":"2026-05-07T18:17:03.231Z","agent":"Codex","kind":"note","msg":"[demo] tests: прогон unit · 312/312 ok"}
+{"ts":"2026-05-07T18:17:03.231Z","agent":"Codex","kind":"note","msg":"[demo] tests: прогон unit · 312/312 ok"}
+{"ts":"2026-05-07T18:17:04.225Z","agent":"Codex","kind":"note","msg":"[demo] tests: прогон unit · 312/312 ok"}
+{"ts":"2026-05-07T18:17:04.226Z","agent":"Codex","kind":"note","msg":"[demo] tests: прогон unit · 312/312 ok"}
+{"ts":"2026-05-07T18:17:04.231Z","agent":"Codex","kind":"note","msg":"[demo] tests: прогон unit · 312/312 ok"}
+{"ts":"2026-05-07T18:17:05.222Z","agent":"Codex","kind":"note","msg":"[demo] tests: прогон unit · 312/312 ok"}
+{"ts":"2026-05-07T18:17:05.238Z","agent":"Codex","kind":"note","msg":"[demo] tests: прогон unit · 312/312 ok"}
+{"ts":"2026-05-07T18:17:08.234Z","agent":"Cursor","kind":"ok","msg":"[demo] observ: добавил трейс на /v1/query"}
+{"ts":"2026-05-07T18:17:09.229Z","agent":"Cursor","kind":"ok","msg":"[demo] observ: добавил трейс на /v1/query"}
+{"ts":"2026-05-07T18:17:09.244Z","agent":"Cursor","kind":"ok","msg":"[demo] observ: добавил трейс на /v1/query"}
+{"ts":"2026-05-07T18:17:09.252Z","agent":"Cursor","kind":"ok","msg":"[demo] observ: добавил трейс на /v1/query"}
+{"ts":"2026-05-07T18:17:09.229Z","agent":"Cursor","kind":"ok","msg":"[demo] observ: добавил трейс на /v1/query"}
+{"ts":"2026-05-07T18:17:10.230Z","agent":"Cursor","kind":"ok","msg":"[demo] observ: добавил трейс на /v1/query"}
+{"ts":"2026-05-07T18:17:11.223Z","agent":"Cursor","kind":"ok","msg":"[demo] observ: добавил трейс на /v1/query"}
+{"ts":"2026-05-07T18:17:14.226Z","agent":"Cursor","kind":"note","msg":"[demo] datasets: уточнил RLS политику"}
+{"ts":"2026-05-07T18:17:14.227Z","agent":"Cursor","kind":"note","msg":"[demo] datasets: уточнил RLS политику"}
+{"ts":"2026-05-07T18:17:15.220Z","agent":"Cursor","kind":"note","msg":"[demo] datasets: уточнил RLS политику"}
+{"ts":"2026-05-07T18:17:15.225Z","agent":"Cursor","kind":"note","msg":"[demo] datasets: уточнил RLS политику"}
+{"ts":"2026-05-07T18:17:15.241Z","agent":"Cursor","kind":"note","msg":"[demo] datasets: уточнил RLS политику"}
+{"ts":"2026-05-07T18:17:16.231Z","agent":"Cursor","kind":"note","msg":"[demo] datasets: уточнил RLS политику"}
+{"ts":"2026-05-07T18:17:16.231Z","agent":"Cursor","kind":"note","msg":"[demo] datasets: уточнил RLS политику"}

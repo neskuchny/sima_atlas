@@ -3,14 +3,16 @@
     {
       "id": "b.auth",
       "title": "Auth",
-      "mission": "Сервис аутентификации с JWT, поддерживает email/password и OAuth Google, выдаёт auth_token.",
+      "mission": "Сервис аутентификации с JWT email password OAuth Google",
       "layer": "ai",
       "type": "module",
-      "mvp": true,
+      "mvp": false,
       "status": "idea",
-      "depends_on": ["b.db"],
-      "provides": ["auth_token"],
-      "tech_stack": ["jwt", "oauth", "google-oauth"],
+      "depends_on": [
+        "b.db"
+      ],
+      "provides": [],
+      "tech_stack": [],
       "confidence": 0.9
     }
   ]

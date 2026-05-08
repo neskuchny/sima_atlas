@@ -1,0 +1,32 @@
+{
+  "blocks": [
+    {
+      "id": "b.auth-api",
+      "title": "Auth API",
+      "mission": "Выдаёт JWT login signup",
+      "layer": "logic",
+      "type": "module",
+      "mvp": false,
+      "status": "idea",
+      "depends_on": [],
+      "provides": [],
+      "tech_stack": [],
+      "confidence": 0.9
+    },
+    {
+      "id": "b.auth-ui",
+      "title": "Auth UI",
+      "mission": "Формы login и signup",
+      "layer": "front",
+      "type": "module",
+      "mvp": false,
+      "status": "idea",
+      "depends_on": [
+        "b.auth-api"
+      ],
+      "provides": [],
+      "tech_stack": [],
+      "confidence": 0.9
+    }
+  ]
+}

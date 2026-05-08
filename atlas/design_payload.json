@@ -1,0 +1,1788 @@
+{
+  "product": {
+    "codename": "sima-atlas",
+    "title": "Sima Atlas",
+    "subtitle": "Визуальная система разработки на основе схем",
+    "goal": "единая визуально-документная система, которая устраняет рассинхрон между кодом, агентами и документацией.",
+    "mission": "Каждый блок продукта — отдельная папка с миссией / KPI / acceptance, которую агент видит без всей кодовой базы.",
+    "quality": [
+      {
+        "code": "verify_all OK",
+        "label": "Все 5 фаз verify_all зелёные"
+      },
+      {
+        "code": "acceptance 10/10",
+        "label": "Все блоки acceptance pass"
+      },
+      {
+        "code": "nightly 55+",
+        "label": "Nightly consolidation pass"
+      }
+    ],
+    "conditions": {
+      "backend": [
+        "`forbidden_commands` (regex applied to the full command string):",
+        "```forbidden",
+        "^pip\\s+install",
+        "^pipx\\s+install",
+        "^poetry\\s+(add|install)",
+        "^conda\\s+install"
+      ],
+      "frontend": [],
+      "logic": [],
+      "checks": []
+    }
+  },
+  "modules": [
+    {
+      "id": "b.ui-control",
+      "_raw_updated_at": null,
+      "title": "UI Control Plane",
+      "tag": "ui-control",
+      "layer": "frontend",
+      "status": "progress",
+      "priority": 1,
+      "checked": false,
+      "size": "lg",
+      "contract": {
+        "score": 0.6,
+        "filled": 3,
+        "total": 5,
+        "missing": [
+          "depends_on.md",
+          "provides.md"
+        ]
+      },
+      "progress": {
+        "tasks": {
+          "done": 0,
+          "total": 7
+        },
+        "kpi": {
+          "checked": 0,
+          "total": 5
+        }
+      },
+      "tech_stack": [
+        "react",
+        "babel-standalone"
+      ],
+      "x": 80,
+      "y": 540
+    },
+    {
+      "id": "b.core-sync",
+      "_raw_updated_at": null,
+      "title": "Sync Engine",
+      "tag": "core-sync",
+      "layer": "logic",
+      "status": "progress",
+      "priority": 1,
+      "checked": false,
+      "size": "md",
+      "contract": {
+        "score": 0.6,
+        "filled": 3,
+        "total": 5,
+        "missing": [
+          "depends_on.md",
+          "provides.md"
+        ]
+      },
+      "progress": {
+        "tasks": {
+          "done": 0,
+          "total": 6
+        },
+        "kpi": {
+          "checked": 0,
+          "total": 5
+        }
+      },
+      "tech_stack": [
+        "nodejs",
+        "esm"
+      ],
+      "x": 80,
+      "y": 320
+    },
+    {
+      "id": "b.db",
+      "_raw_updated_at": null,
+      "title": "Atlas Database",
+      "tag": "db",
+      "layer": "backend",
+      "status": "todo",
+      "priority": 1,
+      "checked": false,
+      "size": "lg",
+      "contract": {
+        "score": 0.6,
+        "filled": 3,
+        "total": 5,
+        "missing": [
+          "depends_on.md",
+          "provides.md"
+        ]
+      },
+      "progress": {
+        "tasks": {
+          "done": 0,
+          "total": 6
+        },
+        "kpi": {
+          "checked": 0,
+          "total": 5
+        }
+      },
+      "tech_stack": [
+        "filesystem",
+        "json",
+        "markdown"
+      ],
+      "x": 400,
+      "y": 100
+    },
+    {
+      "id": "b.agent-orchestrator",
+      "_raw_updated_at": null,
+      "title": "Agent Orchestrator",
+      "tag": "agent-orchestrator",
+      "layer": "logic",
+      "status": "progress",
+      "priority": 1,
+      "checked": false,
+      "size": "lg",
+      "contract": {
+        "score": 0.6,
+        "filled": 3,
+        "total": 5,
+        "missing": [
+          "depends_on.md",
+          "provides.md"
+        ]
+      },
+      "progress": {
+        "tasks": {
+          "done": 3,
+          "total": 9
+        },
+        "kpi": {
+          "checked": 0,
+          "total": 5
+        }
+      },
+      "tech_stack": [
+        "nodejs",
+        "esm",
+        "mcp"
+      ],
+      "x": 400,
+      "y": 320
+    },
+    {
+      "id": "b.docs",
+      "_raw_updated_at": null,
+      "title": "Docs Builder",
+      "tag": "docs",
+      "layer": "backend",
+      "status": "progress",
+      "priority": 1,
+      "checked": false,
+      "size": "md",
+      "contract": {
+        "score": 0.6,
+        "filled": 3,
+        "total": 5,
+        "missing": [
+          "depends_on.md",
+          "provides.md"
+        ]
+      },
+      "progress": {
+        "tasks": {
+          "done": 0,
+          "total": 6
+        },
+        "kpi": {
+          "checked": 0,
+          "total": 5
+        }
+      },
+      "tech_stack": [
+        "nodejs",
+        "esm",
+        "markdown"
+      ],
+      "x": 80,
+      "y": 100
+    },
+    {
+      "id": "b.llm-gateway",
+      "_raw_updated_at": null,
+      "title": "LLM Gateway",
+      "tag": "llm-gateway",
+      "layer": "logic",
+      "status": "progress",
+      "priority": 1,
+      "checked": false,
+      "size": "lg",
+      "contract": {
+        "score": 0.8,
+        "filled": 4,
+        "total": 5,
+        "missing": [
+          "depends_on.md"
+        ]
+      },
+      "progress": {
+        "tasks": {
+          "done": 0,
+          "total": 9
+        },
+        "kpi": {
+          "checked": 0,
+          "total": 5
+        }
+      },
+      "tech_stack": [
+        "nodejs",
+        "anthropic-api",
+        "google-genai-api"
+      ],
+      "x": 720,
+      "y": 320
+    },
+    {
+      "id": "b.operator-profile-learner",
+      "_raw_updated_at": null,
+      "title": "Operator Profile Learner",
+      "tag": "operator-profile-learner",
+      "layer": "logic",
+      "status": "todo",
+      "priority": 3,
+      "checked": false,
+      "size": "lg",
+      "contract": {
+        "score": 1,
+        "filled": 5,
+        "total": 5,
+        "missing": []
+      },
+      "progress": {
+        "tasks": {
+          "done": 31,
+          "total": 31
+        },
+        "kpi": {
+          "checked": 0,
+          "total": 7
+        }
+      },
+      "tech_stack": [
+        "nodejs",
+        "esm",
+        "json"
+      ],
+      "x": 1040,
+      "y": 320
+    },
+    {
+      "id": "b.acceptance-verifier-loop",
+      "_raw_updated_at": null,
+      "title": "Acceptance Verifier Loop",
+      "tag": "acceptance-verifier-loop",
+      "layer": "tests",
+      "status": "todo",
+      "priority": 3,
+      "checked": false,
+      "size": "lg",
+      "contract": {
+        "score": 1,
+        "filled": 5,
+        "total": 5,
+        "missing": []
+      },
+      "progress": {
+        "tasks": {
+          "done": 26,
+          "total": 27
+        },
+        "kpi": {
+          "checked": 0,
+          "total": 7
+        }
+      },
+      "tech_stack": [
+        "nodejs",
+        "esm",
+        "json-schema"
+      ],
+      "x": 80,
+      "y": 760
+    },
+    {
+      "id": "b.user-docs-generator",
+      "_raw_updated_at": null,
+      "title": "End-User Docs Generator",
+      "tag": "user-docs-generator",
+      "layer": "backend",
+      "status": "todo",
+      "priority": 3,
+      "checked": false,
+      "size": "lg",
+      "contract": {
+        "score": 1,
+        "filled": 5,
+        "total": 5,
+        "missing": []
+      },
+      "progress": {
+        "tasks": {
+          "done": 22,
+          "total": 22
+        },
+        "kpi": {
+          "checked": 0,
+          "total": 7
+        }
+      },
+      "tech_stack": [
+        "nodejs",
+        "esm",
+        "markdown",
+        "playwright"
+      ],
+      "x": 720,
+      "y": 100
+    },
+    {
+      "id": "b.smoke-sandbox",
+      "_raw_updated_at": null,
+      "title": "Smoke Sandbox (test target)",
+      "tag": "smoke-sandbox",
+      "layer": "tests",
+      "status": "todo",
+      "priority": 3,
+      "checked": false,
+      "size": "sm",
+      "contract": {
+        "score": 0.6,
+        "filled": 3,
+        "total": 5,
+        "missing": [
+          "depends_on.md",
+          "provides.md"
+        ]
+      },
+      "progress": {
+        "tasks": {
+          "done": 0,
+          "total": 0
+        },
+        "kpi": {
+          "checked": 0,
+          "total": 3
+        }
+      },
+      "tech_stack": [],
+      "x": 400,
+      "y": 760
+    }
+  ],
+  "edges": [
+    {
+      "from": "b.ui-control",
+      "to": "b.core-sync",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.core-sync."
+    },
+    {
+      "from": "b.ui-control",
+      "to": "b.agent-orchestrator",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.agent-orchestrator."
+    },
+    {
+      "from": "b.core-sync",
+      "to": "b.db",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.db."
+    },
+    {
+      "from": "b.agent-orchestrator",
+      "to": "b.db",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.db."
+    },
+    {
+      "from": "b.agent-orchestrator",
+      "to": "b.core-sync",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.core-sync."
+    },
+    {
+      "from": "b.agent-orchestrator",
+      "to": "b.llm-gateway",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.llm-gateway."
+    },
+    {
+      "from": "b.docs",
+      "to": "b.db",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.db."
+    },
+    {
+      "from": "b.docs",
+      "to": "b.core-sync",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.core-sync."
+    },
+    {
+      "from": "b.operator-profile-learner",
+      "to": "b.db",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.db."
+    },
+    {
+      "from": "b.operator-profile-learner",
+      "to": "b.core-sync",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.core-sync."
+    },
+    {
+      "from": "b.operator-profile-learner",
+      "to": "b.agent-orchestrator",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.agent-orchestrator."
+    },
+    {
+      "from": "b.operator-profile-learner",
+      "to": "b.llm-gateway",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.llm-gateway."
+    },
+    {
+      "from": "b.operator-profile-learner",
+      "to": "b.docs",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.docs."
+    },
+    {
+      "from": "b.acceptance-verifier-loop",
+      "to": "b.db",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.db."
+    },
+    {
+      "from": "b.acceptance-verifier-loop",
+      "to": "b.core-sync",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.core-sync."
+    },
+    {
+      "from": "b.acceptance-verifier-loop",
+      "to": "b.agent-orchestrator",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.agent-orchestrator."
+    },
+    {
+      "from": "b.acceptance-verifier-loop",
+      "to": "b.llm-gateway",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.llm-gateway."
+    },
+    {
+      "from": "b.user-docs-generator",
+      "to": "b.db",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.db."
+    },
+    {
+      "from": "b.user-docs-generator",
+      "to": "b.docs",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.docs."
+    },
+    {
+      "from": "b.user-docs-generator",
+      "to": "b.agent-orchestrator",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.agent-orchestrator."
+    },
+    {
+      "from": "b.user-docs-generator",
+      "to": "b.llm-gateway",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.llm-gateway."
+    }
+  ],
+  "tasks": {
+    "b.ui-control": [
+      {
+        "id": "T1",
+        "title": "Подключить пропавшие JSX в `frontend/Сима - универсальный конструктор.html` (components.jsx, sidecol.jsx, canvas_tools.jsx, composer.jsx, library_view.jsx) — PR1",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T2",
+        "title": "Развести блоки по слоям через поле `layer` из `graph.json` v2 — PR2",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T3",
+        "title": "В `arch_canvas.jsx` корректно читать `layer` и рисовать каждый блок в соответствующей полосе — PR2",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T4",
+        "title": "Live update схемы при изменениях в `/atlas/` (через WebSocket или polling) — PR2",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T5",
+        "title": "Подсветка drift/broken блоков с tooltip-причиной из `syncReport.details` — PR2",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T6",
+        "title": "Двойной клик по блоку с `subschema_id` открывает подсхему (рекурсия) — PR2",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T7",
+        "title": "Кнопка «Implement» вызывает `composer.jsx` со сгенерированным context-pack для агента — PR3",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      }
+    ],
+    "b.core-sync": [
+      {
+        "id": "T1",
+        "title": "Расширить модель блока в `graph.json` полями `layer/type/mvp/subschema_id/files` (схема v2) — PR2",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T2",
+        "title": "Контракт `depends_on: [{block_id, capability}]` (структурный объект, не строка) — PR2",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T3",
+        "title": "Stack-mismatch detector: сопоставлять `tech_stack` блока с расширениями файлов в `files.md` — PR2",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T4",
+        "title": "Семантический gate через `b.llm-gateway.callLLM`: validate `mission ↔ files contents` → drift_reason — PR3",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T5",
+        "title": "Сохранение детального `sync_report.json` (не только `details: []`, а с file/line ссылками) — PR2",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T6",
+        "title": "false-positive guard: при двух запусках без изменений — отчёт идентичен — PR2",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      }
+    ],
+    "b.db": [
+      {
+        "id": "T1",
+        "title": "Atomic write через temp-file + rename для всех `update_block`-операций в MCP — PR2",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T2",
+        "title": "Версионирование: каждый update сохраняет старый mission/kpi в `blocks/<id>/history/<timestamp>.md` — PR2",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T3",
+        "title": "Migration runner `scripts/migrate_v1_v2.mjs` (добавляет layer/type/mvp в старые блоки) — PR2",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T4",
+        "title": "Read-API через MCP: `get_block_history`, `list_blocks_by_layer` — PR2",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T5",
+        "title": "Расширить `db_schema.json` валидной JSON Schema для `graph.json` и блоков — PR2",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T6",
+        "title": "Multi-project namespace: `/atlas/projects/<name>/blocks/...` — PR4",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      }
+    ],
+    "b.agent-orchestrator": [
+      {
+        "id": "T1",
+        "title": "Заменить выдуманный `afterPromptSent` в `.cursor/hooks.json` на валидные Cursor события — PR4",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T2",
+        "title": "Реализовать `scripts/observe_file_edit.mjs`: на `afterFileEdit` пишет в `checks.log` блока с `git diff --stat` — PR4",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T3",
+        "title": "`scripts/guard_against_drift.mjs`: на `beforeShellExecution` сверяет команду с `tech_stack.md` — PR4",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T4",
+        "title": "Adapter для Claude Code CLI: MCP tool `run_block_implementation(block_id)` — PR4",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T5",
+        "title": "`validate_agent_parity.mjs` — нечестная проверка форматов; нужно сравнение реального context-pack diff между агентами — PR4",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T6",
+        "title": "Distillate генератор через `b.llm-gateway`: чат → factual notes → блок — PR3",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T7",
+        "title": "Run-lifecycle FSM done — `scripts/run_state.mjs` (`startRun / transitionRunState / getRun / listRuns / cancelRun / detectStalledRuns`) с состояниями `PreparingWorkspace → LaunchingAgent → Running → Ve",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T8",
+        "title": "Per-block sandboxed workspace done — `scripts/agent_workspace.mjs` (`createWorkspace / captureDiff / writeDiffProposal / cleanupWorkspace / listWorkspaces`). Workspaces под `~/.atlas_workspaces/<run_i",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T9",
+        "title": "Workspace + verifier integration done — `scripts/run_block_implementation.mjs` теперь: startRun → if `ATLAS_USE_WORKSPACE=1` createWorkspace → fsm('LaunchingAgent') → spawn agent с `cwd=workspace.work",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      }
+    ],
+    "b.docs": [
+      {
+        "id": "T1",
+        "title": "Подключить `validate_no_template_placeholders` как gate в `generate_wiki.mjs` (PR1)",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T2",
+        "title": "Mermaid-диаграмма графа в `wiki.html` (по `graph.json`) — PR2",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T3",
+        "title": "Wiki-секции по слоям (front/logic/ai/data/...) — PR2",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T4",
+        "title": "Roadmap topo-sort по `depends_on` — PR2",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T5",
+        "title": "Skip blocks `idea+empty mission` в `auto_tz.md` — PR1",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T6",
+        "title": "Cross-link между блоками через ссылки в wiki — PR2",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      }
+    ],
+    "b.llm-gateway": [
+      {
+        "id": "T1",
+        "title": "Спроектировать единый интерфейс `callLLM({provider, model, prompt, schema, max_tokens, temperature})`",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T2",
+        "title": "Реализовать adapter для Anthropic (Claude) с structured output через tool-use",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T3",
+        "title": "Реализовать adapter для Google (Gemini) с responseSchema",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T4",
+        "title": "Mock-режим (детерминированные ответы из `tests/llm_mocks/`)",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T5",
+        "title": "Trace-логирование в `atlas/llm_traces/`",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T6",
+        "title": "Cost-guard и fallback между провайдерами",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T7",
+        "title": "CLI `llm_gateway.mjs --self-test` с mock-данными",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T8",
+        "title": "Замена regex в `analyze_conversation_to_atlas.mjs` на `extractBlockSchema`",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T9",
+        "title": "Eval на golden set из 5 диалогов (precision >= 0.7)",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      }
+    ],
+    "b.operator-profile-learner": [
+      {
+        "id": "T1.1",
+        "title": "создать `scripts/aggregate_operator_profile.mjs` — single entry point read-only. DONE PR-1.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T1.2",
+        "title": "readers: `readChecksLogs`, `readTransitions`, `readProposals`, `readLlmTraces`, `readDecisionsLogs`, `readPatternsCounts`, `readTechStacks`. (`readCursorObservations` отложен до PR-1.5 — у нас нет реа",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T1.3",
+        "title": "aggregator: `work_style.median_time_idea_to_done_h` через linear scan + median; `agents_used.<x>.{count, success_rate, blocks_touched}`; `tech_stack_history.<scope>` с satisfaction inferred из rollbac",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T1.4",
+        "title": "writer: пишет `atlas/operator_profile/profile.json` + `patterns/{work_style,agents,tech_stack,environment,failures}.json` + snapshot в `history/<UTC>.json`. DONE PR-1.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T1.5",
+        "title": "min-data guard: env `OPERATOR_PROFILE_MIN_DONE` (default 5) И `OPERATOR_PROFILE_MIN_INVOCATIONS` (default 10). При < threshold → `_status: \"warming_up\"`, агрегаты не пишутся в верхний уровень profile,",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T1.6",
+        "title": "selftest `tests/operator_profile.selftest.mjs` — 7 групп (empty / below threshold / at threshold / work_style median+rollback / agents_used / tech_stack satisfaction / proposals accept-rate). DONE PR-",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T1.7",
+        "title": "интеграция в `nightly_consolidation.mjs` как `operator_profile_selftest` + `aggregate_operator_profile` steps. DONE PR-1.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T1.8",
+        "title": "MCP tools `read_operator_profile` + `recompute_operator_profile`. DONE PR-1.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T2.1",
+        "title": "написать 4 JSON-шаблона `atlas/operator_profile/templates/{backend-mvp,backend-prod,frontend-spa,testing-stack}.json` с дефолтным стеком. DONE in PR-Backlog: starter templates + applicability + must_h",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T2.2",
+        "title": "`pickTemplate(scope, profile)` — `scripts/pick_template.mjs` с экспортами `pickTemplate / scopeFromLayer / flattenTechStack`. Поддерживает adjustments по `tech_stack_history` (winner: uses ≥ 3 + satis",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T2.3",
+        "title": "интеграция в `analyze_conversation_to_atlas.mjs` — для каждого extracted блока без `tech_stack` подмешивает шаблон по `scopeFromLayer(block.layer)`, заполняет `tech_stack` flat-listом и пишет `suggest",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T2.4",
+        "title": "ProposalsPanel — badge `template: backend-mvp` рядом с провайдером/confidence; tooltip показывает profile_state (warming_up / live). DONE PR-2.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T3.1",
+        "title": "`scripts/manage_dont_use.mjs` экспортирует `setDontUse / clearDontUse / listDontUse / setAlwaysUse / clearAlwaysUse / listAlwaysUse / effectiveDontUseValues`. CLI `add / clear / list / always {add,cle",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T3.2",
+        "title": "`scripts/guard_against_drift.mjs` читает `atlas/operator_profile/dont_use.json` + `profile.dont_use` и сливает с `forbidden_substrings` из tech_stack.md. На блокировку показывает источник (operator_pr",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T3.3",
+        "title": "`scripts/validate_dont_use_compliance.mjs` — nightly info-only step (exit 0 always). Для каждого блока с `tech_stack ∋ banned` пишет proposal `<UTC>__<block>__dont_use_warning.json` с `hits` + `retry_",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T3.4",
+        "title": "UI — `ProfileHintsSection` в `frontend/arch_canvas.jsx` (PR-6) уже рендерит секцию запретов с кнопками «🔓 Снять запрет» / «🗑 Забыть урок» / «🗑 Забыть паттерн». В `scripts/atlas_api_server.mjs` ",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T4.1",
+        "title": "`scripts/analyze_lessons_from_history.mjs` — `analyzeLessons({window_days, dry_run})` через `b.llm-gateway.callLLM` со схемой `{lessons: [{lesson, evidence[], expires_at}]}`. DONE PR-4.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T4.2",
+        "title": "prompt включает последние N дней failed checks + decisions, требует ≥ 2 evidence per lesson, явно запрещает «выглядит ок», JSON-only output. DONE PR-4.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T4.3",
+        "title": "cost cap `LLM_MAX_USD_PER_RUN` (default $0.05) → если превышен возвращает `{cost_capped: true}`; min-data guard (< 2 fail+decision items → warming_up без LLM-вызова); post-LLM фильтр `< 2 evidence` (L",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T4.4",
+        "title": "nightly step `analyze_lessons_from_history` запускается раз в сутки, append в `atlas/operator_profile/lessons.json` (без перезаписи). DONE PR-4.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T4.5",
+        "title": "MCP tools `add_lesson` (требует ≥ 2 evidence) + `revoke_lesson` + `list_lessons` + `analyze_lessons` (trigger). DONE PR-4.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T4.6",
+        "title": "smoke `tests/operator_profile_lessons.smoke.mjs` — 6 групп: warming_up no-data; seeded fixture → 2 lessons (1 filtered <2 evidence); dedupe не двоит; addLesson L-001/L-002; revokeLesson by id + missin",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T5.1",
+        "title": "`scripts/inject_context_pack.mjs` читает `atlas/operator_profile/profile.json` через `fs.readFileSync` (внутри try/catch для graceful degradation). При `_status === \"warming_up\"` секция не emit'ится. ",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T5.2",
+        "title": "рендерит секцию `## Operator profile (likely preferences)` с `work_style.median_time_idea_to_done_h` + `rollback_rate` + top tech_stack по scope (high satisfaction + uses≥2) + top agent + dont_use lis",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T5.3",
+        "title": "`tests/operator_profile_inject.smoke.mjs` — 4 группы: warming_up без секции; live profile с tech-preferences («оператор предпочитает react / fastify»); lessons surfaced («Большое ТЗ → сбой 2 раза» + e",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T5.4",
+        "title": "`--no-profile` flag + `SIMA_NO_PROFILE=1` env override отключают секцию (для воспроизводимости evals). DONE PR-5.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T6.1",
+        "title": "`frontend/proposals_panel.jsx` — `complianceWithProfile(proposal)` смотрит `proposed.tech_stack` против `profile.tech_stack_history` (high satisfaction + uses≥2) и `dont_use`. Returns `{kind: matc",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T6.2",
+        "title": "Badge palette: ✓ зелёный (match) / ⛔ красный (conflict) / · серый (neutral); tooltip с reason + items. DONE PR-6.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T6.3",
+        "title": "`frontend/arch_canvas.jsx` — компонент `<ProfileHintsSection>` рендерит до 6 хинтов (median time / rollback warn / per-scope tech preferences / dont_use bans / lessons). Click → expand с evidence ",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T6.4",
+        "title": "Под expanded хинтом — кнопки «🔓 Снять запрет» (kind=block) / «🗑 Забыть урок» (kind=lesson) / «🗑 Забыть паттерн» (kind=info с tech-history) → POST на MCP-обёрточные endpoints `/lessons/revoke` + `/p",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T6.5",
+        "title": "При `_status === \"warming_up\"` секция показывает `Профиль ещё учится: N/M done, K/L invocations` из `profile._preview` + `_min_data`. DONE PR-6.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      }
+    ],
+    "b.acceptance-verifier-loop": [
+      {
+        "id": "T1.1",
+        "title": "`scripts/parse_acceptance.mjs` — строгий парсер `acceptance.md`. DONE PR-1.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T1.2",
+        "title": "формат: `- [ ] A1. <text>` или `- [x] A1 (label). <text>`; опц. fenced YAML-блок сразу после bullet (перед следующим bullet или section header) с `evidence_kind` + `evidence_spec`. DONE PR-1.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T1.3",
+        "title": "extract `id` (A1..AN), `label`, `text`, `checked`, `line`, `evidence_kind` (default = `llm_judge`), `evidence_spec`. Поддерживаемые kinds: `exit_code, fs_glob, file_diff, log_grep, selftest_run, llm_j",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T1.4",
+        "title": "selftest на 7 реальных блоках репо (b.llm-gateway / b.agent-orchestrator / b.docs / b.core-sync / b.db / b.ui-control / b.operator-profile-learner) — 39 assertions parsed без warnings. Плюс синтетичес",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T1.5",
+        "title": "MCP tool `parse_acceptance {block_id}` возвращает структурированный JSON. CLI `node scripts/parse_acceptance.mjs <id> [--json]`. DONE PR-1.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T2.1",
+        "title": "`scripts/collect_evidence.mjs` — единый диспетчер `collectEvidence({evidence_kind, evidence_spec, cwd, timeout_ms})` + `verifyBlock(blockId)` (parser + collectors → aggregate {pass, fail, skipped, ver",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T2.2",
+        "title": "`exit_code` collector — `spawnSync(cmd, {shell:true})`, exit + stdout/stderr capture (truncate at 4KB), опц. `expect_in_stdout` regex, timeout default 30s. DONE PR-2.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T2.3",
+        "title": "`fs_glob` collector — использует `fs.globSync` (Node 22+) с fallback на `readdirSync` для простых паттернов; `min_count` (default 1) + `max_age_min` (опц.) — все файлы должны быть свежее. Возвращает c",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T2.4",
+        "title": "`file_diff` collector — `git diff --name-only <since_ref>` (default HEAD~1); проверяет `must_touch: [...]` и `must_not_touch: [...]`. Если не git-репо — graceful `verdict: skipped`. DONE PR-2.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T2.5",
+        "title": "`log_grep` collector — regex match по строкам файла; опц. `since_time` (ISO) фильтрует по timestamp в начале строки. DONE PR-2.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T2.6",
+        "title": "`selftest_run` collector — alias для `exit_code` с явным namespace; в acceptance.md можно отличить «просто запусти команду» от «прогони тестсуит». DONE PR-2.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T2.7",
+        "title": "selftest `tests/evidence_collectors.selftest.mjs` — 11 групп: positive+negative для каждого kind + max_age_min fresh/stale + log_grep since_time + missing file + git missing → skipped + llm_judge defe",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T3.1",
+        "title": "`scripts/judge_assertion.mjs` — через `b.llm-gateway.callLLM` со схемой `{verdict: inconclusive|pass|fail, reasoning, evidence_quote}`. Enum-порядок умышленно ставит `inconclusive` первым: determinist",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T3.2",
+        "title": "prompt включает: BLOCK id + ASSERTION id (label) + mission.md excerpt (≤ 800 chars) + recent checks.log (last 50 lines) + (опц.) recent diff filenames. Жёсткие правила: «pass требует concrete evidence",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T3.3",
+        "title": "cost cap `LLM_MAX_USD_PER_RUN` (default $0.02); если trace.cost_usd > cap → возвращает `{verdict: inconclusive, cost_capped: true, reasoning: 'cost cap exceeded'}`. Mock-режим через `tests/llm_mocks/<",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T3.4",
+        "title": "smoke `tests/llm_judge.smoke.mjs` — 4 group: (1) no fixture → inconclusive с reasoning о mock-unavailable; (2) seeded fixture verdict=pass → pass + reasoning + evidence_quote; (3) seeded fixture verdi",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T4.1",
+        "title": "`scripts/verify_block_acceptance.mjs <block_id>` — оркестратор parse → collect → judge → write `acceptance_runs/<block>/<UTC>.json` + `_latest.json` + append одиночной строки `acceptance_verifier <pas",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T4.2",
+        "title": "`scripts/log_transition.mjs` gate — перед `→ done` (если from !== done) читает `_latest.json`. Если файла нет ИЛИ verdict !== pass → REJECTED с подробной ошибкой (sample failures + fix command + bypas",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T4.3",
+        "title": "`scripts/run_block_implementation.mjs` — после агент-прогона exit 0 авто-спавнит `verify_block_acceptance.mjs <id>` через `spawnSync stdio:inherit`. Печатает summary («✓ acceptance: pass — block is ga",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T4.4",
+        "title": "`scripts/verify_done_blocks_still_green.mjs` — nightly regression check. Для каждого блока с `status === done` ре-прогоняет verifier; verdict !== pass → пишет proposal `<UTC>__<block>__acceptance_regr",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T4.5",
+        "title": "MCP tools `read_acceptance_run {block_id}` (читает `_latest.json` или возвращает `_status: no_run`) + `list_failed_acceptances` (обходит все блоки, возвращает массив с verdict !== pass + sample_failur",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T4.6",
+        "title": "e2e smoke `tests/acceptance_verifier.e2e.smoke.mjs` — 5 фаз в tmpdir-based fake atlas/: (1) verifier пишет fail report + _latest.json; (2) log_transition REJECTS wip→done с verdict=fail + transitions.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T5.1",
+        "title": "AcceptanceSection в `frontend/arch_canvas.jsx` — секция «Acceptance verifier» в ArchInspector над «Слой». Цветной badge: ✓ зелёный `pass · N/M`, ✗ красный `fail · K/M (X fail)`, · оранжевый `incon",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T5.2",
+        "title": "Click на красный/skipped пункт → expand с `evidence + reasoning + 📋 Скопировать как prompt для retry` (формирует готовый промпт со ссылкой на assertion + evidence + reasoning + fix command для следую",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T5.3",
+        "title": "ProposalsPanel — специализированная карточка для `kind === 'acceptance_regression'`: красный фон, sample_failures с evidence снимками, кнопка «🔁 Прогнать снова с подсказкой» → `POST /run-block {block",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T5.4",
+        "title": "Под названием секции — relative-time stamp («last run: 30 sec ago / 5 min ago / 2h ago / 3d ago»). DONE PR-5.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T5.5",
+        "title": "Playwright smoke screenshots — общая инфраструктура реализована в b.user-docs-generator PR-3 (`scripts/take_screenshots.mjs`, `tests/playwright/user_docs_screenshots.spec.ts`). Когда Playwright реальн",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      }
+    ],
+    "b.user-docs-generator": [
+      {
+        "id": "T1.1",
+        "title": "`scripts/introspect_block_ui.mjs <block_id>` — single entry, без LLM. Reads atlas/blocks/<id>/files.md (alive entries with .jsx/.tsx/.js/.ts/.html/.htm extensions), parses each file with brace-aware r",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T1.2",
+        "title": "brace-aware token parser handles `<button>`/`<input>`/`<textarea>`/`<form>`/`<Link>`/`<NavLink>`/`<a>`/`<Route>` and `fetch(...)` calls. Brace-counting + string-literal awareness avoids the historical",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T1.3",
+        "title": "output shape `{block_id, files_scanned, buttons: [{label, on_click, file, line}], inputs: [{type, placeholder, name, required, file, line}], textareas: [{placeholder, name, rows, file, line}], forms: ",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T1.4",
+        "title": "tests/introspect_block_ui.selftest.mjs — 7 groups: empty files.md → warning; synthetic fixture buttons (3 cleaned labels: \"Создать задачу\", \"Очистить всё\", \"Сохранить\"); inputs (placeholder + required",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T1.5",
+        "title": "MCP tool `introspect_block_ui {block_id}`. CLI `node scripts/introspect_block_ui.mjs <id> [--json]`. Wired into nightly. DONE PR-1.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T2.1",
+        "title": "`scripts/generate_user_docs.mjs <block_id>` оркестратор: read mission.md → introspectBlock → compactIntrospection (trim noisy fields) → buildPrompt → callLLM → validate → render markdown → atomic writ",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T2.2",
+        "title": "prompt template включает: BLOCK id + mission excerpt (≤ 600 chars) + JSON-структура UI elements + жёсткие правила («Не используй technical words: module/component/endpoint/state/...», «Cite real UI la",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T2.3",
+        "title": "JSON Schema `USER_TUTORIAL_SCHEMA` = `{title, oneliner, steps: [{action, target, expected}], troubleshooting: [{problem, fix}], under_the_hood: {block_id, related_apis}}`; required = title+oneliner+st",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T2.4",
+        "title": "renderer пишет markdown с `<!-- AUTOGENERATED -->` маркером + 5-line frontmatter (block_id / hash / generated_at / lang) + warning «Не редактируй вручную» + Шаги/Steps секция с нумерацией + Troublesho",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T2.5",
+        "title": "cost cap `LLM_MAX_USD_PER_RUN` (default $0.03) → exceeded возвращает `status: 'cost_capped'` без записи; mock-режим (определяется по `mockHashForPrompt` в smoke); detectJargon post-LLM сканирует title",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T2.6",
+        "title": "smoke `tests/user_docs.smoke.mjs` — 5 групп: первая генерация → файл + meta; idempotent re-run → status=unchanged + mtime preserved; meta hash mismatch → status=written; locked: true → status=locked, ",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T3.1",
+        "title": "`scripts/take_screenshots.mjs` `detectPlaywright()` ищет `playwright.config.{js,ts,mjs,cjs}` + `node_modules/@playwright/test`. Если нет ни конфига ни модуля → `{available: false, reason}`. Никогда не",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T3.2",
+        "title": "`tests/playwright/user_docs_screenshots.spec.ts` — template-spec, читает manifest `_screenshots/_manifest.json` (writes происходит из `take_screenshots.tryCapture`), для каждого `block_id × route` дел",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T3.3",
+        "title": "`generate_user_docs.mjs` после LLM-записи зовёт `tryCapture(blockId, introspection)`. На `status: captured` подмешивается `## Что ты увидишь / ## Screenshots` секция с `![alt](./_screenshots/<block>__",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T3.4",
+        "title": "`cleanupOrphanScreenshots(activeBlockIds, {dry_run})` обходит `_screenshots/*.png`, удаляет файлы блоков отсутствующих в graph.json (любого проекта). Также pruнит `_manifest.json.entries`. CLI `take_s",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T4.1",
+        "title": "`scripts/regenerate_user_docs_drift.mjs` walks user-facing blocks (layer ∈ {user, front} OR `user_facing: true` в graph; и в основном atlas/graph.json и в projects/<proj>/graph.json), читает `_meta/<b",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T4.2",
+        "title": "`scripts/log_transition.mjs` после успешного `→ done` для user-facing блока (детект через graph.json + projects/*/graph.json) спавнит `generate_user_docs.mjs <id>` через `child_process.spawn({detached",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T4.3",
+        "title": "`scripts/check_user_docs_locked.mjs` — pre-commit guard, читает `git diff --name-only [--cached] -- atlas/docs/end-user/`, для каждого изменённого `.md` проверяет meta.locked; если false → exit 1 с по",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T4.4",
+        "title": "`frontend/arch_canvas.jsx` `<UserDocsLink blockId={...}>` рисует blue-tinted панель под mission блока со ссылкой `/atlas/docs/end-user/<block>.md` + кнопками 🔁 Regenerate / 🔒 Lock | 🔓 Unlock + ",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T4.5",
+        "title": "`frontend/proposals_panel.jsx` распознаёт `kind === 'user_docs_locked'` — рисует amber карточку с hash diff (`old` → `new`) + retry_prompt_hint preview + кнопками 🔓 Unlock + regen / Keep locked (",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T4.6",
+        "title": "MCP tools `list_user_docs / read_user_docs / lock_user_docs / regenerate_user_docs_drift`. atlas_api endpoints `/user-docs/regenerate`, `/user-docs/lock`, `/user-docs/unlock-and-regen` — UI кнопки реа",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T4.7",
+        "title": "Localization уже работает через `ATLAS_USER_DOCS_LANG` env (PR-2) + `--lang` flag; UserDocsLink показывает текущий lang в meta-line. UI-toggle отложен. DONE PR-4 (env path).",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      }
+    ]
+  },
+  "moduleDocs": {
+    "b.ui-control": {
+      "short": "Визуальная control plane Симы: один React-канвас, в котором человек видит схему продукта (слои, блоки, связи), статус каждого блока (idea/wip/review/done/broken/drift), запускает действия по блоку (Implement / Review / Done / Rollback / mar"
+    },
+    "b.core-sync": {
+      "short": "Sync Engine — движок проверки синхронизации блоков продукта с миссией, KPI, стэком и кодом. Главная задача — детектить «рассинхрон»: код пишется в одном фреймворке, ТЗ говорит про другой; блок A объявляет, что зависит от capability X у блок"
+    },
+    "b.db": {
+      "short": "Atlas storage слой: единый источник правды для графа продукта (`graph.json`), блоков (`blocks/<id>/*.md`), очереди ingestion (`ingestion_queue.jsonl`), журналов transitions/decisions/checks. Цель — предоставить детерминированный API для чте"
+    },
+    "b.agent-orchestrator": {
+      "short": "Шина между Sima и любым coding-агентом (Cursor, Claude Code, Codex CLI, Antigravity). Главная задача — обеспечить, чтобы все агенты работали по **одному и тому же** context-pack, читали `/atlas/blocks/<id>/` перед написанием кода и пушили о"
+    },
+    "b.docs": {
+      "short": "Документ-генератор Атласа: на каждый блок собирает живую страницу wiki из его `mission.md / kpi.md / acceptance.md / depends_on.md / provides.md / files.md / patterns.md`. На каждый проект собирает `auto_tz.md` (агрегированное ТЗ) и `roadma"
+    },
+    "b.llm-gateway": {
+      "short": "Единая точка входа для всех LLM-вызовов внутри Атласа. Реализовано в `scripts/llm_gateway.mjs`:"
+    },
+    "b.operator-profile-learner": {
+      "short": "Адаптивный модуль, который наблюдает за тем, **как именно** работает конкретный пользователь Атласа, запоминает его рабочие паттерны / стек / запреты / уроки из неудач, и адаптирует под них:"
+    },
+    "b.acceptance-verifier-loop": {
+      "short": "«Закрывающий контур» для каждого агент-прогона. Сейчас `run_block_implementation.mjs` отдаёт результат и забывает: `done` ставится «на честном слове» оператора. Этот блок добавляет **обязательную пост-проверку**: после того как агент сказал"
+    },
+    "b.user-docs-generator": {
+      "short": "Атлас сам пишет UI и backend каждого пользовательского блока — следовательно, **знает** где какая кнопка, какой endpoint, какой happy path. Этот блок берёт это знание и для **каждого user-facing блока** генерирует обучающую страницу для **к"
+    },
+    "b.smoke-sandbox": {
+      "short": "Целевой блок для всех e2e/smoke-тестов Атласа. Реальный код продукта на него не ссылается. MCP smoke-сценарии (`scripts/mcp_smoke_e2e.mjs`, future smoke harnesses) пишут сюда mission/tasks/ingestion-queue, чтобы не повреждать содержание реа"
+    }
+  },
+  "submodules": {},
+  "history": [
+    {
+      "ts": "12:40",
+      "module": "core-sync",
+      "agent": "sima-core",
+      "kind": "info",
+      "msg": "b.core-sync: idea → wip"
+    },
+    {
+      "ts": "12:49",
+      "module": "agent-orchestrator",
+      "agent": "sima-core",
+      "kind": "info",
+      "msg": "b.agent-orchestrator: idea → wip"
+    },
+    {
+      "ts": "12:50",
+      "module": "agent-orchestrator",
+      "agent": "sima-core",
+      "kind": "info",
+      "msg": "b.agent-orchestrator: wip → review"
+    },
+    {
+      "ts": "12:53",
+      "module": "agent-orchestrator",
+      "agent": "sima-core",
+      "kind": "ok",
+      "msg": "b.agent-orchestrator: review → done"
+    },
+    {
+      "ts": "13:24",
+      "module": "ui-control",
+      "agent": "sima-core",
+      "kind": "info",
+      "msg": "b.ui-control: wip → review"
+    },
+    {
+      "ts": "13:39",
+      "module": "core-sync",
+      "agent": "sima-core",
+      "kind": "info",
+      "msg": "b.core-sync: wip → review"
+    },
+    {
+      "ts": "13:43",
+      "module": "ui-control",
+      "agent": "sima-core",
+      "kind": "ok",
+      "msg": "b.ui-control: review → done"
+    }
+  ],
+  "lessons": [],
+  "subsystems": {},
+  "agents": [
+    {
+      "id": "claude",
+      "title": "Claude Code",
+      "tag": "claude-code",
+      "color": "warm"
+    },
+    {
+      "id": "cursor",
+      "title": "Cursor",
+      "tag": "cursor",
+      "color": "blue"
+    },
+    {
+      "id": "codex",
+      "title": "Codex",
+      "tag": "codex",
+      "color": "violet"
+    },
+    {
+      "id": "sima",
+      "title": "SIMA Core",
+      "tag": "sima-core",
+      "color": "ink"
+    }
+  ],
+  "_meta": {
+    "generated_at": "2026-05-06T18:43:43.465Z",
+    "atlas_root": "atlas",
+    "client_id": null,
+    "block_count": 10,
+    "edge_count": 21
+  }
+}

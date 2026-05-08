@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="ru" data-theme="light">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=1400"/>
+<!-- PR3.5: avoid aggressive browser caching while we are still iterating fast. -->
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<title>Sima Atlas — универсальный конструктор</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles_v2.css">
+<link rel="stylesheet" href="arch_styles.css">
+<link rel="stylesheet" href="landscape_styles.css">
+<style>
+  /* PR3.5: visible error / loading panel so the user sees what's happening
+     without opening DevTools. Any uncaught error gets dumped here. */
+  #sima-bootstatus {
+    position: fixed; top: 0; left: 0; right: 0;
+    background: #fff7ed; color: #7c2d12;
+    border-bottom: 1px solid #fed7aa;
+    padding: 10px 14px; font: 13px/1.45 system-ui, sans-serif;
+    z-index: 99999; max-height: 50vh; overflow: auto;
+    white-space: pre-wrap; word-break: break-word;
+  }
+  #sima-bootstatus.ok { background: #ecfdf5; color: #065f46; border-color: #a7f3d0; }
+  #sima-bootstatus.hidden { display: none; }
+  #sima-bootstatus .hdr { font-weight: 600; margin-bottom: 4px; }
+  #sima-bootstatus .x { float: right; cursor: pointer; opacity: .6; padding: 0 6px; }
+  #sima-bootstatus .x:hover { opacity: 1; }
+</style>
+</head>
+<body data-density="regular">
+<!--
+  ASCII alias for the cyrillic "Сима - универсальный конструктор.html".
+  Some HTTP servers (Python http.server in particular) struggle to serve files
+  whose names contain percent-encoded UTF-8 octets. Open this URL instead:
+    http://localhost:8080/Sima%20%28Remix%29/index.html
+  or, if the server is rooted inside frontend/:
+    http://localhost:8080/index.html
+-->
+
+<div id="sima-bootstatus">
+  <span class="x" onclick="document.getElementById('sima-bootstatus').classList.add('hidden')">×</span>
+  <div class="hdr">⏳ Sima Atlas — загрузка React + 12 JSX-файлов…</div>
+  <div id="sima-bootstatus-body">Если это сообщение не пропадёт через 5 секунд — что-то упало. Текст ошибки появится здесь же.</div>
+</div>
+
+<div id="root"></div>
+
+<script>
+  // PR3.7: one-shot wipe of stale localStorage when the build changes.
+  // useArchState used to write JSON.stringify(undefined) → literal "undefined"
+  // into localStorage, so even after fixing the code those keys keep crashing
+  // the next mount until cleared. Bumping SIMA_BUILD here clears once.
+  (function () {
+    var SIMA_BUILD = 'pr3.7';
+    try {
+      if (localStorage.getItem('sima_app_build') !== SIMA_BUILD) {
+        var keys = [];
+        for (var i = 0; i < localStorage.length; i++) keys.push(localStorage.key(i));
+        for (var j = 0; j < keys.length; j++) {
+          var k = keys[j];
+          if (!k) continue;
+          if (k.indexOf('sima.') === 0 || k === 'sima_bootstrap') {
+            localStorage.removeItem(k);
+          }
+        }
+        localStorage.setItem('sima_app_build', SIMA_BUILD);
+      }
+    } catch (e) { /* ignore */ }
+  })();
+</script>
+
+<script>
+  // PR3.5 visible error reporter. Catches:
+  //   - uncaught errors (e.g. SyntaxError in any <script type="text/babel">)
+  //   - unhandled promise rejections
+  //   - failed network loads of <script src=...>
+  // and prints them into #sima-bootstatus so the user sees them without F12.
+  (function () {
+    var box = document.getElementById('sima-bootstatus');
+    var body = document.getElementById('sima-bootstatus-body');
+    function show(kind, msg) {
+      box.classList.remove('ok'); box.classList.remove('hidden');
+      var hdr = box.querySelector('.hdr');
+      hdr.textContent = '✗ ' + kind;
+      body.innerHTML = '';
+      var pre = document.createElement('pre');
+      pre.style.margin = '4px 0 8px';
+      pre.style.font = 'inherit';
+      pre.style.whiteSpace = 'pre-wrap';
+      pre.textContent = String(msg);
+      body.appendChild(pre);
+      // PR3.6: actionable "fix it" button — clears localStorage & reloads.
+      // The most common cause of UI breakage is a stale JSON ("undefined"
+      // string) cached from a previous version of arch_canvas.jsx.
+      if (/JSON|localStorage|undefined/.test(String(msg))) {
+        var btn = document.createElement('button');
+        btn.textContent = 'Очистить кэш страницы и перезагрузить';
+        btn.style.cssText = 'margin-top:6px;padding:6px 14px;background:#0f766e;color:#fff;border:0;border-radius:6px;cursor:pointer;font:inherit';
+        btn.onclick = function () {
+          try { localStorage.clear(); } catch {}
+          try { sessionStorage.clear(); } catch {}
+          location.reload();
+        };
+        body.appendChild(btn);
+      }
+    }
+    window.addEventListener('error', function (e) {
+      var src = (e.filename || '') + (e.lineno ? ':' + e.lineno : '');
+      show('JS error: ' + (e.message || 'unknown'), src + '\n\n' + (e.error && e.error.stack || ''));
+    });
+    window.addEventListener('unhandledrejection', function (e) {
+      show('Promise rejection', (e.reason && (e.reason.message || e.reason)) + '\n\n' + (e.reason && e.reason.stack || ''));
+    });
+    // After Babel finishes compiling all type=text/babel scripts and React mounts,
+    // the AppV2 root call hides this panel.
+    window.__simaMarkBootOk = function () {
+      box.classList.add('ok');
+      var hdr = box.querySelector('.hdr');
+      hdr.textContent = '✓ Sima Atlas загружена';
+      body.textContent = 'Если что-то не так — обнови страницу с очисткой кэша (Ctrl+Shift+R).';
+      setTimeout(function () { box.classList.add('hidden'); }, 1500);
+    };
+  })();
+</script>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script src="atlas_bootstrap.js"></script>
+<script src="data_v2.js"></script>
+<script src="arch_data.js"></script>
+<script src="atlas_sync.js"></script>
+<script type="text/babel" src="icons.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="subschema.jsx"></script>
+<script type="text/babel" src="layer1_canvas.jsx"></script>
+<script type="text/babel" src="layer2_map.jsx"></script>
+<script type="text/babel" src="arch_canvas.jsx"></script>
+<script type="text/babel" src="landscape_assets.jsx"></script>
+<script type="text/babel" src="landscape_view.jsx"></script>
+<script type="text/babel" src="layer3_tz.jsx"></script>
+<script type="text/babel" src="layer4_impl.jsx"></script>
+<script type="text/babel" src="gallery_v2.jsx"></script>
+<script type="text/babel" src="proposals_panel.jsx"></script>
+<script type="text/babel" src="app_v2.jsx"></script>
+
+<script>
+  // PR3.5: a tiny "did anything render?" probe. After Babel processed all the
+  // <script type="text/babel"> blocks and AppV2 (or fallback) mounted into #root,
+  // we mark boot OK. If 5s elapse and #root is still empty, we surface that.
+  setTimeout(function () {
+    var root = document.getElementById('root');
+    if (root && root.children && root.children.length > 0) {
+      if (window.__simaMarkBootOk) window.__simaMarkBootOk();
+      return;
+    }
+    var box = document.getElementById('sima-bootstatus');
+    if (box.classList.contains('hidden')) return;
+    box.classList.remove('ok');
+    box.querySelector('.hdr').textContent = '⚠ Прошло 5 секунд, React-дерево пустое.';
+
+    // PR3.7 diagnostic: dump every global the page depends on so we can see at
+    // a glance which script failed to load or define its global.
+    function check(name) {
+      var v;
+      try { v = window[name]; } catch { v = undefined; }
+      if (v === undefined) return name + ' = undefined ✗';
+      if (typeof v === 'function') return name + ' = function ✓';
+      if (typeof v === 'object') {
+        var k = v ? Object.keys(v).slice(0, 3).join(',') : '(null)';
+        return name + ' = object{' + k + '...} ✓';
+      }
+      return name + ' = ' + (typeof v) + ' ✓';
+    }
+    var diag = [
+      'Возможные причины:',
+      '  1) Babel ещё компилирует .jsx — подожди ещё 2–5 секунд и обнови (Ctrl+Shift+R).',
+      '  2) .jsx-файл упал на компиляции — открой DevTools (F12) → Console и пришли первую красную строку.',
+      '  3) Браузер заблокировал unpkg.com (privacy-extension, корпоративная сеть).',
+      '  4) atlas_bootstrap.js не сгенерирован — запусти `node scripts/generate_atlas_bootstrap_js.mjs`.',
+      '',
+      'Состояние window.* глобалов:',
+      '  ' + check('React'),
+      '  ' + check('ReactDOM'),
+      '  ' + check('Babel'),
+      '  ' + check('SIMA_BOOTSTRAP'),
+      '  ' + check('SIMA_DATA_V2'),
+      '  ' + check('ARCH_LAYERS'),
+      '  ' + check('ARCH_BY_PROJECT'),
+      '  ' + check('SIMA_ATLAS_CORE'),
+      '  ' + check('Icon'),
+      '  ' + check('Layer1Canvas'),
+      '  ' + check('Layer2Map'),
+      '  ' + check('ArchCanvas'),
+    ];
+    var atlasLive = (window.ARCH_BY_PROJECT && window.ARCH_BY_PROJECT['atlas-live']) || null;
+    diag.push('  ARCH_BY_PROJECT["atlas-live"] = ' + (atlasLive ? ('blocks=' + (atlasLive.blocks || []).length) : 'undefined ✗'));
+    var demoTodo = (window.ARCH_BY_PROJECT && window.ARCH_BY_PROJECT['demo-todo']) || null;
+    diag.push('  ARCH_BY_PROJECT["demo-todo"]  = ' + (demoTodo ? ('blocks=' + (demoTodo.blocks || []).length) : 'undefined ✗'));
+
+    var body = document.getElementById('sima-bootstatus-body');
+    body.innerHTML = '';
+    var pre = document.createElement('pre');
+    pre.style.cssText = 'margin:4px 0 8px;font:inherit;white-space:pre-wrap';
+    pre.textContent = diag.join('\n');
+    body.appendChild(pre);
+
+    var btn = document.createElement('button');
+    btn.textContent = 'Очистить кэш страницы и перезагрузить';
+    btn.style.cssText = 'margin-top:6px;padding:6px 14px;background:#0f766e;color:#fff;border:0;border-radius:6px;cursor:pointer;font:inherit';
+    btn.onclick = function () {
+      try { localStorage.clear(); } catch {}
+      try { sessionStorage.clear(); } catch {}
+      location.reload();
+    };
+    body.appendChild(btn);
+  }, 5000);
+</script>
+</body>
+</html>

@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const root = process.cwd();
-const p = path.join(root, 'Sima (Remix)', 'atlas_bootstrap.js');
+const p = path.join(root, 'frontend', 'atlas_bootstrap.js');
 if (!fs.existsSync(p)) {
   console.error('bootstrap projection missing');
   process.exit(1);

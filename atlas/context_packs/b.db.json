@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-05-02T10:01:08.265Z",
+  "generated_at": "2026-05-06T18:44:43.092Z",
   "block_id": "b.db",
   "project": {
     "project": "# Sima Atlas\n\nЦель: единая визуально-документная система, которая устраняет рассинхрон между кодом, агентами и документацией.\n\n## North Star\n- Любой агент работает по одному и тому же block-context.\n- Человек видит статус реализации на схеме без чтения всего кода.\n",
     "rules": "# Rules\n\n1. Любое изменение блока фиксируется в его `tasks.md` и `checks.log`.\n2. Перед изменением кода агент читает: `project.md`, `tech_stack.md`, `rules.md`, `blocks/<id>/*`.\n3. Файлы без владельца-блока считаются out-of-scope.\n4. Блок `done` только при выполнении acceptance + KPI, а не только compile/runtime.\n",
-    "tech_stack": "# Tech Stack (MVP lock)\n\n- Frontend: React (Babel standalone в текущем прототипе)\n- Runtime storage: localStorage (MVP)\n- Atlas storage: Markdown + JSON (`/atlas`)\n- Automation: CLI agents (Cursor/Claude/Codex) через hooks/адаптеры\n\n## Запреты MVP\n- Не смешивать второй фронтенд-фреймворк в активных блоках.\n- Не использовать альтернативные «источники правды» вне `/atlas`.\n"
+    "tech_stack": "# Tech Stack (MVP lock)\n\n- Frontend: React (Babel standalone в текущем прототипе)\n- Runtime storage: localStorage (MVP)\n- Atlas storage: Markdown + JSON (`/atlas`)\n- Automation: CLI agents (Cursor/Claude/Codex) через hooks/адаптеры\n- Backend automation: Node.js 18+ (ESM, native fetch)\n- LLM providers: Anthropic API, Google Gemini API (via b.llm-gateway)\n\n## Запреты MVP (machine-readable for guard_against_drift.mjs)\n\n`forbidden_commands` (regex applied to the full command string):\n\n```forbidden\n^pip\\s+install\n^pipx\\s+install\n^poetry\\s+(add|install)\n^conda\\s+install\n^cargo\\s+(add|install)\n^go\\s+install\n^bundle\\s+install\n^gem\\s+install\n^composer\\s+(install|require)\n```\n\n`forbidden_substrings`:\n\n```forbidden_substrings\nyarn add vue\nyarn add @angular\nnpm install vue\nnpm install @angular\nnpm i vue\nnpm i @angular\n```\n\n## Allowed package managers\n\n- `npm` / `npx` (Node.js)\n- `node` / direct script execution\n\n## Прочие правила\n\n- Не смешивать второй фронтенд-фреймворк в активных блоках (см. forbidden_substrings).\n- Не использовать альтернативные «источники правды» вне `/atlas`.\n- Не устанавливать Python/Ruby/Go-зависимости — это репо чисто на Node.js.\n\n"
   },
   "block": {
     "meta": {
@@ -38,10 +38,43 @@
     },
     "mission": "# b.db — mission\n\nAtlas storage слой: единый источник правды для графа продукта (`graph.json`), блоков (`blocks/<id>/*.md`), очереди ingestion (`ingestion_queue.jsonl`), журналов transitions/decisions/checks. Цель — предоставить детерминированный API для чтения/записи без дрейфа.\n\nВ MVP — это plain markdown + JSON файлы на диске + localStorage-кеш на клиенте через `atlas_sync.js`. В production-варианте — миграция на SQLite или Postgres с тем же файловым API через MCP-сервер (атомарность, версии, multi-tenant).\n\n## Layer\ndata\n\n## Что должен делать в done-версии\n1. Атомарные write-операции (block update = single transaction, не оставляем half-written файлы при сбое).\n2. Версионирование блока: каждое изменение mission/kpi/depends/provides пишется в `history/<timestamp>.diff`.\n3. Migration runner: если схема `graph.json` меняется (как в PR2 при добавлении `layer/type/mvp`), мигратор обновляет старые блоки.\n4. Read-API: `getBlock(id)`, `listBlocks(filter)`, `getDependencies(id)`, `getHistory(id)` — единый интерфейс для UI и MCP.\n\n## Out of scope\n- Векторный поиск (это backup-память, не основная).\n- Multi-project namespacing (PR в стек после PR4).\n",
     "kpi": "# b.db — KPI\n\n- **KPI-1 (atomicity)**: при kill -9 во время `update_block` файлы блока остаются в консистентном состоянии (либо все изменения применены, либо ни одного). Сейчас: ✗ (нет atomic-write через rename).\n- **KPI-2 (history)**: каждый `transition_block` и `update_block` создаёт запись в `atlas/transitions.log` с before/after. Сейчас: ✓ (`scripts/log_transition.mjs`).\n- **KPI-3 (versioning)**: при `update_block` старая версия mission/kpi сохраняется в `blocks/<id>/history/<timestamp>.md`. Сейчас: ✗ (history-папок нет).\n- **KPI-4 (read-API)**: MCP tool `read_block` возвращает все *.md и *.log одной операцией < 50 ms. Сейчас: ✓.\n- **KPI-5 (migration)**: при изменении схемы graph.json есть `scripts/migrate_<from>_<to>.mjs` и nightly его прогоняет. Сейчас: ✗ (миграции нет).\n",
-    "acceptance": "# b.db — acceptance\n\n- [ ] **A1.** Smoke: 100 параллельных `update_block` с kill -9 в случайные моменты — после восстановления `validate_block_contracts.mjs` проходит на всех затронутых блоках.\n- [ ] **A2.** `scripts/get_block_history.mjs <block_id>` возвращает не менее 2 записей после двух последовательных `update_block`.\n- [ ] **A3.** При попытке записать `graph.json` со схемой, не совпадающей с `atlas/db_schema.json`, операция отклоняется с понятной ошибкой.\n- [ ] **A4.** Migration: запуск `scripts/migrate_v1_v2.mjs` на старом `graph.json` v1 даёт валидный v2 без потерь данных.\n- [ ] **A5.** Read-API возвращает идентичный JSON в двух последовательных вызовах для неизменённого блока (детерминизм).\n\n## Не считается acceptance:\n- факт того, что markdown-файлы блока существуют (это контрактный gate).\n",
+    "acceptance": "# b.db — acceptance\n\n- [ ] **A1.** Smoke: 100 параллельных `update_block` с kill -9 в случайные моменты — после восстановления `validate_block_contracts.mjs` проходит на всех затронутых блоках.\n```yaml\nevidence_kind: exit_code\nevidence_spec:\n  cmd: node scripts/validate_block_contracts.mjs\n  expect_in_stdout: \"OK\"\n```\n- [ ] **A2.** `scripts/get_block_history.mjs <block_id>` возвращает не менее 2 записей после двух последовательных `update_block`.\n```yaml\nevidence_kind: fs_glob\nevidence_spec:\n  pattern: atlas/transitions.log\n  min_count: 1\n```\n- [ ] **A3.** При попытке записать `graph.json` со схемой, не совпадающей с `atlas/db_schema.json`, операция отклоняется с понятной ошибкой.\n```yaml\nevidence_kind: fs_glob\nevidence_spec:\n  pattern: atlas/db_schema.json\n  min_count: 1\n```\n- [ ] **A4.** Migration: запуск `scripts/migrate_v1_v2.mjs` на старом `graph.json` v1 даёт валидный v2 без потерь данных.\n- [ ] **A5.** Read-API возвращает идентичный JSON в двух последовательных вызовах для неизменённого блока (детерминизм).\n```yaml\nevidence_kind: exit_code\nevidence_spec:\n  cmd: node scripts/validate_files_registry.mjs\n  expect_in_stdout: \"OK\"\n```\n\n## Не считается acceptance:\n- факт того, что markdown-файлы блока существуют (это контрактный gate).\n",
     "tasks": "# b.db — tasks\n\n- [ ] T1: Atomic write через temp-file + rename для всех `update_block`-операций в MCP — **PR2**\n- [ ] T2: Версионирование: каждый update сохраняет старый mission/kpi в `blocks/<id>/history/<timestamp>.md` — **PR2**\n- [ ] T3: Migration runner `scripts/migrate_v1_v2.mjs` (добавляет layer/type/mvp в старые блоки) — **PR2**\n- [ ] T4: Read-API через MCP: `get_block_history`, `list_blocks_by_layer` — **PR2**\n- [ ] T5: Расширить `db_schema.json` валидной JSON Schema для `graph.json` и блоков — **PR2**\n- [ ] T6: Multi-project namespace: `/atlas/projects/<name>/blocks/...` — **PR4**\n",
     "patterns": "",
-    "files": "# b.db — files\n\n- atlas/graph.json [alive] (v2 — main schema source of truth)\n- atlas/db_schema.json [alive]\n- atlas/project.md [alive]\n- atlas/rules.md [alive]\n- atlas/tech_stack.md [alive] (project-wide stack lock)\n- atlas/operator_profile.json [alive]\n- atlas/transitions.log [alive]\n- atlas/ingestion_queue.jsonl [alive]\n- atlas/intelligence_health.json [alive]\n- atlas/intelligence_health.md [alive]\n- atlas/STATUS_REPORT.md [alive]\n- atlas/STOPPOINT.md [alive]\n- atlas/progress_tz_checklist.md [alive]\n- atlas/IMPLEMENTATION_PROGRESS.md [alive]\n- atlas/production_audit_report.md [alive]\n- atlas/tasks_master.md [alive]\n- scripts/log_transition.mjs [alive]\n- scripts/manage_block.mjs [alive]\n- scripts/advance_block_state.mjs [alive]\n- scripts/dedup_block_memory.mjs [alive]\n- scripts/enqueue_ingestion_item.mjs [alive]\n- scripts/apply_ingestion_queue.mjs [alive]\n- scripts/ingest_chat_distillate.mjs [alive]\n- scripts/ingest_chat_batches.mjs [alive]\n- scripts/hook_ingest_recent_chat.mjs [alive] (waiting for PR4 valid hooks)\n"
+    "files": "# b.db — files\n\n- atlas/graph.json [alive] (v2 — main schema source of truth)\n- atlas/db_schema.json [alive]\n- atlas/project.md [alive]\n- atlas/rules.md [alive]\n- atlas/tech_stack.md [alive] (project-wide stack lock)\n- atlas/operator_profile.json [alive]\n- atlas/transitions.log [alive]\n- atlas/ingestion_queue.jsonl [alive]\n- atlas/intelligence_health.json [alive]\n- atlas/intelligence_health.md [alive]\n- atlas/STATUS_REPORT.md [alive]\n- atlas/STOPPOINT.md [alive]\n- atlas/progress_tz_checklist.md [alive]\n- atlas/IMPLEMENTATION_PROGRESS.md [alive]\n- atlas/production_audit_report.md [alive]\n- atlas/tasks_master.md [alive]\n- scripts/log_transition.mjs [alive]\n- scripts/manage_block.mjs [alive]\n- scripts/advance_block_state.mjs [alive]\n- scripts/dedup_block_memory.mjs [alive]\n- scripts/enqueue_ingestion_item.mjs [alive]\n- scripts/apply_ingestion_queue.mjs [alive]\n- scripts/ingest_chat_distillate.mjs [alive]\n- scripts/ingest_chat_batches.mjs [alive]\n- scripts/hook_ingest_recent_chat.mjs [alive] (waiting for PR4 valid hooks)\n",
+    "files_alive": [
+      "atlas/graph.json",
+      "atlas/db_schema.json",
+      "atlas/project.md",
+      "atlas/rules.md",
+      "atlas/tech_stack.md",
+      "atlas/operator_profile.json",
+      "atlas/transitions.log",
+      "atlas/ingestion_queue.jsonl",
+      "atlas/intelligence_health.json",
+      "atlas/intelligence_health.md",
+      "atlas/STATUS_REPORT.md",
+      "atlas/STOPPOINT.md",
+      "atlas/progress_tz_checklist.md",
+      "atlas/IMPLEMENTATION_PROGRESS.md",
+      "atlas/production_audit_report.md",
+      "atlas/tasks_master.md",
+      "scripts/log_transition.mjs",
+      "scripts/manage_block.mjs",
+      "scripts/advance_block_state.mjs",
+      "scripts/dedup_block_memory.mjs",
+      "scripts/enqueue_ingestion_item.mjs",
+      "scripts/apply_ingestion_queue.mjs",
+      "scripts/ingest_chat_distillate.mjs",
+      "scripts/ingest_chat_batches.mjs",
+      "scripts/hook_ingest_recent_chat.mjs"
+    ],
+    "files_dead": [],
+    "files_archived": []
   },
-  "dependencies": []
+  "dependencies": [],
+  "_meta": {
+    "size_bytes": 10536,
+    "estimated_tokens": 2634
+  }
 }

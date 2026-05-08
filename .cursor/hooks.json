@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "generatedAt": "2026-04-30T22:50:13.165Z",
-  "atlas": {
+  "_generatedAt": "2026-05-02T11:04:50.292Z",
+  "_atlas": {
     "root": "/atlas",
     "blocks": [
       "b.ui-control",
@@ -9,46 +9,37 @@
       "b.db",
       "b.agent-orchestrator",
       "b.docs",
-      "b.semantic-llm",
-      "b.realtime-ingestion",
-      "b.payments"
+      "b.llm-gateway",
+      "b.smoke-sandbox"
     ],
     "rules": "/atlas/rules.md",
-    "techStack": "/atlas/tech_stack.md"
+    "tech_stack": "/atlas/tech_stack.md",
+    "context_packs": "/atlas/context_packs"
   },
-  "hooks": [
-    {
-      "name": "beforePromptSent",
-      "purpose": "Inject atlas context-pack hints before agent prompt",
-      "action": {
-        "type": "prepend_text",
-        "text": "Read /atlas/project.md, /atlas/rules.md, /atlas/tech_stack.md and selected /atlas/blocks/<id> before coding."
+  "hooks": {
+    "beforeSubmitPrompt": [
+      {
+        "command": "node scripts/inject_context_pack.mjs",
+        "purpose": "Prepend block-scoped atlas context (mission/kpi/depends/files) to the agent prompt."
       }
-    },
-    {
-      "name": "afterPromptSent",
-      "purpose": "Buffer chat and periodically ingest to Atlas memory/schema",
-      "action": {
-        "type": "run_command",
-        "command": "node scripts/hook_ingest_recent_chat.mjs",
-        "note": "Uses SIMA_CHAT_TEXT/SIMA_BLOCK_ID/SIMA_INGEST_EVERY env vars."
+    ],
+    "afterFileEdit": [
+      {
+        "command": "node scripts/observe_file_edit.mjs",
+        "purpose": "Map the edited file to its owner block via files.md and append a 'cursor_edit' line to that block's checks.log."
       }
-    },
-    {
-      "name": "afterFileEdit",
-      "purpose": "Remind updating files registry and checks",
-      "action": {
-        "type": "append_text",
-        "text": "Update atlas block files.md + checks.log and keep files_registry in sync."
+    ],
+    "beforeShellExecution": [
+      {
+        "command": "node scripts/guard_against_drift.mjs",
+        "purpose": "Reject shell commands that contradict /atlas/tech_stack.md or /atlas/rules.md (e.g., pip install when stack is React+Node)."
       }
-    },
-    {
-      "name": "beforeShellExecution",
-      "purpose": "Guard against stack/rules drift",
-      "action": {
-        "type": "validate_text",
-        "text": "Command must not violate /atlas/rules.md and /atlas/tech_stack.md."
+    ],
+    "stop": [
+      {
+        "command": "node scripts/calc_intelligence_health.mjs",
+        "purpose": "Recompute intelligence_health on session end so the dashboard is always fresh."
       }
-    }
-  ]
+    ]
+  }
 }

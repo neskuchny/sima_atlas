@@ -1,0 +1,48 @@
+{
+  "blocks": [
+    {
+      "id": "b.report",
+      "title": "Report",
+      "mission": "Отчёт",
+      "layer": "logic",
+      "type": "module",
+      "mvp": false,
+      "status": "idea",
+      "depends_on": [
+        "b.metrics",
+        "b.export-csv"
+      ],
+      "provides": [],
+      "tech_stack": [],
+      "confidence": 0.9
+    },
+    {
+      "id": "b.export-csv",
+      "title": "Export CSV",
+      "mission": "Экспорт CSV",
+      "layer": "logic",
+      "type": "module",
+      "mvp": false,
+      "status": "idea",
+      "depends_on": [
+        "b.metrics"
+      ],
+      "provides": [],
+      "tech_stack": [],
+      "confidence": 0.9
+    },
+    {
+      "id": "b.metrics",
+      "title": "Metrics",
+      "mission": "Метрики",
+      "layer": "data",
+      "type": "module",
+      "mvp": false,
+      "status": "idea",
+      "depends_on": [],
+      "provides": [],
+      "tech_stack": [],
+      "confidence": 0.9
+    }
+  ]
+}

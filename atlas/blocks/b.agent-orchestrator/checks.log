@@ -7,3 +7,19 @@
 2026-05-02T08:41:44Z	honest_reset	pass	PR1 cleared template mission/kpi/acceptance/tasks; honest status set in graph.json
 2026-05-02T09:27:08Z	pr2_layered_schema	pass	layer/files/tech_stack populated; bootstrap+wiki+roadmap layered
 2026-05-02T10:02:24Z	pr3_llm_gateway	pass	extractBlockSchema replaces regex; golden eval 1.0/0.7 target; b.llm-gateway in review
+2026-05-02T11:06:50Z	acceptance	pass	A1 valid Cursor hooks: validate_cursor_hooks.mjs OK (4 events / 4 commands)
+2026-05-02T11:06:50Z	acceptance	pass	A2 cursor_hooks_actions test 9/9 cases (observe + guard + inject)
+2026-05-02T11:06:50Z	acceptance	pass	A3 guard rejects pip/yarn-add-vue and approves npm install (logic flow)
+2026-05-02T11:06:50Z	acceptance	pass	A5 distillate flow via b.llm-gateway with sync gate (extractBlockSchema confidence-filtered)
+2026-05-02T11:06:50Z	kpi	pass	K1 hooks.json schema valid, K3 drift_guard tested, K5 distillate filter active
+2026-05-02T11:06:50Z	pr4_real_observation	pass	observe_file_edit + guard_against_drift + inject_context_pack wired into Cursor hooks
+2026-05-02T11:09:54Z	pr4_cursor_hooks	pass	valid Cursor hooks (4 events) + observe/guard/inject scripts + 9-case test
+2026-05-02T11:33:33.752Z	llm_extraction	pass	skipped touched=0 provider=mock model=mock-1 cost_usd=0.000000 hash=329695684fbe4372
+2026-05-02T11:34:35Z	pr4_1_windows_fixes	pass	provider cascade respects LLM_DEFAULT_PROVIDER pin; llm_check.mjs diag; index.html for http.server; analyze --text/--stdin for PowerShell; HOWTO Windows section
+2026-05-02T17:36:33.441Z	llm_extraction	pass	skipped touched=0 provider=mock model=mock-1 cost_usd=0.000000 hash=bede3583cb6ed106
+2026-05-02T18:16:03Z	pr4_5_claude_adapter	pass	run_block_implementation.mjs (claude/codex/cursor + print-only fallback) + MCP tool + HTTP /run-block + UI Run agent button + agent_parity_real smoke (MCP pack ≡ disk for Claude --add-dir)
+2026-05-03T04:38:04.252Z	llm_extraction	pass	skipped touched=0 provider=mock model=mock-1 cost_usd=0.000000 hash=6678d2600b4b1028
+2026-05-03T17:43:55.320Z	drift_guard	fail	drift_blocked: command "npm install qzqz_smoke_only" matched substring "qzqz_smoke_only" in operator_profile/dont_use.json
+2026-05-03T17:45:03.437Z	drift_guard	fail	drift_blocked: command "npm install qzqz_smoke_only" matched substring "qzqz_smoke_only" in operator_profile/dont_use.json
+2026-05-04T12:00:00Z	pr_7_8_9_run_lifecycle	pass	T7+T8+T9 done (Symphony-inspired). T7 scripts/run_state.mjs FSM with PreparingWorkspace/LaunchingAgent/Running/Verifying/Finishing→Succeeded|Failed|Stalled|TimedOut|Canceled; ALLOWED_TRANSITIONS strict; terminal lock; detectStalledRuns flips idle→Stalled (default 10min). State files atlas/run_state/<run_id>.json with history. tests/run_state.selftest.mjs 8 groups. T8 scripts/agent_workspace.mjs createWorkspace under ~/.atlas_workspaces/<run_id>/ via cp + SKIP_DIRS (node_modules, llm_traces, run_state, etc.); captureDiff via diff -urN + sha256; writeDiffProposal kind=agent_run_diff; cleanupWorkspace safety (refuse outside WORKSPACES_ROOT, require .atlas_workspace.json marker). tests/agent_workspace.selftest.mjs 7 groups. T9 run_block_implementation.mjs fully wired: opt-in workspace via ATLAS_USE_WORKSPACE=1, FSM transitions through every step, verifier runs IN workspace (cwd + ATLAS_ROOT), kind=agent_run_diff proposal written when changes captured, workspace preserved on Failed or pending diff_proposal_id. Bootstrap exposes runsByBlock (last 7d). ArchInspector RunStatusSection (cancel button on active/stalled, verdict tag, diff proposal indicator). ProposalsPanel kind=agent_run_diff blue card with file kinds (+/−/~) + Accept (apply diff) / Reject. MCP: list_runs, get_run, cancel_run, detect_stalled_runs, list_workspaces, cleanup_workspace. atlas_api: /runs/cancel. Wired into nightly (run_state_selftest, agent_workspace_selftest, detect_stalled_runs).
+2026-05-05T20:19:48.881Z	design_patch	pass	atlas/blocks/b.agent-orchestrator/user_story.md

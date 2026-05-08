@@ -1,0 +1,191 @@
+{
+  "block_id": "b.user-docs-generator",
+  "source_path": "/home/user/sima_atlas/atlas/blocks/b.user-docs-generator/acceptance.md",
+  "parsed_warnings": [],
+  "assertions": [
+    {
+      "id": "A1",
+      "label": null,
+      "text": "PR-1 (block introspection) merged: `scripts/introspect_block_ui.mjs <block_id>` парсит JSX/HTML/route-файлы блока, возвращает `{buttons: [...], inputs: [...], routes: [...], handlers: [...]}`. Selftest на `b.todo-ui` (≥ 5 element types обнаружены).",
+      "checked": false,
+      "line": 3,
+      "evidence_kind": "llm_judge",
+      "evidence_spec": null,
+      "verdict": "skipped",
+      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
+      "raw": {
+        "judge_verdict": "inconclusive",
+        "provider": "mock",
+        "model": "mock-1",
+        "prompt_hash": "c19be11bf3acb98c",
+        "cost_usd": 0,
+        "cost_capped": false,
+        "evidence_quote": ""
+      },
+      "duration_ms": 1
+    },
+    {
+      "id": "A2",
+      "label": null,
+      "text": "PR-2 (LLM tutorial writer) merged: `scripts/generate_user_docs.mjs <block_id>` через `b.llm-gateway.callLLM` со схемой `UserTutorial` пишет `docs/end-user/<block>.md` + `_meta/<block>.json`. Mock-режим возвращает консистентный markdown.",
+      "checked": false,
+      "line": 4,
+      "evidence_kind": "llm_judge",
+      "evidence_spec": null,
+      "verdict": "skipped",
+      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
+      "raw": {
+        "judge_verdict": "inconclusive",
+        "provider": "mock",
+        "model": "mock-1",
+        "prompt_hash": "95958225f5b702e3",
+        "cost_usd": 0,
+        "cost_capped": false,
+        "evidence_quote": ""
+      },
+      "duration_ms": 0
+    },
+    {
+      "id": "A3",
+      "label": null,
+      "text": "PR-3 (screenshot integration, опц.) merged: если Playwright настроен и `playwright.config.js` валидный — после генерации текста запускается `playwright test --grep <block_id>` который создаёт `_screenshots/<block>__<flow>.png`; иначе skip без ошибки.",
+      "checked": false,
+      "line": 5,
+      "evidence_kind": "llm_judge",
+      "evidence_spec": null,
+      "verdict": "skipped",
+      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
+      "raw": {
+        "judge_verdict": "inconclusive",
+        "provider": "mock",
+        "model": "mock-1",
+        "prompt_hash": "a0a24d80218d2b77",
+        "cost_usd": 0,
+        "cost_capped": false,
+        "evidence_quote": ""
+      },
+      "duration_ms": 0
+    },
+    {
+      "id": "A4",
+      "label": null,
+      "text": "PR-4 (auto-regen + UI) merged: nightly step `regenerate_user_docs_drift` пересобирает только блоки с изменившимся hash источников; Inspector кнопка «Открыть end-user docs»; pre-commit hook предупреждает при ручной правке без `LOCKED: true`.",
+      "checked": false,
+      "line": 6,
+      "evidence_kind": "llm_judge",
+      "evidence_spec": null,
+      "verdict": "skipped",
+      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
+      "raw": {
+        "judge_verdict": "inconclusive",
+        "provider": "mock",
+        "model": "mock-1",
+        "prompt_hash": "999852f2c07de914",
+        "cost_usd": 0,
+        "cost_capped": false,
+        "evidence_quote": ""
+      },
+      "duration_ms": 1
+    },
+    {
+      "id": "A5",
+      "label": null,
+      "text": "Idempotency smoke `tests/user_docs.idempotent.smoke.mjs`: regen без изменений → diff пустой; изменили mission.md → diff не пустой и hash в meta обновлён.",
+      "checked": false,
+      "line": 7,
+      "evidence_kind": "llm_judge",
+      "evidence_spec": null,
+      "verdict": "skipped",
+      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
+      "raw": {
+        "judge_verdict": "inconclusive",
+        "provider": "mock",
+        "model": "mock-1",
+        "prompt_hash": "3e15e091fc30dd3e",
+        "cost_usd": 0,
+        "cost_capped": false,
+        "evidence_quote": ""
+      },
+      "duration_ms": 0
+    },
+    {
+      "id": "A6",
+      "label": null,
+      "text": "No-jargon validator: post-LLM проверяет, что финальный markdown не содержит {`module`, `component`, `endpoint`, `prop`, `state`, `import`, `function`} вне блока «Под капотом»; на violation — retry с явной подсказкой в prompt (max 1).",
+      "checked": false,
+      "line": 8,
+      "evidence_kind": "llm_judge",
+      "evidence_spec": null,
+      "verdict": "skipped",
+      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
+      "raw": {
+        "judge_verdict": "inconclusive",
+        "provider": "mock",
+        "model": "mock-1",
+        "prompt_hash": "25cf02d400f0e85a",
+        "cost_usd": 0,
+        "cost_capped": false,
+        "evidence_quote": ""
+      },
+      "duration_ms": 1
+    },
+    {
+      "id": "A7",
+      "label": null,
+      "text": "Privacy / safety: generator **только** пишет в `atlas/projects/<proj>/docs/end-user/`; pre-commit hook предотвращает запись вне этой директории; никакого кода блока не модифицируется.",
+      "checked": false,
+      "line": 9,
+      "evidence_kind": "llm_judge",
+      "evidence_spec": null,
+      "verdict": "skipped",
+      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
+      "raw": {
+        "judge_verdict": "inconclusive",
+        "provider": "mock",
+        "model": "mock-1",
+        "prompt_hash": "1c67faeffae9265a",
+        "cost_usd": 0,
+        "cost_capped": false,
+        "evidence_quote": ""
+      },
+      "duration_ms": 1
+    },
+    {
+      "id": "A8",
+      "label": null,
+      "text": "Localization smoke: `ATLAS_USER_DOCS_LANG=en` → все заголовки и шаги по-английски; default = ru.",
+      "checked": false,
+      "line": 10,
+      "evidence_kind": "llm_judge",
+      "evidence_spec": null,
+      "verdict": "skipped",
+      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
+      "raw": {
+        "judge_verdict": "inconclusive",
+        "provider": "mock",
+        "model": "mock-1",
+        "prompt_hash": "5562c8e6c9cbbdac",
+        "cost_usd": 0,
+        "cost_capped": false,
+        "evidence_quote": ""
+      },
+      "duration_ms": 1
+    }
+  ],
+  "counts": {
+    "pass": 0,
+    "fail": 0,
+    "skipped": 8
+  },
+  "verdict": "inconclusive",
+  "duration_ms": 5,
+  "checked_at": "2026-05-04T08:30:44.916Z"
+}

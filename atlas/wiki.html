@@ -15,9 +15,107 @@
 </style>
 </head><body>
 <h1>Sima Atlas Wiki</h1>
-<h2>b.ui-control — UI Control Plane</h2>
+<p><em>Auto-generated: 2026-05-06T18:45:04.495Z</em></p>
+<h2>Граф продукта</h2>
+<div class="mermaid">flowchart TB
+  classDef done    fill:#dcfce7,stroke:#16a34a,color:#15803d;
+  classDef wip     fill:#fef3c7,stroke:#ca8a04,color:#a16207;
+  classDef review  fill:#dbeafe,stroke:#2563eb,color:#1d4ed8;
+  classDef idea    fill:#f3f4f6,stroke:#6b7280,color:#374151;
+  classDef broken  fill:#fee2e2,stroke:#dc2626,color:#b91c1c;
+  classDef drift   fill:#fae8ff,stroke:#a21caf,color:#86198f;
+  subgraph front["Фронтенд"]
+    b_ui_control["UI Control Plane&lt;br/&gt;&lt;small&gt;wip&lt;/small&gt;"]:::wip
+  end
+  subgraph logic["Логика / бэкенд"]
+    b_core_sync["Sync Engine&lt;br/&gt;&lt;small&gt;wip&lt;/small&gt;"]:::wip
+  end
+  subgraph ai["ИИ / агенты"]
+    b_agent_orchestrator["Agent Orchestrator&lt;br/&gt;&lt;small&gt;review&lt;/small&gt;"]:::review
+    b_llm_gateway["LLM Gateway&lt;br/&gt;&lt;small&gt;review&lt;/small&gt;"]:::review
+    b_operator_profile_learner["Operator Profile Learner&lt;br/&gt;&lt;small&gt;idea&lt;/small&gt;"]:::idea
+  end
+  subgraph data["Данные / хранилище"]
+    b_db["Atlas Database&lt;br/&gt;&lt;small&gt;idea&lt;/small&gt;"]:::idea
+  end
+  subgraph content["Контент / документация"]
+    b_docs["Docs Builder&lt;br/&gt;&lt;small&gt;wip&lt;/small&gt;"]:::wip
+    b_user_docs_generator["End-User Docs Generator&lt;br/&gt;&lt;small&gt;idea&lt;/small&gt;"]:::idea
+  end
+  subgraph testing["Тестирование"]
+    b_acceptance_verifier_loop["Acceptance Verifier Loop&lt;br/&gt;&lt;small&gt;idea&lt;/small&gt;"]:::idea
+    b_smoke_sandbox["Smoke Sandbox (test target)&lt;br/&gt;&lt;small&gt;idea&lt;/small&gt;"]:::idea
+  end
+  b_ui_control --&gt; b_core_sync
+  b_ui_control --&gt; b_agent_orchestrator
+  b_core_sync --&gt; b_db
+  b_agent_orchestrator --&gt; b_db
+  b_agent_orchestrator --&gt; b_core_sync
+  b_agent_orchestrator --&gt; b_llm_gateway
+  b_docs --&gt; b_db
+  b_docs --&gt; b_core_sync
+  b_operator_profile_learner --&gt; b_db
+  b_operator_profile_learner --&gt; b_core_sync
+  b_operator_profile_learner --&gt; b_agent_orchestrator
+  b_operator_profile_learner --&gt; b_llm_gateway
+  b_operator_profile_learner --&gt; b_docs
+  b_acceptance_verifier_loop --&gt; b_db
+  b_acceptance_verifier_loop --&gt; b_core_sync
+  b_acceptance_verifier_loop --&gt; b_agent_orchestrator
+  b_acceptance_verifier_loop --&gt; b_llm_gateway
+  b_user_docs_generator --&gt; b_db
+  b_user_docs_generator --&gt; b_docs
+  b_user_docs_generator --&gt; b_agent_orchestrator
+  b_user_docs_generator --&gt; b_llm_gateway</div>
+<h2>Слои</h2>
+<h3>Фронтенд (<code>front</code>)</h3>
 <ul>
-<li>status: <strong>wip</strong></li>
+<li>🟠 <strong>b.ui-control</strong> — UI Control Plane <em>(wip)</em></li>
+<ul><li>reason: HTML loses references to components.jsx/sidecol.jsx/canvas_tools.jsx — UI does not boot in production; multi-layer rendering depends on PR2 (this PR)</li></ul>
+</ul>
+<h3>Логика / бэкенд (<code>logic</code>)</h3>
+<ul>
+<li>🟠 <strong>b.core-sync</strong> — Sync Engine <em>(wip)</em></li>
+<ul><li>reason: syncCheck only validates file presence, not mission/KPI semantics</li></ul>
+</ul>
+<h3>ИИ / агенты (<code>ai</code>)</h3>
+<ul>
+<li>🔵 <strong>b.agent-orchestrator</strong> — Agent Orchestrator <em>(review)</em></li>
+<ul><li>reason: PR4: .cursor/hooks.json now uses valid Cursor events (beforeSubmitPrompt/afterFileEdit/beforeShellExecution/stop) wired to real action scripts. Cursor edits write to checks.log of the right block via files.md mapping. Drift guard rejects pip/yarn-add-vue/etc. inject<em>context</em>pack provides per-block context. Live Cursor wiring (real env vars) needs UI test (PR4.5).</li></ul>
+<li>🔵 <strong>b.llm-gateway</strong> — LLM Gateway <em>(review)</em></li>
+<ul><li>reason: PR3: gateway implemented (Anthropic + Google + mock), structured output via JSON schema, trace+cost cap, golden eval avg 1.0 in mock. Review needed: live providers untested without keys; UI confidence/diff flow pending PR3.5.</li></ul>
+<li>🟡 <strong>b.operator-profile-learner</strong> — Operator Profile Learner <em>(idea)</em></li>
+<ul><li>reason: PR-Backlog: design-only milestone; one of the LAST PRs. Реальная имплементация (PR-1…PR-6) делается после того, как реальный пользователь пройдёт ≥10 done и накопит данные — иначе наблюдать нечего. Сейчас зарегистрирован как карта будущей работы.</li></ul>
+</ul>
+<h3>Данные / хранилище (<code>data</code>)</h3>
+<ul>
+<li>🟡 <strong>b.db</strong> — Atlas Database <em>(idea)</em></li>
+<ul><li>reason: Storage is markdown + localStorage; no real DB layer yet</li></ul>
+</ul>
+<h3>Контент / документация (<code>content</code>)</h3>
+<ul>
+<li>🟠 <strong>b.docs</strong> — Docs Builder <em>(wip)</em></li>
+<ul><li>reason: Generators run but feed on template missions; needs layer-aware wiki and mermaid (PR2)</li></ul>
+<li>🟡 <strong>b.user-docs-generator</strong> — End-User Docs Generator <em>(idea)</em></li>
+<ul><li>reason: PR-Backlog: design-only milestone. Closes the end-user tutorial gap — Атлас сам пишет UI блоков, значит знает все кнопки и поля; этот блок генерирует 'как пользоваться' markdown для конечного пользователя продукта (не developer wiki — это делает b.docs). Auto-regen на каждое изменение JSX. 3-4 PR breakdown.</li></ul>
+</ul>
+<h3>Тестирование (<code>testing</code>)</h3>
+<ul>
+<li>🟡 <strong>b.acceptance-verifier-loop</strong> — Acceptance Verifier Loop <em>(idea)</em></li>
+<ul><li>reason: PR-Backlog: design-only milestone. Closes the verification gap (Symphony trusts agent output, Hermes has no contract layer). После любого run<em>block</em>implementation проверяет каждый пункт acceptance.md через детерминированные collectors (exit<em>code/fs</em>glob/file<em>diff/log</em>grep) + LLM-judge fallback; блокирует wip→done если verdict !== pass. 5-PR breakdown.</li></ul>
+<li>🟡 <strong>b.smoke-sandbox</strong> — Smoke Sandbox (test target) <em>(idea)</em></li>
+<ul><li>reason: Reserved write-target for e2e/smoke scripts so they never touch real product blocks</li></ul>
+</ul>
+<h2>Блоки</h2>
+<h3>🟠 b.ui-control — UI Control Plane</h3>
+<ul>
+<li><strong>layer</strong>: <code>front</code></li>
+<li><strong>type</strong>: module</li>
+<li><strong>status</strong>: <code>wip</code> — HTML loses references to components.jsx/sidecol.jsx/canvas_tools.jsx — UI does not boot in production; multi-layer rendering depends on PR2 (this PR)</li>
+<li><strong>mvp</strong>: yes</li>
+<li><strong>depends_on</strong>: <code>b.core-sync</code>, <code>b.agent-orchestrator</code></li>
+<li><strong>tech_stack</strong>: <code>react</code>, <code>babel-standalone</code></li>
+<li><strong>files</strong>: 17 (<code>atlas/blocks/b.ui-control/files.md</code>)</li>
 </ul>
 <h1>b.ui-control — mission</h1>
 <p>Визуальная control plane Симы: один React-канвас, в котором человек видит схему продукта (слои, блоки, связи), статус каждого блока (idea/wip/review/done/broken/drift), запускает действия по блоку (Implement / Review / Done / Rollback / mark-dead) и собирает context-pack для агента.</p>
@@ -34,13 +132,55 @@
 <li>LLM-вызовы из UI (PR3).</li>
 <li>Watcher событий Cursor (PR4).</li>
 </ul>
-<h2>b.core-sync — Sync Engine</h2>
+<h4>KPI</h4>
+<h1>b.ui-control — KPI</h1>
 <ul>
-<li>status: <strong>wip</strong></li>
+<li><strong>KPI-1 (boot)</strong>: HTML-страница <code>frontend/Сима - универсальный конструктор.html</code> открывается в браузере без ошибок в консоли (всё React-дерево рендерится). Сейчас: ✗ (часть JSX не подключена).</li>
+<li><strong>KPI-2 (multi-layer)</strong>: канвас рисует не менее 5 горизонтальных слоёв из <code>ARCH_LAYERS</code>, и блоки распределены по этим слоям по полю <code>layer</code>. Сейчас: ✗ (графа без поля <code>layer</code>, всё валится в один контейнер).</li>
+<li><strong>KPI-3 (sync visibility)</strong>: при <code>syncCheck</code> блоки со статусом drift/broken визуально подсвечиваются на канвасе с причиной из <code>syncReport.details</code>. Сейчас: △ (логика есть в <code>atlas_sync.js</code>, но завязана только на наличие файлов).</li>
+<li><strong>KPI-4 (lifecycle gating)</strong>: кнопка Done на блоке заблокирована, пока не пройдены acceptance + kpi проверки. Сейчас: ✓ (логика <code>isReadyToDone</code> в <code>app_v2.jsx</code>).</li>
+<li><strong>KPI-5 (context-pack export)</strong>: для выбранного блока копируется в буфер deterministic JSON со всеми ссылками на mission/kpi/depends/provides. Сейчас: ✓ для UI-кнопки, файл-output генерируется через <code>scripts/build<em>context</em>pack.mjs</code>.</li>
+</ul>
+<h4>Acceptance</h4>
+<h1>b.ui-control — acceptance</h1>
+<p>Блок переходит в <code>done</code> только когда:</p>
+<ul>
+<li>[ ] <strong>A1.</strong> HTML открывается в браузере и <code>&lt;div id="root"&gt;</code> заполнен (smoke-тест: <code>headless run</code> грузит страницу, ловит <code>error</code>-события, ждёт что DOM содержит <code>.l2-top</code> и <code>.workarea</code>).</li>
+<li>[ ] <strong>A2.</strong> Все JSX-зависимости <code>app_v2.jsx</code> подгружены (нет <code>useTweaks/SourcePalette/CanvasInspector is not defined</code> в консоли).</li>
+<li>[ ] <strong>A3.</strong> При выбранном проекте <code>atlas-live</code> канвас архитектуры рисует ≥ 3 горизонтальных слоя; в каждом слое — корректные блоки из <code>graph.json</code> по полю <code>layer</code> (зависит от PR2).</li>
+<li>[ ] <strong>A4.</strong> Sync-check на 5 блоках возвращает либо ok, либо drift с конкретной причиной (<code>status_reason</code>) — без ложных «всё зелёное».</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: exit_code
+evidence_spec:
+  cmd: node scripts/validate_block_contracts.mjs
+  expect_in_stdout: "OK"</code></pre>
+<ul>
+<li>[ ] <strong>A5.</strong> Кнопка Done заблокирована, если <code>acceptance</code> чек-листа блока не отмечены полностью И в <code>checks.log</code> нет <code>acceptance pass</code> + <code>kpi pass</code>.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: log_grep
+evidence_spec:
+  file: scripts/log_transition.mjs
+  pattern: "verdict !== 'pass'"</code></pre>
+<h2>Не считается acceptance:</h2>
+<ul>
+<li>наличие файлов;</li>
+<li>прохождение <code>validate<em>block</em>contracts.mjs</code> (это контрактный gate, не приёмка);</li>
+<li>генерация <code>wiki.html</code> (это <code>b.docs</code>).</li>
+</ul>
+<hr/>
+<h3>🟠 b.core-sync — Sync Engine</h3>
+<ul>
+<li><strong>layer</strong>: <code>logic</code></li>
+<li><strong>type</strong>: module</li>
+<li><strong>status</strong>: <code>wip</code> — syncCheck only validates file presence, not mission/KPI semantics</li>
+<li><strong>mvp</strong>: yes</li>
+<li><strong>depends_on</strong>: <code>b.db</code></li>
+<li><strong>tech_stack</strong>: <code>nodejs</code>, <code>esm</code></li>
+<li><strong>files</strong>: 8 (<code>atlas/blocks/b.core-sync/files.md</code>)</li>
 </ul>
 <h1>b.core-sync — mission</h1>
 <p>Sync Engine — движок проверки синхронизации блоков продукта с миссией, KPI, стэком и кодом. Главная задача — детектить «рассинхрон»: код пишется в одном фреймворке, ТЗ говорит про другой; блок A объявляет, что зависит от capability X у блока B, а B такой capability не предоставляет; KPI задан, но в <code>checks.log</code> нет ни одной измеренной записи.</p>
-<p>Текущая реализация (<code>Sima (Remix)/atlas<em>sync.js</code> + <code>scripts/validate</em>*</code>) — каркас: проверяет наличие файлов, подсчитывает прогресс tasks/KPI, сравнивает <code>depends_on/provides</code>. Этого недостаточно для миссии «решить рассинхрон» — нужно семантическое сопоставление миссии блока с реализацией (требует LLM, PR3) и реальный анализ кода (PR4).</p>
+<p>Текущая реализация (<code>frontend/atlas<em>sync.js</code> + <code>scripts/validate</em>*</code>) — каркас: проверяет наличие файлов, подсчитывает прогресс tasks/KPI, сравнивает <code>depends_on/provides</code>. Этого недостаточно для миссии «решить рассинхрон» — нужно семантическое сопоставление миссии блока с реализацией (требует LLM, PR3) и реальный анализ кода (PR4).</p>
 <h2>Layer</h2>
 <p>logic</p>
 <h2>Что должен делать в done-версии (роадмап)</h2>
@@ -52,9 +192,54 @@
 <li>Генерация документации (это <code>b.docs</code>).</li>
 <li>UI-визуализация sync-репорта (это <code>b.ui-control</code>).</li>
 </ul>
-<h2>b.db — Atlas Database</h2>
+<h4>KPI</h4>
+<h1>b.core-sync — KPI</h1>
 <ul>
-<li>status: <strong>idea</strong></li>
+<li><strong>KPI-1 (contract sync)</strong>: для каждого блока <code>X</code> с <code>depends<em>on: [{ block</em>id: Y, capability: C }]</code> проверяется, что <code>Y.provides</code> содержит <code>C</code>. Если нет — <code>drift<em>reason="missing</em>capability"</code>. Сейчас: △ (есть <code>validate<em>dependency</em>contracts.mjs</code>, но capability-формат пока строковый).</li>
+<li><strong>KPI-2 (stack sync)</strong>: каждое заявленное <code>tech_stack</code> блока (frontend/backend) подтверждается реальным импортом / зависимостью в <code>files.md</code> блока. Сейчас: ✗ (<code>files.md</code> пустой у всех блоков).</li>
+<li><strong>KPI-3 (semantic sync)</strong> [PR3]: LLM сравнивает <code>mission.md ↔ checks.log + tasks.md</code> и возвращает <code>is_consistent: bool, reasons: []</code>. Цель — <code>precision &gt;= 0.8</code> на golden set из 10 блоков. Сейчас: ✗.</li>
+<li><strong>KPI-4 (false-positive rate)</strong>: при двух прогонах syncCheck без изменений отчёт идентичен (нет случайных drift-flag). Сейчас: ✓ (детерминирован).</li>
+<li><strong>KPI-5 (latency)</strong>: <code>runSyncWithChecks</code> отрабатывает за &lt; 500 ms на 20 блоках. Сейчас: ✓ (≈ 50 ms на 5 блоках).</li>
+</ul>
+<h4>Acceptance</h4>
+<h1>b.core-sync — acceptance</h1>
+<ul>
+<li>[ ] <strong>A1.</strong> На пустом графе с одним блоком без зависимостей syncCheck возвращает <code>synchronized: 1, drift: 0, broken: 0</code>.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/atlas_sync.selftest.mjs
+  expect_in_stdout: "OK"</code></pre>
+<ul>
+<li>[ ] <strong>A2.</strong> Если блок A заявляет <code>depends<em>on: [{block</em>id: B, capability: foo}]</code>, а у B нет <code>provides: [foo]</code>, syncCheck возвращает <code>broken</code> с <code>reason: missing_capability(B.foo)</code>.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: exit_code
+evidence_spec:
+  cmd: node scripts/validate_dependency_contracts.mjs
+  expect_in_stdout: "OK"</code></pre>
+<ul>
+<li>[ ] <strong>A3.</strong> Если блок имеет <code>tech<em>stack: [react]</code>, а в <code>files.md</code> указан <code>.py</code>-файл — syncCheck возвращает <code>drift</code> с <code>reason: stack</em>mismatch</code>.</li>
+<li>[ ] <strong>A4.</strong> [PR3] LLM-семантический gate: блок с миссией «принимает платежи через Stripe» и реализацией без <code>stripe</code>-импорта в <code>files.md</code> помечается <code>drift</code> с <code>reason: mission<em>implementation</em>mismatch</code>.</li>
+<li>[ ] <strong>A5.</strong> Все детектированные drift/broken попадают в <code>atlas/sync_report.json</code> со ссылкой на конкретный файл/строку (для UI).</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: exit_code
+evidence_spec:
+  cmd: node scripts/validate_block_contracts.mjs
+  expect_in_stdout: "OK"</code></pre>
+<h2>Не считается acceptance:</h2>
+<ul>
+<li>наличие <code>mission.md</code> (это контрактный gate).</li>
+<li>факт того, что <code>runSync</code> не упал (это smoke).</li>
+</ul>
+<hr/>
+<h3>🟡 b.db — Atlas Database</h3>
+<ul>
+<li><strong>layer</strong>: <code>data</code></li>
+<li><strong>type</strong>: module</li>
+<li><strong>status</strong>: <code>idea</code> — Storage is markdown + localStorage; no real DB layer yet</li>
+<li><strong>mvp</strong>: yes</li>
+<li><strong>tech_stack</strong>: <code>filesystem</code>, <code>json</code>, <code>markdown</code></li>
+<li><strong>files</strong>: 11 (<code>atlas/blocks/b.db/files.md</code>)</li>
 </ul>
 <h1>b.db — mission</h1>
 <p>Atlas storage слой: единый источник правды для графа продукта (<code>graph.json</code>), блоков (<code>blocks/&lt;id&gt;/*.md</code>), очереди ingestion (<code>ingestion_queue.jsonl</code>), журналов transitions/decisions/checks. Цель — предоставить детерминированный API для чтения/записи без дрейфа.</p>
@@ -71,29 +256,161 @@
 <li>Векторный поиск (это backup-память, не основная).</li>
 <li>Multi-project namespacing (PR в стек после PR4).</li>
 </ul>
-<h2>b.agent-orchestrator — Agent Orchestrator</h2>
+<h4>KPI</h4>
+<h1>b.db — KPI</h1>
 <ul>
-<li>status: <strong>wip</strong></li>
+<li><strong>KPI-1 (atomicity)</strong>: при kill -9 во время <code>update_block</code> файлы блока остаются в консистентном состоянии (либо все изменения применены, либо ни одного). Сейчас: ✗ (нет atomic-write через rename).</li>
+<li><strong>KPI-2 (history)</strong>: каждый <code>transition<em>block</code> и <code>update</em>block</code> создаёт запись в <code>atlas/transitions.log</code> с before/after. Сейчас: ✓ (<code>scripts/log_transition.mjs</code>).</li>
+<li><strong>KPI-3 (versioning)</strong>: при <code>update_block</code> старая версия mission/kpi сохраняется в <code>blocks/&lt;id&gt;/history/&lt;timestamp&gt;.md</code>. Сейчас: ✗ (history-папок нет).</li>
+<li><strong>KPI-4 (read-API)</strong>: MCP tool <code>read_block</code> возвращает все *.md и *.log одной операцией &lt; 50 ms. Сейчас: ✓.</li>
+<li><strong>KPI-5 (migration)</strong>: при изменении схемы graph.json есть <code>scripts/migrate<em>&lt;from&gt;</em>&lt;to&gt;.mjs</code> и nightly его прогоняет. Сейчас: ✗ (миграции нет).</li>
+</ul>
+<h4>Acceptance</h4>
+<h1>b.db — acceptance</h1>
+<ul>
+<li>[ ] <strong>A1.</strong> Smoke: 100 параллельных <code>update<em>block</code> с kill -9 в случайные моменты — после восстановления <code>validate</em>block_contracts.mjs</code> проходит на всех затронутых блоках.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: exit_code
+evidence_spec:
+  cmd: node scripts/validate_block_contracts.mjs
+  expect_in_stdout: "OK"</code></pre>
+<ul>
+<li>[ ] <strong>A2.</strong> <code>scripts/get<em>block</em>history.mjs &lt;block<em>id&gt;</code> возвращает не менее 2 записей после двух последовательных <code>update</em>block</code>.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: fs_glob
+evidence_spec:
+  pattern: atlas/transitions.log
+  min_count: 1</code></pre>
+<ul>
+<li>[ ] <strong>A3.</strong> При попытке записать <code>graph.json</code> со схемой, не совпадающей с <code>atlas/db_schema.json</code>, операция отклоняется с понятной ошибкой.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: fs_glob
+evidence_spec:
+  pattern: atlas/db_schema.json
+  min_count: 1</code></pre>
+<ul>
+<li>[ ] <strong>A4.</strong> Migration: запуск <code>scripts/migrate<em>v1</em>v2.mjs</code> на старом <code>graph.json</code> v1 даёт валидный v2 без потерь данных.</li>
+<li>[ ] <strong>A5.</strong> Read-API возвращает идентичный JSON в двух последовательных вызовах для неизменённого блока (детерминизм).</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: exit_code
+evidence_spec:
+  cmd: node scripts/validate_files_registry.mjs
+  expect_in_stdout: "OK"</code></pre>
+<h2>Не считается acceptance:</h2>
+<ul>
+<li>факт того, что markdown-файлы блока существуют (это контрактный gate).</li>
+</ul>
+<hr/>
+<h3>🔵 b.agent-orchestrator — Agent Orchestrator</h3>
+<ul>
+<li><strong>layer</strong>: <code>ai</code></li>
+<li><strong>type</strong>: module</li>
+<li><strong>status</strong>: <code>review</code> — PR4: .cursor/hooks.json now uses valid Cursor events (beforeSubmitPrompt/afterFileEdit/beforeShellExecution/stop) wired to real action scripts. Cursor edits write to checks.log of the right block via files.md mapping. Drift guard rejects pip/yarn-add-vue/etc. inject<em>context</em>pack provides per-block context. Live Cursor wiring (real env vars) needs UI test (PR4.5).</li>
+<li><strong>mvp</strong>: yes</li>
+<li><strong>depends_on</strong>: <code>b.db</code>, <code>b.core-sync</code>, <code>b.llm-gateway</code></li>
+<li><strong>tech_stack</strong>: <code>nodejs</code>, <code>esm</code>, <code>mcp</code></li>
+<li><strong>files</strong>: 19 (<code>atlas/blocks/b.agent-orchestrator/files.md</code>)</li>
 </ul>
 <h1>b.agent-orchestrator — mission</h1>
 <p>Шина между Sima и любым coding-агентом (Cursor, Claude Code, Codex CLI, Antigravity). Главная задача — обеспечить, чтобы все агенты работали по <strong>одному и тому же</strong> context-pack, читали <code>/atlas/blocks/&lt;id&gt;/</code> перед написанием кода и пушили обратно реальные события (file edits, shell calls, status transitions), а не шаблонные «sync pass»-логи.</p>
-<p>Текущая реализация: MCP-сервер (<code>scripts/mcp<em>atlas</em>server.mjs</code> с 21+ tools), <code>.cursor/hooks.json</code>, <code>AGENTS.md</code> / <code>CLAUDE.md</code> контракты. Главные пропуски — <code>.cursor/hooks.json</code> использует выдуманное событие <code>afterPromptSent</code> и формат <code>action.run_command</code>, который Cursor не интерпретирует; нет наблюдения за реальными file edits и tool calls агентов.</p>
 <h2>Layer</h2>
 <p>ai</p>
-<h2>Что должен делать в done-версии</h2>
-<p>1. Валидные Cursor hooks: <code>beforeShellExecution</code>, <code>afterFileEdit</code>, <code>beforeSubmitPrompt</code> с реальным запуском node-скриптов.</p>
-<p>2. <code>observe<em>file</em>edit.mjs</code>: получает путь файла → ищет в <code>files.md</code> блоков → пишет в <code>checks.log</code> блока факт правки + <code>git diff --stat</code>.</p>
-<p>3. <code>guard<em>against</em>drift.mjs</code>: проверяет shell-команды против <code>tech_stack.md</code> (например, блокирует <code>pip install</code> если стек React).</p>
-<p>4. Adapter для Claude Code: <code>claude --print --add-dir /atlas/blocks/&lt;id&gt;</code> запускается из MCP-tool <code>run<em>block</em>implementation</code>.</p>
-<p>5. Multi-agent parity: один и тот же context-pack JSON отдаётся через Cursor (MCP) и Claude (CLI flag).</p>
+<h2>Что реализовано (после PR4)</h2>
+<p>1. <strong>MCP-сервер</strong> <code>scripts/mcp<em>atlas</em>server.mjs</code> (21+ tools: read<em>block / list</em>dependencies / sync<em>check / build</em>context<em>pack / log</em>check / mark<em>file</em>dead / update<em>block / generate</em>validated<em>bundle / nightly</em>consolidation / render<em>wiki</em>html / ingest<em>chat</em>distillate / enqueue<em>ingestion / apply</em>ingestion_queue ...). Cursor подключает его через <code>.cursor/mcp.json</code>.</p>
+<p>2. <strong>Валидный <code>.cursor/hooks.json</code></strong> в формате Cursor (<code>{ version: 1, hooks: { event: [{ command }] } }</code>) с 4 событиями:</p>
+<p>   - <code>beforeSubmitPrompt</code> → <code>node scripts/inject<em>context</em>pack.mjs</code> (вкладывает block-scoped context).</p>
+<p>   - <code>afterFileEdit</code> → <code>node scripts/observe<em>file</em>edit.mjs</code> (записывает правку в <code>checks.log</code> блока через <code>files.md</code> reverse-mapping).</p>
+<p>   - <code>beforeShellExecution</code> → <code>node scripts/guard<em>against</em>drift.mjs</code> (отклоняет команды против <code>tech_stack.md</code>).</p>
+<p>   - <code>stop</code> → <code>node scripts/calc<em>intelligence</em>health.mjs</code> (обновляет дашборд).</p>
+<p>3. <strong><code>validate<em>cursor</em>hooks.mjs</code></strong> — gate в nightly: фейлится если формат не соответствует Cursor или command ссылается на несуществующий скрипт.</p>
+<p>4. <strong>9-case integration test</strong> <code>tests/cursor<em>hooks</em>actions.test.mjs</code>: known/unknown/empty path, pip-rejected / npm-approved / yarn-vue-rejected / empty-command, inject-by-env / inject-by-prompt-detection.</p>
+<p>5. <strong>AGENTS.md / CLAUDE.md</strong> генерируются <code>scripts/generate<em>agent</em>contracts.mjs</code> и одинаковы для всех агентов.</p>
+<h2>Что осталось до done</h2>
+<ul>
+<li>Live-проверка с реальным Cursor в IDE: запустить пример pip-команды, убедиться, что она блокируется в реальном окружении (а не только в наших тестах через CLI argv).</li>
+<li>Adapter для Claude Code CLI: MCP tool <code>run<em>block</em>implementation(block_id)</code> → <code>claude --print --add-dir atlas/blocks/&lt;id&gt;</code>.</li>
+<li>Real diff-парити между Cursor MCP и Claude CLI context-packs (PR4.5).</li>
+</ul>
 <h2>Out of scope</h2>
 <ul>
 <li>LLM-извлечение смысла из чата (это <code>b.llm-gateway</code>).</li>
 <li>UI-операции по блоку (это <code>b.ui-control</code>).</li>
 </ul>
-<h2>b.docs — Docs Builder</h2>
+<h4>KPI</h4>
+<h1>b.agent-orchestrator — KPI</h1>
 <ul>
-<li>status: <strong>wip</strong></li>
+<li><strong>KPI-1 (valid hooks)</strong>: <code>.cursor/hooks.json</code> использует только реальные Cursor события и формат <code>action.run_command</code> соответствует Cursor SDK. Сейчас: ✗ (<code>afterPromptSent</code> не существует у Cursor).</li>
+<li><strong>KPI-2 (real observation)</strong>: после каждого <code>afterFileEdit</code> в <code>checks.log</code> соответствующего блока появляется запись с актуальным <code>git diff --stat</code>. Сейчас: ✗ (хук просто дописывает напоминание, не читает diff).</li>
+<li><strong>KPI-3 (drift guard)</strong>: shell-команда, противоречащая <code>tech<em>stack.md</code>, блокируется хуком и логируется в <code>decisions.log</code>. Сейчас: ✗ (validate</em>text без реальной проверки).</li>
+<li><strong>KPI-4 (parity)</strong>: <code>validate<em>agent</em>parity.mjs</code> подтверждает, что для любого блока context-pack одинаков для Cursor (через MCP <code>build<em>context</em>pack</code>) и для Claude Code (через CLI с <code>--add-dir</code>). Сейчас: △ (есть <code>validate<em>parity</em>matrix.mjs</code>, но проверка формальная).</li>
+<li><strong>KPI-5 (no-chat-leak)</strong>: чат с агентом не попадает в долгую память Atlas; в <code>decisions.log</code> блока — только distillate, не сырые сообщения. Сейчас: ✓ (есть, но distillate приходит через regex-grep, не LLM).</li>
+</ul>
+<h4>Acceptance</h4>
+<h1>b.agent-orchestrator — acceptance</h1>
+<p>Acceptance gate для перехода <code>review → done</code>. Каждый пункт привязан к конкретному scenario flow и подтверждается через nightly или ручной live-test.</p>
+<ul>
+<li>[x] <strong>A1 (hooks logic).</strong> <code>.cursor/hooks.json</code> валиден (<code>validate<em>cursor</em>hooks.mjs</code> OK; 4 события beforeSubmitPrompt/afterFileEdit/beforeShellExecution/stop). UI sync ↔ MCP идёт через единый формат.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: exit_code
+evidence_spec:
+  cmd: node scripts/validate_cursor_hooks.mjs
+  expect_in_stdout: "OK"</code></pre>
+<ul>
+<li>[x] <strong>A2 (afterFileEdit flow).</strong> При file-edit на <code>frontend/app<em>v2.jsx</code> <code>observe</em>file<em>edit.mjs</code> находит owner-блок через <code>files.md</code> reverse-mapping и пишет <code>cursor</em>edit pass</code> в <code>b.ui-control/checks.log</code>. Зависимость на <code>files.md</code> атласа подтверждена <code>cursor<em>hooks</em>actions.test</code>.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/cursor_hooks_actions.test.mjs
+  expect_in_stdout: "OK"</code></pre>
+<ul>
+<li>[x] <strong>A3 (drift guard scenario).</strong> Команда <code>pip install neo4j</code> отклоняется (exit 1) и пишет <code>drift<em>guard fail</code> в <code>b.agent-orchestrator/checks.log</code> + <code>atlas/transitions.log</code>. <code>npm install react</code> пропускается. Test 4–7 в <code>cursor</em>hooks_actions.test</code>.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/cursor_hooks_actions.test.mjs
+  expect_in_stdout: "9 cases"</code></pre>
+<ul>
+<li>[x] <strong>A4 (inject<em>context</em>pack flow).</strong> <code>inject<em>context</em>pack.mjs</code> собирает project + rules + tech<em>stack + block-mission/kpi/acceptance/depends/files на запрос с <code>SIMA</em>BLOCK<em>ID</code> или с автодетектом блока из текста промпта. UI sync ↔ context-pack стабилен. Test 8–9 в <code>cursor</em>hooks_actions.test</code>.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/cursor_hooks_actions.test.mjs
+  expect_in_stdout: "OK"</code></pre>
+<ul>
+<li>[ ] <strong>A5 (live Cursor flow).</strong> В реальной IDE открыт репо, hook <code>beforeShellExecution</code> блокирует <code>pip install</code> без необходимости запуска CLI вручную. Live-проверка после первого визуального теста (PR4.5). Headless эквивалент проверяет всю цепочку action-скриптов (validate<em>cursor</em>hooks → guard<em>against</em>drift → observe<em>file</em>edit → inject<em>context</em>pack → cursor<em>hooks</em>actions.test) с тем же env-shape, что Cursor выставляет.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/cursor_live.headless.smoke.mjs
+  expect_in_stdout: "OK"</code></pre>
+<ul>
+<li>[ ] <strong>A6 (Claude Code adapter).</strong> MCP tool <code>run<em>block</em>implementation(block_id)</code> запускает <code>claude --print --add-dir atlas/blocks/&lt;id&gt;</code> и возвращает summary, привязанное к этому блоку (PR4.5).</li>
+<li>[ ] <strong>A7 (parity scenario).</strong> <code>validate<em>agent</em>parity.mjs</code> сравнивает реальный context-pack JSON Cursor (через MCP) с context-pack Claude (через CLI flag) — diff должен быть пустой. Сейчас валидатор есть, но diff формальный (PR4.5).</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: exit_code
+evidence_spec:
+  cmd: node scripts/validate_agent_parity.mjs
+  expect_in_stdout: "OK"</code></pre>
+<h2>Что считается NOT acceptance</h2>
+<ul>
+<li>Существование файлов <code>.cursor/hooks.json</code> или MCP-сервера.</li>
+<li>Факт того, что MCP-сервер запускается.</li>
+</ul>
+<h2>Зависимости</h2>
+<ul>
+<li><code>b.agent-orchestrator</code> depends_on: b.db, b.core-sync, b.llm-gateway.</li>
+<li>Этот блок sync с <code>b.ui-control</code> через единый context-pack JSON.</li>
+</ul>
+<hr/>
+<h3>🟠 b.docs — Docs Builder</h3>
+<ul>
+<li><strong>layer</strong>: <code>content</code></li>
+<li><strong>type</strong>: module</li>
+<li><strong>status</strong>: <code>wip</code> — Generators run but feed on template missions; needs layer-aware wiki and mermaid (PR2)</li>
+<li><strong>mvp</strong>: yes</li>
+<li><strong>depends_on</strong>: <code>b.db</code>, <code>b.core-sync</code></li>
+<li><strong>tech_stack</strong>: <code>nodejs</code>, <code>esm</code>, <code>markdown</code></li>
+<li><strong>files</strong>: 8 (<code>atlas/blocks/b.docs/files.md</code>)</li>
 </ul>
 <h1>b.docs — mission</h1>
 <p>Документ-генератор Атласа: на каждый блок собирает живую страницу wiki из его <code>mission.md / kpi.md / acceptance.md / depends<em>on.md / provides.md / files.md / patterns.md</code>. На каждый проект собирает <code>auto</em>tz.md</code> (агрегированное ТЗ) и <code>roadmap.md</code> (приоритизированный список блоков по статусу и зависимостям).</p>
@@ -111,9 +428,55 @@
 <ul>
 <li>Извлечение содержимого блоков из чата (это <code>b.llm-gateway</code> + <code>b.agent-orchestrator</code>).</li>
 </ul>
-<h2>b.llm-gateway — LLM Gateway</h2>
+<h4>KPI</h4>
+<h1>b.docs — KPI</h1>
 <ul>
-<li>status: <strong>review</strong></li>
+<li><strong>KPI-1 (no template leakage)</strong>: ни одна страница wiki не содержит шаблонных фраз («Ключевая цель блока», «Автосоздано», «определить»). Сейчас: ✗ (пока проверка не подключена; PR1 чинит).</li>
+<li><strong>KPI-2 (graph diagram)</strong>: <code>wiki.html</code> содержит Mermaid-диаграмму с блоками и зависимостями. Сейчас: ✗ (<code>render<em>wiki</em>html.mjs</code> рендерит plain markdown).</li>
+<li><strong>KPI-3 (layer navigation)</strong>: wiki разбит на разделы по слоям (front/logic/ai/data/...). Сейчас: ✗ (зависит от поля <code>layer</code> в graph.json — добавляется в PR2).</li>
+<li><strong>KPI-4 (roadmap topo-sort)</strong>: при двух блоках A→B (A зависит от B), B всегда раньше A в roadmap, даже если у B статус <code>done</code>, а у A <code>wip</code>. Сейчас: ✗ (<code>rebuild<em>atlas</em>roadmap.mjs</code> сортирует только по статусу).</li>
+<li><strong>KPI-5 (auto<em>tz coverage)</strong>: auto</em>tz.md содержит секции для каждого активного блока с заполненной mission, и пропускает блоки в статусе <code>idea</code> без mission. Сейчас: △ (генерирует все, без фильтра по template).</li>
+</ul>
+<h4>Acceptance</h4>
+<h1>b.docs — acceptance</h1>
+<ul>
+<li>[ ] <strong>A1.</strong> При наличии в любом mission.md фразы «Ключевая цель блока…» или «Автосоздано из…» команда <code>node scripts/generate_wiki.mjs</code> падает с ненулевым exit-кодом. (Гейт против шаблонов.)</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: exit_code
+evidence_spec:
+  cmd: node scripts/validate_no_template_placeholders.mjs
+  expect_in_stdout: "OK"</code></pre>
+<ul>
+<li>[ ] <strong>A2.</strong> В <code>wiki.html</code> присутствует <code>&lt;div class="mermaid"&gt;</code> с актуальным графом по <code>graph.json</code>.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: log_grep
+evidence_spec:
+  file: atlas/wiki.html
+  pattern: "class=\"mermaid\""</code></pre>
+<ul>
+<li>[ ] <strong>A3.</strong> Если блок A <code>depends_on: [B]</code>, то в <code>roadmap.md</code> B появляется на меньшей позиции, чем A — независимо от статуса.</li>
+<li>[ ] <strong>A4.</strong> <code>auto_tz.md</code> собран только из non-template mission/kpi и содержит ссылки на исходные <code>blocks/&lt;id&gt;/*.md</code>.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: fs_glob
+evidence_spec:
+  pattern: ТЗ/auto_tz.md
+  min_count: 1</code></pre>
+<ul>
+<li>[ ] <strong>A5.</strong> При отсутствии у блока поля <code>layer</code> (старый формат) wiki показывает раздел «Без слоя», а не пихает в первый попавшийся.</li>
+</ul>
+<h2>Не считается acceptance:</h2>
+<ul>
+<li>наличие файлов <code>wiki.html</code>, <code>auto_tz.md</code>, <code>roadmap.md</code> (это smoke).</li>
+</ul>
+<hr/>
+<h3>🔵 b.llm-gateway — LLM Gateway</h3>
+<ul>
+<li><strong>layer</strong>: <code>ai</code></li>
+<li><strong>type</strong>: module</li>
+<li><strong>status</strong>: <code>review</code> — PR3: gateway implemented (Anthropic + Google + mock), structured output via JSON schema, trace+cost cap, golden eval avg 1.0 in mock. Review needed: live providers untested without keys; UI confidence/diff flow pending PR3.5.</li>
+<li><strong>mvp</strong>: yes</li>
+<li><strong>tech_stack</strong>: <code>nodejs</code>, <code>anthropic-api</code>, <code>google-genai-api</code></li>
+<li><strong>files</strong>: 13 (<code>atlas/blocks/b.llm-gateway/files.md</code>)</li>
 </ul>
 <h1>b.llm-gateway — mission</h1>
 <p>Единая точка входа для всех LLM-вызовов внутри Атласа. Реализовано в <code>scripts/llm_gateway.mjs</code>:</p>
@@ -142,9 +505,686 @@
 <li>Streaming.</li>
 <li>Fine-tuning или local-inference (vLLM и т.п.) — оставлено на enterprise mode.</li>
 </ul>
-<h2>b.smoke-sandbox — Smoke Sandbox (test target)</h2>
+<h4>KPI</h4>
+<h1>b.llm-gateway — KPI</h1>
 <ul>
-<li>status: <strong>idea</strong></li>
+<li><strong>KPI-1 (structured output)</strong>: <code>callLLM({ schema })</code> гарантирует, что ответ — валидный JSON по <code>schema</code>; при невалидном ответе — 1 ретрай + понятная ошибка. Сейчас: ✗ (блока нет).</li>
+<li><strong>KPI-2 (mock parity)</strong>: тестовый прогон с <code>LLM<em>PROVIDER=mock</code> и реальный с <code>LLM</em>PROVIDER=anthropic</code> дают одинаковую форму ответа (одна схема). Сейчас: ✗.</li>
+<li><strong>KPI-3 (cost cap)</strong>: <code>LLM<em>MAX</em>USD<em>PER</em>RUN=0.05</code> (по умолчанию) — превышение стоп. Сейчас: ✗.</li>
+<li><strong>KPI-4 (latency)</strong>: p95 &lt; 6 секунд на 4k токенов входа Claude Haiku. Сейчас: n/a.</li>
+<li><strong>KPI-5 (provider fallback)</strong>: при 429 от primary → автоматический fallback на secondary провайдера, если оба ключа есть. Сейчас: ✗.</li>
+</ul>
+<h4>Acceptance</h4>
+<h1>b.llm-gateway — acceptance</h1>
+<p>Acceptance gate для перехода <code>review → done</code>. Все пункты должны иметь признак прохождения в <code>checks.log</code> либо в auto-evidence из nightly.</p>
+<ul>
+<li>[x] <strong>A1.</strong> Selftest <code>node tests/llm_gateway.selftest.mjs</code> проходит (4 case: schema validation, extractBlockSchema flow, trace write, no-schema fallback). Evidence: <code>checks.log</code> строки с <code>acceptance pass A1</code>.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/llm_gateway.selftest.mjs
+  expect_in_stdout: "OK"</code></pre>
+<ul>
+<li>[x] <strong>A2.</strong> Подключение в <code>scripts/analyze<em>conversation</em>to<em>atlas.mjs</code>: при подаче диалога возвращает <code>{blocks: [{id, mission, layer, depends</em>on, ...}]}</code> со структурными полями. Подтверждено <code>simulate<em>conversation</em>branches.mjs</code> — sync с UI flow.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: selftest_run
+evidence_spec:
+  cmd: node scripts/simulate_conversation_branches.mjs
+  expect_in_stdout: "simulate_conversation_branches: OK"</code></pre>
+<ul>
+<li>[ ] <strong>A3.</strong> При наличии API-ключа и <code>strict: true</code> запрашивает реального провайдера; при невалидном structured output получает понятную ошибку с trace. Live-acceptance — после получения реального ключа.</li>
+<li>[x] <strong>A4.</strong> Каждый вызов пишет trace в <code>atlas/llm<em>traces/&lt;UTC&gt;</em><em>&lt;provider&gt;</em><em>&lt;hash&gt;.json</code> (provider, model, in/out tokens, cost</em>usd, schema<em>ok). Validated: <code>tests/llm</em>gateway.selftest.mjs</code> Test 3.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: fs_glob
+evidence_spec:
+  pattern: atlas/llm_traces/*.json
+  min_count: 1</code></pre>
+<ul>
+<li>[x] <strong>A5.</strong> Golden eval из 5 диалогов в <code>tests/llm_extraction.eval.mjs</code> — average precision ≥ 0.7 (mock даёт 1.0; live targeting ≥ 0.7). Scenario flow: dialog → extract → safe-upsert → sync.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/llm_extraction.eval.mjs
+  expect_in_stdout: "overall avg="</code></pre>
+<h2>Что считается NOT acceptance</h2>
+<ul>
+<li>Существование файла <code>scripts/llm_gateway.mjs</code>.</li>
+<li>Успешный HTTP fetch без проверки structured output.</li>
+</ul>
+<h2>Logic-flow при review</h2>
+<p>Каждый pre-existing блок защищён: <code>analyze<em>conversation</em>to_atlas.mjs</code> не перезаписывает миссию/статус — только дописывает proposal в <code>checks.log</code> (это требование PR3 sync semantics: human-in-loop accept в UI).</p>
+<h2>Зависимости</h2>
+<ul>
+<li>b.llm-gateway → нет prereq внутри Атласа.</li>
+<li>b.agent-orchestrator depends_on b.llm-gateway (use as semantic ingestion engine).</li>
+</ul>
+<hr/>
+<h3>🟡 b.operator-profile-learner — Operator Profile Learner</h3>
+<ul>
+<li><strong>layer</strong>: <code>ai</code></li>
+<li><strong>type</strong>: module</li>
+<li><strong>status</strong>: <code>idea</code> — PR-Backlog: design-only milestone; one of the LAST PRs. Реальная имплементация (PR-1…PR-6) делается после того, как реальный пользователь пройдёт ≥10 done и накопит данные — иначе наблюдать нечего. Сейчас зарегистрирован как карта будущей работы.</li>
+<li><strong>mvp</strong>: no</li>
+<li><strong>depends_on</strong>: <code>b.db</code>, <code>b.core-sync</code>, <code>b.agent-orchestrator</code>, <code>b.llm-gateway</code>, <code>b.docs</code></li>
+<li><strong>tech_stack</strong>: <code>nodejs</code>, <code>esm</code>, <code>json</code></li>
+<li><strong>files</strong>: 16 (<code>atlas/blocks/b.operator-profile-learner/files.md</code>)</li>
+</ul>
+<h1>b.operator-profile-learner — mission</h1>
+<p>Адаптивный модуль, который наблюдает за тем, <strong>как именно</strong> работает конкретный пользователь Атласа, запоминает его рабочие паттерны / стек / запреты / уроки из неудач, и адаптирует под них:</p>
+<ul>
+<li>что подмешивает в context-pack для агента (<code>inject<em>context</em>pack.mjs</code>)</li>
+<li>что предлагает при создании нового блока / нового проекта</li>
+<li>что блокирует через <code>guard<em>against</em>drift.mjs</code> (запрещённые фреймворки)</li>
+<li>что подсвечивает в sync-check как «warning: ты обычно делаешь иначе»</li>
+<li>какие шаблоны (backend / frontend / testing-stack) предлагает по умолчанию</li>
+</ul>
+<p>Без этого блока Атлас одинаковый для всех — а должен быть <strong>личным</strong>.</p>
+<h2>Layer</h2>
+<p>ai</p>
+<h2>North Star</h2>
+<p>&gt; При создании нового блока пользователь видит «персональный совет» (стек / агент / шаги работы), основанный на его собственной истории, а не на дефолтных шаблонах. И когда он отклоняется от своих успешных паттернов — Атлас об этом тихо говорит, не диктует.</p>
+<hr/>
+<h2>Что наблюдается (источники данных)</h2>
+<p>Все источники уже существуют в репо благодаря PR1–PR-Live; этот блок — read-only потребитель + агрегатор:</p>
+<p>| Источник | Что вытягивается |</p>
+<p>|---|---|</p>
+<p>| <code>atlas/blocks/&lt;id&gt;/checks.log</code> | время на блок до <code>done</code>, частота <code>broken</code>, кто двигал статус |</p>
+<p>| <code>atlas/transitions.log</code> | rollback rate (как часто <code>done → broken → wip</code> происходит у конкретных блоков) |</p>
+<p>| <code>atlas/proposals/*.json</code> | accept-rate / reject-rate / topic-распределение LLM-предложений |</p>
+<p>| <code>atlas/agent_invocations/*.txt</code> | какому агенту и сколько раз шёл prompt; success-summary в checks.log |</p>
+<p>| <code>atlas/llm<em>traces/*.json</code> | какой провайдер, model, fallback</em>to_mock частота |</p>
+<p>| <code>atlas/process<em>runs/cursor</em>observations/*.json</code> | какие файлы редактируются часто; типичный диаметр коммита |</p>
+<p>| <code>atlas/blocks/&lt;id&gt;/decisions.log</code> | архитектурные решения и причины |</p>
+<p>| <code>atlas/blocks/&lt;id&gt;/patterns.md</code> | формализованный «что работало / что не работало» |</p>
+<p>| <code>atlas/projects/&lt;proj&gt;/tech_stack.md</code> | какой стек выбрал каждый раз |</p>
+<p>| <code>atlas/transitions.log + checks.log</code> cross-ref | время между «принят план» и «появился первый код» |</p>
+<h2>Что сохраняется (output, файлы)</h2>
+<pre><code class="lang-">atlas/operator_profile/
+  profile.json                ← главная карточка пользователя
+  patterns/
+    work_style.json           ← spec_size_preference, test_each_step, ...
+    agents.json               ← claude/openai/gemini статистика
+    tech_stack.json           ← frequency × satisfaction по фреймворкам
+    environment.json          ← os/node/python/shell
+    failures.json             ← повторяющиеся проблемы
+  templates/
+    backend-mvp.json          ← готовый шаблон для нового MVP-бэка
+    backend-prod.json
+    frontend-spa.json
+    testing-stack.json
+  dont_use.json               ← жёсткий список запретов («никогда не предлагай vue»)
+  lessons.json                ← уроки из неудач, могут устаревать
+  history/&lt;UTC&gt;.json          ← snapshot каждой пере-агрегации (как eval_history)</code></pre>
+<p><code>profile.json</code> — пример shape:</p>
+<pre><code class="lang-json">{
+  "operator_id": "default",
+  "updated_at": "2026-05-02T...",
+  "work_style": {
+    "spec_size_preference": "big_first",
+    "test_each_step": false,
+    "common_failure_modes": ["шаг недотестирован", "framework not scaling"],
+    "median_time_idea_to_done_h": 6.5
+  },
+  "agents_used": {
+    "claude": { "count": 142, "success_rate": 0.78, "best_for": ["architecture", "schema"] },
+    "openai": { "count":  23, "success_rate": 0.81, "best_for": ["debug", "specific_implementation"] },
+    "gemini": { "count":  51, "success_rate": 0.62, "best_for": ["batch_extraction"] }
+  },
+  "tech_stack_history": {
+    "frontend": [{ "name": "react",   "uses": 12, "satisfaction": "high" }],
+    "backend":  [{ "name": "fastify", "uses":  4, "satisfaction": "medium" }]
+  },
+  "dont_use":   ["mongo", "vue", "django"],
+  "always_use": [{ "category": "language", "value": "typescript" }],
+  "environment": { "os": "windows", "node": "22.x", "shell": "powershell" },
+  "scale_preference": "MVP_then_grow",
+  "lessons_learned": [
+    { "id": "L-001",
+      "lesson": "Большое ТЗ + delegate-without-checks → 2 раза получили нерабочий код. Перепроверять каждые 30 мин.",
+      "evidence": ["b.payments@2026-04-12", "b.search@2026-04-19"],
+      "expires_at": null }
+  ]
+}</code></pre>
+<hr/>
+<h2>Когда работает (триггеры)</h2>
+<p>| Тип | Когда | Что делает |</p>
+<p>|---|---|---|</p>
+<p>| <strong>Real-time point-update</strong> | После каждого <code>accept<em>proposal</code> / <code>reject</em>proposal</code> / <code>agent<em>invocation</code> / <code>transition</em>block</code> (done/broken) | мутирует один counter в нужной патч-секции profile.json (10–50ms работа, без LLM) |</p>
+<p>| <strong>Nightly aggregation</strong> | В составе <code>nightly_consolidation.mjs</code> | пере-агрегирует все источники с нуля, пишет <code>history/&lt;UTC&gt;.json</code>, обновляет <code>profile.json</code> |</p>
+<p>| <strong>On-demand LLM analysis</strong> | По MCP-tool <code>recompute<em>operator</em>profile {analyze_failures: true}</code> или по кнопке в UI | через <code>b.llm-gateway</code> достаёт уроки из <code>decisions.log + checks.log fail</code> записей, кладёт в <code>lessons.json</code> |</p>
+<p>| <strong>Project-start hint</strong> | Когда в <code>analyze<em>conversation</em>to<em>atlas</code> появляется новый блок без <code>tech</em>stack</code> | подбирает шаблон из <code>templates/</code> и пишет в proposal <code>suggested_template: backend-mvp</code> |</p>
+<p><strong>Минимум данных для запуска</strong>: ≥ 5 transitions <code>done</code> ИЛИ ≥ 10 <code>agent_invocations</code> за всю историю. Иначе модуль просто молчит — никаких advice.</p>
+<hr/>
+<h2>Где применяется (потребители)</h2>
+<p>| Потребитель | Как использует profile |</p>
+<p>|---|---|</p>
+<p>| <code>inject<em>context</em>pack.mjs</code> | Добавляет секцию <code>## Operator profile (likely preferences)</code>: «Этот оператор предпочитает ... никогда не использует ... в прошлом был bad case с ...». Агент видит эти подсказки прямо в промпте. |</p>
+<p>| <code>analyze<em>conversation</em>to<em>atlas.mjs</code> | При создании нового блока в <code>proposed.tech</em>stack</code> подставляет <code>templates/&lt;scope&gt;.json</code> если LLM ничего конкретного не предложил. |</p>
+<p>| <code>guard<em>against</em>drift.mjs</code> | Дополняет <code>forbidden<em>substrings</code> из <code>tech</em>stack.md</code> файлами из <code>dont_use.json</code> оператора (личные запреты). |</p>
+<p>| <code>validate<em>*</code> валидаторы | Раз в nightly выкидывают <code>warning</code> если в активном блоке используется фреймворк, помеченный <code>dont</em>use</code>. Не fail, только warn. |</p>
+<p>| UI (PR3.5 ProposalsPanel + Inspector) | На карточке предложения показывает badge <code>соответствует/противоречит профилю</code> рядом с Accept/Reject. |</p>
+<p>| UI (Layer 2 Inspector) | Под mission блока — секция <code>Подсказки от профиля</code>: «попробуй заменить fastify на express — у тебя 12 успешных запусков на нём». |</p>
+<p>| <code>run<em>block</em>implementation.mjs</code> | Если у пользователя есть строка <code>agents<em>used.claude.best</em>for: ["architecture"]</code> и блок касается архитектуры — выбирает claude по умолчанию. |</p>
+<p>| MCP-tools | <code>read<em>operator</em>profile</code>, <code>recompute<em>operator</em>profile</code>, <code>set<em>dont</em>use</code>, <code>set<em>always</em>use</code>, <code>add_lesson</code> |</p>
+<hr/>
+<h2>UX-принципы</h2>
+<p>1. <strong>Тихо, не громко.</strong> Профиль — это <strong>подсказки</strong> в context-pack агента и тёплые badge'и в UI. Не модальные окна, не блокировки (кроме явных <code>dont_use</code>).</p>
+<p>2. <strong>Ревёрсивно.</strong> Любая запись в profile может быть откатана через UI «забыть этот паттерн» / <code>revoke_lesson</code>.</p>
+<p>3. <strong>Прозрачно.</strong> Каждое поле в <code>profile.json</code> имеет <code>evidence: [block_id]</code> — пользователь видит <strong>на основе чего</strong> Атлас сделал вывод.</p>
+<p>4. <strong>Не auto-применяется к коду.</strong> Профиль — это *совет*, не *патч*. Чтобы изменить блок, нужен явный Accept (через PR3.5 proposals flow).</p>
+<p>5. <strong>Privacy by default.</strong> <code>atlas/operator_profile/</code> локально, <code>.gitignore</code> опционально для multi-user сценариев. PII не собирается.</p>
+<hr/>
+<h2>Out of scope</h2>
+<ul>
+<li>Cross-user / team-wide profile — это позже (<code>b.team-profile-learner</code> как наследник).</li>
+<li>Реальные ML-модели на профиле — только counters и rule-based аналитика. Если нужно умнее — через <code>b.llm-gateway</code> по запросу, не как hot path.</li>
+<li>Авто-fine-tuning LLM на пользователе — нет, мы остаёмся на context-pack уровне.</li>
+</ul>
+<hr/>
+<h2>Интеграция с уже существующими блоками</h2>
+<ul>
+<li><strong>depends_on</strong>: <code>b.db</code> (read), <code>b.core-sync</code> (read checks.log), <code>b.agent-orchestrator</code> (read invocations + write context-pack hints), <code>b.llm-gateway</code> (для on-demand failure analysis), <code>b.docs</code> (для рендеринга в wiki «карточка пользователя»).</li>
+<li><strong>provides</strong>: <code>operator<em>profile</code> (для inject</em>context<em>pack), <code>personal</em>templates</code> (для analyze<em>conversation</em>to<em>atlas), <code>personal</em>dont<em>use</code> (для guard</em>against_drift).</li>
+</ul>
+<hr/>
+<h2>Backlog priority</h2>
+<ul>
+<li><strong>Position</strong>: один из последних milestone-ов. Текущая Sima Atlas (PR1–PR-Live) — это «инфраструктура для одного пользователя без личной памяти». PR-OperatorProfile — это «персонализация поверх инфраструктуры». Делается <strong>после</strong> того, как хоть один пользователь реально пройдёт 10+ блоков done и накопит данных, иначе наблюдать нечего.</li>
+</ul>
+<ul>
+<li><strong>Estimate</strong>: 4–6 PR-ов по образцу PR3 (LLM gateway) и PR3.5 (proposals flow):</li>
+<p>  1. <code>data collector</code> — пакет агрегаторов из источников в profile.json (без LLM)</p>
+<p>  2. <code>templates set</code> — backend/frontend/testing JSON-шаблоны + UI выбор</p>
+<p>  3. <code>dont-use list</code> — UI и guard-интеграция</p>
+<p>  4. <code>lessons LLM analyser</code> — periodic LLM-обзор decisions.log + checks.log</p>
+<p>  5. <code>inject<em>context</em>pack hook</code> — добавление секции «Operator profile»</p>
+<p>  6. <code>UI hints</code> — badge'и в Inspector / ProposalsPanel</p>
+</ul>
+<h4>KPI</h4>
+<h1>b.operator-profile-learner — KPI</h1>
+<ul>
+<li><strong>KPI-1 (signal coverage)</strong>: <code>profile.json</code> агрегирует ≥ 6 из 10 источников из mission.md (checks.log / transitions.log / proposals / agent<em>invocations / llm</em>traces / cursor<em>observations / decisions.log / patterns.md / tech</em>stack.md / cross-ref). Сейчас: ✗ (блока нет).</li>
+<li><strong>KPI-2 (real-time freshness)</strong>: <code>accept<em>proposal</code> / <code>transition</em>block done|broken</code> / <code>agent_invocation</code> мутирует profile.json без LLM-вызова за &lt; 100 ms. Сейчас: ✗.</li>
+<li><strong>KPI-3 (silent under min-data)</strong>: при &lt; 5 transitions <code>done</code> И &lt; 10 <code>agent_invocations</code> модуль молчит — не подмешивает советы в context-pack, не пишет proposals. Сейчас: ✗.</li>
+<li><strong>KPI-4 (advice ROI)</strong>: при <code>accept<em>rate</code> proposal с badge <code>соответствует профилю</code> ≥ accept</em>rate без badge на 20% (на горизонте 30 проколов). Сейчас: n/a.</li>
+<li><strong>KPI-5 (lessons retention)</strong>: после <code>add<em>lesson</code> урок попадает в <code>inject</em>context<em>pack</code> секцию <code>## Operator profile</code> для всех агент-вызовов, пока не <code>revoke</em>lesson</code> или <code>expires_at</code> не наступит. Сейчас: ✗.</li>
+<li><strong>KPI-6 (privacy &amp; reversibility)</strong>: 100% записей в profile имеют <code>evidence: [block<em>id]</code>; любой урок / dont</em>use / always_use можно отозвать одной MCP-tool — вернёт identical context-pack как до записи. Сейчас: ✗.</li>
+<li><strong>KPI-7 (low cost)</strong>: nightly aggregation работает без LLM-вызовов (только rule-based counters). Только <code>recompute<em>operator</em>profile {analyze_failures: true}</code> стоит ≤ $0.05 / запуск через b.llm-gateway. Сейчас: ✗.</li>
+</ul>
+<h4>Acceptance</h4>
+<h1>b.operator-profile-learner — acceptance</h1>
+<p>Acceptance gate для перехода <code>idea → wip → review → done</code>. Все пункты должны иметь признак прохождения в <code>checks.log</code> либо в auto-evidence из nightly.</p>
+<ul>
+<li>[ ] <strong>A1.</strong> PR-1 (data collector) merged: <code>scripts/aggregate<em>operator</em>profile.mjs</code> агрегирует все 10 источников из mission.md в <code>atlas/operator<em>profile/profile.json</code> и <code>patterns/*.json</code>; selftest <code>tests/operator</em>profile.selftest.mjs</code> зелёный (≥ 6 case: empty repo, &lt; min-data threshold, full repo, agent stats, tech stack frequencies, lesson evidence).</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/operator_profile.selftest.mjs
+  expect_in_stdout: "OK"</code></pre>
+<ul>
+<li>[ ] <strong>A2.</strong> PR-2 (templates set) merged: <code>atlas/operator<em>profile/templates/{backend-mvp,backend-prod,frontend-spa,testing-stack}.json</code> с реальными примерами стека; UI-выбор шаблона в <code>analyze</em>conversation<em>to</em>atlas</code> подставляется в proposal <code>tech_stack</code> если оператор не указал явно.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/pick_template.selftest.mjs
+  expect_in_stdout: "OK"</code></pre>
+<ul>
+<li>[ ] <strong>A3.</strong> PR-3 (dont-use list) merged: MCP tools <code>set<em>dont</em>use</code> / <code>set<em>always</em>use</code> живые; <code>guard<em>against</em>drift.mjs</code> читает <code>atlas/operator<em>profile/dont</em>use.json</code> и блокирует <code>npm install &lt;pkg&gt;</code> где pkg ∈ dont<em>use; UI Inspector показывает badge <code>dont</em>use оператора</code>.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/dont_use_management.selftest.mjs
+  expect_in_stdout: "OK"</code></pre>
+<ul>
+<li>[ ] <strong>A4.</strong> PR-4 (lessons LLM analyser) merged: <code>node scripts/analyze<em>lessons</em>from<em>history.mjs</code> через b.llm-gateway достаёт уроки из <code>decisions.log + checks.log fail</code> записей, пишет в <code>lessons.json</code> с <code>evidence: [block</em>id@date]</code>; nightly запускает раз в сутки; cost guard ≤ $0.05.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/operator_profile_lessons.smoke.mjs
+  expect_in_stdout: "OK"</code></pre>
+<ul>
+<li>[ ] <strong>A5.</strong> PR-5 (inject<em>context</em>pack hook) merged: <code>inject<em>context</em>pack.mjs</code> добавляет секцию <code>## Operator profile (likely preferences)</code> в context-pack агента; smoke <code>tests/operator<em>profile</em>inject.smoke.mjs</code> подтверждает наличие подсказок и dont_use в финальном промпте; <strong>молчит</strong> если данных &lt; min.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/operator_profile_inject.smoke.mjs
+  expect_in_stdout: "OK"</code></pre>
+<ul>
+<li>[ ] <strong>A6.</strong> PR-6 (UI hints) merged: ProposalsPanel показывает badge <code>соответствует профилю</code> / <code>противоречит профилю</code>; Inspector под mission блока — секция <code>Подсказки от профиля</code> со списком (<code>evidence: [block_id]</code> рядом с каждой подсказкой).</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: log_grep
+evidence_spec:
+  file: frontend/proposals_panel.jsx
+  pattern: "complianceWithProfile"</code></pre>
+<ul>
+<li>[ ] <strong>A7.</strong> Privacy gate: <code>atlas/operator_profile/</code> упоминается в <code>.gitignore</code> (опц.) с пояснением в <code>atlas/rules.md</code>; никакого PII (имена / e-mail / API-ключи) не пишется в profile.json — selftest A1 проверяет regex.</li>
+<li>[ ] <strong>A8.</strong> Reversibility: <code>revoke_lesson L-001</code> → context-pack для следующего invoke не содержит этого урока (smoke-тест diff'ом).</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: log_grep
+evidence_spec:
+  file: scripts/analyze_lessons_from_history.mjs
+  pattern: "export function revokeLesson"</code></pre>
+<h2>Что считается NOT acceptance</h2>
+<ul>
+<li>Существование папки <code>atlas/operator_profile/</code> без агрегатора и без потребителей.</li>
+<li>LLM-генерация profile.json при каждом point-update (это нарушает KPI-2 и KPI-7).</li>
+<li>Авто-применение профиля к коду блока (это нарушает UX-принцип «не auto-применяется»).</li>
+</ul>
+<h2>Logic-flow при review</h2>
+<ul>
+<li>Каждый артефакт в profile имеет <code>evidence: [block_id]</code> → пользователь видит, на чём основан вывод.</li>
+<li>Если оператор хоть раз нажмёт <code>revoke<em>lesson</code> или <code>forget</em>pattern</code> через UI → запись исчезает из всех downstream'ов (context-pack, badge, validators).</li>
+<li>Block остаётся <code>idea</code> пока не накопится минимум данных по критерию KPI-3 в реальном использовании Атласа.</li>
+</ul>
+<h2>Зависимости</h2>
+<ul>
+<li>b.operator-profile-learner → читает b.db (graph + transitions), b.core-sync (checks.log), b.agent-orchestrator (invocations + context-pack), b.llm-gateway (on-demand failure analysis), b.docs (рендер карточки).</li>
+<li>Никто из других блоков не depends_on b.operator-profile-learner — это чисто-аддитивный слой.</li>
+</ul>
+<hr/>
+<h3>🟡 b.acceptance-verifier-loop — Acceptance Verifier Loop</h3>
+<ul>
+<li><strong>layer</strong>: <code>testing</code></li>
+<li><strong>type</strong>: module</li>
+<li><strong>status</strong>: <code>idea</code> — PR-Backlog: design-only milestone. Closes the verification gap (Symphony trusts agent output, Hermes has no contract layer). После любого run<em>block</em>implementation проверяет каждый пункт acceptance.md через детерминированные collectors (exit<em>code/fs</em>glob/file<em>diff/log</em>grep) + LLM-judge fallback; блокирует wip→done если verdict !== pass. 5-PR breakdown.</li>
+<li><strong>mvp</strong>: no</li>
+<li><strong>depends_on</strong>: <code>b.db</code>, <code>b.core-sync</code>, <code>b.agent-orchestrator</code>, <code>b.llm-gateway</code></li>
+<li><strong>tech_stack</strong>: <code>nodejs</code>, <code>esm</code>, <code>json-schema</code></li>
+<li><strong>files</strong>: 12 (<code>atlas/blocks/b.acceptance-verifier-loop/files.md</code>)</li>
+</ul>
+<h1>b.acceptance-verifier-loop — mission</h1>
+<p>«Закрывающий контур» для каждого агент-прогона. Сейчас <code>run<em>block</em>implementation.mjs</code> отдаёт результат и забывает: <code>done</code> ставится «на честном слове» оператора. Этот блок добавляет <strong>обязательную пост-проверку</strong>: после того как агент сказал «готово», LLM-judge (через <code>b.llm-gateway</code>) сверяет результат <strong>построчно против <code>acceptance.md</code></strong> блока. Каждый пункт получает <code>pass / fail / skipped + evidence + reasoning</code>. Если хоть один <code>fail</code> — блок <strong>не может перейти в <code>done</code></strong> через <code>transition<em>block</code>, а получает proposal <code>acceptance</em>blocked</code> с конкретным описанием, что не сошлось.</p>
+<p>Без этого блока «верификация» = ручной пересмотр чек-листа человеком. С ним — Атлас сам говорит «ты сказал готово, но A2 (selftest) не прошёл, потому что файла X нет, и A4 (trace write) не прошёл, потому что в <code>atlas/llm_traces/</code> нет новых записей за последние 5 минут».</p>
+<h2>Layer</h2>
+<p>testing</p>
+<h2>North Star</h2>
+<p>&gt; После любого <code>run<em>block</em>implementation</code> блок не может перейти в <code>done</code>, пока ВСЕ пункты <code>acceptance.md</code> не получили <code>pass</code> с зафиксированным evidence. И каждый <code>fail</code> сопровождается конкретной обратной связью, которая сразу подходит как prompt для retry-прогона того же агента.</p>
+<hr/>
+<h2>Что наблюдается (источники данных)</h2>
+<p>| Источник | Что вытягивается |</p>
+<p>|---|---|</p>
+<p>| <code>atlas/blocks/&lt;id&gt;/acceptance.md</code> | список assertion-пунктов A1..AN с описанием и (опц.) машинно-читаемым evidence-spec |</p>
+<p>| <code>run<em>block</em>implementation</code> stdout/exit code | факт «агент закончил» + последние модифицированные файлы |</p>
+<p>| <code>git diff</code> за окно прогона | какие файлы реально изменились (для evidence-кросс-чека) |</p>
+<p>| <code>atlas/blocks/&lt;id&gt;/checks.log</code> (новые записи) | <code>acceptance pass A1</code> / <code>acceptance fail A2 ...</code> |</p>
+<p>| <code>atlas/llm_traces/*</code> (новые) | были ли LLM-вызовы в окне прогона (для KPI: «А3 требует live API») |</p>
+<p>| Output of <code>tests/&lt;block&gt;.selftest.mjs</code> (если упомянут в acceptance) | exit code + stderr |</p>
+<p>| <code>atlas/proposals/*</code> | acceptance_blocked proposal становится Accept-able блокером |</p>
+<h2>Что сохраняется (output, файлы)</h2>
+<pre><code class="lang-">atlas/acceptance_runs/
+  &lt;block_id&gt;/&lt;UTC&gt;__&lt;run_id&gt;.json   ← полный отчёт прогона (per-item pass/fail/evidence/reasoning)
+  &lt;block_id&gt;/_latest.json            ← последний отчёт (для UI)
+atlas/proposals/&lt;UTC&gt;__&lt;block_id&gt;__acceptance_blocked.json  ← если есть fail
+atlas/blocks/&lt;block_id&gt;/checks.log   ← append: 'acceptance_verifier &lt;pass|fail&gt; &lt;Aitem&gt; note'</code></pre>
+<p><code>acceptance<em>runs/&lt;id&gt;/&lt;UTC&gt;</em>_.json</code> shape:</p>
+<pre><code class="lang-json">{
+  "block_id": "b.llm-gateway",
+  "run_id": "2026-05-03T10:30:00Z__claude",
+  "agent": "claude",
+  "started_at": "...",
+  "finished_at": "...",
+  "items": [
+    { "id": "A1",
+      "assertion": "Selftest tests/llm_gateway.selftest.mjs проходит (4 case)",
+      "verdict": "pass",
+      "evidence_kind": "exit_code",
+      "evidence": "node tests/llm_gateway.selftest.mjs → exit 0; output: 'OK (4 cases)'",
+      "reasoning": "Все 4 case прошли; selftest зелёный.",
+      "checked_at": "..."
+    },
+    { "id": "A4",
+      "assertion": "Каждый вызов пишет trace в atlas/llm_traces/",
+      "verdict": "fail",
+      "evidence_kind": "fs_glob",
+      "evidence": "ls atlas/llm_traces/*.json --since=5m → 0 new files",
+      "reasoning": "Selftest test 3 проверяет trace, но в окне прогона новых traces нет → trace-writer не сработал.",
+      "checked_at": "..."
+    }
+  ],
+  "verdict": "fail",
+  "blocked_transition": "wip → done",
+  "retry_prompt_hint": "А4 не прошёл: trace-writer не пишет в atlas/llm_traces. Проверь функцию writeTrace() в scripts/llm_gateway.mjs — вероятно, fs.writeFileSync вызывается в try-catch с подавлением ошибки."
+}</code></pre>
+<hr/>
+<h2>Когда работает (триггеры)</h2>
+<p>| Тип | Когда | Что делает |</p>
+<p>|---|---|---|</p>
+<p>| <strong>Auto после run<em>block</em>implementation</strong> | exit code 0 от агента | сразу запускает <code>verify<em>block</em>acceptance.mjs &lt;block<em>id&gt;</code>; пишет <code></em>latest.json</code> |</p>
+<p>| <strong>Pre-transition gate</strong> | <code>transition<em>block &lt;id&gt; done</code> через CLI/MCP/UI | читает <code></em>latest.json</code>; если <code>verdict !== "pass"</code> — блокирует переход с понятной ошибкой |</p>
+<p>| <strong>On-demand re-verify</strong> | MCP tool <code>verify<em>block</em>acceptance {block_id}</code> | прогоняет проверку даже без агент-прогона (для ручной проверки уже-в-done блоков) |</p>
+<p>| <strong>Nightly re-verify of done</strong> | в <code>nightly_consolidation.mjs</code> | проверяет, что блоки в <code>done</code> всё ещё проходят acceptance; если нет — авто-rollback <code>done → broken</code> + proposal |</p>
+<p>| <strong>Retry-loop hook (опц.)</strong> | при verdict=fail и <code>auto<em>retry: true</code> в env | подмешивает <code>retry</em>prompt<em>hint</code> в новый run</em>block_implementation, max 2 retry |</p>
+<p><strong>Что нельзя</strong>: не проверять блоки без <code>acceptance.md</code> (это контрактная ошибка валидатора, не verifier'а). Не подменять структурные валидаторы (<code>validate<em>block</em>contracts</code> и т. д.) — verifier работает поверх них.</p>
+<hr/>
+<h2>Где применяется (потребители)</h2>
+<p>| Потребитель | Как использует |</p>
+<p>|---|---|</p>
+<p>| <code>scripts/run<em>block</em>implementation.mjs</code> | После exit code 0 — спавнит verifier; кладёт <code>_latest.json</code> рядом с trace |</p>
+<p>| <code>scripts/log<em>transition.mjs</code> | Перед <code>wip → done</code> читает <code></em>latest.json</code>; verdict !== pass → reject с описанием |</p>
+<p>| <code>scripts/nightly<em>consolidation.mjs</code> | Step <code>verify</em>done<em>blocks</em>still_green</code> |</p>
+<p>| UI Inspector | Под mission блока — секция «Acceptance verifier»: список A1..AN с зелёным/красным badge + reasoning по клику |</p>
+<p>| ProposalsPanel | <code>acceptance<em>blocked</code> proposal с retry-кнопкой, которая дёргает <code>/run-block</code> с <code>retry</em>prompt_hint</code> |</p>
+<p>| MCP tools | <code>verify<em>block</em>acceptance</code>, <code>read<em>acceptance</em>run</code>, <code>list<em>failed</em>acceptances</code> |</p>
+<hr/>
+<h2>UX-принципы</h2>
+<p>1. <strong>Жёсткий gate, мягкий совет.</strong> Verdict=fail <strong>физически блокирует</strong> <code>→ done</code> (это hard gate; KPI продукта). Но retry — добровольный (proposal в UI, не auto-апдейт кода без accept).</p>
+<p>2. <strong>Каждый fail подходит как prompt.</strong> <code>retry<em>prompt</em>hint</code> пишется так, чтобы его можно было сразу скормить тому же агенту: конкретный файл, конкретная строка, что должно произойти.</p>
+<p>3. <strong>Прозрачность evidence.</strong> Поле <code>evidence<em>kind</code> ∈ <code>{exit</em>code, fs<em>glob, file</em>diff, log<em>grep, llm</em>judge, manual}</code> — UI показывает разные иконки. <code>llm_judge</code> всегда сопровождается <code>reasoning</code> (нельзя «потому что я так считаю»).</p>
+<p>4. <strong>Не подменяет тесты.</strong> Если пункт acceptance говорит «selftest зелёный» — verifier именно запускает selftest и читает exit code, а не «спрашивает Claude, кажется ли что selftest прошёл бы».</p>
+<p>5. <strong>Кэшируемо.</strong> Если в окне после последнего verifier-прогона нет новых коммитов / нет новых traces / нет новых checks.log записей — verifier возвращает закэшированный результат за &lt; 50ms.</p>
+<hr/>
+<h2>Out of scope</h2>
+<ul>
+<li>Авто-fix кода блока — verifier только сообщает, не правит. Правка идёт через proposals + agent run.</li>
+<li>Acceptance-генератор (LLM пишет acceptance.md за пользователя) — это отдельный плагин на <code>b.docs</code> или <code>b.llm-gateway</code>.</li>
+<li>Cross-block acceptance («все блоки в layer:ai green») — это уровнем выше; пусть будет <code>intelligence_health</code> или новый <code>b.suite-verifier</code>.</li>
+</ul>
+<hr/>
+<h2>Интеграция с уже существующими блоками</h2>
+<ul>
+<li><strong>depends<em>on</strong>: <code>b.db</code> (read graph + acceptance.md), <code>b.core-sync</code> (write checks.log), <code>b.agent-orchestrator</code> (hook после run</em>block_implementation), <code>b.llm-gateway</code> (LLM-judge для assertion-пунктов, которые без exit-code/fs evidence).</li>
+<li><strong>provides</strong>: <code>acceptance<em>run</em>report</code>, <code>acceptance<em>gate</em>decision</code>, <code>retry<em>prompt</em>hint</code>.</li>
+</ul>
+<hr/>
+<h2>Backlog priority</h2>
+<ul>
+<li><strong>Position</strong>: после <code>b.operator-profile-learner</code> (тот учится на готовых данных, этот — генерирует данные о done/blocked). По важности — <strong>выше</strong> profile-learner'а: это фактически <strong>закрывающий контур качества</strong>, без которого <code>done</code> остаётся empty signal.</li>
+<li><strong>Estimate</strong>: 4–5 PR-ов:</li>
+<p>  1. <code>assertion parser</code> — структурированный парсинг <code>acceptance.md</code> (A1..AN + опц. evidence-spec в YAML-блоке)</p>
+<p>  2. <code>evidence collectors</code> — exit<em>code / fs</em>glob / file<em>diff / log</em>grep раннеры (без LLM)</p>
+<p>  3. <code>LLM-judge fallback</code> — для пунктов без явного evidence-spec, через <code>b.llm-gateway</code></p>
+<p>  4. <code>gate hooks</code> — интеграция в <code>log<em>transition</code> + <code>run</em>block_implementation</code> + nightly</p>
+<p>  5. <code>UI surface</code> — Inspector секция + ProposalsPanel acceptance_blocked + retry-кнопка</p>
+</ul>
+<h4>KPI</h4>
+<h1>b.acceptance-verifier-loop — KPI</h1>
+<ul>
+<li><strong>KPI-1 (no false done)</strong>: ни один блок не уходит в <code>done</code> если хоть один пункт <code>acceptance.md</code> не получил <code>pass</code>. Сейчас: ✗ (gate отсутствует).</li>
+<li><strong>KPI-2 (deterministic evidence first)</strong>: ≥ 70% пунктов acceptance в среднем по репо имеют <code>evidence<em>kind ∈ {exit</em>code, fs<em>glob, file</em>diff, log_grep}</code> — без LLM. LLM-judge только как fallback. Сейчас: ✗.</li>
+<li><strong>KPI-3 (gate latency)</strong>: для блока с ≤ 8 пунктами acceptance verifier завершается за &lt; 30 секунд (deterministic) или &lt; 60 секунд (с LLM-judge). Сейчас: ✗.</li>
+<li><strong>KPI-4 (retry-prompt usefulness)</strong>: ≥ 50% retry-прогонов с <code>retry<em>prompt</em>hint</code> приводят к verdict=pass на следующей итерации (на горизонте 20 retry). Сейчас: n/a.</li>
+<li><strong>KPI-5 (no spurious rollbacks)</strong>: nightly re-verify done блоков даёт <code>done → broken</code> rollback <strong>только</strong> когда есть реальная регрессия (новые коммиты после последнего pass либо изменение acceptance.md). Сейчас: ✗.</li>
+<li><strong>KPI-6 (cache hit rate)</strong>: при отсутствии новых коммитов / новых traces / новых checks.log — verifier возвращает кэш за &lt; 50 ms. Hit rate ≥ 80% на nightly. Сейчас: ✗.</li>
+<li><strong>KPI-7 (cost cap)</strong>: LLM-judge на один блок ≤ $0.02; полный nightly re-verify всех done блоков ≤ $0.20. Сейчас: ✗.</li>
+</ul>
+<h4>Acceptance</h4>
+<h1>b.acceptance-verifier-loop — acceptance</h1>
+<p>Acceptance gate для перехода <code>idea → wip → review → done</code>. Каждый пункт должен иметь признак прохождения в <code>checks.log</code> либо в auto-evidence из nightly.</p>
+<ul>
+<li>[ ] <strong>A1.</strong> PR-1 (assertion parser) merged: <code>scripts/parse<em>acceptance.mjs</code> парсит <code>atlas/blocks/&lt;id&gt;/acceptance.md</code>, возвращает массив <code>{id, assertion, evidence</em>kind, evidence_spec}</code>. Selftest (≥ 8 cases) на разные форматы acceptance.md существующих блоков (b.llm-gateway/b.docs/b.core-sync).</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/parse_acceptance.selftest.mjs
+  expect_in_stdout: "OK"</code></pre>
+<ul>
+<li>[ ] <strong>A2.</strong> PR-2 (evidence collectors) merged: <code>scripts/collect<em>evidence.mjs</code> поддерживает <code>exit</em>code</code>, <code>fs<em>glob</code>, <code>file</em>diff</code>, <code>log<em>grep</code>, <code>selftest</em>run</code> без LLM-вызова; selftest (≥ 6 cases) на каждый kind зелёный.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/evidence_collectors.selftest.mjs
+  expect_in_stdout: "OK"</code></pre>
+<ul>
+<li>[ ] <strong>A3.</strong> PR-3 (LLM-judge fallback) merged: <code>scripts/judge<em>assertion.mjs</code> через <code>b.llm-gateway</code> оценивает пункт без явного evidence</em>spec; cost ≤ $0.02 per assertion; mock-режим для тестов; smoke green.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/llm_judge.smoke.mjs
+  expect_in_stdout: "OK"</code></pre>
+<ul>
+<li>[ ] <strong>A4.</strong> PR-4 (gate hooks) merged: <code>log<em>transition.mjs</code> блокирует <code>wip → done</code> если <code></em>latest.json</code> отсутствует или <code>verdict !== "pass"</code>; <code>run<em>block</em>implementation.mjs</code> после exit 0 спавнит verifier; nightly включает <code>verify<em>done</em>blocks<em>still</em>green</code> step.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/acceptance_verifier.e2e.smoke.mjs
+  expect_in_stdout: "OK"</code></pre>
+<ul>
+<li>[ ] <strong>A5.</strong> PR-5 (UI) merged: Inspector секция «Acceptance verifier» (зелёные/красные badge per item, click → reasoning + evidence); ProposalsPanel <code>acceptance_blocked</code> proposal с retry-кнопкой; smoke (Playwright) подтверждает оба сценария.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: log_grep
+evidence_spec:
+  file: frontend/arch_canvas.jsx
+  pattern: "AcceptanceSection"</code></pre>
+<ul>
+<li>[ ] <strong>A6.</strong> End-to-end smoke <code>tests/acceptance<em>verifier.e2e.smoke.mjs</code>: создать тестовый блок с 3 acceptance items (1 deterministic, 1 LLM-judge, 1 заведомо-fail) → run agent (mock) → verifier даёт verdict=fail с правильным <code>retry</em>prompt<em>hint</code> → <code>transition</em>block done</code> блокируется.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/acceptance_verifier.e2e.smoke.mjs
+  expect_in_stdout: "5 phases"</code></pre>
+<ul>
+<li>[ ] <strong>A7.</strong> Cache: при повторном вызове без новых коммитов и без новых traces — verdict из <code><em>latest.json</code> без LLM-вызова; integration test проверяет, что cost</em>usd на 2-й вызов = 0.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: fs_glob
+evidence_spec:
+  pattern: atlas/acceptance_runs/*/_latest.json
+  min_count: 1</code></pre>
+<ul>
+<li>[ ] <strong>A8.</strong> Privacy/safety: verifier не пишет в <code>acceptance.md</code> блока (read-only по контракту); pre-commit hook предотвращает.</li>
+</ul>
+<h2>Что считается NOT acceptance</h2>
+<ul>
+<li>Полная автоматизация retry-loop без явного Accept оператором (нарушает UX-принцип «не auto-применяется к коду»).</li>
+<li>Замена структурных валидаторов (<code>validate<em>block</em>contracts</code> и т. д.) — verifier работает поверх них, не вместо.</li>
+<li>LLM-judge без <code>reasoning</code> поля в результате (нельзя «потому что я так считаю»).</li>
+</ul>
+<h2>Logic-flow при review</h2>
+<ul>
+<li>Каждый verdict сопровождается evidence<em>kind + evidence + reasoning (для llm</em>judge).</li>
+<li><code>acceptance<em>runs/&lt;block&gt;/&lt;UTC&gt;</em><em>.json</code> хранится append-only (не перезаписывается); <code></em>latest.json</code> — symlink/copy последнего.</li>
+<li>Если acceptance.md изменился — кэш инвалидируется автоматически (hash acceptance.md в run-report'е).</li>
+</ul>
+<h2>Зависимости</h2>
+<ul>
+<li>b.acceptance-verifier-loop → читает b.db, b.core-sync, b.agent-orchestrator (post-run hook), b.llm-gateway (judge fallback).</li>
+<li>Никто из других блоков не блокируется этим (это аддитивный gate; по умолчанию <code>done</code> без verifier'а уже работал в PR1–PR-Live).</li>
+</ul>
+<hr/>
+<h3>🟡 b.user-docs-generator — End-User Docs Generator</h3>
+<ul>
+<li><strong>layer</strong>: <code>content</code></li>
+<li><strong>type</strong>: module</li>
+<li><strong>status</strong>: <code>idea</code> — PR-Backlog: design-only milestone. Closes the end-user tutorial gap — Атлас сам пишет UI блоков, значит знает все кнопки и поля; этот блок генерирует 'как пользоваться' markdown для конечного пользователя продукта (не developer wiki — это делает b.docs). Auto-regen на каждое изменение JSX. 3-4 PR breakdown.</li>
+<li><strong>mvp</strong>: no</li>
+<li><strong>depends_on</strong>: <code>b.db</code>, <code>b.docs</code>, <code>b.agent-orchestrator</code>, <code>b.llm-gateway</code></li>
+<li><strong>tech_stack</strong>: <code>nodejs</code>, <code>esm</code>, <code>markdown</code>, <code>playwright</code></li>
+<li><strong>files</strong>: 12 (<code>atlas/blocks/b.user-docs-generator/files.md</code>)</li>
+</ul>
+<h1>b.user-docs-generator — mission</h1>
+<p>Атлас сам пишет UI и backend каждого пользовательского блока — следовательно, <strong>знает</strong> где какая кнопка, какой endpoint, какой happy path. Этот блок берёт это знание и для <strong>каждого user-facing блока</strong> генерирует обучающую страницу для <strong>конечного пользователя продукта</strong>: «чтобы создать задачу, нажми + в правом верхнем углу → откроется форма → введи название → Enter».</p>
+<p>Не путать с <code>b.docs</code> — тот делает developer-facing wiki по архитектуре блоков (mission/kpi/acceptance Атласа). Этот делает <strong>end-user</strong> документацию: то, что увидит конечный юзер построенного продукта (<code>demo-todo</code>, <code>e-shop</code>, что угодно), а не разработчик Атласа.</p>
+<p>Без этого блока: пользователь Атласа должен сам писать tutorial.md для своего продукта вручную. С ним: tutorial обновляется <strong>автоматически</strong> при каждом изменении UI / API блока — никакой документ-долг, описание всегда соответствует коду.</p>
+<h2>Layer</h2>
+<p>content</p>
+<h2>North Star</h2>
+<p>&gt; Когда <code>b.todo-ui</code> блок переходит в <code>done</code>, в проекте <code>demo-todo</code> появляется <code>docs/end-user/todo-ui.md</code> со скриншотом и пошаговой инструкцией, где каждое «нажми X» подтверждено реальным селектором из <code>frontend/&lt;file&gt;.jsx</code> и реальным endpoint'ом из <code>b.todo-api</code>. Если кнопка переименована — туториал обновляется в следующий nightly.</p>
+<hr/>
+<h2>Что наблюдается (источники данных)</h2>
+<p>| Источник | Что вытягивается |</p>
+<p>|---|---|</p>
+<p>| <code>atlas/blocks/&lt;id&gt;/mission.md</code> | какую user story закрывает блок |</p>
+<p>| <code>atlas/blocks/&lt;id&gt;/files.md</code> (alive) | список JSX/HTML/route-файлов блока |</p>
+<p>| Содержимое JSX/HTML файлов блока | список кнопок (<code>&lt;button&gt;</code>), полей (<code>&lt;input&gt;</code>), маршрутов, обработчиков |</p>
+<p>| <code>atlas/blocks/&lt;id&gt;/depends_on.md</code> | связанные API-блоки → endpoints, которые юзер косвенно дёргает |</p>
+<p>| <code>atlas/process<em>runs/cursor</em>observations/*</code> | какие user-flow реально проходились в IDE (если есть) |</p>
+<p>| <code>frontend/screenshots/*.png</code> (если PR4.5+ генерится Playwright'ом) | визуал для встраивания |</p>
+<p>| <code>atlas/blocks/&lt;id&gt;/patterns.md</code> | gotchas / edge cases, которые стоит упомянуть |</p>
+<p>| <code>atlas/projects/&lt;proj&gt;/user_stories/*.md</code> (если b.user-stories блок есть) | язык целевой аудитории, jobs-to-be-done |</p>
+<h2>Что сохраняется (output, файлы)</h2>
+<pre><code class="lang-">atlas/projects/&lt;proj&gt;/docs/end-user/
+  index.md                       ← навигация по фичам
+  &lt;block_id&gt;.md                  ← per-block tutorial (заменяет b.todo-ui → docs/end-user/todo-ui.md)
+  _screenshots/&lt;block_id&gt;__&lt;flow&gt;.png  ← Playwright-снимки конкретного шага (если доступны)
+  _meta/&lt;block_id&gt;.json          ← machine-readable: список кнопок/полей/endpoints, hash источников (для cache)
+atlas/projects/&lt;proj&gt;/docs/end-user/AUTOGENERATED.md  ← маркер «не редактируй вручную»</code></pre>
+<p><code>&lt;block_id&gt;.md</code> shape (генерируется LLM-ом через <code>b.llm-gateway</code> со схемой):</p>
+<pre><code class="lang-md"># Как пользоваться: &lt;user-friendly title&gt;
+
+&gt; Эта страница автогенерирована Атласом. Не редактируй вручную — изменения перезапишутся.
+
+## Что это делает (1 строка)
+&lt;derived from mission.md user story&gt;
+
+## Шаги
+1. **Открой** `&lt;route from JSX&gt;` — например, `/tasks`.
+2. **Нажми** кнопку `+ Новая задача` (правый верхний угол).
+3. **Заполни** поле `Название` — обязательное.
+4. **Нажми** `Enter` или кнопку `Сохранить`.
+
+## Что ты увидишь
+&lt;screenshot ![](./_screenshots/todo-ui__create.png)&gt;
+
+## Если не получилось
+- Кнопка `Сохранить` не активна → проверь, что поле `Название` не пустое.
+- Список не обновился → fetch к `&lt;endpoint from b.todo-api/provides&gt;` мог зафейлиться; см. консоль.
+
+## Под капотом (опц., для любопытных)
+- Модуль: `b.todo-ui`
+- Связанный API: `b.todo-api` → `POST /tasks`</code></pre>
+<hr/>
+<h2>Когда работает (триггеры)</h2>
+<p>| Тип | Когда | Что делает |</p>
+<p>|---|---|---|</p>
+<p>| <strong>Auto при <code>done</code> user-facing блока</strong> | <code>transition<em>block &lt;id&gt; done</code> где <code>layer ∈ {user, front}</code> | спавнит generator на этом блоке; пишет <code>&lt;block</em>id&gt;.md</code> |</p>
+<p>| <strong>Nightly drift-check</strong> | в <code>nightly_consolidation.mjs</code> | проверяет hash источников (JSX + mission); если изменились — regen; если нет — skip |</p>
+<p>| <strong>On-demand</strong> | MCP tool <code>regenerate<em>user</em>docs {block_id|project}</code> | принудительный пересбор |</p>
+<p>| <strong>Project bootstrap</strong> | при создании нового проекта через <code>analyze<em>conversation</em>to_atlas</code> | пишет пустой <code>docs/end-user/index.md</code> с TOC из планируемых блоков |</p>
+<p><strong>Не работает на</strong>: блоки с <code>layer ∈ {data, ext, ai, testing, content}</code> (там нет user-facing UI). Для них — только если явно указано <code>user_facing: true</code> во frontmatter блока.</p>
+<hr/>
+<h2>Где применяется (потребители)</h2>
+<p>| Потребитель | Как использует |</p>
+<p>|---|---|</p>
+<p>| Пользователь Атласа (читатель) | открывает <code>docs/end-user/&lt;block&gt;.md</code> в репо своего продукта, видит готовый tutorial |</p>
+<p>| <code>b.docs</code> | в wiki-странице блока добавляет ссылку «End-user docs: docs/end-user/&lt;id&gt;.md» |</p>
+<p>| UI Inspector | под mission блока — кнопка «Открыть end-user туториал» |</p>
+<p>| <code>nightly_consolidation</code> | drift-check; если меняется JSX — пересобирает |</p>
+<p>| <code>analyze<em>conversation</em>to<em>atlas</code> | при создании нового user-facing блока — добавляет в proposal <code>expects</em>user_docs: true</code> |</p>
+<p>| MCP tools | <code>regenerate<em>user</em>docs</code>, <code>read<em>user</em>docs</code>, <code>list<em>user</em>docs</code> |</p>
+<hr/>
+<h2>UX-принципы</h2>
+<p>1. <strong>Авто-маркер.</strong> Каждый файл начинается с «АВТОГЕНЕРИРОВАНО — не редактируй». Pre-commit hook предотвращает ручные правки (или предлагает либо унаследовать через mission/patterns, либо явно <code>LOCKED: true</code> в meta).</p>
+<p>2. <strong>Скриншоты опциональны.</strong> Если Playwright не настроен — текст без картинок, но всё ещё валидный markdown.</p>
+<p>3. <strong>Язык — пользовательский.</strong> Не «module b.todo-ui implements a TaskCreator component»; а «чтобы создать задачу, нажми +». LLM-prompt явно требует «not technical jargon».</p>
+<p>4. <strong>Idempotent.</strong> Регенерация без изменений источников даёт <strong>байт-в-байт</strong> тот же файл (cache на hash).</p>
+<p>5. <strong>Локализация.</strong> В meta/&lt;id&gt;.json — поле <code>lang: "ru"</code>; LLM-prompt получает язык из <code>atlas/project.md</code> или env <code>ATLAS<em>USER</em>DOCS_LANG</code>.</p>
+<hr/>
+<h2>Out of scope</h2>
+<ul>
+<li>Реальный hosting (gh-pages / vercel deploy) — пусть пользователь сам подключит, мы только пишем markdown.</li>
+<li>Видео-туториалы — за рамками.</li>
+<li>A/B test разных формулировок — за рамками.</li>
+<li>Локализация в больше чем 2 языка одновременно — генерим по 1 языку за прогон.</li>
+</ul>
+<hr/>
+<h2>Интеграция с уже существующими блоками</h2>
+<ul>
+<li><strong>depends<em>on</strong>: <code>b.db</code> (read graph + project files), <code>b.docs</code> (общий wiki-pipeline), <code>b.agent-orchestrator</code> (cursor</em>observations + Playwright screenshots в будущем), <code>b.llm-gateway</code> (генерация текста через structured output).</li>
+<li><strong>provides</strong>: <code>end<em>user</em>docs<em>set</code>, <code>user</em>docs<em>meta</code>, <code>tutorial</em>renderer</code>.</li>
+</ul>
+<hr/>
+<h2>Backlog priority</h2>
+<ul>
+<li><strong>Position</strong>: после <code>b.acceptance-verifier-loop</code> и <code>b.operator-profile-learner</code>. Не критично для функциональности Атласа, но <strong>сильно повышает ценность</strong> для конечного пользователя продукта (=пользователя Атласа). Потенциально — самый «продаваемый» feature: «при разработке продукт сам пишет себе manual».</li>
+<li><strong>Estimate</strong>: 3–4 PR-а:</li>
+<p>  1. <code>block introspection</code> — парсер JSX/HTML → структура (кнопки, поля, маршруты, handlers)</p>
+<p>  2. <code>LLM tutorial writer</code> — single-shot per block через <code>b.llm-gateway</code>, JSON Schema-driven вывод</p>
+<p>  3. <code>screenshot integration</code> — Playwright snapshot per flow (опц.; работает без него)</p>
+<p>  4. <code>auto-regen + UI</code> — nightly drift-check + Inspector кнопка + locked-flag protection</p>
+</ul>
+<h4>KPI</h4>
+<h1>b.user-docs-generator — KPI</h1>
+<ul>
+<li><strong>KPI-1 (coverage)</strong>: 100% блоков с <code>layer ∈ {user, front}</code> или <code>user<em>facing: true</code> имеют свежий <code>docs/end-user/&lt;block&gt;.md</code> (т.е. hash источников совпадает с hash в <code></em>meta/&lt;block&gt;.json</code>). Сейчас: ✗.</li>
+<li><strong>KPI-2 (idempotent)</strong>: regen без изменений источников даёт diff = пустой (байт-в-байт идентичный файл). Сейчас: ✗.</li>
+<li><strong>KPI-3 (cost cap)</strong>: одна регенерация одного блока ≤ $0.03 (LLM tokens); полный regen всех user-facing блоков среднего проекта (8 блоков) ≤ $0.25. Сейчас: ✗.</li>
+<li><strong>KPI-4 (no jargon)</strong>: 0 случаев технических терминов (<code>module</code>, <code>component</code>, <code>endpoint</code>, <code>prop</code>, <code>state</code>) в финальном markdown — LLM-prompt + post-validation. Сейчас: ✗.</li>
+<li><strong>KPI-5 (drift detection)</strong>: при ручной правке <code>&lt;block&gt;.md</code> без <code>LOCKED: true</code> — pre-commit hook просит подтвердить либо отменить (warn, не fail). Сейчас: ✗.</li>
+<li><strong>KPI-6 (latency)</strong>: один блок ≤ 30 секунд (только LLM, без Playwright); с Playwright ≤ 60 секунд. Сейчас: ✗.</li>
+<li><strong>KPI-7 (graceful degradation)</strong>: если Playwright не настроен — текст всё равно валидный, без <code>[broken image]</code>. Сейчас: ✗.</li>
+</ul>
+<h4>Acceptance</h4>
+<h1>b.user-docs-generator — acceptance</h1>
+<ul>
+<li>[ ] <strong>A1.</strong> PR-1 (block introspection) merged: <code>scripts/introspect<em>block</em>ui.mjs &lt;block_id&gt;</code> парсит JSX/HTML/route-файлы блока, возвращает <code>{buttons: [...], inputs: [...], routes: [...], handlers: [...]}</code>. Selftest на <code>b.todo-ui</code> (≥ 5 element types обнаружены).</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/introspect_block_ui.selftest.mjs
+  expect_in_stdout: "OK"</code></pre>
+<ul>
+<li>[ ] <strong>A2.</strong> PR-2 (LLM tutorial writer) merged: <code>scripts/generate<em>user</em>docs.mjs &lt;block<em>id&gt;</code> через <code>b.llm-gateway.callLLM</code> со схемой <code>UserTutorial</code> пишет <code>docs/end-user/&lt;block&gt;.md</code> + <code></em>meta/&lt;block&gt;.json</code>. Mock-режим возвращает консистентный markdown.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/user_docs.smoke.mjs
+  expect_in_stdout: "OK"</code></pre>
+<ul>
+<li>[ ] <strong>A3.</strong> PR-3 (screenshot integration, опц.) merged: если Playwright настроен и <code>playwright.config.js</code> валидный — после генерации текста запускается <code>playwright test --grep &lt;block<em>id&gt;</code> который создаёт <code></em>screenshots/&lt;block&gt;__&lt;flow&gt;.png</code>; иначе skip без ошибки.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/screenshots_integration.selftest.mjs
+  expect_in_stdout: "OK"</code></pre>
+<ul>
+<li>[ ] <strong>A4.</strong> PR-4 (auto-regen + UI) merged: nightly step <code>regenerate<em>user</em>docs_drift</code> пересобирает только блоки с изменившимся hash источников; Inspector кнопка «Открыть end-user docs»; pre-commit hook предупреждает при ручной правке без <code>LOCKED: true</code>.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/user_docs_drift.selftest.mjs
+  expect_in_stdout: "OK"</code></pre>
+<ul>
+<li>[ ] <strong>A5.</strong> Idempotency smoke <code>tests/user_docs.idempotent.smoke.mjs</code>: regen без изменений → diff пустой; изменили mission.md → diff не пустой и hash в meta обновлён.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: log_grep
+evidence_spec:
+  file: tests/user_docs.smoke.mjs
+  pattern: "idempotent re-run"</code></pre>
+<ul>
+<li>[ ] <strong>A6.</strong> No-jargon validator: post-LLM проверяет, что финальный markdown не содержит {<code>module</code>, <code>component</code>, <code>endpoint</code>, <code>prop</code>, <code>state</code>, <code>import</code>, <code>function</code>} вне блока «Под капотом»; на violation — retry с явной подсказкой в prompt (max 1).</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: log_grep
+evidence_spec:
+  file: scripts/generate_user_docs.mjs
+  pattern: "JARGON_TOKENS|detectJargon"</code></pre>
+<ul>
+<li>[ ] <strong>A7.</strong> Privacy / safety: generator <strong>только</strong> пишет в <code>atlas/projects/&lt;proj&gt;/docs/end-user/</code>; pre-commit hook предотвращает запись вне этой директории; никакого кода блока не модифицируется.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: log_grep
+evidence_spec:
+  file: scripts/check_user_docs_locked.mjs
+  pattern: "atlas/docs/end-user"</code></pre>
+<ul>
+<li>[ ] <strong>A8.</strong> Localization smoke: <code>ATLAS<em>USER</em>DOCS_LANG=en</code> → все заголовки и шаги по-английски; default = ru.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: log_grep
+evidence_spec:
+  file: scripts/generate_user_docs.mjs
+  pattern: "ATLAS_USER_DOCS_LANG"</code></pre>
+<h2>Что считается NOT acceptance</h2>
+<ul>
+<li>Авто-deploy на gh-pages / vercel (out of scope).</li>
+<li>Видео или интерактивные туториалы (out of scope).</li>
+<li>Регенерация без cache (нарушает KPI-3 cost cap).</li>
+</ul>
+<h2>Logic-flow при review</h2>
+<ul>
+<li>Каждый сгенерированный markdown начинается с маркера <code>&gt; Эта страница автогенерирована Атласом. Не редактируй вручную.</code>.</li>
+<li><code>_meta/&lt;block&gt;.json</code> хранит hash источников; при regen пишется новый hash; old не теряется (history).</li>
+<li>При наличии <code>LOCKED: true</code> в meta — generator пропускает блок и пишет proposal <code>user<em>docs</em>locked</code> (для review оператором).</li>
+</ul>
+<h2>Зависимости</h2>
+<ul>
+<li>b.user-docs-generator → читает b.db, b.docs (общий wiki-pipeline), b.agent-orchestrator (опц. screenshots), b.llm-gateway (генерация).</li>
+<li>Никто из других блоков не depends_on этот — это аддитивный слой контента.</li>
+</ul>
+<hr/>
+<h3>🟡 b.smoke-sandbox — Smoke Sandbox (test target)</h3>
+<ul>
+<li><strong>layer</strong>: <code>testing</code></li>
+<li><strong>type</strong>: test</li>
+<li><strong>status</strong>: <code>idea</code> — Reserved write-target for e2e/smoke scripts so they never touch real product blocks</li>
+<li><strong>mvp</strong>: no</li>
+<li><strong>files</strong>: 2 (<code>atlas/blocks/b.smoke-sandbox/files.md</code>)</li>
 </ul>
 <h1>b.smoke-sandbox — mission</h1>
 <p>Целевой блок для всех e2e/smoke-тестов Атласа. Реальный код продукта на него не ссылается. MCP smoke-сценарии (<code>scripts/mcp<em>smoke</em>e2e.mjs</code>, future smoke harnesses) пишут сюда mission/tasks/ingestion-queue, чтобы не повреждать содержание реальных блоков (b.ui-control, b.core-sync, b.db, b.agent-orchestrator, b.docs, b.llm-gateway).</p>
@@ -157,6 +1197,31 @@
 <ul>
 <li>Любые продуктовые фичи.</li>
 </ul>
+<h4>KPI</h4>
+<h1>b.smoke-sandbox — KPI</h1>
+<ul>
+<li><strong>KPI-1 (idempotency)</strong>: повторный запуск <code>mcp<em>smoke</em>e2e.mjs</code> оставляет sandbox в идентичном состоянии (нет накопления мусора в graph.json или других блоках).</li>
+<li><strong>KPI-2 (isolation)</strong>: ни одно действие smoke-теста не модифицирует другой блок atlas; gate <code>validate<em>no</em>template_placeholders</code> остаётся зелёным после прогона.</li>
+<li><strong>KPI-3 (smoke-coverage)</strong>: smoke-тест прокатывает все 21+ MCP-tools хотя бы раз без ошибок.</li>
+</ul>
+<h4>Acceptance</h4>
+<h1>b.smoke-sandbox — acceptance</h1>
+<ul>
+<li>[ ] <strong>A1.</strong> Sandbox используется только тестовыми скриптами (<code>scripts/mcp<em>smoke</em>e2e.mjs</code>, etc.). Никакая реальная фича не должна писать или читать из этого блока.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: log_grep
+evidence_spec:
+  file: scripts/mcp_smoke_e2e.mjs
+  pattern: "b.smoke-sandbox"</code></pre>
+<ul>
+<li>[ ] <strong>A2.</strong> Регулярный grep по содержимому <code>mission.md</code> других блоков <strong>не находит</strong> упоминаний b.smoke-sandbox (никакой блок-продукт не должен от него зависеть).</li>
+<li>[ ] <strong>A3.</strong> Между двумя последовательными <code>mcp<em>smoke</em>e2e.mjs</code> прогонами <code>git diff</code> в других блоках пуст.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: exit_code
+evidence_spec:
+  cmd: node scripts/mcp_smoke_e2e.mjs
+  expect_in_stdout: "OK"</code></pre>
+<hr/>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <script>
   if (window.mermaid) mermaid.initialize({ startOnLoad: true, theme: 'default', flowchart: { htmlLabels: true } });

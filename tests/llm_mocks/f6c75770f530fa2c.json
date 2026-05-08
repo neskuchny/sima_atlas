@@ -1,0 +1,32 @@
+{
+  "blocks": [
+    {
+      "id": "b.analytics-ingest",
+      "title": "Analytics Ingest",
+      "mission": "Приём событий через Kafka",
+      "layer": "logic",
+      "type": "module",
+      "mvp": false,
+      "status": "idea",
+      "depends_on": [
+        "b.analytics-dwh"
+      ],
+      "provides": [],
+      "tech_stack": [],
+      "confidence": 0.9
+    },
+    {
+      "id": "b.analytics-dwh",
+      "title": "Analytics DWH",
+      "mission": "Clickhouse как хранилище",
+      "layer": "data",
+      "type": "module",
+      "mvp": false,
+      "status": "idea",
+      "depends_on": [],
+      "provides": [],
+      "tech_stack": [],
+      "confidence": 0.9
+    }
+  ]
+}

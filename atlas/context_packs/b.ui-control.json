@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-05-02T10:01:08.076Z",
+  "generated_at": "2026-05-06T18:44:42.985Z",
   "block_id": "b.ui-control",
   "project": {
     "project": "# Sima Atlas\n\nЦель: единая визуально-документная система, которая устраняет рассинхрон между кодом, агентами и документацией.\n\n## North Star\n- Любой агент работает по одному и тому же block-context.\n- Человек видит статус реализации на схеме без чтения всего кода.\n",
     "rules": "# Rules\n\n1. Любое изменение блока фиксируется в его `tasks.md` и `checks.log`.\n2. Перед изменением кода агент читает: `project.md`, `tech_stack.md`, `rules.md`, `blocks/<id>/*`.\n3. Файлы без владельца-блока считаются out-of-scope.\n4. Блок `done` только при выполнении acceptance + KPI, а не только compile/runtime.\n",
-    "tech_stack": "# Tech Stack (MVP lock)\n\n- Frontend: React (Babel standalone в текущем прототипе)\n- Runtime storage: localStorage (MVP)\n- Atlas storage: Markdown + JSON (`/atlas`)\n- Automation: CLI agents (Cursor/Claude/Codex) через hooks/адаптеры\n\n## Запреты MVP\n- Не смешивать второй фронтенд-фреймворк в активных блоках.\n- Не использовать альтернативные «источники правды» вне `/atlas`.\n"
+    "tech_stack": "# Tech Stack (MVP lock)\n\n- Frontend: React (Babel standalone в текущем прототипе)\n- Runtime storage: localStorage (MVP)\n- Atlas storage: Markdown + JSON (`/atlas`)\n- Automation: CLI agents (Cursor/Claude/Codex) через hooks/адаптеры\n- Backend automation: Node.js 18+ (ESM, native fetch)\n- LLM providers: Anthropic API, Google Gemini API (via b.llm-gateway)\n\n## Запреты MVP (machine-readable for guard_against_drift.mjs)\n\n`forbidden_commands` (regex applied to the full command string):\n\n```forbidden\n^pip\\s+install\n^pipx\\s+install\n^poetry\\s+(add|install)\n^conda\\s+install\n^cargo\\s+(add|install)\n^go\\s+install\n^bundle\\s+install\n^gem\\s+install\n^composer\\s+(install|require)\n```\n\n`forbidden_substrings`:\n\n```forbidden_substrings\nyarn add vue\nyarn add @angular\nnpm install vue\nnpm install @angular\nnpm i vue\nnpm i @angular\n```\n\n## Allowed package managers\n\n- `npm` / `npx` (Node.js)\n- `node` / direct script execution\n\n## Прочие правила\n\n- Не смешивать второй фронтенд-фреймворк в активных блоках (см. forbidden_substrings).\n- Не использовать альтернативные «источники правды» вне `/atlas`.\n- Не устанавливать Python/Ruby/Go-зависимости — это репо чисто на Node.js.\n\n"
   },
   "block": {
     "meta": {
@@ -15,7 +15,7 @@
       "layer": "front",
       "type": "module",
       "mvp": true,
-      "subschema_id": null,
+      "subschema_id": "components",
       "depends_on": [
         "b.core-sync",
         "b.agent-orchestrator"
@@ -46,10 +46,46 @@
     },
     "mission": "# b.ui-control — mission\n\nВизуальная control plane Симы: один React-канвас, в котором человек видит схему продукта (слои, блоки, связи), статус каждого блока (idea/wip/review/done/broken/drift), запускает действия по блоку (Implement / Review / Done / Rollback / mark-dead) и собирает context-pack для агента.\n\nГлавное назначение — заменить чтение кода и переключение между чатами Cursor/Claude/Codex на одну визуальную карту, где видно: что сделано, что сломано, что синхронизировано с миссией продукта, что нет.\n\n## Scope\n- 4 layer switcher (Канвас источников / Карта продукта / ТЗ / Реализация) + Галерея.\n- Архитектурный канвас (горизонтальные слои, блоки с портами, типизированные связи, drag&drop).\n- Inspector блока: mission/kpi/tasks/checks, кнопки lifecycle, экспорт context-pack.\n- Подсветка рассинхрона и broken/drift-фильтры.\n\n## Out of scope (для PR1)\n- LLM-вызовы из UI (PR3).\n- Watcher событий Cursor (PR4).\n",
     "kpi": "# b.ui-control — KPI\n\n- **KPI-1 (boot)**: HTML-страница `Sima (Remix)/Сима - универсальный конструктор.html` открывается в браузере без ошибок в консоли (всё React-дерево рендерится). Сейчас: ✗ (часть JSX не подключена).\n- **KPI-2 (multi-layer)**: канвас рисует не менее 5 горизонтальных слоёв из `ARCH_LAYERS`, и блоки распределены по этим слоям по полю `layer`. Сейчас: ✗ (графа без поля `layer`, всё валится в один контейнер).\n- **KPI-3 (sync visibility)**: при `syncCheck` блоки со статусом drift/broken визуально подсвечиваются на канвасе с причиной из `syncReport.details`. Сейчас: △ (логика есть в `atlas_sync.js`, но завязана только на наличие файлов).\n- **KPI-4 (lifecycle gating)**: кнопка Done на блоке заблокирована, пока не пройдены acceptance + kpi проверки. Сейчас: ✓ (логика `isReadyToDone` в `app_v2.jsx`).\n- **KPI-5 (context-pack export)**: для выбранного блока копируется в буфер deterministic JSON со всеми ссылками на mission/kpi/depends/provides. Сейчас: ✓ для UI-кнопки, файл-output генерируется через `scripts/build_context_pack.mjs`.\n",
-    "acceptance": "# b.ui-control — acceptance\n\nБлок переходит в `done` только когда:\n\n- [ ] **A1.** HTML открывается в браузере и `<div id=\"root\">` заполнен (smoke-тест: `headless run` грузит страницу, ловит `error`-события, ждёт что DOM содержит `.l2-top` и `.workarea`).\n- [ ] **A2.** Все JSX-зависимости `app_v2.jsx` подгружены (нет `useTweaks/SourcePalette/CanvasInspector is not defined` в консоли).\n- [ ] **A3.** При выбранном проекте `atlas-live` канвас архитектуры рисует ≥ 3 горизонтальных слоя; в каждом слое — корректные блоки из `graph.json` по полю `layer` (зависит от PR2).\n- [ ] **A4.** Sync-check на 5 блоках возвращает либо ok, либо drift с конкретной причиной (`status_reason`) — без ложных «всё зелёное».\n- [ ] **A5.** Кнопка Done заблокирована, если `acceptance` чек-листа блока не отмечены полностью И в `checks.log` нет `acceptance pass` + `kpi pass`.\n\n## Не считается acceptance:\n- наличие файлов;\n- прохождение `validate_block_contracts.mjs` (это контрактный gate, не приёмка);\n- генерация `wiki.html` (это `b.docs`).\n",
+    "acceptance": "# b.ui-control — acceptance\n\nБлок переходит в `done` только когда:\n\n- [ ] **A1.** HTML открывается в браузере и `<div id=\"root\">` заполнен (smoke-тест: `headless run` грузит страницу, ловит `error`-события, ждёт что DOM содержит `.l2-top` и `.workarea`).\n- [ ] **A2.** Все JSX-зависимости `app_v2.jsx` подгружены (нет `useTweaks/SourcePalette/CanvasInspector is not defined` в консоли).\n- [ ] **A3.** При выбранном проекте `atlas-live` канвас архитектуры рисует ≥ 3 горизонтальных слоя; в каждом слое — корректные блоки из `graph.json` по полю `layer` (зависит от PR2).\n- [ ] **A4.** Sync-check на 5 блоках возвращает либо ok, либо drift с конкретной причиной (`status_reason`) — без ложных «всё зелёное».\n```yaml\nevidence_kind: exit_code\nevidence_spec:\n  cmd: node scripts/validate_block_contracts.mjs\n  expect_in_stdout: \"OK\"\n```\n- [ ] **A5.** Кнопка Done заблокирована, если `acceptance` чек-листа блока не отмечены полностью И в `checks.log` нет `acceptance pass` + `kpi pass`.\n```yaml\nevidence_kind: log_grep\nevidence_spec:\n  file: scripts/log_transition.mjs\n  pattern: \"verdict !== 'pass'\"\n```\n\n## Не считается acceptance:\n- наличие файлов;\n- прохождение `validate_block_contracts.mjs` (это контрактный gate, не приёмка);\n- генерация `wiki.html` (это `b.docs`).\n",
     "tasks": "# b.ui-control — tasks\n\n- [ ] T1: Подключить пропавшие JSX в `Sima (Remix)/Сима - универсальный конструктор.html` (components.jsx, sidecol.jsx, canvas_tools.jsx, composer.jsx, library_view.jsx) — **PR1**\n- [ ] T2: Развести блоки по слоям через поле `layer` из `graph.json` v2 — **PR2**\n- [ ] T3: В `arch_canvas.jsx` корректно читать `layer` и рисовать каждый блок в соответствующей полосе — **PR2**\n- [ ] T4: Live update схемы при изменениях в `/atlas/` (через WebSocket или polling) — **PR2**\n- [ ] T5: Подсветка drift/broken блоков с tooltip-причиной из `syncReport.details` — **PR2**\n- [ ] T6: Двойной клик по блоку с `subschema_id` открывает подсхему (рекурсия) — **PR2**\n- [ ] T7: Кнопка «Implement» вызывает `composer.jsx` со сгенерированным context-pack для агента — **PR3**\n",
     "patterns": "",
-    "files": "# b.ui-control — files\n\n- Sima (Remix)/Сима - универсальный конструктор.html [alive]\n- Sima (Remix)/app_v2.jsx [alive]\n- Sima (Remix)/arch_canvas.jsx [alive]\n- Sima (Remix)/layer1_canvas.jsx [alive]\n- Sima (Remix)/layer2_map.jsx [alive]\n- Sima (Remix)/layer3_tz.jsx [alive]\n- Sima (Remix)/layer4_impl.jsx [alive]\n- Sima (Remix)/gallery_v2.jsx [alive]\n- Sima (Remix)/landscape_view.jsx [alive]\n- Sima (Remix)/subschema.jsx [alive]\n- Sima (Remix)/tweaks-panel.jsx [alive]\n- Sima (Remix)/icons.jsx [alive]\n- Sima (Remix)/atlas_sync.js [alive]\n- Sima (Remix)/atlas_bootstrap.js [alive] (auto-generated)\n- Sima (Remix)/styles.css [alive]\n- Sima (Remix)/styles_v2.css [alive]\n- Sima (Remix)/arch_styles.css [alive]\n- Sima (Remix)/landscape_assets.jsx [alive]\n- Sima (Remix)/landscape_styles.css [alive]\n- Sima (Remix)/data_v2.js [alive] (mock projects palette)\n- Sima (Remix)/components.jsx [alive] (referenced indirectly via window globals)\n- Sima (Remix)/sidecol.jsx [alive] (referenced indirectly via window globals)\n- Sima (Remix)/canvas_tools.jsx [alive]\n- Sima (Remix)/composer.jsx [alive] (PR3 will wire it for \"Implement\")\n- Sima (Remix)/library_view.jsx [alive] (PR4 will wire it for artifacts)\n- Sima (Remix)/graph_view.jsx [alive] (alternative graph view)\n- Sima (Remix)/result_view.jsx [archived] (legacy)\n- Sima (Remix)/schema_view.jsx [archived] (legacy)\n- Sima (Remix)/data.js [archived] (v1 data, replaced by data_v2.js)\n- Sima (Remix)/app.jsx [archived] (v1 root, replaced by app_v2.jsx)\n"
+    "files": "# b.ui-control — files\n\n- Sima (Remix)/Сима - универсальный конструктор.html [alive]\n- Sima (Remix)/index.html [alive] (PR4.1: ASCII alias for python http.server compatibility)\n- index.html [alive] (PR4.1: repo-root redirect to Sima (Remix)/index.html)\n- Sima (Remix)/app_v2.jsx [alive]\n- Sima (Remix)/arch_canvas.jsx [alive]\n- Sima (Remix)/layer1_canvas.jsx [alive]\n- Sima (Remix)/layer2_map.jsx [alive]\n- Sima (Remix)/layer3_tz.jsx [alive]\n- Sima (Remix)/layer4_impl.jsx [alive]\n- Sima (Remix)/gallery_v2.jsx [alive]\n- Sima (Remix)/landscape_view.jsx [alive]\n- Sima (Remix)/subschema.jsx [alive]\n- Sima (Remix)/tweaks-panel.jsx [alive]\n- Sima (Remix)/icons.jsx [alive]\n- Sima (Remix)/atlas_sync.js [alive]\n- Sima (Remix)/atlas_bootstrap.js [alive] (auto-generated)\n- Sima (Remix)/styles.css [alive]\n- Sima (Remix)/styles_v2.css [alive]\n- Sima (Remix)/arch_styles.css [alive]\n- Sima (Remix)/landscape_assets.jsx [alive]\n- Sima (Remix)/landscape_styles.css [alive]\n- Sima (Remix)/data_v2.js [alive] (mock projects palette)\n- Sima (Remix)/components.jsx [alive] (referenced indirectly via window globals)\n- Sima (Remix)/sidecol.jsx [alive] (referenced indirectly via window globals)\n- Sima (Remix)/canvas_tools.jsx [alive]\n- Sima (Remix)/composer.jsx [alive] (PR3 will wire it for \"Implement\")\n- Sima (Remix)/library_view.jsx [alive] (PR4 will wire it for artifacts)\n- Sima (Remix)/graph_view.jsx [alive] (alternative graph view)\n- Sima (Remix)/result_view.jsx [archived] (legacy)\n- Sima (Remix)/schema_view.jsx [archived] (legacy)\n- Sima (Remix)/data.js [archived] (v1 data, replaced by data_v2.js)\n- Sima (Remix)/app.jsx [archived] (v1 root, replaced by app_v2.jsx)\n",
+    "files_alive": [
+      "Sima (Remix)/Сима - универсальный конструктор.html",
+      "Sima (Remix)/index.html",
+      "index.html",
+      "Sima (Remix)/app_v2.jsx",
+      "Sima (Remix)/arch_canvas.jsx",
+      "Sima (Remix)/layer1_canvas.jsx",
+      "Sima (Remix)/layer2_map.jsx",
+      "Sima (Remix)/layer3_tz.jsx",
+      "Sima (Remix)/layer4_impl.jsx",
+      "Sima (Remix)/gallery_v2.jsx",
+      "Sima (Remix)/landscape_view.jsx",
+      "Sima (Remix)/subschema.jsx",
+      "Sima (Remix)/tweaks-panel.jsx",
+      "Sima (Remix)/icons.jsx",
+      "Sima (Remix)/atlas_sync.js",
+      "Sima (Remix)/atlas_bootstrap.js",
+      "Sima (Remix)/styles.css",
+      "Sima (Remix)/styles_v2.css",
+      "Sima (Remix)/arch_styles.css",
+      "Sima (Remix)/landscape_assets.jsx",
+      "Sima (Remix)/landscape_styles.css",
+      "Sima (Remix)/data_v2.js",
+      "Sima (Remix)/components.jsx",
+      "Sima (Remix)/sidecol.jsx",
+      "Sima (Remix)/canvas_tools.jsx",
+      "Sima (Remix)/composer.jsx",
+      "Sima (Remix)/library_view.jsx",
+      "Sima (Remix)/graph_view.jsx",
+      "Sima (Remix)/result_view.jsx",
+      "Sima (Remix)/schema_view.jsx",
+      "Sima (Remix)/data.js",
+      "Sima (Remix)/app.jsx"
+    ],
+    "files_dead": [],
+    "files_archived": []
   },
   "dependencies": [
     {
@@ -59,8 +95,12 @@
     },
     {
       "id": "b.agent-orchestrator",
-      "mission": "# b.agent-orchestrator — mission\n\nШина между Sima и любым coding-агентом (Cursor, Claude Code, Codex CLI, Antigravity). Главная задача — обеспечить, чтобы все агенты работали по **одному и тому же** context-pack, читали `/atlas/blocks/<id>/` перед написанием кода и пушили обратно реальные события (file edits, shell calls, status transitions), а не шаблонные «sync pass»-логи.\n\nТекущая реализация: MCP-сервер (`scripts/mcp_atlas_server.mjs` с 21+ tools), `.cursor/hooks.json`, `AGENTS.md` / `CLAUDE.md` контракты. Главные пропуски — `.cursor/hooks.json` использует выдуманное событие `afterPromptSent` и формат `action.run_command`, который Cursor не интерпретирует; нет наблюдения за реальными file edits и tool calls агентов.\n\n## Layer\nai\n\n## Что должен делать в done-версии\n1. Валидные Cursor hooks: `beforeShellExecution`, `afterFileEdit`, `beforeSubmitPrompt` с реальным запуском node-скриптов.\n2. `observe_file_edit.mjs`: получает путь файла → ищет в `files.md` блоков → пишет в `checks.log` блока факт правки + `git diff --stat`.\n3. `guard_against_drift.mjs`: проверяет shell-команды против `tech_stack.md` (например, блокирует `pip install` если стек React).\n4. Adapter для Claude Code: `claude --print --add-dir /atlas/blocks/<id>` запускается из MCP-tool `run_block_implementation`.\n5. Multi-agent parity: один и тот же context-pack JSON отдаётся через Cursor (MCP) и Claude (CLI flag).\n\n## Out of scope\n- LLM-извлечение смысла из чата (это `b.llm-gateway`).\n- UI-операции по блоку (это `b.ui-control`).\n",
+      "mission": "# b.agent-orchestrator — mission\n\nШина между Sima и любым coding-агентом (Cursor, Claude Code, Codex CLI, Antigravity). Главная задача — обеспечить, чтобы все агенты работали по **одному и тому же** context-pack, читали `/atlas/blocks/<id>/` перед написанием кода и пушили обратно реальные события (file edits, shell calls, status transitions), а не шаблонные «sync pass»-логи.\n\n## Layer\nai\n\n## Что реализовано (после PR4)\n\n1. **MCP-сервер** `scripts/mcp_atlas_server.mjs` (21+ tools: read_block / list_dependencies / sync_check / build_context_pack / log_check / mark_file_dead / update_block / generate_validated_bundle / nightly_consolidation / render_wiki_html / ingest_chat_distillate / enqueue_ingestion / apply_ingestion_queue ...). Cursor подключает его через `.cursor/mcp.json`.\n2. **Валидный `.cursor/hooks.json`** в формате Cursor (`{ version: 1, hooks: { event: [{ command }] } }`) с 4 событиями:\n   - `beforeSubmitPrompt` → `node scripts/inject_context_pack.mjs` (вкладывает block-scoped context).\n   - `afterFileEdit` → `node scripts/observe_file_edit.mjs` (записывает правку в `checks.log` блока через `files.md` reverse-mapping).\n   - `beforeShellExecution` → `node scripts/guard_against_drift.mjs` (отклоняет команды против `tech_stack.md`).\n   - `stop` → `node scripts/calc_intelligence_health.mjs` (обновляет дашборд).\n3. **`validate_cursor_hooks.mjs`** — gate в nightly: фейлится если формат не соответствует Cursor или command ссылается на несуществующий скрипт.\n4. **9-case integration test** `tests/cursor_hooks_actions.test.mjs`: known/unknown/empty path, pip-rejected / npm-approved / yarn-vue-rejected / empty-command, inject-by-env / inject-by-prompt-detection.\n5. **AGENTS.md / CLAUDE.md** генерируются `scripts/generate_agent_contracts.mjs` и одинаковы для всех агентов.\n\n## Что осталось до done\n- Live-проверка с реальным Cursor в IDE: запустить пример pip-команды, убедиться, что она блокируется в реальном окружении (а не только в наших тестах через CLI argv).\n- Adapter для Claude Code CLI: MCP tool `run_block_implementation(block_id)` → `claude --print --add-dir atlas/blocks/<id>`.\n- Real diff-парити между Cursor MCP и Claude CLI context-packs (PR4.5).\n\n## Out of scope\n- LLM-извлечение смысла из чата (это `b.llm-gateway`).\n- UI-операции по блоку (это `b.ui-control`).\n",
       "provides": "# b.agent-orchestrator — provides\n\n- pipeline_execution\n"
     }
-  ]
+  ],
+  "_meta": {
+    "size_bytes": 17847,
+    "estimated_tokens": 4462
+  }
 }

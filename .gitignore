@@ -2,8 +2,22 @@
 atlas/llm_traces/*
 !atlas/llm_traces/.gitkeep
 
+# Eval history snapshots — only keep first/baseline + .gitkeep; runtime ones are noise.
+atlas/eval_history/*
+!atlas/eval_history/.gitkeep
+!atlas/eval_history/baseline.json
+
+# Chat watcher artefacts (Phase R-3) — local cursor maps full session
+# paths under ~/.claude/projects, which leak session UUIDs and home path.
+atlas/run_state/chat_watch_cursor.json
+atlas/run_state/chat_watch_status.json
+
 # Misc
 node_modules/
 .env
 .env.local
 *.log.bak
+node_modules/
+tests/playwright/_report/
+tests/playwright/test-results/
+test-results/

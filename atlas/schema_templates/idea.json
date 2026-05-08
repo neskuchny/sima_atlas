@@ -1,0 +1,19 @@
+{
+  "id": "idea",
+  "title": "Идея",
+  "description": "Скелет проверки идеи: гипотеза, riskiest assumption, эксперимент, метрика.",
+  "default_layer": "logic",
+  "blocks": [
+    { "id_suffix": "hypothesis", "title": "Гипотеза", "layer": "logic", "mission": "Если мы сделаем X, то Y увеличится потому что Z.", "kpi": ["1 предложение в формате IF-THEN-BECAUSE"] },
+    { "id_suffix": "risk",       "title": "Riskiest Assumption", "layer": "logic", "mission": "Самое уязвимое предположение. Если оно ложно, идея мёртвая.", "kpi": ["1 формулировка, начинается со слова \"Что если\""] },
+    { "id_suffix": "experiment", "title": "Эксперимент", "layer": "logic", "mission": "Дешёвый способ проверить riskiest assumption за < 2 недели.", "kpi": ["≤ 14 дней", "≤ $500 бюджет"] },
+    { "id_suffix": "metric",     "title": "Метрика",     "layer": "data",  "mission": "Цифра, которую считаем до и после эксперимента — pass / fail чёткий.", "kpi": ["1 метрика", "Заранее заданный порог pass/fail"] },
+    { "id_suffix": "kill",       "title": "Kill criteria","layer": "logic", "mission": "Условие, при котором идею убиваем без жалости.", "kpi": ["1 числовой триггер"] }
+  ],
+  "edges": [
+    { "from": "hypothesis", "to": "risk", "kind": "contract", "capability": "assumption" },
+    { "from": "risk", "to": "experiment", "kind": "contract", "capability": "test_design" },
+    { "from": "experiment", "to": "metric", "kind": "data", "capability": "measurement" },
+    { "from": "metric", "to": "kill", "kind": "contract", "capability": "decision" }
+  ]
+}

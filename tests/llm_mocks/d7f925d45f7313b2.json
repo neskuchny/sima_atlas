@@ -1,0 +1,19 @@
+{
+  "blocks": [
+    {
+      "id": "b.crm-sync",
+      "title": "CRM Sync",
+      "mission": "Зависит от HubSpot API и от contacts db",
+      "layer": "ext",
+      "type": "module",
+      "mvp": false,
+      "status": "idea",
+      "depends_on": [
+        "b.contacts-db"
+      ],
+      "provides": [],
+      "tech_stack": [],
+      "confidence": 0.9
+    }
+  ]
+}

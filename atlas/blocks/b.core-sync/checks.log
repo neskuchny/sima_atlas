@@ -21,3 +21,13 @@
 2026-05-02T08:41:44Z	honest_reset	pass	PR1 cleared template mission/kpi/acceptance/tasks; honest status set in graph.json
 2026-05-02T09:27:08Z	pr2_layered_schema	pass	layer/files/tech_stack populated; bootstrap+wiki+roadmap layered
 2026-05-02T10:02:24Z	pr3_llm_gateway	pass	extractBlockSchema replaces regex; golden eval 1.0/0.7 target; b.llm-gateway in review
+2026-05-02T11:09:54Z	pr4_cursor_hooks	pass	valid Cursor hooks (4 events) + observe/guard/inject scripts + 9-case test
+2026-05-02T18:28:54Z	pr_conn_drift	pass	bootstrap detects unsatisfied capability in depends_on/provides; arch_canvas paints broken links red dashed with diamond + tooltip; smoke covers detection round-trip
+2026-05-05T20:19:42.120Z	design_patch	pass	atlas/blocks/b.core-sync/user_story.md
+2026-05-05T20:21:14.065Z	proposal	pass	proposal_accepted 2026-05-03T17-07-45-094Z__b.core-sync :: status=done tech_stack+=[typescript,fastify,zod,drizzle-orm,sqlite,session-cookies,pino,vitest]
+2026-05-05T20:21:40.025Z	proposal	pass	proposal_accepted 2026-05-03T17-07-46-111Z__b.core-sync :: status=done tech_stack+=[typescript,fastify,zod,drizzle-orm,sqlite,session-cookies,pino,vitest]
+2026-05-05T20:21:41.092Z	proposal	pass	proposal_accepted 2026-05-03T17-08-15-096Z__b.core-sync :: status=done tech_stack+=[typescript,fastify,zod,drizzle-orm,sqlite,session-cookies,pino,vitest]
+2026-05-05T20:21:42.026Z	proposal	pass	proposal_accepted 2026-05-03T17-08-16-079Z__b.core-sync :: status=done tech_stack+=[typescript,fastify,zod,drizzle-orm,sqlite,session-cookies,pino,vitest]
+2026-05-06T17:16:05.588Z	proposal	pass	proposal_accepted 2026-05-03T17-08-38-253Z__b.core-sync :: status=done tech_stack+=[typescript,fastify,zod,drizzle-orm,sqlite,session-cookies,pino,vitest]
+2026-05-07T15:49:18.455Z	proposal	pass	proposal_accepted 2026-05-03T17-08-39-215Z__b.core-sync :: status=done tech_stack+=[typescript,fastify,zod,drizzle-orm,sqlite,session-cookies,pino,vitest]
+2026-05-07T15:49:19.257Z	proposal	pass	proposal_accepted 2026-05-03T17-37-03-703Z__b.core-sync :: status=done tech_stack+=[typescript,fastify,zod,drizzle-orm,sqlite,session-cookies,pino,vitest]

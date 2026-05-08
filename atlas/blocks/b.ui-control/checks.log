@@ -4,3 +4,15 @@
 2026-05-02T08:41:44Z	honest_reset	pass	PR1 cleared template mission/kpi/acceptance/tasks; honest status set in graph.json
 2026-05-02T09:27:08Z	pr2_layered_schema	pass	layer/files/tech_stack populated; bootstrap+wiki+roadmap layered
 2026-05-02T10:02:24Z	pr3_llm_gateway	pass	extractBlockSchema replaces regex; golden eval 1.0/0.7 target; b.llm-gateway in review
+2026-05-02T11:09:54Z	pr4_cursor_hooks	pass	valid Cursor hooks (4 events) + observe/guard/inject scripts + 9-case test
+2026-05-02T11:34:35Z	pr4_1_windows_fixes	pass	provider cascade respects LLM_DEFAULT_PROVIDER pin; llm_check.mjs diag; index.html for http.server; analyze --text/--stdin for PowerShell; HOWTO Windows section
+2026-05-02T12:37:49Z	pr4_3_default_view	pass	default layer=map mapView=arch so multilayer schema is visible on load; URL ?layer/?view overrides
+2026-05-02T12:43:27Z	pr4_4_userstory_shape	pass	bootstrap emits userstory.edges as [from,to] tuples + UserStoryMap defensive against missing fields + smoke validates shape
+2026-05-02T13:03:53Z	pr5_demo_project	pass	atlas/projects/demo-todo with 5 blocks; bootstrap multi-project; validate_projects gate; smoke checks both projects
+2026-05-02T14:38:07Z	pr3_5_visible_errors	pass	visible boot-status overlay in both index.html files; cache-control no-store; surfaces JS errors without DevTools
+2026-05-02T16:51:07Z	pr3_6_localstorage_undefined	pass	useArchState + ArchInspector + AppV2 defensive against 'undefined' literal in localStorage; one-click cache reset button
+2026-05-02T17:23:30Z	pr3_7_boot_diagnostics	pass	one-shot stale localStorage wipe on build change; window.* globals diagnostic in overlay; ReactDOM mount in try/catch with inline error report in #root
+2026-05-02T17:44:54Z	pr2_5_drift_visualization	pass	ArchBlock red ring on broken / amber on drift + corner badge + native title-tooltip with issues; ArchInspector issues panel for selected block
+2026-05-02T18:23:43Z	pr_sub_recursion	pass	atlas/blocks/<id>/subschemas/<sub>/graph.json + 6 child blocks; bootstrap emits synthetic 'parent:block:sub' project; double-click navigates; breadcrumb stack with back; validate_subschemas gate
+2026-05-02T23:25:04Z	pr_live_polling	pass	atlas_api_server GET /atlas/state (hash) + /atlas/payload (full bootstrap); UI polls every 5s; on hash change merges payload + bumps liveTick + toast
+2026-05-07T09:47:52.735Z	design_patch	pass	atlas/blocks/b.ui-control/user_story.md

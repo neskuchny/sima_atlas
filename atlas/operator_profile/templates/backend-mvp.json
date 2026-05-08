@@ -1,0 +1,82 @@
+{
+  "template_id": "backend-mvp",
+  "title": "Backend MVP — fast iteration, no scaling concerns",
+  "description": "Минимальный бэкенд для первого работающего прототипа. Цель — за 1–2 дня выкатить рабочий API, не закладываясь на миллионы запросов. Замена компонентов — позже, когда нагрузка реально упрётся.",
+  "scope": "backend",
+  "applicability": {
+    "best_when": [
+      "новый продукт / черновой MVP",
+      "нет требований по нагрузке / SLA",
+      "команда 1–2 человека",
+      "быстрая обратная связь важнее долговечности кода"
+    ],
+    "not_when": [
+      "ожидаются ≥1000 RPS на старте",
+      "критичная PII / финансовые транзакции",
+      "регуляторные требования (GDPR/HIPAA/PCI) с первого дня",
+      "интеграция в legacy enterprise-стек"
+    ]
+  },
+  "tech_stack": {
+    "language": "typescript",
+    "runtime": "nodejs",
+    "node_version": ">=22.x",
+    "framework": "fastify",
+    "framework_alternatives": ["express", "hono"],
+    "framework_chosen_because": "fastify даёт схема-валидацию из коробки (JSON Schema), типизацию через TypeBox, и x2-x3 throughput vs express без сложной настройки",
+    "validation": "zod",
+    "validation_alternatives": ["typebox", "valibot"],
+    "db": "sqlite",
+    "db_via": "better-sqlite3",
+    "db_chosen_because": "одна файловая БД, ноль настройки, миграции через простые .sql файлы; для MVP подойдёт до ~10k DAU",
+    "db_migration_path": "когда упрёмся в concurrent writes / multi-process — переезд на postgres через node-pg + drizzle-orm",
+    "orm": "drizzle-orm",
+    "orm_alternatives": ["prisma", "kysely", "raw sql"],
+    "auth": "session-cookies",
+    "auth_lib": "@fastify/session",
+    "auth_alternatives": ["jwt via @fastify/jwt", "magic-link via email"],
+    "logging": "pino",
+    "config": "dotenv",
+    "tests": "vitest",
+    "process_manager": "pm2",
+    "container": "none_yet",
+    "deploy_target": "single VM (hetzner / fly.io / railway)"
+  },
+  "scaffold": {
+    "files": [
+      "src/server.ts",
+      "src/routes/*.ts",
+      "src/db/schema.ts",
+      "src/db/migrations/*.sql",
+      "src/middleware/auth.ts",
+      "src/lib/logger.ts",
+      ".env.example",
+      "package.json",
+      "tsconfig.json",
+      "vitest.config.ts",
+      "Dockerfile (опц.)"
+    ],
+    "minimal_npm_scripts": {
+      "dev": "tsx watch src/server.ts",
+      "build": "tsc -p .",
+      "start": "node dist/server.js",
+      "test": "vitest run",
+      "db:migrate": "node scripts/migrate.mjs"
+    }
+  },
+  "must_have_acceptance_items": [
+    "GET /health возвращает 200 + JSON {ok:true,version}",
+    "хотя бы один POST endpoint с zod-валидацией body",
+    "хотя бы один selftest на core-route в vitest, exit 0",
+    "structured logging через pino (no console.log в src/)",
+    ".env.example существует и в .gitignore нет .env"
+  ],
+  "anti_patterns_to_warn_about": [
+    "не использовать microservices на MVP — один процесс",
+    "не закладывать k8s / docker-compose с 5 сервисами",
+    "не подключать redis / rabbitmq до первой реальной нагрузки",
+    "не писать свой ORM"
+  ],
+  "estimated_first_deploy_hours": 8,
+  "evolves_to": "backend-prod (когда DAU > 10k или появилась команда из 4+)"
+}

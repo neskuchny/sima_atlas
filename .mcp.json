@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "sima-atlas": {
+      "command": "node",
+      "args": ["scripts/mcp_atlas_server.mjs"]
+    }
+  }
+}

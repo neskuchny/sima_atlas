@@ -1,0 +1,17 @@
+{
+  "blocks": [
+    {
+      "id": "b.event-bus",
+      "title": "Event Bus",
+      "mission": "Общая шина событий",
+      "layer": "logic",
+      "type": "module",
+      "mvp": false,
+      "status": "idea",
+      "depends_on": [],
+      "provides": [],
+      "tech_stack": [],
+      "confidence": 0.9
+    }
+  ]
+}

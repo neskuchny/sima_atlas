@@ -1,6 +1,7 @@
 # b.llm-gateway — files
 
-- scripts/llm_gateway.mjs [alive] (PR3 — main implementation)
+- scripts/llm_gateway.mjs [alive] (PR3 — main implementation, PR4.2 inline-comment-safe .env parser)
+- scripts/llm_check.mjs [alive] (PR4.1 — diagnostic for env + provider ping)
 - tests/llm_gateway.selftest.mjs [alive] (4 cases: schema validation, extractBlockSchema, trace write, no-schema fallback)
 - tests/llm_extraction.eval.mjs [alive] (5-case golden eval, target precision >= 0.7)
 - tests/fixtures/extraction_golden.json [alive]
@@ -13,3 +14,12 @@
 - tests/llm_mocks/6a03ef6e33f5d57e.json [alive] (legacy fixture: realtime-ingestion)
 - tests/llm_mocks/f0b0bb99c4c1a99f.json [alive] (legacy fixture: core-sync done proposal)
 - atlas/llm_traces/.gitkeep [alive] (trace directory placeholder; runtime traces are .gitignored)
+- atlas/proposals/.gitkeep [alive] (PR3.5 — Accept/Reject inbox for LLM block updates)
+- scripts/list_proposals.mjs [alive] (PR3.5)
+- scripts/accept_proposal.mjs [alive] (PR3.5)
+- scripts/reject_proposal.mjs [alive] (PR3.5)
+- frontend/proposals_panel.jsx [alive] (PR3.5 UI)
+- tests/proposals_flow.smoke.mjs [alive] (PR3.5)
+- scripts/seed_llm_mocks.mjs [alive] (PR-Eval: regenerate mock fixtures from golden)
+- atlas/eval_history/.gitkeep [alive] (PR-Eval: per-run snapshots; .gitignored except baseline.json)
+- atlas/eval_history/baseline.json [alive] (PR-Eval: pinned regression baseline)

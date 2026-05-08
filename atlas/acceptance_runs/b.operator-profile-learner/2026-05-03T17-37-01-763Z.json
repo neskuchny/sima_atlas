@@ -1,0 +1,191 @@
+{
+  "block_id": "b.operator-profile-learner",
+  "source_path": "/home/user/sima_atlas/atlas/blocks/b.operator-profile-learner/acceptance.md",
+  "parsed_warnings": [],
+  "assertions": [
+    {
+      "id": "A1",
+      "label": null,
+      "text": "PR-1 (data collector) merged: `scripts/aggregate_operator_profile.mjs` агрегирует все 10 источников из mission.md в `atlas/operator_profile/profile.json` и `patterns/*.json`; selftest `tests/operator_profile.selftest.mjs` зелёный (≥ 6 case: empty repo, < min-data threshold, full repo, agent stats, tech stack frequencies, lesson evidence).",
+      "checked": false,
+      "line": 5,
+      "evidence_kind": "llm_judge",
+      "evidence_spec": null,
+      "verdict": "skipped",
+      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
+      "raw": {
+        "judge_verdict": "inconclusive",
+        "provider": "mock",
+        "model": "mock-1",
+        "prompt_hash": "9e785fa7e80f6a6e",
+        "cost_usd": 0,
+        "cost_capped": false,
+        "evidence_quote": ""
+      },
+      "duration_ms": 0
+    },
+    {
+      "id": "A2",
+      "label": null,
+      "text": "PR-2 (templates set) merged: `atlas/operator_profile/templates/{backend-mvp,backend-prod,frontend-spa,testing-stack}.json` с реальными примерами стека; UI-выбор шаблона в `analyze_conversation_to_atlas` подставляется в proposal `tech_stack` если оператор не указал явно.",
+      "checked": false,
+      "line": 6,
+      "evidence_kind": "llm_judge",
+      "evidence_spec": null,
+      "verdict": "skipped",
+      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
+      "raw": {
+        "judge_verdict": "inconclusive",
+        "provider": "mock",
+        "model": "mock-1",
+        "prompt_hash": "1411c8540dcf76b3",
+        "cost_usd": 0,
+        "cost_capped": false,
+        "evidence_quote": ""
+      },
+      "duration_ms": 0
+    },
+    {
+      "id": "A3",
+      "label": null,
+      "text": "PR-3 (dont-use list) merged: MCP tools `set_dont_use` / `set_always_use` живые; `guard_against_drift.mjs` читает `atlas/operator_profile/dont_use.json` и блокирует `npm install <pkg>` где pkg ∈ dont_use; UI Inspector показывает badge `dont_use оператора`.",
+      "checked": false,
+      "line": 7,
+      "evidence_kind": "llm_judge",
+      "evidence_spec": null,
+      "verdict": "skipped",
+      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
+      "raw": {
+        "judge_verdict": "inconclusive",
+        "provider": "mock",
+        "model": "mock-1",
+        "prompt_hash": "7f97112c9af080ab",
+        "cost_usd": 0,
+        "cost_capped": false,
+        "evidence_quote": ""
+      },
+      "duration_ms": 0
+    },
+    {
+      "id": "A4",
+      "label": null,
+      "text": "PR-4 (lessons LLM analyser) merged: `node scripts/analyze_lessons_from_history.mjs` через b.llm-gateway достаёт уроки из `decisions.log + checks.log fail` записей, пишет в `lessons.json` с `evidence: [block_id@date]`; nightly запускает раз в сутки; cost guard ≤ $0.05.",
+      "checked": false,
+      "line": 8,
+      "evidence_kind": "llm_judge",
+      "evidence_spec": null,
+      "verdict": "skipped",
+      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
+      "raw": {
+        "judge_verdict": "inconclusive",
+        "provider": "mock",
+        "model": "mock-1",
+        "prompt_hash": "73fb98b5ecd02191",
+        "cost_usd": 0,
+        "cost_capped": false,
+        "evidence_quote": ""
+      },
+      "duration_ms": 1
+    },
+    {
+      "id": "A5",
+      "label": null,
+      "text": "PR-5 (inject_context_pack hook) merged: `inject_context_pack.mjs` добавляет секцию `## Operator profile (likely preferences)` в context-pack агента; smoke `tests/operator_profile_inject.smoke.mjs` подтверждает наличие подсказок и dont_use в финальном промпте; **молчит** если данных < min.",
+      "checked": false,
+      "line": 9,
+      "evidence_kind": "llm_judge",
+      "evidence_spec": null,
+      "verdict": "skipped",
+      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
+      "raw": {
+        "judge_verdict": "inconclusive",
+        "provider": "mock",
+        "model": "mock-1",
+        "prompt_hash": "cd7e2a6747e63cfc",
+        "cost_usd": 0,
+        "cost_capped": false,
+        "evidence_quote": ""
+      },
+      "duration_ms": 0
+    },
+    {
+      "id": "A6",
+      "label": null,
+      "text": "PR-6 (UI hints) merged: ProposalsPanel показывает badge `соответствует профилю` / `противоречит профилю`; Inspector под mission блока — секция `Подсказки от профиля` со списком (`evidence: [block_id]` рядом с каждой подсказкой).",
+      "checked": false,
+      "line": 10,
+      "evidence_kind": "llm_judge",
+      "evidence_spec": null,
+      "verdict": "skipped",
+      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
+      "raw": {
+        "judge_verdict": "inconclusive",
+        "provider": "mock",
+        "model": "mock-1",
+        "prompt_hash": "bf0edc99faccb8c0",
+        "cost_usd": 0,
+        "cost_capped": false,
+        "evidence_quote": ""
+      },
+      "duration_ms": 1
+    },
+    {
+      "id": "A7",
+      "label": null,
+      "text": "Privacy gate: `atlas/operator_profile/` упоминается в `.gitignore` (опц.) с пояснением в `atlas/rules.md`; никакого PII (имена / e-mail / API-ключи) не пишется в profile.json — selftest A1 проверяет regex.",
+      "checked": false,
+      "line": 11,
+      "evidence_kind": "llm_judge",
+      "evidence_spec": null,
+      "verdict": "skipped",
+      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
+      "raw": {
+        "judge_verdict": "inconclusive",
+        "provider": "mock",
+        "model": "mock-1",
+        "prompt_hash": "d517054acf163401",
+        "cost_usd": 0,
+        "cost_capped": false,
+        "evidence_quote": ""
+      },
+      "duration_ms": 0
+    },
+    {
+      "id": "A8",
+      "label": null,
+      "text": "Reversibility: `revoke_lesson L-001` → context-pack для следующего invoke не содержит этого урока (smoke-тест diff'ом).",
+      "checked": false,
+      "line": 12,
+      "evidence_kind": "llm_judge",
+      "evidence_spec": null,
+      "verdict": "skipped",
+      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
+      "raw": {
+        "judge_verdict": "inconclusive",
+        "provider": "mock",
+        "model": "mock-1",
+        "prompt_hash": "d9c1ebed3ef9710a",
+        "cost_usd": 0,
+        "cost_capped": false,
+        "evidence_quote": ""
+      },
+      "duration_ms": 0
+    }
+  ],
+  "counts": {
+    "pass": 0,
+    "fail": 0,
+    "skipped": 8
+  },
+  "verdict": "inconclusive",
+  "duration_ms": 4,
+  "checked_at": "2026-05-03T17:37:03.824Z"
+}

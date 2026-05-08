@@ -1,0 +1,99 @@
+{
+  "template_id": "frontend-spa",
+  "title": "Frontend SPA — modern React stack with type-safety и быстрый dev-loop",
+  "description": "Single-page приложение с акцентом на DX (быстрый HMR, типизация end-to-end, минимальная конфигурация). Подходит как для MVP, так и для продакшена — масштабируется добавлением фич без переписывания фундамента.",
+  "scope": "frontend",
+  "applicability": {
+    "best_when": [
+      "интерактивное приложение (форма / dashboard / редактор / chat)",
+      "auth + персональные данные пользователя",
+      "нужна типизация end-to-end с backend",
+      "ok отдавать первый paint спустя 1–2 секунды (не landing page)"
+    ],
+    "not_when": [
+      "marketing-сайт / лендинг → статика (next.js / astro SSG)",
+      "контентный сайт с SEO-критичностью → SSR (next.js / remix)",
+      "embedded widget в чужой странице → micro-frontend подход"
+    ]
+  },
+  "tech_stack": {
+    "language": "typescript",
+    "framework": "react",
+    "framework_version": ">=19",
+    "framework_alternatives": ["solid (если нужен меньший runtime)", "svelte (если другая команда)"],
+    "build_tool": "vite",
+    "build_chosen_because": "esbuild + rollup, мгновенный HMR, минимум конфигурации, не webpack",
+    "router": "react-router",
+    "router_alternatives": ["tanstack-router (если хочется type-safe routes)"],
+    "state_local": "react hooks (useState/useReducer)",
+    "state_global": "zustand",
+    "state_global_alternatives": ["jotai", "valtio", "redux-toolkit (если команда привыкла)"],
+    "state_global_chosen_because": "zustand — минимальный API, не требует Provider, type-safe, ~1KB",
+    "data_fetching": "tanstack-query",
+    "data_fetching_chosen_because": "кэширование, background refetch, optimistic updates, ретраи — всё что нужно для серверного state",
+    "forms": "react-hook-form + zod resolver",
+    "forms_chosen_because": "минимум re-renders, типизированный schema из zod, простая интеграция с UI-libs",
+    "ui_lib": "shadcn/ui (radix + tailwind)",
+    "ui_lib_alternatives": ["mantine (если хочется готовых компонентов с темой)", "chakra-ui"],
+    "css": "tailwindcss",
+    "css_alternatives": ["css-modules (если команда не любит utility-classes)", "vanilla-extract (type-safe)"],
+    "animation": "framer-motion (или motion/react)",
+    "icons": "lucide-react",
+    "i18n": "i18next + react-i18next (если ≥ 2 языков)",
+    "tests": "vitest (unit) + react-testing-library (component) + playwright (e2e)",
+    "linter": "biome (быстрее чем eslint+prettier; одно бинарное)",
+    "linter_alternatives": ["eslint + prettier (если команда привыкла)"],
+    "type_check": "tsc --noEmit в CI",
+    "deploy_target": "vercel / netlify / cloudflare-pages / s3+cloudfront"
+  },
+  "scaffold": {
+    "files": [
+      "src/main.tsx",
+      "src/App.tsx",
+      "src/routes/**/*.tsx",
+      "src/components/**/*.tsx",
+      "src/hooks/*.ts",
+      "src/api/{client,types}.ts",
+      "src/store/*.ts",
+      "src/styles/index.css",
+      "tests/{unit,e2e}/**",
+      "vite.config.ts",
+      "tsconfig.json",
+      "biome.json (или .eslintrc.cjs + .prettierrc)",
+      "tailwind.config.ts",
+      "postcss.config.js",
+      "playwright.config.ts",
+      "index.html"
+    ],
+    "minimal_npm_scripts": {
+      "dev": "vite",
+      "build": "tsc --noEmit && vite build",
+      "preview": "vite preview",
+      "test": "vitest run",
+      "test:e2e": "playwright test",
+      "lint": "biome check .",
+      "format": "biome format --write ."
+    }
+  },
+  "must_have_acceptance_items": [
+    "tsc --noEmit зелёный (zero `any` без явного eslint-disable)",
+    "vite build успешен; bundle size главного chunk < 500KB gzipped",
+    "playwright e2e на main flow (login + основное действие)",
+    "≥ 50% coverage на components (vitest + react-testing-library)",
+    "lighthouse perf score ≥ 80 на main route",
+    "no console.log в production build (vite plugin или biome rule)",
+    "error boundary на root level + sentry/glitchtip integration",
+    "формы валидируются через zod (no manual validation)",
+    "tanstack-query queries имеют staleTime > 0 (no flicker on remount)"
+  ],
+  "anti_patterns_to_warn_about": [
+    "не использовать redux-toolkit для нового SPA (zustand покрывает 95% случаев)",
+    "не делать одну гигантскую <App>; ленивая загрузка route'ов через React.lazy",
+    "не fetch в useEffect напрямую — всегда через tanstack-query или server actions",
+    "не хранить server data в zustand (только client-state); server cache — в tanstack-query",
+    "не inline-стилей если есть tailwind",
+    "не использовать moment.js — date-fns или Temporal"
+  ],
+  "estimated_first_deploy_hours": 4,
+  "pairs_well_with": ["backend-mvp", "backend-prod"]
+}

@@ -1,0 +1,17 @@
+{
+  "blocks": [
+    {
+      "id": "b.notifications",
+      "title": "Notifications",
+      "mission": "Бэкенд сервис уведомлений",
+      "layer": "logic",
+      "type": "module",
+      "mvp": false,
+      "status": "idea",
+      "depends_on": [],
+      "provides": [],
+      "tech_stack": [],
+      "confidence": 0.9
+    }
+  ]
+}

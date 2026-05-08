@@ -1,0 +1,139 @@
+{
+  "block_id": "b.llm-gateway",
+  "source_path": "/home/user/sima_atlas/atlas/blocks/b.llm-gateway/acceptance.md",
+  "parsed_warnings": [],
+  "assertions": [
+    {
+      "id": "A1",
+      "label": null,
+      "text": "Selftest `node tests/llm_gateway.selftest.mjs` проходит (4 case: schema validation, extractBlockSchema flow, trace write, no-schema fallback). Evidence: `checks.log` строки с `acceptance pass A1`.",
+      "checked": true,
+      "line": 5,
+      "evidence_kind": "selftest_run",
+      "evidence_spec": {
+        "cmd": "node tests/llm_gateway.selftest.mjs",
+        "expect_in_stdout": "OK"
+      },
+      "verdict": "pass",
+      "evidence": "node tests/llm_gateway.selftest.mjs → exit 0 (105ms); first line: \"llm_gateway.selftest: OK (5 cases)\"",
+      "reasoning": "shell exit code 0 and stdout matches /OK/",
+      "raw": {
+        "cmd": "node tests/llm_gateway.selftest.mjs",
+        "exit_code": 0,
+        "stdout": "llm_gateway.selftest: OK (5 cases)\n",
+        "stderr": "",
+        "duration_ms": 105,
+        "timed_out": false
+      },
+      "duration_ms": 105
+    },
+    {
+      "id": "A2",
+      "label": null,
+      "text": "Подключение в `scripts/analyze_conversation_to_atlas.mjs`: при подаче диалога возвращает `{blocks: [{id, mission, layer, depends_on, ...}]}` со структурными полями. Подтверждено `simulate_conversation_branches.mjs` — sync с UI flow.",
+      "checked": true,
+      "line": 12,
+      "evidence_kind": "selftest_run",
+      "evidence_spec": {
+        "cmd": "node scripts/simulate_conversation_branches.mjs",
+        "expect_in_stdout": "simulate_conversation_branches: OK"
+      },
+      "verdict": "pass",
+      "evidence": "node scripts/simulate_conversation_branches.mjs → exit 0 (321ms); first line: \"PASS: created b.realtime-ingestion in graph.json\"",
+      "reasoning": "shell exit code 0 and stdout matches /simulate_conversation_branches: OK/",
+      "raw": {
+        "cmd": "node scripts/simulate_conversation_branches.mjs",
+        "exit_code": 0,
+        "stdout": "PASS: created b.realtime-ingestion in graph.json\nPASS: b.realtime-ingestion has layer=logic (LLM classification)\nPASS: b.realtime-ingestion folder seeded with mission.md\nPASS: b.core-sync mission preserved (LLM proposal is not auto-applied)\nPASS: b.core-sync status NOT silently flipped to done\nPASS: b.agent-orchestrator/checks.log has new llm_extraction lines\nsimulate_conversation_branches: OK (state restored)\n",
+        "stderr": "",
+        "duration_ms": 321,
+        "timed_out": false
+      },
+      "duration_ms": 321
+    },
+    {
+      "id": "A3",
+      "label": null,
+      "text": "При наличии API-ключа и `strict: true` запрашивает реального провайдера; при невалидном structured output получает понятную ошибку с trace. Live-acceptance — после получения реального ключа.",
+      "checked": false,
+      "line": 19,
+      "evidence_kind": "llm_judge",
+      "evidence_spec": null,
+      "verdict": "skipped",
+      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
+      "raw": {
+        "judge_verdict": "inconclusive",
+        "provider": "mock",
+        "model": "mock-1",
+        "prompt_hash": "a307ad44055492a8",
+        "cost_usd": 0,
+        "cost_capped": false,
+        "evidence_quote": ""
+      },
+      "duration_ms": 1
+    },
+    {
+      "id": "A4",
+      "label": null,
+      "text": "Каждый вызов пишет trace в `atlas/llm_traces/<UTC>__<provider>__<hash>.json` (provider, model, in/out tokens, cost_usd, schema_ok). Validated: `tests/llm_gateway.selftest.mjs` Test 3.",
+      "checked": true,
+      "line": 20,
+      "evidence_kind": "fs_glob",
+      "evidence_spec": {
+        "pattern": "atlas/llm_traces/*.json",
+        "min_count": 1
+      },
+      "verdict": "pass",
+      "evidence": "glob atlas/llm_traces/*.json → 10889 files (min=1); newest 0min ago",
+      "reasoning": "10889 files match (≥1)",
+      "raw": {
+        "pattern": "atlas/llm_traces/*.json",
+        "count": 10889,
+        "min_count": 1,
+        "max_age_min": null,
+        "newest_minutes_ago": 0,
+        "sample": [
+          "/home/user/sima_atlas/atlas/llm_traces/2026-05-02T09-58-18-873Z__mock__672fd5da772bd16b.json",
+          "/home/user/sima_atlas/atlas/llm_traces/2026-05-02T09-58-18-971Z__mock__29294553c70f1fe0.json",
+          "/home/user/sima_atlas/atlas/llm_traces/2026-05-02T10-00-12-626Z__mock__d29eb0941c262f57.json",
+          "/home/user/sima_atlas/atlas/llm_traces/2026-05-02T10-00-12-629Z__mock__e0bbf94c72f394d9.json",
+          "/home/user/sima_atlas/atlas/llm_traces/2026-05-02T10-00-12-630Z__mock__81b5ea3342a5b493.json"
+        ]
+      },
+      "duration_ms": 129
+    },
+    {
+      "id": "A5",
+      "label": null,
+      "text": "Golden eval из 5 диалогов в `tests/llm_extraction.eval.mjs` — average precision ≥ 0.7 (mock даёт 1.0; live targeting ≥ 0.7). Scenario flow: dialog → extract → safe-upsert → sync.",
+      "checked": true,
+      "line": 27,
+      "evidence_kind": "selftest_run",
+      "evidence_spec": {
+        "cmd": "node tests/llm_extraction.eval.mjs",
+        "expect_in_stdout": "overall avg="
+      },
+      "verdict": "pass",
+      "evidence": "node tests/llm_extraction.eval.mjs → exit 0 (75ms); first line: \"llm_extraction.eval — overall avg=1.000 (cases=30/30)\"",
+      "reasoning": "shell exit code 0 and stdout matches /overall avg=/",
+      "raw": {
+        "cmd": "node tests/llm_extraction.eval.mjs",
+        "exit_code": 0,
+        "stdout": "llm_extraction.eval — overall avg=1.000 (cases=30/30)\n  A_single_block               1.00\n  B_multi_block                1.00\n  C_no_block                   1.00\n  D_layer_classification       1.00\n  E_dependency                 1.00\n  F_confidence                 1.00\n  best_prior=1.000 (regression tolerance 0.05)\n  snapshot=atlas/eval_history/2026-05-06T16-31-42-318Z.json\n\nllm_extraction.eval: OK — overall 1.00 on 30 cases (target 0.70)\n",
+        "stderr": "",
+        "duration_ms": 75,
+        "timed_out": false
+      },
+      "duration_ms": 75
+    }
+  ],
+  "counts": {
+    "pass": 4,
+    "fail": 0,
+    "skipped": 1
+  },
+  "verdict": "pass",
+  "duration_ms": 631,
+  "checked_at": "2026-05-06T16:31:42.331Z"
+}

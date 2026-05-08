@@ -1,0 +1,78 @@
+{
+  "version": 2,
+  "_note": "Demo TODO — sample user product to prove Atlas can lead a real not-Sima codebase. PR5 introduces atlas/projects/<id>/graph.json multi-project support.",
+  "layers": [
+    { "id": "user",    "name": "Пользователь / JTBD",       "order": 0 },
+    { "id": "front",   "name": "Фронтенд",                  "order": 1 },
+    { "id": "logic",   "name": "Backend / API",             "order": 2 },
+    { "id": "ai",      "name": "ИИ / агенты",               "order": 3 },
+    { "id": "data",    "name": "Данные / хранилище",        "order": 4 }
+  ],
+  "blocks": [
+    {
+      "id": "b.user-stories",
+      "title": "User Stories",
+      "status": "review",
+      "status_reason": "User stories drafted; need acceptance test cases per story before done",
+      "layer": "user",
+      "type": "module",
+      "mvp": true,
+      "subschema_id": null,
+      "depends_on": [],
+      "tech_stack": [],
+      "files": ["atlas/projects/demo-todo/project.md"]
+    },
+    {
+      "id": "b.todo-ui",
+      "title": "TODO UI",
+      "status": "wip",
+      "status_reason": "Frontend SPA: Add/Toggle/Delete + filter by category; Tailwind layout TBD",
+      "layer": "front",
+      "type": "module",
+      "mvp": true,
+      "subschema_id": null,
+      "depends_on": ["b.todo-api", "b.user-stories"],
+      "tech_stack": ["react", "vite", "typescript", "tailwindcss"],
+      "files": []
+    },
+    {
+      "id": "b.todo-api",
+      "title": "TODO API",
+      "status": "wip",
+      "status_reason": "Fastify routes: GET/POST/PATCH/DELETE /todos; integration tests pending",
+      "layer": "logic",
+      "type": "module",
+      "mvp": true,
+      "subschema_id": null,
+      "depends_on": ["b.todo-db"],
+      "tech_stack": ["nodejs", "fastify", "typescript", "drizzle-orm"],
+      "files": []
+    },
+    {
+      "id": "b.todo-db",
+      "title": "TODO Database",
+      "status": "idea",
+      "status_reason": "Schema sketch only: todos(id, text, category, done, created_at). Migration not written.",
+      "layer": "data",
+      "type": "module",
+      "mvp": true,
+      "subschema_id": null,
+      "depends_on": [],
+      "tech_stack": ["postgresql", "drizzle-orm"],
+      "files": []
+    },
+    {
+      "id": "b.smart-categorizer",
+      "title": "Smart Categorizer (LLM)",
+      "status": "idea",
+      "status_reason": "Optional MVP+1 feature: classify a new task into an existing category via b.llm-gateway",
+      "layer": "ai",
+      "type": "module",
+      "mvp": false,
+      "subschema_id": null,
+      "depends_on": ["b.todo-api"],
+      "tech_stack": ["nodejs"],
+      "files": []
+    }
+  ]
+}

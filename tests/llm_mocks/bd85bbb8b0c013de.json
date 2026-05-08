@@ -3,15 +3,17 @@
     {
       "id": "b.search",
       "title": "Search",
-      "mission": "Полнотекстовый поиск по документам через Postgres FTS, читает из хранилища.",
+      "mission": "Полнотекстовый поиск по документам Postgres FTS",
       "layer": "logic",
       "type": "module",
       "mvp": false,
       "status": "idea",
-      "depends_on": ["b.db"],
-      "provides": ["search_results"],
-      "tech_stack": ["postgres", "fts"],
-      "confidence": 0.85
+      "depends_on": [
+        "b.db"
+      ],
+      "provides": [],
+      "tech_stack": [],
+      "confidence": 0.9
     }
   ]
 }

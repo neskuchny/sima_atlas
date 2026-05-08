@@ -64,9 +64,28 @@ let failures = [];
   if (value === undefined) failures.push('no-schema: value undefined');
 }
 
+// ─── Test 5: claude_cli provider availability + parser shape (Phase R-1) ──
+// CI can't assume `claude` CLI is installed; we only check the provider
+// is registered and that callLLM with provider:'claude_cli' returns a
+// usable shape (or falls back to mock cleanly). The bug to prevent is a
+// hang / unhandled rejection.
+{
+  try {
+    const r = await callLLM({
+      provider: 'claude_cli',
+      prompt: 'self-test:claude_cli-graceful',
+      schema: BLOCK_SCHEMA,
+      op: 'selftest_claude_cli',
+    });
+    if (!r || typeof r.value === 'undefined') failures.push('claude_cli: missing value field');
+  } catch {
+    // strict-mode path without CLI — acceptable, just don't crash
+  }
+}
+
 if (failures.length) {
   console.error('llm_gateway.selftest: FAIL');
   failures.forEach((f) => console.error(' ✗', f));
   process.exit(1);
 }
-console.log('llm_gateway.selftest: OK (4 cases)');
+console.log('llm_gateway.selftest: OK (5 cases)');

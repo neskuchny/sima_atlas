@@ -52,7 +52,7 @@
       "layer": "front",
       "type": "module",
       "mvp": true,
-      "subschema_id": null,
+      "subschema_id": "components",
       "depends_on": [
         "b.core-sync",
         "b.agent-orchestrator"
@@ -62,29 +62,29 @@
         "babel-standalone"
       ],
       "files": [
-        "Sima (Remix)/Сима - универсальный конструктор.html",
-        "Sima (Remix)/app_v2.jsx",
-        "Sima (Remix)/arch_canvas.jsx",
-        "Sima (Remix)/layer1_canvas.jsx",
-        "Sima (Remix)/layer2_map.jsx",
-        "Sima (Remix)/layer3_tz.jsx",
-        "Sima (Remix)/layer4_impl.jsx",
-        "Sima (Remix)/gallery_v2.jsx",
-        "Sima (Remix)/landscape_view.jsx",
-        "Sima (Remix)/subschema.jsx",
-        "Sima (Remix)/tweaks-panel.jsx",
-        "Sima (Remix)/icons.jsx",
-        "Sima (Remix)/atlas_sync.js",
-        "Sima (Remix)/atlas_bootstrap.js",
-        "Sima (Remix)/styles.css",
-        "Sima (Remix)/styles_v2.css",
-        "Sima (Remix)/arch_styles.css"
+        "frontend/Сима - универсальный конструктор.html",
+        "frontend/app_v2.jsx",
+        "frontend/arch_canvas.jsx",
+        "frontend/layer1_canvas.jsx",
+        "frontend/layer2_map.jsx",
+        "frontend/layer3_tz.jsx",
+        "frontend/layer4_impl.jsx",
+        "frontend/gallery_v2.jsx",
+        "frontend/landscape_view.jsx",
+        "frontend/subschema.jsx",
+        "frontend/tweaks-panel.jsx",
+        "frontend/icons.jsx",
+        "frontend/atlas_sync.js",
+        "frontend/atlas_bootstrap.js",
+        "frontend/styles.css",
+        "frontend/styles_v2.css",
+        "frontend/arch_styles.css"
       ]
     },
     {
       "id": "b.core-sync",
       "title": "Sync Engine",
-      "status": "wip",
+      "status": "done",
       "status_reason": "syncCheck only validates file presence, not mission/KPI semantics",
       "layer": "logic",
       "type": "module",
@@ -95,10 +95,18 @@
       ],
       "tech_stack": [
         "nodejs",
-        "esm"
+        "esm",
+        "typescript",
+        "fastify",
+        "zod",
+        "drizzle-orm",
+        "sqlite",
+        "session-cookies",
+        "pino",
+        "vitest"
       ],
       "files": [
-        "Sima (Remix)/atlas_sync.js",
+        "frontend/atlas_sync.js",
         "scripts/validate_block_contracts.mjs",
         "scripts/validate_dependency_contracts.mjs",
         "scripts/validate_acceptance_assertions.mjs",
@@ -140,8 +148,8 @@
     {
       "id": "b.agent-orchestrator",
       "title": "Agent Orchestrator",
-      "status": "wip",
-      "status_reason": "No real Cursor SDK / Claude Code integration; hooks.json uses invented events. After PR3 the orchestrator now consumes b.llm-gateway for semantic ingestion.",
+      "status": "review",
+      "status_reason": "PR4: .cursor/hooks.json now uses valid Cursor events (beforeSubmitPrompt/afterFileEdit/beforeShellExecution/stop) wired to real action scripts. Cursor edits write to checks.log of the right block via files.md mapping. Drift guard rejects pip/yarn-add-vue/etc. inject_context_pack provides per-block context. Live Cursor wiring (real env vars) needs UI test (PR4.5).",
       "layer": "ai",
       "type": "module",
       "mvp": true,
@@ -171,7 +179,11 @@
         ".cursor/hooks.json",
         ".cursor/mcp.json",
         "AGENTS.md",
-        "CLAUDE.md"
+        "CLAUDE.md",
+        "scripts/run_state.mjs",
+        "tests/run_state.selftest.mjs",
+        "scripts/agent_workspace.mjs",
+        "tests/agent_workspace.selftest.mjs"
       ]
     },
     {
@@ -235,6 +247,117 @@
       ]
     },
     {
+      "id": "b.operator-profile-learner",
+      "title": "Operator Profile Learner",
+      "status": "idea",
+      "status_reason": "PR-Backlog: design-only milestone; one of the LAST PRs. Реальная имплементация (PR-1…PR-6) делается после того, как реальный пользователь пройдёт ≥10 done и накопит данные — иначе наблюдать нечего. Сейчас зарегистрирован как карта будущей работы.",
+      "layer": "ai",
+      "type": "module",
+      "mvp": false,
+      "subschema_id": null,
+      "depends_on": [
+        "b.db",
+        "b.core-sync",
+        "b.agent-orchestrator",
+        "b.llm-gateway",
+        "b.docs"
+      ],
+      "tech_stack": [
+        "nodejs",
+        "esm",
+        "json"
+      ],
+      "files": [
+        "atlas/blocks/b.operator-profile-learner/mission.md",
+        "atlas/operator_profile/templates/backend-mvp.json",
+        "atlas/operator_profile/templates/backend-prod.json",
+        "atlas/operator_profile/templates/frontend-spa.json",
+        "atlas/operator_profile/templates/testing-stack.json",
+        "scripts/pick_template.mjs",
+        "tests/pick_template.selftest.mjs",
+        "scripts/aggregate_operator_profile.mjs",
+        "tests/operator_profile.selftest.mjs",
+        "atlas/operator_profile/profile.json",
+        "scripts/analyze_lessons_from_history.mjs",
+        "tests/operator_profile_lessons.smoke.mjs",
+        "tests/operator_profile_inject.smoke.mjs",
+        "scripts/manage_dont_use.mjs",
+        "scripts/validate_dont_use_compliance.mjs",
+        "tests/dont_use_management.selftest.mjs"
+      ]
+    },
+    {
+      "id": "b.acceptance-verifier-loop",
+      "title": "Acceptance Verifier Loop",
+      "status": "idea",
+      "status_reason": "PR-Backlog: design-only milestone. Closes the verification gap (Symphony trusts agent output, Hermes has no contract layer). После любого run_block_implementation проверяет каждый пункт acceptance.md через детерминированные collectors (exit_code/fs_glob/file_diff/log_grep) + LLM-judge fallback; блокирует wip→done если verdict !== pass. 5-PR breakdown.",
+      "layer": "testing",
+      "type": "module",
+      "mvp": false,
+      "subschema_id": null,
+      "depends_on": [
+        "b.db",
+        "b.core-sync",
+        "b.agent-orchestrator",
+        "b.llm-gateway"
+      ],
+      "tech_stack": [
+        "nodejs",
+        "esm",
+        "json-schema"
+      ],
+      "files": [
+        "atlas/blocks/b.acceptance-verifier-loop/mission.md",
+        "scripts/parse_acceptance.mjs",
+        "tests/parse_acceptance.selftest.mjs",
+        "scripts/collect_evidence.mjs",
+        "tests/evidence_collectors.selftest.mjs",
+        "scripts/verify_all_acceptance.mjs",
+        "atlas/acceptance_runs/_summary.json",
+        "scripts/judge_assertion.mjs",
+        "tests/llm_judge.smoke.mjs",
+        "scripts/verify_block_acceptance.mjs",
+        "scripts/verify_done_blocks_still_green.mjs",
+        "tests/acceptance_verifier.e2e.smoke.mjs"
+      ]
+    },
+    {
+      "id": "b.user-docs-generator",
+      "title": "End-User Docs Generator",
+      "status": "idea",
+      "status_reason": "PR-Backlog: design-only milestone. Closes the end-user tutorial gap — Атлас сам пишет UI блоков, значит знает все кнопки и поля; этот блок генерирует 'как пользоваться' markdown для конечного пользователя продукта (не developer wiki — это делает b.docs). Auto-regen на каждое изменение JSX. 3-4 PR breakdown.",
+      "layer": "content",
+      "type": "module",
+      "mvp": false,
+      "subschema_id": null,
+      "depends_on": [
+        "b.db",
+        "b.docs",
+        "b.agent-orchestrator",
+        "b.llm-gateway"
+      ],
+      "tech_stack": [
+        "nodejs",
+        "esm",
+        "markdown",
+        "playwright"
+      ],
+      "files": [
+        "atlas/blocks/b.user-docs-generator/mission.md",
+        "scripts/introspect_block_ui.mjs",
+        "tests/introspect_block_ui.selftest.mjs",
+        "tests/fixtures/jsx/synthetic_panel.jsx",
+        "scripts/generate_user_docs.mjs",
+        "tests/user_docs.smoke.mjs",
+        "scripts/take_screenshots.mjs",
+        "tests/playwright/user_docs_screenshots.spec.ts",
+        "tests/screenshots_integration.selftest.mjs",
+        "scripts/regenerate_user_docs_drift.mjs",
+        "scripts/check_user_docs_locked.mjs",
+        "tests/user_docs_drift.selftest.mjs"
+      ]
+    },
+    {
       "id": "b.smoke-sandbox",
       "title": "Smoke Sandbox (test target)",
       "status": "idea",
@@ -250,6 +373,141 @@
         "scripts/mcp_smoke_e2e.mjs",
         "tests/atlas_sync.selftest.mjs"
       ]
+    },
+    {
+      "id": "b.product-auth",
+      "title": "Auth",
+      "status": "idea",
+      "status_reason": "Created via design UI at 2026-05-05T20:57:52.201Z",
+      "layer": "logic",
+      "type": "module",
+      "updated_at": "2026-05-05T20:57:52.201Z",
+      "mvp": false,
+      "subschema_id": null,
+      "depends_on": [
+        "b.product-dashboard: session_check",
+        "b.product-ingest: api_key_check"
+      ],
+      "tech_stack": [],
+      "files": [
+        "atlas/blocks/b.product-auth/mission.md"
+      ],
+      "canvas_x": 200,
+      "canvas_y": 200
+    },
+    {
+      "id": "b.product-ingest",
+      "title": "Ingest",
+      "status": "idea",
+      "status_reason": "Created via design UI at 2026-05-05T20:57:52.212Z",
+      "layer": "logic",
+      "type": "module",
+      "updated_at": "2026-05-05T20:57:52.212Z",
+      "mvp": false,
+      "subschema_id": null,
+      "depends_on": [
+        "b.product-warehouse: events_stream"
+      ],
+      "tech_stack": [],
+      "files": [
+        "atlas/blocks/b.product-ingest/mission.md"
+      ],
+      "canvas_x": 420,
+      "canvas_y": 200
+    },
+    {
+      "id": "b.product-warehouse",
+      "title": "Warehouse",
+      "status": "idea",
+      "status_reason": "Created via design UI at 2026-05-05T20:57:52.230Z",
+      "layer": "data",
+      "type": "module",
+      "updated_at": "2026-05-05T20:57:52.230Z",
+      "mvp": false,
+      "subschema_id": null,
+      "depends_on": [],
+      "tech_stack": [],
+      "files": [
+        "atlas/blocks/b.product-warehouse/mission.md"
+      ],
+      "canvas_x": 640,
+      "canvas_y": 200
+    },
+    {
+      "id": "b.product-dashboard",
+      "title": "Dashboard",
+      "status": "idea",
+      "status_reason": "Created via design UI at 2026-05-05T20:57:52.242Z",
+      "layer": "front",
+      "type": "module",
+      "updated_at": "2026-05-05T20:57:52.242Z",
+      "mvp": false,
+      "subschema_id": null,
+      "depends_on": [
+        "b.product-warehouse: metric_query"
+      ],
+      "tech_stack": [],
+      "files": [
+        "atlas/blocks/b.product-dashboard/mission.md"
+      ],
+      "canvas_x": 860,
+      "canvas_y": 200
+    },
+    {
+      "id": "b.product-billing",
+      "title": "Billing",
+      "status": "idea",
+      "status_reason": "Created via design UI at 2026-05-05T20:57:52.257Z",
+      "layer": "logic",
+      "type": "module",
+      "updated_at": "2026-05-05T20:57:52.257Z",
+      "mvp": false,
+      "subschema_id": null,
+      "depends_on": [],
+      "tech_stack": [],
+      "files": [
+        "atlas/blocks/b.product-billing/mission.md"
+      ],
+      "canvas_x": 1080,
+      "canvas_y": 200
+    },
+    {
+      "id": "b.block-1",
+      "title": "Новый модуль",
+      "status": "idea",
+      "status_reason": "Created via design UI at 2026-05-05T20:58:12.722Z",
+      "layer": "logic",
+      "type": "module",
+      "updated_at": "2026-05-05T20:58:12.722Z",
+      "mvp": false,
+      "subschema_id": null,
+      "depends_on": [],
+      "tech_stack": [],
+      "files": [
+        "atlas/blocks/b.block-1/mission.md"
+      ],
+      "canvas_x": 440,
+      "canvas_y": 340,
+      "canvas_size": "md"
+    },
+    {
+      "id": "b.block-2",
+      "title": "Новый модуль",
+      "status": "idea",
+      "status_reason": "Created via design UI at 2026-05-07T16:27:02.089Z",
+      "layer": "logic",
+      "type": "module",
+      "updated_at": "2026-05-07T16:27:02.089Z",
+      "mvp": false,
+      "subschema_id": null,
+      "depends_on": [],
+      "tech_stack": [],
+      "files": [
+        "atlas/blocks/b.block-2/mission.md"
+      ],
+      "canvas_x": 743,
+      "canvas_y": 470,
+      "canvas_size": "md"
     }
   ]
 }

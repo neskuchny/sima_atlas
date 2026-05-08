@@ -1,0 +1,18 @@
+{
+  "id": "book",
+  "title": "Книга",
+  "description": "Структура книги: тезис, главы, поддерживающие источники, аудитория.",
+  "default_layer": "logic",
+  "blocks": [
+    { "id_suffix": "thesis",     "title": "Тезис",        "layer": "logic", "mission": "Главное утверждение книги — одно предложение, на которое всё опирается.", "kpi": ["1 предложение ≤ 25 слов", "Не общий, а дискуссионный"] },
+    { "id_suffix": "audience",   "title": "Аудитория",    "layer": "logic", "mission": "Кому адресована книга. Профессия / стадия / болевая точка.", "kpi": ["1 чёткий портрет читателя"] },
+    { "id_suffix": "outline",    "title": "Оглавление",   "layer": "logic", "mission": "Список глав, каждая глава — один аргумент в защиту тезиса.", "kpi": ["7-15 глав", "Каждая глава — один аргумент"] },
+    { "id_suffix": "sources",    "title": "Источники",    "layer": "data",  "mission": "Кто уже писал на эту тему — ссылки, цитаты, контр-аргументы.", "kpi": ["≥ 30 источников", "≥ 3 контр-аргумента"] },
+    { "id_suffix": "publishing", "title": "Публикация",   "layer": "front", "mission": "Канал публикации: издательство / самиздат / блог-серия.", "kpi": ["Решение принято до начала черновика"] }
+  ],
+  "edges": [
+    { "from": "thesis", "to": "outline", "kind": "contract", "capability": "main_claim" },
+    { "from": "audience", "to": "outline", "kind": "contract", "capability": "reader_profile" },
+    { "from": "sources", "to": "outline", "kind": "data", "capability": "evidence" }
+  ]
+}

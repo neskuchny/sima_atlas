@@ -1,10 +1,21 @@
 # STOPPOINT — где мы остановились
 
-Обновлено: 2026-05-02 (после PR3 LLM gateway)
+Обновлено: 2026-05-02 (после PR4 Cursor hooks)
 
 ## Текущая точка
 
-Закрыт **PR3 — Real LLM extraction**. Что добавлено сверх PR2:
+Закрыт **PR4 — Real Cursor / Claude observation**. Что добавлено сверх PR3:
+- `scripts/generate_cursor_hooks.mjs` пишет валидный Cursor format с 4 событиями.
+- `scripts/observe_file_edit.mjs` (afterFileEdit): file → owner-block через `files.md` → запись в `checks.log`.
+- `scripts/guard_against_drift.mjs` (beforeShellExecution): блокирует команды против `atlas/tech_stack.md` forbidden-блоков.
+- `scripts/inject_context_pack.mjs` (beforeSubmitPrompt): автодетект блока + markdown context-pack на stdout.
+- `scripts/validate_cursor_hooks.mjs` — gate.
+- `tests/cursor_hooks_actions.test.mjs` — 9-case integration test, идемпотентный.
+- `b.agent-orchestrator` → review.
+- nightly: **PASS 23/23**.
+- HOWTO_VERIFY.md в корне репо для ручной проверки всего pipeline.
+
+PR3 (`Real LLM extraction`) был раньше:
 - `scripts/llm_gateway.mjs` (Anthropic + Google + mock; structured output; trace; cost cap; provider fallback).
 - `extractBlockSchema(dialogText)` через единый schema.
 - Golden eval из 5 диалогов: avg precision = 1.0 на mock (target 0.7).
@@ -51,21 +62,22 @@ PR1 (`Honest Reset`) был раньше:
 | Sync пропускает «работает но не то» | sync смотрит только наличие файлов, не сравнивает mission ↔ реализацию | b.core-sync | PR3 (sem) + PR4 (code) |
 | Пользовательский продукт не описан | Атлас описывает сам себя | глобально | PR5 |
 
-## Следующий шаг — PR4 (Real Cursor / Claude observation)
+## Следующий шаг — PR4.5 / PR5
 
-Минимальный набор задач:
-1. Заменить выдуманные хуки в `.cursor/hooks.json` (`afterPromptSent`) на валидные Cursor-события (`afterFileEdit`, `beforeShellExecution`, `beforeSubmitPrompt`).
-2. `scripts/observe_file_edit.mjs`: получает путь файла → ищет в `files.md` всех блоков → дописывает в `checks.log` блока запись `cursor_edit pass <git diff --stat>`.
-3. `scripts/guard_against_drift.mjs`: на `beforeShellExecution` сверяет команду с `tech_stack.md` (например, блокирует `pip install` если стек React+Node).
-4. Adapter Claude Code: MCP tool `run_block_implementation(block_id)` → `claude --print --add-dir atlas/blocks/<id>`.
-5. `validate_agent_parity.mjs` с настоящим diff-сравнением context-pack между Cursor (через MCP) и Claude (через CLI).
-6. После PR4 — `b.agent-orchestrator` поднимется в review.
+### PR4.5 — Live wiring & Claude Code adapter
+1. Live-test в реальном Cursor IDE: открыть репо, попробовать `pip install` в чате — проверить что `beforeShellExecution` действительно срабатывает в живой среде (а не только из CLI).
+2. `run_block_implementation(block_id)` MCP-tool: внутренне вызывает `claude --print --add-dir atlas/blocks/<id>` и возвращает summary.
+3. `validate_agent_parity.mjs` — настоящий diff context-pack JSON: что отдаёт Cursor через MCP `build_context_pack` vs что получает Claude через `--add-dir`. Diff пустой → парити.
 
-## Параллельные планы
+### PR5 — Real product example (atlas describes a NOT-Sima product)
+1. Создать `/atlas/projects/demo-app/` со схемой реального пользовательского продукта.
+2. Multi-project namespace в `atlas_bootstrap.js`.
+3. Артефакты переиспользуются между проектами.
 
+## Параллельные планы (P-late)
 - **PR3.5** (UI confidence/diff flow): когда `extractBlockSchema()` предлагает обновить существующий блок, UI должен показывать diff и кнопки Accept/Reject. Сейчас всё уходит только в `checks.log`.
-- **PR2.5** (Drift visualization): подсветка drift/broken блоков на канвасе с tooltip-причиной из `syncReport.details[].issues[]`.
-- **PR5** (Real-product example): один реальный пример пользовательского продукта в `/atlas/projects/<demo>/` (не сама Сима про себя).
+- **PR2.5** (Drift visualization on canvas): подсветка drift/broken блоков на канвасе с tooltip-причиной из `syncReport.details[].issues[]`.
+- **PR6** (Subschema recursion): `subschema_id` → двойной клик по блоку открывает подсхему.
 
 ## Команды для проверки текущего состояния
 

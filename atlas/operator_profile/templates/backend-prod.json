@@ -1,0 +1,101 @@
+{
+  "template_id": "backend-prod",
+  "title": "Backend Production — durable, observable, scalable",
+  "description": "Production-grade бэкенд с расчётом на реальную нагрузку, multi-instance, observability, миграции без даунтайма, secrets management. Trade-off: сложнее запустить (1–2 недели вместо 1–2 дней), но не нужно переписывать через 6 месяцев.",
+  "scope": "backend",
+  "applicability": {
+    "best_when": [
+      "продукт уже валидирован MVP-ом, идёт реальный трафик",
+      "DAU > 10k или ожидается burst-нагрузка",
+      "команда 3+ человек, нужно code-review pipeline",
+      "есть требования к uptime / SLA",
+      "PII / финансы / регуляторика"
+    ],
+    "not_when": [
+      "первый прототип / ещё ищем product-market fit",
+      "1 разработчик, ноль времени на DevOps",
+      "продукт one-off (внутренний тулинг для 5 человек)"
+    ]
+  },
+  "tech_stack": {
+    "language": "typescript",
+    "runtime": "nodejs",
+    "node_version": ">=22.x LTS",
+    "framework": "fastify",
+    "framework_alternatives": ["nestjs (если нужна enterprise-структура)", "hono (если edge)"],
+    "validation": "zod",
+    "db": "postgres",
+    "db_version": ">=16",
+    "db_chosen_because": "ACID, partial indexes, JSONB columns, mature replication / PITR, огромная экосистема",
+    "orm": "drizzle-orm",
+    "orm_alternatives": ["prisma (если команда привыкла)", "kysely (если нужны type-safe raw queries)"],
+    "migrations": "drizzle-kit",
+    "migration_strategy": "expand-contract (никаких destructive миграций без двух деплоев)",
+    "cache": "redis",
+    "queue": "bullmq (на redis) или pg-boss (если хочется один data store)",
+    "auth": "jwt-access + refresh-token-rotation",
+    "auth_lib": "@fastify/jwt + custom session table",
+    "secrets": "doppler / aws-secrets-manager / vault (НЕ .env в проде)",
+    "logging": "pino + pino-pretty (dev) + json-to-loki/datadog (prod)",
+    "metrics": "prom-client + grafana",
+    "tracing": "opentelemetry",
+    "errors": "sentry",
+    "tests": "vitest (unit) + supertest (integration) + playwright (e2e api)",
+    "ci": "github actions: lint → typecheck → unit → integration → docker-build → deploy",
+    "container": "docker (multi-stage, distroless base)",
+    "orchestration": "kubernetes / fly machines / railway",
+    "deploy_target": "managed k8s или fly.io / railway / render с auto-scaling"
+  },
+  "scaffold": {
+    "files": [
+      "src/server.ts",
+      "src/routes/**/*.ts",
+      "src/services/**/*.ts",
+      "src/repos/**/*.ts",
+      "src/db/schema.ts",
+      "src/db/migrations/*",
+      "src/middleware/{auth,rate-limit,request-id}.ts",
+      "src/jobs/*.ts",
+      "src/observability/{tracing,metrics}.ts",
+      "src/lib/{logger,errors,config}.ts",
+      "test/integration/**/*.test.ts",
+      ".github/workflows/{ci.yml,deploy.yml}",
+      "Dockerfile",
+      "docker-compose.yml (для локалки с postgres+redis)",
+      "k8s/* или fly.toml"
+    ],
+    "minimal_npm_scripts": {
+      "dev": "docker-compose up -d && tsx watch src/server.ts",
+      "build": "tsc -p . && cp -r src/db/migrations dist/db/",
+      "start": "node dist/server.js",
+      "test": "vitest run --coverage",
+      "test:integration": "docker-compose up -d && vitest run --config vitest.integration.config.ts",
+      "db:migrate": "drizzle-kit migrate",
+      "db:generate": "drizzle-kit generate"
+    }
+  },
+  "must_have_acceptance_items": [
+    "GET /health + GET /ready (k8s-style; ready проверяет db+redis)",
+    "structured request-id в каждом log-line (request-id middleware)",
+    "rate-limit middleware на public endpoints",
+    "graceful shutdown (SIGTERM → drain in-flight requests → exit)",
+    "secrets через secret manager, НЕ через .env в деплое",
+    "expand-contract миграции (zero-downtime)",
+    "≥ 70% coverage на routes/services",
+    "integration test поднимает postgres+redis через testcontainers",
+    "prometheus /metrics endpoint",
+    "sentry при unhandled error",
+    "CI: lint + typecheck + unit + integration зелёные перед merge"
+  ],
+  "anti_patterns_to_warn_about": [
+    "не использовать sqlite в проде",
+    "не logging через console.log",
+    "не secrets в env-файле залитом в репо",
+    "не destructive db-migrations (drop column сразу после деплоя)",
+    "не in-memory cache как единственный (потеряется при scale-out)",
+    "не sync-blocking операции в request handler (все тяжёлое — в queue)"
+  ],
+  "estimated_first_deploy_days": 10,
+  "evolves_from": "backend-mvp",
+  "evolves_to": "platform-engineering territory (multi-region, sharding, custom infrastructure)"
+}
