@@ -35,8 +35,8 @@
 ## UI (PR-6) — touches arch_canvas.jsx (b.ui-control) + proposals_panel.jsx (b.llm-gateway)
 PR-6 cross-cutting changes (host blocks own JSX; documented in checks.log + tasks.md):
 
-  • `Sima (Remix)/arch_canvas.jsx` (owned by b.ui-control) gained ProfileHintsSection
-  • `Sima (Remix)/proposals_panel.jsx` (owned by b.llm-gateway) gained complianceWithProfile + match/conflict badge
+  • `frontend/arch_canvas.jsx` (owned by b.ui-control) gained ProfileHintsSection
+  • `frontend/proposals_panel.jsx` (owned by b.llm-gateway) gained complianceWithProfile + match/conflict badge
   • `scripts/generate_atlas_bootstrap_js.mjs` (owned by b.ui-control) now exposes operatorProfile + operatorLessons + operatorDontUse
 
 ## Documentation

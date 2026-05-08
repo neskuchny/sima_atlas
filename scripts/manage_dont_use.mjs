@@ -12,9 +12,9 @@
 //     `## Operator profile` section of agent prompts
 //   * scripts/guard_against_drift.mjs (this PR-3) — extends
 //     forbidden_substrings with operator-specific bans
-//   * Sima (Remix)/proposals_panel.jsx (PR-6) — turns conflicts into
+//   * frontend/proposals_panel.jsx (PR-6) — turns conflicts into
 //     `⛔ противоречит профилю` badge
-//   * Sima (Remix)/arch_canvas.jsx ProfileHintsSection (PR-6) — renders
+//   * frontend/arch_canvas.jsx ProfileHintsSection (PR-6) — renders
 //     dont_use list with «🔓 Снять запрет» button
 //
 // API:

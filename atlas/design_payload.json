@@ -543,7 +543,7 @@
     "b.ui-control": [
       {
         "id": "T1",
-        "title": "Подключить пропавшие JSX в `Sima (Remix)/Сима - универсальный конструктор.html` (components.jsx, sidecol.jsx, canvas_tools.jsx, composer.jsx, library_view.jsx) — PR1",
+        "title": "Подключить пропавшие JSX в `frontend/Сима - универсальный конструктор.html` (components.jsx, sidecol.jsx, canvas_tools.jsx, composer.jsx, library_view.jsx) — PR1",
         "status": "todo",
         "priority": "P2",
         "agent": null,
@@ -1077,7 +1077,7 @@
       },
       {
         "id": "T3.4",
-        "title": "UI — `ProfileHintsSection` в `Sima (Remix)/arch_canvas.jsx` (PR-6) уже рендерит секцию запретов с кнопками «🔓 Снять запрет» / «🗑 Забыть урок» / «🗑 Забыть паттерн». В `scripts/atlas_api_server.mjs` ",
+        "title": "UI — `ProfileHintsSection` в `frontend/arch_canvas.jsx` (PR-6) уже рендерит секцию запретов с кнопками «🔓 Снять запрет» / «🗑 Забыть урок» / «🗑 Забыть паттерн». В `scripts/atlas_api_server.mjs` ",
         "status": "done",
         "priority": "P2",
         "agent": null,
@@ -1176,7 +1176,7 @@
       },
       {
         "id": "T6.1",
-        "title": "`Sima (Remix)/proposals_panel.jsx` — `complianceWithProfile(proposal)` смотрит `proposed.tech_stack` против `profile.tech_stack_history` (high satisfaction + uses≥2) и `dont_use`. Returns `{kind: matc",
+        "title": "`frontend/proposals_panel.jsx` — `complianceWithProfile(proposal)` смотрит `proposed.tech_stack` против `profile.tech_stack_history` (high satisfaction + uses≥2) и `dont_use`. Returns `{kind: matc",
         "status": "done",
         "priority": "P2",
         "agent": null,
@@ -1194,7 +1194,7 @@
       },
       {
         "id": "T6.3",
-        "title": "`Sima (Remix)/arch_canvas.jsx` — компонент `<ProfileHintsSection>` рендерит до 6 хинтов (median time / rollback warn / per-scope tech preferences / dont_use bans / lessons). Click → expand с evidence ",
+        "title": "`frontend/arch_canvas.jsx` — компонент `<ProfileHintsSection>` рендерит до 6 хинтов (median time / rollback warn / per-scope tech preferences / dont_use bans / lessons). Click → expand с evidence ",
         "status": "done",
         "priority": "P2",
         "agent": null,
@@ -1421,7 +1421,7 @@
       },
       {
         "id": "T5.1",
-        "title": "AcceptanceSection в `Sima (Remix)/arch_canvas.jsx` — секция «Acceptance verifier» в ArchInspector над «Слой». Цветной badge: ✓ зелёный `pass · N/M`, ✗ красный `fail · K/M (X fail)`, · оранжевый `incon",
+        "title": "AcceptanceSection в `frontend/arch_canvas.jsx` — секция «Acceptance verifier» в ArchInspector над «Слой». Цветной badge: ✓ зелёный `pass · N/M`, ✗ красный `fail · K/M (X fail)`, · оранжевый `incon",
         "status": "done",
         "priority": "P2",
         "agent": null,
@@ -1630,7 +1630,7 @@
       },
       {
         "id": "T4.4",
-        "title": "`Sima (Remix)/arch_canvas.jsx` `<UserDocsLink blockId={...}>` рисует blue-tinted панель под mission блока со ссылкой `/atlas/docs/end-user/<block>.md` + кнопками 🔁 Regenerate / 🔒 Lock | 🔓 Unlock + ",
+        "title": "`frontend/arch_canvas.jsx` `<UserDocsLink blockId={...}>` рисует blue-tinted панель под mission блока со ссылкой `/atlas/docs/end-user/<block>.md` + кнопками 🔁 Regenerate / 🔒 Lock | 🔓 Unlock + ",
         "status": "done",
         "priority": "P2",
         "agent": null,
@@ -1639,7 +1639,7 @@
       },
       {
         "id": "T4.5",
-        "title": "`Sima (Remix)/proposals_panel.jsx` распознаёт `kind === 'user_docs_locked'` — рисует amber карточку с hash diff (`old` → `new`) + retry_prompt_hint preview + кнопками 🔓 Unlock + regen / Keep locked (",
+        "title": "`frontend/proposals_panel.jsx` распознаёт `kind === 'user_docs_locked'` — рисует amber карточку с hash diff (`old` → `new`) + retry_prompt_hint preview + кнопками 🔓 Unlock + regen / Keep locked (",
         "status": "done",
         "priority": "P2",
         "agent": null,

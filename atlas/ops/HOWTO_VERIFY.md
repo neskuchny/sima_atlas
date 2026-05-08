@@ -29,7 +29,7 @@ npm run dev        # запустить локальный UI и открыть 
 
 `npm run dev` — кросс-платформенный launcher (`scripts/dev_server.mjs`):
 1. поднимает `atlas_api_server` на :8787
-2. поднимает `python http.server` на :8000 (отдаёт `Sima (Remix)/`)
+2. поднимает `python http.server` на :8000 (отдаёт `frontend/`)
 3. открывает `http://localhost:8000/atlas_design/index.html` в браузере
 4. на Ctrl-C аккуратно гасит обе подпроцесса
 
@@ -266,7 +266,7 @@ node tests/cursor_live.headless.smoke.mjs
 
 1. `Cursor → Open Folder → /path/to/sima_atlas`
 2. В терминале Cursor: `pip install neo4j` — должно блокироваться (драифт-гард)
-3. Отредактируй `Sima (Remix)/app_v2.jsx` — должна появиться строка `cursor_edit pass` в `atlas/blocks/b.ui-control/checks.log`
+3. Отредактируй `frontend/app_v2.jsx` — должна появиться строка `cursor_edit pass` в `atlas/blocks/b.ui-control/checks.log`
 4. В чате Cursor: «продолжи b.docs» — в выходном промпте должен быть `<!-- ATLAS CONTEXT PACK --> ## Block: b.docs`
 5. Через MCP-tool в чате: `run_block_implementation b.smoke-sandbox` — FSM проходит full lifecycle
 

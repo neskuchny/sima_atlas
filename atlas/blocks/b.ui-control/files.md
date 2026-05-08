@@ -1,34 +1,34 @@
 # b.ui-control — files
 
-- Sima (Remix)/Сима - универсальный конструктор.html [alive]
-- Sima (Remix)/index.html [alive] (PR4.1: ASCII alias for python http.server compatibility)
-- index.html [alive] (PR4.1: repo-root redirect to Sima (Remix)/index.html)
-- Sima (Remix)/app_v2.jsx [alive]
-- Sima (Remix)/arch_canvas.jsx [alive]
-- Sima (Remix)/layer1_canvas.jsx [alive]
-- Sima (Remix)/layer2_map.jsx [alive]
-- Sima (Remix)/layer3_tz.jsx [alive]
-- Sima (Remix)/layer4_impl.jsx [alive]
-- Sima (Remix)/gallery_v2.jsx [alive]
-- Sima (Remix)/landscape_view.jsx [alive]
-- Sima (Remix)/subschema.jsx [alive]
-- Sima (Remix)/tweaks-panel.jsx [alive]
-- Sima (Remix)/icons.jsx [alive]
-- Sima (Remix)/atlas_sync.js [alive]
-- Sima (Remix)/atlas_bootstrap.js [alive] (auto-generated)
-- Sima (Remix)/styles.css [alive]
-- Sima (Remix)/styles_v2.css [alive]
-- Sima (Remix)/arch_styles.css [alive]
-- Sima (Remix)/landscape_assets.jsx [alive]
-- Sima (Remix)/landscape_styles.css [alive]
-- Sima (Remix)/data_v2.js [alive] (mock projects palette)
-- Sima (Remix)/components.jsx [alive] (referenced indirectly via window globals)
-- Sima (Remix)/sidecol.jsx [alive] (referenced indirectly via window globals)
-- Sima (Remix)/canvas_tools.jsx [alive]
-- Sima (Remix)/composer.jsx [alive] (PR3 will wire it for "Implement")
-- Sima (Remix)/library_view.jsx [alive] (PR4 will wire it for artifacts)
-- Sima (Remix)/graph_view.jsx [alive] (alternative graph view)
-- Sima (Remix)/result_view.jsx [archived] (legacy)
-- Sima (Remix)/schema_view.jsx [archived] (legacy)
-- Sima (Remix)/data.js [archived] (v1 data, replaced by data_v2.js)
-- Sima (Remix)/app.jsx [archived] (v1 root, replaced by app_v2.jsx)
+- frontend/Сима - универсальный конструктор.html [alive]
+- frontend/index.html [alive] (PR4.1: ASCII alias for python http.server compatibility)
+- index.html [alive] (PR4.1: repo-root redirect to frontend/index.html)
+- frontend/app_v2.jsx [alive]
+- frontend/arch_canvas.jsx [alive]
+- frontend/layer1_canvas.jsx [alive]
+- frontend/layer2_map.jsx [alive]
+- frontend/layer3_tz.jsx [alive]
+- frontend/layer4_impl.jsx [alive]
+- frontend/gallery_v2.jsx [alive]
+- frontend/landscape_view.jsx [alive]
+- frontend/subschema.jsx [alive]
+- frontend/tweaks-panel.jsx [alive]
+- frontend/icons.jsx [alive]
+- frontend/atlas_sync.js [alive]
+- frontend/atlas_bootstrap.js [alive] (auto-generated)
+- frontend/styles.css [alive]
+- frontend/styles_v2.css [alive]
+- frontend/arch_styles.css [alive]
+- frontend/landscape_assets.jsx [alive]
+- frontend/landscape_styles.css [alive]
+- frontend/data_v2.js [alive] (mock projects palette)
+- frontend/components.jsx [alive] (referenced indirectly via window globals)
+- frontend/sidecol.jsx [alive] (referenced indirectly via window globals)
+- frontend/canvas_tools.jsx [alive]
+- frontend/composer.jsx [alive] (PR3 will wire it for "Implement")
+- frontend/library_view.jsx [alive] (PR4 will wire it for artifacts)
+- frontend/graph_view.jsx [alive] (alternative graph view)
+- frontend/result_view.jsx [archived] (legacy)
+- frontend/schema_view.jsx [archived] (legacy)
+- frontend/data.js [archived] (v1 data, replaced by data_v2.js)
+- frontend/app.jsx [archived] (v1 root, replaced by app_v2.jsx)

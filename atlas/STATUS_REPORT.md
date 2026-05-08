@@ -37,7 +37,7 @@ PR1 (этот) — Honest Reset. Не добавляет новых фич, то
 - [x] `files.md` всех 7 блоков заполнены реальными путями (95 alive файлов привязаны к блокам, 4 archived с warnings).
 - [x] Новый валидатор `scripts/validate_files_registry.mjs`: проверяет существование `[alive]` файлов, варнит за `[archived]`/`[dead]` с висящими файлами и за `[pending]` файлы, которые уже есть.
 - [x] `scripts/generate_atlas_bootstrap_js.mjs` полностью переписан: блоки разносятся по horizontal layer-bands; bootstrap инжектит недостающие layer-определения в `window.ARCH_LAYERS`; 'atlas-live' проект мерджится в `SIMA_DATA_V2.projects` и появляется в табах UI.
-- [x] `Sima (Remix)/arch_data.js`: добавлен слой `testing`.
+- [x] `frontend/arch_data.js`: добавлен слой `testing`.
 - [x] Smoke-тест `tests/atlas_bootstrap.smoke.mjs`: подтверждает что bootstrap-output имеет валидную layered-структуру (layers ⊆ ARCH_LAYERS, blocks have layer/x/title/note/status, links валидны, atlas-live в SIMA_DATA_V2).
 - [x] `scripts/generate_wiki.mjs`: новая wiki содержит **Mermaid-диаграмму** графа продукта, секции по слоям с иконками статусов, детальные блоки с layer/type/tech_stack/files.
 - [x] `scripts/render_wiki_html.mjs`: HTML-рендер с Mermaid (через CDN) и code-fence support.

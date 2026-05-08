@@ -21,7 +21,7 @@
 
 # b.ui-control — tasks
 
-- [ ] T1: Подключить пропавшие JSX в `Sima (Remix)/Сима - универсальный конструктор.html` (components.jsx, sidecol.jsx, canvas_tools.jsx, composer.jsx, library_view.jsx) — **PR1**
+- [ ] T1: Подключить пропавшие JSX в `frontend/Сима - универсальный конструктор.html` (components.jsx, sidecol.jsx, canvas_tools.jsx, composer.jsx, library_view.jsx) — **PR1**
 - [ ] T2: Развести блоки по слоям через поле `layer` из `graph.json` v2 — **PR2**
 - [ ] T3: В `arch_canvas.jsx` корректно читать `layer` и рисовать каждый блок в соответствующей полосе — **PR2**
 - [ ] T4: Live update схемы при изменениях в `/atlas/` (через WebSocket или polling) — **PR2**
@@ -36,7 +36,7 @@
 
 Sync Engine — движок проверки синхронизации блоков продукта с миссией, KPI, стэком и кодом. Главная задача — детектить «рассинхрон»: код пишется в одном фреймворке, ТЗ говорит про другой; блок A объявляет, что зависит от capability X у блока B, а B такой capability не предоставляет; KPI задан, но в `checks.log` нет ни одной измеренной записи.
 
-Текущая реализация (`Sima (Remix)/atlas_sync.js` + `scripts/validate_*`) — каркас: проверяет наличие файлов, подсчитывает прогресс tasks/KPI, сравнивает `depends_on/provides`. Этого недостаточно для миссии «решить рассинхрон» — нужно семантическое сопоставление миссии блока с реализацией (требует LLM, PR3) и реальный анализ кода (PR4).
+Текущая реализация (`frontend/atlas_sync.js` + `scripts/validate_*`) — каркас: проверяет наличие файлов, подсчитывает прогресс tasks/KPI, сравнивает `depends_on/provides`. Этого недостаточно для миссии «решить рассинхрон» — нужно семантическое сопоставление миссии блока с реализацией (требует LLM, PR3) и реальный анализ кода (PR4).
 
 ## Layer
 logic
@@ -411,7 +411,7 @@ PR-2 закрыт. Остаются PR-3..PR-6.
 - [x] T3.1: `scripts/manage_dont_use.mjs` экспортирует `setDontUse / clearDontUse / listDontUse / setAlwaysUse / clearAlwaysUse / listAlwaysUse / effectiveDontUseValues`. CLI `add / clear / list / always {add,clear,list} / effective`. MCP tools `set_dont_use / clear_dont_use / list_dont_use / set_always_use / clear_always_use / list_always_use`. **DONE PR-3**.
 - [x] T3.2: `scripts/guard_against_drift.mjs` читает `atlas/operator_profile/dont_use.json` + `profile.dont_use` и сливает с `forbidden_substrings` из tech_stack.md. На блокировку показывает источник (operator_profile/dont_use.json vs tech_stack.md) и команду `manage_dont_use.mjs clear <value>` для снятия личного запрета. **DONE PR-3**.
 - [x] T3.3: `scripts/validate_dont_use_compliance.mjs` — nightly info-only step (exit 0 always). Для каждого блока с `tech_stack ∋ banned` пишет proposal `<UTC>__<block>__dont_use_warning.json` с `hits` + `retry_prompt_hint`. Dedup: skip если pending proposal с тем же набором hits уже есть. **DONE PR-3**.
-- [x] T3.4: UI — `ProfileHintsSection` в `Sima (Remix)/arch_canvas.jsx` (PR-6) уже рендерит секцию запретов с кнопками «🔓 Снять запрет» / «🗑 Забыть урок» / «🗑 Забыть паттерн». В `scripts/atlas_api_server.mjs` добавлены endpoints `/profile/forget`, `/lessons/revoke`, `/dont-use/add` — UI кнопки реально мутируют состояние через MCP-обёрточные вызовы. **DONE PR-3**.
+- [x] T3.4: UI — `ProfileHintsSection` в `frontend/arch_canvas.jsx` (PR-6) уже рендерит секцию запретов с кнопками «🔓 Снять запрет» / «🗑 Забыть урок» / «🗑 Забыть паттерн». В `scripts/atlas_api_server.mjs` добавлены endpoints `/profile/forget`, `/lessons/revoke`, `/dont-use/add` — UI кнопки реально мутируют состояние через MCP-обёрточные вызовы. **DONE PR-3**.
 
 PR-3 закрыт. tests/dont_use_management.selftest.mjs 7 групп зелёный (set/update/clear/missing; alwaysUse round-trip; effectiveDontUseValues sources merge; guard блокирует с цитатой источника + hint; validator пишет dont_use_warning proposal).
 
@@ -430,9 +430,9 @@ PR-3 закрыт. tests/dont_use_management.selftest.mjs 7 групп зелё�
 - [x] T5.4: `--no-profile` flag + `SIMA_NO_PROFILE=1` env override отключают секцию (для воспроизводимости evals). **DONE PR-5**.
 
 ## PR-6 — UI hints
-- [x] T6.1: `Sima (Remix)/proposals_panel.jsx` — `complianceWithProfile(proposal)` смотрит `proposed.tech_stack` против `profile.tech_stack_history` (high satisfaction + uses≥2) и `dont_use`. Returns `{kind: match|conflict|neutral, items, reason}` или `null` при warming_up. **DONE PR-6**.
+- [x] T6.1: `frontend/proposals_panel.jsx` — `complianceWithProfile(proposal)` смотрит `proposed.tech_stack` против `profile.tech_stack_history` (high satisfaction + uses≥2) и `dont_use`. Returns `{kind: match|conflict|neutral, items, reason}` или `null` при warming_up. **DONE PR-6**.
 - [x] T6.2: Badge palette: ✓ зелёный (match) / ⛔ красный (conflict) / · серый (neutral); tooltip с reason + items. **DONE PR-6**.
-- [x] T6.3: `Sima (Remix)/arch_canvas.jsx` — компонент `<ProfileHintsSection>` рендерит до 6 хинтов (median time / rollback warn / per-scope tech preferences / dont_use bans / lessons). Click → expand с evidence (block_ids из истории). **DONE PR-6**.
+- [x] T6.3: `frontend/arch_canvas.jsx` — компонент `<ProfileHintsSection>` рендерит до 6 хинтов (median time / rollback warn / per-scope tech preferences / dont_use bans / lessons). Click → expand с evidence (block_ids из истории). **DONE PR-6**.
 - [x] T6.4: Под expanded хинтом — кнопки «🔓 Снять запрет» (kind=block) / «🗑 Забыть урок» (kind=lesson) / «🗑 Забыть паттерн» (kind=info с tech-history) → POST на MCP-обёрточные endpoints `/lessons/revoke` + `/profile/forget` (TODO в atlas_api_server: backed by revoke_lesson MCP). **DONE PR-6 (UI часть)**; endpoint stubs ждут PR-Hardening.
 - [x] T6.5: При `_status === "warming_up"` секция показывает `Профиль ещё учится: N/M done, K/L invocations` из `profile._preview` + `_min_data`. **DONE PR-6**.
 
@@ -618,7 +618,7 @@ PR-3 закрыт. Wired into `collect_evidence.mjs` → llm_judge case тепе
 PR-4 закрыт. Verifier теперь — реальный hard gate против `wip → done`. Остаётся PR-5 (UI surface).
 
 ## PR-5 — UI surface
-- [x] T5.1: AcceptanceSection в `Sima (Remix)/arch_canvas.jsx` — секция «Acceptance verifier» в ArchInspector над «Слой». Цветной badge: ✓ зелёный `pass · N/M`, ✗ красный `fail · K/M (X fail)`, · оранжевый `inconclusive`. Список assertions с tick-mark + evidence_kind + текстом. **DONE PR-5**.
+- [x] T5.1: AcceptanceSection в `frontend/arch_canvas.jsx` — секция «Acceptance verifier» в ArchInspector над «Слой». Цветной badge: ✓ зелёный `pass · N/M`, ✗ красный `fail · K/M (X fail)`, · оранжевый `inconclusive`. Список assertions с tick-mark + evidence_kind + текстом. **DONE PR-5**.
 - [x] T5.2: Click на красный/skipped пункт → expand с `evidence + reasoning + 📋 Скопировать как prompt для retry` (формирует готовый промпт со ссылкой на assertion + evidence + reasoning + fix command для следующего агент-прогона). **DONE PR-5**.
 - [x] T5.3: ProposalsPanel — специализированная карточка для `kind === 'acceptance_regression'`: красный фон, sample_failures с evidence снимками, кнопка «🔁 Прогнать снова с подсказкой» → `POST /run-block {block_id, prompt: retry_prompt_hint}` (использует существующий endpoint), Accept (→ broken) красный, Reject ghost. accept_proposal.mjs расширен: понимает новый shape `proposal.proposed.{status, status_reason}` (только safe fields) для kind=acceptance_regression. **DONE PR-5**.
 - [x] T5.4: Под названием секции — relative-time stamp («last run: 30 sec ago / 5 min ago / 2h ago / 3d ago»). **DONE PR-5**.
@@ -646,7 +646,7 @@ PR-5 закрыт (T5.1-T5.4). T5.5 unblocked (инфраструктура го
 content
 
 ## North Star
-> Когда `b.todo-ui` блок переходит в `done`, в проекте `demo-todo` появляется `docs/end-user/todo-ui.md` со скриншотом и пошаговой инструкцией, где каждое «нажми X» подтверждено реальным селектором из `Sima (Remix)/<file>.jsx` и реальным endpoint'ом из `b.todo-api`. Если кнопка переименована — туториал обновляется в следующий nightly.
+> Когда `b.todo-ui` блок переходит в `done`, в проекте `demo-todo` появляется `docs/end-user/todo-ui.md` со скриншотом и пошаговой инструкцией, где каждое «нажми X» подтверждено реальным селектором из `frontend/<file>.jsx` и реальным endpoint'ом из `b.todo-api`. Если кнопка переименована — туториал обновляется в следующий nightly.
 
 ---
 
@@ -659,7 +659,7 @@ content
 | Содержимое JSX/HTML файлов блока | список кнопок (`<button>`), полей (`<input>`), маршрутов, обработчиков |
 | `atlas/blocks/<id>/depends_on.md` | связанные API-блоки → endpoints, которые юзер косвенно дёргает |
 | `atlas/process_runs/cursor_observations/*` | какие user-flow реально проходились в IDE (если есть) |
-| `Sima (Remix)/screenshots/*.png` (если PR4.5+ генерится Playwright'ом) | визуал для встраивания |
+| `frontend/screenshots/*.png` (если PR4.5+ генерится Playwright'ом) | визуал для встраивания |
 | `atlas/blocks/<id>/patterns.md` | gotchas / edge cases, которые стоит упомянуть |
 | `atlas/projects/<proj>/user_stories/*.md` (если b.user-stories блок есть) | язык целевой аудитории, jobs-to-be-done |
 
@@ -801,8 +801,8 @@ PR-3 закрыт. T5.5 b.acceptance-verifier-loop (Playwright smoke screenshots
 - [x] T4.1: `scripts/regenerate_user_docs_drift.mjs` walks user-facing blocks (layer ∈ {user, front} OR `user_facing: true` в graph; и в основном atlas/graph.json и в projects/<proj>/graph.json), читает `_meta/<block>.json`, сравнивает hash. Three-way: no meta → seed; hash matches → skip; hash drifted + locked=false → regen; hash drifted + locked=true → write `user_docs_locked` proposal (dedup — skip если pending для того же new_hash уже есть). Пишет `atlas/docs/end-user/_drift_summary.json`. **DONE PR-4**.
 - [x] T4.2: `scripts/log_transition.mjs` после успешного `→ done` для user-facing блока (детект через graph.json + projects/*/graph.json) спавнит `generate_user_docs.mjs <id>` через `child_process.spawn({detached, stdio: 'ignore'}) + child.unref()` — не блокирует transition. Skip via `ATLAS_SKIP_USER_DOCS=1`. **DONE PR-4**.
 - [x] T4.3: `scripts/check_user_docs_locked.mjs` — pre-commit guard, читает `git diff --name-only [--cached] -- atlas/docs/end-user/`, для каждого изменённого `.md` проверяет meta.locked; если false → exit 1 с подробным сообщением и инструкцией fix. Wiring (manual): `.git/hooks/pre-commit: node scripts/check_user_docs_locked.mjs --staged`. CLI `--staged | --json`. **DONE PR-4**.
-- [x] T4.4: `Sima (Remix)/arch_canvas.jsx` `<UserDocsLink blockId={...}>` рисует blue-tinted панель под mission блока со ссылкой `/atlas/docs/end-user/<block>.md` + кнопками 🔁 Regenerate / 🔒 Lock | 🔓 Unlock + relative-time stamp + 🔒 locked badge. Появляется только когда `window.SIMA_BOOTSTRAP.userDocsByBlock[blockId]` существует. **DONE PR-4**.
-- [x] T4.5: `Sima (Remix)/proposals_panel.jsx` распознаёт `kind === 'user_docs_locked'` — рисует amber карточку с hash diff (`old` → `new`) + retry_prompt_hint preview + кнопками 🔓 Unlock + regen / Keep locked (Reject). **DONE PR-4**.
+- [x] T4.4: `frontend/arch_canvas.jsx` `<UserDocsLink blockId={...}>` рисует blue-tinted панель под mission блока со ссылкой `/atlas/docs/end-user/<block>.md` + кнопками 🔁 Regenerate / 🔒 Lock | 🔓 Unlock + relative-time stamp + 🔒 locked badge. Появляется только когда `window.SIMA_BOOTSTRAP.userDocsByBlock[blockId]` существует. **DONE PR-4**.
+- [x] T4.5: `frontend/proposals_panel.jsx` распознаёт `kind === 'user_docs_locked'` — рисует amber карточку с hash diff (`old` → `new`) + retry_prompt_hint preview + кнопками 🔓 Unlock + regen / Keep locked (Reject). **DONE PR-4**.
 - [x] T4.6: MCP tools `list_user_docs / read_user_docs / lock_user_docs / regenerate_user_docs_drift`. atlas_api endpoints `/user-docs/regenerate`, `/user-docs/lock`, `/user-docs/unlock-and-regen` — UI кнопки реально мутируют state. **DONE PR-4**.
 - [x] T4.7: Localization уже работает через `ATLAS_USER_DOCS_LANG` env (PR-2) + `--lang` flag; UserDocsLink показывает текущий lang в meta-line. UI-toggle отложен. **DONE PR-4 (env path)**.
 

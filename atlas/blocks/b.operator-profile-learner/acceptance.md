@@ -41,7 +41,7 @@ evidence_spec:
 ```yaml
 evidence_kind: log_grep
 evidence_spec:
-  file: Sima (Remix)/proposals_panel.jsx
+  file: frontend/proposals_panel.jsx
   pattern: "complianceWithProfile"
 ```
 - [ ] **A7.** Privacy gate: `atlas/operator_profile/` упоминается в `.gitignore` (опц.) с пояснением в `atlas/rules.md`; никакого PII (имена / e-mail / API-ключи) не пишется в profile.json — selftest A1 проверяет regex.

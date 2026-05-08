@@ -1,6 +1,6 @@
 # b.core-sync — files
 
-- Sima (Remix)/atlas_sync.js [alive] (client-side syncCheck + transitions)
+- frontend/atlas_sync.js [alive] (client-side syncCheck + transitions)
 - scripts/validate_block_contracts.mjs [alive]
 - scripts/validate_dependency_contracts.mjs [alive]
 - scripts/validate_acceptance_assertions.mjs [alive]

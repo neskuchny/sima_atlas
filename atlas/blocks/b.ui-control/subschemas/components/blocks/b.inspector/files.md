@@ -1,3 +1,3 @@
 # b.inspector — files
 
-- Sima (Remix)/arch_canvas.jsx [alive]
+- frontend/arch_canvas.jsx [alive]

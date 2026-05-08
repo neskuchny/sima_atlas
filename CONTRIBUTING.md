@@ -31,7 +31,7 @@ npm run verify       # запускает verify_all (~150s, без сети)
 | `atlas/blocks/<id>/` | Контракты блоков: `mission.md`, `kpi.md`, `acceptance.md`, `tasks.md`, `checks.log`, ... |
 | `scripts/` | Все executables: API сервер, MCP сервер, валидаторы, генераторы, оркестраторы. |
 | `tests/` | Селфтесты + Playwright e2e. Каждый новый блок должен иметь свой селфтест в nightly. |
-| `Sima (Remix)/atlas_design/` | UI canvas (React + JSX без билда, in-browser Babel). |
+| `frontend/atlas_design/` | UI canvas (React + JSX без билда, in-browser Babel). |
 | `docs/` | Интеграции и прочая операционная документация. |
 | `ТЗ/` | Методология (статья), ТЗ, аудит. |
 | `.github/` | CI workflows, issue / PR templates. |
@@ -46,7 +46,7 @@ npm run verify       # запускает verify_all (~150s, без сети)
 - **Локальные провайдеры** в LLM gateway (Ollama / vLLM / LM Studio) → `scripts/llm_gateway.mjs`
 - **Шаблоны блоков** (auth, payments, search) → новый файл в `atlas/templates/`
 - **Evidence collectors** (HTTP-status, JSON-shape, snapshot-diff) → `scripts/collect_evidence.mjs`
-- **Локализации UI** → `Sima (Remix)/atlas_design/index.html` + `views.jsx`
+- **Локализации UI** → `frontend/atlas_design/index.html` + `views.jsx`
 - **Документация / переводы** — `ТЗ/статья.md` сейчас только на русском, английский перевод приветствуется
 
 Если хочешь начать с чего-то маленького — посмотри issues с ярлыком `good first issue`.

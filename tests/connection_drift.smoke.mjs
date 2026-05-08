@@ -25,7 +25,7 @@ function ensure(p, content) {
 
 const failures = [];
 
-const remixDir = path.join(ROOT, 'Sima (Remix)');
+const remixDir = path.join(ROOT, 'frontend');
 const archDataPath = path.join(remixDir, 'arch_data.js');
 const bootstrapPath = path.join(remixDir, 'atlas_bootstrap.js');
 const archDataBefore = fs.readFileSync(archDataPath, 'utf8');

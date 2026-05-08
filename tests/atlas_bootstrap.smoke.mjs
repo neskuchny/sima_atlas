@@ -11,7 +11,7 @@ import path from 'node:path';
 import vm from 'node:vm';
 
 const root = process.cwd();
-const remix = path.join(root, 'Sima (Remix)');
+const remix = path.join(root, 'frontend');
 const archDataSrc = fs.readFileSync(path.join(remix, 'arch_data.js'), 'utf8');
 const bootstrapSrc = fs.readFileSync(path.join(remix, 'atlas_bootstrap.js'), 'utf8');
 

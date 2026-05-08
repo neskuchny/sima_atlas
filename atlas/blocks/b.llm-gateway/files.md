@@ -18,7 +18,7 @@
 - scripts/list_proposals.mjs [alive] (PR3.5)
 - scripts/accept_proposal.mjs [alive] (PR3.5)
 - scripts/reject_proposal.mjs [alive] (PR3.5)
-- Sima (Remix)/proposals_panel.jsx [alive] (PR3.5 UI)
+- frontend/proposals_panel.jsx [alive] (PR3.5 UI)
 - tests/proposals_flow.smoke.mjs [alive] (PR3.5)
 - scripts/seed_llm_mocks.mjs [alive] (PR-Eval: regenerate mock fixtures from golden)
 - atlas/eval_history/.gitkeep [alive] (PR-Eval: per-run snapshots; .gitignored except baseline.json)

@@ -34,7 +34,7 @@ evidence_spec:
 ```yaml
 evidence_kind: log_grep
 evidence_spec:
-  file: Sima (Remix)/arch_canvas.jsx
+  file: frontend/arch_canvas.jsx
   pattern: "AcceptanceSection"
 ```
 - [ ] **A6.** End-to-end smoke `tests/acceptance_verifier.e2e.smoke.mjs`: создать тестовый блок с 3 acceptance items (1 deterministic, 1 LLM-judge, 1 заведомо-fail) → run agent (mock) → verifier даёт verdict=fail с правильным `retry_prompt_hint` → `transition_block done` блокируется.

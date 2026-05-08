@@ -10,14 +10,14 @@ production-multitenancy каждый клиент получает свой data
 
 | Источник | Куда копируется | Что делает |
 |---|---|---|
-| `sima_atlas_design/SIMA Atlas.html` | `Sima (Remix)/atlas_design/index.html` | UI page; патчен под live-loader |
-| `sima_atlas_design/data.js` | `Sima (Remix)/atlas_design/data_static.js` | offline fallback (sample data) |
-| `sima_atlas_design/{graph,panels,tweaks-panel}.jsx` | `Sima (Remix)/atlas_design/*.jsx` | без изменений |
-| `sima_atlas_design/styles.css` | `Sima (Remix)/atlas_design/styles.css` | без изменений |
-| (новое) | `Sima (Remix)/atlas_design/data_loader.js` | live-fetch + polling |
+| `sima_atlas_design/SIMA Atlas.html` | `frontend/atlas_design/index.html` | UI page; патчен под live-loader |
+| `sima_atlas_design/data.js` | `frontend/atlas_design/data_static.js` | offline fallback (sample data) |
+| `sima_atlas_design/{graph,panels,tweaks-panel}.jsx` | `frontend/atlas_design/*.jsx` | без изменений |
+| `sima_atlas_design/styles.css` | `frontend/atlas_design/styles.css` | без изменений |
+| (новое) | `frontend/atlas_design/data_loader.js` | live-fetch + polling |
 
 `sima_atlas_design/` остаётся source-of-truth дизайна — туда оператор кладёт
-обновления; служебная копия в `Sima (Remix)/atlas_design/` обслуживает живой
+обновления; служебная копия в `frontend/atlas_design/` обслуживает живой
 UI и поддерживает loader.
 
 ## Как открыть
@@ -131,7 +131,7 @@ Endpoint `/atlas/design-payload?client=<id>` должен быть прокси�
 - **Запись из UI обратно в `atlas/graph.json`**: дизайн позволяет drag и
   inline-edit, но изменения остаются только в React-state. Persistence —
   следующий PR. Текущий канонический write path — Accept/Reject через
-  `Sima (Remix)/index.html` ProposalsPanel.
+  `frontend/index.html` ProposalsPanel.
 
 - **Локальные редактируемые координаты x/y**: auto-layout пересчитывает
   при каждом payload-build'е. Чтобы сохранить кастомные координаты —

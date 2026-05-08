@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "_note": "Subschema of b.ui-control: the React component tree that powers the visual control plane. Each child here owns concrete .jsx file(s) under Sima (Remix)/ and is independently statusable.",
+  "_note": "Subschema of b.ui-control: the React component tree that powers the visual control plane. Each child here owns concrete .jsx file(s) under frontend/ and is independently statusable.",
   "parent": { "block_id": "b.ui-control", "subschema_id": "components" },
   "layers": [
     { "id": "user",    "name": "Пользователь / JTBD",   "order": 0 },
@@ -20,7 +20,7 @@
       "subschema_id": null,
       "depends_on": ["b.atlas-sync"],
       "tech_stack": ["react", "babel-standalone"],
-      "files": ["Sima (Remix)/arch_canvas.jsx"]
+      "files": ["frontend/arch_canvas.jsx"]
     },
     {
       "id": "b.inspector",
@@ -33,7 +33,7 @@
       "subschema_id": null,
       "depends_on": ["b.canvas", "b.atlas-sync"],
       "tech_stack": ["react"],
-      "files": ["Sima (Remix)/arch_canvas.jsx"]
+      "files": ["frontend/arch_canvas.jsx"]
     },
     {
       "id": "b.tweaks-panel",
@@ -46,7 +46,7 @@
       "subschema_id": null,
       "depends_on": [],
       "tech_stack": ["react"],
-      "files": ["Sima (Remix)/tweaks-panel.jsx"]
+      "files": ["frontend/tweaks-panel.jsx"]
     },
     {
       "id": "b.composer",
@@ -59,7 +59,7 @@
       "subschema_id": null,
       "depends_on": [],
       "tech_stack": ["react"],
-      "files": ["Sima (Remix)/composer.jsx"]
+      "files": ["frontend/composer.jsx"]
     },
     {
       "id": "b.proposals-panel",
@@ -72,7 +72,7 @@
       "subschema_id": null,
       "depends_on": ["b.atlas-sync"],
       "tech_stack": ["react"],
-      "files": ["Sima (Remix)/proposals_panel.jsx"]
+      "files": ["frontend/proposals_panel.jsx"]
     },
     {
       "id": "b.atlas-sync",
@@ -85,7 +85,7 @@
       "subschema_id": null,
       "depends_on": [],
       "tech_stack": ["javascript"],
-      "files": ["Sima (Remix)/atlas_sync.js"]
+      "files": ["frontend/atlas_sync.js"]
     }
   ]
 }

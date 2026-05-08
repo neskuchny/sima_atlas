@@ -71,7 +71,7 @@ try {
     const r = run('node', ['scripts/observe_file_edit.mjs'], {
       env: {
         ...process.env,
-        CURSOR_FILE_PATH: 'Sima (Remix)/app_v2.jsx',
+        CURSOR_FILE_PATH: 'frontend/app_v2.jsx',
       },
     });
     // observe_file_edit may exit 0 with a line written, or skip if it can't

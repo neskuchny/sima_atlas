@@ -62,23 +62,23 @@
         "babel-standalone"
       ],
       "files": [
-        "Sima (Remix)/Сима - универсальный конструктор.html",
-        "Sima (Remix)/app_v2.jsx",
-        "Sima (Remix)/arch_canvas.jsx",
-        "Sima (Remix)/layer1_canvas.jsx",
-        "Sima (Remix)/layer2_map.jsx",
-        "Sima (Remix)/layer3_tz.jsx",
-        "Sima (Remix)/layer4_impl.jsx",
-        "Sima (Remix)/gallery_v2.jsx",
-        "Sima (Remix)/landscape_view.jsx",
-        "Sima (Remix)/subschema.jsx",
-        "Sima (Remix)/tweaks-panel.jsx",
-        "Sima (Remix)/icons.jsx",
-        "Sima (Remix)/atlas_sync.js",
-        "Sima (Remix)/atlas_bootstrap.js",
-        "Sima (Remix)/styles.css",
-        "Sima (Remix)/styles_v2.css",
-        "Sima (Remix)/arch_styles.css"
+        "frontend/Сима - универсальный конструктор.html",
+        "frontend/app_v2.jsx",
+        "frontend/arch_canvas.jsx",
+        "frontend/layer1_canvas.jsx",
+        "frontend/layer2_map.jsx",
+        "frontend/layer3_tz.jsx",
+        "frontend/layer4_impl.jsx",
+        "frontend/gallery_v2.jsx",
+        "frontend/landscape_view.jsx",
+        "frontend/subschema.jsx",
+        "frontend/tweaks-panel.jsx",
+        "frontend/icons.jsx",
+        "frontend/atlas_sync.js",
+        "frontend/atlas_bootstrap.js",
+        "frontend/styles.css",
+        "frontend/styles_v2.css",
+        "frontend/arch_styles.css"
       ]
     },
     {
@@ -106,7 +106,7 @@
         "vitest"
       ],
       "files": [
-        "Sima (Remix)/atlas_sync.js",
+        "frontend/atlas_sync.js",
         "scripts/validate_block_contracts.mjs",
         "scripts/validate_dependency_contracts.mjs",
         "scripts/validate_acceptance_assertions.mjs",

@@ -1,7 +1,26 @@
 {
   "name": "sima-atlas",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
+  "description": "Contract-first visual control plane between developers and AI coding agents (Claude Code / Cursor / Codex). Blocks live as directories with mission.md / kpi.md / acceptance.md; agents read contracts via MCP, write code, report to checks.log; Sima verifies each run against acceptance.",
+  "license": "MIT",
+  "homepage": "https://github.com/neskuchny/sima_atlas",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/neskuchny/sima_atlas.git"
+  },
+  "bugs": "https://github.com/neskuchny/sima_atlas/issues",
+  "keywords": [
+    "ai-agents",
+    "claude-code",
+    "cursor",
+    "codex",
+    "mcp",
+    "contract-first",
+    "visual-programming",
+    "ai-coding",
+    "agent-orchestration"
+  ],
   "type": "module",
   "scripts": {
     "dev": "node scripts/dev_server.mjs",

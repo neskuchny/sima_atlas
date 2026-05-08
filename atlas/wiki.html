@@ -135,7 +135,7 @@
 <h4>KPI</h4>
 <h1>b.ui-control — KPI</h1>
 <ul>
-<li><strong>KPI-1 (boot)</strong>: HTML-страница <code>Sima (Remix)/Сима - универсальный конструктор.html</code> открывается в браузере без ошибок в консоли (всё React-дерево рендерится). Сейчас: ✗ (часть JSX не подключена).</li>
+<li><strong>KPI-1 (boot)</strong>: HTML-страница <code>frontend/Сима - универсальный конструктор.html</code> открывается в браузере без ошибок в консоли (всё React-дерево рендерится). Сейчас: ✗ (часть JSX не подключена).</li>
 <li><strong>KPI-2 (multi-layer)</strong>: канвас рисует не менее 5 горизонтальных слоёв из <code>ARCH_LAYERS</code>, и блоки распределены по этим слоям по полю <code>layer</code>. Сейчас: ✗ (графа без поля <code>layer</code>, всё валится в один контейнер).</li>
 <li><strong>KPI-3 (sync visibility)</strong>: при <code>syncCheck</code> блоки со статусом drift/broken визуально подсвечиваются на канвасе с причиной из <code>syncReport.details</code>. Сейчас: △ (логика есть в <code>atlas_sync.js</code>, но завязана только на наличие файлов).</li>
 <li><strong>KPI-4 (lifecycle gating)</strong>: кнопка Done на блоке заблокирована, пока не пройдены acceptance + kpi проверки. Сейчас: ✓ (логика <code>isReadyToDone</code> в <code>app_v2.jsx</code>).</li>
@@ -180,7 +180,7 @@ evidence_spec:
 </ul>
 <h1>b.core-sync — mission</h1>
 <p>Sync Engine — движок проверки синхронизации блоков продукта с миссией, KPI, стэком и кодом. Главная задача — детектить «рассинхрон»: код пишется в одном фреймворке, ТЗ говорит про другой; блок A объявляет, что зависит от capability X у блока B, а B такой capability не предоставляет; KPI задан, но в <code>checks.log</code> нет ни одной измеренной записи.</p>
-<p>Текущая реализация (<code>Sima (Remix)/atlas<em>sync.js</code> + <code>scripts/validate</em>*</code>) — каркас: проверяет наличие файлов, подсчитывает прогресс tasks/KPI, сравнивает <code>depends_on/provides</code>. Этого недостаточно для миссии «решить рассинхрон» — нужно семантическое сопоставление миссии блока с реализацией (требует LLM, PR3) и реальный анализ кода (PR4).</p>
+<p>Текущая реализация (<code>frontend/atlas<em>sync.js</code> + <code>scripts/validate</em>*</code>) — каркас: проверяет наличие файлов, подсчитывает прогресс tasks/KPI, сравнивает <code>depends_on/provides</code>. Этого недостаточно для миссии «решить рассинхрон» — нужно семантическое сопоставление миссии блока с реализацией (требует LLM, PR3) и реальный анализ кода (PR4).</p>
 <h2>Layer</h2>
 <p>logic</p>
 <h2>Что должен делать в done-версии (роадмап)</h2>
@@ -356,7 +356,7 @@ evidence_spec:
   cmd: node scripts/validate_cursor_hooks.mjs
   expect_in_stdout: "OK"</code></pre>
 <ul>
-<li>[x] <strong>A2 (afterFileEdit flow).</strong> При file-edit на <code>Sima (Remix)/app<em>v2.jsx</code> <code>observe</em>file<em>edit.mjs</code> находит owner-блок через <code>files.md</code> reverse-mapping и пишет <code>cursor</em>edit pass</code> в <code>b.ui-control/checks.log</code>. Зависимость на <code>files.md</code> атласа подтверждена <code>cursor<em>hooks</em>actions.test</code>.</li>
+<li>[x] <strong>A2 (afterFileEdit flow).</strong> При file-edit на <code>frontend/app<em>v2.jsx</code> <code>observe</em>file<em>edit.mjs</code> находит owner-блок через <code>files.md</code> reverse-mapping и пишет <code>cursor</em>edit pass</code> в <code>b.ui-control/checks.log</code>. Зависимость на <code>files.md</code> атласа подтверждена <code>cursor<em>hooks</em>actions.test</code>.</li>
 </ul>
 <pre><code class="lang-yaml">evidence_kind: selftest_run
 evidence_spec:
@@ -754,7 +754,7 @@ evidence_spec:
 </ul>
 <pre><code class="lang-yaml">evidence_kind: log_grep
 evidence_spec:
-  file: Sima (Remix)/proposals_panel.jsx
+  file: frontend/proposals_panel.jsx
   pattern: "complianceWithProfile"</code></pre>
 <ul>
 <li>[ ] <strong>A7.</strong> Privacy gate: <code>atlas/operator_profile/</code> упоминается в <code>.gitignore</code> (опц.) с пояснением в <code>atlas/rules.md</code>; никакого PII (имена / e-mail / API-ключи) не пишется в profile.json — selftest A1 проверяет regex.</li>
@@ -943,7 +943,7 @@ evidence_spec:
 </ul>
 <pre><code class="lang-yaml">evidence_kind: log_grep
 evidence_spec:
-  file: Sima (Remix)/arch_canvas.jsx
+  file: frontend/arch_canvas.jsx
   pattern: "AcceptanceSection"</code></pre>
 <ul>
 <li>[ ] <strong>A6.</strong> End-to-end smoke <code>tests/acceptance<em>verifier.e2e.smoke.mjs</code>: создать тестовый блок с 3 acceptance items (1 deterministic, 1 LLM-judge, 1 заведомо-fail) → run agent (mock) → verifier даёт verdict=fail с правильным <code>retry</em>prompt<em>hint</code> → <code>transition</em>block done</code> блокируется.</li>
@@ -997,7 +997,7 @@ evidence_spec:
 <h2>Layer</h2>
 <p>content</p>
 <h2>North Star</h2>
-<p>&gt; Когда <code>b.todo-ui</code> блок переходит в <code>done</code>, в проекте <code>demo-todo</code> появляется <code>docs/end-user/todo-ui.md</code> со скриншотом и пошаговой инструкцией, где каждое «нажми X» подтверждено реальным селектором из <code>Sima (Remix)/&lt;file&gt;.jsx</code> и реальным endpoint'ом из <code>b.todo-api</code>. Если кнопка переименована — туториал обновляется в следующий nightly.</p>
+<p>&gt; Когда <code>b.todo-ui</code> блок переходит в <code>done</code>, в проекте <code>demo-todo</code> появляется <code>docs/end-user/todo-ui.md</code> со скриншотом и пошаговой инструкцией, где каждое «нажми X» подтверждено реальным селектором из <code>frontend/&lt;file&gt;.jsx</code> и реальным endpoint'ом из <code>b.todo-api</code>. Если кнопка переименована — туториал обновляется в следующий nightly.</p>
 <hr/>
 <h2>Что наблюдается (источники данных)</h2>
 <p>| Источник | Что вытягивается |</p>
@@ -1007,7 +1007,7 @@ evidence_spec:
 <p>| Содержимое JSX/HTML файлов блока | список кнопок (<code>&lt;button&gt;</code>), полей (<code>&lt;input&gt;</code>), маршрутов, обработчиков |</p>
 <p>| <code>atlas/blocks/&lt;id&gt;/depends_on.md</code> | связанные API-блоки → endpoints, которые юзер косвенно дёргает |</p>
 <p>| <code>atlas/process<em>runs/cursor</em>observations/*</code> | какие user-flow реально проходились в IDE (если есть) |</p>
-<p>| <code>Sima (Remix)/screenshots/*.png</code> (если PR4.5+ генерится Playwright'ом) | визуал для встраивания |</p>
+<p>| <code>frontend/screenshots/*.png</code> (если PR4.5+ генерится Playwright'ом) | визуал для встраивания |</p>
 <p>| <code>atlas/blocks/&lt;id&gt;/patterns.md</code> | gotchas / edge cases, которые стоит упомянуть |</p>
 <p>| <code>atlas/projects/&lt;proj&gt;/user_stories/*.md</code> (если b.user-stories блок есть) | язык целевой аудитории, jobs-to-be-done |</p>
 <h2>Что сохраняется (output, файлы)</h2>

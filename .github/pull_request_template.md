@@ -33,7 +33,7 @@
 
 ## Затронутые слои
 
-- [ ] UI canvas (`Sima (Remix)/atlas_design/`)
+- [ ] UI canvas (`frontend/atlas_design/`)
 - [ ] MCP-сервер (`scripts/mcp_atlas_server.mjs`)
 - [ ] HTTP API (`scripts/atlas_api_server.mjs`)
 - [ ] LLM gateway (`scripts/llm_gateway.mjs`)

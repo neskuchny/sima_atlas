@@ -10,7 +10,7 @@
 content
 
 ## North Star
-> Когда `b.todo-ui` блок переходит в `done`, в проекте `demo-todo` появляется `docs/end-user/todo-ui.md` со скриншотом и пошаговой инструкцией, где каждое «нажми X» подтверждено реальным селектором из `Sima (Remix)/<file>.jsx` и реальным endpoint'ом из `b.todo-api`. Если кнопка переименована — туториал обновляется в следующий nightly.
+> Когда `b.todo-ui` блок переходит в `done`, в проекте `demo-todo` появляется `docs/end-user/todo-ui.md` со скриншотом и пошаговой инструкцией, где каждое «нажми X» подтверждено реальным селектором из `frontend/<file>.jsx` и реальным endpoint'ом из `b.todo-api`. Если кнопка переименована — туториал обновляется в следующий nightly.
 
 ---
 
@@ -23,7 +23,7 @@ content
 | Содержимое JSX/HTML файлов блока | список кнопок (`<button>`), полей (`<input>`), маршрутов, обработчиков |
 | `atlas/blocks/<id>/depends_on.md` | связанные API-блоки → endpoints, которые юзер косвенно дёргает |
 | `atlas/process_runs/cursor_observations/*` | какие user-flow реально проходились в IDE (если есть) |
-| `Sima (Remix)/screenshots/*.png` (если PR4.5+ генерится Playwright'ом) | визуал для встраивания |
+| `frontend/screenshots/*.png` (если PR4.5+ генерится Playwright'ом) | визуал для встраивания |
 | `atlas/blocks/<id>/patterns.md` | gotchas / edge cases, которые стоит упомянуть |
 | `atlas/projects/<proj>/user_stories/*.md` (если b.user-stories блок есть) | язык целевой аудитории, jobs-to-be-done |
 

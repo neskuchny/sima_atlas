@@ -4,7 +4,7 @@
 с Клод-дизайнером, и что добавилось как новые задачи. **Ничего не забываем.**
 
 Источники:
-- `Sima (Remix)/uploads/sima_claude_design.pdf` — переписка с Клод-дизайнером
+- `frontend/uploads/sima_claude_design.pdf` — переписка с Клод-дизайнером
   (артефакты, drill-into-block, exclamation-marks, Claude-rewrite, iteration loop).
 - `atlas/blocks/*/mission.md` — старый функционал, разложенный по блокам.
 - Phase A (commit `a136c91`) / Phase B (`98de36f`) / Phase C (`88d4424`).

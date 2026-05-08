@@ -550,7 +550,7 @@ const server = http.createServer((req, res) => {
       // Re-run the bootstrap generator on demand so /atlas/payload always
       // reflects on-disk truth (including newly created blocks / subschemas).
       runNode(['scripts/generate_atlas_bootstrap_js.mjs']);
-      const bootstrapPath = path.join(ROOT, 'Sima (Remix)', 'atlas_bootstrap.js');
+      const bootstrapPath = path.join(ROOT, 'frontend', 'atlas_bootstrap.js');
       const src = fs.readFileSync(bootstrapPath, 'utf8');
       const m = src.match(/window\.SIMA_BOOTSTRAP\s*=\s*(\{[\s\S]*?\});\s*\n\n\/\/ Inject/);
       if (!m) return json(res, 500, { ok: false, error: 'bootstrap payload not parseable' });

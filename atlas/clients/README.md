@@ -60,4 +60,4 @@ For now the design tool is **read-only against the live data**. Edits
 made in the UI (drag, status change, edge add) live in component state
 only. Writing back to `atlas/clients/<id>/graph.json` is the next PR;
 the existing Accept/Reject proposals flow + sidecol editor in the main
-Sima (Remix) UI is the canonical write path until then.
+frontend UI is the canonical write path until then.

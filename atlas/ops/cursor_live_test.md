@@ -99,7 +99,7 @@ Run the Atlas API server in a second terminal:
 
 ```sh
 node scripts/atlas_api_server.mjs &
-python3 -m http.server 8000 --directory "Sima (Remix)" &
+python3 -m http.server 8000 --directory "frontend" &
 ```
 
 Open `http://localhost:8000/index.html` in a browser.

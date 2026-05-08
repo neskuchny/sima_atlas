@@ -9,7 +9,7 @@ evidence_spec:
   cmd: node scripts/validate_cursor_hooks.mjs
   expect_in_stdout: "OK"
 ```
-- [x] **A2 (afterFileEdit flow).** При file-edit на `Sima (Remix)/app_v2.jsx` `observe_file_edit.mjs` находит owner-блок через `files.md` reverse-mapping и пишет `cursor_edit pass` в `b.ui-control/checks.log`. Зависимость на `files.md` атласа подтверждена `cursor_hooks_actions.test`.
+- [x] **A2 (afterFileEdit flow).** При file-edit на `frontend/app_v2.jsx` `observe_file_edit.mjs` находит owner-блок через `files.md` reverse-mapping и пишет `cursor_edit pass` в `b.ui-control/checks.log`. Зависимость на `files.md` атласа подтверждена `cursor_hooks_actions.test`.
 ```yaml
 evidence_kind: selftest_run
 evidence_spec:

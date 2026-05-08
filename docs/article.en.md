@@ -387,7 +387,7 @@ REST routes around `atlas/`. Main groups:
 
 All endpoints return `200 + {ok: false, error}` instead of HTTP 4xx — this avoids CORS-mangled errors, simplifies the UI, and gives a uniform error contract.
 
-### Layer 3 — UI (`Sima (Remix)/atlas_design/`)
+### Layer 3 — UI (`frontend/atlas_design/`)
 
 A React canvas with drag-and-drop blocks, coloured layers, status filters, predictive validation. Under the hood — plain SVG + React hooks, no Redux. Data source: `data_loader.js` polls the API and keeps `window.SIMA_DATA` fresh.
 

@@ -1,3 +1,3 @@
 # b.composer — files
 
-- Sima (Remix)/composer.jsx [alive]
+- frontend/composer.jsx [alive]

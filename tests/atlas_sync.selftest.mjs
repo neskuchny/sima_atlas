@@ -10,7 +10,7 @@ function createStorage() {
   };
 }
 
-const code = fs.readFileSync('Sima (Remix)/atlas_sync.js', 'utf8');
+const code = fs.readFileSync('frontend/atlas_sync.js', 'utf8');
 const sandbox = {
   window: {},
   localStorage: createStorage(),

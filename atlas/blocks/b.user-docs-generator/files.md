@@ -24,9 +24,9 @@
 PR-4 also touches files owned by other blocks (cross-cutting; documented
 in checks.log + tasks.md):
 
-  • `Sima (Remix)/arch_canvas.jsx` (owned by b.ui-control) gained
+  • `frontend/arch_canvas.jsx` (owned by b.ui-control) gained
     UserDocsLink component
-  • `Sima (Remix)/proposals_panel.jsx` (owned by b.llm-gateway) gained
+  • `frontend/proposals_panel.jsx` (owned by b.llm-gateway) gained
     user_docs_locked card branch
   • `scripts/generate_atlas_bootstrap_js.mjs` (owned by b.ui-control)
     now exposes userDocsByBlock

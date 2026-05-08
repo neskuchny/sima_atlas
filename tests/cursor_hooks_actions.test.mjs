@@ -52,7 +52,7 @@ const obsBefore = fs.existsSync(OBS_DIR) ? new Set(fs.readdirSync(OBS_DIR)) : ne
 try {
   // ─── Test 1: observe_file_edit on a known b.ui-control file ───────────
   {
-    const r = runNode('scripts/observe_file_edit.mjs', ['Sima (Remix)/app_v2.jsx']);
+    const r = runNode('scripts/observe_file_edit.mjs', ['frontend/app_v2.jsx']);
     eq('observe.known: exit 0', r.status === 0, `stderr=${r.stderr}`);
     const log = fs.readFileSync(path.join(BLOCKS, 'b.ui-control', 'checks.log'), 'utf8');
     eq('observe.known: cursor_edit line appended to b.ui-control', /cursor_edit\tpass\t.*app_v2\.jsx/.test(log));

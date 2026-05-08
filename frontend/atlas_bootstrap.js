@@ -502,11 +502,11 @@ window.SIMA_BOOTSTRAP = {
                 "body": "Визуальная control plane Симы: один React-канвас, в котором человек видит схему продукта (слои, блоки, связи), статус каждого блока (idea/wip/review/done/broken/drift), запускает д",
                 "hasSubschema": true,
                 "sources": [
-                  "Sima (Remix)/Сима - универсальный конструктор.html [alive]",
-                  "Sima (Remix)/index.html [alive] (PR4.1: ASCII alias for python http.server compatibility)",
-                  "index.html [alive] (PR4.1: repo-root redirect to Sima (Remix)/index.html)",
-                  "Sima (Remix)/app_v2.jsx [alive]",
-                  "Sima (Remix)/arch_canvas.jsx [alive]"
+                  "frontend/Сима - универсальный конструктор.html [alive]",
+                  "frontend/index.html [alive] (PR4.1: ASCII alias for python http.server compatibility)",
+                  "index.html [alive] (PR4.1: repo-root redirect to frontend/index.html)",
+                  "frontend/app_v2.jsx [alive]",
+                  "frontend/arch_canvas.jsx [alive]"
                 ]
               },
               {
@@ -528,7 +528,7 @@ window.SIMA_BOOTSTRAP = {
                 "body": "Sync Engine — движок проверки синхронизации блоков продукта с миссией, KPI, стэком и кодом.",
                 "hasSubschema": false,
                 "sources": [
-                  "Sima (Remix)/atlas_sync.js [alive] (client-side syncCheck + transitions)",
+                  "frontend/atlas_sync.js [alive] (client-side syncCheck + transitions)",
                   "scripts/validate_block_contracts.mjs [alive]",
                   "scripts/validate_dependency_contracts.mjs [alive]",
                   "scripts/validate_acceptance_assertions.mjs [alive]",
@@ -1597,7 +1597,7 @@ window.SIMA_BOOTSTRAP = {
                 "body": "SVG-канвас архитектурной схемы: рисует горизонтальные слои, блоки с портами, связи depends_on/data/path.",
                 "hasSubschema": false,
                 "sources": [
-                  "Sima (Remix)/arch_canvas.jsx [alive]"
+                  "frontend/arch_canvas.jsx [alive]"
                 ]
               },
               {
@@ -1608,7 +1608,7 @@ window.SIMA_BOOTSTRAP = {
                 "body": "Правая панель инспектора блока: показывает mission/kpi/acceptance + lifecycle-кнопки (Implement/Review/Done/Rollback) + Run agent (PR4.",
                 "hasSubschema": false,
                 "sources": [
-                  "Sima (Remix)/arch_canvas.jsx [alive]"
+                  "frontend/arch_canvas.jsx [alive]"
                 ]
               },
               {
@@ -1619,7 +1619,7 @@ window.SIMA_BOOTSTRAP = {
                 "body": "Pop-up панель настроек UI: density / accent / canvas grid / artefacts view.",
                 "hasSubschema": false,
                 "sources": [
-                  "Sima (Remix)/tweaks-panel.jsx [alive]"
+                  "frontend/tweaks-panel.jsx [alive]"
                 ]
               },
               {
@@ -1630,7 +1630,7 @@ window.SIMA_BOOTSTRAP = {
                 "body": "Композитор задач для агентов: composer.",
                 "hasSubschema": false,
                 "sources": [
-                  "Sima (Remix)/composer.jsx [alive]"
+                  "frontend/composer.jsx [alive]"
                 ]
               },
               {
@@ -1641,7 +1641,7 @@ window.SIMA_BOOTSTRAP = {
                 "body": "Sidecol-панель PR3.5: рисует pending LLM-предложения по существующим блокам с цветным diff'ом и кнопками Accept/Reject.",
                 "hasSubschema": false,
                 "sources": [
-                  "Sima (Remix)/proposals_panel.jsx [alive]"
+                  "frontend/proposals_panel.jsx [alive]"
                 ]
               },
               {
@@ -1652,7 +1652,7 @@ window.SIMA_BOOTSTRAP = {
                 "body": "Клиентская state machine: загружает atlas/<projId>/ из bootstrap, делает syncCheck (issues для drift/broken), persists в localStorage.",
                 "hasSubschema": false,
                 "sources": [
-                  "Sima (Remix)/atlas_sync.js [alive]"
+                  "frontend/atlas_sync.js [alive]"
                 ]
               }
             ],
@@ -1800,11 +1800,11 @@ window.SIMA_BOOTSTRAP = {
           "w": 210,
           "note": "Визуальная control plane Симы: один React-канвас, в котором человек видит схему продукта (слои, блоки, связи), статус каждого блока (idea/wip/review/done/broken/drift), запускает д",
           "sources": [
-            "Sima (Remix)/Сима - универсальный конструктор.html [alive]",
-            "Sima (Remix)/index.html [alive] (PR4.1: ASCII alias for python http.server compatibility)",
-            "index.html [alive] (PR4.1: repo-root redirect to Sima (Remix)/index.html)",
-            "Sima (Remix)/app_v2.jsx [alive]",
-            "Sima (Remix)/arch_canvas.jsx [alive]"
+            "frontend/Сима - универсальный конструктор.html [alive]",
+            "frontend/index.html [alive] (PR4.1: ASCII alias for python http.server compatibility)",
+            "index.html [alive] (PR4.1: repo-root redirect to frontend/index.html)",
+            "frontend/app_v2.jsx [alive]",
+            "frontend/arch_canvas.jsx [alive]"
           ],
           "tech_stack": [
             "react",
@@ -1841,7 +1841,7 @@ window.SIMA_BOOTSTRAP = {
           "w": 210,
           "note": "Sync Engine — движок проверки синхронизации блоков продукта с миссией, KPI, стэком и кодом.",
           "sources": [
-            "Sima (Remix)/atlas_sync.js [alive] (client-side syncCheck + transitions)",
+            "frontend/atlas_sync.js [alive] (client-side syncCheck + transitions)",
             "scripts/validate_block_contracts.mjs [alive]",
             "scripts/validate_dependency_contracts.mjs [alive]",
             "scripts/validate_acceptance_assertions.mjs [alive]",
@@ -2506,7 +2506,7 @@ window.SIMA_BOOTSTRAP = {
           "w": 210,
           "note": "SVG-канвас архитектурной схемы: рисует горизонтальные слои, блоки с портами, связи depends_on/data/path.",
           "sources": [
-            "Sima (Remix)/arch_canvas.jsx [alive]"
+            "frontend/arch_canvas.jsx [alive]"
           ],
           "tech_stack": [
             "react",
@@ -2526,7 +2526,7 @@ window.SIMA_BOOTSTRAP = {
           "w": 210,
           "note": "Правая панель инспектора блока: показывает mission/kpi/acceptance + lifecycle-кнопки (Implement/Review/Done/Rollback) + Run agent (PR4.",
           "sources": [
-            "Sima (Remix)/arch_canvas.jsx [alive]"
+            "frontend/arch_canvas.jsx [alive]"
           ],
           "tech_stack": [
             "react"
@@ -2545,7 +2545,7 @@ window.SIMA_BOOTSTRAP = {
           "w": 210,
           "note": "Pop-up панель настроек UI: density / accent / canvas grid / artefacts view.",
           "sources": [
-            "Sima (Remix)/tweaks-panel.jsx [alive]"
+            "frontend/tweaks-panel.jsx [alive]"
           ],
           "tech_stack": [
             "react"
@@ -2564,7 +2564,7 @@ window.SIMA_BOOTSTRAP = {
           "w": 210,
           "note": "Композитор задач для агентов: composer.",
           "sources": [
-            "Sima (Remix)/composer.jsx [alive]"
+            "frontend/composer.jsx [alive]"
           ],
           "tech_stack": [
             "react"
@@ -2583,7 +2583,7 @@ window.SIMA_BOOTSTRAP = {
           "w": 210,
           "note": "Sidecol-панель PR3.5: рисует pending LLM-предложения по существующим блокам с цветным diff'ом и кнопками Accept/Reject.",
           "sources": [
-            "Sima (Remix)/proposals_panel.jsx [alive]"
+            "frontend/proposals_panel.jsx [alive]"
           ],
           "tech_stack": [
             "react"
@@ -2602,7 +2602,7 @@ window.SIMA_BOOTSTRAP = {
           "w": 210,
           "note": "Клиентская state machine: загружает atlas/<projId>/ из bootstrap, делает syncCheck (issues для drift/broken), persists в localStorage.",
           "sources": [
-            "Sima (Remix)/atlas_sync.js [alive]"
+            "frontend/atlas_sync.js [alive]"
           ],
           "tech_stack": [
             "javascript"
@@ -2835,7 +2835,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": false,
           "verdict": "pass",
           "evidence_kind": "log_grep",
-          "evidence": "grep /AcceptanceSection/ Sima (Remix)/arch_canvas.jsx → 3 matches; first: \"      <AcceptanceSection blockId={block.id}/>\"",
+          "evidence": "grep /AcceptanceSection/ frontend/arch_canvas.jsx → 3 matches; first: \"      <AcceptanceSection blockId={block.id}/>\"",
           "reasoning": "3 matching lines found"
         },
         {
@@ -2892,7 +2892,7 @@ window.SIMA_BOOTSTRAP = {
         {
           "id": "A2",
           "label": "afterFileEdit flow",
-          "text": "При file-edit на `Sima (Remix)/app_v2.jsx` `observe_file_edit.mjs` находит owner-блок через `files.md` reverse-mapping и пишет `cursor_edit pass` в `b.ui-control/checks.log`. Зависимость на `files.md` атласа подтверждена `cursor_hooks_actions.test`.",
+          "text": "При file-edit на `frontend/app_v2.jsx` `observe_file_edit.mjs` находит owner-блок через `files.md` reverse-mapping и пишет `cursor_edit pass` в `b.ui-control/checks.log`. Зависимость на `files.md` атласа подтверждена `cursor_hooks_actions.test`.",
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
@@ -3261,7 +3261,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": false,
           "verdict": "pass",
           "evidence_kind": "log_grep",
-          "evidence": "grep /complianceWithProfile/ Sima (Remix)/proposals_panel.jsx → 2 matches; first: \"function complianceWithProfile(proposal) {\"",
+          "evidence": "grep /complianceWithProfile/ frontend/proposals_panel.jsx → 2 matches; first: \"function complianceWithProfile(proposal) {\"",
           "reasoning": "2 matching lines found"
         },
         {

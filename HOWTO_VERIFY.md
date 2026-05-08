@@ -56,9 +56,9 @@ node scripts/nightly_consolidation.mjs
 # Регенерируем bootstrap из atlas/graph.json
 node scripts/generate_atlas_bootstrap_js.mjs
 # Затем открываем UI в браузере
-open "Sima (Remix)/Сима - универсальный конструктор.html"  # macOS
+open "frontend/Сима - универсальный конструктор.html"  # macOS
 # или
-xdg-open "Sima (Remix)/Сима - универсальный конструктор.html"  # Linux
+xdg-open "frontend/Сима - универсальный конструктор.html"  # Linux
 ```
 
 Что должно быть видно:
@@ -149,10 +149,10 @@ node tests/cursor_hooks_actions.test.mjs
 
 ```bash
 # 6.1. observe_file_edit маппит файл → блок
-node scripts/observe_file_edit.mjs "Sima (Remix)/app_v2.jsx"
-# observe_file_edit: Sima (Remix)/app_v2.jsx → b.ui-control
+node scripts/observe_file_edit.mjs "frontend/app_v2.jsx"
+# observe_file_edit: frontend/app_v2.jsx → b.ui-control
 tail -1 atlas/blocks/b.ui-control/checks.log
-# 2026-... cursor_edit pass Sima (Remix)/app_v2.jsx :: ...
+# 2026-... cursor_edit pass frontend/app_v2.jsx :: ...
 
 # 6.2. guard блокирует pip install
 node scripts/guard_against_drift.mjs "pip install neo4j"
@@ -266,11 +266,11 @@ node scripts/validate_no_template_placeholders.mjs
 # Ловит «Ключевая цель блока» → exit 1
 
 # Удалённый alive-файл в files.md
-git mv "Sima (Remix)/app_v2.jsx" "Sima (Remix)/_app_v2.jsx.bak"
+git mv "frontend/app_v2.jsx" "frontend/_app_v2.jsx.bak"
 node scripts/validate_files_registry.mjs
 # Files registry validation FAILED:
-#  ✗ b.ui-control: alive file missing → Sima (Remix)/app_v2.jsx
-git mv "Sima (Remix)/_app_v2.jsx.bak" "Sima (Remix)/app_v2.jsx"   # восстановить
+#  ✗ b.ui-control: alive file missing → frontend/app_v2.jsx
+git mv "frontend/_app_v2.jsx.bak" "frontend/app_v2.jsx"   # восстановить
 
 # Запрещённая команда → блокируется guard'ом
 node scripts/guard_against_drift.mjs "pip install neo4j"
@@ -305,7 +305,7 @@ python -m http.server 8080
 #   http://localhost:8080/atlas/wiki.html               ← Mermaid wiki
 ```
 
-В корне репо лежит `index.html`-редирект, в `Sima (Remix)/index.html` — ASCII-алиас оригинального файла с кириллическим именем (Python http.server плохо отдаёт URL-encoded UTF-8 пути).
+В корне репо лежит `index.html`-редирект, в `frontend/index.html` — ASCII-алиас оригинального файла с кириллическим именем (Python http.server плохо отдаёт URL-encoded UTF-8 пути).
 
 ### Передать диалог analyze без temp-файла
 
@@ -354,6 +354,6 @@ node scripts/llm_check.mjs
 
 ```bash
 git status
-git checkout -- atlas/ "Sima (Remix)/atlas_bootstrap.js"
+git checkout -- atlas/ "frontend/atlas_bootstrap.js"
 git clean -fd atlas/llm_traces/ atlas/process_runs/
 ```
