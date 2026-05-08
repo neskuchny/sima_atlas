@@ -241,6 +241,50 @@ html, body {
 }
 .rail-empty-cta:hover { background: var(--card); border-color: var(--ink-3); color: var(--ink); }
 .rail-empty-cta-icon { font-size: 14px; flex-shrink: 0; }
+
+/* R-7.69 — Overview tab live contract sections */
+.ov-section {
+  padding: 12px 0;
+  border-bottom: 1px dashed var(--rule);
+}
+.ov-section:last-of-type { border-bottom: 0; }
+.ov-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px; gap: 8px;
+}
+.ov-head h3 {
+  margin: 0;
+  display: flex; align-items: baseline; gap: 8px;
+}
+.ov-file {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: var(--ink-4);
+  font-weight: normal; letter-spacing: 0.04em;
+}
+.ov-edit-link {
+  background: transparent; border: 1px solid var(--rule);
+  width: 24px; height: 24px; border-radius: 4px;
+  cursor: pointer; color: var(--ink-3); font-size: 12px;
+}
+.ov-edit-link:hover { background: var(--card-2); color: var(--ink); }
+.ov-badge {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  padding: 2px 8px; border-radius: 10px;
+  background: var(--card-2); color: var(--ink-2);
+  border: 1px solid var(--rule);
+}
+.ov-kpi-list { display: flex; flex-direction: column; gap: 4px; }
+.ov-kpi-row {
+  font-size: 12.5px; line-height: 1.4; color: var(--ink-2);
+  padding: 4px 0; border-bottom: 1px dashed var(--rule);
+}
+.ov-kpi-row:last-child { border-bottom: 0; }
+.ov-deps-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.ov-deps-label {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  color: var(--ink-4); letter-spacing: 0.06em;
+  text-transform: uppercase; margin-bottom: 4px;
+}
 .rail {
   grid-area: rail;
   border-right: 1px solid var(--rule);
