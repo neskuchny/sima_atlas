@@ -84,6 +84,34 @@
       'canvas.hint_kbd':          '2×клик',
       'canvas.empty_state':       'Канвас пуст — это ожидаемо. Создайте проект, чтобы Sima могла читать и писать в',
 
+      // ── Demo activity log (when liveActivity is on) ─────
+      'demo.datasets':            '[demo] datasets: уточнил RLS политику',
+      'demo.funnel':              '[demo] charts/funnel: добавлен conversion-tooltip',
+      'demo.wiki':                '[demo] обновил wiki: dashboard.tile-editor',
+      'demo.tests':               '[demo] tests: прогон unit · 312/312 ok',
+      'demo.observ':              '[demo] observ: добавил трейс на /v1/query',
+
+      // ── Onboarding (K1 5-step tour) ─────────────────────
+      'onb.s1_eyebrow':           'sima atlas · 30 секунд',
+      'onb.s1_title':             'Это карта вашего продукта.',
+      'onb.s1_body':              'Каждый блок — модуль. Цвет точки и полоска снизу = статус. Стрелки — кто кого использует. AI-агенты получают контекст именно нужного блока, не всю кодовую базу.',
+      'onb.s2_eyebrow':           'шаг 2 / 5 · детали блока',
+      'onb.s2_title':             'Кликайте по блокам.',
+      'onb.s2_body':              'Один клик — справа открывается детальная панель: Обзор · Контракт · Задачи · Запуски · Приёмка · Подмодули · Память · Связи. Двойной клик — провалиться внутрь блока (если есть подсхема).',
+      'onb.s2_tip':               'Попробуйте кликнуть по любому блоку →',
+      'onb.s3_eyebrow':           'шаг 3 / 5 · агенты',
+      'onb.s3_title':             'Отправьте блок в Claude / Cursor / Codex.',
+      'onb.s3_body':              'В детальной панели «Запуски» — «Запустить блок →». Sima соберёт контекст-пак, спавнит агента в фоновом workspace, показывает живой лог + acceptance verdict. Если упало — «↻ Исправить и перезапустить».',
+      'onb.s3_tip':               'Симфония FSM: PreparingWorkspace → LaunchingAgent → Running → Verifying → Succeeded.',
+      'onb.s4_eyebrow':           'шаг 4 / 5 · артефакты',
+      'onb.s4_title':             'Любой источник → артефакт.',
+      'onb.s4_body':              'В шапке ＋ Артефакт: вставьте транскрипт встречи / документ / ссылку → Sima извлечёт цели · ограничения · идеи · риски · термины, а потом предложит блоки на их основе. Принял → блок создан с готовыми mission/kpi/acceptance.',
+      'onb.s4_tip':               '⊞ Галерея — все ваши артефакты, ⌘ Библиотека — переиспользуемые блоки.',
+      'onb.s5_eyebrow':           'шаг 5 / 5 · ⌘K + ✨ Sima',
+      'onb.s5_title':             'Пара клавиш — и всё под рукой.',
+      'onb.s5_body':              '⌘K (или Ctrl+K) — палитра команд: создать модуль, открыть галерею, ТЗ, шаблоны. Восклицательный знак ! на блоке — контракт неполон. ✨ Совет Клода в шапке — Sima посмотрит на весь граф и подскажет следующий шаг. Ctrl+Z — отмена.',
+      'onb.s5_tip':               'Готово, поехали.',
+
       // ── Layer picker ────────────────────────────────────
       'layer.picker_label':       'Слой',
       'layer.backend':            'Backend',
@@ -727,6 +755,34 @@
       'canvas.hint':              '— go inside the module · drag from edge dots to another node — connection · click an edge — delete',
       'canvas.hint_kbd':          'dbl-click',
       'canvas.empty_state':       'Canvas is empty — that\'s expected. Create a project so Sima can read and write to',
+
+      // ── Demo activity log (when liveActivity is on) ─────
+      'demo.datasets':            '[demo] datasets: refined RLS policy',
+      'demo.funnel':              '[demo] charts/funnel: added conversion-tooltip',
+      'demo.wiki':                '[demo] updated wiki: dashboard.tile-editor',
+      'demo.tests':               '[demo] tests: unit run · 312/312 ok',
+      'demo.observ':              '[demo] observ: added trace on /v1/query',
+
+      // ── Onboarding (K1 5-step tour) ─────────────────────
+      'onb.s1_eyebrow':           'sima atlas · 30 seconds',
+      'onb.s1_title':             'This is your product map.',
+      'onb.s1_body':              'Each block is a module. The dot color and bottom strip = status. Arrows show who uses whom. AI agents get context of the exact block they need, not the whole codebase.',
+      'onb.s2_eyebrow':           'step 2 / 5 · block details',
+      'onb.s2_title':             'Click on blocks.',
+      'onb.s2_body':              'A single click opens the detail panel on the right: Overview · Contract · Tasks · Runs · Acceptance · Submodules · Memory · Connections. Double-click drills into a block (if it has a subgraph).',
+      'onb.s2_tip':               'Try clicking any block →',
+      'onb.s3_eyebrow':           'step 3 / 5 · agents',
+      'onb.s3_title':             'Send a block to Claude / Cursor / Codex.',
+      'onb.s3_body':              'In the «Runs» tab — «Run block →». Sima packs the context, spawns the agent in a background workspace, streams live logs + acceptance verdict. If it fails — «↻ Fix and rerun».',
+      'onb.s3_tip':               'FSM symphony: PreparingWorkspace → LaunchingAgent → Running → Verifying → Succeeded.',
+      'onb.s4_eyebrow':           'step 4 / 5 · artifacts',
+      'onb.s4_title':             'Any source → artifact.',
+      'onb.s4_body':              'In the toolbar — ＋ Artifact: paste a meeting transcript / document / link → Sima extracts goals · constraints · ideas · risks · terms, then proposes blocks based on them. Accept → block is created with ready mission / kpi / acceptance.',
+      'onb.s4_tip':               '⊞ Gallery — all your artifacts; ⌘ Library — reusable blocks.',
+      'onb.s5_eyebrow':           'step 5 / 5 · ⌘K + ✨ Sima',
+      'onb.s5_title':             'A couple of keys — everything at hand.',
+      'onb.s5_body':              '⌘K (or Ctrl+K) — command palette: create a block, open gallery, spec, templates. The ! mark on a block — contract is incomplete. ✨ Claude advice in the toolbar — Sima looks at the whole graph and suggests the next step. Ctrl+Z — undo.',
+      'onb.s5_tip':               'Ready, let\'s go.',
 
       // ── Layer picker ────────────────────────────────────
       'layer.picker_label':       'Layer',

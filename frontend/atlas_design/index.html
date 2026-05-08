@@ -4,14 +4,14 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Sima Atlas — visual contract-first development for AI agents</title>
-<link rel="stylesheet" href="styles.css?v=r7-56" />
+<link rel="stylesheet" href="styles.css?v=r7-59" />
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 <!-- R-7.28: markdown renderer for contract bodies (mission.md / kpi.md / acceptance.md etc.) -->
 <script src="https://cdn.jsdelivr.net/npm/marked@13.0.3/marked.min.js"></script>
 <!-- R-7.52: i18n must load BEFORE jsx components so window.__SIMA_T is defined when React renders -->
-<script src="i18n.js?v=r7-56"></script>
+<script src="i18n.js?v=r7-59"></script>
 </head>
 <body>
 <div id="root"></div>
@@ -26,12 +26,12 @@
        `sima-data-changed` CustomEvent so the React tree can react. Set
        window.SIMA_API_BASE before this script loads to point at a
        remote backend in production. -->
-<script src="data_static.js?v=r7-56"></script>
-<script src="data_loader.js?v=r7-56"></script>
-<script type="text/babel" src="tweaks-panel.jsx?v=r7-56"></script>
-<script type="text/babel" src="graph.jsx?v=r7-56"></script>
-<script type="text/babel" src="panels.jsx?v=r7-56"></script>
-<script type="text/babel" src="views.jsx?v=r7-56"></script>
+<script src="data_static.js?v=r7-59"></script>
+<script src="data_loader.js?v=r7-59"></script>
+<script type="text/babel" src="tweaks-panel.jsx?v=r7-59"></script>
+<script type="text/babel" src="graph.jsx?v=r7-59"></script>
+<script type="text/babel" src="panels.jsx?v=r7-59"></script>
+<script type="text/babel" src="views.jsx?v=r7-59"></script>
 <script type="text/babel">
 const { useState, useEffect, useRef, useMemo, useCallback } = React;
 
@@ -497,12 +497,13 @@ function App() {
   // are actually doing something. Flip on via tweaks-panel for the demo.
   useEffect(() => {
     if (!tweaks.liveActivity) return;
+    const tt = window.__SIMA_T || ((_, fb) => fb);
     const lines = [
-      { agent: 'Cursor',      kind: 'note', msg: '[demo] datasets: уточнил RLS политику', flash: 'datasets' },
-      { agent: 'Claude Code', kind: 'ok',   msg: '[demo] charts/funnel: добавлен conversion-tooltip', flash: 'charts' },
-      { agent: 'SIMA Core',   kind: 'info', msg: '[demo] обновил wiki: dashboard.tile-editor', flash: 'dashboard' },
-      { agent: 'Codex',       kind: 'note', msg: '[demo] tests: прогон unit · 312/312 ok', flash: 'tests' },
-      { agent: 'Cursor',      kind: 'ok',   msg: '[demo] observ: добавил трейс на /v1/query', flash: 'observ' },
+      { agent: 'Cursor',      kind: 'note', msg: tt('demo.datasets', '[demo] datasets: refined RLS policy'),     flash: 'datasets' },
+      { agent: 'Claude Code', kind: 'ok',   msg: tt('demo.funnel',   '[demo] charts/funnel: added conversion-tooltip'), flash: 'charts' },
+      { agent: 'SIMA Core',   kind: 'info', msg: tt('demo.wiki',     '[demo] updated wiki: dashboard.tile-editor'), flash: 'dashboard' },
+      { agent: 'Codex',       kind: 'note', msg: tt('demo.tests',    '[demo] tests: unit run · 312/312 ok'),       flash: 'tests' },
+      { agent: 'Cursor',      kind: 'ok',   msg: tt('demo.observ',   '[demo] observ: added trace on /v1/query'),    flash: 'observ' },
     ];
     let i = 0;
     const t = setInterval(() => {
@@ -1663,36 +1664,37 @@ function App() {
       {onboarding && (() => {
         // K1 — interactive 5-step tour. Each step targets one UI surface
         // and (when applicable) places a "spotlight" hint near it.
+        const tT = window.__SIMA_T || ((_, fb) => fb);
         const steps = [
           {
-            eyebrow: 'sima atlas · 30 секунд',
-            title: 'Это карта вашего продукта.',
-            body: <>Каждый блок — модуль. Цвет точки и полоска снизу = статус. Стрелки — кто кого использует. AI-агенты получают контекст <em>именно нужного</em> блока, не всю кодовую базу.</>,
+            eyebrow: tT('onb.s1_eyebrow', 'sima atlas · 30 seconds'),
+            title:   tT('onb.s1_title',   'This is your product map.'),
+            body:    tT('onb.s1_body',    'Each block is a module. The dot color and bottom strip = status. Arrows show who uses whom. AI agents get context of the exact block they need, not the whole codebase.'),
             tip: null,
           },
           {
-            eyebrow: 'шаг 2 / 5 · детали блока',
-            title: 'Кликайте по блокам.',
-            body: <>Один клик — справа открывается детальная панель: <strong>Обзор · Контракт · Задачи · Запуски · Приёмка · Подмодули · Память · Связи</strong>. Двойной клик — провалиться внутрь блока (если есть подсхема).</>,
-            tip: 'Попробуйте кликнуть по любому блоку →',
+            eyebrow: tT('onb.s2_eyebrow', 'step 2 / 5 · block details'),
+            title:   tT('onb.s2_title',   'Click on blocks.'),
+            body:    tT('onb.s2_body',    'A single click opens the detail panel on the right: Overview · Contract · Tasks · Runs · Acceptance · Submodules · Memory · Connections. Double-click drills into a block (if it has a subgraph).'),
+            tip:     tT('onb.s2_tip',     'Try clicking any block →'),
           },
           {
-            eyebrow: 'шаг 3 / 5 · агенты',
-            title: 'Отправьте блок в Claude / Cursor / Codex.',
-            body: <>В детальной панели «Запуски» — <strong>«Запустить блок →»</strong>. Sima соберёт контекст-пак, спавнит агента в фоновом workspace, показывает живой лог + acceptance verdict. Если упало — <strong>«↻ Исправить и перезапустить»</strong>.</>,
-            tip: 'Симфония FSM: PreparingWorkspace → LaunchingAgent → Running → Verifying → Succeeded.',
+            eyebrow: tT('onb.s3_eyebrow', 'step 3 / 5 · agents'),
+            title:   tT('onb.s3_title',   'Send a block to Claude / Cursor / Codex.'),
+            body:    tT('onb.s3_body',    'In the «Runs» tab — «Run block →». Sima packs the context, spawns the agent in a background workspace, streams live logs + acceptance verdict. If it fails — «↻ Fix and rerun».'),
+            tip:     tT('onb.s3_tip',     'FSM symphony: PreparingWorkspace → LaunchingAgent → Running → Verifying → Succeeded.'),
           },
           {
-            eyebrow: 'шаг 4 / 5 · артефакты',
-            title: 'Любой источник → артефакт.',
-            body: <>В шапке <strong>＋ Артефакт</strong>: вставьте транскрипт встречи / документ / ссылку → Sima извлечёт <em>цели · ограничения · идеи · риски · термины</em>, а потом предложит блоки на их основе. Принял → блок создан с готовыми mission/kpi/acceptance.</>,
-            tip: '⊞ Галерея — все ваши артефакты, ⌘ Библиотека — переиспользуемые блоки.',
+            eyebrow: tT('onb.s4_eyebrow', 'step 4 / 5 · artifacts'),
+            title:   tT('onb.s4_title',   'Any source → artifact.'),
+            body:    tT('onb.s4_body',    'In the toolbar — ＋ Artifact: paste a meeting transcript / document / link → Sima extracts goals · constraints · ideas · risks · terms, then proposes blocks based on them. Accept → block is created with ready mission / kpi / acceptance.'),
+            tip:     tT('onb.s4_tip',     '⊞ Gallery — all your artifacts; ⌘ Library — reusable blocks.'),
           },
           {
-            eyebrow: 'шаг 5 / 5 · ⌘K + ✨ Sima',
-            title: 'Пара клавиш — и всё под рукой.',
-            body: <>⌘K (или Ctrl+K) — палитра команд: создать модуль, открыть галерею, ТЗ, шаблоны. Восклицательный знак <strong>!</strong> на блоке — контракт неполон. <strong>✨ Совет Клода</strong> в шапке — Sima посмотрит на весь граф и подскажет следующий шаг. Ctrl+Z — отмена.</>,
-            tip: 'Готово, поехали.',
+            eyebrow: tT('onb.s5_eyebrow', 'step 5 / 5 · ⌘K + ✨ Sima'),
+            title:   tT('onb.s5_title',   'A couple of keys — everything at hand.'),
+            body:    tT('onb.s5_body',    '⌘K (or Ctrl+K) — command palette: create a block, open gallery, spec, templates. The ! mark on a block — contract is incomplete. ✨ Claude advice in the toolbar — Sima looks at the whole graph and suggests the next step. Ctrl+Z — undo.'),
+            tip:     tT('onb.s5_tip',     'Ready, let\'s go.'),
           },
         ];
         const step = steps[onbStep];
