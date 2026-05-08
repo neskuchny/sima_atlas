@@ -63,7 +63,17 @@ export function createBlock({ atlas_root, body } = {}) {
     throw new Error(`createBlock: block "${id}" already exists`);
   }
 
+  // R-7.40 — поддержка иерархии. Если parent_block_id указан, новый блок
+  // привязывается к родителю как подмодуль; drill-view в UI фильтрует
+  // блоки по parent_block_id и показывает их внутри родителя. Ребёнок
+  // автоматически depends_on `<parent>:scope` чтобы Sima видела связь.
+  const parentId = body.parent_block_id ? String(body.parent_block_id) : null;
+  if (parentId && !(graph.blocks || []).some((b) => b.id === parentId)) {
+    throw new Error(`createBlock: parent_block_id "${parentId}" not found`);
+  }
+
   const initialTs = ts();
+  const autoDeps = parentId ? [`${parentId}:scope`] : [];
   const block = {
     id,
     title: body.title || id,
@@ -74,7 +84,10 @@ export function createBlock({ atlas_root, body } = {}) {
     updated_at: initialTs,
     mvp: body.mvp === true,
     subschema_id: body.subschema_id || null,
-    depends_on: Array.isArray(body.depends_on) ? body.depends_on : [],
+    parent_block_id: parentId,
+    depends_on: Array.isArray(body.depends_on) && body.depends_on.length
+      ? body.depends_on
+      : autoDeps,
     tech_stack: Array.isArray(body.tech_stack) ? body.tech_stack : [],
     files: [`atlas/blocks/${id}/mission.md`],
   };
@@ -91,16 +104,17 @@ export function createBlock({ atlas_root, body } = {}) {
     const p = path.join(dir, name);
     if (!fs.existsSync(p)) fs.writeFileSync(p, content, 'utf8');
   };
-  seed('mission.md', `# ${id} — mission\n\n${body.mission || `Описание модуля ${block.title}. Заполни через детальную панель или через Claude.`}\n\n## Layer\n${block.layer}\n`);
+  const parentNote = parentId ? `\n\n## Parent\nЭтот блок — подмодуль внутри **${parentId}**. Mission родителя задаёт scope; этот блок описывает один концерн (слой/область) внутри.\n` : '';
+  seed('mission.md', `# ${id} — mission\n\n${body.mission || `Описание модуля ${block.title}. Заполни через детальную панель или через Claude.`}\n\n## Layer\n${block.layer}${parentNote}\n`);
   seed('user_story.md', `# ${id} — user story\n\n_(Phase Q-1: что пользователь делает, ожидает увидеть, и почему ему это нужно)_\n\n**Как** [персона]\n**Когда** [триггер / контекст]\n**Я хочу** [действие]\n**Чтобы** [outcome / value]\n\n_Acceptance — нижний слой; user story — верхний. LLM-валидатор проверяет что код реально решает эту историю, а не выполняет acceptance формально._\n`);
   seed('kpi.md',     `# ${id} — KPI\n\n- KPI-1: добавь конкретную метрику успеха модуля.\n`);
   seed('acceptance.md', `# ${id} — acceptance\n\n- [ ] **A1.** Заполни через детальную панель: что именно подтвердит готовность модуля.\n`);
   seed('code_summary.md', `# ${id} — code summary\n\n_(Phase Q-2: автоген после run-а — на чём написан, как, зачем; LLM регенерит при изменении файлов)_\n\n_не сгенерировано_\n`);
   seed('tasks.md',   `# ${id} — tasks\n\n- [ ] T1: первая задача — заполнить mission.md и acceptance.md.\n`);
-  seed('depends_on.md', `# ${id} — depends_on\n\n- none\n`);
+  seed('depends_on.md', `# ${id} — depends_on\n\n${autoDeps.length ? autoDeps.map((d) => `- ${d}`).join('\n') + '\n' : '- none\n'}`);
   seed('provides.md',   `# ${id} — provides\n\n- ${id.replace(/^b\./, '').replace(/[^a-z0-9_]/gi, '_')}_capability\n`);
   seed('files.md',   `# ${id} — files\n\n- atlas/blocks/${id}/mission.md [alive]\n`);
-  seed('checks.log', `${ts()}\tcreated\tpass\tBlock created via design UI\n`);
+  seed('checks.log', `${ts()}\tcreated\tpass\tBlock created via design UI${parentId ? ` (parent=${parentId})` : ''}\n`);
 
   return { ok: true, block };
 }

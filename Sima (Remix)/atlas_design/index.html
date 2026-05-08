@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>SIMA Atlas — визуальное программирование с памятью</title>
-<link rel="stylesheet" href="styles.css?v=r7-37" />
+<link rel="stylesheet" href="styles.css?v=r7-40" />
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
@@ -24,12 +24,12 @@
        `sima-data-changed` CustomEvent so the React tree can react. Set
        window.SIMA_API_BASE before this script loads to point at a
        remote backend in production. -->
-<script src="data_static.js?v=r7-37"></script>
-<script src="data_loader.js?v=r7-37"></script>
-<script type="text/babel" src="tweaks-panel.jsx?v=r7-37"></script>
-<script type="text/babel" src="graph.jsx?v=r7-37"></script>
-<script type="text/babel" src="panels.jsx?v=r7-37"></script>
-<script type="text/babel" src="views.jsx?v=r7-37"></script>
+<script src="data_static.js?v=r7-40"></script>
+<script src="data_loader.js?v=r7-40"></script>
+<script type="text/babel" src="tweaks-panel.jsx?v=r7-40"></script>
+<script type="text/babel" src="graph.jsx?v=r7-40"></script>
+<script type="text/babel" src="panels.jsx?v=r7-40"></script>
+<script type="text/babel" src="views.jsx?v=r7-40"></script>
 <script type="text/babel">
 const { useState, useEffect, useRef, useMemo, useCallback } = React;
 
@@ -777,6 +777,11 @@ function App() {
   // «+ Новый модуль» внутри drill-view, persistSubsystem сохраняет
   // на disk при первом изменении.
   const drillTarget = drillStack.length ? drillStack[drillStack.length - 1] : null;
+  // R-7.40 — иерархия через parent_block_id вместо subsystem JSON.
+  // Drill-view фильтрует РЕАЛЬНЫЕ блоки graph.json по parent_block_id.
+  // Legacy subsystem JSON (data.subsystems[id]) остаётся read-only fallback
+  // для старых проектов, где подмодули записаны как JSON-сериализация.
+  const childrenOf = (parentId) => (modules || []).filter(m => m.parent_block_id === parentId);
   const activeSub = drillTarget ? (data.subsystems[drillTarget] || null) : null;
   const ensureSubState = (id) => {
     if (subState[id]) return subState[id];
@@ -789,9 +794,21 @@ function App() {
   };
   const curSub = drillTarget ? (subState[drillTarget] || ensureSubState(drillTarget)) : null;
 
-  const activeModules = curSub ? curSub.modules : modules;
-  const activeEdges = curSub ? curSub.edges : edges;
-  const activeNotes = curSub ? curSub.notes : notes;
+  // R-7.40 — приоритет: реальные блоки-дети с parent_block_id; fallback
+  // на subsystem JSON для legacy данных. activeEdges аналогично — ребро
+  // подходит, если ОБА конца внутри drillTarget'а.
+  const realChildren = drillTarget ? childrenOf(drillTarget) : [];
+  const useRealHierarchy = !!drillTarget && (realChildren.length > 0 || (curSub && curSub.modules.length === 0));
+  const childIds = new Set(realChildren.map(m => m.id));
+  const activeModules = drillTarget
+    ? (useRealHierarchy ? realChildren : (curSub ? curSub.modules : []))
+    : modules;
+  const activeEdges = drillTarget
+    ? (useRealHierarchy
+        ? edges.filter(e => childIds.has(e.from) && childIds.has(e.to))
+        : (curSub ? curSub.edges : []))
+    : edges;
+  const activeNotes = drillTarget ? (curSub ? curSub.notes : []) : notes;
   // Phase R-7.20 — defensive: data.lanes может отсутствовать в payload-е
   // (как было до этого commit'а), не должны валить React-tree на
   // activeLanes[0]. Empty array — нейтральный fallback.
@@ -824,25 +841,40 @@ function App() {
     ? (e) => { setSubState(s => { const kk = k(); return { ...s, [kk]: { ...s[kk], edges: [...s[kk].edges, e] } }; }); subsystemTouched(k()); }
     : addEdge;
 
-  // R-7.34 — добавление модулей в drill-view. В drill mode «+ Новый модуль»
-  // должно класть блок в subState (подсистему текущего блока), а не в
-  // outer graph.json. После disk-persist'а через subsystems.save модуль
-  // появится у data.subsystems[parent_id] на следующем refresh.
-  const addActiveBlock = curSub
-    ? (preset) => {
-        const parent = k();
-        const existing = (subState[parent]?.modules || []).map(m => m.id);
-        let n = 1; let id;
-        do { id = `${parent}.s${n++}`; } while (existing.includes(id));
-        const tag = id.replace(/^b\./, '');
-        const newMod = {
-          id, tag,
-          title: 'Новый подмодуль',
-          layer: 'logic', size: 'M', priority: 3, status: 'todo',
-          x: preset?.x ?? 80, y: preset?.y ?? 80,
-        };
-        setSubState(s => ({ ...s, [parent]: { ...s[parent], modules: [...(s[parent]?.modules || []), newMod] } }));
-        subsystemTouched(parent);
+  // R-7.40 — drill-view «+ Новый модуль» создаёт РЕАЛЬНЫЙ блок (с папкой,
+  // mission.md и пр.) с parent_block_id = текущий drill target. Раньше
+  // (R-7.34) клал JSON-запись в subState — у такого подмодуля не было
+  // контракта, запусков, истории.
+  //
+  // Layer указывается через preset.layer (если задан) или дефолт 'logic'.
+  // UI вокруг должен предложить layer-picker (4 кнопки: backend / frontend
+  // / logic / tests) перед вызовом — но даже без picker'а блок создастся.
+  const addActiveBlock = drillTarget
+    ? async (preset) => {
+        const parent = drillTarget;
+        if (!window.SIMA_API?.createBlock) return;
+        // ID наследует префикс родителя: b.parent → b.parent.s1, .s2, ...
+        // Если уже есть блоки с таким parent на сервере, берём следующий
+        // свободный suffix.
+        const siblings = (modules || []).filter(m => m.parent_block_id === parent);
+        const sibIds = new Set(siblings.map(m => m.id));
+        let n = siblings.length + 1, id;
+        do { id = `${parent}.s${n++}`; } while (sibIds.has(id));
+        const layer = preset?.layer || 'logic';
+        const layerTitleHint = ({ backend: 'Backend', frontend: 'Frontend', logic: 'Logic', tests: 'Tests' })[layer] || 'Logic';
+        const r = await window.SIMA_API.createBlock({
+          id,
+          title: preset?.title || `${layerTitleHint} подмодуль`,
+          layer,
+          parent_block_id: parent,
+          x: preset?.x ?? 80,
+          y: preset?.y ?? 80,
+        });
+        if (!r?.ok) {
+          try { window.dispatchEvent(new CustomEvent('sima-log-push', { detail: { agent: 'SIMA Core', kind: 'fail', msg: `+ подмодуль ${id} не создан: ${r?.error}` } })); } catch {}
+        } else {
+          try { window.dispatchEvent(new CustomEvent('sima-log-push', { detail: { agent: 'SIMA Core', kind: 'ok', msg: `+ подмодуль ${id} (parent ${parent}, layer ${layer})` } })); } catch {}
+        }
       }
     : onAddModule;
 
@@ -1089,7 +1121,7 @@ function App() {
             onUpdateNote={updateActiveNote}
             onDeleteNote={deleteActiveNote}
             onAddEdge={curSub ? addActiveEdge : addEdge}
-            onAddModule={curSub ? addActiveBlock : onAddModule}
+            onAddModule={drillTarget ? addActiveBlock : onAddModule}
             onDeleteEdge={deleteActiveEdge}
             selectedId={selectedId}
             onSelect={(id) => { setSelectedId(id); if (view === 'graph') setTweak('primaryView', 'split'); setDetailOpen(true); }}
@@ -1195,7 +1227,15 @@ function App() {
                   <button onClick={() => setTweak('showLayers', !tweaks.showLayers)} className={tweaks.showLayers ? 'on' : ''}>
                     ▦ Слои стэка <span className="badge">{tweaks.showLayers ? 'on' : 'off'}</span>
                   </button>
-                  <button onClick={curSub ? addActiveBlock : onAddModule}>＋ Новый модуль <span className="badge">пкм</span></button>
+                  <button onClick={drillTarget ? () => addActiveBlock({ layer: 'logic' }) : onAddModule}>＋ Новый модуль <span className="badge">пкм</span></button>
+                  {drillTarget && (
+                    <div style={{ display: 'flex', gap: 4, paddingLeft: 8 }}>
+                      <button onClick={() => addActiveBlock({ layer: 'backend' })} style={{ fontSize: 10.5, padding: '3px 8px' }} title="+ Backend подмодуль">B</button>
+                      <button onClick={() => addActiveBlock({ layer: 'logic' })} style={{ fontSize: 10.5, padding: '3px 8px' }} title="+ Logic подмодуль">L</button>
+                      <button onClick={() => addActiveBlock({ layer: 'frontend' })} style={{ fontSize: 10.5, padding: '3px 8px' }} title="+ Frontend подмодуль">F</button>
+                      <button onClick={() => addActiveBlock({ layer: 'tests' })} style={{ fontSize: 10.5, padding: '3px 8px' }} title="+ Tests подмодуль">T</button>
+                    </div>
+                  )}
                 </div>
                 <div className="grp">
                   <div style={{ fontSize: 10, color: 'var(--ink-4)', padding: '4px 8px 2px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Фильтр статуса</div>

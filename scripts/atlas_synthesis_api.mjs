@@ -45,13 +45,26 @@ function buildBlockContext({ client_id, block_id }) {
   const blocks = (graph?.blocks || []);
   const edges = (graph?.edges || []);
   const focal = blocks.find((b) => b.id === block_id);
+  // R-7.40 — родитель в иерархии. Если focal — подмодуль, mission родителя
+  // задаёт scope; LLM должна видеть его при заполнении контракта ребёнка.
+  const parentId = focal?.parent_block_id || null;
+  let parentInfo = null;
+  if (parentId) {
+    const pb = blocks.find((b) => b.id === parentId);
+    if (pb) {
+      const pmission = safeRead(path.join(clientRoot, 'blocks', parentId, 'mission.md')).slice(0, 1500);
+      parentInfo = { id: parentId, title: pb.title || parentId, layer: pb.layer || '', mission: pmission.trim() };
+    }
+  }
+  // Sibling-подмодули того же родителя — полезно знать что параллельно делается.
+  const siblings = parentId ? blocks.filter((b) => b.parent_block_id === parentId && b.id !== block_id) : [];
   // Соседи: блоки, на которые ссылается this.depends_on (R-7 формат graph
   // хранит depends_on как `<block_id>:<capability>`) — резолвим до block_id.
   const depsRaw = focal?.depends_on || [];
   const depBlockIds = new Set();
   for (const d of depsRaw) {
     const m = String(d || '').match(/^(b\.[\w.-]+)/);
-    if (m) depBlockIds.add(m[1]);
+    if (m && m[1] !== parentId) depBlockIds.add(m[1]); // parent уже отдельно
   }
   // Дополнительно — edges from current block (если другие блоки указывают на нас).
   // Контекст inbound полезен «кто меня использует».
@@ -70,7 +83,9 @@ function buildBlockContext({ client_id, block_id }) {
   return {
     client_id: client_id || null,
     project: { project_md: projectMd, rules_md: rulesMd, tech_stack_md: stackMd },
-    focal: focal ? { id: focal.id, title: focal.title, layer: focal.layer } : null,
+    focal: focal ? { id: focal.id, title: focal.title, layer: focal.layer, parent_block_id: focal.parent_block_id || null } : null,
+    parent: parentInfo,
+    siblings: siblings.map((b) => ({ id: b.id, title: b.title || b.id, layer: b.layer || '' })),
     block_index: blockIndex,
     neighbors: {
       depends_on: neighborMissions,
@@ -90,6 +105,20 @@ function renderContextForPrompt(ctx) {
   }
   if (ctx.project.tech_stack_md.trim()) {
     lines.push('## Tech stack (tech_stack.md)', ctx.project.tech_stack_md.trim(), '');
+  }
+  // R-7.40 — для подмодуля: контекст родителя ВЫШЕ всего остального.
+  // Mission родителя задаёт scope — child должен «жить внутри» этой миссии.
+  if (ctx.parent) {
+    lines.push(`## PARENT BLOCK — этот блок описывает один концерн внутри ${ctx.parent.id} (${ctx.parent.layer || 'unspec'})`);
+    lines.push(`Parent title: ${ctx.parent.title}`);
+    lines.push('Parent mission:');
+    lines.push(ctx.parent.mission || '(empty)');
+    lines.push('');
+    if (ctx.siblings.length) {
+      lines.push('Siblings inside parent (другие подмодули того же родителя):');
+      for (const s of ctx.siblings) lines.push(`  - ${s.id} · ${s.title} · ${s.layer || '-'}`);
+      lines.push('');
+    }
   }
   if (ctx.block_index.length) {
     lines.push('## All blocks in this project (id · title · layer)');

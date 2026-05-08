@@ -326,6 +326,9 @@ export function buildSimaDesignPayload({ atlas_root, client_id } = {}) {
         priority: autoPriority(b),
         checked: b.status === 'done',
         size: b.canvas_size || autoSize(b),
+        // R-7.40 — иерархия: подмодуль внутри drill-view фильтруется
+        // по parent_block_id, а не по subsystem JSON.
+        parent_block_id: b.parent_block_id || null,
         warn: (visualStatus === 'fail' || visualStatus === 'desync') ? (b.status_reason || '').slice(0, 140) : undefined,
         contract: contract || undefined,
         progress: progress || undefined,
