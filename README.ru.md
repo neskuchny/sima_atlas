@@ -45,13 +45,13 @@ npm run dev
 
 ✅ **Стабильно** — 10 собственных блоков зелёные в CI; multi-tenant; soft lifecycle gates; фазы R-1 → R-7 (claude_cli, sima_fill_from_chat, chat watcher, layer-aware blocks, real submodule hierarchy, depth-control канвас).
 
-⬜ **В roadmap** — локальные модели (U-1, top community-ask), block templates marketplace (S-1), VS Code sidebar, V-1 agent-loop daemon. Полный список — Часть 10 [статьи](archive/ru-specs/статья.md).
+⬜ **В roadmap** — локальные модели (U-1, top community-ask), block templates marketplace (S-1), VS Code sidebar, V-1 agent-loop daemon. Полный список — Часть 10 [статьи](docs/article.ru.md).
 
 ❌ **Не будем чинить** — hard lifecycle gates (сломают draft-итерацию). Оставлены soft с явными подсказками.
 
 ## Полная методология
 
-[archive/ru-specs/статья.md](archive/ru-specs/статья.md) — 11 частей + 2 приложения, включая self-audit каждого утверждения против кода.
+[docs/article.ru.md](docs/article.ru.md) — 11 частей + 2 приложения, включая self-audit каждого утверждения против кода.
 
 ## Документация
 
