@@ -28,6 +28,34 @@ Sima Atlas построена вокруг **MCP (Model Context Protocol)** — 
 
 ---
 
+## Navigation skill — same strategy across all agents
+
+MCP gives an agent the **tools** (`read_block`, `update_block`, etc.); the
+navigation skill tells it **when to call which tool** and which directories to
+*never* read so tokens aren't wasted on logs and snapshots.
+
+The canonical strategy lives in [`docs/agent-navigation.md`](agent-navigation.md).
+It's mirrored into per-agent adapter files that load automatically:
+
+| Agent | File loaded automatically | Format |
+|---|---|---|
+| Claude Code | `.claude/skills/sima-atlas-navigator/SKILL.md` | Anthropic Skills (frontmatter `name` + `description`) |
+| Cursor | `.cursor/rules/sima-atlas-navigator.mdc` | Cursor Rules (frontmatter `description` + `globs` + `alwaysApply`) |
+| Codex / Aider / Continue / others | `AGENTS.md` (top-level) + `docs/agent-navigation.md` | plain markdown, include via system prompt |
+
+When you change the strategy, edit `docs/agent-navigation.md` only. The
+adapters reference it. To add support for a new agent: create an adapter file
+in whatever format the agent reads on startup, with a one-line pointer to the
+canonical doc.
+
+**Why this matters:** without the skill, agents reading through `atlas/`
+typically read 30+ files per task (logs, traces, history). With the skill,
+the standard read order caps at ~10 reads — most of them MCP `read_block`
+calls that return one digest each. On a 50-block product this saves
+thousands of tokens per session.
+
+---
+
 ## Claude Code
 
 **Самый простой путь.** В корне репозитория уже лежит `.mcp.json`:
