@@ -1651,6 +1651,29 @@ function ContractSection({ moduleId, layer }) {
     setEditing({ file, mode: 'rewrite', draft: r.content, original: files[file] || '', mock: r.mock });
   };
 
+  // R-7.42 — «✨ Развернуть»: добавляет контекст к черновику (актеры, edge
+  // cases, ссылки на соседей). Отличается от ✏ Переписать тем, что
+  // намеренно ВНОСИТ новые факты используя project + neighbor + parent.
+  const startExpand = async (file) => {
+    try { console.log('[panels] startExpand invoked', { block_id: moduleId, file, hasApi: !!window.SIMA_API?.synthesis?.expandField }); } catch {}
+    setEditing({ file, mode: 'expand', draft: '', original: files[file] || '' });
+    setBusy(true); setError(null);
+    if (!window.SIMA_API?.synthesis?.expandField) {
+      setError('SIMA_API.synthesis.expandField недоступен. Открой DevTools → Console.');
+      setBusy(false); setEditing(null);
+      return;
+    }
+    const r = await window.SIMA_API.synthesis.expandField({
+      block_id: moduleId, field: file,
+      current_content: files[file] || '',
+      mission_context: files['mission.md'] || '',
+    });
+    try { console.log('[panels] expandField response', { ok: r?.ok, mock: r?.mock, contentLen: (r?.content || '').length, error: r?.error }); } catch {}
+    setBusy(false);
+    if (!r?.ok) { setError(r?.error || 'expand failed'); setEditing(null); return; }
+    setEditing({ file, mode: 'expand', draft: r.content, original: files[file] || '', mock: r.mock });
+  };
+
   // Phase R-7.7 — manual edit без LLM-вызова. До этого все три действия
   // в контракт-табе шли через LLM (fillField / rewriteField), и при
   // mock/demo-режиме оператор не мог сохранить ничего вручную. Это и
@@ -1738,7 +1761,10 @@ function ContractSection({ moduleId, layer }) {
                   <button className="pill primary" onClick={() => startFill(file)} disabled={busy} title="Sima сгенерирует черновик через LLM">✨ Заполнить</button>
                 )}
                 {klass !== 'empty' && (
-                  <button className="pill" onClick={() => startRewrite(file)} disabled={busy} title="Sima переформулирует существующий текст через LLM">✏ Переписать</button>
+                  <button className="pill" onClick={() => startRewrite(file)} disabled={busy} title="Sima правит черновик не добавляя новых фактов (ошибки/стиль/ясность)">✏ Переписать</button>
+                )}
+                {klass !== 'empty' && (
+                  <button className="pill" onClick={() => startExpand(file)} disabled={busy} title="Sima развернёт черновик: добавит акторов, edge cases, успех-критерии используя контекст проекта и соседей">✨ Развернуть</button>
                 )}
               </div>
               {/* R-7.28 — рендерим mission/kpi/acceptance/etc. как markdown
@@ -1760,6 +1786,7 @@ function ContractSection({ moduleId, layer }) {
                 <div className="mono" style={{ fontSize: 11, color: 'var(--ink-4)', letterSpacing: '0.08em' }}>
                   {editing.mode === 'fill' ? 'SIMA · ЗАПОЛНЯЕТ' :
                    editing.mode === 'rewrite' ? 'SIMA · ПЕРЕФОРМУЛИРУЕТ' :
+                   editing.mode === 'expand' ? 'SIMA · РАЗВОРАЧИВАЕТ (добавляет контекст)' :
                    'РЕДАКТИРОВАНИЕ ВРУЧНУЮ'}
                 </div>
                 <h3 style={{ margin: '4px 0 0', fontFamily: 'Newsreader, serif', fontStyle: 'italic', fontSize: 18 }}>
@@ -1774,7 +1801,7 @@ function ContractSection({ moduleId, layer }) {
               </div>
             )}
             <div className="contract-modal-body">
-              {editing.mode === 'rewrite' && editing.original && (
+              {(editing.mode === 'rewrite' || editing.mode === 'expand') && editing.original && (
                 <div>
                   <div className="meta" style={{ fontSize: 10.5, marginBottom: 4, letterSpacing: '0.06em' }}>БЫЛО</div>
                   <pre className="contract-modal-pre dim">{editing.original}</pre>
@@ -1783,6 +1810,7 @@ function ContractSection({ moduleId, layer }) {
               <div>
                 <div className="meta" style={{ fontSize: 10.5, marginBottom: 4, letterSpacing: '0.06em' }}>
                   {editing.mode === 'rewrite' ? 'СТАЛО (можно поправить)' :
+                   editing.mode === 'expand' ? 'РАЗВЁРНУТО (можно поправить)' :
                    editing.mode === 'manual' ? 'ТЕКУЩЕЕ СОДЕРЖИМОЕ (правьте напрямую)' :
                    'ЧЕРНОВИК (можно поправить)'}
                 </div>

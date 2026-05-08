@@ -243,6 +243,9 @@
     tasks:   async (body_)             => await postJson('/llm/decompose-tasks',  body_),
     fillField:    async (body_)        => await postJson('/llm/fill-field',    withClient(body_)),
     rewriteField: async (body_)        => await postJson('/llm/rewrite-field', withClient(body_)),
+    // R-7.42 — добавляет контекст к существующему черновику (вместо
+    // консервативной правки rewriteField).
+    expandField:  async (body_)        => await postJson('/llm/expand-field',  withClient(body_)),
     extract:      async (body_)        => await postJson('/api/intake/extract', body_),
     transcribe:   async (body_)        => await postJson('/api/intake/transcribe', body_),
     // Phase R-7.1 — fill-from-chat must respect the active client. Without

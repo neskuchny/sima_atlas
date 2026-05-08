@@ -743,6 +743,47 @@ export async function validateBlock({
   };
 }
 
+// R-7.42 — «Развернуть»: в отличие от rewriteField (которая консервативна
+// и не вводит новые факты), expandField берёт текущий черновик + контекст
+// проекта/соседей/родителя и активно ДОБАВЛЯЕТ конкретику: акторов, edge
+// cases, success criteria, ссылки на соседние блоки. Цель — 4-8 plотных
+// предложений, которые читаются как «это блок в РЕАЛЬНОМ продукте X».
+export async function expandField({ block_id, field, current_content, mission_context, client_id } = {}) {
+  if (!block_id || !field) throw new Error('expandField: block_id and field required');
+  if (!FIELD_GUIDANCE[field]) throw new Error(`expandField: unsupported field "${field}"`);
+  const ctx = buildBlockContext({ client_id, block_id });
+  const ctxBlock = renderContextForPrompt(ctx);
+  const sys = [
+    'You are SIMA Atlas. The operator gave you a draft of a contract file. Your job:',
+    '  - KEEP every fact that\'s already there (do not contradict)',
+    '  - ADD concrete detail using the project + neighbor + parent context above:',
+    '      who are the actors, what are the edge cases, what makes this block',
+    '      different from its siblings, how does it integrate with depends_on',
+    '  - target length: 4-8 dense sentences (or 3-6 list items for kpi/acceptance)',
+    '  - keep markdown structure; preserve language (Russian → Russian, English → English)',
+    '  - tone: «как будто это уже зрелый продакшн-блок», не общие фразы',
+    `  - target file: ${field} — ${FIELD_GUIDANCE[field] || ''}`,
+    'Reply ONLY with structured JSON: { "content": "..." }.',
+  ].join('\n');
+  const prompt = [
+    ctxBlock ? '# Project & graph context (READ FIRST — это твой источник конкретики)\n' + ctxBlock : '',
+    `# Current block: ${block_id}`,
+    mission_context ? `Mission of THIS block:\n${String(mission_context).slice(0, 2000)}\n` : '',
+    'Existing draft (expand it, do not contradict):',
+    String(current_content || '').slice(0, 4000) || '(empty — generate from scratch using context above)',
+  ].filter(Boolean).join('\n');
+  const r = await callLLM({
+    system: sys,
+    prompt,
+    schema: FIELD_SCHEMA,
+    max_tokens: 1500,
+    temperature: 0.5,
+    op: 'synthesis_expand_field',
+  });
+  const content = String(r.value?.content || '').trim();
+  return { ok: true, block_id, field, content, original: String(current_content || ''), provider: r.trace?.provider || null, model: r.trace?.model || null, mock: r.trace?.provider === 'mock' };
+}
+
 export async function rewriteField({ block_id, field, current_content, mission_context, client_id } = {}) {
   if (!block_id || !field) throw new Error('rewriteField: block_id and field required');
   if (!FIELD_GUIDANCE[field]) throw new Error(`rewriteField: unsupported field "${field}"`);

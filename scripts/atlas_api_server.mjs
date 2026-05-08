@@ -1227,6 +1227,16 @@ const server = http.createServer((req, res) => {
           client_id: body._client ? String(body._client) : (body.client_id ? String(body.client_id) : undefined),
         }).then((r) => json(res, 200, r), (e) => json(res, 200, { ok: false, error: String(e.message || e) }));
       }
+      // R-7.42 — «✨ Развернуть»: добавляет контекст к текущему черновику.
+      if (req.url === '/llm/expand-field') {
+        return synthApi.expandField({
+          block_id: String(body.block_id || ''),
+          field:    String(body.field || ''),
+          current_content: body.current_content ? String(body.current_content) : undefined,
+          mission_context: body.mission_context ? String(body.mission_context) : undefined,
+          client_id: body._client ? String(body._client) : (body.client_id ? String(body.client_id) : undefined),
+        }).then((r) => json(res, 200, r), (e) => json(res, 200, { ok: false, error: String(e.message || e) }));
+      }
 
       // Phase G — Composer intake helpers.
       // /api/intake/extract — pull structured insights (goals/constraints/
