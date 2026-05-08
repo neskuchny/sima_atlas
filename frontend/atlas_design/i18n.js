@@ -234,17 +234,9 @@
     try { window.dispatchEvent(new Event('sima-locale-change')); } catch {}
   };
 
-  // Convenience hook for React components — re-renders on locale change.
-  // Usage: const locale = useLocale();
-  window.__SIMA_USE_LOCALE = function () {
-    const React = window.React;
-    if (!React) return window.__SIMA_LOCALE;
-    const [, setN] = React.useState(0);
-    React.useEffect(() => {
-      const fn = () => setN((n) => n + 1);
-      window.addEventListener('sima-locale-change', fn);
-      return () => window.removeEventListener('sima-locale-change', fn);
-    }, []);
-    return window.__SIMA_LOCALE;
-  };
+  // Note: there's deliberately NO useLocale hook here. A wrapper that
+  // returns early when React isn't loaded yet violates rules-of-hooks
+  // (conditional hook count between renders → "Rendered more hooks than
+  // during previous render"). Components subscribe directly via
+  // useState+useEffect; see App() in index.html for the canonical pattern.
 })();

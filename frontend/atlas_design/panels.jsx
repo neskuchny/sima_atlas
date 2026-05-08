@@ -121,9 +121,9 @@ function DetailPanel({ data, modules: liveModules, moduleId, onClose, desyncReso
   const lessons = (data.lessons || []).filter(l => l.module === moduleId || (m.layer === 'frontend' && l.module === 'frontend'));
   const status = (moduleId === 'metrics' && desyncResolved) ? 'progress' : m.status;
 
-  // R-7.52 — labels via i18n; useLocale() ensures re-render on toggle.
-  // eslint-disable-next-line no-unused-vars
-  const _locale = (window.__SIMA_USE_LOCALE && window.__SIMA_USE_LOCALE()) || 'en';
+  // R-7.52 — labels via i18n. Re-render on locale change is driven by
+  // App() at the tree root (see index.html App fn) — DetailPanel doesn't
+  // subscribe locally to keep its hook count constant.
   const t = window.__SIMA_T || ((_, fb) => fb);
   const tabs = [
     { id: 'overview',    label: t('tab.overview',    'Overview') },
@@ -259,8 +259,7 @@ function DetailPanel({ data, modules: liveModules, moduleId, onClose, desyncReso
 // цвета. Теперь — клик по пилюле → patchBlock → refresh.
 function LayerPicker({ block }) {
   if (!block || !block.id || !String(block.id).startsWith('b.')) return null;
-  // eslint-disable-next-line no-unused-vars
-  const _locale = (window.__SIMA_USE_LOCALE && window.__SIMA_USE_LOCALE()) || 'en';
+  // Re-render on locale change driven by App() root — see index.html.
   const t = window.__SIMA_T || ((_, fb) => fb);
   const current = block.layer || 'logic';
   const LAYERS = [
