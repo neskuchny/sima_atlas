@@ -483,40 +483,36 @@ function GraphCanvas({
       {/* Context menu */}
       {ctxMenu && (
         <div className="ctx-menu" style={{ left: ctxMenu.x, top: ctxMenu.y }} onClick={(e) => e.stopPropagation()}>
+          {(() => { const _t = window.__SIMA_T || ((_, fb) => fb); return null; })()}
           {ctxMenu.moduleId ? (
             <>
-              <button onClick={() => { onSelect(ctxMenu.moduleId); setCtxMenu(null); }}>📂 Открыть детали</button>
-              <button onClick={() => { onDrillDown(ctxMenu.moduleId); setCtxMenu(null); }}>🔍 Провалиться внутрь (подсистема)</button>
-              <button onClick={() => { onSimaGenerate('module', ctxMenu.moduleId); setCtxMenu(null); }}>✨ Sima: дополнить описание</button>
+              <button onClick={() => { onSelect(ctxMenu.moduleId); setCtxMenu(null); }}>{(window.__SIMA_T||((_,fb)=>fb))('ctx.open_details', '📂 Open details')}</button>
+              <button onClick={() => { onDrillDown(ctxMenu.moduleId); setCtxMenu(null); }}>{(window.__SIMA_T||((_,fb)=>fb))('ctx.drill_in', '🔍 Drill in (subsystem)')}</button>
+              <button onClick={() => { onSimaGenerate('module', ctxMenu.moduleId); setCtxMenu(null); }}>{(window.__SIMA_T||((_,fb)=>fb))('ctx.sima_expand', '✨ Sima: expand description')}</button>
               <hr/>
-              <button onClick={() => setCtxMenu(null)}>📤 Отправить в агента…</button>
-              <button onClick={() => setCtxMenu(null)}>🧪 Запустить проверки</button>
-              {/* Phase R-7.21 — удаление блока через context-menu. API
-                  /atlas/blocks/delete уже client-aware (R-6); UI просто
-                  не предлагал кнопку. confirm обязательно — действие
-                  необратимое, плюс blocks dir на диске может содержать
-                  history. */}
+              <button onClick={() => setCtxMenu(null)}>{(window.__SIMA_T||((_,fb)=>fb))('ctx.send_to_agent', '📤 Send to agent…')}</button>
+              <button onClick={() => setCtxMenu(null)}>{(window.__SIMA_T||((_,fb)=>fb))('ctx.run_checks', '🧪 Run checks')}</button>
               <hr/>
               <button onClick={async () => {
                 const id = ctxMenu.moduleId;
                 setCtxMenu(null);
                 if (!window.SIMA_API?.deleteBlock) return;
-                if (!window.confirm(`Удалить блок ${id}? Запись в graph.json и директория atlas/clients/<...>/blocks/${id}/ будут удалены. Действие необратимо (но файлы остаются в git-истории).`)) return;
+                const tt = window.__SIMA_T || ((_, fb) => fb);
+                if (!window.confirm(tt('ctx.delete_confirm', `Delete block ${id}? The graph.json entry and the atlas/clients/<...>/blocks/${id}/ directory will be removed. Irreversible (but files remain in git history).`).replace('${id}', id))) return;
                 const r = await window.SIMA_API.deleteBlock(id, true /* hard */);
                 if (r?.ok) {
-                  try { window.dispatchEvent(new CustomEvent('sima-log-push', { detail: { agent: 'SIMA Core', kind: 'ok', msg: `🗑 Удалён блок ${id}` } })); } catch {}
+                  try { window.dispatchEvent(new CustomEvent('sima-log-push', { detail: { agent: 'SIMA Core', kind: 'ok', msg: `🗑 ${tt('ctx.deleted', 'Deleted block')} ${id}` } })); } catch {}
                 } else {
-                  try { window.dispatchEvent(new CustomEvent('sima-log-push', { detail: { agent: 'SIMA Core', kind: 'fail', msg: `Удаление ${id} не удалось: ${r?.error || 'unknown'}` } })); } catch {}
+                  try { window.dispatchEvent(new CustomEvent('sima-log-push', { detail: { agent: 'SIMA Core', kind: 'fail', msg: `${tt('ctx.delete_failed', 'Delete failed for')} ${id}: ${r?.error || 'unknown'}` } })); } catch {}
                 }
-              }} style={{ color: 'var(--st-fail, #c33)' }}>🗑 Удалить блок</button>
+              }} style={{ color: 'var(--st-fail, #c33)' }}>{(window.__SIMA_T||((_,fb)=>fb))('ctx.delete_block', '🗑 Delete block')}</button>
             </>
           ) : (
             <>
-              <button onClick={() => { onAddNote({ x: ctxMenu.cx, y: ctxMenu.cy, w: 200, color: 'yellow', text: 'Заметка…' }); setCtxMenu(null); }}>📝 Добавить заметку</button>
-              <button onClick={() => { if (onAddModule) onAddModule({ x: ctxMenu.cx, y: ctxMenu.cy }); setCtxMenu(null); }}>＋ Новый модуль</button>
-              <button onClick={() => setCtxMenu(null)}>📐 Авто-разместить по линиям</button>
+              <button onClick={() => { onAddNote({ x: ctxMenu.cx, y: ctxMenu.cy, w: 200, color: 'yellow', text: (window.__SIMA_T||((_,fb)=>fb))('ctx.note_placeholder', 'Note…') }); setCtxMenu(null); }}>{(window.__SIMA_T||((_,fb)=>fb))('ctx.add_note', '📝 Add note')}</button>
+              <button onClick={() => { if (onAddModule) onAddModule({ x: ctxMenu.cx, y: ctxMenu.cy }); setCtxMenu(null); }}>{(window.__SIMA_T||((_,fb)=>fb))('ctx.new_block', '＋ New block')}</button>
               <hr/>
-              <button onClick={() => { setTx({ x: 30, y: 20, k: 0.7 }); setCtxMenu(null); }}>↻ Сбросить вид</button>
+              <button onClick={() => { setTx({ x: 30, y: 20, k: 0.7 }); setCtxMenu(null); }}>{(window.__SIMA_T||((_,fb)=>fb))('ctx.reset_view', '↻ Reset view (zoom & pan)')}</button>
             </>
           )}
         </div>

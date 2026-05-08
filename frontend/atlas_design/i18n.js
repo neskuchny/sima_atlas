@@ -91,6 +91,21 @@
       'demo.tests':               '[demo] tests: прогон unit · 312/312 ok',
       'demo.observ':              '[demo] observ: добавил трейс на /v1/query',
 
+      // ── Canvas right-click context menu (R-7.66) ────────
+      'ctx.open_details':         '📂 Открыть детали',
+      'ctx.drill_in':             '🔍 Провалиться внутрь (подсистема)',
+      'ctx.sima_expand':          '✨ Sima: дополнить описание',
+      'ctx.send_to_agent':        '📤 Отправить в агента…',
+      'ctx.run_checks':           '🧪 Запустить проверки',
+      'ctx.delete_block':         '🗑 Удалить блок',
+      'ctx.delete_confirm':       'Удалить блок ${id}? Запись в graph.json и директория atlas/clients/<...>/blocks/${id}/ будут удалены. Действие необратимо (но файлы остаются в git-истории).',
+      'ctx.deleted':              'Удалён блок',
+      'ctx.delete_failed':        'Удаление не удалось:',
+      'ctx.add_note':             '📝 Добавить заметку',
+      'ctx.note_placeholder':     'Заметка…',
+      'ctx.new_block':            '＋ Новый блок',
+      'ctx.reset_view':           '↻ Сбросить вид (зум и положение)',
+
       // ── Onboarding (K1 5-step tour) ─────────────────────
       'onb.s1_eyebrow':           'sima atlas · 30 секунд',
       'onb.s1_title':             'Это карта вашего продукта.',
@@ -762,6 +777,21 @@
       'demo.wiki':                '[demo] updated wiki: dashboard.tile-editor',
       'demo.tests':               '[demo] tests: unit run · 312/312 ok',
       'demo.observ':              '[demo] observ: added trace on /v1/query',
+
+      // ── Canvas right-click context menu (R-7.66) ────────
+      'ctx.open_details':         '📂 Open details',
+      'ctx.drill_in':             '🔍 Drill in (subsystem)',
+      'ctx.sima_expand':          '✨ Sima: expand description',
+      'ctx.send_to_agent':        '📤 Send to agent…',
+      'ctx.run_checks':           '🧪 Run checks',
+      'ctx.delete_block':         '🗑 Delete block',
+      'ctx.delete_confirm':       'Delete block ${id}? The graph.json entry and the atlas/clients/<...>/blocks/${id}/ directory will be removed. Irreversible (but files remain in git history).',
+      'ctx.deleted':              'Deleted block',
+      'ctx.delete_failed':        'Delete failed for:',
+      'ctx.add_note':             '📝 Add note',
+      'ctx.note_placeholder':     'Note…',
+      'ctx.new_block':            '＋ New block',
+      'ctx.reset_view':           '↻ Reset view (zoom & pan)',
 
       // ── Onboarding (K1 5-step tour) ─────────────────────
       'onb.s1_eyebrow':           'sima atlas · 30 seconds',

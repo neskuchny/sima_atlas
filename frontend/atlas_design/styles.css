@@ -114,11 +114,22 @@ html, body {
   grid-area: topbar;
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 0 20px;
+  gap: 12px;
+  padding: 8px 20px;
   border-bottom: 1px solid var(--rule);
   background: var(--paper);
   z-index: 10;
+  /* R-7.66 — wrap pills onto a second line on narrow viewports.
+     Without this, on <1500px screens the rightmost pills overflowed
+     past the viewport edge (operator: "all buttons don't fit on the
+     top panel"). flex-wrap + row-gap keeps them readable; .spacer
+     loses its 1fr push when wrapping but that's preferable to
+     hidden-overflow buttons. */
+  flex-wrap: wrap;
+  row-gap: 6px;
+}
+@media (min-width: 1700px) {
+  .topbar { flex-wrap: nowrap; padding: 0 20px; gap: 16px; }
 }
 
 .topbar .brand {
