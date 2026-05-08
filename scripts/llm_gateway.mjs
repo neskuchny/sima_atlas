@@ -82,6 +82,46 @@ const PROVIDERS = {
     pricePerMTokenIn: 0.10,
     pricePerMTokenOut: 0.40,
   },
+  // Phase R-7.60 (TIER-2 #16) — Ollama for local models. Top community
+  // ask on the launch readiness audit: people want to run Sima against
+  // their own Llama / Qwen / DeepSeek without sending prompts to a
+  // third-party API. Detection: HTTP GET /api/tags on OLLAMA_BASE_URL
+  // (default http://localhost:11434). Available iff that responds 200
+  // with at least one model installed. Opt-in via LLM_DEFAULT_PROVIDER=
+  // ollama or LLM_PREFER_OLLAMA=1; never first in cascade by default
+  // because most users have neither Ollama installed nor a model pulled,
+  // and we don't want a 4-second connect-refused on every fillField call.
+  ollama: {
+    available: () => {
+      // Cached availability — `available()` is called frequently
+      // (every pickProvider). HTTP probe per call would slow startup.
+      if (PROVIDERS.ollama._cachedAvail !== undefined) return PROVIDERS.ollama._cachedAvail;
+      // Don't probe unless explicitly enabled, to avoid the cost.
+      const enabled = process.env.LLM_DEFAULT_PROVIDER === 'ollama'
+        || process.env.LLM_PREFER_OLLAMA === '1';
+      if (!enabled) {
+        PROVIDERS.ollama._cachedAvail = false;
+        return false;
+      }
+      // Sync probe via execFileSync (no fetch in available() — pickProvider
+      // is sync). Use curl with 2s connect timeout; if curl is missing, fall
+      // through to false. Cache result.
+      try {
+        const base = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
+        execFileSync('curl', ['-sf', '--connect-timeout', '2', `${base}/api/tags`], {
+          stdio: ['ignore', 'pipe', 'ignore'], timeout: 4000,
+        });
+        PROVIDERS.ollama._cachedAvail = true;
+        return true;
+      } catch {
+        PROVIDERS.ollama._cachedAvail = false;
+        return false;
+      }
+    },
+    defaultModel: process.env.LLM_OLLAMA_MODEL || 'llama3.2',
+    pricePerMTokenIn: 0,    // local compute — zero from Sima's POV
+    pricePerMTokenOut: 0,
+  },
   // Phase R-1: zero-config provider that shells out to the user's local
   // Claude Code CLI. Uses whatever model the user picked in their CLI
   // settings; consumes the user's Pro/Max subscription, NOT a separate
@@ -138,9 +178,15 @@ function pickProvider(requested) {
   // Кому нужен старый порядок (API-key first, для скорости / параллельности):
   // `LLM_PREFER_CLI=0` или явный `LLM_DEFAULT_PROVIDER=anthropic`.
   const preferCli = process.env.LLM_PREFER_CLI !== '0';
-  const order = preferCli
-    ? ['claude_cli', 'anthropic', 'google', 'mock']
-    : ['anthropic', 'google', 'claude_cli', 'mock'];
+  // Phase R-7.60 — ollama opt-in, never first in default cascade.
+  // It only enters the order if explicitly requested via LLM_PREFER_OLLAMA=1
+  // (jumps to head) or via LLM_DEFAULT_PROVIDER=ollama (handled below).
+  const preferOllama = process.env.LLM_PREFER_OLLAMA === '1';
+  const order = preferOllama
+    ? ['ollama', 'claude_cli', 'anthropic', 'google', 'mock']
+    : preferCli
+      ? ['claude_cli', 'anthropic', 'google', 'mock']
+      : ['anthropic', 'google', 'claude_cli', 'mock'];
   const dfltRaw = process.env.LLM_DEFAULT_PROVIDER;
   const dflt = typeof dfltRaw === 'string' ? dfltRaw.trim() : dfltRaw;
   if (dflt) {
@@ -158,6 +204,7 @@ function pickProvider(requested) {
       const reason = p === 'claude_cli' ? 'subscription via claude CLI' :
                      p === 'anthropic'  ? 'ANTHROPIC_API_KEY' :
                      p === 'google'     ? 'GOOGLE_API_KEY' :
+                     p === 'ollama'     ? `local Ollama at ${process.env.OLLAMA_BASE_URL || 'http://localhost:11434'}` :
                      p === 'mock'       ? 'no provider available — fallback to deterministic mock' :
                                           'available';
       console.log(`[llm-gateway] using provider=${p} (${reason})`);
@@ -396,6 +443,82 @@ async function callGoogle({ model, system, prompt, schema, max_tokens, temperatu
 // ──────────────────────────────────────── Phase R-1: Claude Code CLI provider
 // Shells out to the user's local `claude` binary so Sima can use the user's
 // Pro/Max subscription instead of a separate Anthropic API key. The CLI's
+// ────────────────────────────────────────────────────────── ollama provider
+// Phase R-7.60 — local-model provider. Talks to a self-hosted Ollama
+// instance (https://ollama.com). Default base URL http://localhost:11434
+// (override via OLLAMA_BASE_URL); default model llama3.2 (override via
+// LLM_OLLAMA_MODEL — pick whatever you've pulled, e.g. qwen2.5-coder:7b
+// for code tasks).
+//
+// API: POST /api/generate with format='json' for schema-bound calls;
+// for free-form text we drop format. Ollama exposes prompt_eval_count
+// and eval_count as token counters — we surface them as input/output
+// tokens. Pricing is 0/0 (local compute).
+async function callOllama({ model, system, prompt, schema, max_tokens, temperature }) {
+  const base = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
+  // For schema mode, hint the model + ask Ollama to constrain output to JSON.
+  // Ollama's `format: 'json'` doesn't enforce a specific schema (unlike
+  // Anthropic's tool_use), so we paste the schema into the prompt for the
+  // model to follow, then JSON.parse the response.
+  const isStructured = schema && typeof schema === 'object';
+  const schemaHint = isStructured
+    ? `\n\nReply ONLY with JSON matching this schema (no markdown fences, no preamble):\n${JSON.stringify(schema, null, 2)}`
+    : '';
+  const body = {
+    model,
+    prompt: prompt + schemaHint,
+    system: system || (isStructured
+      ? 'You are a precise extractor. Return only valid JSON matching the schema.'
+      : 'You are a helpful assistant.'),
+    stream: false,
+    options: {
+      temperature: typeof temperature === 'number' ? temperature : 0.0,
+      num_predict: max_tokens || 2048,
+    },
+  };
+  if (isStructured) body.format = 'json';
+
+  let res;
+  try {
+    res = await fetch(`${base}/api/generate`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(180_000), // local models can be slow
+    });
+  } catch (e) {
+    throw new Error(`ollama: connection failed at ${base} (${e.message}); is the Ollama daemon running? \`ollama serve\``);
+  }
+  if (!res.ok) {
+    const txt = await res.text().catch(() => '');
+    throw new Error(`ollama ${res.status}: ${txt.slice(0, 300)}`);
+  }
+  const data = await res.json();
+  const usage = {
+    input_tokens: data.prompt_eval_count || 0,
+    output_tokens: data.eval_count || 0,
+  };
+  const raw = data.response || '';
+
+  if (isStructured) {
+    // Try direct parse; if model emitted ```json fences, strip them.
+    let jsonText = raw.trim();
+    const fenced = jsonText.match(/```(?:json)?\s*\n?([\s\S]*?)```/);
+    if (fenced) jsonText = fenced[1].trim();
+    try {
+      return { value: JSON.parse(jsonText), usage };
+    } catch (e) {
+      // Fallback: wrap raw text into the first string property of the schema
+      // (matches the R-7.37 wrap-fallback we do for claude_cli).
+      const props = schema.properties || {};
+      const stringKey = Object.keys(props).find((k) => props[k]?.type === 'string');
+      if (stringKey) return { value: { [stringKey]: raw.trim() }, usage };
+      throw new Error(`ollama returned non-JSON: ${raw.slice(0, 200)}`);
+    }
+  }
+  return { value: raw, usage };
+}
+
 // `--output-format json` returns {result: text, usage: {...}} which we
 // translate into the same shape callAnthropic returns.
 //
@@ -601,6 +724,7 @@ export async function callLLM(opts = {}) {
       if (provider === 'anthropic') ({ value, usage } = await callAnthropic({ model, system, prompt, schema, max_tokens, temperature }));
       else if (provider === 'google') ({ value, usage } = await callGoogle({ model, system, prompt, schema, max_tokens, temperature }));
       else if (provider === 'claude_cli') ({ value, usage } = await callClaudeCli({ system, prompt, schema, max_tokens, temperature }));
+      else if (provider === 'ollama') ({ value, usage } = await callOllama({ model, system, prompt, schema, max_tokens, temperature }));
       else value = await callMock({ schema, promptHash: hashPrompt(['v1', provider, model, system || '', prompt, schema || null]), prompt });
       lastError = null;
       break;

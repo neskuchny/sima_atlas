@@ -28,6 +28,60 @@ Sima Atlas построена вокруг **MCP (Model Context Protocol)** — 
 
 ---
 
+## LLM provider: Ollama (local models)
+
+R-7.60 added a local-model provider so you can run Sima entirely offline
+against Llama / Qwen / DeepSeek / Mistral / etc. via [Ollama](https://ollama.com).
+
+**Setup:**
+
+```bash
+# 1. Install Ollama (https://ollama.com/download)
+# 2. Pull a model — qwen2.5-coder:7b is a strong default for code tasks
+ollama pull qwen2.5-coder:7b
+
+# 3. Start the daemon (runs on :11434 by default)
+ollama serve
+```
+
+**Wire it into Sima:**
+
+Set `LLM_PREFER_OLLAMA=1` in your environment (or in a `.env` file Sima
+auto-loads). The cascade then becomes
+`ollama → claude_cli → anthropic → google → mock` and Ollama wins as long
+as the daemon is reachable.
+
+```bash
+# .env
+LLM_PREFER_OLLAMA=1
+LLM_OLLAMA_MODEL=qwen2.5-coder:7b   # whatever you pulled; default: llama3.2
+OLLAMA_BASE_URL=http://localhost:11434  # default; override for remote box
+```
+
+Or use `LLM_DEFAULT_PROVIDER=ollama` to force it explicitly (no fallback —
+fails loudly if Ollama isn't reachable).
+
+**Schema mode.** Ollama's native `format: 'json'` doesn't enforce a
+specific schema (unlike Anthropic's tool-use). Sima pastes the schema
+into the prompt as a hint and parses the response; if the model returns
+markdown-fenced JSON, the fences are stripped automatically. If parsing
+fails entirely, the raw text is wrapped into the schema's first string
+property — same fallback pattern we use for `claude_cli`.
+
+**Why it's opt-in (not first in cascade by default).** The detection
+probe takes ~2 seconds when the daemon isn't running, and most users
+have neither installed. Setting `LLM_PREFER_OLLAMA=1` opts in and skips
+the cost.
+
+**Cost.** Zero from Sima's POV — it's your hardware. Token counts come
+from Ollama's `prompt_eval_count` / `eval_count`.
+
+For vLLM / LM Studio / llama.cpp HTTP adapters — copy the `callOllama`
+function in `scripts/llm_gateway.mjs:450-525` and adjust the endpoint /
+response shape. ~80 lines per adapter.
+
+---
+
 ## Navigation skill — same strategy across all agents
 
 MCP gives an agent the **tools** (`read_block`, `update_block`, etc.); the

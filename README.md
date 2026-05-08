@@ -52,7 +52,7 @@ Full methodology: [English article](docs/article.en.md) · [Русский](arch
 ## What's in the box
 
 - **65 MCP tools** for AI agents (`read_block`, `update_block`, `verify_block_acceptance`, `sima_fill_from_chat`, `sima_watch_chats`, ...) — see [`docs/architecture.md`](docs/architecture.md)
-- **4-provider LLM cascade** (`claude_cli` → `anthropic` → `google` → `mock`) — `claude_cli` uses your Claude.ai Pro/Max subscription, no API key needed
+- **5-provider LLM cascade** (`claude_cli` → `anthropic` → `google` → `ollama` → `mock`) — `claude_cli` uses your Claude.ai Pro/Max subscription, `ollama` runs against your local Llama / Qwen / DeepSeek (opt-in via `LLM_PREFER_OLLAMA=1`), `mock` for offline/CI
 - **68 nightly validators** — `npm run test:nightly`
 - **Auto-generated** WIKI / TZ / Roadmap / per-block user tutorials
 - **Multi-tenant** — many products in `atlas/clients/<id>/`, hybrid isolation
@@ -64,7 +64,7 @@ Full methodology: [English article](docs/article.en.md) · [Русский](arch
 ✅ **Stable** — 10 own blocks all green in CI; multi-tenant routing; soft lifecycle gates; phases R-1 through R-7 shipped (claude_cli provider, sima_fill_from_chat orchestrator, chat watcher, multi-tenant fixes, layer-aware blocks, real submodule hierarchy, depth-control canvas).
 
 ⬜ **Roadmap** (full list in article Part 10):
-- **U-1** local models (Ollama / vLLM / LM Studio) — top community ask
+- **U-1** local models — Ollama landed in R-7.60 (`LLM_PREFER_OLLAMA=1`); vLLM / LM Studio adapters welcome as PRs
 - **S-1** block templates marketplace (auth / payments / search / ingestion / billing)
 - **S-7** transactional change-sets for cross-cutting changes
 - **V-1** agent-loop daemon — autonomous coding in steady-state
@@ -103,7 +103,7 @@ If you draw a stack, Sima sits between *agent* and *project documents*, providin
 
 We're actively looking for help with:
 
-1. **Local-model provider** in `scripts/llm_gateway.mjs` — Ollama / vLLM / LM Studio adapter (~150 lines)
+1. **Local-model providers** in `scripts/llm_gateway.mjs` — Ollama is in (R-7.60); vLLM / LM Studio / llama.cpp adapters welcome (~80 lines each, mirror the Ollama pattern)
 2. **Block templates** — auth / payments / search / ingestion / billing — each with mission + KPI + acceptance
 3. **VS Code sidebar extension** — canvas next to code
 4. **Evidence collectors** beyond the built-in five (`http_status`, `json_shape_match`, `snapshot_diff`, `lighthouse_score`)
