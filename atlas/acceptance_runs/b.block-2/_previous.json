@@ -1,0 +1,37 @@
+{
+  "block_id": "b.block-2",
+  "source_path": "/home/user/sima_atlas/atlas/blocks/b.block-2/acceptance.md",
+  "parsed_warnings": [],
+  "assertions": [
+    {
+      "id": "A1",
+      "label": null,
+      "text": "Заполни через детальную панель: что именно подтвердит готовность модуля.",
+      "checked": false,
+      "line": 3,
+      "evidence_kind": "llm_judge",
+      "evidence_spec": null,
+      "verdict": "skipped",
+      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
+      "raw": {
+        "judge_verdict": "inconclusive",
+        "provider": "mock",
+        "model": "mock-1",
+        "prompt_hash": "3fac457735934b03",
+        "cost_usd": 0,
+        "cost_capped": false,
+        "evidence_quote": ""
+      },
+      "duration_ms": 1
+    }
+  ],
+  "counts": {
+    "pass": 0,
+    "fail": 0,
+    "skipped": 1
+  },
+  "verdict": "inconclusive",
+  "duration_ms": 1,
+  "checked_at": "2026-05-08T22:02:01.098Z"
+}
