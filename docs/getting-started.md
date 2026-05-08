@@ -1,28 +1,28 @@
-# Getting Started — Sima Atlas за 15 минут
+# Getting Started — Sima Atlas in 15 minutes
 
-Этот гайд проведёт тебя от пустой папки до **«агент сам реализует первый блок»**.
-
----
-
-## 0. Что вообще такое Sima Atlas
-
-Контракт-ориентированный control-plane между разработчиком и AI-агентом. Главная идея:
-
-> **Блок = контракт, не код.** Каждый кусок продукта живёт как директория с `mission.md`, `kpi.md`, `acceptance.md` и связями. Агент (Claude / Cursor / Codex) читает контракт через MCP, пишет код, отчитывается фактами в `checks.log`. Sima проверяет каждый run на соответствие acceptance.
-
-Это превращает «AI пишет код» из лотереи в управляемый процесс.
+This guide walks you from an empty folder to **"the agent ships your first block on its own"**.
 
 ---
 
-## 1. Установка (5 минут)
+## 0. What Sima Atlas actually is
 
-### Зависимости
+A contract-first control plane between a developer and an AI agent. The core idea:
+
+> **A block is a contract, not code.** Every piece of the product lives as a directory with `mission.md`, `kpi.md`, `acceptance.md`, and links to its neighbors. The agent (Claude / Cursor / Codex) reads the contract through MCP, writes code, and reports facts back into `checks.log`. Sima validates each run against acceptance.
+
+This turns "AI writes code" from a lottery into a managed process.
+
+---
+
+## 1. Install (5 minutes)
+
+### Dependencies
 - Node.js 18+ (`node -v`)
-- Python 3 (для UI dev-сервера; статический http.server)
-- Claude Code CLI: `npm install -g @anthropic-ai/claude-code`, затем `claude` → `/login` (нужна Pro/Max или API-ключ)
-- Опционально: Cursor CLI / Codex CLI — без них кнопки запуска fallback'ят в print-only mode
+- Python 3 (for the UI dev server; just a static `http.server`)
+- Claude Code CLI: `npm install -g @anthropic-ai/claude-code`, then `claude` → `/login` (Pro/Max plan or API key required)
+- Optional: Cursor CLI / Codex CLI — without them the launch buttons fall back to print-only mode
 
-### Старт
+### Start
 ```bash
 git clone https://github.com/neskuchny/sima_atlas.git
 cd sima_atlas
@@ -32,174 +32,174 @@ npm run dev
 # API: http://localhost:8787
 ```
 
-В корне есть `.mcp.json` — Claude Code сам подхватит MCP-сервер при первом запуске сессии в директории.
+There's an `.mcp.json` at the repo root — Claude Code will pick up the MCP server automatically when you first start a session in this directory.
 
 ---
 
-## 2. Создаём первый проект (1 минута)
+## 2. Create your first project (1 minute)
 
-Открой в браузере: `http://localhost:8000/atlas_design/index.html?client=my-project`.
+Open in the browser: `http://localhost:8000/atlas_design/index.html?client=my-project`.
 
-Появится banner «Проект `my-project` ещё не создан». Нажми `+ Новый модуль` (тулбар или правый-клик по канвасу) — Sima автоматически создаст:
+You'll see a banner: "Project `my-project` doesn't exist yet". Click `+ New module` (toolbar, or right-click on the canvas) — Sima will create:
 
-- `atlas/clients/my-project/graph.json` — граф блоков
-- `atlas/clients/my-project/blocks/` — папка для блоков
-- `atlas/clients/my-project/project.md` — миссия проекта (заглушка, заполнишь)
-- `atlas/clients/my-project/rules.md` — правила кода (что нельзя делать)
-- `atlas/clients/my-project/tech_stack.md` — стек
+- `atlas/clients/my-project/graph.json` — the block graph
+- `atlas/clients/my-project/blocks/` — the blocks folder
+- `atlas/clients/my-project/project.md` — project mission (a stub for you to fill in)
+- `atlas/clients/my-project/rules.md` — coding rules (what's off-limits)
+- `atlas/clients/my-project/tech_stack.md` — the stack
 
-Banner исчезнет, появится первый блок на канвасе.
+The banner disappears and the first block shows up on the canvas.
 
-**Важно:** заполни `project.md` через `📖 Доки` в тулбаре или ContextRail слева. LLM-генерация будет качественнее, если знает миссию проекта.
-
----
-
-## 3. Контракт блока (3 минуты)
-
-Кликни на ноду блока → справа откроется DetailPanel. 4 главных таба:
-
-### Обзор
-Краткое описание + статус.
-
-### Контракт ✱ главное
-5 файлов контракта: `mission.md`, `user_story.md`, `kpi.md`, `acceptance.md`, `depends_on.md`, `provides.md`.
-
-3 кнопки рядом с каждым:
-- **`✎ Руками`** — открывает текстовое поле, пишешь сам.
-- **`✨ Заполнить`** (для пустых) — Sima сгенерит черновик через LLM, видя `project.md`, `rules.md`, соседние блоки графа.
-- **`✏ Переписать`** (для заполненных) — Sima правит ошибки/стиль, не вводя новых фактов.
-- **`✨ Развернуть`** (для заполненных) — Sima добавляет акторов, edge cases, ссылки на соседей. Используй когда черновик худой.
-
-Все правки идут на диск в `atlas/clients/<id>/blocks/<block_id>/<file>.md`.
-
-### Задачи
-Список задач через checkbox-list в `tasks.md`.
-
-### Запуски
-Прогоны агентов (см. шаг 6).
-
-### Приёмка
-Acceptance-verifier результат: pass/fail/inconclusive по каждому assertion.
+**Important:** fill in `project.md` via `📖 Docs` in the toolbar or the ContextRail on the left. LLM generation works much better when it knows the project mission.
 
 ---
 
-## 4. Связи между блоками (1 минута)
+## 3. The block contract (3 minutes)
 
-Наводишь мышь на ноду — по краям появляются 4 чёрные anchor-точки (▲ ▶ ▼ ◀). Зажми точку, тяни на другую ноду, отпусти. Связь создана.
+Click a block node — the DetailPanel opens on the right. Four main tabs:
 
-Альтернатива: `Shift + drag` от любого места ноды.
+### Overview
+Short description plus status.
 
-Чтобы переименовать связь — клик по линии → текстовое поле. `Esc` для отмены.
+### Contract ✱ the main one
+Five contract files: `mission.md`, `user_story.md`, `kpi.md`, `acceptance.md`, `depends_on.md`, `provides.md`.
 
-Чтобы удалить связь — клик по линии.
+Three buttons next to each one:
+- **`✎ Manual`** — opens a text field, you write it yourself.
+- **`✨ Fill`** (for empty files) — Sima drafts a version through an LLM, with `project.md`, `rules.md`, and the neighboring blocks in scope.
+- **`✏ Rewrite`** (for filled files) — Sima cleans up errors and style without introducing new facts.
+- **`✨ Expand`** (for filled files) — Sima adds actors, edge cases, and links to neighbors. Use it when the draft is thin.
+
+Every edit lands on disk at `atlas/clients/<id>/blocks/<block_id>/<file>.md`.
+
+### Tasks
+A checkbox list backed by `tasks.md`.
+
+### Runs
+Agent runs (see step 6).
+
+### Acceptance
+The acceptance-verifier output: pass/fail/inconclusive per assertion.
 
 ---
 
-## 5. Подмодули (2 минуты)
+## 4. Connecting blocks (1 minute)
 
-У сложных блоков (UI page, бэкенд-сервис) бывает несколько внутренних модулей разных слоёв (frontend / backend / logic). Sima это поддерживает через **drill-down**.
+Hover over a node — four black anchor points appear on its edges (▲ ▶ ▼ ◀). Press an anchor, drag to another node, release. The link is created.
 
-1. **Двойной клик** по ноде ИЛИ правый-клик → `🔍 Провалиться внутрь`
-2. Канвас становится пустым — это пустая подсистема внутри блока
-3. Разверни `▸ Канвас` в левом верхнем углу
-4. Кнопки `B / L / F / T` создают подмодуль с конкретным слоем:
+Alternative: `Shift + drag` from anywhere on the node.
+
+To rename a link, click the line — a text field opens. `Esc` cancels.
+
+To delete a link, click the line.
+
+---
+
+## 5. Submodules (2 minutes)
+
+Complex blocks (a UI page, a backend service) often contain several internal modules across different layers (frontend / backend / logic). Sima supports this through **drill-down**.
+
+1. **Double-click** a node, or right-click → `🔍 Drill into`
+2. The canvas goes empty — this is the empty subsystem inside the block
+3. Expand `▸ Canvas` in the top-left corner
+4. The `B / L / F / T` buttons create a submodule with a specific layer:
    - **B** = backend (API, persistence)
    - **L** = logic (rules, computations)
    - **F** = frontend (UI components, screens)
    - **T** = tests (unit, e2e)
-5. Подмодуль = настоящий блок с папкой `atlas/clients/<id>/blocks/<parent>.s1/`. У него полный контракт. В DetailPanel появится плашка `↑ parent: b.X` — клик возвращает к родителю.
+5. A submodule is a real block with its own folder `atlas/clients/<id>/blocks/<parent>.s1/`. It has the full contract. The DetailPanel shows a `↑ parent: b.X` chip — click it to jump back to the parent.
 
-Связи между подмодулями — те же anchor-точки. Они живут в общем `graph.edges`, фильтруются в drill-view.
+Links between submodules use the same anchor points. They live in the shared `graph.edges` and are filtered down to the drill view.
 
-Назад из drill — крошки сверху канваса (`↑ верхний уровень`).
-
----
-
-## 6. Запуск агента (3 минуты)
-
-Открой блок с заполненным контрактом → таб `Запуски` → 3 кнопки:
-- **`Claude Code`** — спавнит `claude --print --add-dir <blockdir> --add-dir <atlas>` с твоей миссией+тасками+акцептансом как промптом.
-- **`Cursor`** — то же через `cursor-agent`.
-- **`Codex`** — то же через `codex`.
-
-Нажмёшь — появится «live» карточка с phase'ами FSM (`PreparingWorkspace → LaunchingAgent → Running → Verifying → Succeeded`).
-
-Если CLI агента не установлен (например `cursor-agent` отсутствует), Sima автоматически fallback'ит в **print-only mode**: сохраняет промпт в `atlas/clients/<id>/agent_invocations/<UTC>__<block>.txt`. Скопируй и вставь в Cursor IDE / другой LLM руками.
-
-После завершения run'а:
-- В блока `checks.log` появится `agent_invocation pass agent=claude summary=...`
-- В `Запусках` карточка получит badges: «приёмка pass», «↑ N файлов», «$0.0123» (стоимость)
-- Если acceptance-verifier пройдёт — блок eligible для перевода в `done`
-
-### Внешние запуски
-Если ты сам запустил Cursor IDE (без UI кнопки) и он отчитался в `checks.log` — Sima тоже покажет это во вкладке `Запуски` с badge `extern`. Полного лога не будет, но факт run'а виден.
+To get back out of a drill, use the breadcrumbs above the canvas (`↑ top level`).
 
 ---
 
-## 7. Sima сама заполняет блоки из переписки
+## 6. Running an agent (3 minutes)
 
-В тулбаре `+ Артефакт` → вкладка `Текст`. Вставь содержимое чата с разработчиком/PM (где обсуждались блоки продукта). Жми `✦ Sima — заполни`.
+Open a block with a filled-in contract → the `Runs` tab → three buttons:
+- **`Claude Code`** — spawns `claude --print --add-dir <blockdir> --add-dir <atlas>` with your mission + tasks + acceptance as the prompt.
+- **`Cursor`** — same thing through `cursor-agent`.
+- **`Codex`** — same thing through `codex`.
 
-Sima:
-1. Извлечёт цели / KPI / задачи / риски / термины из текста
-2. Предложит набор блоков с заполненными `mission.md` / `acceptance.md` / `depends_on`
-3. Покажет «✦ Предложения» в тулбаре с pending-планом
-4. Acceptable / reject по каждому блоку перед записью на диск
+Click one and a "live" card appears with the FSM phases (`PreparingWorkspace → LaunchingAgent → Running → Verifying → Succeeded`).
 
-Это и есть «Sima сама создаёт схему из требований» — главное обещание системы.
+If the agent's CLI isn't installed (e.g. no `cursor-agent` on PATH), Sima automatically falls back to **print-only mode**: it saves the prompt to `atlas/clients/<id>/agent_invocations/<UTC>__<block>.txt`. Copy and paste it into Cursor IDE or another LLM by hand.
+
+When the run finishes:
+- The block's `checks.log` gets `agent_invocation pass agent=claude summary=...`
+- The card in `Runs` picks up badges: "acceptance pass", "↑ N files", "$0.0123" (cost)
+- If the acceptance-verifier passes, the block is eligible to move to `done`
+
+### External runs
+If you launched Cursor IDE yourself (without using the UI button) and it reported into `checks.log`, Sima still surfaces it in the `Runs` tab with an `extern` badge. You won't get the full log, but you'll see that the run happened.
 
 ---
 
-## 8. Что важно понимать про архитектуру
+## 7. Sima fills in blocks from your chat history
 
-### Многослойность
-Каждый блок имеет `layer`:
-- `backend` — серверная логика, API, БД
-- `frontend` — UI, компоненты, экраны
-- `logic` — бизнес-правила, чистые функции
-- `tests` — проверки
+In the toolbar: `+ Artifact` → the `Text` tab. Paste a chat transcript with a developer or PM (anywhere product blocks were discussed). Click `✦ Sima — fill it in`.
 
-Цвет ноды на канвасе зависит от слоя.
+Sima will:
+1. Pull goals / KPIs / tasks / risks / glossary from the text
+2. Propose a set of blocks with `mission.md` / `acceptance.md` / `depends_on` already drafted
+3. Show "✦ Proposals" in the toolbar with a pending plan
+4. Let you accept or reject each block before anything is written to disk
+
+This is the "Sima builds the schema from requirements on its own" promise — the headline feature of the system.
+
+---
+
+## 8. What you should know about the architecture
+
+### Layers
+Every block has a `layer`:
+- `backend` — server logic, APIs, databases
+- `frontend` — UI, components, screens
+- `logic` — business rules, pure functions
+- `tests` — checks
+
+A node's color on the canvas reflects its layer.
 
 ### Multi-tenant
-Один сервер обслуживает много проектов. URL `?client=<id>` переключает контекст:
-- `?client=main` — корневой `atlas/blocks/` (Sima сама)
+A single server hosts many projects. The `?client=<id>` URL parameter switches context:
+- `?client=main` — the root `atlas/blocks/` (Sima itself)
 - `?client=my-saas` — `atlas/clients/my-saas/blocks/`
 - `?client=other-product` — `atlas/clients/other-product/blocks/`
 
-В тулбаре project-picker (текущий клиент) — переключаться + создавать новые.
+The toolbar has a project picker (the current client) — switch between projects or create new ones.
 
-### Память блока
-Кроме контрактных файлов, у блока есть:
-- `decisions.log` — принятые решения (LLM экстрагирует из run-логов)
-- `patterns.md` — извлечённые уроки «что сработало / что не работало»
-- `code_summary.md` — сводка по коду блока (regenerated после run'а)
-- `history/` — снапшоты файлов при каждом patch'е
+### Block memory
+On top of the contract files, a block has:
+- `decisions.log` — decisions taken (the LLM extracts them from run logs)
+- `patterns.md` — distilled lessons of "what worked / what didn't"
+- `code_summary.md` — a summary of the block's code (regenerated after each run)
+- `history/` — file snapshots for every patch
 
-Эти файлы попадают в context-pack следующего run'а — агент учится на ошибках.
+These files feed into the next run's context pack — the agent learns from past mistakes.
 
 ---
 
-## 9. Куда смотреть когда сломалось
+## 9. Where to look when something breaks
 
-`docs/troubleshooting.md` — реальные ошибки и фиксы из R-7.X дебагов:
+`docs/troubleshooting.md` collects real errors and fixes from the R-7.X debug sessions:
 - LLM Invalid API key / 401
-- Запуски Cursor/Codex ENOENT
+- Cursor/Codex run ENOENT
 - block dir not found
-- Multi-tenant baner stuck
-- UI клики не работают
-- CLI-entry bug на Windows
+- Multi-tenant banner stuck
+- UI clicks not working
+- CLI-entry bug on Windows
 
-При любой ошибке `npm run dev` показывает api-лог с конкретным reason.
+For any failure, `npm run dev` prints an API log line with the concrete reason.
 
 ---
 
-## 10. Дальше
+## 10. Next steps
 
-- **Acceptance.md** — пиши тестируемые критерии (`evidence_kind: shell|grep|ast|run|llm`). Sima автоматически прогонит верификатор после каждого run'а.
-- **Architecture review** — `Архитектура` в тулбаре → Sima пройдёт по всему графу + project.md, найдёт противоречия, drift с tech_stack, missing dependencies.
-- **Подагенты** — `Подагенты` в тулбаре → специализированные роли (verifier / wiki-builder / schema-syncer) для рутинных проверок.
-- **Шаблоны** — типовые скелеты блоков (auth-service, dashboard-page, etc.). Применяешь — получаешь набор блоков с готовым контрактом.
+- **Acceptance.md** — write testable criteria (`evidence_kind: shell|grep|ast|run|llm`). Sima runs the verifier automatically after every run.
+- **Architecture review** — `Architecture` in the toolbar → Sima walks the entire graph plus `project.md`, surfaces contradictions, drift against `tech_stack`, and missing dependencies.
+- **Subagents** — `Subagents` in the toolbar → specialized roles (verifier / wiki-builder / schema-syncer) for routine checks.
+- **Templates** — canonical block skeletons (auth-service, dashboard-page, etc.). Apply one and you get a set of blocks with a ready-made contract.
 
 ---
 
@@ -207,10 +207,10 @@ Sima:
 
 ```
 clone → npm install → npm run dev
-?client=my-project → + Новый модуль → заполнить mission/acceptance
-shift+drag создаёт связи · 2×клик проваливается внутрь
-Запуски → Claude Code → дождаться pass
+?client=my-project → + New module → fill in mission/acceptance
+shift+drag creates links · double-click drills into a block
+Runs → Claude Code → wait for pass
 git commit
 ```
 
-И главное — **читай `docs/troubleshooting.md` когда что-то странное**. Там собраны реальные фиксы из боевых дебагов.
+And, above all — **read `docs/troubleshooting.md` when something looks weird**. It has the real fixes from real debug sessions.

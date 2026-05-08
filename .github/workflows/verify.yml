@@ -17,9 +17,14 @@ on:
 
 jobs:
   verify:
-    name: verify_all (skip-screenshots)
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
+    name: verify_all (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 12
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
 
     env:
       ATLAS_FORCE_MOCK_LLM: "1"
@@ -43,6 +48,7 @@ jobs:
 
       - name: Show nightly report on failure
         if: failure()
+        shell: bash
         run: |
           echo "::group::nightly_report.md"
           cat atlas/nightly_report.md || echo "no report"
