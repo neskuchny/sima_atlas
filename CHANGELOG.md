@@ -6,6 +6,104 @@ Sima Atlas сейчас в early-stage (`0.x`), API может меняться 
 
 ---
 
+## [0.1.0] — 2026-05-08
+
+First public-release tag. The whole `claude/visual-component-system-N2W07`
+branch (R-7.30 → R-7.61, 32 phases) shipped together — everything from
+the launch-readiness audit BLOCKERs + TIER-1 + selected TIER-2 items.
+
+### Added — UI / canvas (R-7.30 → R-7.49)
+- Anchor-point edge creation (no Shift modifier needed)
+- Drill-down via double-click; auto-creates empty subsystem if none
+- Real submodule hierarchy via `parent_block_id` field; B/L/F/T layer
+  picker creates children with the right layer; `↑ parent: <id>` pill
+  in DetailPanel
+- Layer picker pills in Overview (`Backend / Logic / Frontend / Tests`)
+  with one-click `patchBlock({layer})`; canvas color updates instantly
+- Depth-controlled canvas: `1 / 2 / ∞` toggle filters how many levels
+  of children render
+- Architecture review modal rewritten with structured concern cards
+  (severity left-border, what's-wrong / how-to-fix / affects-blocks
+  sections)
+- Agent monograms in Runs cards (C/C/⌘) replacing colored dots
+- ✨ Develop button next to ✏ Rewrite for richer LLM expansion
+- External agent runs surfaced in Runs tab (parsed from checks.log)
+
+### Added — LLM cascade (R-7.39 / R-7.42 / R-7.60)
+- Context-aware fillField / rewriteField — LLM sees project + neighbors
+  + parent
+- expandField mode (richer "develop" of existing draft)
+- **Ollama provider** for local models (`LLM_PREFER_OLLAMA=1`,
+  `LLM_OLLAMA_MODEL=qwen2.5-coder:7b`); cascade is now 5-provider:
+  ollama → claude_cli → anthropic → google → mock
+
+### Added — opensource readiness (R-7.50 → R-7.51)
+- README cut from 209 → 124 lines; methodology in `docs/article.en.md`;
+  Russian variant at `README.ru.md`
+- `docs/getting-started.md` (English); `docs/getting-started.ru.md`
+  preserves Russian original
+- `docs/architecture.md` (265 lines) — system diagram + HTTP API table
+  + MCP tool surface + run FSM + lifecycle FSM + multi-tenant model
+- `docs/troubleshooting.md` — real R-7.X failure modes
+- Hero image captured (`scripts/capture_hero_screenshot.mjs` —
+  `npm run hero:capture`)
+- `package.json` flipped `private: false`, added description / license /
+  homepage / repository / bugs / keywords for npm metadata
+- Replaced `python3 http.server` dep with pure-Node static server
+- Agent CLI auto-detect at startup with one-line install hints
+- macOS added to CI matrix (was Linux-only)
+- Removed `Sima (Remix)/` → `frontend/`; `ТЗ/` → `archive/ru-specs/`;
+  legacy backup directories deleted
+
+### Added — agent navigation skill (R-7.53)
+- `docs/agent-navigation.md` — canonical strategy: standard read order,
+  MCP tool selection, skip-list, write protocol, stop-signals, common
+  task templates
+- `.claude/skills/sima-atlas-navigator/SKILL.md` — Anthropic Skills
+  format (auto-activates in Claude Code)
+- `.cursor/rules/sima-atlas-navigator.mdc` — Cursor Rules
+  (`alwaysApply: true`)
+- `AGENTS.md` + `CLAUDE.md` rewritten as thin pointers to canonical
+
+### Added — i18n (R-7.52 → R-7.59)
+- `frontend/atlas_design/i18n.js` — hand-rolled minimal i18n
+  (no deps, no build step), `window.__SIMA_T(key, fallback)`
+- 588 EN / 588 RU keys, fully balanced
+- Default locale = English; toggle via 🌐 EN/RU pill in toolbar
+  (persists to localStorage)
+- Coverage: top toolbar, all DetailPanel tabs, all 9 modals,
+  ContextRail, status filters, drill messages, demo activity log,
+  onboarding 5-step K1 tour
+- example client (Habit Tracker) translated EN-first; Russian
+  originals preserved at `*.ru.md`
+
+### Added — VS Code extension (R-7.61)
+- 0.1 scaffold at `extensions/vscode/` — Activity Bar item, embedded
+  canvas webview, blocks tree view (reads `atlas/clients/<client>/
+  graph.json`, expands submodules via `parent_block_id`), commands
+  (Open Canvas / Start Dev Server / Refresh Blocks / Open Block
+  Contract), settings (apiUrl / uiUrl / client / atlasRoot)
+
+### Fixed
+- Layer-picker bug — `LAYER_MAP` in `build_sima_design_payload.mjs`
+  lacked identity mappings (R-7.40+ atlas-native layer names);
+  `LayerPicker` save → reload → fallback to `logic`. Added
+  identity entries (R-7.56)
+- Rules-of-hooks crash on locale toggle — `__SIMA_USE_LOCALE` had
+  conditional early-return (`if (!React) return ...`) which violated
+  hook count constancy. Removed wrapper; App() subscribes directly
+  via raw `useState` + `useEffect` on `sima-locale-change` event
+  (R-7.55)
+- `index.html` `lang="ru"` → `lang="en"`; title also translated
+
+### Migration
+- `scripts/migrate_subsystems_to_blocks.mjs` — moves legacy
+  `atlas/{,clients/<id>/}subsystems/<parent>.json` entries into
+  real blocks with `parent_block_id`. Idempotent. Dry-run via
+  `--dry-run`.
+
+---
+
 ## [Unreleased]
 
 ### Added (opensource-prep, 2026-05-06 → 2026-05-07)
