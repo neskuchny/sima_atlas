@@ -13,7 +13,8 @@
 
 **Who it's for.** Developers building products with > 10 features who hit the ceiling where AI agents start hallucinating, drifting, and re-doing things every iteration.
 
-![Canvas overview](tests/playwright/screenshots/sima_design_live.png)
+
+<img width="1913" height="960" alt="image" src="https://github.com/user-attachments/assets/15114bfe-1593-443c-ac18-3894bb49ee4f" />
 
 ---
 
