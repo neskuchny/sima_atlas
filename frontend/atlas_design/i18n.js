@@ -61,6 +61,29 @@
       'view.layered':             'Слои 3D',
       'view.split':               'Граф + детали',
 
+      // ── Toolbar / hints ─────────────────────────────────
+      'toolbar.product_review':   '🔍 Ревью продукта',
+      'toolbar.product_review_title': 'Глубокое ревью продукта — schema-syncer + LLM-судья по каждому блоку (миссия vs реализация)',
+      'toolbar.cmd_hint':         '⌘K · команда',
+      'toolbar.new_project':      '＋ новый проект',
+      'toolbar.crumb_done':       'готово',
+
+      // ── Status filters ──────────────────────────────────
+      'filter.done':              'готово',
+      'filter.progress':          'в работе',
+      'filter.todo':              'в очереди',
+      'filter.desync':            'рассинхрон',
+      'filter.fail':              'ошибка',
+
+      // ── Drill view / canvas hints ───────────────────────
+      'drill.opened_with_modules': '↳ открыл подсистему @${tag} (${count} модулей)',
+      'drill.opened_empty':       '↳ открыл пустую подсистему @${tag}. Жми «+ Новый модуль» внутри.',
+      'drill.up_top':             '↑ верхний уровень',
+      'drill.canvas':             'Канвас',
+      'canvas.hint':              '— внутрь модуля · точки по краям ноды → тяни на другую — связь · клик по линии — удалить',
+      'canvas.hint_kbd':          '2×клик',
+      'canvas.empty_state':       'Канвас пуст — это ожидаемо. Создайте проект, чтобы Sima могла читать и писать в',
+
       // ── Layer picker ────────────────────────────────────
       'layer.picker_label':       'Слой',
       'layer.backend':            'Backend',
@@ -149,6 +172,29 @@
       'view.graph':               'Graph',
       'view.layered':             '3D layers',
       'view.split':               'Graph + details',
+
+      // ── Toolbar / hints ─────────────────────────────────
+      'toolbar.product_review':   '🔍 Product review',
+      'toolbar.product_review_title': 'Deep product review — schema-syncer + LLM judge per block (mission vs implementation)',
+      'toolbar.cmd_hint':         '⌘K · command',
+      'toolbar.new_project':      '＋ new project',
+      'toolbar.crumb_done':       'done',
+
+      // ── Status filters ──────────────────────────────────
+      'filter.done':              'done',
+      'filter.progress':          'in progress',
+      'filter.todo':              'todo',
+      'filter.desync':            'desync',
+      'filter.fail':              'failed',
+
+      // ── Drill view / canvas hints ───────────────────────
+      'drill.opened_with_modules': '↳ opened subsystem @${tag} (${count} modules)',
+      'drill.opened_empty':       '↳ opened empty subsystem @${tag}. Hit «+ New block» inside.',
+      'drill.up_top':             '↑ top level',
+      'drill.canvas':             'Canvas',
+      'canvas.hint':              '— go inside the module · drag from edge dots to another node — connection · click an edge — delete',
+      'canvas.hint_kbd':          'dbl-click',
+      'canvas.empty_state':       'Canvas is empty — that\'s expected. Create a project so Sima can read and write to',
 
       // ── Layer picker ────────────────────────────────────
       'layer.picker_label':       'Layer',

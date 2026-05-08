@@ -4,14 +4,14 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Sima Atlas — visual contract-first development for AI agents</title>
-<link rel="stylesheet" href="styles.css?v=r7-55" />
+<link rel="stylesheet" href="styles.css?v=r7-56" />
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 <!-- R-7.28: markdown renderer for contract bodies (mission.md / kpi.md / acceptance.md etc.) -->
 <script src="https://cdn.jsdelivr.net/npm/marked@13.0.3/marked.min.js"></script>
 <!-- R-7.52: i18n must load BEFORE jsx components so window.__SIMA_T is defined when React renders -->
-<script src="i18n.js?v=r7-55"></script>
+<script src="i18n.js?v=r7-56"></script>
 </head>
 <body>
 <div id="root"></div>
@@ -26,12 +26,12 @@
        `sima-data-changed` CustomEvent so the React tree can react. Set
        window.SIMA_API_BASE before this script loads to point at a
        remote backend in production. -->
-<script src="data_static.js?v=r7-55"></script>
-<script src="data_loader.js?v=r7-55"></script>
-<script type="text/babel" src="tweaks-panel.jsx?v=r7-55"></script>
-<script type="text/babel" src="graph.jsx?v=r7-55"></script>
-<script type="text/babel" src="panels.jsx?v=r7-55"></script>
-<script type="text/babel" src="views.jsx?v=r7-55"></script>
+<script src="data_static.js?v=r7-56"></script>
+<script src="data_loader.js?v=r7-56"></script>
+<script type="text/babel" src="tweaks-panel.jsx?v=r7-56"></script>
+<script type="text/babel" src="graph.jsx?v=r7-56"></script>
+<script type="text/babel" src="panels.jsx?v=r7-56"></script>
+<script type="text/babel" src="views.jsx?v=r7-56"></script>
 <script type="text/babel">
 const { useState, useEffect, useRef, useMemo, useCallback } = React;
 
@@ -763,11 +763,11 @@ function App() {
   };
 
   const filtersList = [
-    { id: 'done', label: 'готово' },
-    { id: 'progress', label: 'в работе' },
-    { id: 'todo', label: 'в очереди' },
-    { id: 'desync', label: 'рассинхрон' },
-    { id: 'fail', label: 'ошибка' },
+    { id: 'done', label: (window.__SIMA_T||((_,fb)=>fb))('filter.done', 'done') },
+    { id: 'progress', label: (window.__SIMA_T||((_,fb)=>fb))('filter.progress', 'in progress') },
+    { id: 'todo', label: (window.__SIMA_T||((_,fb)=>fb))('filter.todo', 'todo') },
+    { id: 'desync', label: (window.__SIMA_T||((_,fb)=>fb))('filter.desync', 'desync') },
+    { id: 'fail', label: (window.__SIMA_T||((_,fb)=>fb))('filter.fail', 'failed') },
     { id: 'blocked', label: 'заблок.' },
   ];
   const toggleFilter = (id) => {
@@ -951,8 +951,12 @@ function App() {
     pushLog({
       agent: 'SIMA Core', kind: 'note',
       msg: has
-        ? `↳ открыл подсистему @${data.modules.find(m=>m.id===id)?.tag} (${data.subsystems[id].modules.length} модулей)`
-        : `↳ открыл пустую подсистему @${data.modules.find(m=>m.id===id)?.tag}. Жми «+ Новый модуль» внутри.`,
+        ? ((window.__SIMA_LOCALE === 'ru')
+            ? `↳ открыл подсистему @${data.modules.find(m=>m.id===id)?.tag} (${data.subsystems[id].modules.length} модулей)`
+            : `↳ opened subsystem @${data.modules.find(m=>m.id===id)?.tag} (${data.subsystems[id].modules.length} modules)`)
+        : ((window.__SIMA_LOCALE === 'ru')
+            ? `↳ открыл пустую подсистему @${data.modules.find(m=>m.id===id)?.tag}. Жми «+ Новый модуль» внутри.`
+            : `↳ opened empty subsystem @${data.modules.find(m=>m.id===id)?.tag}. Hit «+ New block» inside.`),
     });
   };
   const drillUp = () => {
@@ -1036,13 +1040,13 @@ function App() {
                   }
                   setPickerOpen(false);
                   switchClient(id);
-                }}>＋ новый проект</button>
+                }}>{(window.__SIMA_T||((_,fb)=>fb))('toolbar.new_project', '＋ new project')}</button>
               </div>
             </div>
           )}
         </div>
         <div className="crumbs">
-          <em>{data.product.title}</em> &nbsp;·&nbsp; {data.modules.filter(m => m.status === 'done').length}/{data.modules.length} готово &nbsp;·&nbsp; <span className="mono" style={{textTransform:'none'}}>main</span>
+          <em>{data.product.title}</em> &nbsp;·&nbsp; {data.modules.filter(m => m.status === 'done').length}/{data.modules.length} {(window.__SIMA_T||((_,fb)=>fb))('toolbar.crumb_done', 'done')} &nbsp;·&nbsp; <span className="mono" style={{textTransform:'none'}}>main</span>
         </div>
         <div className="spacer" />
 
@@ -1068,7 +1072,7 @@ function App() {
           <span className="dot" style={{ background: scanState === 'found' ? 'var(--st-desync)' : 'var(--st-done)' }} />
           {scanState === 'scanning' ? 'проверяю…' : scanState === 'found' ? '⚠ есть дрейф' : '⟳ Sync'}
         </button>
-        <button className="pill" onClick={() => setProductReviewOpen(true)} title="Глубокое ревью продукта — schema-syncer + LLM-судья по каждому блоку (миссия vs реализация)">🔍 Ревью продукта</button>
+        <button className="pill" onClick={() => setProductReviewOpen(true)} title={(window.__SIMA_T||((_,fb)=>fb))('toolbar.product_review_title', 'Deep product review — schema-syncer + LLM judge per block (mission vs implementation)')}>{(window.__SIMA_T||((_,fb)=>fb))('toolbar.product_review', '🔍 Product review')}</button>
         <button className="pill" onClick={() => setArchReviewOpen(true)} title={(window.__SIMA_T||((_,fb)=>fb))('toolbar.architecture_title','Architecture review — framework consistency, scale, data flow across the whole graph')}>{(window.__SIMA_T||((_,fb)=>fb))('toolbar.architecture','🏛 Architecture')}</button>
         <button className="pill" onClick={() => setComposerOpen(true)} title="Synthesize artifact from source">{(window.__SIMA_T||((_,fb)=>fb))('toolbar.artifact','＋ Artifact')}</button>
         <button className="pill" onClick={() => setGalleryOpen(true)} title="Artifact gallery">⊞ Gallery</button>
@@ -1111,7 +1115,7 @@ function App() {
           </span>
         )}
         <button className="pill" onClick={() => setCmdOpen(true)}>
-          ⌘K · команда
+          {(window.__SIMA_T||((_,fb)=>fb))('toolbar.cmd_hint', '⌘K · command')}
         </button>
       </div>
 
@@ -1209,7 +1213,7 @@ function App() {
           />
           {(drillStack.length > 0 || drillId) && (
             <div className="drill-crumbs">
-              <button onClick={() => { setDrillStack([]); setDrillId(null); }}>↑ верхний уровень</button>
+              <button onClick={() => { setDrillStack([]); setDrillId(null); }}>{(window.__SIMA_T||((_,fb)=>fb))('drill.up_top', '↑ top level')}</button>
               {drillStack.map((id, i) => (
                 <React.Fragment key={id}>
                   <span className="sep">/</span>
@@ -1280,7 +1284,7 @@ function App() {
                 фильтров + ▾, развёрнуто = full controls. */}
             <button className="canvas-tools-toggle" onClick={() => setCanvasToolsOpen(o => !o)} title={canvasToolsOpen ? 'Свернуть панель' : 'Развернуть панель'}>
               <span style={{ marginRight: 4 }}>{canvasToolsOpen ? '▾' : '▸'}</span>
-              <span style={{ fontSize: 11 }}>Канвас</span>
+              <span style={{ fontSize: 11 }}>{(window.__SIMA_T||((_,fb)=>fb))('drill.canvas', 'Canvas')}</span>
               {!canvasToolsOpen && filters.size > 0 && (
                 <span className="badge" style={{ marginLeft: 6 }}>{filters.size}</span>
               )}
@@ -1337,7 +1341,7 @@ function App() {
               </span>
             ))}
             <span style={{ borderLeft: '1px solid var(--rule-2)', paddingLeft: 14, color: 'var(--ink-4)' }}>
-              <span className="kbd">2×клик</span> — внутрь модуля · точки по краям ноды → тяни на другую — связь · клик по линии — удалить
+              <span className="kbd">{(window.__SIMA_T||((_,fb)=>fb))('canvas.hint_kbd', 'dbl-click')}</span> {(window.__SIMA_T||((_,fb)=>fb))('canvas.hint', '— go inside the module · drag from edge dots to another node — connection · click an edge — delete')}
             </span>
           </div>
         </>

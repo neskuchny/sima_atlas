@@ -45,12 +45,20 @@ const STATUS_MAP = {
   broken: 'fail',
 };
 const LAYER_MAP = {
-  user: 'frontend',
-  front: 'frontend',
-  logic: 'logic',
-  ai: 'logic',
-  data: 'backend',
-  ext: 'backend',
+  // Identity mappings — atlas layers (R-7.40+) match design layers 1:1.
+  // Without these, LayerPicker save → patchBlock {layer:'backend'} → reload
+  // → LAYER_MAP['backend']=undefined → fallback 'logic' → user sees the
+  // pill never changing.
+  backend:  'backend',
+  frontend: 'frontend',
+  logic:    'logic',
+  tests:    'tests',
+  // Legacy / synonym mappings.
+  user:    'frontend',
+  front:   'frontend',
+  ai:      'logic',
+  data:    'backend',
+  ext:     'backend',
   testing: 'tests',
   content: 'backend',
 };
