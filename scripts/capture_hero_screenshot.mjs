@@ -33,9 +33,20 @@ const URL = process.env.HERO_URL || 'http://localhost:8000/atlas_design/index.ht
   fs.mkdirSync(path.dirname(OUT), { recursive: true });
 
   console.log(`[hero] launching chromium`);
-  const browser = await chromium.launch();
-  const context = await browser.newContext({ viewport: { width: 1280, height: 720 } });
+  const browser = await chromium.launch({
+    args: ['--ignore-certificate-errors', '--disable-web-security'],
+  });
+  const context = await browser.newContext({
+    viewport: { width: 1280, height: 720 },
+    ignoreHTTPSErrors: true,
+  });
   const page = await context.newPage();
+
+  // Surface console errors so headless render issues are obvious
+  page.on('console', (msg) => {
+    if (msg.type() === 'error') console.error(`[hero][console.error] ${msg.text()}`);
+  });
+  page.on('pageerror', (err) => console.error(`[hero][pageerror] ${err.message}`));
 
   console.log(`[hero] visiting ${URL}`);
   try {
@@ -47,15 +58,29 @@ const URL = process.env.HERO_URL || 'http://localhost:8000/atlas_design/index.ht
     process.exit(1);
   }
 
-  // Wait for the React tree + first design-payload refresh to settle.
-  await page.waitForTimeout(1500);
+  // The canvas is rendered by React+Babel-in-browser; first paint after
+  // networkidle still has babel parsing JSX from CDN. Wait for the canvas
+  // root + at least one rendered node before screenshotting.
+  console.log(`[hero] waiting for canvas node to render`);
+  try {
+    await page.waitForSelector('.node, .module-card, [data-mid]', { timeout: 25_000 });
+  } catch {
+    console.warn(`[hero] no .node selector after 25s — screenshot may show empty canvas`);
+  }
+  // Settle: data-payload first refresh + edge animations
+  await page.waitForTimeout(2500);
 
-  // Optionally close any onboarding/banner overlays that might cover the canvas.
+  // Close any onboarding / cmd-bar overlays that would cover the canvas.
+  // .onboarding is the K1 5-step welcome tour; localStorage persists
+  // skip state so subsequent runs don't show it.
   try {
     await page.evaluate(() => {
-      document.querySelectorAll('.cmd-bar, .onboard-overlay').forEach((el) => el.remove());
+      document.querySelectorAll('.onboarding, .cmd-bar, .onb-card, .composer-overlay').forEach((el) => el.remove());
+      localStorage.setItem('sima.onboarding.dismissed', '1');
     });
   } catch {}
+  // Allow re-render after overlay removal
+  await page.waitForTimeout(500);
 
   console.log(`[hero] screenshotting → ${path.relative(ROOT, OUT)}`);
   await page.screenshot({ path: OUT, type: 'png' });
