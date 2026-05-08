@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>SIMA Atlas — визуальное программирование с памятью</title>
-<link rel="stylesheet" href="styles.css?v=r7-48" />
+<link rel="stylesheet" href="styles.css?v=r7-49" />
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
@@ -24,12 +24,12 @@
        `sima-data-changed` CustomEvent so the React tree can react. Set
        window.SIMA_API_BASE before this script loads to point at a
        remote backend in production. -->
-<script src="data_static.js?v=r7-48"></script>
-<script src="data_loader.js?v=r7-48"></script>
-<script type="text/babel" src="tweaks-panel.jsx?v=r7-48"></script>
-<script type="text/babel" src="graph.jsx?v=r7-48"></script>
-<script type="text/babel" src="panels.jsx?v=r7-48"></script>
-<script type="text/babel" src="views.jsx?v=r7-48"></script>
+<script src="data_static.js?v=r7-49"></script>
+<script src="data_loader.js?v=r7-49"></script>
+<script type="text/babel" src="tweaks-panel.jsx?v=r7-49"></script>
+<script type="text/babel" src="graph.jsx?v=r7-49"></script>
+<script type="text/babel" src="panels.jsx?v=r7-49"></script>
+<script type="text/babel" src="views.jsx?v=r7-49"></script>
 <script type="text/babel">
 const { useState, useEffect, useRef, useMemo, useCallback } = React;
 
@@ -66,6 +66,7 @@ function App() {
   const [schemaTitle, setSchemaTitle] = useState('Lensa · схема продукта');
   const [drillId, setDrillId] = useState(null);
   const [drillStack, setDrillStack] = useState([]); // path of parent ids when descending into subsystems
+  const [canvasDepth, setCanvasDepth] = useState(1); // R-7.49: 1 / 2 / 'all' — сколько уровней детей показывать на канвасе
   const [showEdgeLabels, setShowEdgeLabels] = useState(true);
   // R-7.29 — canvas-tools панель плотно перекрывала канвас и его overlay'и.
   // По дефолту свёрнута, оператор сам разворачивает по chevron.
@@ -801,17 +802,58 @@ function App() {
   // R-7.40 — приоритет: реальные блоки-дети с parent_block_id; fallback
   // на subsystem JSON для legacy данных. activeEdges аналогично — ребро
   // подходит, если ОБА конца внутри drillTarget'а.
+  //
+  // R-7.49 — depth-control + правильный top-level фильтр.
+  // До: на верхнем уровне `activeModules = modules` показывал ВСЁ,
+  // включая подмодули с parent_block_id. Подмодуль b.X.s1 после
+  // создания висел и на верхнем уровне, и внутри b.X — каша.
+  // Сейчас: на верхнем уровне видим только top-level (без parent),
+  // в drill — потомков drillTarget'а; canvasDepth ограничивает глубину
+  // (1 = только roots, 2 = roots + 1 уровень, 'all' = все потомки).
   const realChildren = drillTarget ? childrenOf(drillTarget) : [];
   const useRealHierarchy = !!drillTarget && (realChildren.length > 0 || (curSub && curSub.modules.length === 0));
-  const childIds = new Set(realChildren.map(m => m.id));
+
+  const expandByDepth = (rootIds, mods, depth) => {
+    const visible = new Set(rootIds);
+    if (depth === 'all') {
+      let added = true;
+      while (added) {
+        added = false;
+        for (const m of mods) {
+          if (!visible.has(m.id) && m.parent_block_id && visible.has(m.parent_block_id)) {
+            visible.add(m.id); added = true;
+          }
+        }
+      }
+    } else {
+      let frontier = [...rootIds];
+      for (let d = 1; d < (depth || 1); d++) {
+        const next = [];
+        for (const m of mods) {
+          if (!visible.has(m.id) && m.parent_block_id && frontier.includes(m.parent_block_id)) {
+            visible.add(m.id); next.push(m.id);
+          }
+        }
+        if (!next.length) break;
+        frontier = next;
+      }
+    }
+    return mods.filter(m => visible.has(m.id));
+  };
+
+  const topLevelIds = (modules || []).filter(m => !m.parent_block_id).map(m => m.id);
+  const drillRootIds = realChildren.map(m => m.id);
+  const childIds = new Set(drillRootIds);
+
   const activeModules = drillTarget
-    ? (useRealHierarchy ? realChildren : (curSub ? curSub.modules : []))
-    : modules;
+    ? (useRealHierarchy ? expandByDepth(drillRootIds, modules, canvasDepth) : (curSub ? curSub.modules : []))
+    : expandByDepth(topLevelIds, modules, canvasDepth);
+  const visibleModuleIds = new Set((activeModules || []).map(m => m.id));
   const activeEdges = drillTarget
     ? (useRealHierarchy
-        ? edges.filter(e => childIds.has(e.from) && childIds.has(e.to))
+        ? edges.filter(e => visibleModuleIds.has(e.from) && visibleModuleIds.has(e.to))
         : (curSub ? curSub.edges : []))
-    : edges;
+    : edges.filter(e => visibleModuleIds.has(e.from) && visibleModuleIds.has(e.to));
   const activeNotes = drillTarget ? (curSub ? curSub.notes : []) : notes;
   // Phase R-7.20 — defensive: data.lanes может отсутствовать в payload-е
   // (как было до этого commit'а), не должны валить React-tree на
@@ -877,6 +919,9 @@ function App() {
         if (!r?.ok) {
           try { window.dispatchEvent(new CustomEvent('sima-log-push', { detail: { agent: 'SIMA Core', kind: 'fail', msg: `+ подмодуль ${id} не создан: ${r?.error}` } })); } catch {}
         } else {
+          // R-7.49 — поднимаем глубину чтобы свежесозданный подмодуль был
+          // виден на канвасе сразу (без него depth=1 скрыл бы s1).
+          if (canvasDepth === 1) setCanvasDepth(2);
           try { window.dispatchEvent(new CustomEvent('sima-log-push', { detail: { agent: 'SIMA Core', kind: 'ok', msg: `+ подмодуль ${id} (parent ${parent}, layer ${layer})` } })); } catch {}
         }
       }
@@ -1232,6 +1277,12 @@ function App() {
                     ▦ Слои стэка <span className="badge">{tweaks.showLayers ? 'on' : 'off'}</span>
                   </button>
                   <button onClick={drillTarget ? () => addActiveBlock({ layer: 'logic' }) : () => onAddModule({ layer: 'logic' })}>＋ Новый модуль <span className="badge">пкм</span></button>
+                  <div className="depth-picker" title="Глубина отображения: сколько уровней потомков показывать на канвасе">
+                    <span className="dp-label">Глубина</span>
+                    <button className={`dp-btn ${canvasDepth === 1 ? 'on' : ''}`}     onClick={() => setCanvasDepth(1)}     title="Только верхний уровень — без потомков">1</button>
+                    <button className={`dp-btn ${canvasDepth === 2 ? 'on' : ''}`}     onClick={() => setCanvasDepth(2)}     title="Верхний уровень + 1 уровень детей">2</button>
+                    <button className={`dp-btn ${canvasDepth === 'all' ? 'on' : ''}`} onClick={() => setCanvasDepth('all')} title="Все потомки сразу — full overview">∞</button>
+                  </div>
                   <div className="layer-picker-row" title="Создать новый блок с конкретным слоем — цвет на канвасе">
                     <button className="lp-btn lp-backend"  onClick={drillTarget ? () => addActiveBlock({ layer: 'backend' })  : () => onAddModule({ layer: 'backend' })}  title={drillTarget ? '+ Backend подмодуль'  : '+ Backend блок'}>B</button>
                     <button className="lp-btn lp-logic"    onClick={drillTarget ? () => addActiveBlock({ layer: 'logic' })    : () => onAddModule({ layer: 'logic' })}    title={drillTarget ? '+ Logic подмодуль'    : '+ Logic блок'}>L</button>

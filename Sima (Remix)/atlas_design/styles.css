@@ -1895,6 +1895,27 @@ html, body {
 .layer-pill-row .lp-pill:not(.active).lp-tests    { color: var(--layer-tests); }
 
 /* ============================================================
+   DEPTH PICKER (R-7.49) — toolbar 1 / 2 / ∞ tumbler
+   ============================================================ */
+.depth-picker {
+  display: flex; gap: 3px; padding-left: 8px; align-items: center;
+  border-left: 1px solid var(--rule); margin-left: 4px;
+}
+.depth-picker .dp-label {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  color: var(--ink-3); letter-spacing: 0.06em; text-transform: uppercase;
+  margin-right: 4px;
+}
+.depth-picker .dp-btn {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  padding: 3px 9px; border-radius: 4px; min-width: 22px;
+  border: 1px solid var(--rule); background: var(--card-2);
+  color: var(--ink-3); cursor: pointer; transition: all 0.12s;
+}
+.depth-picker .dp-btn:hover { background: var(--card); }
+.depth-picker .dp-btn.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+/* ============================================================
    PR — Run log + cancel + files-changed (Phase D1/D5/D6)
    ============================================================ */
 .run-card { cursor: pointer; }
