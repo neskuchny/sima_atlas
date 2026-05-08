@@ -1,47 +1,49 @@
 # Code of Conduct
 
-Sima Atlas принимает в качестве кодекса поведения сообщества **Contributor Covenant, версия 2.1**.
+> Russian original preserved at [`./CODE_OF_CONDUCT.ru.md`](./CODE_OF_CONDUCT.ru.md).
 
-Полный текст кодекса (на английском и других языках) — на канонической странице:
+Sima Atlas adopts the **Contributor Covenant, version 2.1** as its community code of conduct.
+
+The full text of the code (in English and other languages) is on the canonical page:
 
 - <https://www.contributor-covenant.org/version/2/1/code_of_conduct/>
-- Русский перевод: <https://www.contributor-covenant.org/ru/version/2/1/code_of_conduct/>
+- Russian translation: <https://www.contributor-covenant.org/ru/version/2/1/code_of_conduct/>
 
-Мы принимаем его целиком, без модификаций. Если коротко в одну фразу — мы хотим, чтобы общение в репозитории было уважительным, профессиональным и направленным на дело. Любое поведение, которое Contributor Covenant определяет как неприемлемое, мы тоже считаем неприемлемым.
+We adopt it in full, without modifications. In one sentence: we want communication in this repository to be respectful, professional, and focused on the work. Any behavior that the Contributor Covenant defines as unacceptable, we also consider unacceptable.
 
 ---
 
-## Где это применяется
+## Where it applies
 
-Кодекс действует во всех публичных и приватных пространствах проекта:
+The code applies in all public and private spaces of the project:
 
 - GitHub Issues, Discussions, Pull Requests, code review
-- любые официальные коммуникационные каналы (email, чат, видео)
-- мероприятия, на которых Sima Atlas представлен от имени проекта
+- any official communication channels (email, chat, video)
+- events where Sima Atlas is represented on behalf of the project
 
 ---
 
-## Как сообщить о нарушении
+## How to report a violation
 
-Если вы столкнулись с поведением, которое нарушает кодекс — сообщите maintainer'у через **приватный канал**:
+If you encounter behavior that violates the code, report it to the maintainer through a **private channel**:
 
-1. **GitHub Security Advisory** — приватный thread, видимый только maintainer'ам. См. инструкцию в [SECURITY.md](SECURITY.md).
-2. **Прямое сообщение** на GitHub-профиль maintainer'а ([@neskuchny](https://github.com/neskuchny)).
+1. **GitHub Security Advisory** — a private thread visible only to maintainers. See the instructions in [SECURITY.md](SECURITY.md).
+2. **Direct message** to the maintainer's GitHub profile ([@neskuchny](https://github.com/neskuchny)).
 
-Не публикуйте инцидент в open issue — это нарушает privacy сторон и мешает корректному разбору.
+Don't post the incident in an open issue — that violates the privacy of the parties involved and gets in the way of a clean review.
 
 ---
 
-## Что мы делаем после репорта
+## What we do after a report
 
-Согласно Contributor Covenant 2.1, у нас есть градация ответных мер: **Correction → Warning → Temporary Ban → Permanent Ban**. Конкретные критерии описаны в кодексе по ссылке выше.
+Per Contributor Covenant 2.1, we have a graduated response: **Correction → Warning → Temporary Ban → Permanent Ban**. The specific criteria are described in the code at the link above.
 
-Мы стремимся:
+We aim to:
 
-- подтвердить получение в течение 48 часов;
-- разобрать инцидент в течение 7 дней;
-- сообщить участвующим сторонам о принятом решении;
-- сохранить конфиденциальность репортера.
+- acknowledge receipt within 48 hours;
+- review the incident within 7 days;
+- inform the involved parties of the decision;
+- preserve the reporter's confidentiality.
 
 ---
 
@@ -51,4 +53,4 @@ Sima Atlas принимает в качестве кодекса поведен�
 
 ---
 
-*Этот документ принимает Contributor Covenant 2.1 без изменений. Полный авторитетный текст — по ссылкам выше.*
+*This document adopts Contributor Covenant 2.1 unmodified. The full authoritative text is at the links above.*

@@ -1,16 +1,18 @@
-# Подключение Sima Atlas к AI-инструментам разработки
+# Connecting Sima Atlas to AI development tools
 
-Sima Atlas построена вокруг **MCP (Model Context Protocol)** — стандарта от Anthropic, который большинство современных AI-агентов уже поддерживают. Один и тот же MCP-сервер `scripts/mcp_atlas_server.mjs` подключается к любому из них; разница только в формате конфига и пути.
+> Russian original preserved at [`./integrations.ru.md`](./integrations.ru.md).
 
-В корне репозитория лежит **`.mcp.json`** — это формат, который Claude Code и совместимые инструменты подхватывают автоматически. Для остальных — копируй соответствующий блок ниже.
+Sima Atlas is built around **MCP (Model Context Protocol)** — Anthropic's standard, which most modern AI agents already support. The same MCP server `scripts/mcp_atlas_server.mjs` plugs into any of them; only the config format and path differ.
 
-> **Важно.** Команды и пути конфигов меняются. Если что-то из этого устарело — проверь текущую документацию своего инструмента и пришли PR. Версия документа: 2026-05-06.
+In the repository root there's an **`.mcp.json`** — the format that Claude Code and compatible tools pick up automatically. For everything else, copy the relevant block below.
+
+> **Important.** Commands and config paths drift over time. If something here is stale, check the current docs of your tool and send a PR. Document version: 2026-05-06.
 
 ---
 
-## TL;DR — копи-пасты
+## TL;DR — copy-paste
 
-Если коротко, везде нужен один и тот же блок (с минимальными вариациями формата):
+The short version is the same block (with minor formatting variations) everywhere:
 
 ```json
 {
@@ -18,13 +20,13 @@ Sima Atlas построена вокруг **MCP (Model Context Protocol)** — 
     "sima-atlas": {
       "command": "node",
       "args": ["scripts/mcp_atlas_server.mjs"],
-      "cwd": "/абсолютный/путь/к/sima_atlas"
+      "cwd": "/absolute/path/to/sima_atlas"
     }
   }
 }
 ```
 
-Если сервер запускается из директории `sima_atlas` (как в Claude Code из коробки) — `cwd` можно опустить. Для большинства инструментов поле `cwd` обязательное, потому что они обычно стартуют из директории проекта пользователя, а не из Sima.
+If the server is launched from the `sima_atlas` directory (as Claude Code does out of the box), `cwd` can be omitted. For most tools the `cwd` field is mandatory, because they typically start from the user's project directory rather than from Sima.
 
 ---
 
@@ -112,7 +114,7 @@ thousands of tokens per session.
 
 ## Claude Code
 
-**Самый простой путь.** В корне репозитория уже лежит `.mcp.json`:
+**The simplest path.** The repo root already contains `.mcp.json`:
 
 ```json
 {
@@ -125,25 +127,25 @@ thousands of tokens per session.
 }
 ```
 
-Открой Claude Code в директории `sima_atlas` — он подхватит конфиг и спросит разрешение на запуск MCP-сервера. Согласись — и в сессии появятся 65 инструментов с префиксом `mcp__sima-atlas__*`.
+Open Claude Code in the `sima_atlas` directory — it picks up the config and asks permission to launch the MCP server. Accept it, and 65 tools with the prefix `mcp__sima-atlas__*` appear in your session.
 
-**Альтернатива (вне директории Sima Atlas):**
+**Alternative (outside the Sima Atlas directory):**
 
 ```bash
 claude mcp add sima-atlas node /absolute/path/to/sima_atlas/scripts/mcp_atlas_server.mjs
 ```
 
-**Проверка:** в Claude Code набери `/mcp` — должен показаться `sima-atlas: connected (65 tools)`. Или попробуй: «Sima, проверь чаты» — должен сработать `sima_watch_chats`.
+**Verification:** in Claude Code, type `/mcp` — you should see `sima-atlas: connected (65 tools)`. Or try: "Sima, check the chats" — `sima_watch_chats` should fire.
 
 ---
 
 ## Cursor
 
-Cursor поддерживает MCP с конца 2024. Конфиг — `.cursor/mcp.json` (project-local) или `~/.cursor/mcp.json` (user-global).
+Cursor has supported MCP since late 2024. The config is `.cursor/mcp.json` (project-local) or `~/.cursor/mcp.json` (user-global).
 
-**Project-local** (рекомендуется, если Sima — часть твоего workflow для конкретного проекта):
+**Project-local** (recommended if Sima is part of your workflow for a specific project):
 
-Создай файл `.cursor/mcp.json` в директории твоего проекта:
+Create `.cursor/mcp.json` in your project directory:
 
 ```json
 {
@@ -157,15 +159,15 @@ Cursor поддерживает MCP с конца 2024. Конфиг — `.curso
 }
 ```
 
-**User-global:** тот же файл в `~/.cursor/mcp.json`.
+**User-global:** the same file at `~/.cursor/mcp.json`.
 
-**Проверка:** Cursor → Settings → MCP → должен быть статус `green` у sima-atlas. Или в чате попроси «list available MCP tools» — должны быть `mcp__sima-atlas__*`.
+**Verification:** Cursor → Settings → MCP → sima-atlas should be `green`. Or in chat, ask "list available MCP tools" — you should see `mcp__sima-atlas__*`.
 
 ---
 
 ## Codex CLI (OpenAI)
 
-Codex CLI поддерживает MCP через `~/.codex/config.toml`:
+Codex CLI supports MCP via `~/.codex/config.toml`:
 
 ```toml
 [mcp.servers.sima-atlas]
@@ -174,15 +176,15 @@ args = ["scripts/mcp_atlas_server.mjs"]
 cwd = "/absolute/path/to/sima_atlas"
 ```
 
-**Проверка:** `codex mcp list` должен показать `sima-atlas`. В сессии — попроси Codex использовать инструмент Sima.
+**Verification:** `codex mcp list` should show `sima-atlas`. In a session — ask Codex to use a Sima tool.
 
-> Точный синтаксис конфига Codex может меняться от версии. Если этот формат не работает — посмотри `codex mcp --help` и `codex --version`, и пришли PR с актуальной структурой.
+> The exact Codex config syntax can shift between versions. If this format doesn't work — check `codex mcp --help` and `codex --version`, and send a PR with the current shape.
 
 ---
 
 ## Continue.dev (VS Code / JetBrains)
 
-Continue (open-source ассистент) поддерживает MCP. Конфиг — `~/.continue/config.json`, секция `experimental.modelContextProtocolServers`:
+Continue (an open-source assistant) supports MCP. The config is `~/.continue/config.json`, the `experimental.modelContextProtocolServers` section:
 
 ```json
 {
@@ -201,13 +203,13 @@ Continue (open-source ассистент) поддерживает MCP. Конф
 }
 ```
 
-**Проверка:** перезапусти Continue — в чате должны быть видны Sima-инструменты в `@`-меню.
+**Verification:** restart Continue — the Sima tools should be visible in the chat's `@`-menu.
 
 ---
 
 ## Zed
 
-Zed (быстрый редактор с встроенным AI) поддерживает MCP через `settings.json`:
+Zed (a fast editor with built-in AI) supports MCP via `settings.json`:
 
 ```json
 {
@@ -225,15 +227,15 @@ Zed (быстрый редактор с встроенным AI) поддерж�
 }
 ```
 
-Открой `cmd-,` (Settings) → блок `context_servers`.
+Open `cmd-,` (Settings) → the `context_servers` block.
 
-**Проверка:** в AI-панели Zed должны появиться инструменты Sima.
+**Verification:** the Sima tools should appear in Zed's AI panel.
 
 ---
 
 ## Windsurf (Codeium Cascade)
 
-Windsurf использует Cursor-подобный конфиг. Файл `~/.codeium/windsurf/mcp_config.json`:
+Windsurf uses a Cursor-like config. The file is `~/.codeium/windsurf/mcp_config.json`:
 
 ```json
 {
@@ -247,35 +249,35 @@ Windsurf использует Cursor-подобный конфиг. Файл `~/
 }
 ```
 
-**Проверка:** Cascade panel → MCP servers list.
+**Verification:** Cascade panel → MCP servers list.
 
 ---
 
 ## Aider
 
-Aider не имеет нативной MCP-поддержки на момент написания, но Sima работает с ним через **CLI fallback** — см. секцию ниже.
+Aider doesn't have native MCP support at the time of writing, but Sima works with it via the **CLI fallback** — see the section below.
 
-Если Aider добавит MCP — формат, скорее всего, будет тот же. Следи за `aider --help`.
+If Aider adds MCP — the format is likely to be the same. Watch `aider --help`.
 
 ---
 
 ## Antigravity (Google)
 
-Antigravity — относительно молодая платформа Google для AI-разработки. Состояние MCP-поддержки **меняется быстро**; конкретного стабильного формата конфига пока нет (по состоянию на май 2026).
+Antigravity is a relatively young AI-development platform from Google. The state of MCP support **changes quickly**; there's no specific stable config format yet (as of May 2026).
 
-Возможные пути на текущий момент:
-1. Если у Antigravity появилась MCP-поддержка через `~/.antigravity/mcp.json` или подобный файл — используй стандартный блок выше.
-2. Если нет — используй CLI fallback (см. ниже): команды Sima вызываются через bash прямо из агентского workflow.
+Possible paths today:
+1. If Antigravity has gained MCP support via `~/.antigravity/mcp.json` or similar — use the standard block above.
+2. If not — use the CLI fallback (see below): Sima commands are invoked via bash directly from the agent workflow.
 
-**Если ты пользуешься Antigravity и знаешь рабочий формат — пришли PR с обновлением этой секции.**
+**If you use Antigravity and know a working format — send a PR updating this section.**
 
 ---
 
-## CLI fallback — для инструментов без MCP
+## CLI fallback — for tools without MCP
 
-Если твой агент не поддерживает MCP, всё равно можешь использовать Sima через обычные shell-команды. Каждый MCP-инструмент имеет CLI-эквивалент:
+If your agent doesn't support MCP, you can still use Sima via plain shell commands. Every MCP tool has a CLI equivalent:
 
-| MCP-инструмент | CLI-эквивалент |
+| MCP tool | CLI equivalent |
 |---|---|
 | `sima_fill_from_chat` | `node scripts/sima_fill_from_chat.mjs --stdin --json` |
 | `sima_watch_chats` | `node scripts/sima_watch_chats.mjs --once --json` |
@@ -285,42 +287,42 @@ Antigravity — относительно молодая платформа Googl
 | `nightly_consolidation` | `node scripts/nightly_consolidation.mjs` |
 | `generate_full_bundle` | `node scripts/generate_wiki.mjs && node scripts/generate_tz_from_atlas.mjs && node scripts/rebuild_atlas_roadmap.mjs` |
 
-Скармливай агенту такую инструкцию в системном промпте: «для работы со схемой используй команды через Bash: ...».
+Feed the agent an instruction like this in the system prompt: "to work with the schema, use these commands via Bash: ...".
 
 ---
 
-## HTTP API — ещё один путь
+## HTTP API — another path
 
-Sima ещё запускает HTTP-сервер на порту 8787 (`npm run dev` или `node scripts/atlas_api_server.mjs`). Через него можно ходить любым клиентом, поддерживающим HTTP.
+Sima also runs an HTTP server on port 8787 (`npm run dev` or `node scripts/atlas_api_server.mjs`). Any HTTP-capable client can talk to it through that.
 
-Главные endpoints:
-- `GET /atlas/design-payload?client=X` — текущая схема
+Main endpoints:
+- `GET /atlas/design-payload?client=X` — current schema
 - `POST /atlas/sima/fill-from-chat` — body `{transcript, client_id?}`
 - `POST /atlas/sima/watch-chats` — body `{mode?, min_new_chars?}`
-- `POST /atlas/blocks/{create,patch,delete}` — структурные операции
+- `POST /atlas/blocks/{create,patch,delete}` — structural operations
 - `GET /atlas/proposals/list?client=X` — `POST /proposals/{accept,reject}`
 - `POST /atlas/acceptance/verify` — body `{block_id}`
 
-Это полезно, если у твоего инструмента есть HTTP-tooling, но нет MCP. Например, можно сделать GPT-Action / Claude API tool, который вызывает эти endpoints.
+This is useful if your tool has HTTP tooling but no MCP. For example, you can build a GPT-Action / Claude API tool that calls these endpoints.
 
 ---
 
-## Проверка после подключения
+## Verification after connecting
 
-После регистрации MCP-сервера в любом инструменте:
+After registering the MCP server in any tool:
 
-1. **Проверь, что инструменты видны.** В Claude Code: `/mcp`. В Cursor: Settings → MCP. В Codex: `codex mcp list`.
-2. **Простейший вызов:** попроси агента «сколько блоков в текущем атласе» — должен сработать `read_block` на корневом графе.
-3. **Полный smoke:** «Sima, заполни схему по этой переписке: <вставь любой кусок>». Должен появиться `chat_fill` plan в `atlas/proposals/`.
+1. **Check that the tools are visible.** In Claude Code: `/mcp`. In Cursor: Settings → MCP. In Codex: `codex mcp list`.
+2. **Simplest call:** ask the agent "how many blocks are in the current atlas" — `read_block` against the root graph should fire.
+3. **Full smoke:** "Sima, fill in the schema from this dialog: <paste any chunk>". A `chat_fill` plan should appear in `atlas/proposals/`.
 
-Если что-то не работает — проверь логи MCP-сервера: запусти его руками `node scripts/mcp_atlas_server.mjs` и посмотри stderr. Большинство ошибок — это (a) неверный `cwd`, (b) Node.js не на PATH, (c) непрочитанный `package.json` (не было `npm install`).
+If something doesn't work — check the MCP server logs: launch it manually with `node scripts/mcp_atlas_server.mjs` and look at stderr. Most errors are (a) wrong `cwd`, (b) Node.js not on PATH, (c) an unread `package.json` (no `npm install`).
 
 ---
 
-## Что нам нужно от сообщества
+## What we need from the community
 
-- Обновлённые конфиги для **Antigravity** и других инструментов, которые быстро меняются.
-- Натив-плагины для **VS Code** и **JetBrains**, чтобы canvas жил в side-panel рядом с кодом.
-- Адаптеры для агент-фреймворков (LangGraph, AutoGen, CrewAI), которые могут использовать MCP / HTTP API.
+- Updated configs for **Antigravity** and other tools that move quickly.
+- Native plugins for **VS Code** and **JetBrains**, so the canvas can live in a side panel next to the code.
+- Adapters for agent frameworks (LangGraph, AutoGen, CrewAI) that can use MCP / HTTP API.
 
-Делай PR в этот файл с любыми обновлениями — это живой документ.
+Send PRs to this file with any updates — it's a living document.

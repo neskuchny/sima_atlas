@@ -4,14 +4,14 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Sima Atlas — visual contract-first development for AI agents</title>
-<link rel="stylesheet" href="styles.css?v=r7-67" />
+<link rel="stylesheet" href="styles.css?v=r7-69" />
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 <!-- R-7.28: markdown renderer for contract bodies (mission.md / kpi.md / acceptance.md etc.) -->
 <script src="https://cdn.jsdelivr.net/npm/marked@13.0.3/marked.min.js"></script>
 <!-- R-7.52: i18n must load BEFORE jsx components so window.__SIMA_T is defined when React renders -->
-<script src="i18n.js?v=r7-67"></script>
+<script src="i18n.js?v=r7-69"></script>
 </head>
 <body>
 <div id="root"></div>
@@ -26,12 +26,12 @@
        `sima-data-changed` CustomEvent so the React tree can react. Set
        window.SIMA_API_BASE before this script loads to point at a
        remote backend in production. -->
-<script src="data_static.js?v=r7-67"></script>
-<script src="data_loader.js?v=r7-67"></script>
-<script type="text/babel" src="tweaks-panel.jsx?v=r7-67"></script>
-<script type="text/babel" src="graph.jsx?v=r7-67"></script>
-<script type="text/babel" src="panels.jsx?v=r7-67"></script>
-<script type="text/babel" src="views.jsx?v=r7-67"></script>
+<script src="data_static.js?v=r7-69"></script>
+<script src="data_loader.js?v=r7-69"></script>
+<script type="text/babel" src="tweaks-panel.jsx?v=r7-69"></script>
+<script type="text/babel" src="graph.jsx?v=r7-69"></script>
+<script type="text/babel" src="panels.jsx?v=r7-69"></script>
+<script type="text/babel" src="views.jsx?v=r7-69"></script>
 <script type="text/babel">
 const { useState, useEffect, useRef, useMemo, useCallback } = React;
 
@@ -997,6 +997,51 @@ function App() {
     setEdges(e => [...e]); // force rerender
   };
 
+  // R-7.69 — auto-arrange visible blocks into rows by layer.
+  // Operator: «куда делась кнопка выравнивания/сетки?» — old auto-
+  // arrange in ctx-menu was a no-op, removed in R-7.66. This is the
+  // real implementation: groups blocks by layer (backend / logic /
+  // frontend / tests), assigns each layer a row, lays each block
+  // out left-to-right within the row, then batches patchBlock calls
+  // to persist canvas_x / canvas_y. Optimistic: updates local
+  // modules first so the operator sees the new layout instantly,
+  // then syncs to disk.
+  const autoArrangeByLayer = async () => {
+    const visible = activeModules || modules;
+    if (!visible.length) return;
+    const LAYER_ORDER = ['backend', 'logic', 'frontend', 'tests'];
+    const COL_W = 240, ROW_H = 220, MARGIN_X = 80, MARGIN_Y = 80;
+    const groups = LAYER_ORDER.map(l => visible.filter(m => (m.layer || 'logic') === l));
+    // Assign positions
+    const updates = [];
+    groups.forEach((group, rowIdx) => {
+      group.forEach((mod, colIdx) => {
+        const newX = MARGIN_X + colIdx * COL_W;
+        const newY = MARGIN_Y + rowIdx * ROW_H;
+        if (mod.x !== newX || mod.y !== newY) {
+          updates.push({ id: mod.id, x: newX, y: newY });
+        }
+      });
+    });
+    if (!updates.length) {
+      pushLog({ agent: 'SIMA Core', kind: 'note', msg: (window.__SIMA_T||((_,fb)=>fb))('log.arrange_already','already arranged — nothing to do') });
+      return;
+    }
+    // Optimistic UI
+    setModules(M => M.map(m => {
+      const u = updates.find(u => u.id === m.id);
+      return u ? { ...m, x: u.x, y: u.y } : m;
+    }));
+    pushLog({ agent: 'SIMA Core', kind: 'head', msg: `📐 ${(window.__SIMA_T||((_,fb)=>fb))('log.arrange_start','arranging')} ${updates.length} ${(window.__SIMA_T||((_,fb)=>fb))('log.arrange_blocks','blocks by layer…')}` });
+    // Batch persist
+    if (window.SIMA_API?.patchBlock) {
+      for (const u of updates) {
+        try { await window.SIMA_API.patchBlock(u.id, { x: u.x, y: u.y }); } catch {}
+      }
+      pushLog({ agent: 'SIMA Core', kind: 'ok', msg: `✓ ${(window.__SIMA_T||((_,fb)=>fb))('log.arrange_done','arranged')} ${updates.length} ${(window.__SIMA_T||((_,fb)=>fb))('log.arrange_blocks_done','blocks · backend → logic → frontend → tests rows')}` });
+    }
+  };
+
   return (
     <div className={`app ${(!selectedId || !detailOpen) ? 'no-detail' : ''}`} data-layers={tweaks.showLayers ? 'on' : 'off'} data-rail={railOpen ? 'open' : 'closed'} data-detail={detailOpen ? 'open' : 'closed'}>
       {/* TOPBAR */}
@@ -1069,10 +1114,11 @@ function App() {
           disabled={redoStack.current.length === 0}
           title={redoStack.current.length ? `Повторить: ${redoStack.current[redoStack.current.length-1].label} (Ctrl+Shift+Z)` : 'Нет действий для повтора'}
         >↷ Redo{redoStack.current.length > 0 ? ` (${redoStack.current.length})` : ''}</button>
-        <button className="pill" onClick={() => setSyncReportOpen(true)} title="Полный sync-report по всем блокам со структурированным выводом">
+        <button className="pill" onClick={() => setSyncReportOpen(true)} title={(window.__SIMA_T||((_,fb)=>fb))('toolbar.sync_title','Full sync-report across all blocks with structured output')}>
           <span className="dot" style={{ background: scanState === 'found' ? 'var(--st-desync)' : 'var(--st-done)' }} />
-          {scanState === 'scanning' ? 'проверяю…' : scanState === 'found' ? '⚠ есть дрейф' : '⟳ Sync'}
+          {scanState === 'scanning' ? (window.__SIMA_T||((_,fb)=>fb))('toolbar.sync_checking','checking…') : scanState === 'found' ? (window.__SIMA_T||((_,fb)=>fb))('toolbar.sync_drift','⚠ drift') : (window.__SIMA_T||((_,fb)=>fb))('toolbar.sync','⟳ Sync')}
         </button>
+        <button className="pill" onClick={() => autoArrangeByLayer()} title={(window.__SIMA_T||((_,fb)=>fb))('toolbar.auto_arrange_title','Re-position all visible blocks into rows by layer (backend / logic / frontend / tests)')}>{(window.__SIMA_T||((_,fb)=>fb))('toolbar.auto_arrange','📐 Arrange')}</button>
         <button className="pill" onClick={() => setProductReviewOpen(true)} title={(window.__SIMA_T||((_,fb)=>fb))('toolbar.product_review_title', 'Deep product review — schema-syncer + LLM judge per block (mission vs implementation)')}>{(window.__SIMA_T||((_,fb)=>fb))('toolbar.product_review', '🔍 Product review')}</button>
         <button className="pill" onClick={() => setArchReviewOpen(true)} title={(window.__SIMA_T||((_,fb)=>fb))('toolbar.architecture_title','Architecture review — framework consistency, scale, data flow across the whole graph')}>{(window.__SIMA_T||((_,fb)=>fb))('toolbar.architecture','🏛 Architecture')}</button>
         <button className="pill" onClick={() => setComposerOpen(true)} title="Synthesize artifact from source">{(window.__SIMA_T||((_,fb)=>fb))('toolbar.artifact','＋ Artifact')}</button>
@@ -1269,8 +1315,8 @@ function App() {
               </div>
             </div>
           )}
-          <button className="sima-action-btn" onClick={() => onSimaGenerate('module', selectedId || activeModules[0].id)} title="Sima дополнит описание выбранного блока">
-            <span className="star">✨</span> Sima · дополнить описание
+          <button className="sima-action-btn" onClick={() => onSimaGenerate('module', selectedId || activeModules[0].id)} title={(window.__SIMA_T||((_,fb)=>fb))('canvas.sima_action_title','Sima will expand the selected block\'s description')}>
+            <span className="star">✨</span> {(window.__SIMA_T||((_,fb)=>fb))('canvas.sima_action','Sima · expand description')}
           </button>
         </>
       ) : (

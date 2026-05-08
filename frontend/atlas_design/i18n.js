@@ -91,6 +91,37 @@
       'demo.tests':               '[demo] tests: прогон unit · 312/312 ok',
       'demo.observ':              '[demo] observ: добавил трейс на /v1/query',
 
+      // ── Overview tab live contract sections (R-7.69) ────
+      'overview.mission':         'Миссия',
+      'overview.acceptance':      'Приёмка',
+      'overview.acceptance_done': 'выполнено',
+      'overview.acceptance_empty': 'Acceptance ещё не задан. Открой вкладку «Контракт» → acceptance.md.',
+      'overview.dependencies':    'Связи',
+      'overview.depends_on':      'зависит от',
+      'overview.provides':        'предоставляет',
+      'overview.kpi_empty':       'KPI ещё не заданы. Открой вкладку «Контракт» → kpi.md.',
+      'overview.edit_in_contract': 'Редактировать на вкладке «Контракт»',
+
+      // ── Sync pill labels (R-7.69) ───────────────────────
+      'toolbar.sync':             '⟳ Sync',
+      'toolbar.sync_title':       'Полный sync-report по всем блокам со структурированным выводом',
+      'toolbar.sync_checking':    'проверяю…',
+      'toolbar.sync_drift':       '⚠ есть дрейф',
+
+      // ── Auto-arrange (R-7.69) ───────────────────────────
+      'toolbar.auto_arrange':     '📐 По слоям',
+      'toolbar.auto_arrange_title': 'Расставить все видимые блоки в строки по слоям (backend / logic / frontend / tests)',
+      'log.arrange_start':        'расставляю',
+      'log.arrange_blocks':       'блоков по слоям…',
+      'log.arrange_done':         'расставлено',
+      'log.arrange_blocks_done':  'блоков · строки backend → logic → frontend → tests',
+      'log.arrange_already':      'уже расставлены — нечего делать',
+
+      // ── Canvas action button + schema title (R-7.68) ────
+      'canvas.sima_action':       '✦ Sima · дополнить описание',
+      'canvas.sima_action_title': 'Sima дополнит описание выбранного блока',
+      'canvas.schema_title_placeholder': 'Название схемы…',
+
       // ── Activity log messages (R-7.67) ──────────────────
       'log.described_edge':       'описал связь',
       'log.expanded_block':       'дополнил описание блока',
@@ -803,6 +834,37 @@
       'demo.wiki':                '[demo] updated wiki: dashboard.tile-editor',
       'demo.tests':               '[demo] tests: unit run · 312/312 ok',
       'demo.observ':              '[demo] observ: added trace on /v1/query',
+
+      // ── Overview tab live contract sections (R-7.69) ────
+      'overview.mission':         'Mission',
+      'overview.acceptance':      'Acceptance',
+      'overview.acceptance_done': 'done',
+      'overview.acceptance_empty': 'No acceptance criteria yet. Open the «Contract» tab → acceptance.md.',
+      'overview.dependencies':    'Dependencies',
+      'overview.depends_on':      'depends on',
+      'overview.provides':        'provides',
+      'overview.kpi_empty':       'No KPIs defined yet. Open the «Contract» tab → kpi.md.',
+      'overview.edit_in_contract': 'Edit in Contract tab',
+
+      // ── Sync pill labels (R-7.69) ───────────────────────
+      'toolbar.sync':             '⟳ Sync',
+      'toolbar.sync_title':       'Full sync-report across all blocks with structured output',
+      'toolbar.sync_checking':    'checking…',
+      'toolbar.sync_drift':       '⚠ drift',
+
+      // ── Auto-arrange (R-7.69) ───────────────────────────
+      'toolbar.auto_arrange':     '📐 Arrange',
+      'toolbar.auto_arrange_title': 'Re-position all visible blocks into rows by layer (backend / logic / frontend / tests)',
+      'log.arrange_start':        'arranging',
+      'log.arrange_blocks':       'blocks by layer…',
+      'log.arrange_done':         'arranged',
+      'log.arrange_blocks_done':  'blocks · backend → logic → frontend → tests rows',
+      'log.arrange_already':      'already arranged — nothing to do',
+
+      // ── Canvas action button + schema title (R-7.68) ────
+      'canvas.sima_action':       '✦ Sima · expand description',
+      'canvas.sima_action_title': 'Sima will expand the selected block\'s description',
+      'canvas.schema_title_placeholder': 'Schema title…',
 
       // ── Activity log messages (R-7.67) ──────────────────
       'log.described_edge':       'described edge',

@@ -1,74 +1,76 @@
-# Sima Atlas — как проверить, что всё работает
+# Sima Atlas — How to verify everything works
 
-Этот файл — единая точка входа для проверки PR1–PR4 на свежем клоне.
+> Russian original preserved at [`./HOWTO_VERIFY.ru.md`](./HOWTO_VERIFY.ru.md).
 
-> **Windows / PowerShell users**: команды macOS/Linux (`open`, `head`, `tail`, `cat *.json | head`, `SIMA_BLOCK_ID=… node …`) в PowerShell не работают. Соответствия — в секции 13 ниже.
+This file is the single entry point for verifying PR1–PR4 on a fresh clone.
 
-## ⚠ Если падает на LLM — диагностика одной командой
+> **Windows / PowerShell users**: macOS/Linux commands (`open`, `head`, `tail`, `cat *.json | head`, `SIMA_BLOCK_ID=… node …`) don't work in PowerShell. Equivalents are in section 13 below.
+
+## ⚠ If it falls over on the LLM — one-command diagnostics
 
 ```bash
 node scripts/llm_check.mjs
 ```
 
-Покажет: какие ключи в env, какой провайдер выбран, делает ping и сообщает причину сбоя (401 = плохой ключ, 400 = плохой Google ключ, 429 = квота).
-Exit 0 — live-провайдер ответил. Exit 2 — fallback на mock (значит ключи не работают).
+Reports: which keys are in env, which provider is selected, sends a ping, and explains the failure (401 = bad key, 400 = bad Google key, 429 = quota).
+Exit 0 — a live provider answered. Exit 2 — fallback to mock (which means the keys aren't working).
 
-## 0. Подготовка
+## 0. Setup
 
 ```bash
 git clone https://github.com/neskuchny/sima_atlas.git
 cd sima_atlas
 git checkout claude/visual-component-system-N2W07
-node --version   # должно быть >= 18 (нужен встроенный fetch)
+node --version   # must be >= 18 (we need built-in fetch)
 ```
 
-Для PR3 live-режима LLM (опционально):
+For PR3 LLM live mode (optional):
 
 ```bash
 cat > .env <<EOF
 ANTHROPIC_API_KEY=sk-ant-...
-# или
+# or
 GOOGLE_API_KEY=...
-LLM_DEFAULT_PROVIDER=anthropic   # или google
+LLM_DEFAULT_PROVIDER=anthropic   # or google
 LLM_MAX_USD_PER_RUN=0.05
 EOF
 ```
 
-Без `.env` всё работает через mock-провайдер с детерминированными фикстурами в `tests/llm_mocks/`.
+Without `.env`, everything runs through the mock provider with deterministic fixtures in `tests/llm_mocks/`.
 
 ---
 
-## 1. Один shot — гонка всего pipeline
+## 1. One-shot — run the whole pipeline
 
 ```bash
 node scripts/nightly_consolidation.mjs
 ```
 
-Ожидается финальная строка `Summary: PASS (23/23)`. Полный отчёт — в `atlas/nightly_report.md`.
+The expected final line is `Summary: PASS (23/23)`. Full report — in `atlas/nightly_report.md`.
 
-23 проверки: ingestion queue, контракты блоков, нет шаблонов, реестр файлов, контракты зависимостей, ассерты приёмки, atlas selftest, layered bootstrap, llm gateway selftest, llm extraction eval, simulate conversation branches, validate cursor hooks, cursor hooks actions, sync context packs, agent parity, parity matrix, generate wiki/tz/roadmap, mcp smoke e2e, intelligence health.
+23 checks: ingestion queue, block contracts, no templates, files registry, dependency contracts, acceptance asserts, atlas selftest, layered bootstrap, llm gateway selftest, llm extraction eval, simulate conversation branches, validate cursor hooks, cursor hooks actions, sync context packs, agent parity, parity matrix, generate wiki/tz/roadmap, mcp smoke e2e, intelligence health.
 
 ---
 
-## 2. Проверить визуальную схему (ТЗ: «многослойная карта продукта»)
+## 2. Verify the visual map (spec: "multi-layered product map")
 
 ```bash
-# Регенерируем bootstrap из atlas/graph.json
+# Regenerate the bootstrap from atlas/graph.json
 node scripts/generate_atlas_bootstrap_js.mjs
-# Затем открываем UI в браузере
+# Then open the UI in a browser
 open "frontend/Сима - универсальный конструктор.html"  # macOS
-# или
+# or
 xdg-open "frontend/Сима - универсальный конструктор.html"  # Linux
 ```
 
-Что должно быть видно:
-- В табах сверху — проект **Sima Atlas** (а не только мок-проекты sima/book/idea).
-- На layer-2 (Архитектура) канвас рисует **6 горизонтальных полос** (front / logic / ai / data / content / testing).
-- В каждой полосе свой блок: b.ui-control (front), b.core-sync (logic), b.agent-orchestrator + b.llm-gateway (ai), b.db (data), b.docs (content), b.smoke-sandbox (testing).
-- Inspector справа показывает реальные mission/kpi/acceptance.
-- Кнопки lifecycle (Implement / Review / Done / Rollback / Broken / Mark dead) активны.
+What you should see:
+- In the top tabs — the **Sima Atlas** project (not just the mock projects sima/book/idea).
+- On layer 2 (Architecture), the canvas draws **6 horizontal lanes** (front / logic / ai / data / content / testing).
+- Each lane has its blocks: b.ui-control (front), b.core-sync (logic), b.agent-orchestrator + b.llm-gateway (ai), b.db (data), b.docs (content), b.smoke-sandbox (testing).
+- The Inspector on the right shows real mission/kpi/acceptance.
+- Lifecycle buttons (Implement / Review / Done / Rollback / Broken / Mark dead) are active.
 
-Headless-проверка (без браузера):
+Headless check (no browser):
 
 ```bash
 node tests/atlas_bootstrap.smoke.mjs
@@ -77,132 +79,132 @@ node tests/atlas_bootstrap.smoke.mjs
 
 ---
 
-## 3. Проверить wiki + roadmap (ТЗ: «авто-документация продукта»)
+## 3. Verify the wiki + roadmap (spec: "auto-documentation of the product")
 
 ```bash
 node scripts/generate_wiki.mjs
 node scripts/render_wiki_html.mjs
 node scripts/rebuild_atlas_roadmap.mjs
 
-# Открываем wiki — должен содержать Mermaid-диаграмму графа
+# Open the wiki — should contain a Mermaid diagram of the graph
 open atlas/wiki.html
 
-cat atlas/roadmap.md  # топосорт по depends_on (Level 0 → Level N)
-cat atlas/WIKI.md     # секции по слоям + детальные блоки
+cat atlas/roadmap.md  # topo-sort by depends_on (Level 0 → Level N)
+cat atlas/WIKI.md     # sections by layers + per-block detail
 ```
 
 ---
 
-## 4. Проверить sync-валидаторы (ТЗ: «проверка, что синхронизировано»)
+## 4. Verify the sync validators (spec: "check that things are in sync")
 
 ```bash
-node scripts/validate_block_contracts.mjs           # все блоки имеют mission/kpi/acceptance/tasks/checks
-node scripts/validate_no_template_placeholders.mjs  # нет «Ключевая цель блока…», «Автосоздано…» (PR1)
-node scripts/validate_files_registry.mjs            # все [alive] файлы в files.md существуют (PR2)
-node scripts/validate_dependency_contracts.mjs      # depends_on/provides консистентны
-node scripts/validate_acceptance_assertions.mjs     # для review/done есть acceptance trace
-node scripts/validate_cursor_hooks.mjs              # PR4: hooks.json — валидный Cursor format
+node scripts/validate_block_contracts.mjs           # all blocks have mission/kpi/acceptance/tasks/checks
+node scripts/validate_no_template_placeholders.mjs  # no "Block's key purpose…", "Auto-created…" (PR1)
+node scripts/validate_files_registry.mjs            # all [alive] files in files.md exist (PR2)
+node scripts/validate_dependency_contracts.mjs      # depends_on/provides are consistent
+node scripts/validate_acceptance_assertions.mjs     # review/done blocks have an acceptance trace
+node scripts/validate_cursor_hooks.mjs              # PR4: hooks.json — valid Cursor format
 ```
 
-Каждая команда должна заканчиваться `OK` и exit 0.
+Each command should end with `OK` and exit 0.
 
 ---
 
-## 5. Проверить LLM extraction (ТЗ: «авто-блоки из диалога»)
+## 5. Verify LLM extraction (spec: "auto-blocks from a dialog")
 
 ```bash
-# Self-test gateway: схема, fallback, trace-write
+# Self-test gateway: schema, fallback, trace-write
 node tests/llm_gateway.selftest.mjs
 # llm_gateway.selftest: OK (4 cases)
 
-# Golden eval на 5 эталонных диалогах
+# Golden eval over 5 reference dialogs
 node tests/llm_extraction.eval.mjs
 # llm_extraction.eval: OK — avg 1.00 on 5 cases (target 0.70)
 
-# Smoke на conversation_branches: создаёт новый блок и защищает существующий
+# Smoke for conversation_branches: creates a new block and protects an existing one
 node scripts/simulate_conversation_branches.mjs
-# 6 PASS-строк + simulate_conversation_branches: OK (state restored)
+# 6 PASS lines + simulate_conversation_branches: OK (state restored)
 
-# Ручной тест: подать произвольный диалог
+# Manual test: feed an arbitrary dialog
 echo '{"text":"Делаем блок b.search на слое logic — полнотекстовый поиск через Postgres FTS, зависит от b.db"}' > /tmp/dialog.json
 node scripts/analyze_conversation_to_atlas.mjs /tmp/dialog.json
 # semantic_ingestion: applied 1 blocks (new=1, updated=0, provider=mock)
 
-# Посмотреть trace LLM-вызова
+# Look at the LLM call trace
 ls atlas/llm_traces/
 cat atlas/llm_traces/*.json | head -30
 ```
 
-Если есть `ANTHROPIC_API_KEY` в `.env` — gateway автоматически уйдёт на Claude и trace покажет `provider: anthropic`.
+If `ANTHROPIC_API_KEY` is set in `.env`, the gateway will automatically switch to Claude and the trace will show `provider: anthropic`.
 
 ---
 
-## 6. Проверить Cursor hooks actions (ТЗ: «реальное наблюдение за работой агентов»)
+## 6. Verify Cursor hooks actions (spec: "real observation of agent work")
 
 ```bash
-# 9 case-тестов всех трёх hook-actions (observe / guard / inject)
+# 9 case-tests across all three hook actions (observe / guard / inject)
 node tests/cursor_hooks_actions.test.mjs
 # cursor_hooks_actions.test: OK (9 cases)
 ```
 
-Ручные проверки:
+Manual checks:
 
 ```bash
-# 6.1. observe_file_edit маппит файл → блок
+# 6.1. observe_file_edit maps file → block
 node scripts/observe_file_edit.mjs "frontend/app_v2.jsx"
 # observe_file_edit: frontend/app_v2.jsx → b.ui-control
 tail -1 atlas/blocks/b.ui-control/checks.log
 # 2026-... cursor_edit pass frontend/app_v2.jsx :: ...
 
-# 6.2. guard блокирует pip install
+# 6.2. guard blocks pip install
 node scripts/guard_against_drift.mjs "pip install neo4j"
 # ✗ guard_against_drift: drift_blocked: ...
-echo "exit=$?"   # ожидаем 1
+echo "exit=$?"   # expected 1
 
-# 6.3. guard пропускает npm install
+# 6.3. guard lets npm install through
 node scripts/guard_against_drift.mjs "npm install react"
 # guard_against_drift: OK — "npm install react"
-echo "exit=$?"   # ожидаем 0
+echo "exit=$?"   # expected 0
 
-# 6.4. guard блокирует yarn add vue (substring rule)
+# 6.4. guard blocks yarn add vue (substring rule)
 node scripts/guard_against_drift.mjs "yarn add vue"
 # ✗ guard_against_drift: drift_blocked: ...
 echo "exit=$?"   # 1
 
-# 6.5. inject_context_pack для конкретного блока
+# 6.5. inject_context_pack for a specific block
 SIMA_BLOCK_ID=b.docs node scripts/inject_context_pack.mjs | head -30
 # Markdown: project, rules, tech_stack, block.mission, kpi, acceptance, depends_on, provides, files
 
-# 6.6. inject_context_pack автодетект блока из промпта
+# 6.6. inject_context_pack auto-detect block from prompt
 node scripts/inject_context_pack.mjs "продолжи b.core-sync, добавь stack-mismatch detector" | head -5
 # <!-- block: b.core-sync -->
 ```
 
 ---
 
-## 7. Проверить MCP-сервер (ТЗ: «один контекст для всех агентов»)
+## 7. Verify the MCP server (spec: "one context for all agents")
 
 ```bash
-# Smoke MCP через stdio
+# Smoke MCP via stdio
 node scripts/mcp_smoke_e2e.mjs
 # mcp_smoke_e2e: OK
 
-# Список tools (через JSON-RPC stdin/stdout)
+# List tools (via JSON-RPC over stdin/stdout)
 echo '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}' | node scripts/mcp_atlas_server.mjs | head -1 | python3 -m json.tool | head -30
 ```
 
-В Cursor подключить через `.cursor/mcp.json` — это уже сделано:
+To wire it into Cursor via `.cursor/mcp.json` — already done:
 
 ```bash
 cat .cursor/mcp.json
 # { "mcpServers": { "sima-atlas": { "command": "node", "args": ["scripts/mcp_atlas_server.mjs"], "cwd": "." } } }
 ```
 
-После перезапуска Cursor в нём появятся tools: `read_block`, `list_dependencies`, `update_block`, `sync_check`, `build_context_pack`, `ingest_chat_distillate`, `enqueue_ingestion`, и т.д.
+After restarting Cursor, the following tools become available: `read_block`, `list_dependencies`, `update_block`, `sync_check`, `build_context_pack`, `ingest_chat_distillate`, `enqueue_ingestion`, etc.
 
 ---
 
-## 8. Проверить .cursor/hooks.json (ТЗ: «agents видят продукт одинаково»)
+## 8. Verify .cursor/hooks.json (spec: "agents see the product the same way")
 
 ```bash
 node scripts/validate_cursor_hooks.mjs
@@ -211,11 +213,11 @@ node scripts/validate_cursor_hooks.mjs
 cat .cursor/hooks.json
 ```
 
-Должен быть формат `{ version: 1, hooks: { event: [{command}] } }` с 4 событиями и 4 валидными node-командами.
+Format must be `{ version: 1, hooks: { event: [{command}] } }` with 4 events and 4 valid node commands.
 
 ---
 
-## 9. Сводка статусов блоков
+## 9. Block status summary
 
 ```bash
 node -e "
@@ -226,7 +228,7 @@ for (const b of g.blocks) {
 "
 ```
 
-Ожидается:
+Expected:
 ```
 review  ai       b.agent-orchestrator     — Agent Orchestrator
 wip     logic    b.core-sync              — Sync Engine
@@ -237,53 +239,53 @@ idea    testing  b.smoke-sandbox          — Smoke Sandbox (test target)
 wip     front    b.ui-control             — UI Control Plane
 ```
 
-(Любой блок в `done` без честного acceptance evidence — это баг, см. `validate_acceptance_assertions.mjs`.)
+(Any block in `done` without honest acceptance evidence is a bug — see `validate_acceptance_assertions.mjs`.)
 
 ---
 
-## 10. Тропы дальнейшей работы
+## 10. Paths for further work
 
-| Хочу | Команда |
+| I want to | Command |
 |---|---|
-| Создать новый блок из CLI | `node scripts/manage_block.mjs create b.foo "Foo"` |
-| Сменить статус блока | `node scripts/advance_block_state.mjs b.foo wip` |
-| Собрать context-pack для блока (для отдачи в Claude/Cursor) | `node scripts/build_context_pack.mjs b.foo` (output → `atlas/context_packs/b.foo.json`) |
-| Извлечь блоки из диалога | `node scripts/analyze_conversation_to_atlas.mjs <path/to/dialog.json>` |
-| Ночная пересборка всего | `node scripts/nightly_consolidation.mjs` |
-| Открыть актуальную wiki | open `atlas/wiki.html` |
+| Create a new block from CLI | `node scripts/manage_block.mjs create b.foo "Foo"` |
+| Change a block's status | `node scripts/advance_block_state.mjs b.foo wip` |
+| Build a context pack for a block (to feed Claude/Cursor) | `node scripts/build_context_pack.mjs b.foo` (output → `atlas/context_packs/b.foo.json`) |
+| Extract blocks from a dialog | `node scripts/analyze_conversation_to_atlas.mjs <path/to/dialog.json>` |
+| Nightly rebuild of everything | `node scripts/nightly_consolidation.mjs` |
+| Open the current wiki | open `atlas/wiki.html` |
 
 ---
 
-## 11. Что должно НЕ работать (правильно блокироваться)
+## 11. What MUST NOT work (must be correctly blocked)
 
 ```bash
-# Шаблонная mission в любом блоке → fail
+# Template mission in any block → fail
 echo "# b.test — mission
 
 Ключевая цель блока и его значение для устранения рассинхрона." > /tmp/sample.md
-# (mock — реально это произошло бы на любой попытке записи через MCP)
+# (mock — in reality this would happen on any write attempt via MCP)
 node scripts/validate_no_template_placeholders.mjs
-# Ловит «Ключевая цель блока» → exit 1
+# Catches "Ключевая цель блока" → exit 1
 
-# Удалённый alive-файл в files.md
+# A removed alive file in files.md
 git mv "frontend/app_v2.jsx" "frontend/_app_v2.jsx.bak"
 node scripts/validate_files_registry.mjs
 # Files registry validation FAILED:
 #  ✗ b.ui-control: alive file missing → frontend/app_v2.jsx
-git mv "frontend/_app_v2.jsx.bak" "frontend/app_v2.jsx"   # восстановить
+git mv "frontend/_app_v2.jsx.bak" "frontend/app_v2.jsx"   # restore
 
-# Запрещённая команда → блокируется guard'ом
+# A forbidden command → blocked by the guard
 node scripts/guard_against_drift.mjs "pip install neo4j"
 # ✗ guard_against_drift: drift_blocked
 ```
 
 ---
 
-## 13. Windows / PowerShell соответствия
+## 13. Windows / PowerShell equivalents
 
 | Linux / macOS | Windows PowerShell |
 |---|---|
-| `open file.html` | `start file.html` или `Invoke-Item file.html` |
+| `open file.html` | `start file.html` or `Invoke-Item file.html` |
 | `xdg-open file.html` | `start file.html` |
 | `cat file` | `Get-Content file` |
 | `head -30 file` | `Get-Content file -TotalCount 30` |
@@ -291,36 +293,36 @@ node scripts/guard_against_drift.mjs "pip install neo4j"
 | `cat *.json | head` | `Get-ChildItem *.json | Select-Object -First 1 | Get-Content` |
 | `SIMA_BLOCK_ID=b.docs node script.mjs` | `$env:SIMA_BLOCK_ID="b.docs"; node script.mjs` |
 | `LLM_DEFAULT_PROVIDER=google node …` | `$env:LLM_DEFAULT_PROVIDER="google"; node …` |
-| `echo '{"text":"…"}' > /tmp/d.json` | **избегайте** — `echo >` в PowerShell пишет UTF-16 BOM. Используйте `--text` вместо файла (см. ниже) |
+| `echo '{"text":"…"}' > /tmp/d.json` | **avoid** — `echo >` in PowerShell writes UTF-16 BOM. Use `--text` instead of a file (see below) |
 
-### Открыть UI на Windows
+### Open the UI on Windows
 
 ```powershell
-# Из корня репо запустить простой http-сервер:
+# From the repo root, start a simple http server:
 python -m http.server 8080
 
-# Затем в браузере открыть:
-#   http://localhost:8080/                              ← редирект на UI
-#   http://localhost:8080/Sima%20%28Remix%29/index.html ← напрямую
+# Then open in a browser:
+#   http://localhost:8080/                              ← redirects to UI
+#   http://localhost:8080/Sima%20%28Remix%29/index.html ← directly
 #   http://localhost:8080/atlas/wiki.html               ← Mermaid wiki
 ```
 
-В корне репо лежит `index.html`-редирект, в `frontend/index.html` — ASCII-алиас оригинального файла с кириллическим именем (Python http.server плохо отдаёт URL-encoded UTF-8 пути).
+In the repo root there's an `index.html` redirect; in `frontend/index.html` there's an ASCII alias of the original Cyrillic-named file (Python's http.server handles URL-encoded UTF-8 paths poorly).
 
-### Передать диалог analyze без temp-файла
+### Pass a dialog to analyze without a temp file
 
-`echo > /tmp/d.json` в PowerShell записывает **UTF-16 BOM** — JSON.parse сходит с ума на первом байте. Поэтому скрипт принимает inline:
+`echo > /tmp/d.json` in PowerShell writes a **UTF-16 BOM** — `JSON.parse` chokes on the first byte. So the script accepts inline:
 
 ```powershell
 node scripts/analyze_conversation_to_atlas.mjs --text "Делаем блок b.search на logic — Postgres FTS, зависит от b.db"
 
-# Или через stdin:
+# Or via stdin:
 '{"text":"…"}' | node scripts/analyze_conversation_to_atlas.mjs --stdin
 ```
 
-### Включить live-LLM на Windows
+### Enable live LLM on Windows
 
-Создать `.env` в корне репо (UTF-8 без BOM, любая редакторша справится):
+Create a `.env` in the repo root (UTF-8 without BOM, any decent editor will do):
 
 ```env
 ANTHROPIC_API_KEY=sk-ant-...
@@ -329,28 +331,28 @@ LLM_DEFAULT_PROVIDER=anthropic
 LLM_MAX_USD_PER_RUN=0.05
 ```
 
-⚠ **Важно**: после значения **не пиши inline-комменты с `#`**. Например, **так нельзя**:
+⚠ **Important**: do **not** put inline `#` comments after a value. For example, **this is bad**:
 
 ```env
-LLM_DEFAULT_PROVIDER=google   # или anthropic
+LLM_DEFAULT_PROVIDER=google   # or anthropic
 ```
 
-В PR4.2 парсер уже умеет такие строки чинить (обрезает всё после `#` если значение не в кавычках), но более ранние версии превращали значение в `'google   # или anthropic'` и игнорировали pin. Если сомневаешься — запусти `node scripts/llm_check.mjs` и убедись, что в выводе `LLM_DEFAULT_PROVIDER : "google"` без хвоста.
+In PR4.2 the parser already handles such lines (it strips everything after `#` if the value isn't quoted), but earlier versions turned the value into `'google   # or anthropic'` and ignored the pin. If unsure — run `node scripts/llm_check.mjs` and confirm the output reads `LLM_DEFAULT_PROVIDER : "google"` with no trailing junk.
 
-Если хочешь использовать **только** Google и не давать gateway лезть в Anthropic — поставь `LLM_DEFAULT_PROVIDER=google` (gateway не будет cascade'ить на anthropic, даже если ANTHROPIC_API_KEY тоже задан).
+If you want to use **only** Google and not let the gateway reach into Anthropic — set `LLM_DEFAULT_PROVIDER=google` (the gateway will not cascade to anthropic, even if `ANTHROPIC_API_KEY` is also set).
 
-Проверить:
+Verify:
 ```powershell
 node scripts/llm_check.mjs
 ```
 
-Если exit code = 2 — gateway упал на mock. Внимательно прочитай attempts: 401 → плохой Anthropic ключ, 400 «API key not valid» → плохой Google ключ.
+If the exit code is 2, the gateway dropped to mock. Read the attempts carefully: 401 → bad Anthropic key, 400 "API key not valid" → bad Google key.
 
 ---
 
-## 14. Reset / откат
+## 14. Reset / rollback
 
-Если по ходу проверки что-то изменилось (smoke добавил блок и т.п.):
+If something changed during verification (smoke added a block, etc.):
 
 ```bash
 git status

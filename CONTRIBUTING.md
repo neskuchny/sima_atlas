@@ -1,147 +1,149 @@
 # Contributing to Sima Atlas
 
-Спасибо за интерес к проекту. Sima Atlas — opensource MIT, мы открыты к любому вкладу: от typo-фикса до новой MCP-интеграции и нового evidence-collector'а.
+> Russian original preserved at [`./CONTRIBUTING.ru.md`](./CONTRIBUTING.ru.md).
 
-> Этот документ — **процесс**. Что именно нужно сделать (списки задач, приглашения) — в [README.md](README.md) и [статье, Часть 11](ТЗ/статья.md).
+Thanks for your interest in the project. Sima Atlas is open-source MIT — we welcome any contribution, from a typo fix to a new MCP integration or a new evidence-collector.
+
+> This document is the **process**. The *what* (task lists, open invitations) lives in [README.md](README.md) and in [the article, Part 11](ТЗ/статья.md).
 
 ---
 
-## Быстрый старт для контрибьютора
+## Quick start for contributors
 
 ```bash
 git clone https://github.com/neskuchny/sima_atlas
 cd sima_atlas
 npm install
-npm run dev          # API + UI поднимаются на http://localhost:8000/atlas_design/
+npm run dev          # API + UI come up on http://localhost:8000/atlas_design/
 ```
 
-Перед первым PR — убедись, что зелёный прогон:
+Before your first PR, make sure the verify run is green:
 
 ```bash
-npm run verify       # запускает verify_all (~150s, без сети)
+npm run verify       # runs verify_all (~150s, no network)
 ```
 
 ---
 
-## Структура репозитория
+## Repository layout
 
-| Путь | Что лежит |
+| Path | What's there |
 |------|-----------|
-| `atlas/` | Источник правды: graph + блоки + proposals + run_state. Текстовые файлы, git-diffable. |
-| `atlas/blocks/<id>/` | Контракты блоков: `mission.md`, `kpi.md`, `acceptance.md`, `tasks.md`, `checks.log`, ... |
-| `scripts/` | Все executables: API сервер, MCP сервер, валидаторы, генераторы, оркестраторы. |
-| `tests/` | Селфтесты + Playwright e2e. Каждый новый блок должен иметь свой селфтест в nightly. |
-| `frontend/atlas_design/` | UI canvas (React + JSX без билда, in-browser Babel). |
-| `docs/` | Интеграции и прочая операционная документация. |
-| `ТЗ/` | Методология (статья), ТЗ, аудит. |
+| `atlas/` | Source of truth: graph + blocks + proposals + run_state. Plain text, git-diffable. |
+| `atlas/blocks/<id>/` | Per-block contracts: `mission.md`, `kpi.md`, `acceptance.md`, `tasks.md`, `checks.log`, ... |
+| `scripts/` | All executables: API server, MCP server, validators, generators, orchestrators. |
+| `tests/` | Selftests + Playwright e2e. Every new block must have its own selftest in nightly. |
+| `frontend/atlas_design/` | UI canvas (React + JSX with no build step, in-browser Babel). |
+| `docs/` | Integrations and other operational documentation. |
+| `ТЗ/` | Methodology (the article), specs, audits. |
 | `.github/` | CI workflows, issue / PR templates. |
 
 ---
 
-## Что я могу сделать?
+## What can I do?
 
-См. README раздел **Contributing** — там 8 конкретных приглашений с уровнем сложности. Самые типовые:
+See the **Contributing** section of the README — there are 8 concrete invitations with difficulty levels. The most common ones:
 
-- **Новые MCP-клиенты** для других IDE → [`docs/integrations.md`](docs/integrations.md)
-- **Локальные провайдеры** в LLM gateway (Ollama / vLLM / LM Studio) → `scripts/llm_gateway.mjs`
-- **Шаблоны блоков** (auth, payments, search) → новый файл в `atlas/templates/`
+- **New MCP clients** for other IDEs → [`docs/integrations.md`](docs/integrations.md)
+- **Local providers** in the LLM gateway (Ollama / vLLM / LM Studio) → `scripts/llm_gateway.mjs`
+- **Block templates** (auth, payments, search) → new file under `atlas/templates/`
 - **Evidence collectors** (HTTP-status, JSON-shape, snapshot-diff) → `scripts/collect_evidence.mjs`
-- **Локализации UI** → `frontend/atlas_design/index.html` + `views.jsx`
-- **Документация / переводы** — `ТЗ/статья.md` сейчас только на русском, английский перевод приветствуется
+- **UI localizations** → `frontend/atlas_design/index.html` + `views.jsx`
+- **Documentation / translations** — `ТЗ/статья.md` is currently Russian-only; an English translation is welcome
 
-Если хочешь начать с чего-то маленького — посмотри issues с ярлыком `good first issue`.
+If you want to start small, look at issues labelled `good first issue`.
 
 ---
 
 ## Workflow
 
-### 1. Issue (опционально, но желательно)
+### 1. Issue (optional, but encouraged)
 
-Перед большим изменением открой issue или discussion, чтобы согласовать подход. Для очевидных фиксов (typo, явный баг) можно сразу PR.
+Before a substantial change, open an issue or discussion to align on the approach. For obvious fixes (typos, clear bugs), a PR straight away is fine.
 
 ### 2. Branch
 
 ```bash
 git checkout -b feat/short-description
-# или: fix/, docs/, refactor/, test/, chore/
+# or: fix/, docs/, refactor/, test/, chore/
 ```
 
-Не пушим в `main` напрямую.
+Don't push to `main` directly.
 
 ### 3. Code
 
-- Следуй существующему стилю. Конкретные правила по мере появления — пока живём «как сложилось».
-- Каждый новый блок (`atlas/blocks/<id>/`) обязан иметь:
-  - 5 обязательных контракт-файлов (`mission/kpi/acceptance/tasks/checks.log`)
-  - селфтест в `tests/`, прописанный в `scripts/nightly_consolidation.mjs`
-- Любая UI-доработка должна **defensively обращаться к payload** (`data.field?.[id]`) — мы один раз больно поймали белый экран от undefined access (см. R-5).
-- **Не комментируй очевидное.** Комментарий нужен только когда *почему* не выводится из *что*.
+- Follow the existing style. We don't have explicit rules yet — for now we go with "what's already there".
+- Every new block (`atlas/blocks/<id>/`) must have:
+  - the 5 required contract files (`mission/kpi/acceptance/tasks/checks.log`)
+  - a selftest in `tests/`, wired into `scripts/nightly_consolidation.mjs`
+- Any UI change must access payload defensively (`data.field?.[id]`) — we got bitten once by a white screen from undefined access (see R-5).
+- **Don't comment the obvious.** A comment is needed only when *why* doesn't follow from *what*.
 
-### 4. Тесты
+### 4. Tests
 
-Перед PR обязательно зелёный:
+Green before PR is mandatory:
 
 ```bash
-npm run verify       # все 4 группы: nightly + acceptance + cursor + mcp
+npm run verify       # all 4 groups: nightly + acceptance + cursor + mcp
 ```
 
-Если меняешь acceptance / evidence — добавь сценарий в соответствующий selftest.
+If you change acceptance / evidence — add a scenario in the corresponding selftest.
 
-Если меняешь UI — прогон Playwright должен быть зелёный (`npx playwright test`). Скриншоты в `tests/playwright/screenshots/` коммитятся вместе с изменениями.
+If you change the UI — Playwright must be green (`npx playwright test`). Screenshots in `tests/playwright/screenshots/` are committed alongside the changes.
 
 ### 5. Commit message
 
-Стиль conventional commits в свободной форме:
+Free-form conventional commits style:
 
 ```
-<type>(<scope>) — короткое описание в одну строку
+<type>(<scope>) — short one-line summary
 
-Подробное объяснение «зачем» (не «что» — что видно из diff'а).
-Если фиксит конкретный bug — упомянуть симптом, а не только решение.
-Если связано с issue — `Fixes #123`.
+Longer explanation of *why* (not *what* — *what* is in the diff).
+If it fixes a specific bug, mention the symptom, not just the solution.
+If it relates to an issue, write `Fixes #123`.
 ```
 
-Типы: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`. Скоупы — по своему усмотрению (часто = `block_id` или `имя-скрипта`).
+Types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`. Scopes are at your discretion (often = `block_id` or `script-name`).
 
-Примеры наших commit'ов лежат в `git log`.
+Examples of our commits live in `git log`.
 
 ### 6. Pull Request
 
-- PR template подскажет, что описать.
-- Привяжи к issue, если она была.
-- CI должен быть зелёный.
-- Будь готов к code review — отвечаем обычно в течение 48 часов.
+- The PR template will prompt for what to describe.
+- Link to the issue if one exists.
+- CI must be green.
+- Be ready for code review — we usually respond within 48 hours.
 
 ---
 
 ## Code style
 
-Пока живём «как сложилось»; явных правил ещё нет. Эмпирические тренды в текущем коде:
+We're still in "as it grew" mode; no explicit rules yet. Empirical trends in the current code:
 
-- ES modules (`import` / `export`), не CommonJS.
-- 2-space indent, одинарные кавычки, точки с запятой в JS.
-- Пути всегда абсолютные через `path.join(ROOT, ...)`, не relative paths.
-- Все скрипты идемпотентны (повторный запуск не должен ломать состояние).
-- Все API-роуты возвращают `200 + {ok: false, error}` вместо HTTP-4xx (для устранения CORS-сбоев в UI).
+- ES modules (`import` / `export`), not CommonJS.
+- 2-space indent, single quotes, semicolons in JS.
+- Paths always absolute through `path.join(ROOT, ...)`, not relative paths.
+- All scripts are idempotent (a second run must not break state).
+- All API routes return `200 + {ok: false, error}` instead of HTTP 4xx (to avoid CORS hiccups in the UI).
 
-Если хочешь предложить формальный code-style гид (ESLint, Prettier config, .editorconfig) — открой issue, давай согласуем правила, потом введём.
-
----
-
-## Лицензия и авторство
-
-Sima Atlas под MIT — твой PR попадает под ту же лицензию. CLA не подписываем.
-
-Атрибуция contributor'ов — через `git log`. Список maintainers — в README.
+If you want to propose a formal code-style guide (ESLint, Prettier config, .editorconfig) — open an issue, let's agree on the rules, then we'll roll it out.
 
 ---
 
-## Где спросить
+## License and authorship
 
-- **Issues** — баги, feature-запросы, конкретные вопросы про код
-- **Discussions** — общие вопросы, дискуссии о направлении, идеи
-- **PR comments** — обсуждение конкретного предложения
+Sima Atlas is MIT-licensed — your PR lands under the same license. We don't sign a CLA.
 
-Maintainer — Anton Kalabukhov (Synlabs). Отвечаем в течение 48 часов в большинстве случаев.
+Contributor attribution is via `git log`. The maintainers list is in the README.
 
-Спасибо!
+---
+
+## Where to ask
+
+- **Issues** — bugs, feature requests, specific code questions
+- **Discussions** — general questions, direction discussions, ideas
+- **PR comments** — discussion on a specific proposal
+
+Maintainer — Anton Kalabukhov (Synlabs). We respond within 48 hours in most cases.
+
+Thanks!

@@ -54,7 +54,14 @@ function ContextRail({ data, onClose, onUpdateField, onOpenDocs }) {
       <div className="field">
         <div className="lbl">{t('rail.conditions_stack', 'Conditions / stack')} <span className="tag">@conditions</span>{editPencil(t('rail.stack_label', 'stack (tech_stack.md)'))}</div>
         {(() => {
-          const allEmpty = !p.conditions.backend.length && !p.conditions.frontend.length && !p.conditions.logic.length && !p.conditions.checks.length;
+          // R-7.68 — guard: payload may have undefined conditions or
+          // missing per-layer arrays (older clients, partial state).
+          const cond = p.conditions || {};
+          const backend = Array.isArray(cond.backend) ? cond.backend : [];
+          const frontend = Array.isArray(cond.frontend) ? cond.frontend : [];
+          const logic = Array.isArray(cond.logic) ? cond.logic : [];
+          const checks = Array.isArray(cond.checks) ? cond.checks : [];
+          const allEmpty = !backend.length && !frontend.length && !logic.length && !checks.length;
           if (allEmpty && onOpenDocs) {
             return (
               <button className="rail-empty-cta" onClick={onOpenDocs}>
@@ -63,24 +70,18 @@ function ContextRail({ data, onClose, onUpdateField, onOpenDocs }) {
               </button>
             );
           }
+          const layerRow = (label, arr) => (
+            <div style={{ marginBottom: 8 }}>
+              <div style={{ fontSize: 10.5, color: 'var(--ink-4)', marginBottom: 4, letterSpacing: '0.06em' }}>{label}</div>
+              <div className="chips">{arr.length ? arr.map(x => <span key={x} className="chip">{x}</span>) : <span className="meta" style={{ fontSize: 11 }}>—</span>}</div>
+            </div>
+          );
           return (
             <>
-              <div style={{ marginBottom: 8 }}>
-                <div style={{ fontSize: 10.5, color: 'var(--ink-4)', marginBottom: 4, letterSpacing: '0.06em' }}>{t('rail.layer_backend', 'BACKEND')}</div>
-                <div className="chips">{p.conditions.backend.length ? p.conditions.backend.map(x => <span key={x} className="chip">{x}</span>) : <span className="meta" style={{ fontSize: 11 }}>—</span>}</div>
-              </div>
-              <div style={{ marginBottom: 8 }}>
-                <div style={{ fontSize: 10.5, color: 'var(--ink-4)', marginBottom: 4, letterSpacing: '0.06em' }}>{t('rail.layer_frontend', 'FRONTEND')}</div>
-                <div className="chips">{p.conditions.frontend.length ? p.conditions.frontend.map(x => <span key={x} className="chip">{x}</span>) : <span className="meta" style={{ fontSize: 11 }}>—</span>}</div>
-              </div>
-              <div style={{ marginBottom: 8 }}>
-                <div style={{ fontSize: 10.5, color: 'var(--ink-4)', marginBottom: 4, letterSpacing: '0.06em' }}>{t('rail.layer_logic', 'LOGIC')}</div>
-                <div className="chips">{p.conditions.logic.length ? p.conditions.logic.map(x => <span key={x} className="chip">{x}</span>) : <span className="meta" style={{ fontSize: 11 }}>—</span>}</div>
-              </div>
-              <div>
-                <div style={{ fontSize: 10.5, color: 'var(--ink-4)', marginBottom: 4, letterSpacing: '0.06em' }}>{t('rail.layer_checks', 'CHECKS')}</div>
-                <div className="chips">{p.conditions.checks.length ? p.conditions.checks.map(x => <span key={x} className="chip">{x}</span>) : <span className="meta" style={{ fontSize: 11 }}>—</span>}</div>
-              </div>
+              {layerRow(t('rail.layer_backend',  'BACKEND'),  backend)}
+              {layerRow(t('rail.layer_frontend', 'FRONTEND'), frontend)}
+              {layerRow(t('rail.layer_logic',    'LOGIC'),    logic)}
+              {layerRow(t('rail.layer_checks',   'CHECKS'),   checks)}
             </>
           );
         })()}
@@ -310,38 +311,73 @@ function LayerPicker({ block }) {
 
 function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSubsystem, onOpenTz, onClaudeAdvice }) {
   const t = window.__SIMA_T || ((_, fb) => fb);
+  // R-7.69 — Overview was reading legacy hardcoded MODULE_DESC for
+  // Logic/Backend/Frontend/KPI sections. Operator: «Backend / Logic /
+  // Block KPIs — not editable, missing from Contract». They were
+  // display-only labels for legacy demo blocks; new blocks rendered
+  // empty sections that confused operators. Now we load the actual
+  // contract files (mission.md / kpi.md / acceptance.md / depends_on.md /
+  // provides.md) and surface a live summary. To edit them, click
+  // «Open Contract →» which switches the right-side tab.
   const desc = MODULE_DESC[m.id] || {};
-  // Phase R-7.12 — для НОВЫХ блоков (не из захардкоженного MODULE_DESC)
-  // подгружаем реальный mission.md из контракта. Без этого «Обзор» tab
-  // показывал плейсхолдер «Описание модуля будет дополнено...» даже после
-  // того как оператор сохранил миссию через ✎ Руками — операор справедливо
-  // жаловался «всё пропадает».
   const [missionText, setMissionText] = useState2('');
-  const [missionLoaded, setMissionLoaded] = useState2(false);
+  const [kpiText, setKpiText] = useState2('');
+  const [acceptText, setAcceptText] = useState2('');
+  const [depsText, setDepsText] = useState2('');
+  const [providesText, setProvidesText] = useState2('');
+  const [loaded, setLoaded] = useState2(false);
+
   useEffect2(() => {
-    setMissionLoaded(false);
-    if (!m.id || !m.id.startsWith('b.')) { setMissionText(''); setMissionLoaded(true); return; }
+    setLoaded(false);
+    if (!m.id || !m.id.startsWith('b.')) { setLoaded(true); return; }
     let cancelled = false;
-    (async () => {
+    const load = async (file) => {
       try {
-        const r = await window.SIMA_API?.meta?.blockFile(m.id, 'mission.md');
-        if (cancelled) return;
-        const raw = r?.ok ? String(r.content || '') : '';
-        // Strip the auto-heading (`# <id> — mission`) and trailing layer block
-        const body = raw.replace(/^#[^\n]*\n+/, '').replace(/\n+##\s+Layer[\s\S]*$/i, '').trim();
-        setMissionText(body);
-      } catch {}
-      if (!cancelled) setMissionLoaded(true);
+        const r = await window.SIMA_API?.meta?.blockFile(m.id, file);
+        if (cancelled) return '';
+        return r?.ok ? String(r.content || '') : '';
+      } catch { return ''; }
+    };
+    (async () => {
+      const [mission, kpi, accept, deps, prov] = await Promise.all([
+        load('mission.md'), load('kpi.md'), load('acceptance.md'),
+        load('depends_on.md'), load('provides.md'),
+      ]);
+      if (cancelled) return;
+      // Strip auto-headings (`# <id> — <kind>`) and trailing layer block
+      const stripHead = (s) => s.replace(/^#[^\n]*\n+/, '').replace(/\n+##\s+Layer[\s\S]*$/i, '').trim();
+      setMissionText(stripHead(mission));
+      setKpiText(stripHead(kpi));
+      setAcceptText(stripHead(accept));
+      setDepsText(stripHead(deps));
+      setProvidesText(stripHead(prov));
+      setLoaded(true);
     })();
     return () => { cancelled = true; };
   }, [m.id]);
-  // Resolution priority for «Зачем»:
-  //   1. live mission.md (operator wrote / agent filled it on disk)
-  //   2. hardcoded MODULE_DESC fallback (legacy demo blocks)
-  //   3. placeholder
-  const isPlaceholderText = (s) => !s || /Заполни через детальную панель|добавь конкретную метрику/i.test(s);
-  const liveMission = !isPlaceholderText(missionText) ? missionText : '';
-  const whyText = liveMission || desc.why || (missionLoaded ? t('overview.module_desc_placeholder', 'The module description will be filled in as you work with the agent. Open the «Contract» tab and click ✎ Edit next to mission.md to fill it in.') : t('overview.loading', 'Loading…'));
+
+  const isPlaceholder = (s) => !s || /Заполни через детальную панель|добавь конкретную метрику|fill in via the detail panel|first task|none/i.test(s);
+  const liveMission = !isPlaceholder(missionText) ? missionText : '';
+  const whyText = liveMission || desc.why || (loaded ? t('overview.module_desc_placeholder', 'No mission yet. Open the «Contract» tab and click ✎ Edit next to mission.md to fill it in.') : t('overview.loading', 'Loading…'));
+
+  // Parse KPI markdown — list items become rows; 1st number/percentage gets badge.
+  const kpiRows = !isPlaceholder(kpiText)
+    ? kpiText.split(/\r?\n/).filter(l => /^\s*[-*]\s/.test(l)).map(l => l.replace(/^\s*[-*]\s+/, '').trim())
+    : [];
+
+  // Parse acceptance — count - [ ] / - [x] checkboxes
+  const acceptItems = !isPlaceholder(acceptText)
+    ? acceptText.split(/\r?\n/).filter(l => /^\s*-\s*\[[ xX]\]/.test(l))
+    : [];
+  const acceptDone = acceptItems.filter(l => /\[\s*[xX]\s*\]/.test(l)).length;
+
+  // Parse depends_on / provides — list items
+  const parseList = (s) => !isPlaceholder(s)
+    ? s.split(/\r?\n/).filter(l => /^\s*-\s/.test(l)).map(l => l.replace(/^\s*-\s+/, '').trim())
+    : [];
+  const depsList = parseList(depsText);
+  const providesList = parseList(providesText);
+
   return (
     <>
       {hasSubsystem && (
@@ -361,39 +397,80 @@ function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSu
         </div>
       )}
       <LayerPicker block={m} />
-      <h3>{t('overview.why', 'Why')}</h3>
-      <p className="lede" style={{ whiteSpace: 'pre-wrap' }}>{whyText}</p>
 
-      <h3>{t('overview.logic', 'Logic')}</h3>
-      <p>{desc.logic}</p>
+      {/* Mission / Why */}
+      <div className="ov-section">
+        <div className="ov-head">
+          <h3>{t('overview.mission', 'Mission')} <span className="ov-file">mission.md</span></h3>
+          {liveMission && <button className="ov-edit-link" onClick={() => onSendToAgent && (() => {})()} title={t('overview.edit_in_contract','Edit in Contract tab')}>✎</button>}
+        </div>
+        <p className="lede" style={{ whiteSpace: 'pre-wrap' }}>{whyText}</p>
+      </div>
 
-      <h3>{t('overview.backend', 'Backend')}</h3>
-      <div className="chips" style={{ marginBottom: 4 }}>{(desc.backend || []).map(x => <span key={x} className="chip">{x}</span>)}</div>
+      {/* KPIs */}
+      <div className="ov-section">
+        <div className="ov-head">
+          <h3>{t('overview.kpi', 'Block KPIs')} <span className="ov-file">kpi.md</span></h3>
+        </div>
+        {kpiRows.length ? (
+          <div className="ov-kpi-list">
+            {kpiRows.map((row, i) => (
+              <div key={i} className="ov-kpi-row">{row}</div>
+            ))}
+          </div>
+        ) : (
+          <p className="meta" style={{ fontSize: 12 }}>{t('overview.kpi_empty', 'No KPIs defined yet. Open the «Contract» tab → kpi.md.')}</p>
+        )}
+      </div>
 
-      {desc.frontend && <>
-        <h3>{t('overview.frontend', 'Frontend')}</h3>
-        <div className="chips">{desc.frontend.map(x => <span key={x} className="chip">{x}</span>)}</div>
-      </>}
+      {/* Acceptance */}
+      <div className="ov-section">
+        <div className="ov-head">
+          <h3>{t('overview.acceptance', 'Acceptance')} <span className="ov-file">acceptance.md</span></h3>
+          {acceptItems.length > 0 && (
+            <span className="ov-badge">{acceptDone}/{acceptItems.length} {t('overview.acceptance_done','done')}</span>
+          )}
+        </div>
+        {acceptItems.length === 0 && (
+          <p className="meta" style={{ fontSize: 12 }}>{t('overview.acceptance_empty', 'No acceptance criteria yet. Open the «Contract» tab → acceptance.md.')}</p>
+        )}
+      </div>
 
-      {/* P1.5 — tech_stack from graph.json (live) */}
+      {/* Dependencies */}
+      <div className="ov-section">
+        <div className="ov-head">
+          <h3>{t('overview.dependencies', 'Dependencies')} <span className="ov-file">depends_on.md / provides.md</span></h3>
+        </div>
+        <div className="ov-deps-grid">
+          <div>
+            <div className="ov-deps-label">{t('overview.depends_on', 'depends on')}</div>
+            {depsList.length
+              ? <div className="chips">{depsList.map((d, i) => <span key={i} className="chip mono" style={{ fontSize: 11 }}>{d.split(/[:\s]/)[0]}</span>)}</div>
+              : <span className="meta" style={{ fontSize: 11 }}>—</span>}
+          </div>
+          <div>
+            <div className="ov-deps-label">{t('overview.provides', 'provides')}</div>
+            {providesList.length
+              ? <div className="chips">{providesList.map((d, i) => <span key={i} className="chip mono" style={{ fontSize: 11 }}>{d.split(/[:\s]/)[0]}</span>)}</div>
+              : <span className="meta" style={{ fontSize: 11 }}>—</span>}
+          </div>
+        </div>
+      </div>
+
+      {/* Block tech stack — from graph.json (live) */}
       {Array.isArray(m.tech_stack) && m.tech_stack.length > 0 && (
-        <>
-          <h3>{t('overview.tech_stack', 'Block tech stack')}</h3>
+        <div className="ov-section">
+          <div className="ov-head">
+            <h3>{t('overview.tech_stack', 'Block tech stack')} <span className="ov-file">graph.json</span></h3>
+          </div>
           <div className="chips">{m.tech_stack.map(x => <span key={x} className="chip mono" style={{ fontSize: 11 }}>{x}</span>)}</div>
           <div className="meta" style={{ fontSize: 11, marginTop: 4 }}>
-            {t('overview.tech_stack_meta_pre', 'from')} <code>graph.json</code> {t('overview.tech_stack_meta_post', 'block — will be checked by sync-check against global')} <code>tech_stack.md</code>.
+            {t('overview.tech_stack_meta_pre', 'from')} <code>graph.json</code> — {t('overview.tech_stack_meta_post', 'sync-checked against global tech_stack.md')}.
           </div>
-        </>
+        </div>
       )}
 
-      <h3>{t('overview.kpi', 'Block KPIs')}</h3>
-      {(desc.kpi || []).map(k => (
-        <div key={k.code} className="kpi-row" style={{ borderBottom: '1px dashed var(--rule)', padding: '5px 0', display: 'flex', justifyContent: 'space-between' }}>
-          <span className="mono" style={{ fontSize: 11, fontWeight: 500 }}>{k.code}</span>
-          <span style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>{k.label}</span>
-        </div>
-      ))}
-
+      {/* Send to agent */}
       <h3>{t('overview.send_to_agent', 'Send to agent')}</h3>
       <div className="send-task">
         <span className="lab">{t('overview.this_block_ctx', 'This block\'s context →')}</span>

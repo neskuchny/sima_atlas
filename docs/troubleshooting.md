@@ -1,232 +1,234 @@
 # Sima Atlas — Troubleshooting
 
-Реальные ошибки, с которыми сталкивались операторы, и проверенные фиксы.
-Берись за конкретный симптом; если его здесь нет — пиши в issue.
+> Russian original preserved at [`./troubleshooting.ru.md`](./troubleshooting.ru.md).
+
+Real errors that operators have hit, plus tested fixes.
+Look for your specific symptom; if it's not here, file an issue.
 
 ---
 
 ## 1. LLM / Claude CLI
 
-### `Invalid API key · Fix external API key` в ответе LLM
+### `Invalid API key · Fix external API key` in the LLM response
 
-**Симптом.** Кнопки `✏ Переписать` / `✨ Заполнить` / `Совет Клода` отрабатывают, но в модалке появляется текст «Invalid API key» (или подобный), а в `npm run dev` логе:
+**Symptom.** The `✏ Rewrite` / `✨ Fill` / `Claude's advice` buttons return, but the modal shows "Invalid API key" (or similar), and the `npm run dev` log says:
 ```
 [llm-gateway] claude --print exited 1 with parseable JSON; accepting (likely Windows cmd-wrapper quirk).
 [llm-gateway] claude_cli failed (claude_cli error: Invalid API key · Fix external API key); trying next in cascade [...]
 ```
 
-**Причина.** В системе установлен `ANTHROPIC_API_KEY` env var с битым/устаревшим ключом. Claude CLI приоритезирует env-key над встроенной Pro/Max-сессией.
+**Cause.** The system has an `ANTHROPIC_API_KEY` env var with a broken/stale key. The Claude CLI prioritizes the env key over the built-in Pro/Max session.
 
-**Фикс (Windows PowerShell).**
+**Fix (Windows PowerShell).**
 ```powershell
-# 1. Снести битый env var
+# 1. Wipe the broken env var
 [System.Environment]::SetEnvironmentVariable('ANTHROPIC_API_KEY',$null,'User')
 [System.Environment]::SetEnvironmentVariable('ANTHROPIC_API_KEY',$null,'Process')
 
-# 2. Перелогиниться через subscription
+# 2. Re-login through the subscription
 claude logout
 claude
-# в интерактивной сессии: /login
-# выходи через /quit или Ctrl+D
+# in the interactive session: /login
+# exit via /quit or Ctrl+D
 ```
 
-**Фикс (macOS/Linux).**
+**Fix (macOS/Linux).**
 ```bash
 unset ANTHROPIC_API_KEY
-# в ~/.zshrc, ~/.bashrc удалить строки export ANTHROPIC_API_KEY=...
+# in ~/.zshrc, ~/.bashrc remove lines export ANTHROPIC_API_KEY=...
 claude logout
 claude  # /login
 ```
 
-После — перезапусти `npm run dev`. В api-логе должно быть `using provider=claude_cli (subscription via claude CLI)` без последующего `failed`.
+After that, restart `npm run dev`. The api log should show `using provider=claude_cli (subscription via claude CLI)` with no follow-up `failed`.
 
 ### `Failed to authenticate. API Error: 401 Invalid authentication credentials`
 
-**Причина.** Сессия claude CLI протухла или повреждена, env уже чистый.
+**Cause.** The claude CLI session has expired or been corrupted; env is already clean.
 
-**Фикс.** В терминале:
+**Fix.** In a terminal:
 ```bash
 claude
 # /login
-# дождись «Login successful»
+# wait for "Login successful"
 # /quit
 ```
 
 ### `claude --print exited 1 with parseable JSON; accepting`
 
-Не ошибка — Windows cmd.exe wrapper quirk. Gateway видит, что в stdout валидный JSON envelope (`{result, usage}`), и принимает несмотря на нечёрный exit-код. Это нормально и фикс уже встроен (R-7.13).
+Not an error — a Windows cmd.exe wrapper quirk. The gateway sees a valid JSON envelope (`{result, usage}`) in stdout and accepts despite the non-zero exit code. This is normal and the fix is already built in (R-7.13).
 
-### LLM возвращает пустой результат / fallback на mock
+### LLM returns an empty result / falls back to mock
 
-**Симптом.** Модалка `✏ Переписать` открылась, в textarea — пусто или короткий текст «I'm ready, what would you like to work on?».
+**Symptom.** The `✏ Rewrite` modal opens, the textarea is empty or shows a short text "I'm ready, what would you like to work on?".
 
-**Причина.** Claude CLI не смог распарсить prompt + schema (бывает редко) ИЛИ ответил беседой вместо JSON. Gateway:
-1. R-7.37: при failed schema-parse — оборачивает raw текст как `{content: text}`. Видишь сырой ответ, можешь редактировать руками.
-2. R-7.37b: при detection auth-error — fallback на anthropic API → google → mock.
+**Cause.** Either the Claude CLI failed to parse prompt + schema (rare) OR it answered conversationally instead of with JSON. The gateway:
+1. R-7.37: on a failed schema-parse, wraps the raw text as `{content: text}`. You see the raw answer and can edit it by hand.
+2. R-7.37b: on detection of an auth error, falls back to anthropic API → google → mock.
 
-**Что проверить.** В api-логе (`npm run dev` окно) ищи:
-- `[llm-gateway] claude_cli schema-parse failed; ... text-head=...` — claude ответил не JSON'ом, R-7.37 завернул raw в content
-- `[llm-gateway] claude_cli failed (...); trying next in cascade [...]` — auth/rate-limit, активирован fallback
+**What to check.** In the api log (the `npm run dev` window), look for:
+- `[llm-gateway] claude_cli schema-parse failed; ... text-head=...` — claude returned non-JSON, R-7.37 wrapped raw into content
+- `[llm-gateway] claude_cli failed (...); trying next in cascade [...]` — auth/rate-limit, fallback engaged
 
 ---
 
-## 2. Запуски агентов (`/runs/start`)
+## 2. Agent runs (`/runs/start`)
 
 ### `spawnSync codex ENOENT` / `spawnSync cursor-agent ENOENT`
 
-**Симптом.** Нажал `Запустить блок → Cursor` (или Codex), запуск идёт в Failed:
+**Symptom.** You clicked `Run block → Cursor` (or Codex), the run goes to Failed:
 ```
 run_block_implementation: codex failed → spawnSync codex ENOENT
 ```
 
-**Причина.** У тебя нет `cursor-agent` или `codex` CLI в PATH.
+**Cause.** You don't have `cursor-agent` or `codex` CLI on PATH.
 
-**Фикс.** R-7.32: оркестратор теперь автоматически fallback'ит в **print-only mode** для всех 3 агентов. Промпт сохраняется в `atlas/clients/<client>/agent_invocations/<UTC>__<block>.txt`. Открой его, скопируй содержимое — вставь в IDE Cursor / Codex / любой другой агент руками.
+**Fix.** R-7.32: the orchestrator now automatically falls back to **print-only mode** for all 3 agents. The prompt is saved to `atlas/clients/<client>/agent_invocations/<UTC>__<block>.txt`. Open it, copy the contents, and paste them into Cursor / Codex / any other agent IDE manually.
 
-Если хочешь полноценный запуск:
-- **Cursor**: `npm install -g @cursor/cursor-agent` (если доступно), либо использовать UI Cursor вручную
-- **Codex**: установить Codex CLI согласно их docs
+If you want a real run:
+- **Cursor**: `npm install -g @cursor/cursor-agent` (if available), or use the Cursor UI by hand
+- **Codex**: install the Codex CLI per their docs
 
 ### `block dir not found → atlas/blocks/<id>`
 
-**Симптом.** Run падает мгновенно с этой ошибкой; в `atlas/run_logs/<run_id>.log` только эта строка.
+**Symptom.** The run fails immediately with this error; in `atlas/run_logs/<run_id>.log` there's only this line.
 
-**Причина (до R-7.22).** Оркестратор был multi-tenant blind, смотрел в `ROOT/atlas/blocks/<id>` вместо `atlas/clients/<client>/blocks/<id>`.
+**Cause (before R-7.22).** The orchestrator was multi-tenant blind, looking under `ROOT/atlas/blocks/<id>` instead of `atlas/clients/<client>/blocks/<id>`.
 
-**Причина (после R-7.22, до R-7.32).** UI не пробрасывал `client_id` в `/runs/start` из-за race в чтении `window.__SIMA_DATA_CLIENT`. В run_log: `client=(default)`.
+**Cause (after R-7.22, before R-7.32).** The UI didn't pass `client_id` into `/runs/start` because of a race in reading `window.__SIMA_DATA_CLIENT`. In run_log: `client=(default)`.
 
-**Фикс.** Обновись на R-7.32+. Проверь:
+**Fix.** Update to R-7.32+. Verify:
 ```bash
 git log --oneline -5
-# должно показать R-7.32 или новее
+# should show R-7.32 or newer
 ```
 
-### Вкладка «Запуски» пустая, хотя run был
+### The "Runs" tab is empty even though a run happened
 
-**Причина.** `run_state/<run_id>.json` не записан, потому что run упал сразу (см. два предыдущих пункта).
+**Cause.** `run_state/<run_id>.json` wasn't written, because the run died immediately (see the two previous items).
 
-**Фикс.** Проверь `atlas/run_logs/<run_id>.log` — там reason. Чаще всего auth или ENOENT.
+**Fix.** Check `atlas/run_logs/<run_id>.log` — the reason is there. Most often auth or ENOENT.
 
-### Внешний запуск Cursor (вне UI кнопки) не виден в «Запусках»
+### An external Cursor run (outside the UI button) doesn't appear in "Runs"
 
-**Симптом.** Запустил Cursor IDE на блоке руками; контракты заполнились, в `checks.log` появилась строка `cursor_run pass ...`. Но во вкладке «Запуски» в UI пусто.
+**Symptom.** You launched Cursor IDE on a block by hand; the contracts got filled, a `cursor_run pass ...` line appeared in `checks.log`. But the "Runs" tab in the UI is empty.
 
-**Причина.** `/runs/list` читает только `run_state/<run_id>.json` (наш orchestrator). Внешние запуски этот файл не создают.
+**Cause.** `/runs/list` only reads `run_state/<run_id>.json` (our orchestrator). External runs don't create that file.
 
-**Фикс (планируется в R-7.24).** Добавить fallback-источник: парсить `cursor_run|claude_run|codex_run` строки из `checks.log`. Пока — внешние запуски видны только в самом checks.log.
+**Fix (planned for R-7.24).** Add a fallback source: parse `cursor_run|claude_run|codex_run` lines from `checks.log`. For now, external runs are visible only in `checks.log` itself.
 
 ---
 
-## 3. Multi-tenant / клиенты
+## 3. Multi-tenant / clients
 
-### Banner «Проект `<name>` не существует»
+### Banner "Project `<name>` doesn't exist"
 
-**Симптом.** Ввёл `?client=my-saas` в URL, banner предлагает создать проект.
+**Symptom.** You set `?client=my-saas` in the URL; the banner offers to create the project.
 
-**Фикс.** R-6.1: при первой mutation (создание блока, edit field) клиентская папка создаётся автоматически. Просто нажми `+ Новый модуль` — после успеха banner исчезнет.
+**Fix.** R-6.1: on the first mutation (creating a block, editing a field) the client folder is created automatically. Just click `+ New module` — once it succeeds, the banner disappears.
 
-### Block create зацикливается с «already exists»
+### Block create loops with "already exists"
 
-**Симптом.** Нажимаешь `+ Новый модуль`, в логе несколько раз «уже существует, пробую b.block-N+1», в итоге fail.
+**Symptom.** You click `+ New module`, the log says "already exists, trying b.block-N+1" several times, and ultimately fails.
 
-**Причина (R-7.3, R-7.11).** В graph.json остались стейл-ссылки на удалённые блоки.
+**Cause (R-7.3, R-7.11).** Stale references to deleted blocks remained in graph.json.
 
-**Фикс.** В тулбаре кнопка `⟲ Сбросить клиента` (R-7.4) → подтверди → graph.json + blocks/ + proposals/ + acceptance_runs/ снесутся, project.md/rules.md/tech_stack.md останутся.
+**Fix.** The toolbar has a `⟲ Reset client` button (R-7.4) → confirm → graph.json + blocks/ + proposals/ + acceptance_runs/ are wiped, while project.md/rules.md/tech_stack.md are preserved.
 
 ---
 
 ## 4. UI
 
-### Клик правой кнопкой по ноде → меню появилось, но кнопки не работают
+### Right-click on a node → menu appears, but the buttons don't work
 
-**Причина (до R-7.26).** Канвас onMouseDown ловил mousedown на ctx-menu-кнопке РАНЬШЕ click, сбрасывал `ctxMenu=null`, кнопка анмаунтилась до того как onClick срабатывал.
+**Cause (before R-7.26).** The canvas's onMouseDown caught mousedown on the ctx-menu button BEFORE click, reset `ctxMenu=null`, and the button unmounted before onClick fired.
 
-**Фикс.** R-7.26: добавил `.ctx-menu` в early-return whitelist канваса. После пула — все кнопки в правом-клике работают.
+**Fix.** R-7.26: added `.ctx-menu` to the canvas's early-return whitelist. After pulling, all right-click menu buttons work.
 
-### Связи между блоками не создаются
+### Links between blocks don't get created
 
-**До R-7.28.** Не было реализации.
-**R-7.28.** Shift+drag по ноде → создаёт связь.
-**R-7.33.** Hover ноды → 4 anchor-точки по краям. Drag от точки на другую ноду — связь без Shift.
+**Before R-7.28.** Not implemented.
+**R-7.28.** Shift+drag on a node → creates a link.
+**R-7.33.** Hover a node → 4 anchor points around the edges. Drag from a point onto another node — a link without Shift.
 
-Если всё ещё не работает — проверь, что после Shift'а ИЛИ зажимания anchor-точки появляется пунктирная линия за курсором. Если её нет — handler не вызвался, пришли DevTools Console + Network.
+If it still doesn't work, check that after Shift OR holding an anchor point a dashed line follows the cursor. If not — the handler didn't fire; send DevTools Console + Network output.
 
-### Контракт-tab не работает у подмодуля
+### The Contract tab doesn't work on a submodule
 
-**Симптом.** Провалился в блок (drill-down), создал подмодуль `b.X.s1`, кликнул — DetailPanel открылся, но Контракт пустой.
+**Symptom.** You drilled into a block (drill-down), created submodule `b.X.s1`, clicked it — DetailPanel opens, but Contract is empty.
 
-**Причина.** Подмодули хранятся как JSON-записи внутри `subsystem.json` родителя, у них **нет** собственной папки `atlas/clients/<id>/blocks/<sub_id>/`. Поэтому mission.md / kpi.md / acceptance.md загружать неоткуда.
+**Cause.** Submodules are stored as JSON entries inside the parent's `subsystem.json`; they have **no** dedicated `atlas/clients/<id>/blocks/<sub_id>/` folder. So mission.md / kpi.md / acceptance.md have nowhere to load from.
 
-**Что работает у подмодуля.** Title, layer, status, координаты, связи внутри подсистемы.
+**What works on a submodule.** Title, layer, status, coordinates, links inside the subsystem.
 
-**Что НЕ работает.** Контракт-файлы, запуски агентов, acceptance.
+**What does NOT work.** Contract files, agent runs, acceptance.
 
-**Фикс (планируется в R-7.36).** Кнопка «promote to block» — конвертирует подмодуль в полноценный блок с папкой и контрактами.
+**Fix (planned for R-7.36).** A "promote to block" button — converts a submodule to a full-fledged block with its own folder and contracts.
 
-### DetailPanel: «Блок ещё не подгружен»
+### DetailPanel: "Block not loaded yet"
 
-**Причина.** UI выбрал блок, которого нет ни в outer modules, ни в активной подсистеме. Бывает после удаления / переименования.
+**Cause.** The UI selected a block that's neither in the outer modules nor in the active subsystem. Happens after a deletion / rename.
 
-**Фикс.** Нажми Sync в тулбаре или Ctrl+R.
+**Fix.** Click Sync in the toolbar, or Ctrl+R.
 
-### Закрыл DetailPanel ✕ → правая часть осталась пустой большой колонкой
+### Closed DetailPanel ✕ → the right side stayed as a big empty column
 
-**Причина (до R-7.30).** `app.no-detail` CSS-класс применялся только при `!selectedId`, но не при `!detailOpen`.
+**Cause (before R-7.30).** The `app.no-detail` CSS class was applied only when `!selectedId`, but not when `!detailOpen`.
 
-**Фикс.** R-7.30: `app.no-detail` теперь применяется при любом из двух условий. Канвас разворачивается на всю ширину.
+**Fix.** R-7.30: `app.no-detail` is now applied on either of the two conditions. The canvas expands to the full width.
 
-### Кнопка `📖 Доки` / `✨ Совет Клода` обрезана за правым краем
+### The `📖 Docs` / `✨ Claude's advice` button is cut off past the right edge
 
-**Причина.** Топбар переполнен, кнопки уезжают в overflow без visible scroll.
+**Cause.** The top bar is overflowing; buttons get pushed into overflow with no visible scroll.
 
-**Фикс.** Открой DevTools на полный экран; в узких окнах используй командную палитру `⌘K` (или `Ctrl+K`) → она знает все основные действия включая «Системные доки», «Совет Клода».
+**Fix.** Open DevTools full-screen; in narrow windows use the command palette `⌘K` (or `Ctrl+K`) — it knows all the main actions including "System docs" and "Claude's advice".
 
-### Поле в Контекст-Rail не редактируется одним кликом
+### A field in the Context Rail isn't editable on a single click
 
-**Фикс (R-7.31).** Single-click активирует edit. На hover — пунктирное подчёркивание (visual affordance). Если по-прежнему не работает — проверь, что pull сделан на R-7.31+.
+**Fix (R-7.31).** Single-click activates edit. On hover — a dashed underline (visual affordance). If it still doesn't work, verify your pull is on R-7.31+.
 
 ---
 
 ## 5. Build / dev environment
 
-### `node scripts/build_sima_design_payload.mjs` молча выходит, ничего не печатает
+### `node scripts/build_sima_design_payload.mjs` exits silently and prints nothing
 
-**Причина (до R-7.18).** Windows CLI-entry check был `import.meta.url === \`file://${process.argv[1]}\``, который **никогда не матчится на Windows** из-за разных слешей.
+**Cause (before R-7.18).** The Windows CLI-entry check was `import.meta.url === \`file://${process.argv[1]}\``, which **never matches on Windows** because of slash differences.
 
-**Фикс.** R-7.18: переписан на `fileURLToPath(import.meta.url) === process.argv[1]` — работает на обоих ОС. 27 скриптов получили этот fix одновременно.
+**Fix.** R-7.18: rewritten as `fileURLToPath(import.meta.url) === process.argv[1]` — works on both OSes. 27 scripts got this fix in one shot.
 
-### Cache не обновляется, изменения не видны в браузере
+### Cache doesn't refresh, changes aren't visible in the browser
 
-**Фикс.** Hard refresh: Ctrl+F5 (Windows) / Cmd+Shift+R (macOS). Каждый коммит UI-фиксов бампает `?v=r7-XX` cache-buster, но иногда браузер кэширует HTML тоже.
+**Fix.** Hard refresh: Ctrl+F5 (Windows) / Cmd+Shift+R (macOS). Each commit of UI fixes bumps `?v=r7-XX` cache-buster, but sometimes the browser caches the HTML too.
 
-### `git status` показывает массу CRLF warning'ов на Windows
+### `git status` shows piles of CRLF warnings on Windows
 
-**Причина.** Файлы были созданы на macOS/Linux с LF line-endings, git автонормализует к CRLF на Windows.
+**Cause.** The files were created on macOS/Linux with LF line endings, and git auto-normalizes to CRLF on Windows.
 
-**Что делать.** Игнорируй — Git нормализует обратно при коммите. Если раздражает:
+**What to do.** Ignore — Git normalizes back on commit. If it bothers you:
 ```bash
-git config --global core.autocrlf false  # сохранять как есть
-# или
-git config --global core.autocrlf input  # LF в repo, конвертить только при checkout
+git config --global core.autocrlf false  # store as-is
+# or
+git config --global core.autocrlf input  # LF in repo, convert only on checkout
 ```
 
 ---
 
-## 6. Скрипты на Windows (общая нота)
+## 6. Scripts on Windows (general note)
 
-Если какой-то скрипт `node scripts/<X>.mjs` на Windows ведёт себя странно (молчит, не делает ничего, exit 0 без эффекта) — проверь, что это не та же CLI-entry bug R-7.18. Все наши 27 скриптов фиксились в одном коммите `63edbed`. Если ты копируешь скрипт со старого fork'а — поменяй:
+If some `node scripts/<X>.mjs` script behaves oddly on Windows (silent, no effect, exit 0 with nothing happening), check that it's not the same CLI-entry bug from R-7.18. All 27 of our scripts were fixed in a single commit `63edbed`. If you copied a script from an older fork, change:
 ```diff
 -if (import.meta.url === `file://${process.argv[1]}`) {
 +if (fileURLToPath(import.meta.url) === process.argv[1]) {
 ```
-И убедись, что есть `import { fileURLToPath } from 'node:url';`.
+And make sure `import { fileURLToPath } from 'node:url';` is present.
 
 ---
 
-## Куда писать
+## Where to write
 
-Если симптом сюда не подходит — заведи issue в `https://github.com/neskuchny/sima_atlas/issues` с:
-- что нажимал в UI / какая команда в CLI
-- что появилось в `npm run dev` (api лог)
-- что в DevTools Console + Network (если UI)
-- какой фазы (R-7.X) текущий HEAD: `git log --oneline -1`
+If your symptom isn't here, open an issue at `https://github.com/neskuchny/sima_atlas/issues` with:
+- what you clicked in the UI / which command in the CLI
+- what showed up in `npm run dev` (api log)
+- what's in DevTools Console + Network (if UI)
+- which phase (R-7.X) the current HEAD is at: `git log --oneline -1`
