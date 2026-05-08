@@ -1916,6 +1916,16 @@ html, body {
 .depth-picker .dp-btn.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 
 /* ============================================================
+   LANG TOGGLE (R-7.54) — compact pill in top toolbar
+   ============================================================ */
+.pill.lang-toggle {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; letter-spacing: 0.04em;
+  padding: 4px 10px; min-width: 56px;
+}
+.pill.lang-toggle:hover { background: var(--ink); color: var(--paper); }
+
+/* ============================================================
    PR — Run log + cancel + files-changed (Phase D1/D5/D6)
    ============================================================ */
 .run-card { cursor: pointer; }

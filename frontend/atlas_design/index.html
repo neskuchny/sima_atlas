@@ -4,14 +4,14 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Sima Atlas — visual contract-first development for AI agents</title>
-<link rel="stylesheet" href="styles.css?v=r7-52" />
+<link rel="stylesheet" href="styles.css?v=r7-54" />
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 <!-- R-7.28: markdown renderer for contract bodies (mission.md / kpi.md / acceptance.md etc.) -->
 <script src="https://cdn.jsdelivr.net/npm/marked@13.0.3/marked.min.js"></script>
 <!-- R-7.52: i18n must load BEFORE jsx components so window.__SIMA_T is defined when React renders -->
-<script src="i18n.js?v=r7-52"></script>
+<script src="i18n.js?v=r7-54"></script>
 </head>
 <body>
 <div id="root"></div>
@@ -26,12 +26,12 @@
        `sima-data-changed` CustomEvent so the React tree can react. Set
        window.SIMA_API_BASE before this script loads to point at a
        remote backend in production. -->
-<script src="data_static.js?v=r7-52"></script>
-<script src="data_loader.js?v=r7-52"></script>
-<script type="text/babel" src="tweaks-panel.jsx?v=r7-52"></script>
-<script type="text/babel" src="graph.jsx?v=r7-52"></script>
-<script type="text/babel" src="panels.jsx?v=r7-52"></script>
-<script type="text/babel" src="views.jsx?v=r7-52"></script>
+<script src="data_static.js?v=r7-54"></script>
+<script src="data_loader.js?v=r7-54"></script>
+<script type="text/babel" src="tweaks-panel.jsx?v=r7-54"></script>
+<script type="text/babel" src="graph.jsx?v=r7-54"></script>
+<script type="text/babel" src="panels.jsx?v=r7-54"></script>
+<script type="text/babel" src="views.jsx?v=r7-54"></script>
 <script type="text/babel">
 const { useState, useEffect, useRef, useMemo, useCallback } = React;
 
@@ -46,6 +46,11 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
 function App() {
   const data = window.SIMA_DATA;
   const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  // R-7.54 — re-render the whole tree when UI language changes so all
+  // t() callsites pick up the new locale. The hook listens for the
+  // 'sima-locale-change' event dispatched by window.__SIMA_SET_LOCALE.
+  // eslint-disable-next-line no-unused-vars
+  const _locale = (window.__SIMA_USE_LOCALE && window.__SIMA_USE_LOCALE()) || 'en';
 
   const [selectedId, setSelectedId] = useState(null);
   const [hoveredId, setHoveredId] = useState(null);
@@ -1067,6 +1072,12 @@ function App() {
         <button className="pill" onClick={() => setSysDocsOpen(true)} title="Roadmap, Wiki, documentation">{(window.__SIMA_T||((_,fb)=>fb))('toolbar.docs','📖 Docs')}</button>
         <button className="pill" onClick={() => setTemplatesOpen(true)} title="Schema templates">⌬ Templates</button>
         <button className="pill" onClick={() => setSubagentsOpen(true)} title="Cursor subagents: schema-syncer / verifier / wiki-builder">{(window.__SIMA_T||((_,fb)=>fb))('toolbar.subagents','⚙ Subagents')}</button>
+        <button className="pill lang-toggle" onClick={() => {
+          const next = (window.__SIMA_LOCALE === 'en') ? 'ru' : 'en';
+          if (window.__SIMA_SET_LOCALE) window.__SIMA_SET_LOCALE(next);
+        }} title="Switch UI language between English and Russian">
+          🌐 {(window.__SIMA_LOCALE === 'ru') ? 'RU' : 'EN'}
+        </button>
         <button className="pill" onClick={() => setProposalsOpen(true)} title="Sima proposals">
           <span className="dot" style={{ background: proposalsCount > 0 ? 'var(--st-progress)' : 'var(--st-done)' }} />
           {(window.__SIMA_T||((_,fb)=>fb))('toolbar.suggestions','✦ Suggestions')}{proposalsCount > 0 ? ` (${proposalsCount})` : ''}
