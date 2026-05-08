@@ -334,17 +334,20 @@ kpi / acceptance**. Сейчас этого нет.
 
 ## Open questions / blockers
 
-- [!] Поведение `/runs/start` без `claude` CLI / API key: сейчас FSM
-      пройдёт `LaunchingAgent → Failed`, но UI не показывает почему.
-      Нужно вытащить stderr в RunStatusSection (часть D1).
-- [!] CORS для DELETE добавлен — нужно проверить что preflight
-      OPTIONS тоже отдаёт DELETE в Access-Control-Allow-Methods (added).
+- [~] (R-7.50 partial) `/runs/start` без `claude` CLI / API key: раньше
+      FSM `LaunchingAgent → Failed` без понятного сообщения. R-7.50
+      добавил CLI auto-detect на старте dev_server'а — оператор видит
+      при `npm run dev`, какие из claude/cursor-agent/codex доступны
+      и instructions как поставить недостающие. Stderr surfacing
+      в RunStatusSection (часть D1) — всё ещё открыто.
+- [x] (R-6.X) CORS для DELETE — preflight OPTIONS отдаёт DELETE в
+      Access-Control-Allow-Methods (verified).
 - [!] `/atlas/design-payload` re-runs `build_sima_design_payload.mjs`
       на КАЖДЫЙ запрос — приемлемо при 5s polling, но тяжело при
       высоком трафике. Кэшировать по hash из `/atlas/state`.
-- [!] При создании блока через UI новый id — `b.<base>-<n>`. Если
-      пользователь вручную создаст файл `atlas/blocks/<id>/`, race с UI
-      не учтён.
+- [~] При создании блока через UI id — `b.<base>-<n>`. R-7.3 поднял
+      retry на «already exists» до 100 attempts, full file-system
+      race с ручным созданием каталога не покрыт (edge case).
 
 ---
 

@@ -29,7 +29,8 @@
     "test:e2e": "playwright test",
     "test:nightly": "node scripts/nightly_consolidation.mjs",
     "atlas:api": "node scripts/atlas_api_server.mjs",
-    "ui:serve": "node scripts/dev_server.mjs --no-browser"
+    "ui:serve": "node scripts/dev_server.mjs --no-browser",
+    "hero:capture": "node scripts/capture_hero_screenshot.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.48.0"

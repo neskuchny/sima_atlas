@@ -1,16 +1,19 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="utf-8"/>
-<title>Sima Atlas → redirect</title>
-<meta http-equiv="refresh" content="0; url=Sima%20%28Remix%29/index.html"/>
-<style>body{font-family:system-ui,sans-serif;padding:24px}</style>
+<title>Sima Atlas</title>
+<meta http-equiv="refresh" content="0; url=frontend/atlas_design/index.html?client=example"/>
+<style>body{font-family:system-ui,sans-serif;padding:24px;max-width:680px;line-height:1.5}</style>
 </head>
 <body>
 <h1>Sima Atlas</h1>
-<p>Редирект на <a href="Sima%20%28Remix%29/index.html">frontend/index.html</a>…</p>
-<p>Если автоматический переход не сработал, кликай по ссылке выше.</p>
-<p><a href="atlas/wiki.html">Atlas wiki (генерируется из <code>atlas/blocks/</code>)</a></p>
-<p><a href="HOWTO_VERIFY.md">HOWTO_VERIFY.md</a> — как проверить всё, что построено.</p>
+<p>Redirecting to the design canvas… If it doesn't load automatically:</p>
+<ul>
+  <li><a href="frontend/atlas_design/index.html?client=example">Open the design canvas (demo client)</a></li>
+  <li><a href="atlas/wiki.html">Atlas wiki (auto-generated from <code>atlas/blocks/</code>)</a></li>
+  <li><a href="README.md">README</a> · <a href="docs/getting-started.md">Getting started</a> · <a href="docs/architecture.md">Architecture</a></li>
+</ul>
+<p style="color:#666;font-size:13px">Note: opening this file directly via file:// will not work — the canvas needs the API server. Run <code>npm run dev</code> from the repo root and open <code>http://localhost:8000/</code>.</p>
 </body>
 </html>
