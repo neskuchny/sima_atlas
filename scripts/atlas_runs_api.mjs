@@ -47,18 +47,80 @@ function safeReadJson(p) {
   try { return JSON.parse(fs.readFileSync(p, 'utf8')); } catch { return null; }
 }
 
-export function listRunsByBlock({ block_id, active_only = false, limit = 20, root, client_id, enriched = false } = {}) {
+// R-7.41 — собирает «внешние запуски» из checks.log блока. Внешние = когда
+// агент (Cursor IDE / Claude Code в другом терминале / etc.) поработал
+// напрямую и оставил строку в checks.log, не проходя через наш orchestrator
+// (`/runs/start`). Без этого внешние прогоны не видны во вкладке «Запуски».
+//
+// Парсим строки вида:
+//   `<ISO ts>\t<kind>\t<verdict>\t<note>`
+// где kind ∈ {cursor_run, claude_run, codex_run, agent_invocation}.
+// Возвращаем синтетические run-объекты с run_id `ext_<ts>_<kind>` —
+// merge'аются в один поток с реальными run_state-объектами.
+const EXTERNAL_RUN_KINDS = new Set(['cursor_run', 'claude_run', 'codex_run', 'agent_invocation']);
+function listExternalRunsFromChecks(block_id, root) {
+  if (!block_id) return [];
+  const checks = path.join(root || ATLAS_DEFAULT, 'blocks', block_id, 'checks.log');
+  if (!fs.existsSync(checks)) return [];
+  const lines = fs.readFileSync(checks, 'utf8').split(/\r?\n/);
+  const out = [];
+  for (const ln of lines) {
+    if (!ln.trim()) continue;
+    const parts = ln.split('\t');
+    if (parts.length < 3) continue;
+    const [ts, kind, verdict, ...rest] = parts;
+    if (!/^\d{4}-\d{2}-\d{2}T[\d:.]+Z$/.test(ts)) continue;
+    if (!EXTERNAL_RUN_KINDS.has(kind)) continue;
+    const note = rest.join('\t');
+    // Из note вытащим agent — обычно это или префикс «agent=cursor» или
+    // имя в начале (Cursor / Claude / Codex). Default по kind.
+    let agent = 'unknown';
+    const agentM = note.match(/agent=([a-z-]+)/i);
+    if (agentM) agent = agentM[1];
+    else if (kind === 'cursor_run') agent = 'cursor';
+    else if (kind === 'claude_run') agent = 'claude';
+    else if (kind === 'codex_run') agent = 'codex';
+    else if (kind === 'agent_invocation') agent = 'unknown';
+    const state = verdict === 'pass' ? 'Succeeded' : verdict === 'fail' ? 'Failed' : 'Succeeded';
+    out.push({
+      run_id: `ext_${ts.replace(/[:.]/g, '-')}_${kind}`,
+      block_id,
+      agent,
+      started_at: ts,
+      current_state: state,
+      last_event_at: ts,
+      external: true,        // флаг для UI: это не наш orchestrator
+      source_kind: kind,
+      summary: note.slice(0, 200),
+      history: [{ ts, from: null, to: state, note: `external: ${kind} ${verdict}` }],
+    });
+  }
+  return out;
+}
+
+export function listRunsByBlock({ block_id, active_only = false, limit = 20, root, client_id, enriched = false, include_external = true } = {}) {
   const eff = resolveRoot({ root, client_id });
   const dir = runStateDir(eff);
-  if (!fs.existsSync(dir)) return [];
-  const files = fs.readdirSync(dir).filter((f) => f.endsWith('.json'));
   const runs = [];
-  for (const f of files) {
-    const r = safeReadJson(path.join(dir, f));
-    if (!r) continue;
-    if (block_id && r.block_id !== block_id) continue;
-    if (active_only && TERMINAL_STATES.has(r.current_state)) continue;
-    runs.push(r);
+  if (fs.existsSync(dir)) {
+    const files = fs.readdirSync(dir).filter((f) => f.endsWith('.json'));
+    for (const f of files) {
+      const r = safeReadJson(path.join(dir, f));
+      if (!r) continue;
+      if (block_id && r.block_id !== block_id) continue;
+      if (active_only && TERMINAL_STATES.has(r.current_state)) continue;
+      runs.push(r);
+    }
+  }
+  // R-7.41 — добавляем external runs из checks.log если запрошен block_id.
+  // Без block_id (list-all-runs view) — пропускаем, иначе пришлось бы
+  // сканировать все блоки клиента; это редкий path.
+  if (include_external && block_id) {
+    const ext = listExternalRunsFromChecks(block_id, eff);
+    for (const r of ext) {
+      if (active_only) continue; // external уже terminal по определению
+      runs.push(r);
+    }
   }
   runs.sort((a, b) => String(b.started_at || '').localeCompare(String(a.started_at || '')));
   const sliced = runs.slice(0, limit);

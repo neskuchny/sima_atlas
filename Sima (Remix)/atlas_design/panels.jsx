@@ -1138,7 +1138,27 @@ function RunStatusSection({ moduleId }) {
             <span className="mono" style={{ fontSize: 10.5, color: 'var(--ink-3)' }}>лог · {openLogFor}</span>
             <span className="meta" style={{ fontSize: 10.5 }}>{logSize} байт</span>
           </div>
-          <pre className="run-log">{logText || (live ? 'ожидаю вывод…' : 'лог пуст или удалён')}</pre>
+          {/* R-7.41 — external run'ы (запись в checks.log агентом напрямую,
+              без orchestrator'а) не имеют отдельного run_logs/<id>.log.
+              Покажем summary из самой checks.log записи. */}
+          <pre className="run-log">{(() => {
+            const open = (runs || []).find((r) => r.run_id === openLogFor);
+            if (open?.external) {
+              return [
+                `# external run`,
+                `block: ${open.block_id}`,
+                `agent: ${open.agent}`,
+                `kind:  ${open.source_kind}`,
+                `at:    ${open.started_at}`,
+                ``,
+                open.summary || '(без описания в checks.log)',
+                ``,
+                `(этот прогон записан в atlas/clients/<id>/blocks/${open.block_id}/checks.log агентом напрямую,`,
+                `без вызова /runs/start; полного лога нет.)`,
+              ].join('\n');
+            }
+            return logText || (live ? 'ожидаю вывод…' : 'лог пуст или удалён');
+          })()}</pre>
           {files.length > 0 && (
             <div className="run-files">
               <div className="meta" style={{ fontSize: 10.5, marginBottom: 4, letterSpacing: '0.06em' }}>ИЗМЕНИЛ</div>
@@ -1166,6 +1186,9 @@ function RunStatusSection({ moduleId }) {
               <span className="run-phase">{r.current_state}</span>
               <span className="mono" style={{ fontSize: 10.5, color: 'var(--ink-4)', flex: 1 }}>{short(r.started_at)}</span>
               <span className="meta" style={{ fontSize: 10.5 }}>{r.agent}</span>
+              {r.external && (
+                <span className="meta" style={{ fontSize: 10, color: 'var(--ink-4)', border: '1px solid var(--rule-2)', borderRadius: 999, padding: '1px 6px' }} title="Внешний прогон — записан в checks.log агентом напрямую (Cursor IDE / Claude в другом терминале и т.д.)">extern</span>
+              )}
             </div>
             {(acc || enr.file_count > 0 || enr.cost_usd > 0) && (
               <div className="run-card-enriched">
