@@ -580,7 +580,15 @@ function EditableText({ value, onChange, placeholder, multiline, className, styl
 }
 
 function statusLabel(s) {
-  return ({ done: 'готово', progress: 'в работе', todo: 'в очереди', blocked: 'заблок.', fail: 'ошибка', desync: 'рассинхрон' })[s] || s;
+  const tt = window.__SIMA_T || ((_, fb) => fb);
+  return ({
+    done:     tt('filter.done',     'done'),
+    progress: tt('filter.progress', 'in progress'),
+    todo:     tt('filter.todo',     'todo'),
+    blocked:  tt('filter.blocked',  'blocked'),
+    fail:     tt('filter.fail',     'failed'),
+    desync:   tt('filter.desync',   'desync'),
+  })[s] || s;
 }
 
 window.GraphCanvas = GraphCanvas;
