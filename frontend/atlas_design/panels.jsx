@@ -54,7 +54,14 @@ function ContextRail({ data, onClose, onUpdateField, onOpenDocs }) {
       <div className="field">
         <div className="lbl">{t('rail.conditions_stack', 'Conditions / stack')} <span className="tag">@conditions</span>{editPencil(t('rail.stack_label', 'stack (tech_stack.md)'))}</div>
         {(() => {
-          const allEmpty = !p.conditions.backend.length && !p.conditions.frontend.length && !p.conditions.logic.length && !p.conditions.checks.length;
+          // R-7.68 — guard: payload may have undefined conditions or
+          // missing per-layer arrays (older clients, partial state).
+          const cond = p.conditions || {};
+          const backend = Array.isArray(cond.backend) ? cond.backend : [];
+          const frontend = Array.isArray(cond.frontend) ? cond.frontend : [];
+          const logic = Array.isArray(cond.logic) ? cond.logic : [];
+          const checks = Array.isArray(cond.checks) ? cond.checks : [];
+          const allEmpty = !backend.length && !frontend.length && !logic.length && !checks.length;
           if (allEmpty && onOpenDocs) {
             return (
               <button className="rail-empty-cta" onClick={onOpenDocs}>
@@ -63,24 +70,18 @@ function ContextRail({ data, onClose, onUpdateField, onOpenDocs }) {
               </button>
             );
           }
+          const layerRow = (label, arr) => (
+            <div style={{ marginBottom: 8 }}>
+              <div style={{ fontSize: 10.5, color: 'var(--ink-4)', marginBottom: 4, letterSpacing: '0.06em' }}>{label}</div>
+              <div className="chips">{arr.length ? arr.map(x => <span key={x} className="chip">{x}</span>) : <span className="meta" style={{ fontSize: 11 }}>—</span>}</div>
+            </div>
+          );
           return (
             <>
-              <div style={{ marginBottom: 8 }}>
-                <div style={{ fontSize: 10.5, color: 'var(--ink-4)', marginBottom: 4, letterSpacing: '0.06em' }}>{t('rail.layer_backend', 'BACKEND')}</div>
-                <div className="chips">{p.conditions.backend.length ? p.conditions.backend.map(x => <span key={x} className="chip">{x}</span>) : <span className="meta" style={{ fontSize: 11 }}>—</span>}</div>
-              </div>
-              <div style={{ marginBottom: 8 }}>
-                <div style={{ fontSize: 10.5, color: 'var(--ink-4)', marginBottom: 4, letterSpacing: '0.06em' }}>{t('rail.layer_frontend', 'FRONTEND')}</div>
-                <div className="chips">{p.conditions.frontend.length ? p.conditions.frontend.map(x => <span key={x} className="chip">{x}</span>) : <span className="meta" style={{ fontSize: 11 }}>—</span>}</div>
-              </div>
-              <div style={{ marginBottom: 8 }}>
-                <div style={{ fontSize: 10.5, color: 'var(--ink-4)', marginBottom: 4, letterSpacing: '0.06em' }}>{t('rail.layer_logic', 'LOGIC')}</div>
-                <div className="chips">{p.conditions.logic.length ? p.conditions.logic.map(x => <span key={x} className="chip">{x}</span>) : <span className="meta" style={{ fontSize: 11 }}>—</span>}</div>
-              </div>
-              <div>
-                <div style={{ fontSize: 10.5, color: 'var(--ink-4)', marginBottom: 4, letterSpacing: '0.06em' }}>{t('rail.layer_checks', 'CHECKS')}</div>
-                <div className="chips">{p.conditions.checks.length ? p.conditions.checks.map(x => <span key={x} className="chip">{x}</span>) : <span className="meta" style={{ fontSize: 11 }}>—</span>}</div>
-              </div>
+              {layerRow(t('rail.layer_backend',  'BACKEND'),  backend)}
+              {layerRow(t('rail.layer_frontend', 'FRONTEND'), frontend)}
+              {layerRow(t('rail.layer_logic',    'LOGIC'),    logic)}
+              {layerRow(t('rail.layer_checks',   'CHECKS'),   checks)}
             </>
           );
         })()}

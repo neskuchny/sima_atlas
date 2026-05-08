@@ -91,6 +91,11 @@
       'demo.tests':               '[demo] tests: прогон unit · 312/312 ok',
       'demo.observ':              '[demo] observ: добавил трейс на /v1/query',
 
+      // ── Canvas action button + schema title (R-7.68) ────
+      'canvas.sima_action':       '✦ Sima · дополнить описание',
+      'canvas.sima_action_title': 'Sima дополнит описание выбранного блока',
+      'canvas.schema_title_placeholder': 'Название схемы…',
+
       // ── Activity log messages (R-7.67) ──────────────────
       'log.described_edge':       'описал связь',
       'log.expanded_block':       'дополнил описание блока',
@@ -803,6 +808,11 @@
       'demo.wiki':                '[demo] updated wiki: dashboard.tile-editor',
       'demo.tests':               '[demo] tests: unit run · 312/312 ok',
       'demo.observ':              '[demo] observ: added trace on /v1/query',
+
+      // ── Canvas action button + schema title (R-7.68) ────
+      'canvas.sima_action':       '✦ Sima · expand description',
+      'canvas.sima_action_title': 'Sima will expand the selected block\'s description',
+      'canvas.schema_title_placeholder': 'Schema title…',
 
       // ── Activity log messages (R-7.67) ──────────────────
       'log.described_edge':       'described edge',

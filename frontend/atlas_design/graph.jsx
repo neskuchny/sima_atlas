@@ -189,10 +189,27 @@ function GraphCanvas({
     >
       <div className="canvas-grid" />
 
-      {/* R-7.65 — schema-title removed: it overlapped with the
-          canvas-tools dropdown (top-left) and duplicated the product
-          title shown in ContextRail. The drill-crumbs ↑ in the
-          canvas-overlay-top already shows where you are when drilled in. */}
+      {/* Schema title (R-7.68 returned, repositioned). The product
+          title also appears in ContextRail (top-left of rail), but
+          operators want it visible on the canvas itself. Was at
+          left:60 in R-7.49 which overlapped with canvas-tools-toggle;
+          now centered horizontally and translated higher so neither
+          collides with the canvas-overlay-top crumbs nor the canvas-
+          tools dropdown. */}
+      <div className="schema-title" style={{
+        position: 'absolute', top: 14, left: '50%', transform: 'translateX(-50%)', zIndex: 4,
+        background: 'var(--card)', border: '1px solid var(--rule)',
+        borderRadius: 8, padding: '6px 14px', fontFamily: 'Newsreader, serif',
+        fontSize: 16, fontStyle: 'italic', color: 'var(--ink)', boxShadow: 'var(--shadow-1)',
+        pointerEvents: 'auto',
+      }}>
+        <EditableText
+          value={schemaTitle}
+          onChange={onUpdateSchemaTitle}
+          placeholder={(window.__SIMA_T||((_,fb)=>fb))('canvas.schema_title_placeholder', 'Schema title…')}
+          style={{ fontFamily: 'inherit', fontSize: 'inherit', fontStyle: 'inherit' }}
+        />
+      </div>
 
       {/* Lanes */}
       {showLanes && (
