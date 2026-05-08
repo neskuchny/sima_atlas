@@ -189,20 +189,10 @@ function GraphCanvas({
     >
       <div className="canvas-grid" />
 
-      {/* Schema title (editable, top-left of canvas) */}
-      <div className="schema-title" style={{
-        position: 'absolute', top: 14, left: 60, zIndex: 4,
-        background: 'var(--card)', border: '1px solid var(--rule)',
-        borderRadius: 8, padding: '6px 12px', fontFamily: 'Newsreader, serif',
-        fontSize: 18, fontStyle: 'italic', color: 'var(--ink)', boxShadow: 'var(--shadow-1)',
-      }}>
-        <EditableText
-          value={schemaTitle}
-          onChange={onUpdateSchemaTitle}
-          placeholder="Название схемы…"
-          style={{ fontFamily: 'inherit', fontSize: 'inherit', fontStyle: 'inherit' }}
-        />
-      </div>
+      {/* R-7.65 — schema-title removed: it overlapped with the
+          canvas-tools dropdown (top-left) and duplicated the product
+          title shown in ContextRail. The drill-crumbs ↑ in the
+          canvas-overlay-top already shows where you are when drilled in. */}
 
       {/* Lanes */}
       {showLanes && (
