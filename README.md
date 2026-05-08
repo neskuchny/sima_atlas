@@ -65,6 +65,7 @@ Full methodology: [English article](docs/article.en.md) · [Русский](arch
 
 ⬜ **Roadmap** (full list in article Part 10):
 - **U-1** local models — Ollama landed in R-7.60 (`LLM_PREFER_OLLAMA=1`); vLLM / LM Studio adapters welcome as PRs
+- **VS Code sidebar** — 0.1 scaffold landed in R-7.61 (see [`extensions/vscode/`](extensions/vscode/)); status badges, inline contract editing, run-block buttons are open issues
 - **S-1** block templates marketplace (auth / payments / search / ingestion / billing)
 - **S-7** transactional change-sets for cross-cutting changes
 - **V-1** agent-loop daemon — autonomous coding in steady-state
@@ -105,7 +106,7 @@ We're actively looking for help with:
 
 1. **Local-model providers** in `scripts/llm_gateway.mjs` — Ollama is in (R-7.60); vLLM / LM Studio / llama.cpp adapters welcome (~80 lines each, mirror the Ollama pattern)
 2. **Block templates** — auth / payments / search / ingestion / billing — each with mission + KPI + acceptance
-3. **VS Code sidebar extension** — canvas next to code
+3. **VS Code sidebar extension** — 0.1 scaffold in [`extensions/vscode/`](extensions/vscode/); status badges + inline editing + run-block buttons welcome
 4. **Evidence collectors** beyond the built-in five (`http_status`, `json_shape_match`, `snapshot_diff`, `lighthouse_score`)
 5. **MCP clients** for tools we don't natively support (Aider, Antigravity stable config)
 6. **UI translations** — currently RU + partial EN
