@@ -1798,6 +1798,57 @@ html, body {
 .acc-row.v-pass { border-left: 3px solid var(--st-done); }
 
 /* ============================================================
+   ARCH REVIEW — структурированные карточки concerns (R-7.47)
+   ============================================================ */
+.arch-cards { display: flex; flex-direction: column; gap: 10px; }
+.arch-card {
+  border: 1px solid var(--rule); border-radius: 10px;
+  background: var(--card); overflow: hidden;
+}
+.arch-card.sev-high { border-left: 3px solid var(--st-fail); }
+.arch-card.sev-med  { border-left: 3px solid var(--st-progress); }
+.arch-card.sev-low  { border-left: 3px solid var(--ink-4); }
+.arch-card-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 14px; border-bottom: 1px solid var(--rule);
+  background: var(--card-2);
+}
+.arch-card-kind {
+  font-family: 'Newsreader', serif; font-style: italic;
+  font-size: 14.5px; color: var(--ink);
+}
+.arch-card-body { padding: 12px 14px; display: flex; flex-direction: column; gap: 12px; }
+.arch-section { display: flex; flex-direction: column; gap: 5px; }
+.arch-section-label {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  color: var(--ink-3); letter-spacing: 0.08em; text-transform: uppercase;
+}
+.arch-section-text { font-size: 13px; line-height: 1.5; color: var(--ink-2); }
+.arch-fix .arch-section-text {
+  background: color-mix(in oklch, var(--paper), var(--st-progress) 7%);
+  border-left: 3px solid var(--st-progress);
+  padding: 8px 12px; border-radius: 0 6px 6px 0;
+}
+.arch-blocks-row { display: flex; flex-wrap: wrap; gap: 5px; }
+.arch-block-chip {
+  font-size: 11px; padding: 3px 9px; border-radius: 12px;
+  background: var(--card-2); color: var(--ink-2);
+  border: 1px solid var(--rule); cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+.arch-block-chip:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.arch-strengths { display: flex; flex-direction: column; gap: 6px; }
+.arch-strength-row {
+  display: flex; gap: 9px; align-items: flex-start;
+  padding: 8px 12px; border: 1px solid var(--rule); border-radius: 8px;
+  background: color-mix(in oklch, var(--card), var(--st-done) 4%);
+  font-size: 13px; line-height: 1.5; color: var(--ink-2);
+}
+.arch-strength-mark {
+  color: var(--st-done); font-weight: 600; flex-shrink: 0; padding-top: 1px;
+}
+
+/* ============================================================
    PR — Run log + cancel + files-changed (Phase D1/D5/D6)
    ============================================================ */
 .run-card { cursor: pointer; }

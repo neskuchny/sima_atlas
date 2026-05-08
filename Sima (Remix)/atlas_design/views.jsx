@@ -1585,22 +1585,35 @@ function ArchReviewPanel({ onClose, onJumpToBlock }) {
               {latest.concerns?.length > 0 && (
                 <>
                   <h3>Concerns</h3>
-                  <div className="acc-list">
+                  <div className="arch-cards">
                     {latest.concerns.map((c, i) => (
-                      <div key={i} className={`acc-row v-${c.severity === 'high' ? 'fail' : c.severity === 'med' ? 'inconclusive' : 'skipped'}`}>
-                        <span className="acc-id mono">{KIND_LABEL[c.kind] || c.kind}</span>
-                        <div style={{ flex: 1 }}>
-                          <div className="acc-text">{c.evidence}</div>
-                          {c.fix && <div className="meta" style={{ fontSize: 11, marginTop: 3 }}>fix: {c.fix}</div>}
+                      <div key={i} className={`arch-card sev-${c.severity || 'low'}`}>
+                        <div className="arch-card-head">
+                          <div className="arch-card-kind">{KIND_LABEL[c.kind] || c.kind}</div>
+                          <span className={`val-sev sev-${c.severity || 'low'}`}>{c.severity || 'low'}</span>
+                        </div>
+                        <div className="arch-card-body">
+                          <div className="arch-section">
+                            <div className="arch-section-label">что не так</div>
+                            <div className="arch-section-text">{c.evidence}</div>
+                          </div>
+                          {c.fix && (
+                            <div className="arch-section arch-fix">
+                              <div className="arch-section-label">как пофиксить</div>
+                              <div className="arch-section-text">{c.fix}</div>
+                            </div>
+                          )}
                           {c.blocks?.length > 0 && (
-                            <div className="meta" style={{ fontSize: 11, marginTop: 3 }}>
-                              затрагивает: {c.blocks.map((b) => (
-                                <span key={b} className="mono" style={{ cursor: 'pointer', textDecoration: 'underline', marginRight: 4 }} onClick={(e) => { e.stopPropagation(); onJumpToBlock?.(b); }}>{b}</span>
-                              ))}
+                            <div className="arch-section">
+                              <div className="arch-section-label">затрагивает блоки</div>
+                              <div className="arch-blocks-row">
+                                {c.blocks.map((b) => (
+                                  <span key={b} className="arch-block-chip mono" onClick={(e) => { e.stopPropagation(); onJumpToBlock?.(b); }}>{b}</span>
+                                ))}
+                              </div>
                             </div>
                           )}
                         </div>
-                        <span className={`val-sev sev-${c.severity || 'low'}`}>{c.severity || 'low'}</span>
                       </div>
                     ))}
                   </div>
@@ -1609,9 +1622,14 @@ function ArchReviewPanel({ onClose, onJumpToBlock }) {
               {latest.strengths?.length > 0 && (
                 <>
                   <h3>Что хорошо</h3>
-                  <ul className="val-matches">
-                    {latest.strengths.map((s, i) => <li key={i}>✓ {s}</li>)}
-                  </ul>
+                  <div className="arch-strengths">
+                    {latest.strengths.map((s, i) => (
+                      <div key={i} className="arch-strength-row">
+                        <span className="arch-strength-mark">✓</span>
+                        <span>{s}</span>
+                      </div>
+                    ))}
+                  </div>
                 </>
               )}
             </>
