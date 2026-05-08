@@ -1,8 +1,8 @@
 # b.tracker — mission
 
-Бизнес-логика ежедневных чек-инов: пользователь отмечает что
-выполнил привычку. Самое важное — простота: один тап = один чек-ин.
+Business logic for daily check-ins: the user marks that they completed
+a habit. The most important thing is simplicity — one tap = one check-in.
 
-Чек-ин фиксируется в Postgres (event sourcing — мы не апдейтим counter,
-а добавляем event). Streak пересчитывается лениво при чтении или
-проактивно через streak block.
+Each check-in is recorded in Postgres (event sourcing — we don't update
+a counter, we append an event). Streaks are recomputed lazily on read
+or proactively by the streak block.

@@ -1,9 +1,9 @@
 # b.auth — mission
 
-OAuth-аутентификация (Google + Apple для iOS) с выпуском JWT-сессий.
-Нужна тонкая интеграция: на onboarding'е хочется минимум фрикции
-(один тап через native sheet), но без compromise по приватности.
+OAuth authentication (Google + Apple for iOS) issuing JWT sessions.
+The integration needs to be tight: onboarding should have minimum
+friction (one tap via the native sheet) without compromising on privacy.
 
-JWT — короткоживущие (15 мин) + refresh-token (30 дней) с rotation на
-каждом обновлении. Никаких email/password — это лишний поверхностный
-вектор атаки и трение для пользователя.
+JWTs are short-lived (15 min) plus a refresh token (30 days) with rotation
+on every refresh. No email/password — that's an extra surface attack
+vector and unnecessary friction for the user.

@@ -1,15 +1,15 @@
 # Rules
 
 ## Codebase
-- TypeScript strict — no `any`, no `@ts-ignore` без обоснования.
-- Никаких runtime валидаторов в горячем пути (zod/yup только на edge).
-- Все функции пишут unit-тесты при первом коммите, не «потом».
+- TypeScript strict — no `any`, no `@ts-ignore` without justification.
+- No runtime validators on the hot path (zod/yup at the edge only).
+- Every function ships with unit tests on the first commit, not "later".
 
 ## UX
-- Любой экран приложения должен быть полезен в течение ≤ 30 секунд.
-- Не использовать модальные окна для основных действий — только bottom sheet.
-- Нет жёсткого штрафования за пропуск — спокойный тон, ободрение.
+- Any screen of the app should be useful within ≤ 30 seconds.
+- Don't use modals for primary actions — bottom sheets only.
+- No harsh penalties for missed days — calm tone, encouragement.
 
 ## Privacy
-- Данные пользователя не покидают device-local storage до явного opt-in.
-- Никакого third-party tracking (Sentry, Mixpanel, Hotjar и пр.) в MVP.
+- User data does not leave device-local storage until explicit opt-in.
+- No third-party tracking (Sentry, Mixpanel, Hotjar, etc.) in the MVP.

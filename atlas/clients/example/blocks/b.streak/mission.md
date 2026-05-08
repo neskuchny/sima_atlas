@@ -1,8 +1,9 @@
 # b.streak — mission
 
-Подсчёт серий (streaks) и достижений. Серия = N дней подряд с чек-ином.
-Главная UX-задача: дружелюбное обращение со срывами. После 1 пропущенного
-дня серия НЕ обнуляется — даём «freeze» (как в Duolingo). После 2-х
-пропусков серия мягко обнуляется с поздравлением «Время начать заново».
+Tracks streaks and achievements. A streak = N consecutive days with a
+check-in. The main UX goal is to handle slip-ups gently. After 1 missed
+day the streak does NOT reset — we grant a "freeze" (Duolingo-style).
+After 2 missed days the streak softly resets with a friendly "Time to
+start again" message.
 
-Хранение: Redis sorted set для top streaks, Postgres для истории.
+Storage: Redis sorted set for top streaks, Postgres for history.

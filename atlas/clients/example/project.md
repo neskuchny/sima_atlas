@@ -1,19 +1,19 @@
 # Habit Tracker
 _(demo client — example of Sima Atlas in action)_
 
-## Цель (goal)
-Дать человеку сформировать новую полезную привычку за 21-30 дней через
-ежедневные короткие чек-ины и систему серий (streaks).
+## Goal
+Help a person form a new healthy habit in 21-30 days through short
+daily check-ins and a streaks system.
 
-## Миссия (mission)
-Каждое касание продукта должно занимать ≤ 30 секунд. Если выпуск из ритма —
-помочь вернуться без чувства вины. Стрики мотивируют, но не наказывают
-жестоко за пропуски.
+## Mission
+Every interaction with the product should take ≤ 30 seconds. If the user
+falls out of rhythm, help them come back without guilt. Streaks should
+motivate, not punish harshly for missed days.
 
 ## JTBD
-Когда я хочу выработать новую привычку, я хочу видеть свой прогресс наглядно
-и получать дружелюбные напоминания, чтобы не сорваться в первые недели.
+When I want to build a new habit, I want to see my progress visually
+and get friendly reminders so I don't fall off in the first few weeks.
 
-## Аудитория
-Люди 22-45, осваивающие новые привычки (фитнес, чтение, медитация, работа).
-Привычны к мобильным приложениям, но скептичны к gamification-перегибам.
+## Audience
+People aged 22-45 picking up new habits (fitness, reading, meditation,
+work). Comfortable with mobile apps but skeptical of gamification overkill.

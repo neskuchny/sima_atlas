@@ -121,17 +121,21 @@ function DetailPanel({ data, modules: liveModules, moduleId, onClose, desyncReso
   const lessons = (data.lessons || []).filter(l => l.module === moduleId || (m.layer === 'frontend' && l.module === 'frontend'));
   const status = (moduleId === 'metrics' && desyncResolved) ? 'progress' : m.status;
 
+  // R-7.52 — labels via i18n; useLocale() ensures re-render on toggle.
+  // eslint-disable-next-line no-unused-vars
+  const _locale = (window.__SIMA_USE_LOCALE && window.__SIMA_USE_LOCALE()) || 'en';
+  const t = window.__SIMA_T || ((_, fb) => fb);
   const tabs = [
-    { id: 'overview', label: 'Обзор' },
-    { id: 'contract', label: 'Контракт' },
-    { id: 'tasks', label: 'Задачи', count: tasks.length },
-    { id: 'runs', label: 'Запуски' },
-    { id: 'acceptance', label: 'Приёмка' },
-    { id: 'validation', label: 'Соответствие' },
-    { id: 'files', label: 'Файлы' },
-    { id: 'subs', label: 'Подмодули', count: subs.length },
-    { id: 'memory', label: 'Память', count: lessons.length },
-    { id: 'connections', label: 'Связи' },
+    { id: 'overview',    label: t('tab.overview',    'Overview') },
+    { id: 'contract',    label: t('tab.contract',    'Contract') },
+    { id: 'tasks',       label: t('tab.tasks',       'Tasks'),       count: tasks.length },
+    { id: 'runs',        label: t('tab.runs',        'Runs') },
+    { id: 'acceptance',  label: t('tab.acceptance',  'Acceptance') },
+    { id: 'validation',  label: t('tab.validation',  'Validation') },
+    { id: 'files',       label: t('tab.files',       'Files') },
+    { id: 'subs',        label: t('tab.subs',        'Submodules'),  count: subs.length },
+    { id: 'memory',      label: t('tab.memory',      'Memory'),      count: lessons.length },
+    { id: 'connections', label: t('tab.connections', 'Connections') },
   ];
 
   const inEdges = data.edges.filter(e => e.to === moduleId);
@@ -255,12 +259,15 @@ function DetailPanel({ data, modules: liveModules, moduleId, onClose, desyncReso
 // цвета. Теперь — клик по пилюле → patchBlock → refresh.
 function LayerPicker({ block }) {
   if (!block || !block.id || !String(block.id).startsWith('b.')) return null;
+  // eslint-disable-next-line no-unused-vars
+  const _locale = (window.__SIMA_USE_LOCALE && window.__SIMA_USE_LOCALE()) || 'en';
+  const t = window.__SIMA_T || ((_, fb) => fb);
   const current = block.layer || 'logic';
   const LAYERS = [
-    { id: 'backend',  label: 'Backend',  hint: 'API, persistence, серверная логика' },
-    { id: 'logic',    label: 'Logic',    hint: 'бизнес-правила, чистые функции' },
-    { id: 'frontend', label: 'Frontend', hint: 'UI-компоненты, экраны' },
-    { id: 'tests',    label: 'Tests',    hint: 'unit, e2e, проверки' },
+    { id: 'backend',  label: t('layer.backend',  'Backend'),  hint: t('layer.backend_hint',  'API, persistence, server logic') },
+    { id: 'logic',    label: t('layer.logic',    'Logic'),    hint: t('layer.logic_hint',    'business rules, pure functions') },
+    { id: 'frontend', label: t('layer.frontend', 'Frontend'), hint: t('layer.frontend_hint', 'UI components, screens') },
+    { id: 'tests',    label: t('layer.tests',    'Tests'),    hint: t('layer.tests_hint',    'unit, e2e, validations') },
   ];
   const onPick = async (layer) => {
     if (layer === current) return;
@@ -269,7 +276,7 @@ function LayerPicker({ block }) {
   };
   return (
     <div className="layer-pill-row" style={{ marginBottom: 14 }}>
-      <span className="lp-label">Слой</span>
+      <span className="lp-label">{t('layer.picker_label', 'Layer')}</span>
       {LAYERS.map((L) => (
         <button
           key={L.id}

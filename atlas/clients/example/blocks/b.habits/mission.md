@@ -1,8 +1,8 @@
 # b.habits — mission
 
-Хранение привычек пользователя: имя, частота (daily/weekly), время
-напоминания, активный/архивный статус, метаданные (иконка, цвет).
+Storage for the user's habits: name, frequency (daily/weekly), reminder
+time, active/archived status, metadata (icon, color).
 
-PostgreSQL для основного хранилища — простая реляционная модель,
-миллионы записей не пугают. Никаких JSON-полей для основных атрибутов —
-только структурированные колонки. Это упрощает индексацию и аналитику.
+PostgreSQL as the primary store — a simple relational model, millions
+of rows are no problem. No JSON columns for primary attributes — only
+structured columns. This keeps indexing and analytics simple.

@@ -1,6 +1,6 @@
 # b.auth — KPI
 
 - p95 verify ≤ 30ms
-- OAuth onboarding ≤ 8 секунд от тапа до главного экрана
-- 0 CVE high за 90 дней
-- refresh rotation: 100% новых токенов выпускаются с новым refresh
+- OAuth onboarding ≤ 8 seconds from tap to home screen
+- 0 high-severity CVEs in 90 days
+- refresh rotation: 100% of new tokens issued with a new refresh

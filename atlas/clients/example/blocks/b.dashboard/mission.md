@@ -1,8 +1,8 @@
 # b.dashboard — mission
 
-Главный экран приложения. Видишь все активные привычки в виде
-карточек, тапаешь — отмечаешь выполнение. Сверху — текущая серия + iconcа
-достижения. Если что-то пропустил, freeze карточка приходит мягко.
+The app's home screen. You see all active habits as cards — tap one to
+mark it done. Up top is the current streak plus an achievement icon.
+If you missed something, the freeze card appears gently.
 
-UX-приоритеты: каждое касание ≤ 30 секунд. Никаких модалок для основного
-действия — bottom sheet для деталей. Анимации — пастельные, не агрессивные.
+UX priorities: every interaction ≤ 30 seconds. No modals for the primary
+action — bottom sheets for details. Animations are pastel, never aggressive.

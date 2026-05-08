@@ -1,15 +1,17 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>SIMA Atlas — визуальное программирование с памятью</title>
-<link rel="stylesheet" href="styles.css?v=r7-49" />
+<title>Sima Atlas — visual contract-first development for AI agents</title>
+<link rel="stylesheet" href="styles.css?v=r7-52" />
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
-<!-- R-7.28: markdown renderer for contract bodies (mission.md / kpi.md / acceptance.md и пр.) -->
+<!-- R-7.28: markdown renderer for contract bodies (mission.md / kpi.md / acceptance.md etc.) -->
 <script src="https://cdn.jsdelivr.net/npm/marked@13.0.3/marked.min.js"></script>
+<!-- R-7.52: i18n must load BEFORE jsx components so window.__SIMA_T is defined when React renders -->
+<script src="i18n.js?v=r7-52"></script>
 </head>
 <body>
 <div id="root"></div>
@@ -24,12 +26,12 @@
        `sima-data-changed` CustomEvent so the React tree can react. Set
        window.SIMA_API_BASE before this script loads to point at a
        remote backend in production. -->
-<script src="data_static.js?v=r7-49"></script>
-<script src="data_loader.js?v=r7-49"></script>
-<script type="text/babel" src="tweaks-panel.jsx?v=r7-49"></script>
-<script type="text/babel" src="graph.jsx?v=r7-49"></script>
-<script type="text/babel" src="panels.jsx?v=r7-49"></script>
-<script type="text/babel" src="views.jsx?v=r7-49"></script>
+<script src="data_static.js?v=r7-52"></script>
+<script src="data_loader.js?v=r7-52"></script>
+<script type="text/babel" src="tweaks-panel.jsx?v=r7-52"></script>
+<script type="text/babel" src="graph.jsx?v=r7-52"></script>
+<script type="text/babel" src="panels.jsx?v=r7-52"></script>
+<script type="text/babel" src="views.jsx?v=r7-52"></script>
 <script type="text/babel">
 const { useState, useEffect, useRef, useMemo, useCallback } = React;
 
@@ -1035,9 +1037,9 @@ function App() {
         <div className="spacer" />
 
         <div className="view-tabs">
-          <button className={view === 'graph' ? 'active' : ''} onClick={() => setTweak('primaryView', 'graph')}>Граф</button>
-          <button className={view === 'layered' ? 'active' : ''} onClick={() => setTweak('primaryView', 'layered')}>Слои 3D</button>
-          <button className={view === 'split' ? 'active' : ''} onClick={() => setTweak('primaryView', 'split')}>Граф + детали</button>
+          <button className={view === 'graph' ? 'active' : ''} onClick={() => setTweak('primaryView', 'graph')}>{(window.__SIMA_T||((_,fb)=>fb))('view.graph','Graph')}</button>
+          <button className={view === 'layered' ? 'active' : ''} onClick={() => setTweak('primaryView', 'layered')}>{(window.__SIMA_T||((_,fb)=>fb))('view.layered','3D layers')}</button>
+          <button className={view === 'split' ? 'active' : ''} onClick={() => setTweak('primaryView', 'split')}>{(window.__SIMA_T||((_,fb)=>fb))('view.split','Graph + details')}</button>
         </div>
 
         <button
@@ -1057,17 +1059,17 @@ function App() {
           {scanState === 'scanning' ? 'проверяю…' : scanState === 'found' ? '⚠ есть дрейф' : '⟳ Sync'}
         </button>
         <button className="pill" onClick={() => setProductReviewOpen(true)} title="Глубокое ревью продукта — schema-syncer + LLM-судья по каждому блоку (миссия vs реализация)">🔍 Ревью продукта</button>
-        <button className="pill" onClick={() => setArchReviewOpen(true)} title="Архитектурное ревью — целостность фреймворков, масштаб, поток данных по всему графу">🏛 Архитектура</button>
-        <button className="pill" onClick={() => setComposerOpen(true)} title="Синтезировать артефакт из источника">＋ Артефакт</button>
-        <button className="pill" onClick={() => setGalleryOpen(true)} title="Галерея артефактов">⊞ Галерея</button>
-        <button className="pill" onClick={() => setLibraryOpen(true)} title="Библиотека блоков">⌘ Библиотека</button>
-        <button className="pill" onClick={() => onClaudeAdvice(null, { kind: 'graph_overview' })} title="Sima посмотрит на весь граф и предложит, что делать">✨ Совет Клода</button>
-        <button className="pill" onClick={() => setSysDocsOpen(true)} title="Roadmap, Wiki, документация">📖 Доки</button>
-        <button className="pill" onClick={() => setTemplatesOpen(true)} title="Шаблоны схем">⌬ Шаблоны</button>
-        <button className="pill" onClick={() => setSubagentsOpen(true)} title="Подагенты Cursor: schema-syncer / verifier / wiki-builder">⚙ Подагенты</button>
-        <button className="pill" onClick={() => setProposalsOpen(true)} title="Предложения Sima">
+        <button className="pill" onClick={() => setArchReviewOpen(true)} title={(window.__SIMA_T||((_,fb)=>fb))('toolbar.architecture_title','Architecture review — framework consistency, scale, data flow across the whole graph')}>{(window.__SIMA_T||((_,fb)=>fb))('toolbar.architecture','🏛 Architecture')}</button>
+        <button className="pill" onClick={() => setComposerOpen(true)} title="Synthesize artifact from source">{(window.__SIMA_T||((_,fb)=>fb))('toolbar.artifact','＋ Artifact')}</button>
+        <button className="pill" onClick={() => setGalleryOpen(true)} title="Artifact gallery">⊞ Gallery</button>
+        <button className="pill" onClick={() => setLibraryOpen(true)} title="Block library">⌘ Library</button>
+        <button className="pill" onClick={() => onClaudeAdvice(null, { kind: 'graph_overview' })} title="Sima looks at the whole graph and suggests what to do">✨ Claude advice</button>
+        <button className="pill" onClick={() => setSysDocsOpen(true)} title="Roadmap, Wiki, documentation">{(window.__SIMA_T||((_,fb)=>fb))('toolbar.docs','📖 Docs')}</button>
+        <button className="pill" onClick={() => setTemplatesOpen(true)} title="Schema templates">⌬ Templates</button>
+        <button className="pill" onClick={() => setSubagentsOpen(true)} title="Cursor subagents: schema-syncer / verifier / wiki-builder">{(window.__SIMA_T||((_,fb)=>fb))('toolbar.subagents','⚙ Subagents')}</button>
+        <button className="pill" onClick={() => setProposalsOpen(true)} title="Sima proposals">
           <span className="dot" style={{ background: proposalsCount > 0 ? 'var(--st-progress)' : 'var(--st-done)' }} />
-          ✦ Предложения{proposalsCount > 0 ? ` (${proposalsCount})` : ''}
+          {(window.__SIMA_T||((_,fb)=>fb))('toolbar.suggestions','✦ Suggestions')}{proposalsCount > 0 ? ` (${proposalsCount})` : ''}
         </button>
         {/* Phase R-7.11 — кнопка сброса клиента, доступная всегда (не только
             из «Проект не найден» banner). Полезно когда в graph.json
@@ -1276,18 +1278,18 @@ function App() {
                   <button onClick={() => setTweak('showLayers', !tweaks.showLayers)} className={tweaks.showLayers ? 'on' : ''}>
                     ▦ Слои стэка <span className="badge">{tweaks.showLayers ? 'on' : 'off'}</span>
                   </button>
-                  <button onClick={drillTarget ? () => addActiveBlock({ layer: 'logic' }) : () => onAddModule({ layer: 'logic' })}>＋ Новый модуль <span className="badge">пкм</span></button>
-                  <div className="depth-picker" title="Глубина отображения: сколько уровней потомков показывать на канвасе">
-                    <span className="dp-label">Глубина</span>
-                    <button className={`dp-btn ${canvasDepth === 1 ? 'on' : ''}`}     onClick={() => setCanvasDepth(1)}     title="Только верхний уровень — без потомков">1</button>
-                    <button className={`dp-btn ${canvasDepth === 2 ? 'on' : ''}`}     onClick={() => setCanvasDepth(2)}     title="Верхний уровень + 1 уровень детей">2</button>
-                    <button className={`dp-btn ${canvasDepth === 'all' ? 'on' : ''}`} onClick={() => setCanvasDepth('all')} title="Все потомки сразу — full overview">∞</button>
+                  <button onClick={drillTarget ? () => addActiveBlock({ layer: 'logic' }) : () => onAddModule({ layer: 'logic' })}>{(window.__SIMA_T||((_,fb)=>fb))('toolbar.new_module','＋ New block')} <span className="badge">rmb</span></button>
+                  <div className="depth-picker" title="Display depth: how many levels of descendants to show on the canvas">
+                    <span className="dp-label">{(window.__SIMA_T||((_,fb)=>fb))('toolbar.depth','Depth')}</span>
+                    <button className={`dp-btn ${canvasDepth === 1 ? 'on' : ''}`}     onClick={() => setCanvasDepth(1)}     title={(window.__SIMA_T||((_,fb)=>fb))('toolbar.depth_1_title','Top level only — no descendants')}>1</button>
+                    <button className={`dp-btn ${canvasDepth === 2 ? 'on' : ''}`}     onClick={() => setCanvasDepth(2)}     title={(window.__SIMA_T||((_,fb)=>fb))('toolbar.depth_2_title','Top level + 1 level of children')}>2</button>
+                    <button className={`dp-btn ${canvasDepth === 'all' ? 'on' : ''}`} onClick={() => setCanvasDepth('all')} title={(window.__SIMA_T||((_,fb)=>fb))('toolbar.depth_all_title','All descendants at once — full overview')}>∞</button>
                   </div>
-                  <div className="layer-picker-row" title="Создать новый блок с конкретным слоем — цвет на канвасе">
-                    <button className="lp-btn lp-backend"  onClick={drillTarget ? () => addActiveBlock({ layer: 'backend' })  : () => onAddModule({ layer: 'backend' })}  title={drillTarget ? '+ Backend подмодуль'  : '+ Backend блок'}>B</button>
-                    <button className="lp-btn lp-logic"    onClick={drillTarget ? () => addActiveBlock({ layer: 'logic' })    : () => onAddModule({ layer: 'logic' })}    title={drillTarget ? '+ Logic подмодуль'    : '+ Logic блок'}>L</button>
-                    <button className="lp-btn lp-frontend" onClick={drillTarget ? () => addActiveBlock({ layer: 'frontend' }) : () => onAddModule({ layer: 'frontend' })} title={drillTarget ? '+ Frontend подмодуль' : '+ Frontend блок'}>F</button>
-                    <button className="lp-btn lp-tests"    onClick={drillTarget ? () => addActiveBlock({ layer: 'tests' })    : () => onAddModule({ layer: 'tests' })}    title={drillTarget ? '+ Tests подмодуль'    : '+ Tests блок'}>T</button>
+                  <div className="layer-picker-row" title="Create a new block with a specific layer — color on canvas">
+                    <button className="lp-btn lp-backend"  onClick={drillTarget ? () => addActiveBlock({ layer: 'backend' })  : () => onAddModule({ layer: 'backend' })}  title={(window.__SIMA_T||((_,fb)=>fb))(drillTarget ? 'toolbar.add_backend_sub'  : 'toolbar.add_backend',  drillTarget ? '+ Backend submodule'  : '+ Backend block')}>B</button>
+                    <button className="lp-btn lp-logic"    onClick={drillTarget ? () => addActiveBlock({ layer: 'logic' })    : () => onAddModule({ layer: 'logic' })}    title={(window.__SIMA_T||((_,fb)=>fb))(drillTarget ? 'toolbar.add_logic_sub'    : 'toolbar.add_logic',    drillTarget ? '+ Logic submodule'    : '+ Logic block')}>L</button>
+                    <button className="lp-btn lp-frontend" onClick={drillTarget ? () => addActiveBlock({ layer: 'frontend' }) : () => onAddModule({ layer: 'frontend' })} title={(window.__SIMA_T||((_,fb)=>fb))(drillTarget ? 'toolbar.add_frontend_sub' : 'toolbar.add_frontend', drillTarget ? '+ Frontend submodule' : '+ Frontend block')}>F</button>
+                    <button className="lp-btn lp-tests"    onClick={drillTarget ? () => addActiveBlock({ layer: 'tests' })    : () => onAddModule({ layer: 'tests' })}    title={(window.__SIMA_T||((_,fb)=>fb))(drillTarget ? 'toolbar.add_tests_sub'    : 'toolbar.add_tests',    drillTarget ? '+ Tests submodule'    : '+ Tests block')}>T</button>
                   </div>
                 </div>
                 <div className="grp">
@@ -1548,8 +1550,18 @@ function App() {
 
       {/* TWEAKS */}
       <TweaksPanel title="Tweaks">
-        <TweakSection title="Стиль">
-          <TweakRadio label="Тема"
+        <TweakSection title={(window.__SIMA_T||((_,fb)=>fb))('tweaks.language', 'UI language')}>
+          <TweakRadio label={(window.__SIMA_T||((_,fb)=>fb))('tweaks.language', 'UI language')}
+            value={(window.__SIMA_LOCALE) || 'en'}
+            onChange={v => { if (window.__SIMA_SET_LOCALE) window.__SIMA_SET_LOCALE(v); }}
+            options={[
+              { value: 'en', label: 'English' },
+              { value: 'ru', label: 'Русский' },
+            ]}
+          />
+        </TweakSection>
+        <TweakSection title="Style">
+          <TweakRadio label="Theme"
             value={tweaks.theme}
             onChange={v => setTweak('theme', v)}
             options={[
@@ -1559,34 +1571,34 @@ function App() {
             ]}
           />
         </TweakSection>
-        <TweakSection title="Вид">
-          <TweakRadio label="Главный канвас"
+        <TweakSection title="View">
+          <TweakRadio label="Main canvas"
             value={tweaks.primaryView}
             onChange={v => setTweak('primaryView', v)}
             options={[
-              { value: 'graph', label: 'Граф' },
-              { value: 'split', label: 'Граф + детали' },
-              { value: 'layered', label: 'Слои 3D' },
+              { value: 'graph', label: 'Graph' },
+              { value: 'split', label: 'Graph + details' },
+              { value: 'layered', label: '3D layers' },
             ]}
           />
         </TweakSection>
-        <TweakSection title="Карта">
-          <TweakToggle label="Подсветка слоёв (backend / frontend / logic / tests)"
+        <TweakSection title="Canvas">
+          <TweakToggle label="Layer highlight (backend / frontend / logic / tests)"
             checked={tweaks.showLayers}
             onChange={v => setTweak('showLayers', v)} />
-          <TweakToggle label="Подписи на связях"
+          <TweakToggle label="Edge labels"
             checked={showEdgeLabels}
             onChange={v => setShowEdgeLabels(v)} />
-          <TweakToggle label="Анимировать живые события"
+          <TweakToggle label="Animate live events"
             checked={tweaks.liveActivity}
             onChange={v => setTweak('liveActivity', v)} />
         </TweakSection>
-        <TweakSection title="Демо">
-          <TweakButton label="Показать подсказки заново"
+        <TweakSection title="Demo">
+          <TweakButton label="Show onboarding tour again"
             onClick={() => { setOnbStep(0); setOnboarding(true); }} />
-          <TweakButton label="Запустить sync-check + рассинхрон"
+          <TweakButton label="Run sync-check + desync demo"
             onClick={() => { setDesyncResolved(false); runSyncCheck(); }} />
-          <TweakButton label="Сбросить состояние"
+          <TweakButton label="Reset state"
             onClick={() => { setDesyncResolved(false); setScanState('idle'); setSelectedId(null); setFilters(new Set()); setDrillId(null); setEdges(data.edges.map(e => ({ ...e }))); setModules(data.modules.map(m => ({ ...m }))); }} />
         </TweakSection>
       </TweaksPanel>

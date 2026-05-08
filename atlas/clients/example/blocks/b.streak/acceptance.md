@@ -1,6 +1,6 @@
 # b.streak — acceptance
 
-- [ ] **A1.** streak_count = N когда есть N дней подряд с чек-ином
-- [ ] **A2.** 1 пропуск + freeze available → серия сохраняется
-- [ ] **A3.** 2+ пропуска подряд → серия = 0, событие streak_reset
-- [ ] **A4.** Достижение на 7 дней триггерится ровно один раз даже после reset+rebuild
+- [ ] **A1.** streak_count = N when there are N consecutive days with a check-in
+- [ ] **A2.** 1 missed day + freeze available → streak is preserved
+- [ ] **A3.** 2+ missed days in a row → streak = 0, streak_reset event emitted
+- [ ] **A4.** The 7-day achievement triggers exactly once even after reset+rebuild

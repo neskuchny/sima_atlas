@@ -3,17 +3,17 @@
 ## Frontend
 - React Native (Expo)
 - TypeScript 5.x strict
-- Zustand для state, TanStack Query для server-state
+- Zustand for state, TanStack Query for server-state
 
 ## Backend
 - Node 22 + Fastify
-- PostgreSQL 16 (через Prisma)
-- Redis для streak counters
+- PostgreSQL 16 (via Prisma)
+- Redis for streak counters
 
 ## Infra
-- Single VPS на старте, переход на Fly.io после 1k DAU
+- Single VPS at the start, move to Fly.io after 1k DAU
 - GitHub Actions CI
 
-## Запреты
+## Forbidden
 - Firebase (vendor lock-in)
-- Микросервисы на старте (один монолит до 5k DAU)
+- Microservices at the start (one monolith up to 5k DAU)

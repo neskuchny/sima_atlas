@@ -1,5 +1,5 @@
 # b.tracker — KPI
 
 - p95 POST /checkin ≤ 80ms
-- Чек-ин сохраняется даже offline (idempotent через client-id)
-- Дублирование одного и того же чек-ина за день безопасно (idempotent)
+- Check-ins persist even offline (idempotent via client-id)
+- Duplicating the same check-in within a day is safe (idempotent)
