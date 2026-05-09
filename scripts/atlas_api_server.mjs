@@ -11,6 +11,7 @@ import * as runsApi from './atlas_runs_api.mjs';
 import * as synthApi from './atlas_synthesis_api.mjs';
 import * as subsApi from './atlas_subsystems_api.mjs';
 import * as filesApi from './atlas_files_api.mjs';
+import { aggregateTokenEconomics } from './token_economics.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(__filename), '..');
@@ -202,6 +203,23 @@ const server = http.createServer((req, res) => {
       const lines = fs.readFileSync(p, 'utf8').split(/\n/).filter(Boolean);
       const entries = lines.slice(-limit).map((ln) => { try { return JSON.parse(ln); } catch { return null; } }).filter(Boolean);
       return json(res, 200, { ok: true, entries });
+    } catch (e) {
+      return json(res, 200, { ok: false, error: String(e.message || e) });
+    }
+  }
+
+  // R-7.87 (S-9) — token economics aggregator.
+  // GET /atlas/token-economics?days=30&block=<id>
+  // Returns: { ok, totals, top_blocks, top_ops, by_provider, daily }.
+  // Used by Overview-tab «Token spend» widget AND a forthcoming global
+  // dashboard. Pure read over atlas/llm_traces — no side effects.
+  if (req.method === 'GET' && req.url.startsWith('/atlas/token-economics')) {
+    try {
+      const u = new URL(req.url, `http://localhost:${port}`);
+      const days = Math.max(1, Math.min(365, Number(u.searchParams.get('days') || 30)));
+      const blockFilter = u.searchParams.get('block') || '';
+      const result = aggregateTokenEconomics({ days, blockFilter, root: ROOT });
+      return json(res, 200, { ok: true, ...result });
     } catch (e) {
       return json(res, 200, { ok: false, error: String(e.message || e) });
     }

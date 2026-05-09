@@ -309,6 +309,100 @@ function LayerPicker({ block }) {
   );
 }
 
+// R-7.87 (S-9) — token-spend widget. Reads /atlas/token-economics scoped to
+// this block (block_id filter via run_state attribution). Falls back to
+// global totals when per-block attribution is empty (e.g. brand-new block
+// with no recorded runs yet — shows project-wide cost so the operator
+// still has a number to anchor on). cost_usd_equivalent is the «shadow
+// bill» — what it WOULD cost on Anthropic Haiku 4.5 list price even when
+// we run on claude_cli subscription.
+function TokenSpendWidget({ block_id }) {
+  const t = window.__SIMA_T || ((_, fb) => fb);
+  const useState2 = (typeof React !== 'undefined' ? React.useState : window.React.useState);
+  const useEffect2 = (typeof React !== 'undefined' ? React.useEffect : window.React.useEffect);
+  const [data, setData] = useState2(null);
+  const [global, setGlobal] = useState2(null);
+  const [days, setDays] = useState2(30);
+  const [loaded, setLoaded] = useState2(false);
+  useEffect2(() => {
+    let cancelled = false;
+    setLoaded(false);
+    (async () => {
+      try {
+        const [scoped, all] = await Promise.all([
+          window.SIMA_API?.meta?.tokenEconomics?.({ days, block: block_id }),
+          window.SIMA_API?.meta?.tokenEconomics?.({ days }),
+        ]);
+        if (cancelled) return;
+        setData(scoped?.ok ? scoped : null);
+        setGlobal(all?.ok ? all : null);
+        setLoaded(true);
+      } catch { setLoaded(true); }
+    })();
+    return () => { cancelled = true; };
+  }, [block_id, days]);
+  if (!loaded) return null;
+  const scopedHasData = data && data.totals && data.totals.trace_count > 0;
+  const display = scopedHasData ? data : global;
+  if (!display || !display.totals || display.totals.trace_count === 0) return null;
+  const fmtUsd = (n) => '$' + (Number(n) || 0).toFixed(4);
+  const fmtTok = (n) => n >= 1e6 ? `${(n / 1e6).toFixed(2)}M` : n >= 1e3 ? `${(n / 1e3).toFixed(1)}K` : String(n);
+  const tot = display.totals;
+  const topOps = (display.top_ops || []).slice(0, 3);
+  const providers = display.by_provider || [];
+  return (
+    <div className="ov-section">
+      <div className="ov-head" style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+        <h3>
+          {t('overview.token_spend', '💰 Token spend')}{' '}
+          <span className="ov-file">{scopedHasData ? t('overview.token_scope_block', 'this block') : t('overview.token_scope_global', 'project-wide — no run_state for this block yet')}</span>
+        </h3>
+        <select value={days} onChange={(e) => setDays(Number(e.target.value))} style={{ fontSize: 11, padding: '2px 6px', background: 'var(--paper)', border: '1px solid var(--rule)', borderRadius: 4 }}>
+          <option value={7}>{t('overview.days_7', 'last 7d')}</option>
+          <option value={30}>{t('overview.days_30', 'last 30d')}</option>
+          <option value={90}>{t('overview.days_90', 'last 90d')}</option>
+        </select>
+      </div>
+      <div className="token-spend-grid">
+        <div className="token-spend-tot">
+          <div className="token-spend-num">{fmtUsd(tot.cost_usd_equivalent)}</div>
+          <div className="token-spend-lbl">{t('overview.token_equivalent', 'equivalent (Haiku 4.5 list)')}</div>
+        </div>
+        <div className="token-spend-tot">
+          <div className="token-spend-num">{fmtUsd(tot.cost_usd_actual)}</div>
+          <div className="token-spend-lbl">{t('overview.token_actual', 'actually charged')}</div>
+        </div>
+        <div className="token-spend-tot">
+          <div className="token-spend-num">{fmtTok(tot.input_tokens + tot.output_tokens)}</div>
+          <div className="token-spend-lbl">{t('overview.token_total_tokens', 'tokens · {n} traces').replace('{n}', tot.trace_count)}</div>
+        </div>
+      </div>
+      {topOps.length > 0 && (
+        <div className="token-spend-list">
+          <div className="token-spend-list-head">{t('overview.token_top_ops', 'Top ops')}</div>
+          {topOps.map((o, i) => (
+            <div key={i} className="token-spend-row">
+              <span className="token-spend-row-key">{o.key}</span>
+              <span className="token-spend-row-val">{fmtUsd(o.cost_usd_equivalent)} · {o.count} calls</span>
+            </div>
+          ))}
+        </div>
+      )}
+      {providers.length > 0 && (
+        <div className="token-spend-list">
+          <div className="token-spend-list-head">{t('overview.token_providers', 'By provider')}</div>
+          {providers.map((p, i) => (
+            <div key={i} className="token-spend-row">
+              <span className="token-spend-row-key">{p.key}</span>
+              <span className="token-spend-row-val">{fmtUsd(p.cost_usd_actual)} actual / {fmtUsd(p.cost_usd_equivalent)} equiv · {p.count} calls</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSubsystem, onOpenTz, onClaudeAdvice }) {
   const t = window.__SIMA_T || ((_, fb) => fb);
   // R-7.69 — Overview was reading legacy hardcoded MODULE_DESC for
@@ -460,6 +554,14 @@ function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSu
           </div>
         );
       })()}
+
+      {/* R-7.87 (S-9) — token economics widget. Operator: «я гоняю
+          агентов часами и не вижу куда уходят токены». Pulls from
+          /atlas/token-economics with block filter; renders totals +
+          top-3 ops + by_provider mini-table. cost_usd_equivalent
+          (Anthropic Haiku 4.5 list price) gives a stable «shadow
+          bill» even when we run on claude_cli subscription. */}
+      <TokenSpendWidget block_id={m.id} />
 
       {/* Mission / Why */}
       <div className="ov-section">

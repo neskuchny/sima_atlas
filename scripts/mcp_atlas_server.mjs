@@ -54,6 +54,7 @@ function toolList(){
     { name:'cascade_verify', description:'R-7.84 (S-8): after editing block X, re-run acceptance verifier on every block that depends on X. Auto-flags broken dependents as status:desync in graph.json with reason. Appends cascade entry to their checks.log + narrative.md so future agents see the chain. Operator sees the break inline on the canvas instead of next morning. Pass dry_run:true to preview without patching.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, client_id:{type:'string'}, dry_run:{type:'boolean'} }, required:['block_id'] } },
     { name:'add_architecture_decision', description:'R-7.85 (S-6): append a project-level architectural decision to atlas/architecture_decisions.md. APPEND-ONLY — never edits past entries. Each decision is auto-injected into EVERY future agent prompt across ALL blocks, locking the choice in. Use for «use LLM not math», «Postgres not MongoDB», «JWT 15min refresh 30day». Required: decision (one-line), rationale (why this not the alternative). Optional: affects (block ids or "all", default "all"), reversible (yes/no/needs operator approval, default last), client_id (for multi-tenant), ts (ISO date, default today).', inputSchema:{ type:'object', properties:{ decision:{type:'string'}, rationale:{type:'string'}, affects:{type:'string'}, reversible:{type:'string'}, client_id:{type:'string'}, ts:{type:'string'} }, required:['decision','rationale'] } },
     { name:'list_architecture_decisions', description:'R-7.85 (S-6): list all entries from atlas/architecture_decisions.md (or atlas/clients/<client_id>/architecture_decisions.md). Returns the markdown sections so an agent can review what\'s locked-in before suggesting an architecture change.', inputSchema:{ type:'object', properties:{ client_id:{type:'string'} } } },
+    { name:'token_economics', description:'R-7.87 (S-9): aggregate atlas/llm_traces into a token-economics roll-up. Returns {totals, top_blocks, top_ops, by_provider, daily} with TWO cost dimensions: cost_usd_actual (what was charged — 0 for claude_cli/ollama/mock) and cost_usd_equivalent (what it WOULD cost on Anthropic Haiku 4.5 list price — stable across providers, makes the «shadow bill» visible). Optional: days (default 30), block (filter to one block via run_state attribution).', inputSchema:{ type:'object', properties:{ days:{type:'number'}, block:{type:'string'} } } },
     { name:'judge_assertion', description:'PR-3 (b.acceptance-verifier-loop): LLM-judge fallback for an individual assertion. Returns {verdict: pass|fail|inconclusive, reasoning, evidence_quote, cost_usd, provider}. Inconclusive on missing API key — never silent pass.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, assertion_id:{type:'string'} }, required:['block_id','assertion_id'] } },
     { name:'read_acceptance_run', description:'PR-4 (b.acceptance-verifier-loop): read atlas/acceptance_runs/<block>/_latest.json — full assertion-level verdict report from the most recent verifier run.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} }, required:['block_id'] } },
     { name:'list_failed_acceptances', description:'PR-4 (b.acceptance-verifier-loop): list every block whose latest verifier verdict is fail or inconclusive (with sample failures).', inputSchema:{ type:'object', properties:{} } },
@@ -541,6 +542,15 @@ rl.on('line', (line) => {
           const out = execSync(`node scripts/architecture_decisions_api.mjs list ${arg}`.trim(), { cwd: root, stdio: 'pipe' }).toString();
           return respond(id, { content:[{ type:'text', text: out }] });
         } catch (e) { return respondErr(id, `list_architecture_decisions: ${e.message}`); }
+      }
+      // R-7.87 (S-9) — token economics roll-up over atlas/llm_traces.
+      if (name === 'token_economics') {
+        try {
+          const days = Number(args?.days || 30);
+          const blockArg = args?.block ? `--block ${JSON.stringify(args.block)}` : '';
+          const out = execSync(`node scripts/token_economics.mjs --days ${days} ${blockArg} --json`.trim(), { cwd: root, stdio: 'pipe' }).toString();
+          return respond(id, { content:[{ type:'text', text: out }] });
+        } catch (e) { return respondErr(id, `token_economics: ${e.message}`); }
       }
       // R-7.84 (S-8) — cascade verify: re-run acceptance on dependents of <block_id>
       // and auto-flag broken ones desync. Returns per-dependent verdict.

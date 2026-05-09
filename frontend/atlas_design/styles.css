@@ -315,6 +315,43 @@ html, body {
 }
 .impl-state-empty .impl-status-label { color: var(--ink-3); }
 .impl-state-empty .impl-status-value { color: var(--ink-4); }
+
+/* R-7.87 (S-9) — token-spend widget */
+.token-spend-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 10px; margin: 10px 0 12px;
+}
+.token-spend-tot {
+  background: var(--card); border: 1px solid var(--rule);
+  border-radius: 8px; padding: 10px 12px;
+}
+.token-spend-num {
+  font-family: 'Newsreader', serif; font-size: 22px; font-weight: 600;
+  color: var(--ink); line-height: 1.1;
+}
+.token-spend-lbl {
+  font-size: 10.5px; color: var(--ink-3);
+  text-transform: uppercase; letter-spacing: 0.05em;
+  margin-top: 4px;
+}
+.token-spend-list {
+  border: 1px solid var(--rule); border-radius: 8px;
+  background: var(--card); margin-bottom: 8px; overflow: hidden;
+}
+.token-spend-list-head {
+  font-size: 10.5px; color: var(--ink-3);
+  text-transform: uppercase; letter-spacing: 0.05em;
+  padding: 7px 12px; border-bottom: 1px solid var(--rule);
+  background: var(--paper);
+}
+.token-spend-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 6px 12px; font-size: 12px;
+  border-bottom: 1px solid var(--rule);
+}
+.token-spend-row:last-child { border-bottom: 0; }
+.token-spend-row-key { color: var(--ink-2); font-weight: 500; }
+.token-spend-row-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-3); }
 .rail {
   grid-area: rail;
   border-right: 1px solid var(--rule);
