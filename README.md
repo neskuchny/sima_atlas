@@ -73,6 +73,87 @@ These are the concrete failure modes we hit while shipping our own product (Tess
 
 The pattern: **each fix solves a problem that came up while building**, not an imagined one. If you hit one of these and don't see a fix that works, [open an issue](https://github.com/neskuchny/sima_atlas/issues) — that's how the next phase gets prioritised.
 
+## Jobs to be done — what you hire Sima for
+
+Six jobs. Each names the failure mode it replaces and the feature that delivers it.
+
+### Job 1 — «I want to delegate to AI confidently»
+
+**When** I'm building a product with > 10 features
+**I want** to point an agent at one feature and walk away
+**So that** delegation actually saves time, not creates new debug work
+
+- **Replaces:** AI hallucinates / drifts / redoes / lies about success
+- **Sima delivers:** per-feature contract (mission + KPI + acceptance) · tri-state acceptance verifier (`pass / fail / inconclusive` — never silent green) · drift scanner that fails the run on hard violations · cascade verify that flags broken siblings inline
+
+### Job 2 — «I want my product to live somewhere outside my head»
+
+**When** I'm coordinating with AI agents (and possibly teammates)
+**I want** one shared view of what the product is and how features connect
+**So that** everyone — me, AI, future contributor — starts at the same place
+
+- **Replaces:** product lives in scattered chats + stale `CLAUDE.md` + my head
+- **Sima delivers:** visual canvas with live contracts · drill-down to subsystems · multi-product `?client=<id>` · auto-generated WIKI / TZ / per-block tutorials always in sync
+
+### Job 3 — «I want my architectural decisions to stick»
+
+**When** I tell the agent «use LLM not regex», «Postgres not Mongo», «JWT 15min refresh 30day»
+**I want** that decision in **every** future prompt across **every** feature
+**So that** the agent physically can't silently reverse it
+
+- **Replaces:** AI forgets within a session and re-implements rejected approaches
+- **Sima delivers:** project-level append-only architecture decisions auto-injected into every prompt · per-block locked rules (severity:hard|soft) · post-run drift scanner that fails the run on violation
+
+### Job 4 — «I want to see where time and money go»
+
+**When** I run agents for hours
+**I want** to see which feature is burning tokens and what each provider would cost
+**So that** I know where to optimise and whether delegation actually pays off
+
+- **Replaces:** black-box delegation
+- **Sima delivers:** Token Spend widget per block · roll-up by feature / op / provider / day · `cost_usd_actual` + `cost_usd_equivalent` (Anthropic shadow bill) · day-window selector
+
+### Job 5 — «I want documentation as a side effect»
+
+**When** I'm shipping fast
+**I want** docs that stay current without manual maintenance
+**So that** new contributors / agents / future-me don't read stale lies
+
+- **Replaces:** docs drift; either I stop documenting or I slow down
+- **Sima delivers:** auto-WIKI · auto-TZ per module · per-block end-user tutorials · architecture review modal — all generated from the same canvas the code lives off of
+
+### Job 6 — «I want to learn from past mistakes without repeating them»
+
+**When** my agent fails on a feature
+**I want** the lesson in next session's prompt
+**So that** every iteration is faster than the previous
+
+- **Replaces:** cold-start each session; same bug tried 3 times
+- **Sima delivers:** per-block run history (what tried / what worked / what failed / decisions made) auto-injected · operator-level lessons accumulating evidence · code map regenerated per run
+
+## Promise vs reality — feature manifest
+
+Every capability in the original concept, mapped to current code state.
+
+| capability | status | how it's delivered |
+|---|---|---|
+| Visual constructor for product schema | ✅ | React canvas · depth control (1/2/∞) · drill-down · anchor-edge creation · layer-aware blocks |
+| Visual evaluation of state (status · connections · what's done / what's not) | ✅ | Implementation Status panel (8-row dashboard ✓/~/✗/·) · status-coded blocks · cascade `desync` markers · Token Spend widget |
+| Schema + base for AI so it doesn't forget | ✅ | per-block memory layer (`narrative` + `decisions` auto-injected) · project-level architecture decisions in every prompt across every block |
+| Token reduction via product structure | ✅ | 4 context-pack profiles (verified `5809 → 1846` tokens depending on task type) · skip-list teaches agents to ignore noise dirs |
+| Operator principles → reusable library | ✅ + 🟡 | per-project `lessons` + `dont_use` + `always_use` shipped; cross-project transfer (W-1) is on the roadmap |
+| Closed automation system (schema + checks + KPI + conditions) | ✅ | acceptance loop · cascade verify on edit · drift scanner post-run · nightly consolidation runs all validators |
+| Calling various coding tools (Claude / Cursor / Codex) — API + CLI | ✅ | 5-provider LLM cascade · 3 agent-CLI dispatch · print-only fallback when CLI missing |
+| Logs of wins and failures (so they don't repeat) | ✅ | per-block `checks.log` + `narrative` + `decisions` · 12K+ LLM traces with cost per call |
+| No code chaos / fewer hallucinations / no forgetting priorities | ✅ | three-layer defense: arch decisions auto-injection + drift scanner + cascade verify |
+| Auto WIKI for the whole project | ✅ | `generate_wiki.mjs` · mermaid graph · per-layer sections · HTML render |
+| Auto TZ per individual module | ✅ | `generate_tz_from_atlas.mjs` (regenerated 2026-05-09) — pulls mission + tasks per block |
+| Auto tutorials (how to use, capabilities, limitations) | 🟡 | `generate_user_docs.mjs` plumbing works; output quality depends on LLM provider — `claude_cli` headless sometimes confused, recommend Anthropic API for production-quality |
+| External-readable documentation (so others understand the project) | ✅ | README EN+RU · 7 user-facing docs (architecture · getting-started · troubleshooting · integrations · article · agent-navigation) |
+| Vibe-coding tools (consultations on individual elements + sync) | ✅ | ✦ Sima fill-from-chat · ✏ Rewrite · ✨ Expand · Architecture review modal · Claude advice button |
+
+**Score: 13 ✅ fully shipped · 1 🟡 partial (auto-tutorials quality) · 1 ✅+🟡 partial (cross-project library — local works, transfer planned).**
+
 ## What's in the box (today)
 
 **Foundations**
