@@ -341,6 +341,36 @@ if (process.env.ATLAS_SKIP_VERIFIER !== '1') {
   else if (verdictExit === 2) { verifierVerdict = 'inconclusive'; console.log(`  · acceptance: inconclusive — collectors need YAML evidence_spec or LLM key`); }
 }
 
+// R-7.82 (S-3) — runtime content drift scan. Catches «agent wrote
+// math instead of LLM call» class of violations where the issue isn't
+// a forbidden shell command but a forbidden content pattern. The
+// scanner reads the agent's modified files and matches them against
+// dont_use.json + always_use.json rules scoped to this block. Hard
+// violations exit 1 and we transition to Failed; soft violations
+// just log to checks.log + narrative.md so the operator sees them.
+let driftViolations = null;
+if (process.env.ATLAS_SKIP_DRIFT_SCAN !== '1') {
+  // start cutoff: scanner default is "last hour"; we narrow to start of
+  // this run via runState if available, else fall back to 30 min ago.
+  const startedAtIso = (runState && runState.started_at)
+    ? runState.started_at
+    : new Date(Date.now() - 30 * 60 * 1000).toISOString();
+  const d = spawnSync('node', [path.join(ROOT, 'scripts/scan_run_for_drift.mjs'), blockId, '--since-iso', startedAtIso], {
+    cwd: workspace ? workspace.workspace_path : ROOT,
+    stdio: 'inherit',
+    env: { ...process.env, ATLAS_ROOT: workspace ? path.join(workspace.workspace_path, 'atlas') : process.env.ATLAS_ROOT },
+    timeout: 30_000,
+  });
+  if (d.status === 1) {
+    driftViolations = 'hard';
+    console.log(`  ✗ content drift: hard violation — overrides verifier verdict → run marked Failed`);
+    verifierVerdict = 'fail';
+  } else if (d.status === 0) {
+    driftViolations = 'pass';
+  }
+  // status === 2+ means scanner crashed; treat as inconclusive, don't fail the run
+}
+
 fsm(verifierVerdict === 'fail' ? 'Failed' : 'Succeeded', {
   exit_code: r.status,
   summary,
