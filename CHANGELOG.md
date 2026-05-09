@@ -6,6 +6,91 @@ Sima Atlas сейчас в early-stage (`0.x`), API может меняться 
 
 ---
 
+## [0.2.0] — 2026-05-09 — *closing the loop*
+
+> Roll-up of phases R-7.76 → R-7.87 + full doc-sync. Per-phase detail in
+> the sections below. This is the umbrella entry for the v0.2.0 release.
+
+After v0.1.1 the foundation was solid (canvas + 5-provider LLM cascade +
+multi-tenant + acceptance loop) but the operator's day-to-day pain was
+still there: AI agents kept forgetting decisions, breaking sibling
+features silently, burning tokens on bloated prompts, and there was no
+at-a-glance answer to «what's actually filled in this block». v0.2.0
+closes those four loops.
+
+### What landed
+
+**Memory & lock-in (R-7.76 → R-7.85)**
+- Per-block memory layer: `narrative.md` + `decisions.log` auto-injected
+  into every agent prompt under «## ⚠ Block memory». Agent reads its own
+  past notes before touching code.
+- Operator-locked rules with `severity:hard|soft`. Hard rules **fail the
+  run** when violated (post-run drift scanner — R-7.82, S-3).
+- Project-level architecture decisions, append-only, auto-injected into
+  EVERY prompt across ALL blocks. Agent physically cannot silently
+  reverse a past architectural choice (R-7.85, S-6).
+- Cross-block break detection: after every successful run on block X,
+  walk reverse-deps and re-verify each. Broken dependents marked
+  `status: desync` inline on the canvas (R-7.84, S-8).
+- Auto-seed `operator_profile/*` + `architecture_decisions.md` at
+  `dev_server.mjs` startup so new contributors hit zero manual setup
+  (R-7.81).
+
+**Context economy & visibility (R-7.86 → R-7.87)**
+- Context-pack profiles: `design` ~5–15K (default) · `backend-fix` ~2–4K
+  · `ui-fix` ~1.5–3K · `acceptance-only` ~0.5–1.5K. Architecture
+  decisions always included regardless of profile (R-7.86, S-4).
+- Implementation Status panel — 8-row dashboard in Overview (Mission ·
+  KPIs · Acceptance · Tasks · Files · Decisions · Runs · Status) with
+  ✓/~/✗/· markers for at-a-glance contract-vs-reality progress.
+- Token economics aggregator with two cost dimensions: `cost_usd_actual`
+  (what was charged) + `cost_usd_equivalent` (Anthropic Haiku 4.5 list
+  price — stable shadow bill across providers). Surfaced as a Token
+  Spend widget in every block's Overview tab (R-7.87, S-9).
+
+**Self-audit refresh**
+- Article Appendix A: was «9 ✅ / 11 🟡 / 0 ❌», now **«15 ✅ / 5 🟡 /
+  0 ❌»**. Six 🟡 rows flipped to ✅ as their phases shipped (S-3 / S-4 /
+  S-6 / S-8 / typed memory / cursor-hook drift-guard); six new ✅ rows
+  added for capabilities that didn't exist when the audit was first
+  written.
+
+**Documentation**
+- README + README.ru: «What we ran into building this — and how we
+  solved it» section with 8 concrete pain → fix rows (PR #37).
+- Full user-facing doc-sync across 13 files: CHANGELOG, architecture,
+  getting-started, troubleshooting, integrations, article, plus the
+  atlas reports (PR #38).
+
+### What's still on the «Closing the loop» roadmap (next)
+- **S-1** — block templates marketplace
+- **S-7** — transactional change-sets for cross-cutting changes
+- **S-9.1** — global Token Economics tab (sparklines, cost-per-pass ROI)
+- **S-10** — UI surface for context-pack profile selection at run-start
+- **S-11** — cross-block roll-up in Implementation Status
+
+### Verification
+```bash
+node scripts/nightly_consolidation.mjs
+node scripts/token_economics.mjs --days 30
+for p in design backend-fix ui-fix acceptance-only; do
+  node scripts/build_context_pack.mjs b.docs --profile $p
+done
+```
+
+### PRs merged in this release
+- [#30](https://github.com/neskuchny/sima_atlas/pull/30) — per-block memory layer reaches agent prompt
+- [#31](https://github.com/neskuchny/sima_atlas/pull/31) — auto-seed at startup + S-3 runtime drift scanner
+- [#32](https://github.com/neskuchny/sima_atlas/pull/32) — teach memory layer to agents (skills update)
+- [#33](https://github.com/neskuchny/sima_atlas/pull/33) — cross-block break detection on edit (S-8)
+- [#34](https://github.com/neskuchny/sima_atlas/pull/34) — append-only architecture_decisions.md (S-6)
+- [#35](https://github.com/neskuchny/sima_atlas/pull/35) — context-pack profiles + Implementation Status panel (S-4)
+- [#36](https://github.com/neskuchny/sima_atlas/pull/36) — token economics aggregator + Token Spend widget (S-9)
+- [#37](https://github.com/neskuchny/sima_atlas/pull/37) — README answers «why we built this, problems faced, what's implemented, for whom»
+- [#38](https://github.com/neskuchny/sima_atlas/pull/38) — full user-facing documentation sync for R-7.76 → R-7.87
+
+---
+
 ## [0.1.0-r87] — 2026-05-09 — *Phase R-7.87 (S-9): token economics aggregator + Token Spend widget*
 
 PR [#36](https://github.com/neskuchny/sima_atlas/pull/36). Operator: «я гоняю агентов часами и не вижу куда уходят токены».
