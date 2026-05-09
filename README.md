@@ -156,6 +156,9 @@ Six jobs. Each names the failure mode it replaces and the feature that delivers 
 
 ## Promise vs reality — feature manifest
 
+<img width="1536" height="1024" alt="ChatGPT EN 2026 г , 23_53_17" src="https://github.com/user-attachments/assets/ed6a74e3-a0d8-4cba-90d3-19d18587459c" />
+
+
 Every capability in the original concept, mapped to current code state.
 
 | capability | status | how it's delivered |
