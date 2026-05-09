@@ -219,27 +219,17 @@ function updateBlock(args){
 }
 
 function generateRoadmap(){
-  const graph = readJson(path.join(atlasRoot,'graph.json'));
-  const rank = { broken:0, drift:1, wip:2, idea:3, review:4, done:5 };
-  const ordered = [...(graph.blocks||[])].sort((a,b)=>(rank[a.status]??99)-(rank[b.status]??99));
-  let md = '# Roadmap (auto-generated)\n\n';
-  md += `_Generated: ${new Date().toISOString()}_\n\n`;
-  md += 'Приоритет: broken → drift → wip → idea → review → done.\n\n';
-  ordered.forEach((b,i)=>{ md += `${i+1}. **${b.id}** (${b.status}) — ${b.title}\n`; });
-  fs.writeFileSync(path.join(atlasRoot,'roadmap.md'), md, 'utf8');
+  // Delegate to canonical generator (topo-sorted by depends_on, with
+  // per-layer summary). The previous inline stub produced a flat status-
+  // sorted list without dependency awareness — incompatible with the
+  // standalone CLI output and with what the docs claim.
+  execSync('node scripts/rebuild_atlas_roadmap.mjs', { cwd: root, stdio: 'pipe' });
 }
 
 function generateTz(){
-  const graph = readJson(path.join(atlasRoot,'graph.json'));
-  const tzDir = path.join(root,'ТЗ');
-  if (!fs.existsSync(tzDir)) fs.mkdirSync(tzDir, { recursive:true });
-  let md = '# AUTO ТЗ (из Atlas)\n\n';
-  for (const b of graph.blocks || []){
-    md += `## ${b.id} (${b.status})\n\n`;
-    md += readText(path.join(blockDir(b.id),'mission.md')) + '\n\n';
-    md += readText(path.join(blockDir(b.id),'tasks.md')) + '\n\n';
-  }
-  fs.writeFileSync(path.join(tzDir,'auto_tz.md'), md,'utf8');
+  // Delegate to canonical generator. Inline version wrote to legacy
+  // `ТЗ/` directory removed in PR #28 (R-7.75 opensource cleanup).
+  execSync('node scripts/generate_tz_from_atlas.mjs', { cwd: root, stdio: 'pipe' });
 }
 
 
