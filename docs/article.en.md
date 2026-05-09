@@ -212,7 +212,7 @@ atlas/operator_profile/
 └── templates/          # operator prompt templates
 ```
 
-Plus three more typed stores accessible via MCP tools `list_lessons` / `set_dont_use` / `set_always_use`: lessons (with evidence ≥ 2), personal technology bans (`eval`, `MD5`, `cdn.tailwindcss.com`) with reasons, canonical defaults (`language=typescript`, `runtime=node`). The pre-commit drift-guard reads `dont_use` and flags conflicting proposals.
+Typed memory now lives as top-level files in `atlas/operator_profile/` with `severity:hard|soft` — see R-7.76→R-7.85 in CHANGELOG. Concretely: `dont_use.json`, `always_use.json`, `lessons.json` (each entry tagged `severity:hard|soft`; hard violations fail a run, soft ones surface as warnings). Plus per-block `narrative.md` and `decisions.log` are auto-injected into every prompt (R-7.76→R-7.80), and the project-level `atlas/architecture_decisions.md` (append-only, R-7.85) is auto-injected too. The runtime drift scanner `scripts/scan_run_for_drift.mjs` (R-7.82) checks every run against `dont_use:hard`. All of these stores are also reachable via MCP (`list_lessons` / `set_dont_use` / `set_always_use`) for programmatic edits.
 
 **Context** — what gets assembled per request. That's the `context-pack`. And here the paradigm is fundamentally different, and we openly disagree with part of the industry:
 
@@ -245,7 +245,7 @@ A second consequence of the "context per task" principle is **two phases of work
 - **Design phase** (new blocks, synthesizing from a transcript, restating a mission). Context is wide: product mission, all blocks, overall connections. You can't economise here — otherwise the agent misses an important relation and proposes an inconsistent block.
 - **Execution phase** (the agent codes a specific todo block). Context is narrow: the block itself + 1–2 relevant neighbours + lessons. Noise hurts here.
 
-Sima Atlas currently uses one pack for both phases; mode separation is task `S-4 context-pack profiles`.
+Sima Atlas now ships **context-pack profiles** (S-4, R-7.86): `scripts/build_context_pack.mjs` accepts `--profile design | backend-fix | ui-fix | acceptance-only`, and each profile decides which neighbours to read fully, which partially, which to skip. The Overview tab also gained an Implementation Status panel (R-7.86) that shows, for the current block, which profile was last used and what was loaded.
 
 ### Principle 5. One agent — one block at a time
 
@@ -453,7 +453,7 @@ Accumulates the "operator's personality" from their actions:
 
 - **archetype:** "explorer / pragmatist / perfectionist / shipper" — derived from the ratio of `idea→todo→progress→done` transitions.
 - **lessons:** "don't use eval," but only if there are ≥ 2 evidence items (links into `checks.log`) — to filter out one-off complaints.
-- **dont_use:** hard bans (`eval`, `MD5`, `cdn.tailwindcss.com`) with reasons. The pre-commit validator `validate_dont_use_compliance.mjs` runs in nightly and flags conflicting proposals; an interactive cursor-hook that blocks the command at execution time is in development (S-3 in the roadmap).
+- **dont_use:** hard bans (`eval`, `MD5`, `cdn.tailwindcss.com`) with reasons; entries are tagged `severity:hard|soft`. The runtime drift scanner `scripts/scan_run_for_drift.mjs` (R-7.82, S-3) walks the run after the fact — `dont_use:hard` violations fail the run; soft ones surface as warnings. The pre-commit validator `validate_dont_use_compliance.mjs` still runs in nightly and flags conflicting proposals.
 - **always_use:** canonical defaults (`language=typescript`, `runtime=node`, `db=postgres`).
 - **patterns:** dev environments, typical builds, flows.
 
@@ -461,7 +461,7 @@ This whole structure gets embedded into the block's context-pack — the agent s
 
 ### Layer 7 — MCP / Agent integration (`scripts/mcp_atlas_server.mjs`)
 
-65 MCP tools cover everything an agent needs to do with `atlas/`:
+~70 MCP tools cover everything an agent needs to do with `atlas/`:
 
 - `read_block(block_id)` — reads all files of a block.
 - `list_dependencies(block_id)` — who refers to what.
@@ -582,6 +582,8 @@ Additionally — the **claude_cli provider** lets you work without an API key at
 
 **An honest caveat about Cursor / Codex.** Their CLIs exist, but **they don't expose a standardised non-interactive print mode** for single-shot prompts with a deterministic JSON return — `cursor-agent` and `codex exec` are designed for full task sessions with tools, not "run one prompt and hand back a structure." So plugging Cursor / Codex as server-side providers (the way Claude CLI works) isn't possible today. If you have a Cursor / Codex subscription, you should still use it — but **from the other side**: run the Cursor / Codex agent from inside their own UI, and let **them** call into Sima over MCP. That way your subscription tokens fuel the agent, and Sima provides the contract-oriented context-pack. See `docs/integrations.md` for configs.
 
+To make all of this measurable rather than hand-waved, R-7.87 shipped `scripts/token_economics.mjs` — an aggregator that walks `atlas/llm_traces/` and breaks spend down by block, profile, and provider — plus a **Token Spend widget** in the Overview tab. So "rework eats 2–4×" stops being a slogan and becomes a number you can read off the dashboard. A global token-economics tab (S-9.1) is the next step in the roadmap.
+
 And finally — local models (Part 7.1) drive operational cost to zero for those with the hardware. That's the endgame of "lower the cost": cloud providers stay for quality, local models for everyday tasks where Llama 3.3 70B or Qwen Coder 32B is enough.
 
 ### 6.2 Reduce AI hallucinations
@@ -693,6 +695,14 @@ As of publication (May 2026), Sima Atlas is:
 | `b.user-docs-generator`   | done | end-user tutorials from JSX introspection |
 | `b.ui-control`            | done | visual canvas, composer, proposals panel |
 | `b.smoke-sandbox`         | done | end-to-end smoke test for regression |
+| Per-block memory layer       | done | `narrative.md` + `decisions.log` auto-injected into every prompt (R-7.76→R-7.80) |
+| Typed `operator_profile/*`   | done | `dont_use.json` / `always_use.json` / `lessons.json` with `severity:hard\|soft`, auto-seeded at startup (R-7.76→R-7.81) |
+| Architecture decisions store | done | `atlas/architecture_decisions.md`, append-only, project-level lock-in, auto-injected (R-7.85, S-6) |
+| Runtime drift scanner        | done | `scripts/scan_run_for_drift.mjs` — hard violations fail the run (R-7.82, S-3) |
+| Cascade verifier             | done | `scripts/cascade_verify.mjs` — broken dependents auto-marked `status: desync` inline (R-7.84, S-8) |
+| Context-pack profiles        | done | `--profile design \| backend-fix \| ui-fix \| acceptance-only` + Implementation Status panel in Overview (R-7.86, S-4) |
+| Token economics dashboard    | done | `scripts/token_economics.mjs` aggregator + Token Spend widget in Overview tab (R-7.87, S-9; global tab S-9.1 in roadmap) |
+| Agent navigation contract    | done | `docs/agent-navigation.md` + Claude Skills + Cursor Rules + AGENTS.md teach the new memory layer (R-7.83) |
 
 Every block has:
 - a green acceptance verifier (10/10 in the latest `nightly_consolidation`);
@@ -722,12 +732,14 @@ This is a living roadmap — adjusted after each phase. Markers: ✅ done, 🟡 
 **In progress (Q3 2026):**
 - **S-1** 🟡 — block templates marketplace: baseline contract templates (auth, payments, search, ingestion) with ready-made KPIs and acceptance.
 - **S-2** ❌ wontfix — hard lifecycle gates. Originally on the roadmap, now decided canonically: hard mode **is not happening** (see Appendix B.2). Gates remain soft with explicit hints visible everywhere in the UI. Hard-blocking status transitions is an anti-feature for the design phase.
-- **S-3** ⬜ — runtime cursor-hook drift-guard: block commands that violate `dont_use` at execution time.
-- **S-4** ⬜ — context-pack profiles: instead of one pack per block — different profiles per task type (design / backend-fix / ui-fix / acceptance-only). Selective neighbour traversal: each profile decides which neighbours to read fully, which partially, which to skip. Goal: **context precision**, size becomes a derivative.
+- **S-3** ✅ R-7.82 — runtime drift scanner: `scripts/scan_run_for_drift.mjs` walks the run after the fact and fails it on `dont_use:hard` violations (post-hoc scanner — same outcome as the originally-planned interactive cursor-hook).
+- **S-4** ✅ R-7.86 — context-pack profiles: `scripts/build_context_pack.mjs` accepts `--profile design | backend-fix | ui-fix | acceptance-only`; each profile decides which neighbours to read fully, which partially, which to skip. Implementation Status panel in Overview shows what was loaded.
 - **S-5** ⬜ — marketing-narrative skill: a second LLM pass over auto-WIKI + `product/positioning.md` (a new file the operator fills out once: what we sell, to whom, how we differ). Output: three landing-copy variants, a deck, a "why us" piece. Closes the gap between "structurally accurate auto-docs" and "production-ready marketing material." See Appendix B.5.
-- **S-6** ⬜ — architecture-decisions skeleton: a new project-level artifact `atlas/architecture_decisions.md` where the operator records agreements not derivable from acceptance (sync vs. async calls, queueing, caching strategy, error handling). Embedded into every block's context-pack; functions as the "architectural voice of the project." See Appendix B.6.
+- **S-6** ✅ R-7.85 — `scripts/architecture_decisions_api.mjs` + `atlas/architecture_decisions.md` — append-only project-level lock-in for agreements not derivable from acceptance (sync vs. async, queueing, caching, error handling). Auto-injected into every block's context-pack.
 - **S-7** ⬜ — transactional change-sets: an atomic multi-block change for cross-cutting modifications (REST→GraphQL, capability rename, DB migration). Commit metadata explicitly lists `affected_blocks: [...]`; the acceptance loop runs over each; the UI canvas shows "these 5 blocks are touched by transaction T" and the state of each. See Appendix B.4.
-- **S-8** ⬜ — drift auto-mark: when `validate_dependency_contracts.mjs` catches broken capability bindings, automatically set `status: desync` + reason on dependents in `graph.json` (currently it just fails CI). Makes drift visible on the canvas without manually re-reading CI logs.
+- **S-8** ✅ R-7.84 — `scripts/cascade_verify.mjs` cross-block break detection on edit: broken dependents are auto-marked `status: desync` inline in `graph.json`. Drift is visible on the canvas without manually re-reading CI logs.
+- **S-9** ✅ R-7.87 — token economics: `scripts/token_economics.mjs` aggregator + Token Spend widget in Overview tab. First cut, per-block / per-profile / per-provider.
+- **S-9.1** ⬜ — global token-economics tab: cross-project rollups, trendlines, alerting on cost regressions.
 
 **Mid-term (Q4 2026):**
 - **T-1** ⬜ — multi-operator collaboration + full client isolation: CRDT-merging contract files; nightly respects client scope.
@@ -814,27 +826,33 @@ In open source it's customary to honestly separate the implemented from the aspi
 | # | Article claim | Status |
 |---|---|---|
 | 1 | 12-file block contract | 🟡 5 files required (`mission/kpi/acceptance/tasks/checks.log`); the other 7 are seeded by the template but not enforced |
-| 2 | Capability matching (`depends_on/provides`) with drift detection | ✅ for CI (the validator fails on broken bindings); 🟡 auto-marking dependents with `status: desync` is in S-8 |
+| 2 | Capability matching (`depends_on/provides`) with drift detection | ✅ R-7.84 (S-8) — `scripts/cascade_verify.mjs` cross-block break detection on edit; broken dependents auto-marked `status: desync` inline in `graph.json` |
 | 3 | 5 evidence_kinds + llm_judge | ✅ fully |
 | 4 | Verdict tri-state (`pass/fail/inconclusive`) | ✅ fully |
-| 5 | Operator profile typed memory | 🟡 `profile.json + history + patterns + templates` on disk; `lessons/dont_use/always_use` exposed via MCP, not as separate top-level files |
-| 6 | Compact context-pack | ✅ pack reports its own `_meta.estimated_tokens` and warns when over-sized; typical pack is 3–12K tokens; the first version of the article had an erroneous "1-2K" target, restated as "context precise per task," see S-4 |
+| 5 | Operator profile typed memory | ✅ R-7.76→R-7.81 — `dont_use.json` / `always_use.json` / `lessons.json` are top-level files in `atlas/operator_profile/` with `severity:hard\|soft`; auto-seeded at `dev_server.mjs` startup |
+| 6 | Compact context-pack | ✅ pack reports its own `_meta.estimated_tokens` and warns when over-sized; typical pack is 3–12K tokens; the first version of the article had an erroneous "1-2K" target, restated as "context precise per task" |
 | 7 | LLM gateway 4-cascade | ✅ fully |
 | 8 | Claude CLI without an API key | ✅ fully |
-| 9 | MCP with 40+ tools | ✅ actually 65 |
+| 9 | MCP tool count | ✅ ~70 tools |
 | 10 | `sima_fill_from_chat` | ✅ fully |
 | 11 | `sima_watch_chats` daemon | ✅ fully |
 | 12 | Multi-tenant `atlas/clients/<id>/` | 🟡 graphs/proposals partitioned; nightly and some validators are still global |
 | 13 | Auto WIKI / auto_tz / roadmap | ✅ fully |
 | 14 | User-docs from JSX introspection | ✅ fully |
-| 15 | Hard lifecycle gates | 🟡 soft-enforced (R-5): `validate_lifecycle_gates.mjs` runs in nightly and reports violations; hard blocking is in S-2 |
+| 15 | Hard lifecycle gates | soft, S-2 cancelled — gates remain soft with explicit hints (see Appendix B.2). Hard mode is not happening |
 | 16 | `verify_all` ~150 seconds | 🟡 observed, not guaranteed |
 | 17 | 10 blocks all green | ✅ fully (`intelligence_health.json`) |
-| 18 | Cursor hook drift-guard blocks runtime | 🟡 currently post-hoc validation; runtime block is on the roadmap (S-3) |
+| 18 | Drift-guard blocks runtime | ✅ R-7.82 (S-3) — `scripts/scan_run_for_drift.mjs` post-hoc scanner; `dont_use:hard` violations fail the run (same outcome as the originally-planned interactive hook) |
 | 19 | `verify_done_blocks_still_green` | ✅ fully |
 | 20 | nightly with ~50 validators | ✅ actually 67 |
+| 21 | Per-block narrative + decisions auto-injection | ✅ R-7.76→R-7.80 — `narrative.md` + `decisions.log` injected into every prompt |
+| 22 | Architecture decisions store, append-only | ✅ R-7.85 (S-6) — `scripts/architecture_decisions_api.mjs` + `atlas/architecture_decisions.md`; auto-injected into every prompt |
+| 23 | Context-pack profiles | ✅ R-7.86 (S-4) — `--profile design \| backend-fix \| ui-fix \| acceptance-only` + Implementation Status panel in Overview |
+| 24 | Token economics dashboard | ✅ R-7.87 (S-9) — `scripts/token_economics.mjs` aggregator + Token Spend widget in Overview (first cut; global tab S-9.1 in roadmap) |
+| 25 | Auto-seed at startup | ✅ R-7.81 — `dev_server.mjs` seeds `operator_profile/*` + `architecture_decisions.md` on first run |
+| 26 | Agent-navigation contract | ✅ R-7.83 — `docs/agent-navigation.md` + Claude Skills + Cursor Rules + AGENTS.md teach the new memory layer |
 
-**After the R-5 fixes:** 9 ✅ fully, 11 🟡 partial or with caveats, 0 ❌ aspirational. Lifecycle gates were the headline shift of this phase (was ❌, became 🟡 with soft enforcement in nightly). The open-source code lets anyone re-check this — every mentioned file and its acceptance verdicts live in the repo. If you find a divergence between the article and the reality — issue / PR welcome.
+**After the R-7.76→R-7.87 fixes:** 15 ✅ fully, 5 🟡 partial or with caveats, 0 ❌ aspirational. The headline shift across this batch was the per-block memory layer (narrative + decisions + typed `operator_profile/*`) plus the runtime drift scanner, cascade verifier, context-pack profiles, architecture-decisions store, and token-economics dashboard — all now shipped. The open-source code lets anyone re-check this — every mentioned file and its acceptance verdicts live in the repo. If you find a divergence between the article and the reality — issue / PR welcome.
 
 ---
 
