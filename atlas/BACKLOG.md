@@ -482,3 +482,35 @@ kpi / acceptance**. Сейчас этого нет.
 6. **Phase I + J + K + L** — полировка.
 
 После каждой фазы: `node scripts/verify_all.mjs` зелёный + commit + push.
+
+---
+
+## Phase R-7.76 → R-7.87 — *shipped 2026-05-09*
+
+**Memory layer end-to-end + drift defense + project lock-in + context economy + token economics.**
+
+For full per-phase detail see [`CHANGELOG.md`](../CHANGELOG.md). Summary:
+
+- [x] **R-7.76 → R-7.80** — per-block memory layer: `narrative.md` + `decisions.log` + operator-locked `dont_use.json` / `always_use.json` / `lessons.json` (with `severity:hard|soft`). All auto-injected into agent prompt via `run_block_implementation.mjs`.
+- [x] **R-7.81** — auto-seed `operator_profile/*` + `architecture_decisions.md` at `dev_server.mjs` startup (idempotent).
+- [x] **R-7.82 (S-3)** — `scripts/scan_run_for_drift.mjs` runtime content drift scanner. Hard violations exit 1 → run marked Failed.
+- [x] **R-7.83** — `docs/agent-navigation.md` + `.claude/skills/sima-atlas-navigator/SKILL.md` + `.cursor/rules/sima-atlas-navigator.mdc` + `AGENTS.md` updated to teach the new memory layer.
+- [x] **R-7.84 (S-8)** — `scripts/cascade_verify.mjs` cross-block break detection on edit. Walks reverse-deps, marks broken dependents `status: desync` inline.
+- [x] **R-7.85 (S-6)** — `scripts/architecture_decisions_api.mjs` + `atlas/architecture_decisions.md` append-only project lock-in. Auto-injected into every prompt across all blocks. **No edit/delete API by design.**
+- [x] **R-7.86 (S-4)** — `scripts/build_context_pack.mjs` profiles (`design` / `backend-fix` / `ui-fix` / `acceptance-only`) + Implementation Status panel in Overview tab.
+- [x] **R-7.87 (S-9)** — `scripts/token_economics.mjs` aggregator with `cost_usd_actual` + `cost_usd_equivalent` (Anthropic Haiku 4.5 shadow bill) + Token Spend widget in Overview.
+
+### Open follow-ups for next slice
+
+- [ ] **S-1** — block templates marketplace (auth / payments / search / ingestion / billing)
+- [ ] **S-7** — transactional change-sets for cross-cutting changes
+- [ ] **S-9.1** — global Token Economics tab (sparklines, cost-per-pass vs cost-per-fail ROI)
+- [ ] **S-10** — UI surface for context-pack profile selection at run-start
+- [ ] **S-11** — cross-block roll-up in Implementation Status
+- [ ] **T-1** — multi-operator collaboration (CRDT-merging contracts)
+
+After R-7.87 the verifier signal, the visibility signal, the cost signal,
+and the lock-in signal all reach the operator inline on the canvas — the
+loop is closed for the «I edit → agent runs → I see what happened» case.
+The next big unknown is **autonomy** (V-1 agent-loop daemon) and
+**cross-project memory** (W-1).

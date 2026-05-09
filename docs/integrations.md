@@ -6,7 +6,7 @@ Sima Atlas is built around **MCP (Model Context Protocol)** — Anthropic's stan
 
 In the repository root there's an **`.mcp.json`** — the format that Claude Code and compatible tools pick up automatically. For everything else, copy the relevant block below.
 
-> **Important.** Commands and config paths drift over time. If something here is stale, check the current docs of your tool and send a PR. Document version: 2026-05-06.
+> **Important.** Commands and config paths drift over time. If something here is stale, check the current docs of your tool and send a PR. Document version: 2026-05-09 (post R-7.87).
 
 ---
 
@@ -127,7 +127,7 @@ thousands of tokens per session.
 }
 ```
 
-Open Claude Code in the `sima_atlas` directory — it picks up the config and asks permission to launch the MCP server. Accept it, and 65 tools with the prefix `mcp__sima-atlas__*` appear in your session.
+Open Claude Code in the `sima_atlas` directory — it picks up the config and asks permission to launch the MCP server. Accept it, and ~70 tools with the prefix `mcp__sima-atlas__*` appear in your session.
 
 **Alternative (outside the Sima Atlas directory):**
 
@@ -135,7 +135,7 @@ Open Claude Code in the `sima_atlas` directory — it picks up the config and as
 claude mcp add sima-atlas node /absolute/path/to/sima_atlas/scripts/mcp_atlas_server.mjs
 ```
 
-**Verification:** in Claude Code, type `/mcp` — you should see `sima-atlas: connected (65 tools)`. Or try: "Sima, check the chats" — `sima_watch_chats` should fire.
+**Verification:** in Claude Code, type `/mcp` — you should see `sima-atlas: connected (~70 tools)`. Or try: "Sima, check the chats" — `sima_watch_chats` should fire.
 
 ---
 
@@ -283,9 +283,14 @@ If your agent doesn't support MCP, you can still use Sima via plain shell comman
 | `sima_watch_chats` | `node scripts/sima_watch_chats.mjs --once --json` |
 | `read_block` | `cat atlas/blocks/<id>/*.md` |
 | `verify_block_acceptance` | `node scripts/acceptance_verifier.mjs <id>` |
+| `cascade_verify` | `node scripts/cascade_verify.mjs <id> [--dry-run] [--client <c>]` |
+| `build_context_pack` | `node scripts/build_context_pack.mjs <id> [--profile design\|backend-fix\|ui-fix\|acceptance-only]` |
+| `add_architecture_decision` / `list_architecture_decisions` | `node scripts/architecture_decisions_api.mjs add ...` / `list [client]` |
+| `token_economics` | `node scripts/token_economics.mjs --days 30 [--block <id>] [--json]` |
 | `accept_proposal` | `node scripts/accept_proposal.mjs <id> [--client <c>]` |
 | `nightly_consolidation` | `node scripts/nightly_consolidation.mjs` |
 | `generate_full_bundle` | `node scripts/generate_wiki.mjs && node scripts/generate_tz_from_atlas.mjs && node scripts/rebuild_atlas_roadmap.mjs` |
+| (post-run, automatic) | `node scripts/scan_run_for_drift.mjs --block <id> --since <ISO>` |
 
 Feed the agent an instruction like this in the system prompt: "to work with the schema, use these commands via Bash: ...".
 
@@ -302,6 +307,9 @@ Main endpoints:
 - `POST /atlas/blocks/{create,patch,delete}` — structural operations
 - `GET /atlas/proposals/list?client=X` — `POST /proposals/{accept,reject}`
 - `POST /atlas/acceptance/verify` — body `{block_id}`
+- `GET /atlas/token-economics?days=&block=` — R-7.87 (S-9): token spend roll-up
+- `POST /atlas/architecture-decisions/add` — R-7.85 (S-6): append-only project lock-in
+- `GET /atlas/blocks/<id>/file?name=narrative.md` — read per-block memory file (whitelisted)
 
 This is useful if your tool has HTTP tooling but no MCP. For example, you can build a GPT-Action / Claude API tool that calls these endpoints.
 

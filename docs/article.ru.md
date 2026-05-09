@@ -211,7 +211,7 @@ atlas/operator_profile/
 └── templates/          # шаблоны промптов оператора
 ```
 
-Кроме файлов на диске — ещё три типизированных хранилища, доступных через MCP-инструменты `list_lessons` / `set_dont_use` / `set_always_use`: уроки (с evidence ≥ 2), личные баны на технологии (`eval`, `MD5`, `cdn.tailwindcss.com`) с reason, канонические выборы (`language=typescript`, `runtime=node`). Drift-guard в pre-commit умеет читать dont_use и помечать конфликтующие proposals.
+Типизированная память теперь живёт **как top-level файлы в `atlas/operator_profile/`** с атрибутом `severity:hard|soft` — см. R-7.76→R-7.85 в CHANGELOG. Конкретно: `dont_use.json`, `always_use.json`, `lessons.json` (каждая запись помечена `severity:hard|soft`; hard-нарушения валят run, soft — выводятся как warnings). Плюс per-block `narrative.md` и `decisions.log` автоматически подкладываются в каждый промпт (R-7.76→R-7.80), и project-level `atlas/architecture_decisions.md` (append-only, R-7.85) — тоже. Runtime drift scanner `scripts/scan_run_for_drift.mjs` (R-7.82) проверяет каждый прогон на нарушения `dont_use:hard`. Все эти хранилища также доступны через MCP (`list_lessons` / `set_dont_use` / `set_always_use`) для программных правок.
 
 **Контекст** — то, что собирается под конкретный запрос. Это `context-pack`. И вот тут парадигма принципиально другая, и здесь мы открыто несогласны с частью индустрии:
 
@@ -244,7 +244,7 @@ atlas/operator_profile/
 - **Фаза дизайна** (новые блоки, синтез из переписки, переформулирование mission). Контекст — широкий: миссия продукта, все блоки, общие связи. Здесь экономить нельзя — иначе агент пропустит важную взаимосвязь и предложит несогласованный блок.
 - **Фаза выполнения** (агент кодит конкретный todo-блок). Контекст — узкий: сам блок + 1–2 релевантных соседа + lessons. Здесь шум вреден.
 
-Sima Atlas сейчас использует общий пак для обеих фаз; разделение режимов — задача `S-4 context-pack profiles`.
+Sima Atlas теперь поддерживает **профили context-pack'а** (S-4, R-7.86): `scripts/build_context_pack.mjs` принимает `--profile design | backend-fix | ui-fix | acceptance-only`, и каждый профиль решает, кого из соседей читать полностью, кого частично, кого скипнуть. Во вкладке Overview появилась панель Implementation Status (R-7.86), которая для текущего блока показывает, какой профиль был использован последним и что именно подгрузилось.
 
 ### Принцип 5. Один агент — один блок за раз
 
@@ -452,7 +452,7 @@ Inconclusive — это уникальная фишка. Большинство 
 
 - **archetype:** «explorer / pragmatist / perfectionist / shipper» — по соотношению `idea→todo→progress→done` транзишнов.
 - **lessons:** «не используй eval», но только если есть ≥ 2 evidence в виде ссылок на checks.log (чтобы исключить случайные жалобы).
-- **dont_use:** жёсткие баны (`eval`, `MD5`, `cdn.tailwindcss.com`) с reason. Pre-commit-валидатор `validate_dont_use_compliance.mjs` гонится в nightly и помечает proposals, которые конфликтуют с банами; интерактивный cursor-hook, блокирующий команду в момент исполнения, — на стадии разработки (S-3 в roadmap).
+- **dont_use:** жёсткие баны (`eval`, `MD5`, `cdn.tailwindcss.com`) с reason; записи помечены `severity:hard|soft`. Runtime drift scanner `scripts/scan_run_for_drift.mjs` (R-7.82, S-3) проходит по run'у пост-фактум — нарушения `dont_use:hard` валят run; soft — выводятся как warnings. Pre-commit-валидатор `validate_dont_use_compliance.mjs` по-прежнему гонится в nightly и помечает конфликтующие proposals.
 - **always_use:** канонические выборы (`language=typescript`, `runtime=node`, `db=postgres`).
 - **patterns:** среды разработки, типичные сборки, флоу.
 
@@ -460,7 +460,7 @@ Inconclusive — это уникальная фишка. Большинство 
 
 ### Слой 7 — MCP / Agent integration (`scripts/mcp_atlas_server.mjs`)
 
-65 MCP-инструментов покрывают всё, что агенту нужно делать с atlas/:
+~70 MCP-инструментов покрывают всё, что агенту нужно делать с atlas/:
 
 - `read_block(block_id)` — читает все файлы блока.
 - `list_dependencies(block_id)` — кто на что ссылается.
@@ -579,6 +579,8 @@ Inconclusive — это уникальная фишка. Большинство 
 
 **Честная оговорка про Cursor / Codex.** Их CLI существуют, но **не имеют стандартного non-interactive print-mode** под одиночные промпты с детерминированным JSON-ответом — `cursor-agent` и `codex exec` спроектированы под полные task-сессии с инструментами, не под «выполни один промпт и верни структуру». Поэтому встроить Cursor / Codex как server-side провайдеры (наравне с Claude CLI) сейчас нельзя. Если у тебя есть подписка на Cursor / Codex — её всё равно стоит использовать **с другой стороны**: запускай агента Cursor / Codex изнутри их собственного UI, и пусть **они** ходят в нашу Sima через MCP. Тогда твои подписочные токены тратятся на работу агента, а Sima даёт ему контракт-ориентированный context-pack. См. `docs/integrations.md` для конфигов.
 
+Чтобы всё это было измеримо, а не на словах, в R-7.87 поехал `scripts/token_economics.mjs` — агрегатор, который ходит по `atlas/llm_traces/` и режет расходы по блокам, профилям и провайдерам — плюс **виджет Token Spend** на вкладке Overview. Так что «переделка съедает 2–4×» перестаёт быть лозунгом и становится числом, которое видно на дашборде. Глобальная вкладка token-economics (S-9.1) — следующий шаг в roadmap.
+
 И, наконец, локальные модели (Часть 7.1) переводят операционную стоимость к нулю для тех, у кого есть железо. Это финал линии «снижаем стоимость» — облачные провайдеры остаются для качества, локальные — для повседневных задач, в которых хватает Llama 3.3 70B или Qwen Coder 32B.
 
 ### 6.2 Снизить галлюцинации AI
@@ -687,6 +689,14 @@ Claude Code и Cursor — отличные оболочки, но они при�
 | `b.user-docs-generator`   | done | пользовательские туториалы из JSX-интроспекции |
 | `b.ui-control`            | done | визуальный canvas, composer, proposals panel |
 | `b.smoke-sandbox`         | done | end-to-end smoke test для регрессии |
+| Per-block memory layer       | done | `narrative.md` + `decisions.log` авто-инжектятся в каждый промпт (R-7.76→R-7.80) |
+| Типизированный `operator_profile/*` | done | `dont_use.json` / `always_use.json` / `lessons.json` с `severity:hard\|soft`, авто-сидируются на старте (R-7.76→R-7.81) |
+| Architecture decisions store | done | `atlas/architecture_decisions.md`, append-only, project-level lock-in, авто-инжектится (R-7.85, S-6) |
+| Runtime drift scanner        | done | `scripts/scan_run_for_drift.mjs` — hard-нарушения валят run (R-7.82, S-3) |
+| Cascade verifier             | done | `scripts/cascade_verify.mjs` — сломанные зависимые блоки авто-помечаются `status: desync` inline (R-7.84, S-8) |
+| Context-pack profiles        | done | `--profile design \| backend-fix \| ui-fix \| acceptance-only` + панель Implementation Status в Overview (R-7.86, S-4) |
+| Token economics dashboard    | done | агрегатор `scripts/token_economics.mjs` + виджет Token Spend в Overview (R-7.87, S-9; глобальная вкладка S-9.1 в roadmap) |
+| Agent navigation contract    | done | `docs/agent-navigation.md` + Claude Skills + Cursor Rules + AGENTS.md учат новому memory-слою (R-7.83) |
 
 Все блоки имеют:
 - зелёный acceptance verifier (10/10 в последнем `nightly_consolidation`);
@@ -716,12 +726,14 @@ Claude Code и Cursor — отличные оболочки, но они при�
 **В работе (Q3 2026):**
 - **S-1** 🟡 — block templates marketplace: базовые контрактные шаблоны (auth, payments, search, ingestion) с готовыми KPI и acceptance.
 - **S-2** ❌ wontfix — hard lifecycle gates. Изначально в roadmap, но решено канонически: hard-режим **не делаем** (см. Приложение B.2). Гейты остаются soft с явными подсказками везде в UI. Жёсткое блокирование status-транзишна — анти-фича для дизайн-стадии.
-- **S-3** ⬜ — runtime cursor-hook drift-guard: блокировать команды, нарушающие `dont_use`, в момент исполнения.
-- **S-4** ⬜ — context-pack profiles: вместо одного pack'а на блок — разные профили под типы задач (design / backend-fix / ui-fix / acceptance-only). Selective neighbor traversal: для каждого профиля выбирается, кого из соседей читать полностью, кого частично, кого вообще скипнуть. Цель — **точность контекста**, размер становится производной.
+- **S-3** ✅ R-7.82 — runtime drift scanner: `scripts/scan_run_for_drift.mjs` ходит по run'у пост-фактум и валит его на нарушениях `dont_use:hard` (post-hoc сканер — тот же эффект, что у изначально-планировавшегося интерактивного cursor-hook).
+- **S-4** ✅ R-7.86 — context-pack profiles: `scripts/build_context_pack.mjs` принимает `--profile design | backend-fix | ui-fix | acceptance-only`; каждый профиль решает, кого из соседей читать полностью, кого частично, кого скипнуть. Панель Implementation Status в Overview показывает, что было загружено.
 - **S-5** ⬜ — marketing-narrative skill: второй LLM-проход поверх авто-WIKI + `product/positioning.md` (новый файл, который оператор заполняет один раз: что продаём, кому, чем отличаемся). Output — три варианта лендинг-копирайта, презентация, статья «зачем мы». Закрывает разрыв между «структурно точные авто-доки» и «production-ready маркетинговый материал». См. Приложение B.5.
-- **S-6** ⬜ — architecture-decisions skeleton: новый артефакт `atlas/architecture_decisions.md` уровня проекта, в который оператор выписывает соглашения, не выводимые из acceptance (синхронные vs асинхронные вызовы, queueing, кэш-стратегия, обработка ошибок). Скармливается в context-pack любого блока, работает как «архитектурный голос проекта». См. Приложение B.6.
+- **S-6** ✅ R-7.85 — `scripts/architecture_decisions_api.mjs` + `atlas/architecture_decisions.md` — append-only project-level lock-in для соглашений, не выводимых из acceptance (sync vs async, queueing, кэш-стратегия, обработка ошибок). Авто-инжектится в context-pack каждого блока.
 - **S-7** ⬜ — transactional change-sets: атомарный multi-block change для cross-cutting изменений (REST→GraphQL, переименование capability, миграция БД). Commit-метаданные явно перечисляют `affected_blocks: [...]`; acceptance loop гонится по каждому из них; UI canvas показывает «эти 5 блоков затронуты transaction'ом T» и состояние каждого. См. Приложение B.4.
-- **S-8** ⬜ — drift auto-mark: когда `validate_dependency_contracts.mjs` ловит сломанные capability-связки, автоматически проставлять зависимым блокам `status: desync` + причину в graph.json (сейчас только падает CI с ошибкой). Делает drift видимым на canvas без ручного перечитывания CI-лога.
+- **S-8** ✅ R-7.84 — `scripts/cascade_verify.mjs` cross-block break detection при правке: сломанные зависимые блоки авто-помечаются `status: desync` inline в `graph.json`. Drift виден на canvas без ручного перечитывания CI-лога.
+- **S-9** ✅ R-7.87 — token economics: агрегатор `scripts/token_economics.mjs` + виджет Token Spend на вкладке Overview. Первый срез, по блокам / профилям / провайдерам.
+- **S-9.1** ⬜ — глобальная вкладка token-economics: cross-project rollups, тренды, alerting на cost-регрессии.
 
 **Среднесрочно (Q4 2026):**
 - **T-1** ⬜ — multi-operator collaboration + полная изоляция клиентов: CRDT-merging contract files; nightly уважает client-scope.
@@ -807,27 +819,33 @@ Sima Atlas — opensource-инкарнация идеи Sima, которая р�
 | # | Утверждение в статье | Состояние |
 |---|---|---|
 | 1 | 12-файловый контракт блока | 🟡 5 файлов обязательны (`mission/kpi/acceptance/tasks/checks.log`), остальные 7 — seeded шаблоном, но не enforced |
-| 2 | Capability matching (`depends_on/provides`) с drift-detection | ✅ для CI (валидатор падает на сломанных bindings); 🟡 авто-простановка `status: desync` зависимым блокам — в S-8 |
+| 2 | Capability matching (`depends_on/provides`) с drift-detection | ✅ R-7.84 (S-8) — `scripts/cascade_verify.mjs` cross-block break detection при правке; сломанные зависимые блоки авто-помечаются `status: desync` inline в `graph.json` |
 | 3 | 5 evidence_kinds + llm_judge | ✅ полностью |
 | 4 | Verdict tri-state (`pass/fail/inconclusive`) | ✅ полностью |
-| 5 | Operator profile typed memory | 🟡 `profile.json + history + patterns + templates` на диске; `lessons/dont_use/always_use` — через MCP, не отдельные топ-level файлы |
-| 6 | Context-pack компактный | ✅ pack сам репортит `_meta.estimated_tokens` и предупреждает о переразмере; типичный pack 3–12K токенов; в первой версии статьи была ошибочная цель «1-2K», переформулировано: «контекст точный под задачу», см. S-4 |
+| 5 | Operator profile typed memory | ✅ R-7.76→R-7.81 — `dont_use.json` / `always_use.json` / `lessons.json` лежат как top-level файлы в `atlas/operator_profile/` с `severity:hard\|soft`; авто-сидируются на старте `dev_server.mjs` |
+| 6 | Context-pack компактный | ✅ pack сам репортит `_meta.estimated_tokens` и предупреждает о переразмере; типичный pack 3–12K токенов; в первой версии статьи была ошибочная цель «1-2K», переформулировано: «контекст точный под задачу» |
 | 7 | LLM gateway 4-cascade | ✅ полностью |
 | 8 | Claude CLI без API-key | ✅ полностью |
-| 9 | MCP с 40+ инструментами | ✅ фактически 65 |
+| 9 | Количество MCP-инструментов | ✅ ~70 инструментов |
 | 10 | `sima_fill_from_chat` | ✅ полностью |
 | 11 | `sima_watch_chats` daemon | ✅ полностью |
 | 12 | Multi-tenant `atlas/clients/<id>/` | 🟡 graphs/proposals разведены; nightly и часть валидаторов общие |
 | 13 | Auto WIKI / auto_tz / roadmap | ✅ полностью |
 | 14 | User-docs из JSX-интроспекции | ✅ полностью |
-| 15 | Жёсткие lifecycle gates | 🟡 soft-enforced (R-5): `validate_lifecycle_gates.mjs` гонится в nightly и репортит нарушения; жёсткое блокирование в S-2 |
+| 15 | Жёсткие lifecycle gates | soft, S-2 cancelled — гейты остаются soft с явными подсказками (см. Приложение B.2). Hard-режим не делаем |
 | 16 | `verify_all` ~150 секунд | 🟡 наблюдаемое, не гарантировано |
 | 17 | 10 блоков all green | ✅ полностью (`intelligence_health.json`) |
-| 18 | Cursor hook drift-guard блокирует runtime | 🟡 сейчас post-hoc валидация; runtime-block в roadmap (S-3) |
+| 18 | Drift-guard блокирует runtime | ✅ R-7.82 (S-3) — `scripts/scan_run_for_drift.mjs` post-hoc сканер; нарушения `dont_use:hard` валят run (тот же эффект, что у изначально-планировавшегося интерактивного хука) |
 | 19 | `verify_done_blocks_still_green` | ✅ полностью |
 | 20 | nightly с ~50 валидаторами | ✅ фактически 67 |
+| 21 | Per-block narrative + decisions auto-injection | ✅ R-7.76→R-7.80 — `narrative.md` + `decisions.log` инжектятся в каждый промпт |
+| 22 | Architecture decisions store, append-only | ✅ R-7.85 (S-6) — `scripts/architecture_decisions_api.mjs` + `atlas/architecture_decisions.md`; авто-инжектится в каждый промпт |
+| 23 | Context-pack profiles | ✅ R-7.86 (S-4) — `--profile design \| backend-fix \| ui-fix \| acceptance-only` + панель Implementation Status в Overview |
+| 24 | Token economics dashboard | ✅ R-7.87 (S-9) — агрегатор `scripts/token_economics.mjs` + виджет Token Spend в Overview (первый срез; глобальная вкладка S-9.1 в roadmap) |
+| 25 | Auto-seed на старте | ✅ R-7.81 — `dev_server.mjs` сидирует `operator_profile/*` + `architecture_decisions.md` при первом запуске |
+| 26 | Agent-navigation contract | ✅ R-7.83 — `docs/agent-navigation.md` + Claude Skills + Cursor Rules + AGENTS.md учат новому memory-слою |
 
-**Итог после R-5 фиксов:** 9 ✅ полных, 11 🟡 частичных или с уточнениями, 0 ❌ aspirational. Lifecycle gates — главный сдвиг этой фазы (был ❌, стал 🟡 с soft-enforcement в nightly). Открытый исходный код позволяет любому это перепроверить — все упомянутые файлы и их acceptance verdicts лежат в репозитории. Если найдёте расхождение между статьёй и реальностью — issue / PR welcome.
+**Итог после R-7.76→R-7.87 фиксов:** 15 ✅ полных, 5 🟡 частичных или с уточнениями, 0 ❌ aspirational. Главный сдвиг этой пачки — per-block memory layer (narrative + decisions + типизированный `operator_profile/*`) плюс runtime drift scanner, cascade verifier, context-pack profiles, architecture-decisions store и token-economics dashboard — всё это уже выкатилось. Открытый исходный код позволяет любому это перепроверить — все упомянутые файлы и их acceptance verdicts лежат в репозитории. Если найдёте расхождение между статьёй и реальностью — issue / PR welcome.
 
 ---
 

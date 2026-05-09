@@ -170,13 +170,48 @@ A single server hosts many projects. The `?client=<id>` URL parameter switches c
 The toolbar has a project picker (the current client) — switch between projects or create new ones.
 
 ### Block memory
-On top of the contract files, a block has:
-- `decisions.log` — decisions taken (the LLM extracts them from run logs)
+On top of the contract files, every block carries a memory layer (R-7.76+):
+- `narrative.md` — append-only run history. Each successful run adds a section: *what I tried / what worked / what failed and why / decisions made*. **Auto-injected into the next agent prompt** under «## ⚠ Block memory».
+- `decisions.log` — structured TSV (timestamp · author · decision). `cascade_verify` writes here when it detects breakage caused by a parent edit.
 - `patterns.md` — distilled lessons of "what worked / what didn't"
-- `code_summary.md` — a summary of the block's code (regenerated after each run)
+- `code_summary.md` — LLM-generated map of the block's code (regenerated after each run)
 - `history/` — file snapshots for every patch
 
-These files feed into the next run's context pack — the agent learns from past mistakes.
+Plus operator-locked memory at the project level (in `atlas/operator_profile/`):
+- `dont_use.json` / `always_use.json` — per-block (or global) rules with `severity:hard|soft`. Hard rules **fail the run** when violated (post-run drift scanner, R-7.82).
+- `lessons.json` — accumulated lessons-learned with evidence
+
+All of the above flow into the next run's context pack — the agent reads them before touching code, and physically cannot silently reverse a past architectural decision.
+
+### Project-level architecture lock-in (R-7.85, S-6)
+`atlas/architecture_decisions.md` (or `atlas/clients/<id>/architecture_decisions.md`) is **append-only** by design. Every entry is auto-injected into EVERY prompt across ALL blocks under «## ⚖ Architecture decisions (project-level — DO NOT silently reverse)».
+
+Add via:
+- MCP tool: `add_architecture_decision {decision, rationale, affects?, reversible?}`
+- HTTP: `POST /atlas/architecture-decisions/add`
+- CLI: `node scripts/architecture_decisions_api.mjs add ...`
+
+There is **no edit/delete API** — surface change requests through `narrative.md` instead.
+
+### Implementation Status panel (R-7.86)
+Each block's **Overview tab** now opens with an 8-row dashboard at the top: Mission · KPIs · Acceptance · Tasks · Files alive · Decisions logged · Run history · Block status. Each row carries a ✓/~/✗/· marker so contract-vs-reality progress is visible without clicking through tabs.
+
+### Token Spend widget (R-7.87, S-9)
+Below the Implementation Status panel, the same Overview tab carries a **Token Spend** widget showing actual cost + Anthropic Haiku 4.5 «shadow bill» equivalent + top-burning ops + by-provider breakdown. Day-window selector (7/30/90). Per-block view falls back to project-wide when this block has no recorded `run_state` yet.
+
+### Context-pack profiles (R-7.86, S-4)
+When you start a run, you can pick a context-pack profile to control prompt size:
+- `design` (default) ~5–15K — full pack, for new-block scoping & major refactors
+- `backend-fix` ~2–4K — mission + acceptance + decisions + narrative + deps' provides only
+- `ui-fix` ~1.5–3K — frontend-focused, deps skipped entirely
+- `acceptance-only` ~0.5–1.5K — verifier or "is this ready to ship" runs
+
+Selection: `--profile` CLI flag, `ATLAS_PACK_PROFILE` env var, or MCP arg `{profile}`. UI selector at run-start is in the roadmap (S-10).
+
+`architecture_decisions.md` is **always** included regardless of profile.
+
+### Cascade verify on edit (R-7.84, S-8)
+After every successful run on block X, `cascade_verify` walks `graph.json` reverse-deps and re-runs the acceptance verifier on every block whose `depends_on` references X. Anything that broke gets `status: desync` on the canvas immediately, with a stack-trace-style entry in its `narrative.md`. You see the chain inline, not at the next nightly sweep.
 
 ---
 

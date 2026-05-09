@@ -170,13 +170,48 @@ Sima:
 В тулбаре project-picker (текущий клиент) — переключаться + создавать новые.
 
 ### Память блока
-Кроме контрактных файлов, у блока есть:
-- `decisions.log` — принятые решения (LLM экстрагирует из run-логов)
+Помимо контрактных файлов, у каждого блока есть memory layer (R-7.76+):
+- `narrative.md` — append-only run history. Каждый успешный run дописывает секцию: *что пробовал / что сработало / что упало и почему / какие решения принял*. **Авто-инжектится в следующий prompt** под «## ⚠ Block memory».
+- `decisions.log` — структурный TSV (timestamp · author · decision). `cascade_verify` пишет сюда когда детектит поломку из-за parent edit.
 - `patterns.md` — извлечённые уроки «что сработало / что не работало»
-- `code_summary.md` — сводка по коду блока (regenerated после run'а)
+- `code_summary.md` — LLM-сводка кода блока (regenerated после run'а)
 - `history/` — снапшоты файлов при каждом patch'е
 
-Эти файлы попадают в context-pack следующего run'а — агент учится на ошибках.
+Плюс operator-locked memory на уровне проекта (в `atlas/operator_profile/`):
+- `dont_use.json` / `always_use.json` — per-block (или global) правила с `severity:hard|soft`. Hard-правила **проваливают run** при нарушении (post-run drift scanner, R-7.82).
+- `lessons.json` — накопленные уроки с evidence
+
+Всё это попадает в context-pack следующего run'а — агент читает до того как трогать код, и физически не может молча отменить прошлое архитектурное решение.
+
+### Архитектурный lock-in проекта (R-7.85, S-6)
+`atlas/architecture_decisions.md` (или `atlas/clients/<id>/architecture_decisions.md`) — **append-only** by design. Каждая запись авто-инжектится в КАЖДЫЙ prompt по ВСЕМ блокам под «## ⚖ Architecture decisions (project-level — DO NOT silently reverse)».
+
+Добавить можно через:
+- MCP tool: `add_architecture_decision {decision, rationale, affects?, reversible?}`
+- HTTP: `POST /atlas/architecture-decisions/add`
+- CLI: `node scripts/architecture_decisions_api.mjs add ...`
+
+**Edit/delete API нет** — change requests идут через `narrative.md`.
+
+### Implementation Status panel (R-7.86)
+**Overview tab** каждого блока теперь открывается с 8-row dashboard сверху: Mission · KPIs · Acceptance · Tasks · Files alive · Decisions logged · Run history · Block status. Каждая строка с маркером ✓/~/✗/· — contract-vs-reality прогресс виден без кликов по вкладкам.
+
+### Token Spend widget (R-7.87, S-9)
+Под Implementation Status — **Token Spend** widget: actual cost + Anthropic Haiku 4.5 «shadow bill» equivalent + top-burning ops + by-provider breakdown. Селектор окна (7/30/90 дней). Per-block view фолбэчится в project-wide когда у блока ещё нет записанных `run_state`.
+
+### Профили context-pack (R-7.86, S-4)
+При старте run-а можно выбрать профиль для контроля размера prompt-а:
+- `design` (default) ~5–15K — full pack, для нового блока / крупного рефакторинга
+- `backend-fix` ~2–4K — mission + acceptance + decisions + narrative + deps' provides only
+- `ui-fix` ~1.5–3K — frontend-focused, deps пропускаются полностью
+- `acceptance-only` ~0.5–1.5K — только верификатор / "ready to ship"
+
+Выбор: `--profile` CLI flag, `ATLAS_PACK_PROFILE` env var, или MCP arg `{profile}`. UI селектор в roadmap (S-10).
+
+`architecture_decisions.md` **всегда** включён независимо от профиля.
+
+### Cascade verify on edit (R-7.84, S-8)
+После каждого успешного run блока X, `cascade_verify` обходит reverse-deps в `graph.json` и перезапускает acceptance верификатор на каждом блоке у которого `depends_on` ссылается на X. Что сломалось — получает `status: desync` на канвасе сразу + stack-trace-style запись в его `narrative.md`. Видишь цепочку inline, не в ночной sweep.
 
 ---
 

@@ -6,6 +6,132 @@ Sima Atlas сейчас в early-stage (`0.x`), API может меняться 
 
 ---
 
+## [0.1.0-r87] — 2026-05-09 — *Phase R-7.87 (S-9): token economics aggregator + Token Spend widget*
+
+PR [#36](https://github.com/neskuchny/sima_atlas/pull/36). Operator: «я гоняю агентов часами и не вижу куда уходят токены».
+
+### Added
+- `scripts/token_economics.mjs` — pure read aggregator over `atlas/llm_traces/*.json`. Exports `aggregateTokenEconomics({days, blockFilter, root})` + CLI. Two cost dimensions:
+  - `cost_usd_actual` — what was actually charged (0 for `claude_cli`/`ollama`/`mock`)
+  - `cost_usd_equivalent` — Anthropic Haiku 4.5 list price ($1/Mtok in, $5/Mtok out). Stable across providers — the «shadow bill» that's visible even on subscription.
+- Per-block attribution via `run_state` time-window match — best-effort; widget falls back to project-wide when block has no runs yet.
+- `GET /atlas/token-economics?days=&block=` API endpoint (`scripts/atlas_api_server.mjs`).
+- `token_economics` MCP tool (`scripts/mcp_atlas_server.mjs`).
+- `meta.tokenEconomics({days, block})` API client method (`frontend/atlas_design/data_loader.js`).
+- `TokenSpendWidget` in Overview tab (`frontend/atlas_design/panels.jsx`) — totals + top-3 ops + by_provider mini-table, with day-window selector (7/30/90).
+- `.token-spend-grid` / `-tot` / `-list` / `-row` styles (`frontend/atlas_design/styles.css`).
+
+### Real numbers (from this repo's traces, 30-day window)
+- 12006 traces · 5.54M input · 172.8K output tokens
+- Actual: $0.0000 (running on `claude_cli` + `mock`)
+- Equivalent: $6.4005 (what it would cost on Anthropic Haiku 4.5)
+- Top ops: `judge_assertion` $2.62 / `extract_block_schema` $1.77 / `generate_user_docs` $0.99
+
+---
+
+## [0.1.0-r86] — 2026-05-09 — *Phase R-7.86 (S-4): context-pack profiles + Implementation Status panel*
+
+PR [#35](https://github.com/neskuchny/sima_atlas/pull/35).
+
+### Added — context-pack profiles (S-4)
+`scripts/build_context_pack.mjs` rewritten with `--profile` selector:
+
+| profile | tokens (b.docs) | what's in |
+|---|---|---|
+| `design` *(default)* | ~5–15K | full pack — for new-block scoping & major refactors |
+| `backend-fix` | ~2–4K | mission+acceptance+decisions+narrative+deps' provides only (no patterns, no kpi) |
+| `ui-fix` | ~1.5–3K | frontend-focused — deps skipped entirely |
+| `acceptance-only` | ~0.5–1.5K | verifier or "is this ready to ship" runs |
+
+`architecture_decisions.md` is **always** included regardless of profile (S-6 project lock-in must reach every prompt). Verified on `b.docs`: 5809 → 3701 → 2763 → 1846 tokens.
+
+- `scripts/mcp_atlas_server.mjs` — `build_context_pack` MCP tool now accepts `profile`.
+- `scripts/run_block_implementation.mjs` — `--profile` flag / `ATLAS_PACK_PROFILE` env var.
+- `docs/agent-navigation.md` — full profile table with token budgets.
+
+### Added — Implementation Status dashboard
+Operator: «можно ли в модуле/блоке увидеть что реализовал?». Yes — Overview tab now opens with an 8-row status panel: Mission · KPIs · Acceptance · Tasks · Files alive · Decisions logged · Run history · Block status. Each row carries a ✓ / ~ / ✗ / · marker.
+
+- `frontend/atlas_design/panels.jsx` — Overview now also loads `narrative.md` + `decisions.log` + `tasks.md`, then renders `impl-status-grid`.
+- `frontend/atlas_design/styles.css` — `.impl-status-grid` / `-row` / `-mark` / `-label` / `-value` / `.impl-state-empty`.
+- `scripts/atlas_api_server.mjs` — `narrative.md` added to `BLOCK_FILE_WHITELIST` (Memory tab loaded it via the same endpoint, but the whitelist hadn't caught up).
+
+---
+
+## [0.1.0-r85] — 2026-05-09 — *Phase R-7.85 (S-6): append-only architecture_decisions.md*
+
+PR [#34](https://github.com/neskuchny/sima_atlas/pull/34). Operator: «решения которые я принял про архитектуру должны попадать в каждый prompt по любому блоку — иначе агент через сессию забудет что мы используем LLM а не математику».
+
+### Added
+- `scripts/architecture_decisions_api.mjs` — append-only API. `ensureArchitectureDecisionsFile`, `addArchitectureDecision({decision, rationale, affects, reversible, ts, clientId})`, `listArchitectureDecisions`. Atomic tmp+rename writes; **NO edit/delete API by design** — surface change requests through `narrative.md` instead.
+- `atlas/architecture_decisions.md` (multi-tenant: also `atlas/clients/<id>/architecture_decisions.md`) auto-injected into every agent prompt under «## ⚖ Architecture decisions (project-level, append-only — DO NOT silently reverse)» section.
+- `scripts/mcp_atlas_server.mjs` — `add_architecture_decision` + `list_architecture_decisions` MCP tools.
+- `scripts/atlas_api_server.mjs` — `architecture_decisions.md` in `META_WHITELIST` + `POST /atlas/architecture-decisions/add` endpoint.
+- `scripts/dev_server.mjs` auto-ensures the file at startup.
+- `scripts/build_context_pack.mjs` includes the file in every profile.
+
+---
+
+## [0.1.0-r84] — 2026-05-09 — *Phase R-7.84 (S-8): cross-block break detection on edit*
+
+PR [#33](https://github.com/neskuchny/sima_atlas/pull/33). Operator: «когда правишь блок А, через 8 часов ночью система говорит "кстати, блок B сломан". Слишком поздно».
+
+### Added
+- `scripts/cascade_verify.mjs` — walks `graph.json` reverse-deps, runs `verify_block_acceptance` on each dependent block. On fail: marks `status: desync` in `graph.json` with `status_reason: "cascade: parent X edit"`, appends entry to dependent's `checks.log` + structured `narrative.md` entry («### What failed and why» / «### Recommended action»).
+- Auto-discovers atlas root (main + multi-tenant `atlas/clients/<id>/`).
+- `--dry-run` for preview without patching; `--client` for per-tenant runs.
+- `scripts/run_block_implementation.mjs` calls `cascade_verify` automatically after every successful run.
+- `scripts/mcp_atlas_server.mjs` — `cascade_verify` MCP tool.
+
+---
+
+## [0.1.0-r83] — 2026-05-09 — *Phase R-7.83: skill files updated for memory layer*
+
+PR [#32](https://github.com/neskuchny/sima_atlas/pull/32). Operator: «ты добавил memory но не поменял скилы — агенты не знают что её надо использовать».
+
+### Changed
+- `docs/agent-navigation.md` — extended standard read order from 8 → 14 steps (now includes `narrative.md`, `decisions.log`, `dont_use.json`, `always_use.json`). New section «Memory layer — read & write rules».
+- `.claude/skills/sima-atlas-navigator/SKILL.md` — Anthropic Skills format adapter, mirrored.
+- `.cursor/rules/sima-atlas-navigator.mdc` — Cursor Rules adapter, mirrored.
+- `AGENTS.md` — generic adapter, mirrored.
+
+---
+
+## [0.1.0-r82] — 2026-05-09 — *Phase R-7.82 (S-3): runtime content drift scanner*
+
+PR [#31](https://github.com/neskuchny/sima_atlas/pull/31).
+
+### Added
+- `scripts/scan_run_for_drift.mjs` — reads `dont_use.json` + `always_use.json` filtered by `block_id`, scans files modified after run start. Hard violations (`severity:hard`) exit 1 (run failed); soft violations log to `checks.log` + `narrative.md`.
+- `scripts/run_block_implementation.mjs` invokes the scanner post-run; hard drift overrides verifier verdict → run marked Failed.
+
+---
+
+## [0.1.0-r81] — 2026-05-09 — *Phase R-7.81: auto-seed at startup*
+
+Operator: «А мне это всегда надо будет запускать и новым пользователям тоже?». Fixed.
+
+### Changed
+- `scripts/dev_server.mjs` auto-seeds `operator_profile/{lessons,dont_use,always_use}.json` and ensures `architecture_decisions.md` at startup. Idempotent — only logs when newly created.
+- `scripts/seed_operator_profile.mjs` (created earlier in R-7.78) is now a no-op for existing installs.
+
+---
+
+## [0.1.0-r76 → r80] — 2026-05-09 — *Phases R-7.76 → R-7.80: per-block memory layer end-to-end*
+
+PR [#30](https://github.com/neskuchny/sima_atlas/pull/30). Operator: «я говорю агенту что-то один раз. Через сессию забывает.».
+
+### Added
+- `atlas/blocks/<id>/narrative.md` — append-only human-readable run history. Sections per run: «### What I tried», «### What worked», «### What failed and why», «### Decisions made».
+- `atlas/blocks/<id>/decisions.log` — structured TSV (timestamp · author · decision).
+- `atlas/operator_profile/{lessons,dont_use,always_use}.json` — operator-locked memory. `dont_use` / `always_use` accept `severity:hard|soft` per entry.
+- `scripts/run_block_implementation.mjs` injects all of the above into the agent prompt under «## ⚠ Block memory» (NEVER do / ALWAYS do / Past decisions / Lessons / Run history / Code summary / Recent run log) + «How to update memory» instructions.
+- `scripts/build_context_pack.mjs` includes the memory in every context-pack.
+- `scripts/atlas_blocks_api.mjs` — `createBlock` seeds `narrative.md` + `decisions.log` templates.
+- `frontend/atlas_design/panels.jsx` — Memory tab renders `narrative.md` as primary (markdown), `code_summary.md` + `checks.log` tail as secondary.
+
+---
+
 ## [0.1.0] — 2026-05-08
 
 First public-release tag. The whole `claude/visual-component-system-N2W07`
@@ -105,48 +231,53 @@ the launch-readiness audit BLOCKERs + TIER-1 + selected TIER-2 items.
 ### Honest gaps (vs. Article Appendix A)
 
 For full transparency, **what's NOT done from the article's claims**
-(after R-7.X polish — independently audited 2026-05-08, v0.1.0):
+(originally audited 2026-05-08, refreshed 2026-05-09 after R-7.76 → R-7.87):
 
 - 🟡 **12-file block contract** — only 5 enforced (`mission/kpi/
   acceptance/tasks/checks.log`); the other 7 are template-seeded but
-  not validated.
-- 🟡 **Drift auto-mark on canvas** — validator fails CI on broken
-  capability bindings; auto-marking dependents `status: desync`
-  inline on the canvas → phase **S-8**.
-- 🟡 **Operator typed memory as top-level files** — exposed via MCP
-  tools, not as separate `lessons.json` / `dont_use.json` /
-  `always_use.json` in `atlas/operator_profile/`.
-- 🟡 **Compact context-pack 1–2K tokens** — actually 3–12K. The
-  goal was restated: «context precise per task», not «small». See
-  Appendix B.1 + S-4 (context-pack profiles).
-- 🟡 **Multi-tenant full isolation** — graphs/proposals are per-
-  tenant; nightly + some validators are still global. **T-1** in
+  not validated. R-7.76+ added `narrative.md` and `decisions.log`
+  as auto-seeded files but they are still not gated.
+- ✅ **Drift auto-mark on canvas** — `cascade_verify` walks
+  reverse-deps after every successful run and marks broken
+  dependents `status: desync` inline (R-7.84, S-8 — **shipped**).
+- ✅ **Operator typed memory as top-level files** — `lessons.json` /
+  `dont_use.json` / `always_use.json` now live in
+  `atlas/operator_profile/`, auto-seeded at startup
+  (R-7.76 → R-7.81 — **shipped**).
+- ✅ **Compact context-pack** — profiles now provide budget control:
+  ~5–15K (design) / ~2–4K (backend-fix) / ~1.5–3K (ui-fix) /
+  ~0.5–1.5K (acceptance-only) (R-7.86, S-4 — **shipped**).
+- 🟡 **Multi-tenant full isolation** — graphs/proposals/memory are
+  per-tenant; nightly + some validators are still global. **T-1** in
   roadmap.
 - 🟡 **Hard lifecycle gates** — soft-enforced (R-5): nightly
   validator reports violations, doesn't block. Hard-blocking is
   **S-2** but is now formally cancelled (Appendix B.2 — would
   break draft-stage iteration).
-- 🟡 **Cursor hook runtime drift-guard** — currently post-hoc
-  validation; runtime block at execution time → **S-3**.
+- ✅ **Cursor hook runtime drift-guard** — `scan_run_for_drift.mjs`
+  scans modified files post-run against `dont_use` rules; hard
+  violations fail the run (R-7.82, S-3 — **shipped**, post-hoc
+  rather than pre-execution but the same outcome).
 - 🟡 **`verify_all` ≈150 seconds** — observed, not guaranteed.
 
-Plus from the v1.x → v2 vision in README (none implemented yet):
+From the v1.x → v2 vision in README:
 - ⬜ **Bidirectional Sima ↔ Agent sync** — chat watcher (R-3) gives
   one-way feedback; full sync where agent's reasoning auto-updates
   the canvas in-place is roadmap.
 - ⬜ **Autonomous coding loop (V-1)** — agent picks `todo` blocks
   overnight and works through them. Long-term (2027+).
-- ⬜ **Live drift detection on canvas** — covered by S-3 + S-8.
-- ⬜ **Token economics dashboard** — gateway already records
-  per-call cost in `atlas/llm_traces/`; no aggregate UI yet. **S-9**.
+- ✅ **Live drift detection on canvas** — covered by R-7.82 (S-3) +
+  R-7.84 (S-8) — **both shipped**.
+- ✅ **Token economics dashboard** — `token_economics` MCP tool +
+  `/atlas/token-economics` API + Token Spend widget in Overview tab
+  (R-7.87, S-9 — **shipped first cut**; global tab planned as S-9.1).
 - ⬜ **Cross-project memory transfer** — `lessons.json` exists
   per-project; transfer between projects → **W-1**.
 - ⬜ **Production-monitor → new acceptance assertions** — **V-3**.
 
-Total: **9 ✅ fully**, **11 🟡 partial-with-caveats**, **0 ❌
-abandoned-but-claimed-as-done**. The full audit lives at
-[`docs/article.en.md` Appendix A](docs/article.en.md); the table
-above is the operational summary for opensource visitors.
+Total after R-7.87: **15 ✅ fully**, **5 🟡 partial-with-caveats**,
+**0 ❌ abandoned-but-claimed-as-done**. The full audit lives at
+[`docs/article.en.md` Appendix A](docs/article.en.md).
 
 ---
 
