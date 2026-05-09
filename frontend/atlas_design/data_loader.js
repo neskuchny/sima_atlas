@@ -297,6 +297,12 @@
     proposalsList: async ()                => await getJson('/atlas/proposals/list' + (client ? `?client=${encodeURIComponent(client)}` : '')),
     activityLogTail:   async (limit = 100) => await getJson('/atlas/activity-log/tail?limit=' + limit),
     activityLogAppend: async (entry)       => await postJson('/atlas/activity-log/append', entry),
+    // R-7.87 (S-9) — token economics roll-up (LLM trace aggregator).
+    tokenEconomics: async ({ days = 30, block = '' } = {}) => {
+      const qs = new URLSearchParams({ days: String(days) });
+      if (block) qs.set('block', block);
+      return await getJson('/atlas/token-economics?' + qs.toString());
+    },
     filesList:    async (block_id, status) => {
       const qs = new URLSearchParams();
       if (block_id) qs.set('block_id', block_id);
