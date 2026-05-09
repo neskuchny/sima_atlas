@@ -385,6 +385,7 @@ function GraphCanvas({
               data-st={status}
               data-layer={m.layer}
               data-mid={m.id}
+              title={m.warn ? `${m.status}: ${m.warn}` : (isWarn ? `${m.status} — see Memory tab for narrative` : '')}
               style={{
                 left: m.x, top: m.y,
                 width: nodeWidth(m.size, detailed),

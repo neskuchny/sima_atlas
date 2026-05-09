@@ -51,6 +51,7 @@ function toolList(){
     { name:'parse_acceptance', description:'PR-1 (b.acceptance-verifier-loop): parse atlas/blocks/<id>/acceptance.md into structured assertions (id, label, text, checked, evidence_kind, evidence_spec). Default evidence_kind = llm_judge when not declared in YAML block.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} }, required:['block_id'] } },
     { name:'collect_evidence', description:'PR-2 (b.acceptance-verifier-loop): run a single deterministic evidence collector. evidence_kind ∈ {exit_code, fs_glob, file_diff, log_grep, selftest_run}. Returns {verdict, evidence, reasoning, raw, duration_ms}.', inputSchema:{ type:'object', properties:{ evidence_kind:{type:'string'}, evidence_spec:{type:'object'} }, required:['evidence_kind','evidence_spec'] } },
     { name:'verify_block_acceptance', description:'PR-2 (b.acceptance-verifier-loop): parse acceptance.md AND collect evidence per assertion in one shot. Returns {block_id, assertions: [...], counts: {pass, fail, skipped}, verdict}.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} }, required:['block_id'] } },
+    { name:'cascade_verify', description:'R-7.84 (S-8): after editing block X, re-run acceptance verifier on every block that depends on X. Auto-flags broken dependents as status:desync in graph.json with reason. Appends cascade entry to their checks.log + narrative.md so future agents see the chain. Operator sees the break inline on the canvas instead of next morning. Pass dry_run:true to preview without patching.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, client_id:{type:'string'}, dry_run:{type:'boolean'} }, required:['block_id'] } },
     { name:'judge_assertion', description:'PR-3 (b.acceptance-verifier-loop): LLM-judge fallback for an individual assertion. Returns {verdict: pass|fail|inconclusive, reasoning, evidence_quote, cost_usd, provider}. Inconclusive on missing API key — never silent pass.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, assertion_id:{type:'string'} }, required:['block_id','assertion_id'] } },
     { name:'read_acceptance_run', description:'PR-4 (b.acceptance-verifier-loop): read atlas/acceptance_runs/<block>/_latest.json — full assertion-level verdict report from the most recent verifier run.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} }, required:['block_id'] } },
     { name:'list_failed_acceptances', description:'PR-4 (b.acceptance-verifier-loop): list every block whose latest verifier verdict is fail or inconclusive (with sample failures).', inputSchema:{ type:'object', properties:{} } },
@@ -511,6 +512,22 @@ rl.on('line', (line) => {
         if (!bid) return respondErr(id, 'verify_block_acceptance: block_id required');
         const out = execSync(`node scripts/collect_evidence.mjs --block ${JSON.stringify(bid)} --json`, { cwd: root, stdio: 'pipe' }).toString().trim();
         return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      // R-7.84 (S-8) — cascade verify: re-run acceptance on dependents of <block_id>
+      // and auto-flag broken ones desync. Returns per-dependent verdict.
+      if (name === 'cascade_verify') {
+        const bid = String(args.block_id || '');
+        if (!bid) return respondErr(id, 'cascade_verify: block_id required');
+        const dryRun = args.dry_run ? '--dry-run' : '';
+        const client = args.client_id ? `--client ${JSON.stringify(args.client_id)}` : '';
+        try {
+          const out = execSync(`node scripts/cascade_verify.mjs ${JSON.stringify(bid)} ${client} ${dryRun}`.trim(), { cwd: root, stdio: 'pipe' }).toString();
+          return respond(id, { content:[{ type:'text', text: out }] });
+        } catch (e) {
+          // exit 1 = some dependent broken; pass through stdout+stderr for visibility
+          const out = (e.stdout || '').toString() + (e.stderr || '').toString();
+          return respond(id, { content:[{ type:'text', text: out || `cascade_verify failed: ${e.message}` }] });
+        }
       }
       if (name === 'judge_assertion') {
         const bid = String(args.block_id || '');
