@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "_generatedAt": "2026-05-02T11:04:50.292Z",
+  "_generatedAt": "2026-05-09T14:49:23.629Z",
   "_atlas": {
     "root": "/atlas",
     "blocks": [
@@ -10,7 +10,17 @@
       "b.agent-orchestrator",
       "b.docs",
       "b.llm-gateway",
-      "b.smoke-sandbox"
+      "b.operator-profile-learner",
+      "b.acceptance-verifier-loop",
+      "b.user-docs-generator",
+      "b.smoke-sandbox",
+      "b.product-auth",
+      "b.product-ingest",
+      "b.product-warehouse",
+      "b.product-dashboard",
+      "b.product-billing",
+      "b.block-1",
+      "b.block-2"
     ],
     "rules": "/atlas/rules.md",
     "tech_stack": "/atlas/tech_stack.md",

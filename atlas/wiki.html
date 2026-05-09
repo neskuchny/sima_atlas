@@ -15,7 +15,7 @@
 </style>
 </head><body>
 <h1>Sima Atlas Wiki</h1>
-<p><em>Auto-generated: 2026-05-06T18:45:04.495Z</em></p>
+<p><em>Auto-generated: 2026-05-09T14:49:23.200Z</em></p>
 <h2>Граф продукта</h2>
 <div class="mermaid">flowchart TB
   classDef done    fill:#dcfce7,stroke:#16a34a,color:#15803d;
@@ -26,9 +26,15 @@
   classDef drift   fill:#fae8ff,stroke:#a21caf,color:#86198f;
   subgraph front["Фронтенд"]
     b_ui_control["UI Control Plane&lt;br/&gt;&lt;small&gt;wip&lt;/small&gt;"]:::wip
+    b_product_dashboard["Dashboard&lt;br/&gt;&lt;small&gt;idea&lt;/small&gt;"]:::idea
   end
   subgraph logic["Логика / бэкенд"]
-    b_core_sync["Sync Engine&lt;br/&gt;&lt;small&gt;wip&lt;/small&gt;"]:::wip
+    b_core_sync["Sync Engine&lt;br/&gt;&lt;small&gt;done&lt;/small&gt;"]:::done
+    b_product_auth["Auth&lt;br/&gt;&lt;small&gt;idea&lt;/small&gt;"]:::idea
+    b_product_ingest["Ingest&lt;br/&gt;&lt;small&gt;idea&lt;/small&gt;"]:::idea
+    b_product_billing["Billing&lt;br/&gt;&lt;small&gt;idea&lt;/small&gt;"]:::idea
+    b_block_1["Новый модуль&lt;br/&gt;&lt;small&gt;idea&lt;/small&gt;"]:::idea
+    b_block_2["Новый модуль&lt;br/&gt;&lt;small&gt;idea&lt;/small&gt;"]:::idea
   end
   subgraph ai["ИИ / агенты"]
     b_agent_orchestrator["Agent Orchestrator&lt;br/&gt;&lt;small&gt;review&lt;/small&gt;"]:::review
@@ -37,6 +43,7 @@
   end
   subgraph data["Данные / хранилище"]
     b_db["Atlas Database&lt;br/&gt;&lt;small&gt;idea&lt;/small&gt;"]:::idea
+    b_product_warehouse["Warehouse&lt;br/&gt;&lt;small&gt;idea&lt;/small&gt;"]:::idea
   end
   subgraph content["Контент / документация"]
     b_docs["Docs Builder&lt;br/&gt;&lt;small&gt;wip&lt;/small&gt;"]:::wip
@@ -66,17 +73,33 @@
   b_user_docs_generator --&gt; b_db
   b_user_docs_generator --&gt; b_docs
   b_user_docs_generator --&gt; b_agent_orchestrator
-  b_user_docs_generator --&gt; b_llm_gateway</div>
+  b_user_docs_generator --&gt; b_llm_gateway
+  b_product_auth --&gt; b_product_dashboard_session_check
+  b_product_auth --&gt; b_product_ingest_api_key_check
+  b_product_ingest --&gt; b_product_warehouse_events_stream
+  b_product_dashboard --&gt; b_product_warehouse_metric_query</div>
 <h2>Слои</h2>
 <h3>Фронтенд (<code>front</code>)</h3>
 <ul>
 <li>🟠 <strong>b.ui-control</strong> — UI Control Plane <em>(wip)</em></li>
 <ul><li>reason: HTML loses references to components.jsx/sidecol.jsx/canvas_tools.jsx — UI does not boot in production; multi-layer rendering depends on PR2 (this PR)</li></ul>
+<li>🟡 <strong>b.product-dashboard</strong> — Dashboard <em>(idea)</em></li>
+<ul><li>reason: Created via design UI at 2026-05-05T20:57:52.242Z</li></ul>
 </ul>
 <h3>Логика / бэкенд (<code>logic</code>)</h3>
 <ul>
-<li>🟠 <strong>b.core-sync</strong> — Sync Engine <em>(wip)</em></li>
+<li>🟢 <strong>b.core-sync</strong> — Sync Engine <em>(done)</em></li>
 <ul><li>reason: syncCheck only validates file presence, not mission/KPI semantics</li></ul>
+<li>🟡 <strong>b.product-auth</strong> — Auth <em>(idea)</em></li>
+<ul><li>reason: Created via design UI at 2026-05-05T20:57:52.201Z</li></ul>
+<li>🟡 <strong>b.product-ingest</strong> — Ingest <em>(idea)</em></li>
+<ul><li>reason: Created via design UI at 2026-05-05T20:57:52.212Z</li></ul>
+<li>🟡 <strong>b.product-billing</strong> — Billing <em>(idea)</em></li>
+<ul><li>reason: Created via design UI at 2026-05-05T20:57:52.257Z</li></ul>
+<li>🟡 <strong>b.block-1</strong> — Новый модуль <em>(idea)</em></li>
+<ul><li>reason: Created via design UI at 2026-05-05T20:58:12.722Z</li></ul>
+<li>🟡 <strong>b.block-2</strong> — Новый модуль <em>(idea)</em></li>
+<ul><li>reason: Created via design UI at 2026-05-07T16:27:02.089Z</li></ul>
 </ul>
 <h3>ИИ / агенты (<code>ai</code>)</h3>
 <ul>
@@ -91,6 +114,8 @@
 <ul>
 <li>🟡 <strong>b.db</strong> — Atlas Database <em>(idea)</em></li>
 <ul><li>reason: Storage is markdown + localStorage; no real DB layer yet</li></ul>
+<li>🟡 <strong>b.product-warehouse</strong> — Warehouse <em>(idea)</em></li>
+<ul><li>reason: Created via design UI at 2026-05-05T20:57:52.230Z</li></ul>
 </ul>
 <h3>Контент / документация (<code>content</code>)</h3>
 <ul>
@@ -168,14 +193,14 @@ evidence_spec:
 <li>генерация <code>wiki.html</code> (это <code>b.docs</code>).</li>
 </ul>
 <hr/>
-<h3>🟠 b.core-sync — Sync Engine</h3>
+<h3>🟢 b.core-sync — Sync Engine</h3>
 <ul>
 <li><strong>layer</strong>: <code>logic</code></li>
 <li><strong>type</strong>: module</li>
-<li><strong>status</strong>: <code>wip</code> — syncCheck only validates file presence, not mission/KPI semantics</li>
+<li><strong>status</strong>: <code>done</code> — syncCheck only validates file presence, not mission/KPI semantics</li>
 <li><strong>mvp</strong>: yes</li>
 <li><strong>depends_on</strong>: <code>b.db</code></li>
-<li><strong>tech_stack</strong>: <code>nodejs</code>, <code>esm</code></li>
+<li><strong>tech_stack</strong>: <code>nodejs</code>, <code>esm</code>, <code>typescript</code>, <code>fastify</code>, <code>zod</code>, <code>drizzle-orm</code>, <code>sqlite</code>, <code>session-cookies</code>, <code>pino</code>, <code>vitest</code></li>
 <li><strong>files</strong>: 8 (<code>atlas/blocks/b.core-sync/files.md</code>)</li>
 </ul>
 <h1>b.core-sync — mission</h1>
@@ -1221,6 +1246,208 @@ evidence_spec:
 evidence_spec:
   cmd: node scripts/mcp_smoke_e2e.mjs
   expect_in_stdout: "OK"</code></pre>
+<hr/>
+<h3>🟡 b.product-auth — Auth</h3>
+<ul>
+<li><strong>layer</strong>: <code>logic</code></li>
+<li><strong>type</strong>: module</li>
+<li><strong>status</strong>: <code>idea</code> — Created via design UI at 2026-05-05T20:57:52.201Z</li>
+<li><strong>mvp</strong>: no</li>
+<li><strong>depends<em>on</strong>: <code>b.product-dashboard: session</em>check</code>, <code>b.product-ingest: api<em>key</em>check</code></li>
+<li><strong>files</strong>: 1 (<code>atlas/blocks/b.product-auth/files.md</code>)</li>
+</ul>
+<h1>b.product-auth — mission</h1>
+<p>Этот блок отвечает за многопользовательскую авторизацию и контроль доступа в системе. Он решает проблему разграничения прав доступа к данным и функциональности для разных пользователей и организаций (multi-tenancy). Это необходимо для обеспечения безопасности данных, соответствия требованиям регуляторов и предоставления гибких возможностей управления доступом. Реализация включает в себя поддержку ролей (RBAC) на уровне наборов данных (dataset), а также единый вход (SSO) через OIDC для упрощения аутентификации и интеграции с другими системами. Без этого блока продукт не может быть безопасно использован несколькими пользователями или организациями.</p>
+<h4>KPI</h4>
+<h1>b.product-auth — KPI</h1>
+<ul>
+<li>&lt; 50ms verify p95</li>
+<li>0 CVE high</li>
+<li>99.9% uptime</li>
+<li>&lt; 100ms OIDC login p95</li>
+<li>99% RBAC accuracy</li>
+</ul>
+<h4>Acceptance</h4>
+<h1>b.product-auth — acceptance</h1>
+<ul>
+<li>[ ] <strong>A1.</strong> JWT + refresh работает</li>
+<li>[ ] <strong>A2.</strong> Роли viewer/editor/admin развёрнуты</li>
+</ul>
+<hr/>
+<h3>🟡 b.product-ingest — Ingest</h3>
+<ul>
+<li><strong>layer</strong>: <code>logic</code></li>
+<li><strong>type</strong>: module</li>
+<li><strong>status</strong>: <code>idea</code> — Created via design UI at 2026-05-05T20:57:52.212Z</li>
+<li><strong>mvp</strong>: no</li>
+<li><strong>depends<em>on</strong>: <code>b.product-warehouse: events</em>stream</code></li>
+<li><strong>files</strong>: 1 (<code>atlas/blocks/b.product-ingest/files.md</code>)</li>
+</ul>
+<h1>b.product-ingest — mission</h1>
+<p>Принимает события от SDK, валидирует по схеме, гарантирует exactly-once в Warehouse.</p>
+<h4>KPI</h4>
+<h1>b.product-ingest — KPI</h1>
+<ul>
+<li>&lt; 25ms p95 ack</li>
+<li>50k/s throughput</li>
+<li>0% дубликатов в Warehouse</li>
+<li>0% событий, не прошедших валидацию схемы</li>
+<li>Утилизация ресурсов &lt; 70% при пиковой нагрузке</li>
+</ul>
+<h4>Acceptance</h4>
+<h1>b.product-ingest — acceptance</h1>
+<ul>
+<li>[ ] <strong>A1.</strong> Все события, отправленные в <code>b.product-ingest</code>, успешно валидируются на соответствие схеме.</li>
+<li>[ ] <strong>A2.</strong> Каждый event_id обрабатывается ровно один раз и записывается в Warehouse (отсутствие дубликатов).</li>
+<li>[ ] <strong>A3.</strong> Задержка подтверждения (ack) для 95% событий не превышает 25 мс при нормальной нагрузке.</li>
+<li>[ ] <strong>A4.</strong> Система способна обрабатывать 50 000 событий в секунду без ошибок.</li>
+<li>[ ] <strong>A5.</strong> Утилизация ресурсов (CPU, память) не превышает 70% при пиковой нагрузке 50k/s.</li>
+<li>[ ] <strong>A6.</strong> В случае ошибки валидации события, в monitoring отправляется соответствующая метрика и событие не попадает в Warehouse.</li>
+</ul>
+<hr/>
+<h3>🟡 b.product-warehouse — Warehouse</h3>
+<ul>
+<li><strong>layer</strong>: <code>data</code></li>
+<li><strong>type</strong>: module</li>
+<li><strong>status</strong>: <code>idea</code> — Created via design UI at 2026-05-05T20:57:52.230Z</li>
+<li><strong>mvp</strong>: no</li>
+<li><strong>files</strong>: 1 (<code>atlas/blocks/b.product-warehouse/files.md</code>)</li>
+</ul>
+<h1>b.product-warehouse — mission</h1>
+<p>Хранилище событий <code>b.product-warehouse</code> предназначено для хранения и обработки больших объемов данных, поступающих из различных источников в системе. Оно решает задачу эффективного хранения миллиардов строк данных и обеспечения возможности выполнения OLAP-агрегаций для аналитики. Этот блок позволяет быстро получать аналитические срезы данных, необходимые для принятия решений и мониторинга ключевых показателей. Без надежного хранилища событий невозможно эффективно анализировать данные о продукте и принимать обоснованные решения на основе этих данных. Хранилище обеспечивает масштабируемость и производительность, необходимые для работы с большими объемами информации, и является ключевым компонентом для обеспечения аналитических возможностей системы.</p>
+<h4>KPI</h4>
+<h1>b.product-warehouse — kpi</h1>
+<ul>
+<li>Задержка записи данных &lt; 50 мс (p95)</li>
+<li>Доступность хранилища 99.99%</li>
+<li>Успешное выполнение 99.9% заданий резервного копирования</li>
+<li>Среднее время ответа на аналитические запросы &lt; 1 секунды</li>
+<li>Объем хранимых данных соответствует прогнозируемому росту с отклонением не более 5%</li>
+</ul>
+<h4>Acceptance</h4>
+<h1>b.product-warehouse — acceptance</h1>
+<ul>
+<li>[ ] <strong>A1.</strong> Данные успешно агрегируются с заданной частотой (например, каждый час) и сохраняются в хранилище.</li>
+<li>[ ] <strong>A2.</strong> Запросы агрегации выполняются в пределах заданного времени (p95 &lt; 200ms для 10M строк).</li>
+<li>[ ] <strong>A3.</strong> Утилизация CPU не превышает 70% при пиковой нагрузке на запросы агрегации.</li>
+<li>[ ] <strong>A4.</strong> Успешность выполнения запросов агрегации составляет не менее 99.99%.</li>
+<li>[ ] <strong>A5.</strong> Продемонстрировано восстановление данных из резервной копии в течение 15 минут.</li>
+<li>[ ] <strong>A6.</strong> Подтверждено, что объем хранимых данных растет не более чем на 10% в месяц при заданном темпе поступления новых данных.</li>
+</ul>
+<hr/>
+<h3>🟡 b.product-dashboard — Dashboard</h3>
+<ul>
+<li><strong>layer</strong>: <code>front</code></li>
+<li><strong>type</strong>: module</li>
+<li><strong>status</strong>: <code>idea</code> — Created via design UI at 2026-05-05T20:57:52.242Z</li>
+<li><strong>mvp</strong>: no</li>
+<li><strong>depends<em>on</strong>: <code>b.product-warehouse: metric</em>query</code></li>
+<li><strong>files</strong>: 1 (<code>atlas/blocks/b.product-dashboard/files.md</code>)</li>
+</ul>
+<h1>b.product-dashboard — mission</h1>
+<p>Конструктор дашбордов — это основной UI для пользователя, позволяющий ему визуализировать и анализировать данные, извлеченные из различных источников. Он решает проблему сложного доступа к информации, предоставляя интуитивно понятный интерфейс для создания настраиваемых представлений данных. Drag-n-drop функциональность упрощает процесс создания дашбордов, позволяя пользователям быстро добавлять и упорядочивать виджеты. Это позволяет пользователям получать ценные инсайты и принимать обоснованные решения на основе актуальных данных. Без конструктора дашбордов пользователям было бы сложно эффективно использовать данные, собранные системой, что снизило бы ценность продукта в целом. Он также обеспечивает гибкость в настройке отображения данных, позволяя адаптировать дашборды под конкретные потребности и задачи.</p>
+<h4>KPI</h4>
+<h1>b.product-dashboard — KPI</h1>
+<ul>
+<li>&lt; 2s TTI</li>
+<li>&lt; 5min до первого дашборда</li>
+<li>99% CR для основных сценариев</li>
+<li>&lt; 1% ошибок при создании и редактировании дашбордов</li>
+<li>Среднее время сеанса &gt; 10 минут</li>
+</ul>
+<h4>Acceptance</h4>
+<h1>b.product-dashboard — acceptance</h1>
+<ul>
+<li>[ ] <strong>A7.</strong> Пользователь может добавлять на дашборд артефакты (блоки схемы, документы, текст, ссылки на встречи).</li>
+<li>[ ] <strong>A8.</strong> Пользователь может настраивать связи между элементами дашборда, указывая направление и тип связи.</li>
+<li>[ ] <strong>A9.</strong> Система позволяет искать встречи и другие элементы для добавления на дашборд.</li>
+<li>[ ] <strong>A10.</strong> Пользователь может добавлять текстовое описание к дашборду.</li>
+<li>[ ] <strong>A11.</strong> Система позволяет добавлять аудиозаписи с тезисами к дашборду.</li>
+<li>[ ] <strong>A12.</strong> На дашборде отображается основная задача/цель, для которой он создан.</li>
+</ul>
+<hr/>
+<h3>🟡 b.product-billing — Billing</h3>
+<ul>
+<li><strong>layer</strong>: <code>logic</code></li>
+<li><strong>type</strong>: module</li>
+<li><strong>status</strong>: <code>idea</code> — Created via design UI at 2026-05-05T20:57:52.257Z</li>
+<li><strong>mvp</strong>: no</li>
+<li><strong>files</strong>: 1 (<code>atlas/blocks/b.product-billing/files.md</code>)</li>
+</ul>
+<h1>b.product-billing — mission</h1>
+<p>Этот блок отвечает за управление подписками пользователей, включая установку лимитов на использование ресурсов (например, количество событий или рабочих мест), а также за обработку возвратов средств. Он необходим для монетизации продукта и обеспечения справедливого использования ресурсов. Без этого блока невозможно контролировать доступ к функциям продукта на основе платных подписок, что может привести к финансовым потерям и неэффективному распределению ресурсов. Он решает проблему неконтролируемого доступа к ресурсам и обеспечивает гибкость в настройке тарифных планов.</p>
+<h4>KPI</h4>
+<h1>b.product-billing — kpi</h1>
+<ul>
+<li>0 потерянных webhook</li>
+<li>Задержка обработки платежей &lt; 1 секунда</li>
+<li>Успешность выставления счетов 99.99%</li>
+<li>Время разрешения проблем с биллингом &lt; 4 часов</li>
+<li>ARPU (Average Revenue Per User) &gt; $X</li>
+</ul>
+<h4>Acceptance</h4>
+<h1>b.product-billing — acceptance</h1>
+<ul>
+<li>[ ] <strong>A1.</strong> Подтверждено отсутствие потерянных webhook-ов при эмуляции 1000 запросов.</li>
+<li>[ ] <strong>A2.</strong> Задержка обработки 99% платежей не превышает 1 секунду при нагрузке в 100 транзакций в минуту.</li>
+<li>[ ] <strong>A3.</strong> Успешность выставления счетов составляет 99.99% при тестировании на 10000 счетов.</li>
+<li>[ ] <strong>A4.</strong> Среднее время разрешения проблем с биллингом составляет менее 4 часов, согласно данным мониторинга за последний месяц.</li>
+<li>[ ] <strong>A5.</strong> ARPU (Average Revenue Per User) превышает установленное значение $X, согласно отчету за последний квартал.</li>
+<li>[ ] <strong>A6.</strong> Реализована и протестирована логика обработки возвратов средств с учетом различных сценариев (полный возврат, частичный возврат, отмена подписки).</li>
+</ul>
+<hr/>
+<h3>🟡 b.block-1 — Новый модуль</h3>
+<ul>
+<li><strong>layer</strong>: <code>logic</code></li>
+<li><strong>type</strong>: module</li>
+<li><strong>status</strong>: <code>idea</code> — Created via design UI at 2026-05-05T20:58:12.722Z</li>
+<li><strong>mvp</strong>: no</li>
+<li><strong>files</strong>: 1 (<code>atlas/blocks/b.block-1/files.md</code>)</li>
+</ul>
+<h1>b.block-1 — mission</h1>
+<p>Модуль b.block-1 выполняет ключевую логическую функцию в системе, отвечая за [укажите конкретную задачу модуля]. Он решает проблему [опишите проблему, которую решает модуль], обеспечивая [опишите, что модуль предоставляет или делает]. Без этого модуля, [объясните последствия отсутствия модуля]. Его цель - [опишите главную цель модуля]. Он взаимодействует с [перечислите другие модули или компоненты] для [опишите, как модуль взаимодействует с другими частями системы]. Этот модуль необходим для [укажите, для чего необходим модуль].</p>
+<h4>KPI</h4>
+<h1>b.block-1 — kpi</h1>
+<ul>
+<li>KPI-1: Среднее время обработки запроса (latency) должно быть менее 200 мс.</li>
+<li>KPI-2: Процент ошибок при обработке запросов не должен превышать 1%.</li>
+<li>KPI-3: Количество обработанных запросов в секунду (throughput) должно быть не менее 500.</li>
+<li>KPI-4: Успешное выполнение бизнес-задачи (например, создание нового пользователя) должно происходить в 99% случаев.</li>
+<li>KPI-5: Время восстановления после сбоя (MTTR) должно быть менее 5 минут.</li>
+</ul>
+<h4>Acceptance</h4>
+<h1>b.block-1 — acceptance</h1>
+<ul>
+<li>[ ] <strong>A1.</strong> Модуль успешно обрабатывает запросы в соответствии с KPI-1 (среднее время обработки менее 200 мс) при тестировании с нагрузкой, имитирующей типичное использование.</li>
+<li>[ ] <strong>A2.</strong> Модуль демонстрирует процент ошибок при обработке запросов, не превышающий 1% (KPI-2) в течение длительного периода тестирования с различными входными данными.</li>
+<li>[ ] <strong>A3.</strong> Модуль обеспечивает пропускную способность не менее 500 запросов в секунду (KPI-3) при нагрузочном тестировании, что подтверждает его способность справляться с ожидаемой нагрузкой.</li>
+<li>[ ] <strong>A4.</strong> Успешное выполнение ключевых бизнес-задач (например, создание, обновление, удаление сущностей) происходит в 99% случаев (KPI-4) при автоматизированном тестировании.</li>
+<li>[ ] <strong>A5.</strong> Время восстановления модуля после искусственно вызванного сбоя не превышает 5 минут (KPI-5), что подтверждается автоматическим мониторингом и системой оповещений.</li>
+<li>[ ] <strong>A6.</strong> Все зависимости модуля (другие модули или компоненты) успешно интегрированы и функционируют корректно, что подтверждается сквозным тестированием связанных функций.</li>
+</ul>
+<hr/>
+<h3>🟡 b.block-2 — Новый модуль</h3>
+<ul>
+<li><strong>layer</strong>: <code>logic</code></li>
+<li><strong>type</strong>: module</li>
+<li><strong>status</strong>: <code>idea</code> — Created via design UI at 2026-05-07T16:27:02.089Z</li>
+<li><strong>mvp</strong>: no</li>
+<li><strong>files</strong>: 1 (<code>atlas/blocks/b.block-2/files.md</code>)</li>
+</ul>
+<h1>b.block-2 — mission</h1>
+<p>Описание модуля Новый модуль. Заполни через детальную панель или через Claude.</p>
+<h2>Layer</h2>
+<p>это тестовый модуль  для проверки системы</p>
+<h4>KPI</h4>
+<h1>b.block-2 — KPI</h1>
+<ul>
+<li>KPI-1: добавь конкретную метрику успеха модуля.</li>
+</ul>
+<h4>Acceptance</h4>
+<h1>b.block-2 — acceptance</h1>
+<ul>
+<li>[ ] <strong>A1.</strong> Заполни через детальную панель: что именно подтвердит готовность модуля.</li>
+</ul>
 <hr/>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <script>
