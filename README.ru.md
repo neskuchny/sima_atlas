@@ -122,6 +122,15 @@ npm run dev
 - **Заменяет:** холодный старт каждой сессии; один и тот же баг попробован 3 раза
 - **Sima даёт:** per-block run history (что пробовал / что сработало / что упало / какие решения) авто-инжектится · operator-level lessons с накоплением evidence · code map перегенерируется per run
 
+### Job 7 — «Хочу видеть какие файлы живые, какие мёртвые, какие — мусор»
+
+**Когда** проект растёт месяцами и файлы переименовываются / удаляются / забываются
+**Хочу** явный per-feature манифест какие файлы реально используются
+**Чтобы** код не зарастал мусором, и агенты не читали устаревшие пути
+
+- **Заменяет:** «не помню что было в этой папке полгода назад»; агенты читающие orphaned файлы; устаревшие ссылки в WIKI
+- **Sima даёт:** per-block file manifest с маркерами `[alive]` / `[dead]` / `[archived]` / `[pending]` · валидатор который **проваливает CI** когда `[alive]` файл пропал · счётчик «Files alive» в Implementation Status panel · file-state попадает в каждый context-pack чтобы агент знал что читать а что пропускать
+
 ## Обещали vs сделано — feature manifest
 
 Каждый пункт исходной концепции — мэп на текущее состояние кода.
@@ -142,8 +151,9 @@ npm run dev
 | Авто-туториалы (как пользоваться, возможности, ограничения) | 🟡 | `generate_user_docs.mjs` plumbing работает; качество вывода зависит от LLM-провайдера — `claude_cli` headless иногда путается, для production-качества рекомендуется Anthropic API |
 | Внешнечитаемая документация (чтобы другие поняли проект) | ✅ | README EN+RU · 7 user-facing docs (architecture · getting-started · troubleshooting · integrations · article · agent-navigation) |
 | Vibe-coding инструменты (consultations + синхронизация) | ✅ | ✦ Sima fill-from-chat · ✏ Rewrite · ✨ Expand · Architecture review modal · Claude advice кнопка |
+| Чистка кода — схема какие файлы живые / мёртвые / архив | ✅ | per-block `files.md` манифест · `validate_files_registry.mjs` (фейлит CI на пропавший `[alive]` файл) · file-state в каждом context-pack и в Implementation Status panel · текущий счёт: 206 alive · 4 archived · 3 pending по проекту |
 
-**Итог: 13 ✅ полностью отгружено · 1 🟡 частично (качество авто-туториалов) · 1 ✅+🟡 частично (cross-project библиотека — локально работает, transfer запланирован).**
+**Итог: 14 ✅ полностью отгружено · 1 🟡 частично (качество авто-туториалов) · 1 ✅+🟡 частично (cross-project библиотека — локально работает, transfer запланирован).**
 
 ## Что меняется на практике
 

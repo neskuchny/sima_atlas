@@ -131,6 +131,15 @@ Six jobs. Each names the failure mode it replaces and the feature that delivers 
 - **Replaces:** cold-start each session; same bug tried 3 times
 - **Sima delivers:** per-block run history (what tried / what worked / what failed / decisions made) auto-injected · operator-level lessons accumulating evidence · code map regenerated per run
 
+### Job 7 — «I want to know which files are alive, dead, or junk»
+
+**When** the project grows for months and files get renamed / deleted / forgotten
+**I want** an explicit per-feature manifest of which files are actually used
+**So that** the codebase doesn't accumulate trash and agents don't read stale paths
+
+- **Replaces:** «I don't remember what was in this folder six months ago»; agents reading orphaned files; stale references in WIKI
+- **Sima delivers:** per-block file manifest with `[alive]` / `[dead]` / `[archived]` / `[pending]` markers · validator that **fails CI** when an `[alive]` file is missing · «Files alive» counter in Implementation Status panel · file-state surfaces in every context-pack so the agent knows what to read and what to skip
+
 ## Promise vs reality — feature manifest
 
 Every capability in the original concept, mapped to current code state.
@@ -151,8 +160,9 @@ Every capability in the original concept, mapped to current code state.
 | Auto tutorials (how to use, capabilities, limitations) | 🟡 | `generate_user_docs.mjs` plumbing works; output quality depends on LLM provider — `claude_cli` headless sometimes confused, recommend Anthropic API for production-quality |
 | External-readable documentation (so others understand the project) | ✅ | README EN+RU · 7 user-facing docs (architecture · getting-started · troubleshooting · integrations · article · agent-navigation) |
 | Vibe-coding tools (consultations on individual elements + sync) | ✅ | ✦ Sima fill-from-chat · ✏ Rewrite · ✨ Expand · Architecture review modal · Claude advice button |
+| Code cleanup — schema of which files are alive / dead / archived | ✅ | per-block `files.md` manifest · `validate_files_registry.mjs` (fails CI on missing `[alive]` file) · file-state surfaces in context-pack and Implementation Status panel · live count: 206 alive · 4 archived · 3 pending across the project |
 
-**Score: 13 ✅ fully shipped · 1 🟡 partial (auto-tutorials quality) · 1 ✅+🟡 partial (cross-project library — local works, transfer planned).**
+**Score: 14 ✅ fully shipped · 1 🟡 partial (auto-tutorials quality) · 1 ✅+🟡 partial (cross-project library — local works, transfer planned).**
 
 ## What's in the box (today)
 
