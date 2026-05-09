@@ -14,7 +14,7 @@ English: [README.md](README.md).
 
 AI-агенты прекрасно работают на 5 файлах и разваливаются на 50 — галлюцинируют, дрейфуют, переделывают и жгут токены, потому что **у них нет контракта** на то, что должна делать каждая часть, и **нет графа** того, как части связаны. Sima Atlas — это **визуальный control plane**, который даёт им и то и другое: каждая фича — директория MD-контрактов, на канвасе видны связи, агенты получают context-pack под один блок, acceptance loop проверяет каждый запуск детерминистически — `pass / fail / inconclusive`, без silent false-pass.
 
-![Canvas overview](tests/playwright/screenshots/sima_design_live.png)
+<img width="1913" height="960" alt="Sima Atlas — визуальная контракт-ориентированная разработка для AI-агентов" src="https://github.com/user-attachments/assets/15114bfe-1593-443c-ac18-3894bb49ee4f" />
 
 ## Vision — куда идём
 
