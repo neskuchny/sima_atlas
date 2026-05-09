@@ -85,6 +85,7 @@ will actually use:
 | `nightly_consolidation()` | Run all 68 validators across the whole graph; expensive — for end-of-session |
 | `generate_full_bundle()` | Regenerate WIKI / auto_tz / roadmap from current graph state |
 | `add_lesson` / `set_dont_use` / `set_always_use` | **Operator-locked memory** (R-7.76+). Use `set_dont_use {block_id, rule, reason, severity}` to lock an architectural rule the agent must never violate (severity:hard fails the run; severity:soft warns). These are read by `build_context_pack`, injected into every subsequent agent prompt, AND scanned post-run against modified files via `scan_run_for_drift.mjs` |
+| `cascade_verify {block_id}` | **R-7.84 (S-8) — break-detection on edit.** After editing block X, re-runs acceptance verifier on every block whose `depends_on` references X. Anything that broke gets auto-flagged `status: desync` in graph.json with reason «cascade: parent X edit», + entry in their `checks.log` and `narrative.md`. Operator sees the break inline on the canvas, not at next morning's nightly sweep. `run_block_implementation.mjs` calls this automatically after a successful run; you can also invoke directly to re-check after manual edits. Pass `dry_run: true` to preview without patching. |
 
 **Rule of thumb**: if the question is about *one block*, use `read_block`. If
 it's about *the connection between two blocks*, use `list_dependencies`. If

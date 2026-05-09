@@ -15,22 +15,22 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_cursor_hooks.mjs → exit 0 (47ms); first line: \"cursor hooks validation: OK (4 events, 4 commands)\"",
+      "evidence": "node scripts/validate_cursor_hooks.mjs → exit 0 (59ms); first line: \"cursor hooks validation: OK (4 events, 4 commands)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_cursor_hooks.mjs",
         "exit_code": 0,
         "stdout": "cursor hooks validation: OK (4 events, 4 commands)\n",
         "stderr": "",
-        "duration_ms": 47,
+        "duration_ms": 59,
         "timed_out": false
       },
-      "duration_ms": 47
+      "duration_ms": 59
     },
     {
       "id": "A2",
       "label": "afterFileEdit flow",
-      "text": "При file-edit на `Sima (Remix)/app_v2.jsx` `observe_file_edit.mjs` находит owner-блок через `files.md` reverse-mapping и пишет `cursor_edit pass` в `b.ui-control/checks.log`. Зависимость на `files.md` атласа подтверждена `cursor_hooks_actions.test`.",
+      "text": "При file-edit на `frontend/app_v2.jsx` `observe_file_edit.mjs` находит owner-блок через `files.md` reverse-mapping и пишет `cursor_edit pass` в `b.ui-control/checks.log`. Зависимость на `files.md` атласа подтверждена `cursor_hooks_actions.test`.",
       "checked": true,
       "line": 12,
       "evidence_kind": "selftest_run",
@@ -39,17 +39,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (510ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
+      "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (660ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/cursor_hooks_actions.test.mjs",
         "exit_code": 0,
         "stdout": "cursor_hooks_actions.test: OK (9 cases)\n",
         "stderr": "",
-        "duration_ms": 510,
+        "duration_ms": 660,
         "timed_out": false
       },
-      "duration_ms": 510
+      "duration_ms": 660
     },
     {
       "id": "A3",
@@ -63,17 +63,17 @@
         "expect_in_stdout": "9 cases"
       },
       "verdict": "pass",
-      "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (510ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
+      "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (618ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
       "reasoning": "shell exit code 0 and stdout matches /9 cases/",
       "raw": {
         "cmd": "node tests/cursor_hooks_actions.test.mjs",
         "exit_code": 0,
         "stdout": "cursor_hooks_actions.test: OK (9 cases)\n",
         "stderr": "",
-        "duration_ms": 510,
+        "duration_ms": 618,
         "timed_out": false
       },
-      "duration_ms": 510
+      "duration_ms": 618
     },
     {
       "id": "A4",
@@ -87,17 +87,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (511ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
+      "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (612ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/cursor_hooks_actions.test.mjs",
         "exit_code": 0,
         "stdout": "cursor_hooks_actions.test: OK (9 cases)\n",
         "stderr": "",
-        "duration_ms": 511,
+        "duration_ms": 612,
         "timed_out": false
       },
-      "duration_ms": 511
+      "duration_ms": 612
     },
     {
       "id": "A5",
@@ -111,17 +111,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/cursor_live.headless.smoke.mjs → exit 0 (788ms); first line: \"cursor_live.headless.smoke: OK (5 phases — hooks valid, drift guard fires, file-edit logged, context pack emitted, detailed suite green)\"",
+      "evidence": "node tests/cursor_live.headless.smoke.mjs → exit 0 (1095ms); first line: \"cursor_live.headless.smoke: OK (5 phases — hooks valid, drift guard fires, file-edit logged, context pack emitted, detailed suite green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/cursor_live.headless.smoke.mjs",
         "exit_code": 0,
         "stdout": "cursor_live.headless.smoke: OK (5 phases — hooks valid, drift guard fires, file-edit logged, context pack emitted, detailed suite green)\n",
         "stderr": "",
-        "duration_ms": 788,
+        "duration_ms": 1095,
         "timed_out": false
       },
-      "duration_ms": 788
+      "duration_ms": 1095
     },
     {
       "id": "A6",
@@ -132,18 +132,18 @@
       "evidence_kind": "llm_judge",
       "evidence_spec": null,
       "verdict": "skipped",
-      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
-      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
+      "evidence": "LLM judge → inconclusive via claude_cli/claude-cli ($0)",
+      "reasoning": "LLM returned inconclusive without reasoning",
       "raw": {
         "judge_verdict": "inconclusive",
-        "provider": "mock",
-        "model": "mock-1",
-        "prompt_hash": "52529bab49f4fb3c",
+        "provider": "claude_cli",
+        "model": "claude-cli",
+        "prompt_hash": "af67e765c5e71c56",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 0
+      "duration_ms": 16294
     },
     {
       "id": "A7",
@@ -156,26 +156,26 @@
         "cmd": "node scripts/validate_agent_parity.mjs",
         "expect_in_stdout": "OK"
       },
-      "verdict": "pass",
-      "evidence": "node scripts/validate_agent_parity.mjs → exit 0 (50ms); first line: \"Agent parity validation: OK\"",
-      "reasoning": "shell exit code 0 and stdout matches /OK/",
+      "verdict": "fail",
+      "evidence": "node scripts/validate_agent_parity.mjs → exit 1; stderr: \"Agent parity validation failed:\"",
+      "reasoning": "shell exit 1",
       "raw": {
         "cmd": "node scripts/validate_agent_parity.mjs",
-        "exit_code": 0,
-        "stdout": "Agent parity validation: OK\n",
-        "stderr": "",
-        "duration_ms": 50,
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "Agent parity validation failed:\n - AGENTS.md: missing token /atlas/project.md\n - AGENTS.md: missing token /atlas/rules.md\n - CLAUDE.md: missing token /atlas/project.md\n - CLAUDE.md: missing token /atlas/rules.md\n",
+        "duration_ms": 65,
         "timed_out": false
       },
-      "duration_ms": 50
+      "duration_ms": 65
     }
   ],
   "counts": {
-    "pass": 6,
-    "fail": 0,
+    "pass": 5,
+    "fail": 1,
     "skipped": 1
   },
-  "verdict": "pass",
-  "duration_ms": 2417,
-  "checked_at": "2026-05-06T18:44:56.715Z"
+  "verdict": "fail",
+  "duration_ms": 19405,
+  "checked_at": "2026-05-09T11:07:50.026Z"
 }

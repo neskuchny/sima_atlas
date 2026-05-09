@@ -371,11 +371,39 @@ if (process.env.ATLAS_SKIP_DRIFT_SCAN !== '1') {
   // status === 2+ means scanner crashed; treat as inconclusive, don't fail the run
 }
 
+// R-7.84 (S-8) — cascade verify: if THIS block's run succeeded, walk
+// reverse-dependencies and re-verify each consumer. Anything that
+// broke gets auto-flagged status:desync on the canvas with a clear
+// «cascade: parent X edit» reason. Operator sees the break inline,
+// not at next morning's nightly sweep.
+//
+// Skip when:
+//   - this run failed (no point checking dependents of broken work)
+//   - ATLAS_SKIP_CASCADE=1 (CI / test isolation)
+let cascadeBroken = 0;
+if (verifierVerdict === 'pass' && process.env.ATLAS_SKIP_CASCADE !== '1') {
+  console.log('');
+  console.log(`run_block_implementation: cascade-verifying dependents of ${blockId}...`);
+  const c = spawnSync('node', [path.join(ROOT, 'scripts/cascade_verify.mjs'), blockId], {
+    cwd: ROOT,
+    stdio: 'inherit',
+    env: { ...process.env, ATLAS_ROOT: workspace ? path.join(workspace.workspace_path, 'atlas') : process.env.ATLAS_ROOT },
+    timeout: 120_000,
+  });
+  if (c.status === 1) {
+    cascadeBroken = 1; // dependents broken; not fatal for THIS run, but visible
+    console.log(`  ⚠ cascade: dependent block(s) broken — auto-flagged desync on canvas`);
+  } else if (c.status === 0) {
+    console.log(`  ✓ cascade: all dependents still green`);
+  }
+}
+
 fsm(verifierVerdict === 'fail' ? 'Failed' : 'Succeeded', {
   exit_code: r.status,
   summary,
   verifier_verdict: verifierVerdict,
   diff_proposal_id: diffProposalId,
+  cascade_broken: cascadeBroken,
 });
 
 // Phase O-5 + O-2: post-run analysis pipeline (separate concerns).

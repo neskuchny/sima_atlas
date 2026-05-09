@@ -15,17 +15,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/parse_acceptance.selftest.mjs → exit 0 (56ms); first line: \"parse_acceptance.selftest: OK (9 test groups, all assertions green)\"",
+      "evidence": "node tests/parse_acceptance.selftest.mjs → exit 0 (68ms); first line: \"parse_acceptance.selftest: OK (9 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/parse_acceptance.selftest.mjs",
         "exit_code": 0,
         "stdout": "parse_acceptance.selftest: OK (9 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 56,
+        "duration_ms": 68,
         "timed_out": false
       },
-      "duration_ms": 56
+      "duration_ms": 68
     },
     {
       "id": "A2",
@@ -39,17 +39,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/evidence_collectors.selftest.mjs → exit 0 (154ms); first line: \"evidence_collectors.selftest: OK (11 test groups, all assertions green)\"",
+      "evidence": "node tests/evidence_collectors.selftest.mjs → exit 0 (14623ms); first line: \"[llm-gateway] using provider=claude_cli (subscription via claude CLI)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/evidence_collectors.selftest.mjs",
         "exit_code": 0,
-        "stdout": "evidence_collectors.selftest: OK (11 test groups, all assertions green)\n",
-        "stderr": "",
-        "duration_ms": 154,
+        "stdout": "[llm-gateway] using provider=claude_cli (subscription via claude CLI)\nevidence_collectors.selftest: OK (11 test groups, all assertions green)\n",
+        "stderr": "[llm-gateway] claude_cli schema-parse failed; envelope=json, text-head=These are pre-existing changes I didn't author — acceptance run artifacts, checks.log updates, deleted operator_profile files, and modified/new scripts. I won't\n",
+        "duration_ms": 14623,
         "timed_out": false
       },
-      "duration_ms": 154
+      "duration_ms": 14623
     },
     {
       "id": "A3",
@@ -62,18 +62,18 @@
         "cmd": "node tests/llm_judge.smoke.mjs",
         "expect_in_stdout": "OK"
       },
-      "verdict": "pass",
-      "evidence": "node tests/llm_judge.smoke.mjs → exit 0 (67ms); first line: \"llm_judge.smoke: OK (4 test groups, all assertions green)\"",
-      "reasoning": "shell exit code 0 and stdout matches /OK/",
+      "verdict": "fail",
+      "evidence": "node tests/llm_judge.smoke.mjs → exit null; timed out after 30000ms; stderr: \"[llm-gateway] claude_cli schema-parse failed; envelope=json, text-head=The stop hook reports uncommitted changes, but I haven't made any edits in this session — those changes predate this turn. I won'… [truncated]\"",
+      "reasoning": "shell exit null; timed out after 30000ms",
       "raw": {
         "cmd": "node tests/llm_judge.smoke.mjs",
-        "exit_code": 0,
-        "stdout": "llm_judge.smoke: OK (4 test groups, all assertions green)\n",
-        "stderr": "",
-        "duration_ms": 67,
-        "timed_out": false
+        "exit_code": null,
+        "stdout": "[llm-gateway] using provider=claude_cli (subscription via claude CLI)\n[llm-gateway] using provider=claude_cli (subscription via claude CLI)\n[llm-gateway] using provider=claude_cli (subscription via claude CLI)\n[llm-gateway] using provider=claude_cli (subscription via claude CLI)\n",
+        "stderr": "[llm-gateway] claude_cli schema-parse failed; envelope=json, text-head=The stop hook reports uncommitted changes, but I haven't made any edits in this session — those changes predate this turn. I won't commit them without your expl\n[llm-gateway] claude_cli schema-parse failed; envelope=json, text-head=The stop hook is reporting uncommitted changes, but my task was only to return the judge JSON verdict — I haven't modified any files in this session. The uncomm\n[llm-gateway] claude_cli schema-parse failed; envelope=json, text-head=The uncommitted changes aren't from this turn — I only returned a JSON verdict for the smoke judge prompt and made no file edits. You'll want to review `git sta\n",
+        "duration_ms": 30003,
+        "timed_out": true
       },
-      "duration_ms": 67
+      "duration_ms": 30003
     },
     {
       "id": "A4",
@@ -87,17 +87,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/acceptance_verifier.e2e.smoke.mjs → exit 0 (347ms); first line: \"acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\"",
+      "evidence": "node tests/acceptance_verifier.e2e.smoke.mjs → exit 0 (449ms); first line: \"acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/acceptance_verifier.e2e.smoke.mjs",
         "exit_code": 0,
         "stdout": "acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\n",
         "stderr": "",
-        "duration_ms": 347,
+        "duration_ms": 449,
         "timed_out": false
       },
-      "duration_ms": 347
+      "duration_ms": 449
     },
     {
       "id": "A5",
@@ -107,22 +107,14 @@
       "line": 33,
       "evidence_kind": "log_grep",
       "evidence_spec": {
-        "file": "Sima (Remix)/arch_canvas.jsx",
+        "file": "frontend/arch_canvas.jsx",
         "pattern": "AcceptanceSection"
       },
-      "verdict": "pass",
-      "evidence": "grep /AcceptanceSection/ Sima (Remix)/arch_canvas.jsx → 3 matches; first: \"      <AcceptanceSection blockId={block.id}/>\"",
-      "reasoning": "3 matching lines found",
+      "verdict": "fail",
+      "evidence": "frontend/arch_canvas.jsx does not exist",
+      "reasoning": "target log file missing",
       "raw": {
-        "file": "/home/user/sima_atlas/Sima (Remix)/arch_canvas.jsx",
-        "pattern": "AcceptanceSection",
-        "since_time": null,
-        "match_count": 3,
-        "sample": [
-          "      <AcceptanceSection blockId={block.id}/>",
-          "function AcceptanceSection({ blockId }) {",
-          "Object.assign(window, { ArchCanvas, ArchInspector, AcceptanceSection, ProfileHintsSection, UserDocsLink, RunStatusSection });"
-        ]
+        "file": "/home/user/sima_atlas/frontend/arch_canvas.jsx"
       },
       "duration_ms": 1
     },
@@ -138,17 +130,17 @@
         "expect_in_stdout": "5 phases"
       },
       "verdict": "pass",
-      "evidence": "node tests/acceptance_verifier.e2e.smoke.mjs → exit 0 (348ms); first line: \"acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\"",
+      "evidence": "node tests/acceptance_verifier.e2e.smoke.mjs → exit 0 (448ms); first line: \"acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\"",
       "reasoning": "shell exit code 0 and stdout matches /5 phases/",
       "raw": {
         "cmd": "node tests/acceptance_verifier.e2e.smoke.mjs",
         "exit_code": 0,
         "stdout": "acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\n",
         "stderr": "",
-        "duration_ms": 348,
+        "duration_ms": 448,
         "timed_out": false
       },
-      "duration_ms": 348
+      "duration_ms": 448
     },
     {
       "id": "A7",
@@ -162,23 +154,23 @@
         "min_count": 1
       },
       "verdict": "pass",
-      "evidence": "glob atlas/acceptance_runs/*/_latest.json → 10 files (min=1); newest 0min ago",
-      "reasoning": "10 files match (≥1)",
+      "evidence": "glob atlas/acceptance_runs/*/_latest.json → 17 files (min=1); newest 1min ago",
+      "reasoning": "17 files match (≥1)",
       "raw": {
         "pattern": "atlas/acceptance_runs/*/_latest.json",
-        "count": 10,
+        "count": 17,
         "min_count": 1,
         "max_age_min": null,
-        "newest_minutes_ago": 0,
+        "newest_minutes_ago": 1,
         "sample": [
           "/home/user/sima_atlas/atlas/acceptance_runs/b.user-docs-generator/_latest.json",
           "/home/user/sima_atlas/atlas/acceptance_runs/b.ui-control/_latest.json",
           "/home/user/sima_atlas/atlas/acceptance_runs/b.smoke-sandbox/_latest.json",
-          "/home/user/sima_atlas/atlas/acceptance_runs/b.operator-profile-learner/_latest.json",
-          "/home/user/sima_atlas/atlas/acceptance_runs/b.llm-gateway/_latest.json"
+          "/home/user/sima_atlas/atlas/acceptance_runs/b.product-warehouse/_latest.json",
+          "/home/user/sima_atlas/atlas/acceptance_runs/b.product-ingest/_latest.json"
         ]
       },
-      "duration_ms": 2
+      "duration_ms": 11
     },
     {
       "id": "A8",
@@ -189,26 +181,26 @@
       "evidence_kind": "llm_judge",
       "evidence_spec": null,
       "verdict": "skipped",
-      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
-      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
+      "evidence": "LLM judge → inconclusive via claude_cli/claude-cli ($0)",
+      "reasoning": "LLM returned inconclusive without reasoning",
       "raw": {
         "judge_verdict": "inconclusive",
-        "provider": "mock",
-        "model": "mock-1",
-        "prompt_hash": "0c831397e9f5950c",
+        "provider": "claude_cli",
+        "model": "claude-cli",
+        "prompt_hash": "409b2bdbd59f316f",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 0
+      "duration_ms": 12860
     }
   ],
   "counts": {
-    "pass": 7,
-    "fail": 0,
+    "pass": 5,
+    "fail": 2,
     "skipped": 1
   },
-  "verdict": "pass",
-  "duration_ms": 975,
-  "checked_at": "2026-05-06T18:44:59.044Z"
+  "verdict": "fail",
+  "duration_ms": 58465,
+  "checked_at": "2026-05-09T11:10:00.844Z"
 }
