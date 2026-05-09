@@ -38,18 +38,22 @@ This is the deterministic minimum-context path. Follow it top-to-bottom; stop
 at the first level that fully answers your question.
 
 ```
-1. atlas/project.md                     ← what's this whole product
-2. atlas/clients/<client>/project.md    ← if multi-tenant; overrides 1
-3. atlas/rules.md                       ← global coding rules (must-not-do)
-4. atlas/tech_stack.md                  ← lock on stack choices
-5. atlas/blocks/<X>/mission.md          ← intent of THIS block
-6. atlas/blocks/<X>/acceptance.md       ← how "done" is verified
-7. atlas/blocks/<X>/depends_on.md       ← who feeds X
+1. atlas/project.md                       ← what's this whole product
+2. atlas/clients/<client>/project.md      ← if multi-tenant; overrides 1
+3. atlas/rules.md                         ← global coding rules (must-not-do)
+4. atlas/tech_stack.md                    ← lock on stack choices
+5. atlas/blocks/<X>/mission.md            ← intent of THIS block
+6. atlas/blocks/<X>/acceptance.md         ← how "done" is verified
+7. atlas/blocks/<X>/depends_on.md         ← who feeds X
 8. for each dep <D> in depends_on:
-     atlas/blocks/<D>/provides.md       ← what D promises
-     atlas/blocks/<D>/mission.md        ← only if provides.md is sparse
-9. atlas/blocks/<X>/tasks.md            ← decomposed work items
-10. atlas/blocks/<X>/checks.log         ← what's been tried before (last 30 lines)
+     atlas/blocks/<D>/provides.md         ← what D promises
+     atlas/blocks/<D>/mission.md          ← only if provides.md is sparse
+9. atlas/blocks/<X>/tasks.md              ← decomposed work items
+10. atlas/blocks/<X>/narrative.md         ← human-readable run history (R-7.80)
+11. atlas/blocks/<X>/decisions.log        ← past architectural choices (don't reverse)
+12. atlas/blocks/<X>/checks.log           ← run verdicts (last 30 lines)
+13. atlas/operator_profile/dont_use.json  ← NEVER-do rules (filter to this block_id)
+14. atlas/operator_profile/always_use.json ← ALWAYS-do rules (filter to this block_id)
 ```
 
 After step 6 you usually have enough to write code. Steps 7-9 are for
@@ -72,7 +76,7 @@ will actually use:
 |---|---|
 | `read_block(block_id)` | Standard "show me the contract" — returns mission + kpi + acceptance + depends/provides in one digest |
 | `list_dependencies(block_id)` | Walk the graph one hop — returns id + provided capability for each dependency |
-| `build_context_pack(block_id)` | Generate the full deterministic context pack the verifier will use; for "give me everything relevant" |
+| `build_context_pack(block_id)` | Generate the full deterministic context pack the verifier will use; **also includes checks.log tail, decisions.log, narrative.md, code_summary.md, and operator memory (lessons / dont_use / always_use) filtered to this block** (R-7.76+) |
 | `update_block(block_id, file, content)` | Write back to mission/kpi/acceptance/tasks. Safer than raw file write — validates path. |
 | `verify_block_acceptance(block_id)` | Run all acceptance assertions and return tri-state (pass/fail/inconclusive) per assertion |
 | `sync_check(block_id?)` | Drift report — depends_on capabilities not provided by anyone, provides not consumed, etc |
@@ -80,6 +84,7 @@ will actually use:
 | `accept_proposal(id)` / `reject_proposal(id)` | Process pending UI-generated block proposals from `✦ Sima fill from chat` |
 | `nightly_consolidation()` | Run all 68 validators across the whole graph; expensive — for end-of-session |
 | `generate_full_bundle()` | Regenerate WIKI / auto_tz / roadmap from current graph state |
+| `add_lesson` / `set_dont_use` / `set_always_use` | **Operator-locked memory** (R-7.76+). Use `set_dont_use {block_id, rule, reason, severity}` to lock an architectural rule the agent must never violate (severity:hard fails the run; severity:soft warns). These are read by `build_context_pack`, injected into every subsequent agent prompt, AND scanned post-run against modified files via `scan_run_for_drift.mjs` |
 
 **Rule of thumb**: if the question is about *one block*, use `read_block`. If
 it's about *the connection between two blocks*, use `list_dependencies`. If
@@ -87,6 +92,99 @@ it's about *correctness of the whole graph*, use `sync_check`.
 
 If the MCP server isn't connected (rare — but possible in headless mode),
 fall back to direct file reads following the order above.
+
+---
+
+## Memory layer — read & write rules (R-7.76+)
+
+Sima's memory is **typed and small** — not a single dumping CLAUDE.md.
+When you work on a block, you AUTOMATICALLY get its memory in your
+prompt (via `run_block_implementation.mjs`); your job is to update it
+correctly so the next agent (which may be you in 3 weeks) doesn't
+repeat your mistakes.
+
+### What you READ (already in your prompt — don't re-fetch)
+
+These are pre-loaded into your prompt under `## ⚠ Block memory`:
+
+- **`narrative.md`** — human-readable run history. Sections per past
+  run with `### What I tried`, `### What worked`, `### What failed
+  and why`, `### Decisions made`. Plain English, not jargon-only —
+  read this FIRST before re-discovering wheels.
+- **`decisions.log`** — append-only architectural-choice log.
+  Format: `<ISO-ts> | <decision> | <rationale>`. **Never reverse a
+  past decision** without explicit operator override.
+- **`checks.log`** — last 50 lines of run verdicts. Read for
+  "what kind of failures keep happening on this block".
+- **`code_summary.md`** — auto-generated post-run summary of the
+  block's current code state. Use to orient quickly.
+- **`operator_memory.dont_use`** — operator-locked NEVER-do rules
+  scoped to this block or global. Severity:hard means run will FAIL
+  if you violate. Severity:soft means it gets logged.
+- **`operator_memory.always_use`** — operator-locked ALWAYS-do
+  rules. Same scoping.
+- **`operator_memory.lessons`** — distilled lessons from past
+  runs (cross-block when global, per-block when scoped).
+
+### What you WRITE (after every run — required)
+
+At the end of your run, append to two files:
+
+1. **`atlas/blocks/<id>/narrative.md`** — append a section:
+   ```
+   ## <ISO-timestamp> · <one-line summary>
+
+   ### What I tried
+   - ...
+
+   ### What worked
+   - ...
+
+   ### What failed and why
+   - ...
+
+   ### Decisions made
+   - ...
+   ```
+   Write in **plain language** (operator's preferred language —
+   Russian if they're Russian-speaking, English otherwise). Future
+   agents read this in 2 weeks and need to reconstruct context fast.
+
+2. **`atlas/blocks/<id>/decisions.log`** — append one line per
+   architectural choice you made:
+   ```
+   <ISO-ts> | <decision> | <rationale>
+   ```
+   Append-only — never rewrite past entries.
+
+### Anti-hallucination guard (R-7.82 / S-3)
+
+After your run, `scan_run_for_drift.mjs` automatically scans every
+file you touched and matches against `dont_use.json` + `always_use.json`
+rules. If you violated a hard rule, the run is marked **Failed**
+regardless of whether acceptance passed. If you violated a soft rule,
+it's logged to `checks.log` + `narrative.md` so future agents see it.
+
+This means: **you cannot silently ignore an operator-locked rule**.
+If the operator said "use LLM for sentiment, never math" — adding
+`Math.sqrt` to a sentiment function will fail your run automatically.
+
+If you genuinely believe a rule should be lifted, write your reasoning
+into `narrative.md` under `### Decisions made` and ask the operator —
+don't bypass it.
+
+### Lessons (cross-block)
+
+If during your run you discovered something useful for OTHER blocks
+("Postgres `LISTEN/NOTIFY` worked great for the queue pattern, no need
+for redis"), add a lesson via MCP:
+
+```
+add_lesson { lesson: "...", block_id: null, reason: "..." }
+```
+
+`block_id: null` makes it global — visible to every future block.
+`block_id: "b.X"` scopes it to that block.
 
 ---
 
