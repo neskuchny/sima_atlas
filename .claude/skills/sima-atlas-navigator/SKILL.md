@@ -21,20 +21,26 @@ of free-form code.
 
 For "implement / fix block X":
 
-1. `atlas/project.md` — what's this whole product (root) or
-   `atlas/clients/<client>/project.md` (multi-tenant)
-2. `atlas/rules.md` — global must-not-do constraints
+1. `atlas/project.md` (root) or `atlas/clients/<client>/project.md` (multi-tenant)
+2. `atlas/rules.md` — global must-not-do
 3. `atlas/tech_stack.md` — locked stack choices
-4. `atlas/blocks/<X>/mission.md` — intent of this block
-5. `atlas/blocks/<X>/acceptance.md` — how "done" is verified
+4. `atlas/blocks/<X>/mission.md` — intent
+5. `atlas/blocks/<X>/acceptance.md` — how «done» is verified
 6. `atlas/blocks/<X>/depends_on.md` — upstream blocks
-7. For each dep `<D>`: only `atlas/blocks/<D>/provides.md` (not its full mission)
+7. For each dep `<D>`: only `atlas/blocks/<D>/provides.md`
 8. `atlas/blocks/<X>/tasks.md` — decomposed work
-9. Last 30 lines of `atlas/blocks/<X>/checks.log` — prior attempts
+9. **`atlas/blocks/<X>/narrative.md` — human-readable run history** (R-7.80)
+10. **`atlas/blocks/<X>/decisions.log` — past architectural choices** (don't reverse)
+11. Last 30 lines of `atlas/blocks/<X>/checks.log` — verdict log
+12. **`atlas/operator_profile/dont_use.json` — NEVER-do rules** (filter to this block)
+13. **`atlas/operator_profile/always_use.json` — ALWAYS-do rules** (filter to this block)
 
-Stop at the first level that fully answers the question. Steps 7-9 are
-for cross-cutting changes. **Don't pre-read** sibling blocks unless explicitly
-listed in `depends_on.md`.
+Stop at the first level that fully answers the question. **Don't
+pre-read** sibling blocks unless `depends_on.md` lists them.
+
+**Note**: when invoked through `run_block_implementation.mjs`, items
+9-13 are already pre-injected into your prompt under "## ⚠ Block memory"
+— don't re-fetch them.
 
 ## 2. Prefer MCP tools over raw file reads
 
@@ -81,7 +87,24 @@ answers the question more directly.
   `add_edge` / `remove_edge`; manual edits drift
 - **Append to `checks.log` at end** with format
   `<ISO-timestamp>\t<step>\t<verdict>\t<note>`, verdict ∈ `pass|fail|inconclusive`
-- **`patterns.md` and `decisions.log`** are append-only memory
+- **Append to `narrative.md`** at end of run — REQUIRED. New section
+  `## <ts> · <one-line summary>` with sub-sections `### What I tried`,
+  `### What worked`, `### What failed and why`, `### Decisions made`.
+  Plain language (operator's preferred — Russian if Russian-speaking).
+  Future agents read this in 2 weeks.
+- **Append to `decisions.log`** for each architectural choice:
+  `<ISO-ts> | <decision> | <rationale>` — append-only, never rewrite.
+- **`patterns.md`** is append-only too (auto-distilled by
+  `reflect_after_run.mjs`)
+
+### After-run drift scan (R-7.82)
+
+`scan_run_for_drift.mjs` runs automatically after your run. It scans
+files you touched against `dont_use.json` + `always_use.json` rules.
+**Hard violations FAIL the run** even if acceptance passed. **Soft
+violations are logged** to `checks.log` + `narrative.md`. You cannot
+silently ignore an operator-locked rule — write your reasoning into
+narrative if you genuinely think a rule should be lifted.
 
 ## 5. Stop-signals — break the loop
 

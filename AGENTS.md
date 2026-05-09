@@ -14,8 +14,16 @@ stop-signals.
    `checks.log`. Multi-tenant: `atlas/clients/<client>/blocks/<id>/`.
 
 2. **Read mission before code.** Standard order: project → rules → tech_stack
-   → mission → acceptance → depends_on → (deps' provides) → tasks → checks.log.
-   Stop at the first level that answers the question.
+   → mission → acceptance → depends_on → (deps' provides) → tasks →
+   **narrative.md → decisions.log → checks.log → operator_profile/dont_use+always_use**.
+   Stop at the first level that answers the question. The last four
+   are the **memory layer** (R-7.76+) — they tell you what was tried,
+   rejected, and locked-in by the operator. Never reverse past
+   decisions without explicit operator override.
+
+   When invoked through `run_block_implementation.mjs`, all of the
+   above is pre-injected into your prompt under «## ⚠ Block memory» —
+   don't re-fetch.
 
 3. **Use MCP tools, not `Read`**, when available. Sima registers ~64 tools via
    `.mcp.json` (Claude Code auto-detects; for Cursor/others see
@@ -32,8 +40,21 @@ stop-signals.
 
 5. **Owner-only writes.** A run for block `X` writes only inside
    `atlas/blocks/X/`. Never edit `atlas/graph.json` by hand — use MCP tools.
-   Append to `checks.log` at end of session with verdict
-   (`pass | fail | inconclusive`).
+   At end of run, REQUIRED writes:
+   - `checks.log` — verdict line (`pass | fail | inconclusive`)
+   - **`narrative.md`** — section `## <ts> · <summary>` with sub-sections
+     `### What I tried`, `### What worked`, `### What failed and why`,
+     `### Decisions made`. Plain language so the next agent (you in 3
+     weeks) reconstructs context fast.
+   - **`decisions.log`** — for each architectural choice: append
+     `<ISO-ts> | <decision> | <rationale>`. Append-only.
+
+   After your run, `scan_run_for_drift.mjs` (R-7.82) automatically
+   scans your file changes against `operator_profile/dont_use.json`
+   + `always_use.json`. Hard violations FAIL the run; soft are logged
+   to checks.log + narrative.md. You CANNOT silently ignore a locked
+   rule — write reasoning into narrative if you think a rule should
+   be lifted.
 
 6. **Stop-signals** — break the loop:
    - Acceptance fails twice similarly → mission/acceptance is ambiguous; edit
