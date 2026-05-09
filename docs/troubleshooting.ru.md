@@ -230,3 +230,82 @@ git config --global core.autocrlf input  # LF в repo, конвертить то
 - что появилось в `npm run dev` (api лог)
 - что в DevTools Console + Network (если UI)
 - какой фазы (R-7.X) текущий HEAD: `git log --oneline -1`
+
+---
+
+## 7. Run помечен Failed из-за «hard drift violation» (R-7.82, S-3)
+
+**Симптом.** Agent run завершился, верификатор pass, но FSM кончается `Failed` с `summary: "drift_scan: hard violations found"`. В `checks.log` записи `drift_scan fail file=... rule=...`.
+
+**Причина.** `scripts/scan_run_for_drift.mjs` enumerate'ит файлы изменённые после старта run-а и грепает их по правилам из `operator_profile/dont_use.json`. Hard-нарушения (`severity: hard`) перекрывают verdict верификатора.
+
+**Что делать.**
+1. Прочитай matched rule в `narrative.md` — там объяснение *зачем* правило существует.
+2. Если правило корректно — откати violating change.
+3. Если правило слишком жёсткое — поменяй `severity: hard` → `soft` через MCP tool `set_dont_use`, или удали правило целиком тем же tool. Soft-нарушения логируются в `checks.log` + `narrative.md` но не валят run.
+
+Inspect:
+```bash
+cat atlas/operator_profile/dont_use.json | jq '.entries'
+node scripts/scan_run_for_drift.mjs --block <id> --since <ISO> --json
+```
+
+---
+
+## 8. Блок улетел в `desync` после правки upstream блока (R-7.84, S-8)
+
+**Симптом.** Правил блок A. Блок B (с `depends_on: A`) теперь показывает `status: desync` на канвасе. В его `narrative.md` новая секция «### What failed and why · cascade break detected».
+
+**Причина.** `cascade_verify` делает свою работу. После каждого успешного run-а на A он обходит reverse-deps и перезапускает acceptance верификатор на каждом. Если контракт B больше не соответствует `provides` блока A — B помечается `desync` сразу, чтобы ты не нашёл поломку утром в ночном sweep.
+
+**Что делать.**
+- Прочитай «Recommended action» в `narrative.md` блока B.
+- Если поломка intentional (переименовал capability в A): обнови `depends_on.md` + `acceptance.md` блока B, перезапусти.
+- Если случайная: откати A или восстанови недостающую capability в `provides.md` блока A.
+- Превью без патчинга: `node scripts/cascade_verify.mjs <block_id> --dry-run`.
+
+---
+
+## 9. Token Spend widget показывает $0 / нет данных (R-7.87, S-9)
+
+**Симптом.** Открыл блок → Overview → Token Spend widget говорит «no data» или одни нули.
+
+**Причина.** Одно из:
+- `atlas/llm_traces/` пуст (на свежем install ещё не было LLM calls)
+- У этого блока нет `run_state` window совпадающего с трейсами (best-effort attribution — widget фолбэчится в project-wide view)
+- Слишком узкое окно (default 30 дней; переключи на 90 в селекторе)
+
+**Что делать.**
+```bash
+ls atlas/llm_traces/*.json | wc -l
+node scripts/token_economics.mjs --days 90
+node scripts/token_economics.mjs --days 90 --block <id>
+```
+
+Если `llm_traces/` пуст после run-а — проверь `LLM_DEFAULT_PROVIDER`. `mock` пишет трейсы; `claude_cli` пишет только когда gateway его зовёт (не когда `run_block_implementation` shell'ает CLI напрямую).
+
+---
+
+## 10. Первый `npm run dev` — UI грузится но operator-profile / architecture-decisions пустые (R-7.81)
+
+**Симптом.** Fresh clone, первый `npm run dev`, открыл блок → Memory tab и панель architecture-decisions пусты.
+
+**Ожидаемое поведение.** `dev_server.mjs` авто-сидит эти файлы при старте (идемпотентно). Проверь лог `npm run dev`:
+```
+[seed] operator_profile/lessons.json created
+[seed] operator_profile/dont_use.json created
+[seed] operator_profile/always_use.json created
+[seed] architecture_decisions.md created
+```
+
+Если этих строк нет — seed уже отработал в прошлый запуск, файлы должны быть:
+```bash
+ls atlas/operator_profile/{lessons,dont_use,always_use}.json
+ls atlas/architecture_decisions.md
+```
+
+Если их вообще нет — запусти вручную:
+```bash
+node scripts/seed_operator_profile.mjs
+node scripts/architecture_decisions_api.mjs ensure
+```

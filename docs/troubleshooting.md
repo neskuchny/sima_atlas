@@ -232,3 +232,87 @@ If your symptom isn't here, open an issue at `https://github.com/neskuchny/sima_
 - what showed up in `npm run dev` (api log)
 - what's in DevTools Console + Network (if UI)
 - which phase (R-7.X) the current HEAD is at: `git log --oneline -1`
+
+---
+
+## 7. Run marked Failed because of «hard drift violation» (R-7.82, S-3)
+
+**Symptom.** Agent run completes, verifier passes, but FSM ends in `Failed` with `summary: "drift_scan: hard violations found"`. `checks.log` shows entries like `drift_scan fail file=... rule=...`.
+
+**Cause.** `scripts/scan_run_for_drift.mjs` enumerates files modified after run start and grep-scans them against `operator_profile/dont_use.json` rules. Hard violations (`severity: hard`) override the verifier verdict.
+
+**What to do.**
+1. Read the matched rule in `narrative.md` — it explains *why* the rule exists.
+2. If the rule is correct: revert the violating change.
+3. If the rule is too strict: change `severity: hard` → `soft` via `set_dont_use` MCP tool, or remove the rule entirely with the same tool. Soft violations log to `checks.log` + `narrative.md` but don't fail the run.
+
+Inspect:
+```bash
+cat atlas/operator_profile/dont_use.json | jq '.entries'
+node scripts/scan_run_for_drift.mjs --block <id> --since <ISO> --json
+```
+
+---
+
+## 8. Block flipped to `desync` after I edited an upstream block (R-7.84, S-8)
+
+**Symptom.** You edited block A. Block B (which has `depends_on: A`) now shows `status: desync` on the canvas. Its `narrative.md` has a new entry titled «### What failed and why · cascade break detected».
+
+**Cause.** This is `cascade_verify` doing its job. After every successful run on A, it walks reverse-deps and re-runs the acceptance verifier on each. If B's contract no longer matches A's `provides`, B is marked `desync` immediately so you don't discover the break next morning during the nightly sweep.
+
+**What to do.**
+- Read the «Recommended action» section in B's `narrative.md`.
+- If the break was intentional (you renamed a capability A provides): update B's `depends_on.md` + `acceptance.md`, re-run.
+- If unintentional: revert A or restore the missing capability in A's `provides.md`.
+- To preview without patching: `node scripts/cascade_verify.mjs <block_id> --dry-run`.
+
+---
+
+## 9. Token Spend widget shows $0 / no data (R-7.87, S-9)
+
+**Symptom.** Open a block → Overview tab → Token Spend widget says «no data» or all zeros.
+
+**Cause.** Either:
+- `atlas/llm_traces/` is empty (no LLM calls yet on this fresh install)
+- This block has no `run_state` window matching any traces (best-effort attribution — widget falls back to project-wide view)
+- Day window too narrow (default is 30; switch to 90 in the selector)
+
+**What to do.**
+```bash
+# Check trace count
+ls atlas/llm_traces/*.json | wc -l
+
+# Run the aggregator manually
+node scripts/token_economics.mjs --days 90
+
+# Per-block view
+node scripts/token_economics.mjs --days 90 --block <id>
+```
+
+If `llm_traces/` is empty after running an agent, check `LLM_DEFAULT_PROVIDER` — `mock` does emit traces, but `claude_cli` traces are written only when the gateway calls it (not when `run_block_implementation` shells out to the CLI directly).
+
+---
+
+## 10. First `npm run dev` — UI loads but operator-profile / architecture-decisions appear empty (R-7.81)
+
+**Symptom.** Fresh clone, first `npm run dev`, open a block → Memory tab and architecture-decisions panel are blank.
+
+**Expected behavior.** `dev_server.mjs` auto-seeds these on startup (idempotent). Check `npm run dev` log for lines like:
+```
+[seed] operator_profile/lessons.json created
+[seed] operator_profile/dont_use.json created
+[seed] operator_profile/always_use.json created
+[seed] architecture_decisions.md created
+```
+
+If these lines are absent, the seed already ran on a previous launch — the files should exist:
+```bash
+ls atlas/operator_profile/{lessons,dont_use,always_use}.json
+ls atlas/architecture_decisions.md
+```
+
+If they're missing entirely, run manually:
+```bash
+node scripts/seed_operator_profile.mjs
+node scripts/architecture_decisions_api.mjs ensure
+```

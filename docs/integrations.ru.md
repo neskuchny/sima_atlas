@@ -4,7 +4,7 @@ Sima Atlas построена вокруг **MCP (Model Context Protocol)** — 
 
 В корне репозитория лежит **`.mcp.json`** — это формат, который Claude Code и совместимые инструменты подхватывают автоматически. Для остальных — копируй соответствующий блок ниже.
 
-> **Важно.** Команды и пути конфигов меняются. Если что-то из этого устарело — проверь текущую документацию своего инструмента и пришли PR. Версия документа: 2026-05-06.
+> **Важно.** Команды и пути конфигов меняются. Если что-то из этого устарело — проверь текущую документацию своего инструмента и пришли PR. Версия документа: 2026-05-09 (после R-7.87).
 
 ---
 
@@ -125,7 +125,7 @@ thousands of tokens per session.
 }
 ```
 
-Открой Claude Code в директории `sima_atlas` — он подхватит конфиг и спросит разрешение на запуск MCP-сервера. Согласись — и в сессии появятся 65 инструментов с префиксом `mcp__sima-atlas__*`.
+Открой Claude Code в директории `sima_atlas` — он подхватит конфиг и спросит разрешение на запуск MCP-сервера. Согласись — и в сессии появятся ~70 инструментов с префиксом `mcp__sima-atlas__*`.
 
 **Альтернатива (вне директории Sima Atlas):**
 
@@ -133,7 +133,7 @@ thousands of tokens per session.
 claude mcp add sima-atlas node /absolute/path/to/sima_atlas/scripts/mcp_atlas_server.mjs
 ```
 
-**Проверка:** в Claude Code набери `/mcp` — должен показаться `sima-atlas: connected (65 tools)`. Или попробуй: «Sima, проверь чаты» — должен сработать `sima_watch_chats`.
+**Проверка:** в Claude Code набери `/mcp` — должен показаться `sima-atlas: connected (~70 tools)`. Или попробуй: «Sima, проверь чаты» — должен сработать `sima_watch_chats`.
 
 ---
 
@@ -281,9 +281,14 @@ Antigravity — относительно молодая платформа Googl
 | `sima_watch_chats` | `node scripts/sima_watch_chats.mjs --once --json` |
 | `read_block` | `cat atlas/blocks/<id>/*.md` |
 | `verify_block_acceptance` | `node scripts/acceptance_verifier.mjs <id>` |
+| `cascade_verify` | `node scripts/cascade_verify.mjs <id> [--dry-run] [--client <c>]` |
+| `build_context_pack` | `node scripts/build_context_pack.mjs <id> [--profile design\|backend-fix\|ui-fix\|acceptance-only]` |
+| `add_architecture_decision` / `list_architecture_decisions` | `node scripts/architecture_decisions_api.mjs add ...` / `list [client]` |
+| `token_economics` | `node scripts/token_economics.mjs --days 30 [--block <id>] [--json]` |
 | `accept_proposal` | `node scripts/accept_proposal.mjs <id> [--client <c>]` |
 | `nightly_consolidation` | `node scripts/nightly_consolidation.mjs` |
 | `generate_full_bundle` | `node scripts/generate_wiki.mjs && node scripts/generate_tz_from_atlas.mjs && node scripts/rebuild_atlas_roadmap.mjs` |
+| (post-run, автоматически) | `node scripts/scan_run_for_drift.mjs --block <id> --since <ISO>` |
 
 Скармливай агенту такую инструкцию в системном промпте: «для работы со схемой используй команды через Bash: ...».
 
@@ -300,6 +305,9 @@ Sima ещё запускает HTTP-сервер на порту 8787 (`npm run 
 - `POST /atlas/blocks/{create,patch,delete}` — структурные операции
 - `GET /atlas/proposals/list?client=X` — `POST /proposals/{accept,reject}`
 - `POST /atlas/acceptance/verify` — body `{block_id}`
+- `GET /atlas/token-economics?days=&block=` — R-7.87 (S-9): roll-up расходов на токены
+- `POST /atlas/architecture-decisions/add` — R-7.85 (S-6): append-only project lock-in
+- `GET /atlas/blocks/<id>/file?name=narrative.md` — чтение per-block memory файла (whitelist)
 
 Это полезно, если у твоего инструмента есть HTTP-tooling, но нет MCP. Например, можно сделать GPT-Action / Claude API tool, который вызывает эти endpoints.
 
