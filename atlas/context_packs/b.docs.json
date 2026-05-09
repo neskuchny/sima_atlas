@@ -1,11 +1,12 @@
 {
-  "generated_at": "2026-05-09T11:20:23.628Z",
+  "generated_at": "2026-05-09T11:55:31.472Z",
   "block_id": "b.docs",
+  "profile": "design",
   "project": {
     "project": "# Sima Atlas\n\nЦель: единая визуально-документная система, которая устраняет рассинхрон между кодом, агентами и документацией.\n\n## North Star\n- Любой агент работает по одному и тому же block-context.\n- Человек видит статус реализации на схеме без чтения всего кода.\n",
     "rules": "# Rules\n\n1. Любое изменение блока фиксируется в его `tasks.md` и `checks.log`.\n2. Перед изменением кода агент читает: `project.md`, `tech_stack.md`, `rules.md`, `blocks/<id>/*`.\n3. Файлы без владельца-блока считаются out-of-scope.\n4. Блок `done` только при выполнении acceptance + KPI, а не только compile/runtime.\n",
     "tech_stack": "# Tech Stack (MVP lock)\n\n- Frontend: React (Babel standalone в текущем прототипе)\n- Runtime storage: localStorage (MVP)\n- Atlas storage: Markdown + JSON (`/atlas`)\n- Automation: CLI agents (Cursor/Claude/Codex) через hooks/адаптеры\n- Backend automation: Node.js 18+ (ESM, native fetch)\n- LLM providers: Anthropic API, Google Gemini API (via b.llm-gateway)\n\n## Запреты MVP (machine-readable for guard_against_drift.mjs)\n\n`forbidden_commands` (regex applied to the full command string):\n\n```forbidden\n^pip\\s+install\n^pipx\\s+install\n^poetry\\s+(add|install)\n^conda\\s+install\n^cargo\\s+(add|install)\n^go\\s+install\n^bundle\\s+install\n^gem\\s+install\n^composer\\s+(install|require)\n```\n\n`forbidden_substrings`:\n\n```forbidden_substrings\nyarn add vue\nyarn add @angular\nnpm install vue\nnpm install @angular\nnpm i vue\nnpm i @angular\n```\n\n## Allowed package managers\n\n- `npm` / `npx` (Node.js)\n- `node` / direct script execution\n\n## Прочие правила\n\n- Не смешивать второй фронтенд-фреймворк в активных блоках (см. forbidden_substrings).\n- Не использовать альтернативные «источники правды» вне `/atlas`.\n- Не устанавливать Python/Ruby/Go-зависимости — это репо чисто на Node.js.\n\n",
-    "architecture_decisions": "# Architecture decisions\n\nThis file is **append-only**. Every architectural choice the operator makes about the product is logged here. Agents read it as part of context-pack and MUST NOT silently reverse a past decision — if they think a decision should change, they surface it in `narrative.md` and ask the operator.\n\nFormat per entry:\n\n```\n## <ISO-date> · <one-line decision>\n\n**Rationale:** <why this and not the alternative>\n**Affects:** <block ids or \"all\">\n**Reversible:** <yes / no / \"needs operator approval\">\n```\n\nThe latest entry is always at the bottom — chronological, not most-important-first.\n\n---\n\n## 2026-05-09 · use LLM for sentiment analysis, never math formulas\n\n**Rationale:** math doesn't understand context — proven in early prototypes; use llm_gateway with anthropic/google/ollama cascade\n**Affects:** all\n**Reversible:** needs operator approval\n"
+    "architecture_decisions": "# Architecture decisions\n\nThis file is **append-only**. Every architectural choice the operator makes about the product is logged here. Agents read it as part of context-pack and MUST NOT silently reverse a past decision — if they think a decision should change, they surface it in `narrative.md` and ask the operator.\n\nFormat per entry:\n\n```\n## <ISO-date> · <one-line decision>\n\n**Rationale:** <why this and not the alternative>\n**Affects:** <block ids or \"all\">\n**Reversible:** <yes / no / \"needs operator approval\">\n```\n\nThe latest entry is always at the bottom — chronological, not most-important-first.\n\n---\n"
   },
   "block": {
     "meta": {
@@ -85,7 +86,8 @@
     "always_use": []
   },
   "_meta": {
-    "size_bytes": 23477,
-    "estimated_tokens": 5870
+    "size_bytes": 23234,
+    "estimated_tokens": 5809,
+    "profile": "design"
   }
 }

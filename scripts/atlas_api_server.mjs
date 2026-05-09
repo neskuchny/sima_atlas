@@ -407,6 +407,7 @@ const server = http.createServer((req, res) => {
     'mission.md', 'kpi.md', 'acceptance.md', 'tasks.md', 'depends_on.md',
     'provides.md', 'files.md', 'checks.log', 'decisions.log', 'patterns.md',
     'lessons.md', 'user_story.md', 'code_summary.md',
+    'narrative.md',  // R-7.86 — Memory tab + Overview Implementation Status (run history)
   ]);
   {
     const m = req.method === 'GET' && req.url.match(/^\/atlas\/blocks\/([a-zA-Z0-9._-]+)\/file\?(.*)$/);

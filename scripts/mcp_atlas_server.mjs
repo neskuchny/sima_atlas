@@ -38,7 +38,7 @@ function toolList(){
     { name:'nightly_consolidation', description:'Run validators + generators and write atlas/nightly_report.md', inputSchema:{ type:'object', properties:{} } },
     { name:'render_wiki_html', description:'Render atlas/WIKI.md to atlas/wiki.html', inputSchema:{ type:'object', properties:{} } },
     { name:'ingest_chat_distillate', description:'Append distilled chat insight to decisions/patterns/checks of block', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, note:{type:'string'} }, required:['block_id','note'] } },
-    { name:'build_context_pack', description:'Build deterministic context-pack json for block', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} }, required:['block_id'] } },
+    { name:'build_context_pack', description:'Build deterministic context-pack json for block. profile (S-4): design (full ~5-15K), backend-fix (~2-4K), ui-fix (~1.5-3K), acceptance-only (~0.5-1.5K). Default: design.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, profile:{ type:'string', enum:['design','backend-fix','ui-fix','acceptance-only'] } }, required:['block_id'] } },
     { name:'enqueue_ingestion', description:'Queue distilled chat insight for nightly ingestion', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, note:{type:'string'}, apply_to_rules:{type:'boolean'}, conversation_text:{type:'string'} }, required:['block_id','note'] } },
     { name:'apply_ingestion_queue', description:'Apply queued distillates into block memory files', inputSchema:{ type:'object', properties:{} } },
     { name:'ingest_chat_batches', description:'Batch-ingest transcript JSONL into queue and apply automatically', inputSchema:{ type:'object', properties:{ transcript_path:{type:'string'}, block_id:{type:'string'}, batch_size:{type:'number'} }, required:['transcript_path'] } },
@@ -428,8 +428,13 @@ rl.on('line', (line) => {
 
       if (name === 'build_context_pack') {
         const bid = args.block_id;
-        execSync(`node scripts/build_context_pack.mjs ${bid}`, { cwd: root, stdio:'pipe' });
-        return respond(id, { content:[{ type:'text', text: `context-pack built: ${bid}` }] });
+        const profile = String(args.profile || 'design');
+        const KNOWN = ['design','backend-fix','ui-fix','acceptance-only'];
+        if (!KNOWN.includes(profile)) {
+          return respond(id, { content:[{ type:'text', text: `unknown profile "${profile}". known: ${KNOWN.join(', ')}` }], isError:true });
+        }
+        execSync(`node scripts/build_context_pack.mjs ${bid} --profile ${profile}`, { cwd: root, stdio:'pipe' });
+        return respond(id, { content:[{ type:'text', text: `context-pack [${profile}] built: ${bid}` }] });
       }
 
       if (name === 'enqueue_ingestion') {

@@ -69,10 +69,17 @@ if (!fs.existsSync(blockDir)) {
 // build_context_pack does not honor ATLAS_ROOT yet — for multi-tenant
 // runs we let it fail soft with a warning. The agent still has the
 // inline prompt + block dir mounted, so it can work without the pack.
+//
+// R-7.86 (S-4) — profile selection. Default = design (full pack).
+// CLI: --profile <name>; env: ATLAS_PACK_PROFILE.
+const profileFlagIdx = process.argv.indexOf('--profile');
+const packProfile = profileFlagIdx >= 0
+  ? process.argv[profileFlagIdx + 1]
+  : (process.env.ATLAS_PACK_PROFILE || 'design');
 try {
-  execFileSync('node', ['scripts/build_context_pack.mjs', blockId], { cwd: ROOT, stdio: 'pipe' });
+  execFileSync('node', ['scripts/build_context_pack.mjs', blockId, '--profile', packProfile], { cwd: ROOT, stdio: 'pipe' });
 } catch (e) {
-  console.warn(`run_block_implementation: build_context_pack failed (non-fatal) → ${e.message}`);
+  console.warn(`run_block_implementation: build_context_pack [${packProfile}] failed (non-fatal) → ${e.message}`);
 }
 
 // 2. Compose the prompt
