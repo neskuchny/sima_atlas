@@ -94,6 +94,28 @@ if (missing.length) {
 }
 
 // ──────────────────────────────────────────────────────────────────
+// R-7.81 — auto-seed operator-profile memory files (idempotent).
+// Runs synchronously before the API server starts so the first
+// build_context_pack / run_block_implementation call sees the files.
+// New users don't need to know about scripts/seed_operator_profile.mjs;
+// `npm run dev` ensures the memory plumbing exists.
+// ──────────────────────────────────────────────────────────────────
+try {
+  const r = spawnSync('node', ['scripts/seed_operator_profile.mjs'], {
+    cwd: ROOT, encoding: 'utf8', timeout: 8000,
+  });
+  if (r.status === 0) {
+    const lines = (r.stdout || '').trim().split('\n').filter(Boolean);
+    const created = lines.filter(l => /\[seed\] created/.test(l)).length;
+    if (created > 0) console.log(`[dev] seeded ${created} operator-profile memory file(s) — first run`);
+  } else {
+    console.warn(`[dev] seed_operator_profile failed (non-fatal): ${r.stderr || r.stdout || 'unknown'}`);
+  }
+} catch (e) {
+  console.warn(`[dev] seed_operator_profile skipped (${e.message})`);
+}
+
+// ──────────────────────────────────────────────────────────────────
 // 1. atlas_api_server
 // ──────────────────────────────────────────────────────────────────
 startProc('api', 'node', ['scripts/atlas_api_server.mjs'], {
