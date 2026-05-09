@@ -52,6 +52,8 @@ function toolList(){
     { name:'collect_evidence', description:'PR-2 (b.acceptance-verifier-loop): run a single deterministic evidence collector. evidence_kind ∈ {exit_code, fs_glob, file_diff, log_grep, selftest_run}. Returns {verdict, evidence, reasoning, raw, duration_ms}.', inputSchema:{ type:'object', properties:{ evidence_kind:{type:'string'}, evidence_spec:{type:'object'} }, required:['evidence_kind','evidence_spec'] } },
     { name:'verify_block_acceptance', description:'PR-2 (b.acceptance-verifier-loop): parse acceptance.md AND collect evidence per assertion in one shot. Returns {block_id, assertions: [...], counts: {pass, fail, skipped}, verdict}.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} }, required:['block_id'] } },
     { name:'cascade_verify', description:'R-7.84 (S-8): after editing block X, re-run acceptance verifier on every block that depends on X. Auto-flags broken dependents as status:desync in graph.json with reason. Appends cascade entry to their checks.log + narrative.md so future agents see the chain. Operator sees the break inline on the canvas instead of next morning. Pass dry_run:true to preview without patching.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, client_id:{type:'string'}, dry_run:{type:'boolean'} }, required:['block_id'] } },
+    { name:'add_architecture_decision', description:'R-7.85 (S-6): append a project-level architectural decision to atlas/architecture_decisions.md. APPEND-ONLY — never edits past entries. Each decision is auto-injected into EVERY future agent prompt across ALL blocks, locking the choice in. Use for «use LLM not math», «Postgres not MongoDB», «JWT 15min refresh 30day». Required: decision (one-line), rationale (why this not the alternative). Optional: affects (block ids or "all", default "all"), reversible (yes/no/needs operator approval, default last), client_id (for multi-tenant), ts (ISO date, default today).', inputSchema:{ type:'object', properties:{ decision:{type:'string'}, rationale:{type:'string'}, affects:{type:'string'}, reversible:{type:'string'}, client_id:{type:'string'}, ts:{type:'string'} }, required:['decision','rationale'] } },
+    { name:'list_architecture_decisions', description:'R-7.85 (S-6): list all entries from atlas/architecture_decisions.md (or atlas/clients/<client_id>/architecture_decisions.md). Returns the markdown sections so an agent can review what\'s locked-in before suggesting an architecture change.', inputSchema:{ type:'object', properties:{ client_id:{type:'string'} } } },
     { name:'judge_assertion', description:'PR-3 (b.acceptance-verifier-loop): LLM-judge fallback for an individual assertion. Returns {verdict: pass|fail|inconclusive, reasoning, evidence_quote, cost_usd, provider}. Inconclusive on missing API key — never silent pass.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, assertion_id:{type:'string'} }, required:['block_id','assertion_id'] } },
     { name:'read_acceptance_run', description:'PR-4 (b.acceptance-verifier-loop): read atlas/acceptance_runs/<block>/_latest.json — full assertion-level verdict report from the most recent verifier run.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} }, required:['block_id'] } },
     { name:'list_failed_acceptances', description:'PR-4 (b.acceptance-verifier-loop): list every block whose latest verifier verdict is fail or inconclusive (with sample failures).', inputSchema:{ type:'object', properties:{} } },
@@ -512,6 +514,28 @@ rl.on('line', (line) => {
         if (!bid) return respondErr(id, 'verify_block_acceptance: block_id required');
         const out = execSync(`node scripts/collect_evidence.mjs --block ${JSON.stringify(bid)} --json`, { cwd: root, stdio: 'pipe' }).toString().trim();
         return respond(id, { content:[{ type:'text', text: out }] });
+      }
+      // R-7.85 (S-6) — architecture decisions (delegated to CLI to keep this handler sync)
+      if (name === 'add_architecture_decision') {
+        const { decision, rationale, affects, reversible, client_id } = args || {};
+        if (!decision || !rationale) {
+          return respondErr(id, 'add_architecture_decision: decision + rationale required');
+        }
+        try {
+          const cmd = ['node', 'scripts/architecture_decisions_api.mjs', 'add',
+            JSON.stringify(decision), JSON.stringify(rationale),
+            JSON.stringify(affects || 'all')];
+          if (client_id) cmd.push(JSON.stringify(client_id));
+          const out = execSync(cmd.join(' '), { cwd: root, stdio: 'pipe' }).toString();
+          return respond(id, { content:[{ type:'text', text: out }] });
+        } catch (e) { return respondErr(id, `add_architecture_decision: ${e.message}`); }
+      }
+      if (name === 'list_architecture_decisions') {
+        try {
+          const arg = args?.client_id ? JSON.stringify(args.client_id) : '';
+          const out = execSync(`node scripts/architecture_decisions_api.mjs list ${arg}`.trim(), { cwd: root, stdio: 'pipe' }).toString();
+          return respond(id, { content:[{ type:'text', text: out }] });
+        } catch (e) { return respondErr(id, `list_architecture_decisions: ${e.message}`); }
       }
       // R-7.84 (S-8) — cascade verify: re-run acceptance on dependents of <block_id>
       // and auto-flag broken ones desync. Returns per-dependent verdict.

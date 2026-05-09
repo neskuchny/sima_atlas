@@ -92,6 +92,8 @@ const tasks = readSafe(path.join(blockDir, 'tasks.md'));
 const filesList = readSafe(path.join(blockDir, 'files.md'));
 const rules = readSafe(path.join(ATLAS, 'rules.md'));
 const techStack = readSafe(path.join(ATLAS, 'tech_stack.md'));
+// R-7.85 (S-6) — project-level architectural decisions, append-only
+const archDecisions = readSafe(path.join(ATLAS, 'architecture_decisions.md')).trim();
 
 // R-7.77 — memory injection. Agent sees what was tried before, what
 // was rejected, and operator-level architectural rules. Prevents the
@@ -136,6 +138,14 @@ const prompt = [
   '',
   '## Tech stack (forbidden commands enforced via guard_against_drift)',
   techStack.trim(),
+  '',
+  // R-7.85 (S-6) — project-level architectural decisions. Append-only,
+  // operator-locked. Agent MUST NOT silently reverse a past decision —
+  // if a decision needs to change, surface it in narrative.md and ask
+  // the operator. This is the strongest lock against the «LLM not math»
+  // class of failure: it lives at project level, gets re-injected on
+  // EVERY run, and is impossible to forget between sessions.
+  archDecisions ? `## ⚖ Architecture decisions (project-level, append-only — DO NOT silently reverse)\n${archDecisions}\n` : '',
   '',
   // R-7.77 — block memory: surface past decisions, narrative summary,
   // and operator hard rules. Each section guarded so we don't dump
