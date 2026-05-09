@@ -146,7 +146,8 @@ npm run dev
 
 ## Обещали vs сделано — feature manifest
 
-![Uploading ChatGPT RU 2026 г., 23_53_27.png…]()
+<img width="1672" height="941" alt="ChatGPT Image 9 мая 2026 г , 23_59_32" src="https://github.com/user-attachments/assets/0076bf97-8711-4f06-a5ad-8c422312560c" />
+
 
 
 Каждый пункт исходной концепции — мэп на текущее состояние кода.
