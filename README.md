@@ -9,7 +9,7 @@
 
 **The 30-second pitch.** AI coding agents work great on five files and fall apart on fifty — they hallucinate, drift, redo things, and burn tokens because they have no contract for what each piece is supposed to do, and no graph of how the pieces connect. Sima Atlas is the **visual control plane** that gives them both: every feature is a directory of MD-contracts, the canvas shows their connections, agents read context-packs scoped to one block at a time, and an acceptance loop verifies each run with deterministic evidence — `pass` / `fail` / `inconclusive`, never silent false-pass.
 
-![Canvas overview](tests/playwright/screenshots/sima_design_live.png)
+<img width="1913" height="960" alt="Sima Atlas canvas — visual contract-first development for AI agents" src="https://github.com/user-attachments/assets/15114bfe-1593-443c-ac18-3894bb49ee4f" />
 
 ## The vision
 
