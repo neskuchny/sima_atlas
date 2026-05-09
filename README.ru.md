@@ -122,14 +122,14 @@ npm run dev
 - **Заменяет:** холодный старт каждой сессии; один и тот же баг попробован 3 раза
 - **Sima даёт:** per-block run history (что пробовал / что сработало / что упало / какие решения) авто-инжектится · operator-level lessons с накоплением evidence · code map перегенерируется per run
 
-### Job 7 — «Хочу видеть какие файлы живые, какие мёртвые, какие — мусор»
+### Job 7 — «Хочу видеть какие файлы живые / мёртвые / мусор — и чтобы система предлагала чистку»
 
 **Когда** проект растёт месяцами и файлы переименовываются / удаляются / забываются
-**Хочу** явный per-feature манифест какие файлы реально используются
-**Чтобы** код не зарастал мусором, и агенты не читали устаревшие пути
+**Хочу** явный per-feature манифест какие файлы реально используются + ночные предложения что архивировать
+**Чтобы** код не зарастал мусором, агенты не читали устаревшие пути — но я ничего не терял из того что может пригодиться для будущих ТЗ
 
-- **Заменяет:** «не помню что было в этой папке полгода назад»; агенты читающие orphaned файлы; устаревшие ссылки в WIKI
-- **Sima даёт:** per-block file manifest с маркерами `[alive]` / `[dead]` / `[archived]` / `[pending]` · валидатор который **проваливает CI** когда `[alive]` файл пропал · счётчик «Files alive» в Implementation Status panel · file-state попадает в каждый context-pack чтобы агент знал что читать а что пропускать
+- **Заменяет:** «не помню что было в этой папке полгода назад»; агенты читающие orphaned файлы; устаревшие ссылки в WIKI; ручная уборка которую никто не делает
+- **Sima даёт:** per-block file manifest с маркерами `[alive]` / `[dead]` / `[archived]` / `[pending]` · валидатор **проваливает CI** при пропавшем `[alive]` · счётчик «Files alive» в Implementation Status · file-state попадает в каждый context-pack · **ночной housekeeping sweeper** (R-7.88) предлагает чистки (stale-alive · stale-dead/archived · orphan code) — только предлагает, никогда не удаляет автоматически; apply tool **переносит в `archive/` с breadcrumb**, никаких `rm`; защищает все ТЗ / референсы / docs / блоки не в статусе `done` by design
 
 ## Обещали vs сделано — feature manifest
 
@@ -151,7 +151,7 @@ npm run dev
 | Авто-туториалы (как пользоваться, возможности, ограничения) | 🟡 | `generate_user_docs.mjs` plumbing работает; качество вывода зависит от LLM-провайдера — `claude_cli` headless иногда путается, для production-качества рекомендуется Anthropic API |
 | Внешнечитаемая документация (чтобы другие поняли проект) | ✅ | README EN+RU · 7 user-facing docs (architecture · getting-started · troubleshooting · integrations · article · agent-navigation) |
 | Vibe-coding инструменты (consultations + синхронизация) | ✅ | ✦ Sima fill-from-chat · ✏ Rewrite · ✨ Expand · Architecture review modal · Claude advice кнопка |
-| Чистка кода — схема какие файлы живые / мёртвые / архив | ✅ | per-block `files.md` манифест · `validate_files_registry.mjs` (фейлит CI на пропавший `[alive]` файл) · file-state в каждом context-pack и в Implementation Status panel · текущий счёт: 206 alive · 4 archived · 3 pending по проекту |
+| Чистка кода — схема alive / dead / archived **+ ночные предложения** | ✅ | per-block `files.md` · `validate_files_registry.mjs` (фейлит CI на пропавший `[alive]`) · file-state в context-pack и Implementation Status · **R-7.88 housekeeping sweeper предлагает (никогда не применяет) чистки; apply tool переносит в архив с breadcrumb, не удаляет; safety rails защищают ТЗ / refs / non-`done` блоки** · текущий счёт: 177 alive · 4 archived · 3 pending |
 
 **Итог: 14 ✅ полностью отгружено · 1 🟡 частично (качество авто-туториалов) · 1 ✅+🟡 частично (cross-project библиотека — локально работает, transfer запланирован).**
 
@@ -183,6 +183,7 @@ npm run dev
 - ⬜ **S-9.1** — global Token Economics tab (отдельно от per-block widget): sparklines, cost-per-pass vs cost-per-fail ROI, A/B сравнение моделей
 - ⬜ **S-10** — UI выбор profile при старте run-а (сейчас только CLI flag + env var)
 - ⬜ **S-11** — cross-block roll-up в Implementation Status: «какой % контрактов в этом subsystem заполнен?»
+- 🟡 **S-12** — housekeeping sweeper: **MVP отгружен (R-7.88)** — предлагает чистки stale-alive / stale-dead / stale-archived / orphan-code в nightly. Follow-ups: import-graph детектор мёртвого кода (файл лежит, никто не импортирует), time-based архивные подсказки (нет коммитов 90 дней → soft hint в архив), вкладка Cleanup в UI для one-click apply
 
 ### Среднесрок — collaboration + локальные модели (v0.6 → v0.9, Q4 2026)
 - ⬜ **T-1** — multi-operator collaboration с CRDT-merge контрактов

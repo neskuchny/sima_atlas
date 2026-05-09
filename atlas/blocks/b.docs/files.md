@@ -9,4 +9,3 @@
 - atlas/wiki.html [alive] (auto-generated)
 - atlas/roadmap.md [alive] (auto-generated)
 - atlas/nightly_report.md [alive] (auto-generated)
-- ТЗ/auto_tz.md [alive] (auto-generated)
