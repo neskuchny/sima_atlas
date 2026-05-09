@@ -65,6 +65,10 @@ const pack = {
     project: read(path.join(atlas,'project.md')),
     rules: read(path.join(atlas,'rules.md')),
     tech_stack: read(path.join(atlas,'tech_stack.md')),
+    // R-7.85 (S-6) — append-only architectural lock-in. Visible to
+    // every block. Operator records decisions like «LLM not math» once
+    // and the agent sees them in EVERY future prompt.
+    architecture_decisions: read(path.join(atlas,'architecture_decisions.md')),
   },
   block: {
     meta: block,

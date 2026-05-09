@@ -175,6 +175,7 @@ const server = http.createServer((req, res) => {
   const META_WHITELIST = new Set([
     'project.md', 'rules.md', 'tech_stack.md', 'roadmap.md', 'wiki.html',
     'WIKI.md', 'BACKLOG.md',
+    'architecture_decisions.md',  // R-7.85 (S-6) — append-only project decisions
   ]);
   if (req.method === 'GET' && req.url.startsWith('/atlas/meta')) {
     try {
@@ -803,6 +804,23 @@ const server = http.createServer((req, res) => {
       const artPatchM = req.url.match(/^\/api\/artifacts\/(art-[a-z0-9-]+)$/i);
       if (artPatchM) {
         return tryFn(() => artifactsApi.updateArtifact(artPatchM[1], body, { client_id: artClient }));
+      }
+
+      // R-7.85 (S-6) — append a new architecture decision (UI form).
+      // Body: { decision, rationale, affects?, reversible?, _client? }
+      // Uses architecture_decisions_api.mjs for atomic append. This is
+      // append-only — no edit/delete endpoint by design (operator
+      // wants the audit trail unbreakable).
+      if (req.url === '/atlas/architecture-decisions/add') {
+        const { decision, rationale, affects, reversible, _client } = body || {};
+        if (!decision || !rationale) {
+          return json(res, 200, { ok: false, error: 'decision + rationale required' });
+        }
+        try {
+          const mod = await import('./architecture_decisions_api.mjs');
+          const r = mod.addArchitectureDecision({ clientId: _client || null, decision, rationale, affects, reversible });
+          return json(res, 200, { ok: true, path: r.path, appended: r.appended });
+        } catch (e) { return json(res, 200, { ok: false, error: String(e.message || e) }); }
       }
 
       // /atlas/meta/save — write a whitelisted top-level meta file.

@@ -115,6 +115,20 @@ try {
   console.warn(`[dev] seed_operator_profile skipped (${e.message})`);
 }
 
+// R-7.85 (S-6) — ensure root architecture_decisions.md exists.
+// Same idempotent pattern as the seed above. Per-client files are
+// created lazily on first add_architecture_decision call.
+try {
+  const r = spawnSync('node', ['scripts/architecture_decisions_api.mjs', 'ensure'], {
+    cwd: ROOT, encoding: 'utf8', timeout: 4000,
+  });
+  if (r.status === 0 && /Created /.test(r.stdout || '')) {
+    console.log(`[dev] seeded architecture_decisions.md — first run`);
+  }
+} catch (e) {
+  console.warn(`[dev] architecture_decisions ensure skipped (${e.message})`);
+}
+
 // ──────────────────────────────────────────────────────────────────
 // 1. atlas_api_server
 // ──────────────────────────────────────────────────────────────────
