@@ -164,7 +164,7 @@ A node's color on the canvas reflects its layer.
 ### Multi-tenant
 A single server hosts many projects. The `?client=<id>` URL parameter switches context:
 - `?client=main` — the root `atlas/blocks/` (Sima itself)
-- `?client=my-saas` — `atlas/clients/my-saas/blocks/`
+- `?client=my-product` — `atlas/clients/my-product/blocks/`
 - `?client=other-product` — `atlas/clients/other-product/blocks/`
 
 The toolbar has a project picker (the current client) — switch between projects or create new ones.

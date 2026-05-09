@@ -60,7 +60,7 @@ body:
       description: Минимальный набор шагов, которыми мы сами сможем повторить
       placeholder: |
         1. `npm run dev`
-        2. Открыть http://localhost:8000/atlas_design/?client=my-saas
+        2. Открыть http://localhost:8000/atlas_design/?client=my-product
         3. Click ПКМ по фону → «＋ Новый модуль»
         4. Видим белый экран
     validations:
