@@ -115,6 +115,14 @@ export function createBlock({ atlas_root, body } = {}) {
   seed('provides.md',   `# ${id} — provides\n\n- ${id.replace(/^b\./, '').replace(/[^a-z0-9_]/gi, '_')}_capability\n`);
   seed('files.md',   `# ${id} — files\n\n- atlas/blocks/${id}/mission.md [alive]\n`);
   seed('checks.log', `${ts()}\tcreated\tpass\tBlock created via design UI${parentId ? ` (parent=${parentId})` : ''}\n`);
+  // R-7.80 — narrative.md is the human-readable run history. Agents
+  // append a section after each run with what they tried / what worked /
+  // what failed / decisions. Operator: «логи должны быть человеческим
+  // языком, а не техническими» — this file IS that language.
+  seed('narrative.md', `# ${id} — narrative\n\nHuman-readable history of what was tried in this block, what worked, what was rejected and why. Agents append a section after each run; operators read it when returning to the block after a break.\n\nFormat per entry:\n\n\`\`\`\n## <ISO-timestamp> · <one-line summary>\n\n### What I tried\n- ...\n\n### What worked\n- ...\n\n### What failed and why\n- ...\n\n### Decisions made\n- ...\n\`\`\`\n\n_(empty — first run will populate)_\n`);
+  // R-7.80 — decisions.log is append-only architectural-choice log.
+  // Format: <ISO-timestamp> | <decision> | <rationale>
+  seed('decisions.log', `# ${id} — decisions log (append-only)\n\n# Format: ISO-timestamp | decision | rationale\n# Future agents read these and MUST NOT silently reverse them.\n`);
 
   return { ok: true, block };
 }

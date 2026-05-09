@@ -77,6 +77,14 @@ try {
 
 // 2. Compose the prompt
 function readSafe(p) { return fs.existsSync(p) ? fs.readFileSync(p, 'utf8') : ''; }
+function readJsonSafe(p) {
+  if (!fs.existsSync(p)) return null;
+  try { return JSON.parse(fs.readFileSync(p, 'utf8')); } catch { return null; }
+}
+function tailLines(s, n) {
+  const all = String(s || '').split(/\r?\n/);
+  return all.slice(-n).join('\n');
+}
 const mission = readSafe(path.join(blockDir, 'mission.md'));
 const kpi = readSafe(path.join(blockDir, 'kpi.md'));
 const acceptance = readSafe(path.join(blockDir, 'acceptance.md'));
@@ -84,6 +92,26 @@ const tasks = readSafe(path.join(blockDir, 'tasks.md'));
 const filesList = readSafe(path.join(blockDir, 'files.md'));
 const rules = readSafe(path.join(ATLAS, 'rules.md'));
 const techStack = readSafe(path.join(ATLAS, 'tech_stack.md'));
+
+// R-7.77 — memory injection. Agent sees what was tried before, what
+// was rejected, and operator-level architectural rules. Prevents the
+// "I asked for LLM, agent wrote a math formula" failure mode by
+// surfacing past decisions and dont_use rules at prompt time.
+const checksTail = tailLines(readSafe(path.join(blockDir, 'checks.log')), 30);
+const decisions = readSafe(path.join(blockDir, 'decisions.log')).trim();
+const codeSummary = readSafe(path.join(blockDir, 'code_summary.md')).trim();
+const narrative = readSafe(path.join(blockDir, 'narrative.md')).trim();
+const profileDir = path.join(ATLAS, 'operator_profile');
+const opMem = {
+  lessons:    (readJsonSafe(path.join(profileDir, 'lessons.json'))?.lessons || []).filter(e => !e.block_id || e.block_id === blockId).slice(-15),
+  dont_use:   (readJsonSafe(path.join(profileDir, 'dont_use.json'))?.entries || []).filter(e => !e.block_id || e.block_id === blockId).slice(-15),
+  always_use: (readJsonSafe(path.join(profileDir, 'always_use.json'))?.entries || []).filter(e => !e.block_id || e.block_id === blockId).slice(-15),
+};
+const fmtList = (arr, key = 'rule') => arr.map((e, i) => `- ${e[key] || e.text || e.note || JSON.stringify(e)}${e.reason ? ` — ${e.reason}` : ''}`).join('\n');
+const dontUseTxt = opMem.dont_use.length ? fmtList(opMem.dont_use) : '';
+const alwaysUseTxt = opMem.always_use.length ? fmtList(opMem.always_use) : '';
+const lessonsTxt = opMem.lessons.length ? fmtList(opMem.lessons, 'lesson') : '';
+const hasMemory = (decisions || narrative || codeSummary || checksTail || dontUseTxt || alwaysUseTxt || lessonsTxt);
 
 const prompt = [
   `# Implement block ${blockId}`,
@@ -109,10 +137,28 @@ const prompt = [
   '## Tech stack (forbidden commands enforced via guard_against_drift)',
   techStack.trim(),
   '',
+  // R-7.77 — block memory: surface past decisions, narrative summary,
+  // and operator hard rules. Each section guarded so we don't dump
+  // empty headings on virgin blocks.
+  hasMemory ? '## ⚠ Block memory (read this BEFORE writing code)' : '',
+  hasMemory ? 'These are constraints, decisions, and lessons accumulated from previous runs and operator feedback. Do NOT contradict them without explicit operator override.' : '',
+  hasMemory ? '' : '',
+  dontUseTxt ? `### NEVER do (operator-locked):\n${dontUseTxt}\n` : '',
+  alwaysUseTxt ? `### ALWAYS do (operator-locked):\n${alwaysUseTxt}\n` : '',
+  decisions ? `### Past decisions (don't reverse):\n${decisions}\n` : '',
+  lessonsTxt ? `### Lessons from this & related blocks:\n${lessonsTxt}\n` : '',
+  narrative ? `### Run history (human-readable):\n${tailLines(narrative, 80)}\n` : '',
+  codeSummary ? `### Current code summary:\n${codeSummary}\n` : '',
+  checksTail ? `### Recent run log (last 30 lines of checks.log):\n\`\`\`\n${checksTail}\n\`\`\`\n` : '',
   extraPrompt ? `## Operator note\n${extraPrompt}\n` : '',
   '## How to report progress',
   `Append a line to \`${path.relative(ROOT, blockDir).split(path.sep).join('/')}/checks.log\` with the test/check result.`,
   'When done, set status to `review` via MCP transition_block.',
+  '',
+  '## How to update memory',
+  'After your run, summarize what you did in human language and write it to:',
+  `- \`${path.relative(ROOT, blockDir).split(path.sep).join('/')}/narrative.md\` — append a section headed \`## <ISO-timestamp> · <one-line summary>\` with sub-sections \`### What I tried\`, \`### What worked\`, \`### What failed and why\`, \`### Decisions made\`. Write in plain English (or operator's language), not jargon-only — future agents will read this in 2 weeks.`,
+  `- \`${path.relative(ROOT, blockDir).split(path.sep).join('/')}/decisions.log\` — for each architectural choice, append \`<ISO-timestamp> | <decision> | <rationale>\` (one line each). These are append-only; don't rewrite past entries.`,
   '',
 ].filter(Boolean).join('\n');
 

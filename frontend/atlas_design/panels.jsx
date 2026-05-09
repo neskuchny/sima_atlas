@@ -724,12 +724,17 @@ function SubsList({ subs, desyncResolved, moduleId }) {
 
 function Memory({ lessons, history, moduleId }) {
   const t = window.__SIMA_T || ((_, fb) => fb);
-  // Pull real per-block trace from disk: decisions.log + patterns.md.
-  // The static `lessons`/`history` props from the bootstrap are the
-  // editorial fallback; if the block has its own decisions log we
-  // surface that as the primary view.
+  // R-7.79 — Memory tab now surfaces the FULL block memory layer:
+  // narrative.md (human-readable run history), decisions.log,
+  // patterns.md, code_summary.md, checks.log tail. Operator: «логи
+  // должны быть человеческим языком — что пробовала, как, почему не
+  // работало», so narrative.md is the new primary view (rendered as
+  // markdown), decisions/patterns/checks are reference panels below.
+  const [narrative, setNarrative] = useState2(null);
   const [decisions, setDecisions] = useState2(null);
   const [patterns, setPatterns] = useState2(null);
+  const [codeSummary, setCodeSummary] = useState2(null);
+  const [checksLog, setChecksLog] = useState2(null);
   const [packBusy, setPackBusy] = useState2(false);
   const [packResult, setPackResult] = useState2(null);
   const apiBase = (window.SIMA_API_BASE || 'http://localhost:8787').replace(/\/$/, '');
@@ -737,14 +742,24 @@ function Memory({ lessons, history, moduleId }) {
   useEffect2(() => {
     let alive = true;
     (async () => {
-      if (!moduleId || !moduleId.startsWith('b.')) { setDecisions(null); setPatterns(null); return; }
-      const [d, p] = await Promise.all([
+      if (!moduleId || !moduleId.startsWith('b.')) {
+        setNarrative(null); setDecisions(null); setPatterns(null);
+        setCodeSummary(null); setChecksLog(null);
+        return;
+      }
+      const [n, d, p, cs, cl] = await Promise.all([
+        window.SIMA_API?.meta?.blockFile(moduleId, 'narrative.md'),
         window.SIMA_API?.meta?.blockFile(moduleId, 'decisions.log'),
         window.SIMA_API?.meta?.blockFile(moduleId, 'patterns.md'),
+        window.SIMA_API?.meta?.blockFile(moduleId, 'code_summary.md'),
+        window.SIMA_API?.meta?.blockFile(moduleId, 'checks.log'),
       ]);
       if (!alive) return;
+      setNarrative(n?.ok ? n.content : null);
       setDecisions(d?.ok ? d.content : null);
       setPatterns(p?.ok ? p.content : null);
+      setCodeSummary(cs?.ok ? cs.content : null);
+      setChecksLog(cl?.ok ? cl.content : null);
     })();
     return () => { alive = false; };
   }, [moduleId]);
@@ -780,6 +795,37 @@ function Memory({ lessons, history, moduleId }) {
             </span>
           )}
         </div>
+      )}
+
+      {/* R-7.79 — Narrative log: human-readable history of what was
+          tried, what worked, what was rejected, with sections written
+          by the agent in plain English. Primary memory view. */}
+      {narrative && narrative.trim() && narrative.trim() !== '# narrative' ? (
+        <>
+          <h3>{t('memory.narrative_title', '📖 Run history (human-readable)')}</h3>
+          <div className="memory-narrative">
+            <div className="contract-body md" dangerouslySetInnerHTML={{
+              __html: (window.marked?.parse ? window.marked.parse(narrative) : `<pre>${narrative.replace(/[<>&]/g, c => ({ '<':'&lt;', '>':'&gt;', '&':'&amp;' }[c]))}</pre>`)
+            }} />
+          </div>
+        </>
+      ) : (moduleId && moduleId.startsWith('b.')) ? (
+        <div className="memory-narrative-empty">
+          <h3>{t('memory.narrative_title', '📖 Run history (human-readable)')}</h3>
+          <p style={{ color: 'var(--ink-3)', fontSize: 12.5, lineHeight: 1.5 }}>
+            {t('memory.narrative_empty', 'No run history yet. After the first agent run, narrative.md will accumulate here: what was tried, what worked, what was rejected and why — written in plain language so you can pick up context after weeks away from the block.')}
+          </p>
+        </div>
+      ) : null}
+
+      {/* R-7.79 — Code summary: auto-generated each successful run */}
+      {codeSummary && codeSummary.trim() && !/_не сгенерировано_|not generated/i.test(codeSummary) && (
+        <>
+          <h3>{t('memory.code_summary_title', '🔧 Code summary')}</h3>
+          <div className="contract-body md" dangerouslySetInnerHTML={{
+            __html: (window.marked?.parse ? window.marked.parse(codeSummary) : `<pre>${codeSummary.replace(/[<>&]/g, c => ({ '<':'&lt;', '>':'&gt;', '&':'&amp;' }[c]))}</pre>`)
+          }} />
+        </>
       )}
 
       <h3>{t('memory.decisions_title', 'Block decisions (decisions.log)')}</h3>
@@ -819,6 +865,13 @@ function Memory({ lessons, history, moduleId }) {
           {l.note}
         </div>
       )) : <p style={{ color: 'var(--ink-3)' }}>{t('memory.no_lessons', 'No lessons for this block.')}</p>}
+
+      {checksLog && checksLog.trim() && (
+        <>
+          <h3>{t('memory.checks_log_title', 'Recent run log (checks.log tail)')}</h3>
+          <pre className="memory-checks-log">{checksLog.split(/\n/).slice(-15).join('\n')}</pre>
+        </>
+      )}
 
       <h3>{t('memory.events', 'Events')}</h3>
       {history.length ? history.map((h, i) => (

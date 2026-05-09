@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "schema": "lessons",
+  "description": "Append-only operator-level lessons distilled from runs across blocks. Each lesson is a short EN/RU sentence operators or agents can read at prompt-time. block_id field optional — global lessons (no block_id) apply everywhere.",
+  "lessons": []
+}

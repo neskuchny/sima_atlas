@@ -2102,6 +2102,27 @@ html, body {
   border: 1px solid var(--rule); margin: 0 0 14px;
 }
 
+/* R-7.79 — narrative + checks-log + code-summary blocks */
+.memory-narrative {
+  background: var(--card); padding: 12px 14px;
+  border: 1px solid var(--rule); border-left: 3px solid var(--st-progress);
+  border-radius: 6px; margin-bottom: 14px;
+  max-height: 480px; overflow-y: auto;
+}
+.memory-narrative-empty {
+  background: var(--card-2); padding: 12px 14px;
+  border: 1px dashed var(--rule); border-radius: 6px; margin-bottom: 14px;
+}
+.memory-narrative-empty h3 { margin-top: 0; }
+.memory-checks-log {
+  font-family: 'JetBrains Mono', monospace; font-size: 10.5px; line-height: 1.5;
+  white-space: pre-wrap; word-wrap: break-word;
+  background: var(--card-2); padding: 9px 11px; border-radius: 6px;
+  border: 1px solid var(--rule); margin: 0 0 14px;
+  max-height: 220px; overflow-y: auto;
+  color: var(--ink-2);
+}
+
 /* Proposals panel + editor (Phase H slice 3) */
 .proposals-box { width: min(820px, 92vw); max-height: 88vh; display: flex; flex-direction: column; background: var(--paper); padding: 0; }
 .proposals-body { flex: 1; overflow: auto; padding: 12px 18px; display: flex; flex-direction: column; gap: 12px; }

@@ -127,7 +127,14 @@ try {
     const lessonsPath = path.join(ATLAS, 'operator_profile', 'lessons.json');
     let profile = null;
     try { if (fs.existsSync(profilePath)) profile = JSON.parse(fs.readFileSync(profilePath, 'utf8')); } catch {}
-    if (profile && profile._status !== 'warming_up') {
+    // R-7.78 — gate relaxed: dont_use / always_use rules and direct
+    // operator lessons must reach the prompt even on day 1, before
+    // the profile has aggregated enough to leave warming_up. The gate
+    // here was originally for soft-inferred preferences (median time,
+    // rollback rate) — those still gate, but hard rules from
+    // dont_use.json / always_use.json / lessons.json are surfaced
+    // unconditionally below regardless of profile status.
+    if (profile) {
       const lines = ['## Operator profile (likely preferences)', ''];
       const ws = profile.work_style || {};
       if (ws.median_time_idea_to_done_h) {
