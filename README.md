@@ -131,14 +131,14 @@ Six jobs. Each names the failure mode it replaces and the feature that delivers 
 - **Replaces:** cold-start each session; same bug tried 3 times
 - **Sima delivers:** per-block run history (what tried / what worked / what failed / decisions made) auto-injected · operator-level lessons accumulating evidence · code map regenerated per run
 
-### Job 7 — «I want to know which files are alive, dead, or junk»
+### Job 7 — «I want to know which files are alive, dead, or junk — and have the system propose cleanups»
 
 **When** the project grows for months and files get renamed / deleted / forgotten
-**I want** an explicit per-feature manifest of which files are actually used
-**So that** the codebase doesn't accumulate trash and agents don't read stale paths
+**I want** an explicit per-feature manifest of which files are actually used + nightly proposals on what to archive
+**So that** the codebase doesn't accumulate trash and agents don't read stale paths — but I never lose anything that might be needed for future TZ
 
-- **Replaces:** «I don't remember what was in this folder six months ago»; agents reading orphaned files; stale references in WIKI
-- **Sima delivers:** per-block file manifest with `[alive]` / `[dead]` / `[archived]` / `[pending]` markers · validator that **fails CI** when an `[alive]` file is missing · «Files alive» counter in Implementation Status panel · file-state surfaces in every context-pack so the agent knows what to read and what to skip
+- **Replaces:** «I don't remember what was in this folder six months ago»; agents reading orphaned files; stale references in WIKI; manual cleanup that nobody ever does
+- **Sima delivers:** per-block file manifest with `[alive]` / `[dead]` / `[archived]` / `[pending]` markers · validator that **fails CI** when an `[alive]` file is missing · «Files alive» counter in Implementation Status panel · file-state surfaces in every context-pack · **nightly housekeeping sweeper** (R-7.88) that proposes cleanups (stale-alive entries · stale-dead/archived files · orphan code) — pure proposals, never auto-deletes; apply tool MOVES (with breadcrumb), never `rm`; protects all TZ / refs / docs / non-`done` blocks by design
 
 ## Promise vs reality — feature manifest
 
@@ -160,7 +160,7 @@ Every capability in the original concept, mapped to current code state.
 | Auto tutorials (how to use, capabilities, limitations) | 🟡 | `generate_user_docs.mjs` plumbing works; output quality depends on LLM provider — `claude_cli` headless sometimes confused, recommend Anthropic API for production-quality |
 | External-readable documentation (so others understand the project) | ✅ | README EN+RU · 7 user-facing docs (architecture · getting-started · troubleshooting · integrations · article · agent-navigation) |
 | Vibe-coding tools (consultations on individual elements + sync) | ✅ | ✦ Sima fill-from-chat · ✏ Rewrite · ✨ Expand · Architecture review modal · Claude advice button |
-| Code cleanup — schema of which files are alive / dead / archived | ✅ | per-block `files.md` manifest · `validate_files_registry.mjs` (fails CI on missing `[alive]` file) · file-state surfaces in context-pack and Implementation Status panel · live count: 206 alive · 4 archived · 3 pending across the project |
+| Code cleanup — schema of alive / dead / archived files **+ nightly proposals** | ✅ | per-block `files.md` manifest · `validate_files_registry.mjs` (fails CI on missing `[alive]` file) · file-state in context-pack and Implementation Status panel · **R-7.88 housekeeping sweeper proposes (never auto-applies) cleanups; apply tool moves with breadcrumb, never deletes; safety rails protect TZ / refs / non-`done` blocks** · current count: 177 alive · 4 archived · 3 pending |
 
 **Score: 14 ✅ fully shipped · 1 🟡 partial (auto-tutorials quality) · 1 ✅+🟡 partial (cross-project library — local works, transfer planned).**
 
@@ -221,6 +221,7 @@ This roadmap maps the [vision](#the-vision) onto specific phases. Phases are siz
 - ⬜ **S-9.1** — global Token Economics tab (separate from per-block widget): sparklines, cost-per-pass vs cost-per-fail ROI, model A/B comparison
 - ⬜ **S-10** — UI surface for context-pack profile selection at run-start (currently CLI flag + env var only)
 - ⬜ **S-11** — cross-block roll-up in Implementation Status: «what % of contracts in this subsystem are filled?»
+- 🟡 **S-12** — housekeeping sweeper: **MVP shipped (R-7.88)** — proposes stale-alive / stale-dead / stale-archived / orphan-code cleanups in nightly. Follow-ups: import-graph dead-code detection (find files that exist but nobody imports), time-based archival hints (no commits in 90d → soft suggest archive), Cleanup tab in UI for one-click apply
 
 ### Mid — collaboration + local models (v0.6 → v0.9, Q4 2026)
 - ⬜ **T-1** — multi-operator collaboration with CRDT-merging contract files; full client isolation

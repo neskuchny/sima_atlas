@@ -1,0 +1,23 @@
+{
+  "generated_at": "2026-05-09T20:15:57.501Z",
+  "root": "/home/user/sima_atlas",
+  "proposals": [
+    {
+      "id": "orphan::scripts/realtor_call_analytics.mjs",
+      "kind": "orphan-code",
+      "file": "scripts/realtor_call_analytics.mjs",
+      "block": null,
+      "block_status": null,
+      "reason": "on disk, no block claims it in files.md, no .md references its name — possibly cleanable",
+      "action": "move-to-archive/orphans/<date>/scripts/realtor_call_analytics.mjs",
+      "safety": "move-with-breadcrumb",
+      "apply_command": "node scripts/apply_cleanup_proposal.mjs --id \"orphan::scripts/realtor_call_analytics.mjs\""
+    }
+  ],
+  "summary": {
+    "stale-alive": 0,
+    "stale-dead": 0,
+    "stale-archived": 0,
+    "orphan-code": 1
+  }
+}

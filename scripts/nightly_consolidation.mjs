@@ -20,6 +20,10 @@ const checks = [
   ['block_contracts', 'node scripts/validate_block_contracts.mjs'],
   ['no_template_placeholders', 'node scripts/validate_no_template_placeholders.mjs'],
   ['files_registry', 'node scripts/validate_files_registry.mjs'],
+  // R-7.88 (S-12 MVP) — sweeper writes atlas/cleanup_proposals.{md,json}.
+  // Proposes only — never applies. Operator reviews + decides via
+  // apply_cleanup_proposal.mjs (which moves with breadcrumb, never deletes).
+  ['housekeeping_sweep', 'node scripts/housekeeping_sweeper.mjs'],
   ['projects_contracts', 'node scripts/validate_projects.mjs'],
   ['subschemas_contracts', 'node scripts/validate_subschemas.mjs'],
   ['dependency_contracts', 'node scripts/validate_dependency_contracts.mjs'],
