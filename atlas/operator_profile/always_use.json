@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "schema": "always_use",
+  "description": "Operator-locked rules: ALWAYS do Y. Read by run_block_implementation prompt. block_id optional. Reason mandatory.",
+  "entries": []
+}
