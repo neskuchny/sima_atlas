@@ -56,19 +56,57 @@ Sima fixes that with five rules:
 
 Full methodology with rationale, principles, and self-audit: [English article](docs/article.en.md) · [Russian](docs/article.ru.md).
 
+## What we ran into building this — and how we solved it
+
+These are the concrete failure modes we hit while shipping our own product (Tessent) with AI agents. Each one drove a phase in this repo. They are the reason Sima exists.
+
+| The pain | The fix that landed |
+|---|---|
+| **«I told the agent to use LLM for sentiment analysis. It wrote a regex. Next session it forgot the instruction entirely.»** Architectural intent evaporates between conversations because there is no place to lock it. | **Three-layer defense** (R-7.76 → R-7.85). Project-level `architecture_decisions.md` (append-only, auto-injected into every prompt). Block-level `dont_use.json` / `always_use.json` with `severity:hard`. Post-run `scan_run_for_drift.mjs` that scans actually-modified files and **fails the run** when a hard rule was violated. Three layers because one was not enough. |
+| **«Agent re-implemented the same parser three times in three sessions because it didn't know it already exists.»** No memory of past runs, no narrative of what worked / what failed. | **Per-block memory layer** (R-7.76 → R-7.80). Every run appends to `narrative.md` (human-readable: *what I tried / what worked / what failed and why / decisions made*) and `decisions.log` (structured tab-separated). Both are loaded into the next prompt under «## ⚠ Block memory» so the agent reads them before touching code. |
+| **«Edit block A. Eight hours later the nightly sweep tells me block B is broken because it depended on A.»** Damage propagates silently for hours. | **Cascade verify on edit** (R-7.84, S-8). After a successful run on block X, walk the reverse-dependency graph and re-run the acceptance verifier on every block whose `depends_on` references X. Anything that broke gets `status: desync` on the canvas immediately, with a stack-trace-style entry in its `narrative.md`. Operator sees the chain inline, not at 06:00. |
+| **«The context-pack is 12K tokens for a one-line UI fix.»** One-size-fits-all packs waste budget and blur signal-to-noise. | **Profiles per task type** (R-7.86, S-4). `design` (~5–15K, full pack) · `backend-fix` (~2–4K) · `ui-fix` (~1.5–3K, no deps) · `acceptance-only` (~0.5–1.5K, verifier-only). Architecture decisions are always included regardless of profile. Verified on `b.docs`: 5809 → 3701 → 2763 → 1846 tokens. |
+| **«I run agents for hours and have no idea where the tokens go.»** No visibility on which `op` burns most, no «shadow bill» when running on a Claude.ai subscription. | **Token economics roll-up** (R-7.87, S-9). `atlas/llm_traces/*.json` aggregated per block / op / provider / day. Two cost columns: `cost_usd_actual` (what was charged — 0 on `claude_cli`/`ollama`/`mock`) and `cost_usd_equivalent` (Anthropic Haiku 4.5 list price — stable shadow bill across providers). Visible as a Token Spend widget in every block's Overview tab + a CLI roll-up. |
+| **«Did I actually fill in this block, or just the mission? I have to click through five tabs to find out.»** No at-a-glance fill-state per block. | **Implementation Status panel** (R-7.86). Overview tab opens with an 8-row dashboard: Mission · KPIs · Acceptance · Tasks · Files alive · Decisions logged · Run history · Block status. Each row carries a ✓ / ~ / ✗ / · marker so contract-vs-reality progress is visible without clicking. |
+| **«Agent silently fell back to mock provider and reported success.»** Inconclusive runs were treated as passes. | **Tri-state acceptance** (`pass` / `fail` / `inconclusive`) with five evidence collectors (`exit_code`, `fs_glob`, `file_diff`, `log_grep`, `selftest_run`) + `llm_judge` as last resort. Inconclusive on missing API key → never silent green. |
+| **«New contributor cloned, ran `npm run dev`, got blank UI because operator-profile JSON files didn't exist.»** Bootstrap depended on manual steps. | **Auto-seed at startup** (R-7.81). `dev_server.mjs` idempotently creates `operator_profile/{lessons,dont_use,always_use}.json` and `architecture_decisions.md` on first launch. New users hit zero manual setup. |
+
+The pattern: **each fix solves a problem that came up while building**, not an imagined one. If you hit one of these and don't see a fix that works, [open an issue](https://github.com/neskuchny/sima_atlas/issues) — that's how the next phase gets prioritised.
+
 ## What's in the box (today)
 
-- **64 MCP tools** for AI agents (`read_block`, `update_block`, `verify_block_acceptance`, `sima_fill_from_chat`, `sima_watch_chats`, `accept_proposal`, ...) — see [`docs/architecture.md`](docs/architecture.md)
+**Foundations**
+
+- **~70 MCP tools** for AI agents (`read_block`, `update_block`, `verify_block_acceptance`, `sima_fill_from_chat`, `sima_watch_chats`, `accept_proposal`, `cascade_verify`, `add_architecture_decision`, `token_economics`, ...) — full catalogue in [`docs/architecture.md`](docs/architecture.md)
 - **5-provider LLM cascade** (`claude_cli` → `anthropic` → `google` → `ollama` → `mock`) — `claude_cli` uses your Claude.ai Pro/Max subscription, `ollama` runs locally against Llama / Qwen / DeepSeek (opt-in via `LLM_PREFER_OLLAMA=1`), `mock` for offline / CI determinism
-- **Visual canvas with live contract loading** — Overview tab loads `mission.md` / `kpi.md` / `acceptance.md` / `depends_on.md` / `provides.md` and shows progress (`N/M acceptance done`), depends-on/provides chips, KPI rows, layer-coded color
-- **Acceptance loop** — runs on every agent finish; tri-state verdict; ↻ Fix-and-rerun packages failed assertions back into a new prompt
+- **Visual canvas with live contract loading** — Overview tab loads `mission.md` / `kpi.md` / `acceptance.md` / `depends_on.md` / `provides.md` and shows real-time fill state
+- **Multi-tenant** — many products in `atlas/clients/<id>/`, hybrid isolation. Auto-seeds `operator_profile` + `architecture_decisions.md` at first launch (R-7.81)
+- **EN-first UI with RU toggle** — 644 i18n keys, 🌐 EN/RU pill in toolbar, persists to localStorage
+- **VS Code extension** — 0.1 scaffold at [`extensions/vscode/`](extensions/vscode/) — sidebar with embedded canvas + blocks tree
+
+**Memory & lock-in (R-7.76 → R-7.85)**
+
+- **Per-block memory layer** — every run appends to `narrative.md` (human-readable: *what I tried / what worked / what failed / decisions made*) and `decisions.log` (structured). Both auto-injected into the next prompt under «## ⚠ Block memory» so agents read them before touching code.
+- **Operator-locked rules** — `dont_use.json` / `always_use.json` per block (or global) with `severity:hard|soft`. Read by `build_context_pack`, injected into every prompt, AND scanned post-run against modified files via `scan_run_for_drift.mjs` — hard violations **fail the run** (R-7.82, S-3).
+- **Project-level architecture lock-in** — `atlas/architecture_decisions.md` is append-only. Every entry is auto-injected into EVERY future prompt across ALL blocks. Agents physically cannot silently reverse a past entry (R-7.85, S-6).
+- **Cascade break detection on edit** — after a successful run on block X, walk reverse-deps and re-run acceptance on each. Anything that broke gets `status: desync` immediately, with `narrative.md` entry. Operator sees the chain inline, not at next nightly sweep (R-7.84, S-8).
+
+**Verification & visibility**
+
+- **Acceptance loop** — runs on every agent finish; tri-state verdict (`pass` / `fail` / `inconclusive`); five evidence collectors (`exit_code` / `fs_glob` / `file_diff` / `log_grep` / `selftest_run`) + `llm_judge` as last resort; ↻ Fix-and-rerun packages failed assertions into a new prompt
 - **Architecture review** — whole-graph LLM analysis (stack consistency, scale, multi-tenant fit, data flow, redundancy)
 - **Sync-check** — 9 deterministic validators detect drift between contracts, code, and capability bindings
-- **Auto-generated** WIKI / TZ / Roadmap / per-block user tutorials
-- **Multi-tenant** — many products in `atlas/clients/<id>/`, hybrid isolation
-- **EN-first UI with RU toggle** — 644 i18n keys, 🌐 EN/RU pill in toolbar, persists to localStorage
+- **Implementation Status panel** — Overview tab opens with an 8-row dashboard (Mission · KPIs · Acceptance · Tasks · Files alive · Decisions logged · Run history · Block status), each row marked ✓ / ~ / ✗ / · for at-a-glance contract-vs-reality progress (R-7.86)
+- **Token economics widget** — per-block (or project-wide) Token Spend panel: actual cost + Anthropic Haiku 4.5 «shadow bill» equivalent + top-burning ops + by-provider breakdown, with 7/30/90-day window selector (R-7.87, S-9)
+
+**Context economy**
+
+- **Context-pack profiles** — `design` (~5–15K, default) / `backend-fix` (~2–4K) / `ui-fix` (~1.5–3K) / `acceptance-only` (~0.5–1.5K). Architecture decisions always included regardless. Selectable via CLI flag, env var, or MCP arg (R-7.86, S-4)
 - **Agent-navigation skill** — canonical strategy doc auto-loaded as Claude Code Skill, Cursor Rule, AGENTS.md — agents read in the right order, skip the right directories, save thousands of tokens per session
-- **VS Code extension** — 0.1 scaffold at [`extensions/vscode/`](extensions/vscode/) — sidebar with embedded canvas + blocks tree
+
+**Outputs**
+
+- **Auto-generated** WIKI / TZ / Roadmap / per-block user tutorials
 - **Honest self-audit** — every methodology claim has a verdict against code (✅ / 🟡 / ❌). See [Article Appendix A](docs/article.en.md).
 
 ## Roadmap
@@ -78,15 +116,20 @@ This roadmap maps the [vision](#the-vision) onto specific phases. Phases are siz
 ### Now — foundation (v0.1, shipped)
 - ✅ **R-1..R-7** — visual canvas, contract loading, MCP tools, 5-provider LLM cascade, sima-fill-from-chat orchestrator, chat watcher, layer-aware blocks, real submodule hierarchy, depth-control canvas, agent-navigation skill, EN-first i18n
 - ✅ **R-7.50..R-7.69** — opensource-readiness pass: README cut, English getting-started, architecture diagram, hero image, macOS in CI matrix, classic-view legacy removal (-9.4K lines), live-contract Overview, auto-arrange-by-layer
+- ✅ **R-7.76..R-7.81** — per-block memory layer end-to-end (`narrative.md` + `decisions.log` + operator-locked `dont_use`/`always_use`/`lessons.json`, auto-injected into every prompt, auto-seed at startup)
+- ✅ **R-7.82 (S-3)** — runtime content drift scanner: scans modified files post-run against `dont_use` rules; hard violations fail the run
+- ✅ **R-7.83** — agent-navigation skill / Cursor rule / AGENTS.md updated to teach the new memory layer
+- ✅ **R-7.84 (S-8)** — cross-block break detection on edit: `cascade_verify` walks reverse-deps after a successful run, auto-marks broken dependents `status: desync` with stack-trace-style narrative entries
+- ✅ **R-7.85 (S-6)** — `architecture_decisions.md` append-only project lock-in, auto-injected into every prompt across all blocks
+- ✅ **R-7.86 (S-4)** — context-pack profiles (`design` / `backend-fix` / `ui-fix` / `acceptance-only`) + Implementation Status dashboard panel in Overview tab
+- ✅ **R-7.87 (S-9)** — token economics aggregator: actual cost + Anthropic Haiku 4.5 «shadow bill» equivalent + per-op / per-provider / daily breakdown, exposed as MCP tool + Token Spend widget
 
-### Next — autonomous loop foundations (v0.2 → v0.5, Q3 2026)
+### Next — closing the loop (v0.5 → v0.9, Q4 2026)
 - ⬜ **S-1** — block templates marketplace (auth / payments / search / ingestion / billing) — drop-in starters with mission + KPI + acceptance
-- ⬜ **S-3** — runtime cursor-hook drift-guard: block commands that violate `dont_use` *at execution time*, not after
-- ⬜ **S-4** — context-pack profiles per task type (design / backend-fix / ui-fix / acceptance-only) with selective neighbor traversal
-- ⬜ **S-6** — `architecture_decisions.md` skeleton: project-level architectural voice embedded in every block's context-pack
 - ⬜ **S-7** — transactional change-sets for cross-cutting changes (REST→GraphQL, capability rename, DB migration); UI shows "5 blocks touched by transaction T" with per-block acceptance state
-- ⬜ **S-8** — auto-mark drift on canvas: `validate_dependency_contracts` failure → `status: desync` on dependents instantly visible
-- ⬜ **S-9** — **token economics dashboard**: per-session, per-block, per-project token counters; cost vs. acceptance-rate; "did the contract pay for itself" ROI signal
+- ⬜ **S-9.1** — global Token Economics tab (separate from per-block widget): sparklines, cost-per-pass vs cost-per-fail ROI, model A/B comparison
+- ⬜ **S-10** — UI surface for context-pack profile selection at run-start (currently CLI flag + env var only)
+- ⬜ **S-11** — cross-block roll-up in Implementation Status: «what % of contracts in this subsystem are filled?»
 
 ### Mid — collaboration + local models (v0.6 → v0.9, Q4 2026)
 - ⬜ **T-1** — multi-operator collaboration with CRDT-merging contract files; full client isolation
@@ -120,10 +163,19 @@ If you draw the stack, Sima sits between *agent* and *project documents*, provid
 
 ## Who this is for
 
-- **Solo developers** building products with > 10 features who hit the agent-collapse ceiling
-- **Vibe-coders** who want to *see* what the AI is building without slowing down — visibility, not bureaucracy
-- **AI-coding teams** who need shared contracts so two engineers + Claude don't trip over each other
-- **Researchers** measuring AI-coding effectiveness — Sima's token-tracing + acceptance-verifier give comparable runs across providers and models
+A sharper test than «is it for me» is **«have I hit one of these walls?»**:
+
+- **Solo developers building products with > 10 features.** You hit the wall where the agent forgets what it built last week, re-implements existing functions, and burns sessions debugging its own drift. → Memory layer + cascade verify + Implementation Status tell you and the agent what already exists.
+- **Vibe-coders who want to *see* what the AI is building.** You like delegating but you want a canvas, not a console flood. → Visual canvas + Overview tab + Token Spend widget without a process burden.
+- **AI-coding teams (2+ humans + agents).** You ship faster than you can keep contracts in your head; your teammates can't tell what the agent's allowed to touch in their area. → Shared `architecture_decisions.md` + per-block `dont_use` + sync-check stop the cross-team trip-overs.
+- **Multi-product operators / agencies.** You run several products in parallel; you want one mental model for «is each project healthy» without opening 5 IDEs. → Multi-tenant `atlas/clients/<id>/` + auto-generated WIKI/Roadmap per client.
+- **Researchers measuring AI-coding effectiveness.** You need comparable runs across providers and models with deterministic evidence of pass/fail. → Token traces + tri-state acceptance + `cost_usd_equivalent` shadow-bill make A/B comparable across `claude_cli` / `anthropic` / `google` / `ollama`.
+
+**Who this is NOT for (yet):**
+
+- Single-file scripts — the contract overhead doesn't pay off below ~5 blocks.
+- Mission-critical commercial deployments — early but live; we use it daily for our own products, not yet recommended for what-must-not-fail systems.
+- Teams that want hard lifecycle gates by default — Sima keeps gates *soft* with explicit visible hints to preserve draft-stage iteration speed (see Article Appendix B.2).
 
 ## FAQ
 
