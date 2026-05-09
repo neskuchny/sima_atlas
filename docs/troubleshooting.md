@@ -123,7 +123,7 @@ git log --oneline -5
 
 ### Banner "Project `<name>` doesn't exist"
 
-**Symptom.** You set `?client=my-saas` in the URL; the banner offers to create the project.
+**Symptom.** You set `?client=my-product` in the URL; the banner offers to create the project.
 
 **Fix.** R-6.1: on the first mutation (creating a block, editing a field) the client folder is created automatically. Just click `+ New module` — once it succeeds, the banner disappears.
 

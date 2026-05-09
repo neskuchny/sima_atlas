@@ -164,7 +164,7 @@ Sima:
 ### Multi-tenant
 Один сервер обслуживает много проектов. URL `?client=<id>` переключает контекст:
 - `?client=main` — корневой `atlas/blocks/` (Sima сама)
-- `?client=my-saas` — `atlas/clients/my-saas/blocks/`
+- `?client=my-product` — `atlas/clients/my-product/blocks/`
 - `?client=other-product` — `atlas/clients/other-product/blocks/`
 
 В тулбаре project-picker (текущий клиент) — переключаться + создавать новые.

@@ -1,9 +1,9 @@
-// SIMA Atlas — sample product data: a SaaS analytics dashboard called "Lensa"
+// SIMA Atlas — sample product data: a SaaS analytics dashboard called "Acme"
 
 window.SIMA_DATA = {
   product: {
-    codename: "lensa-core",
-    title: "Lensa Analytics",
+    codename: "acme-core",
+    title: "Acme Analytics",
     subtitle: "SaaS-аналитика для продуктовых команд",
     goal: "Дать продуктовым командам видеть метрики продукта без помощи аналитика — от события до инсайта за <10 секунд.",
     mission: "Сделать так, чтобы любой продакт мог собрать дашборд за 5 минут, без SQL и без подключения BI-инженера.",
@@ -168,7 +168,7 @@ window.SIMA_DATA = {
   subsystems: {
     dashboard: {
       title: "Dashboard Builder",
-      codename: "lensa-dashboard",
+      codename: "acme-dashboard",
       subtitle: "Конструктор дашбордов — главный пользовательский UI",
       mission: "За 5 минут собрать полезный дашборд из tile’ов, без SQL, с превью каждого изменения.",
       kpi: [
@@ -207,7 +207,7 @@ window.SIMA_DATA = {
     },
     metrics: {
       title: "Metrics DSL",
-      codename: "lensa-metrics",
+      codename: "acme-metrics",
       subtitle: "Domain language для метрик: формула → SQL → результат",
       mission: "Чтобы продакт мог писать формулы как в Excel, без SQL — а движок гарантировал безопасность и скорость.",
       kpi: [
@@ -242,7 +242,7 @@ window.SIMA_DATA = {
     },
     ingest: {
       title: "Ingest API",
-      codename: "lensa-ingest",
+      codename: "acme-ingest",
       subtitle: "Приём событий exactly-once, валидация, backpressure",
       mission: "Принять любую нагрузку клиента без потерь и без влияния на других tenant’ов.",
       kpi: [

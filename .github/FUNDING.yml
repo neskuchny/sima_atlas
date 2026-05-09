@@ -1,0 +1,11 @@
+# Sima Atlas — sponsorship buttons (rendered on the GitHub repo page).
+# Uncomment/fill the channels you actually want to receive from.
+#
+# Docs: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/displaying-a-sponsor-button-in-your-repository
+
+# github: [neskuchny]            # GitHub Sponsors (requires personal/org enrolment)
+# patreon: synlabs               # Patreon username
+# open_collective: sima-atlas    # Open Collective slug
+# ko_fi: synlabs                 # Ko-fi
+# tidelift: npm/sima-atlas       # Tidelift package
+# custom: ['https://synlabs.dev/sponsor', 'https://example.com']

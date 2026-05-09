@@ -90,7 +90,7 @@
       window.__SIMA_DATA_CLIENT = client || 'default';
     } else if (window.__SIMA_DATA_CLIENT_MISSING && client) {
       // Phase J-3 fix: explicit «client doesn't exist on disk» state.
-      // Don't fall back to data_static.js (Lensa demo) — that would
+      // Don't fall back to data_static.js (Acme demo) — that would
       // confuse the operator. Instead show a true empty atlas with a
       // banner inviting them to create the project.
       window.SIMA_DATA = {
@@ -260,7 +260,7 @@
     // Phase R-7.6 — withClient так же критично здесь, как в createBlock
     // (R-6) и fillFromChat (R-7.1). Без него правка mission/kpi/acceptance
     // через UI ✏ кнопку шла в ROOT atlas, а не в client. UI на
-    // ?client=my-saas потом читал из client пути — пустой файл — и
+    // ?client=my-product потом читал из client пути — пустой файл — и
     // operator видел «ничего не подтягивается».
     patchBlockFile: async (block_id, file, content) => { const r = await postJson('/atlas/blocks/patch-file', withClient({ block_id, file, content })); if (r.ok) await refresh(); return r; },
   };
@@ -280,7 +280,7 @@
     userDocsList: async ()                 => await getJson('/atlas/user-docs/list'),
     userDocGet:   async (block_id)         => await getJson('/atlas/user-docs/get?block_id=' + encodeURIComponent(block_id)),
     // Phase R-7.14 — read-side multi-tenant. Без ?client=X GET читал из
-    // ROOT atlas даже когда UI на ?client=my-saas, и operator видел
+    // ROOT atlas даже когда UI на ?client=my-product, и operator видел
     // not_found → placeholder вместо своих сохранений.
     blockFile:    async (block_id, name)   => {
       const qs = new URLSearchParams({ name });

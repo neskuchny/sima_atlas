@@ -5,6 +5,9 @@
 
 [![verify](https://github.com/neskuchny/sima_atlas/actions/workflows/verify.yml/badge.svg)](https://github.com/neskuchny/sima_atlas/actions/workflows/verify.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![GitHub Release](https://img.shields.io/github/v/release/neskuchny/sima_atlas?include_prereleases&label=release)](https://github.com/neskuchny/sima_atlas/releases)
+[![GitHub stars](https://img.shields.io/github/stars/neskuchny/sima_atlas?style=social)](https://github.com/neskuchny/sima_atlas/stargazers)
+[![Made with Claude](https://img.shields.io/badge/built%20with-Claude%20Code-D97706)](https://claude.com/claude-code)
 
 English: [README.md](README.md).
 
@@ -15,6 +18,15 @@ English: [README.md](README.md).
 AI-агенты прекрасно работают на 5 файлах и разваливаются на 50 — галлюцинируют, дрейфуют, переделывают и жгут токены, потому что **у них нет контракта** на то, что должна делать каждая часть, и **нет графа** того, как части связаны. Sima Atlas — это **визуальный control plane**, который даёт им и то и другое: каждая фича — директория MD-контрактов, на канвасе видны связи, агенты получают context-pack под один блок, acceptance loop проверяет каждый запуск детерминистически — `pass / fail / inconclusive`, без silent false-pass.
 
 <img width="1913" height="960" alt="Sima Atlas — визуальная контракт-ориентированная разработка для AI-агентов" src="https://github.com/user-attachments/assets/15114bfe-1593-443c-ac18-3894bb49ee4f" />
+
+## Демо
+
+Два способа увидеть Sima в деле без установки:
+
+- **Концептуальная картинка за 30 секунд** — что система делает, визуально:
+  <a href="docs/hero-mockup.png"><img src="docs/hero-mockup.png" width="100%" alt="Оператор и AI смотрят на одну общую карту — замкнутый цикл который делает это рабочим"></a>
+- **Живой UI** (скриншот выше) — `npm run dev` открывает в браузере на `http://localhost:8000/atlas_design/?client=example` с заполненным демо-клиентом, тыкаешь без написания единой строки контракта.
+- **Press kit** с логотипом / hero-вариантами / слоганами / цифрами — [`docs/press/`](docs/press/).
 
 ## Vision — куда идём
 

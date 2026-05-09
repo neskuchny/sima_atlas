@@ -6,10 +6,22 @@
 [![verify](https://github.com/neskuchny/sima_atlas/actions/workflows/verify.yml/badge.svg)](https://github.com/neskuchny/sima_atlas/actions/workflows/verify.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![GitHub Release](https://img.shields.io/github/v/release/neskuchny/sima_atlas?include_prereleases&label=release)](https://github.com/neskuchny/sima_atlas/releases)
+[![GitHub stars](https://img.shields.io/github/stars/neskuchny/sima_atlas?style=social)](https://github.com/neskuchny/sima_atlas/stargazers)
+[![Made with Claude](https://img.shields.io/badge/built%20with-Claude%20Code-D97706)](https://claude.com/claude-code)
 
 **The 30-second pitch.** AI coding agents work great on five files and fall apart on fifty — they hallucinate, drift, redo things, and burn tokens because they have no contract for what each piece is supposed to do, and no graph of how the pieces connect. Sima Atlas is the **visual control plane** that gives them both: every feature is a directory of MD-contracts, the canvas shows their connections, agents read context-packs scoped to one block at a time, and an acceptance loop verifies each run with deterministic evidence — `pass` / `fail` / `inconclusive`, never silent false-pass.
 
 <img width="1913" height="960" alt="Sima Atlas canvas — visual contract-first development for AI agents" src="https://github.com/user-attachments/assets/15114bfe-1593-443c-ac18-3894bb49ee4f" />
+
+## Demo
+
+Two ways to see Sima in action without installing anything:
+
+- **30-second concept image** — what the system actually does, visualised:
+  <a href="docs/hero-mockup.png"><img src="docs/hero-mockup.png" width="100%" alt="Operator and AI both face a shared canvas — the closed loop that makes it work"></a>
+- **The live UI** (screenshot above) — `npm run dev` opens this in your browser at `http://localhost:8000/atlas_design/?client=example` with a populated demo client so you can click around without writing a single line of contract.
+- **Press kit** with logo / hero variants / taglines / numbers — [`docs/press/`](docs/press/).
 
 ## The vision
 
