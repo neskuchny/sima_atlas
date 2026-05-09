@@ -285,6 +285,36 @@ html, body {
   color: var(--ink-4); letter-spacing: 0.06em;
   text-transform: uppercase; margin-bottom: 4px;
 }
+
+/* R-7.86 — Implementation Status dashboard */
+.impl-status-grid {
+  display: flex; flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--rule); border-radius: 8px;
+  background: var(--card);
+  overflow: hidden;
+}
+.impl-status-row {
+  display: grid; grid-template-columns: 28px 1fr auto;
+  gap: 12px; align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--rule);
+  font-size: 12.5px;
+}
+.impl-status-row:last-child { border-bottom: 0; }
+.impl-status-mark {
+  width: 22px; height: 22px; border-radius: 50%;
+  color: white; font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 12px;
+}
+.impl-status-label { color: var(--ink-2); font-weight: 500; }
+.impl-status-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--ink-3);
+}
+.impl-state-empty .impl-status-label { color: var(--ink-3); }
+.impl-state-empty .impl-status-value { color: var(--ink-4); }
 .rail {
   grid-area: rail;
   border-right: 1px solid var(--rule);

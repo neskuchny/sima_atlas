@@ -76,7 +76,7 @@ will actually use:
 |---|---|
 | `read_block(block_id)` | Standard "show me the contract" — returns mission + kpi + acceptance + depends/provides in one digest |
 | `list_dependencies(block_id)` | Walk the graph one hop — returns id + provided capability for each dependency |
-| `build_context_pack(block_id)` | Generate the full deterministic context pack the verifier will use; **also includes checks.log tail, decisions.log, narrative.md, code_summary.md, and operator memory (lessons / dont_use / always_use) filtered to this block** (R-7.76+) |
+| `build_context_pack(block_id, profile?)` | Generate the deterministic context pack the verifier will use; **includes checks.log tail, decisions.log, narrative.md, code_summary.md, architecture_decisions.md, and operator memory (lessons / dont_use / always_use) filtered to this block** (R-7.76+). **R-7.86 (S-4) profiles** — `design` (default, full ~5-15K tokens, for new-block scoping & major refactors), `backend-fix` (~2-4K, mission+acceptance+decisions+narrative+deps' provides only), `ui-fix` (~1.5-3K, frontend-focused, no deps), `acceptance-only` (~0.5-1.5K, for verifier or "is this ready to ship" runs). `architecture_decisions` is ALWAYS included regardless of profile. |
 | `update_block(block_id, file, content)` | Write back to mission/kpi/acceptance/tasks. Safer than raw file write — validates path. |
 | `verify_block_acceptance(block_id)` | Run all acceptance assertions and return tri-state (pass/fail/inconclusive) per assertion |
 | `sync_check(block_id?)` | Drift report — depends_on capabilities not provided by anyone, provides not consumed, etc |

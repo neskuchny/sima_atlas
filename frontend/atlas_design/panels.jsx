@@ -325,6 +325,12 @@ function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSu
   const [acceptText, setAcceptText] = useState2('');
   const [depsText, setDepsText] = useState2('');
   const [providesText, setProvidesText] = useState2('');
+  // R-7.86 — also load narrative + decisions for the Implementation
+  // Status panel (counters: how many runs documented, how many
+  // architectural decisions logged for this block).
+  const [narrativeText, setNarrativeText] = useState2('');
+  const [decisionsText, setDecisionsText] = useState2('');
+  const [tasksText, setTasksText] = useState2('');
   const [loaded, setLoaded] = useState2(false);
 
   useEffect2(() => {
@@ -339,18 +345,21 @@ function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSu
       } catch { return ''; }
     };
     (async () => {
-      const [mission, kpi, accept, deps, prov] = await Promise.all([
+      const [mission, kpi, accept, deps, prov, narr, dec, tk] = await Promise.all([
         load('mission.md'), load('kpi.md'), load('acceptance.md'),
         load('depends_on.md'), load('provides.md'),
+        load('narrative.md'), load('decisions.log'), load('tasks.md'),
       ]);
       if (cancelled) return;
-      // Strip auto-headings (`# <id> — <kind>`) and trailing layer block
       const stripHead = (s) => s.replace(/^#[^\n]*\n+/, '').replace(/\n+##\s+Layer[\s\S]*$/i, '').trim();
       setMissionText(stripHead(mission));
       setKpiText(stripHead(kpi));
       setAcceptText(stripHead(accept));
       setDepsText(stripHead(deps));
       setProvidesText(stripHead(prov));
+      setNarrativeText(narr || '');
+      setDecisionsText(dec || '');
+      setTasksText(stripHead(tk));
       setLoaded(true);
     })();
     return () => { cancelled = true; };
@@ -397,6 +406,60 @@ function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSu
         </div>
       )}
       <LayerPicker block={m} />
+
+      {/* R-7.86 — Implementation Status dashboard. Operator: «можно
+          ли в модуле/блоке увидеть что реализовал?» — yes, this panel
+          aggregates contract-vs-reality progress at a glance. Each
+          row shows status with a color marker so the operator
+          immediately sees what's filled vs what's missing. */}
+      {(() => {
+        const v = (s) => s && !isPlaceholder(s);
+        const missionFilled = v(missionText);
+        const kpiCount = kpiRows.length;
+        const acceptTotal = acceptItems.length;
+        const acceptDoneCount = acceptDone;
+        const taskCount = (tasksText || '').split(/\r?\n/).filter(l => /^\s*-\s*\[[ xX]\]/.test(l)).length;
+        const taskDone = (tasksText || '').split(/\r?\n/).filter(l => /^\s*-\s*\[[xX]\]/.test(l)).length;
+        const filesAliveCount = (m.contract && m.contract.filled) || 0;
+        // Count append-only entries by counting `## ` headings (each entry = one section)
+        const decisionsCount = decisionsText ? (decisionsText.match(/^[0-9]{4}-[0-9]{2}-[0-9]{2}/gm) || []).length : 0;
+        const narrativeRuns = narrativeText ? (narrativeText.match(/^## /gm) || []).length : 0;
+        const dot = (state) => ({
+          good:  { bg: 'var(--st-done)',     mark: '✓' },
+          warn:  { bg: 'var(--st-progress)', mark: '~' },
+          bad:   { bg: 'var(--st-fail)',     mark: '✗' },
+          empty: { bg: 'var(--ink-4)',       mark: '·' },
+        }[state]);
+        const rows = [
+          { label: t('status.mission', 'Mission'),    state: missionFilled ? 'good' : 'empty', value: missionFilled ? `${missionText.length} chars` : t('status.not_filled', 'not filled') },
+          { label: t('status.kpi',     'KPIs'),       state: kpiCount > 0 ? 'good' : 'empty', value: `${kpiCount} ${t('status.defined', 'defined')}` },
+          { label: t('status.acceptance', 'Acceptance'), state: acceptTotal === 0 ? 'empty' : (acceptDoneCount === acceptTotal ? 'good' : 'warn'), value: acceptTotal > 0 ? `${acceptDoneCount}/${acceptTotal} ${t('status.done', 'done')}` : t('status.no_assertions', 'no assertions') },
+          { label: t('status.tasks',    'Tasks'),       state: taskCount === 0 ? 'empty' : (taskDone === taskCount ? 'good' : 'warn'), value: taskCount > 0 ? `${taskDone}/${taskCount} ${t('status.done', 'done')}` : t('status.no_tasks', 'no tasks') },
+          { label: t('status.files',    'Files alive'), state: filesAliveCount > 0 ? 'good' : 'empty', value: filesAliveCount > 0 ? `${filesAliveCount} ${t('status.files_word', 'files')}` : t('status.no_files', 'none') },
+          { label: t('status.decisions', 'Decisions logged'), state: decisionsCount > 0 ? 'good' : 'empty', value: decisionsCount > 0 ? `${decisionsCount} ${t('status.entries', 'entries')}` : t('status.empty', 'empty') },
+          { label: t('status.narrative', 'Run history'), state: narrativeRuns > 0 ? 'good' : 'empty', value: narrativeRuns > 0 ? `${narrativeRuns} ${t('status.runs_documented', 'run(s) documented')}` : t('status.no_runs', 'no runs yet') },
+          { label: t('status.block_status', 'Block status'), state: m.status === 'done' ? 'good' : (m.status === 'desync' || m.status === 'fail' ? 'bad' : 'warn'), value: m.status },
+        ];
+        return (
+          <div className="ov-section">
+            <div className="ov-head">
+              <h3>{t('overview.implementation_status', '🎯 Implementation Status')}</h3>
+            </div>
+            <div className="impl-status-grid">
+              {rows.map((r, i) => {
+                const d = dot(r.state);
+                return (
+                  <div key={i} className={`impl-status-row impl-state-${r.state}`}>
+                    <span className="impl-status-mark" style={{ background: d.bg }}>{d.mark}</span>
+                    <span className="impl-status-label">{r.label}</span>
+                    <span className="impl-status-value">{r.value}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Mission / Why */}
       <div className="ov-section">
