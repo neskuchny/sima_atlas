@@ -19,8 +19,9 @@
 Two ways to see Sima in action without installing anything:
 
 - **30-second concept image** — what the system actually does, visualised:
-  ![Uploading ChatGPT En 2026 г., 23_52_38.png…]()
 
+<img width="1672" height="941" alt="ChatGPT En 2026 г , 23_52_38" src="https://github.com/user-attachments/assets/646f45aa-fe38-4c90-9e5e-47722a5a6890" />
+  
 - **The live UI** (screenshot above) — `npm run dev` opens this in your browser at `http://localhost:8000/atlas_design/?client=example` with a populated demo client so you can click around without writing a single line of contract.
 - **Press kit** with logo / hero variants / taglines / numbers — [`docs/press/`](docs/press/).
 
@@ -215,6 +216,9 @@ Every capability in the original concept, mapped to current code state.
 - **Honest self-audit** — every methodology claim has a verdict against code (✅ / 🟡 / ❌). See [Article Appendix A](docs/article.en.md).
 
 ## Roadmap
+
+![Uploading ChatGPT EN 2026 г., 23_53_17.png…]()
+
 
 This roadmap maps the [vision](#the-vision) onto specific phases. Phases are sized to fit `~1 week of focused work` each. Markers: ✅ done, 🟡 partial, ⬜ planned.
 
