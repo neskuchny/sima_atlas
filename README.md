@@ -155,7 +155,9 @@ Six jobs. Each names the failure mode it replaces and the feature that delivers 
 - **Sima delivers:** per-block file manifest with `[alive]` / `[dead]` / `[archived]` / `[pending]` markers · validator that **fails CI** when an `[alive]` file is missing · «Files alive» counter in Implementation Status panel · file-state surfaces in every context-pack · **nightly housekeeping sweeper** (R-7.88) that proposes cleanups (stale-alive entries · stale-dead/archived files · orphan code) — pure proposals, never auto-deletes; apply tool MOVES (with breadcrumb), never `rm`; protects all TZ / refs / docs / non-`done` blocks by design
 
 ## Promise vs reality — feature manifest
-![Uploading ChatGPT EN 2026 г., 23_53_17.png…]()
+
+<img width="1536" height="1024" alt="ChatGPT EN 2026 г , 23_53_17" src="https://github.com/user-attachments/assets/1ad3c7b4-bdf2-40af-a2a0-afe20f8d6928" />
+
 
 Every capability in the original concept, mapped to current code state.
 
@@ -216,9 +218,6 @@ Every capability in the original concept, mapped to current code state.
 - **Honest self-audit** — every methodology claim has a verdict against code (✅ / 🟡 / ❌). See [Article Appendix A](docs/article.en.md).
 
 ## Roadmap
-
-![Uploading ChatGPT EN 2026 г., 23_53_17.png…]()
-
 
 This roadmap maps the [vision](#the-vision) onto specific phases. Phases are sized to fit `~1 week of focused work` each. Markers: ✅ done, 🟡 partial, ⬜ planned.
 
