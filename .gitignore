@@ -31,6 +31,11 @@ atlas/process_runs/**/*
 # Pending UI proposals — runtime queue, not source of truth.
 atlas/proposals/*
 !atlas/proposals/.gitkeep
+# Same runtime-queue rule for per-tenant proposals — they're ephemeral
+# pending plans, not source of truth. UI consumes from
+# atlas/clients/<id>/proposals/ when ?client=X is set in the URL.
+atlas/clients/*/proposals/*
+!atlas/clients/*/proposals/.gitkeep
 
 # Per-run agent log files — written on every /runs/start.
 atlas/run_logs/*
