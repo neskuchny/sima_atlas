@@ -19,7 +19,8 @@
 Two ways to see Sima in action without installing anything:
 
 - **30-second concept image** — what the system actually does, visualised:
-  <a href="docs/hero-mockup.png"><img src="docs/hero-mockup.png" width="100%" alt="Operator and AI both face a shared canvas — the closed loop that makes it work"></a>
+  ![Uploading ChatGPT En 2026 г., 23_52_38.png…]()
+
 - **The live UI** (screenshot above) — `npm run dev` opens this in your browser at `http://localhost:8000/atlas_design/?client=example` with a populated demo client so you can click around without writing a single line of contract.
 - **Press kit** with logo / hero variants / taglines / numbers — [`docs/press/`](docs/press/).
 
@@ -153,6 +154,7 @@ Six jobs. Each names the failure mode it replaces and the feature that delivers 
 - **Sima delivers:** per-block file manifest with `[alive]` / `[dead]` / `[archived]` / `[pending]` markers · validator that **fails CI** when an `[alive]` file is missing · «Files alive» counter in Implementation Status panel · file-state surfaces in every context-pack · **nightly housekeeping sweeper** (R-7.88) that proposes cleanups (stale-alive entries · stale-dead/archived files · orphan code) — pure proposals, never auto-deletes; apply tool MOVES (with breadcrumb), never `rm`; protects all TZ / refs / docs / non-`done` blocks by design
 
 ## Promise vs reality — feature manifest
+![Uploading ChatGPT EN 2026 г., 23_53_17.png…]()
 
 Every capability in the original concept, mapped to current code state.
 
