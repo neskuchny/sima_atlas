@@ -1,3 +1,4 @@
+<img width="1672" height="941" alt="ChatGPT Image 9 мая 2026 г , 23_52_38" src="https://github.com/user-attachments/assets/6c25ca16-da07-4b3d-9d53-6f8a4c475acf" />
 # Sima Atlas
 
 > **Visual contract-first development for AI coding agents.**
@@ -19,8 +20,7 @@
 Two ways to see Sima in action without installing anything:
 
 - **30-second concept image** — what the system actually does, visualised:
-
-<img width="1672" height="941" alt="ChatGPT En 2026 г , 23_52_38" src="https://github.com/user-attachments/assets/646f45aa-fe38-4c90-9e5e-47722a5a6890" />
+  <a href="docs/hero-mockup.png"><img src="docs/hero-mockup.png" width="100%" alt="Operator and AI both face a shared canvas — the closed loop that makes it work"></a>
   
 - **The live UI** (screenshot above) — `npm run dev` opens this in your browser at `http://localhost:8000/atlas_design/?client=example` with a populated demo client so you can click around without writing a single line of contract.
 - **Press kit** with logo / hero variants / taglines / numbers — [`docs/press/`](docs/press/).
@@ -156,7 +156,7 @@ Six jobs. Each names the failure mode it replaces and the feature that delivers 
 
 ## Promise vs reality — feature manifest
 
-<img width="1536" height="1024" alt="ChatGPT EN 2026 г , 23_53_17" src="https://github.com/user-attachments/assets/1ad3c7b4-bdf2-40af-a2a0-afe20f8d6928" />
+<img width="1536" height="1024" alt="ChatGPT EN 2026 г , 23_53_17" src="https://github.com/user-attachments/assets/ed6a74e3-a0d8-4cba-90d3-19d18587459c" />
 
 
 Every capability in the original concept, mapped to current code state.

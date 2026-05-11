@@ -1,3 +1,4 @@
+<img width="1672" height="941" alt="ChatGPT RU 2026 г , 23_52_27" src="https://github.com/user-attachments/assets/9c4334a2-2cab-4ade-88ae-5d6f8e9e5ed3" />
 # Sima Atlas
 
 > **Визуальная контракт-ориентированная разработка для AI-агентов.**
@@ -144,6 +145,10 @@ npm run dev
 - **Sima даёт:** per-block file manifest с маркерами `[alive]` / `[dead]` / `[archived]` / `[pending]` · валидатор **проваливает CI** при пропавшем `[alive]` · счётчик «Files alive» в Implementation Status · file-state попадает в каждый context-pack · **ночной housekeeping sweeper** (R-7.88) предлагает чистки (stale-alive · stale-dead/archived · orphan code) — только предлагает, никогда не удаляет автоматически; apply tool **переносит в `archive/` с breadcrumb**, никаких `rm`; защищает все ТЗ / референсы / docs / блоки не в статусе `done` by design
 
 ## Обещали vs сделано — feature manifest
+
+<img width="1672" height="941" alt="ChatGPT Image 9 мая 2026 г , 23_59_32" src="https://github.com/user-attachments/assets/0076bf97-8711-4f06-a5ad-8c422312560c" />
+
+
 
 Каждый пункт исходной концепции — мэп на текущее состояние кода.
 

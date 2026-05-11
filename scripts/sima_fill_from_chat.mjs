@@ -241,6 +241,18 @@ if (fileURLToPath(import.meta.url) === process.argv[1]) {
         console.log(`  new proposals:     ${p.summary.proposed_new_blocks}`);
         console.log(`  ambiguities:       ${p.summary.ambiguities}`);
         if (!dryRun) console.log(`  plan saved:        ${p.saved_at || '(write failed — see stderr)'}`);
+        // Loud warning when no --client= provided so the next operator
+        // doesn't waste an hour wondering why the UI doesn't show the
+        // proposal. UI is scoped by `?client=X`; without that flag we
+        // wrote to root atlas which only the no-client-mode UI reads.
+        if (!client_id) {
+          console.log('');
+          console.log('  ⚠ no --client= specified — plan written to ROOT atlas/proposals/.');
+          console.log('    UI opened with `?client=X` reads from atlas/clients/X/proposals/');
+          console.log('    and will NOT see this proposal. To target a specific tenant:');
+          console.log('      node scripts/sima_fill_from_chat.mjs --client=<id> --stdin < file.txt');
+          console.log('    Common ids: example (built-in demo), main (root again), or your own.');
+        }
       }
     } catch (e) {
       console.error('sima_fill_from_chat: FAIL —', e.message);
