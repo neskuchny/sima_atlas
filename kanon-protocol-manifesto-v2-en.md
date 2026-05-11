@@ -1,7 +1,7 @@
 # Kanon Protocol
 
 **Ten principles of contract-first AI development.**
-Draft v2. From Greek κανών — *rule, standard, measure*.
+Draft v2.1. From Greek κανών — *rule, standard, measure*.
 
 ---
 
@@ -133,6 +133,8 @@ When a product consists of fifty blocks, a human is physically incapable of hold
 
 Visualisation stops being UX convenience. It becomes a **cognitive requirement**: the only interface on which a human can see the system as a whole and still understand it. The canvas is a control plane: every block is a node, every dependency is an edge, colour is status (green / running / desync / inconclusive). Without the canvas, delegating to agents becomes hope, not control. With the canvas — the opposite.
 
+A parallel line of thought is already unfolding in the community. Thariq Shihipar (Anthropic) shows that HTML is displacing markdown as the output format for agentic artefacts — markdown beyond a hundred lines stops being readable, while HTML carries the visual density modern tasks demand. Andrej Karpathy frames this as an "I/O mind meld": a progression from raw text → markdown → HTML → interactive neural artefacts as the obvious trajectory between human and LLM. Kanon operates on an adjacent plane: their work concerns the **output format** of the agent; Principle IX concerns the **visibility of the task** the agent is working on. The two lines meet at one point — the text stream as a communication channel between human and agent has run out of room, and the visual channel becomes cognitively mandatory.
+
 Any Kanon-compliant implementation must provide a visual representation of the graph. The realisation can vary — web canvas, IDE plugin, CLI with ASCII diagram. But the visibility of the graph is not optional.
 
 ---
@@ -168,6 +170,8 @@ REST didn't belong to a single framework. DDD didn't belong to a single book. Th
 Kanon Protocol is not the first attempt to formalise contracts for agents, and our work stands on the shoulders of others.
 
 **Agent Contracts (Ye & Tan, 2025).** A formal framework for resource-bounded autonomous AI, describing a contract as a tuple $(I, O, S, R, T, \Phi, \Psi)$ — input/output specs, success criteria, resource constraints, temporal boundaries. Their focus is *governance*: how much an agent may consume, how long it may run. Kanon occupies an adjacent plane — *task structure*: how to decompose the product into blocks with contracts, how to organise memory, how to ensure cascade integrity. The two approaches complement each other: Agent Contracts bound the agent from above on resources; Kanon directs the agent from within on structure. Combining both in a single implementation is possible and desirable.
+
+**The I/O Mind Meld (Karpathy, 2026; Shihipar / Anthropic, 2026).** A parallel line of contemporary thought on how the interface between human and AI agents should be designed. Shihipar shows that HTML as an output format gives fundamentally different reading density and interactivity compared to markdown — and that this changes the working process with an agent qualitatively, not quantitatively. Karpathy frames the progression text → markdown → HTML → interactive neural artefacts as the obvious trajectory of I/O between human and LLM. These works concern the **output format** of the agent; Kanon concerns the **visibility of the task**. The canvas of Principle IX and the HTML artefacts of their line address different halves of the same structural problem: the text stream as the communication channel between human and agent has run out of room; the interface needs to catch up.
 
 **Contract Net Protocol (Smith, 1980).** The historical foundation — coordination through contracts in multi-agent systems. Both Ye & Tan and Kanon Protocol continue this line.
 
