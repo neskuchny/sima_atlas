@@ -1,4 +1,5 @@
 <img width="1672" height="941" alt="ChatGPT RU 2026 г , 23_52_27" src="https://github.com/user-attachments/assets/9c4334a2-2cab-4ade-88ae-5d6f8e9e5ed3" />
+
 # Sima Atlas
 
 > **Визуальная контракт-ориентированная разработка для AI-агентов.**
