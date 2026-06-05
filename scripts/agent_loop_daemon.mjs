@@ -263,8 +263,29 @@ function iterate() {
     const regM = greenGuard.stdout.match(/regressions=(\d+)/);
     const regressed = !greenGuard.ok || (regM ? Number(regM[1]) > 0 : false);
 
+    // 4. SEMANTIC gate (Kanon «Contract as Arbiter», Counter-Force to
+    //    simplification). Deterministic checks passing isn't enough — the
+    //    operator's «does it match the meaning + methodology + will it work?»
+    //    must hold too. We run semantic_verify and BLOCK promotion only on a
+    //    hard semantic FAIL (mission or methodology). `inconclusive` (e.g. no
+    //    live LLM) does NOT block — graceful degradation — but is surfaced.
+    let semanticFail = false, semanticVerdict = 'skipped';
     if (passed && !regressed) {
-      const adv = advanceTowardDone(block.id, block.status, `agent-loop: verifier pass (iteration ${iteration})`);
+      const semArgs = ['scripts/semantic_verify.mjs', block.id, '--json'];
+      if (CLIENT) semArgs.push('--client', CLIENT);
+      const sem = nodeRun(semArgs);
+      try {
+        const sv = JSON.parse(sem.stdout || '{}');
+        semanticVerdict = sv.overall || 'inconclusive';
+        // hard-fail only when the judge is sure the meaning/methodology is wrong
+        semanticFail = sv.mission_fulfilled?.verdict === 'fail' || sv.methodology_followed?.verdict === 'fail';
+        if (semanticFail) entry.semantic_todo = (sv.todo_to_pass || []).slice(0, 5);
+        entry.semantic = semanticVerdict;
+      } catch { semanticVerdict = 'inconclusive'; }
+    }
+
+    if (passed && !regressed && !semanticFail) {
+      const adv = advanceTowardDone(block.id, block.status, `agent-loop: verifier pass + semantic ${semanticVerdict} (iteration ${iteration})`);
       entry.action = 'pass';
       entry.advanced_to = adv.to;
       consecutiveFails = 0;
@@ -272,7 +293,8 @@ function iterate() {
     } else {
       entry.action = 'fail';
       entry.reason = !passed ? 'verifier did not pass'
-        : 'a previously-green done block regressed — not promoting';
+        : regressed ? 'a previously-green done block regressed — not promoting'
+        : 'semantic verify FAILED — implementation does not match the block\'s meaning/methodology';
       consecutiveFails += 1;
       // AUTO-ROLLBACK: if this run regressed a previously-green done block,
       // undo the agent's edits to this block's owned files. A failed

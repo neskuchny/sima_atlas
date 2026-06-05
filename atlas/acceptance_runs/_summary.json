@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-05T23:35:12.209Z",
+  "generated_at": "2026-06-05T23:52:33.871Z",
   "blocks": [
     {
       "block_id": "b.ui-control",
@@ -9,7 +9,7 @@
         "fail": 0,
         "skipped": 3
       },
-      "duration_ms": 56,
+      "duration_ms": 57,
       "sample_failures": []
     },
     {
@@ -20,7 +20,7 @@
         "fail": 0,
         "skipped": 2
       },
-      "duration_ms": 159,
+      "duration_ms": 144,
       "sample_failures": []
     },
     {
@@ -31,7 +31,7 @@
         "fail": 0,
         "skipped": 1
       },
-      "duration_ms": 101,
+      "duration_ms": 96,
       "sample_failures": []
     },
     {
@@ -42,7 +42,7 @@
         "fail": 0,
         "skipped": 1
       },
-      "duration_ms": 2368,
+      "duration_ms": 2271,
       "sample_failures": []
     },
     {
@@ -53,7 +53,7 @@
         "fail": 0,
         "skipped": 2
       },
-      "duration_ms": 56,
+      "duration_ms": 53,
       "sample_failures": []
     },
     {
@@ -64,7 +64,7 @@
         "fail": 0,
         "skipped": 1
       },
-      "duration_ms": 489,
+      "duration_ms": 479,
       "sample_failures": []
     },
     {
@@ -75,7 +75,7 @@
         "fail": 1,
         "skipped": 1
       },
-      "duration_ms": 656,
+      "duration_ms": 667,
       "sample_failures": [
         {
           "id": "A6",
@@ -92,7 +92,7 @@
         "fail": 0,
         "skipped": 1
       },
-      "duration_ms": 963,
+      "duration_ms": 931,
       "sample_failures": []
     },
     {
@@ -103,7 +103,7 @@
         "fail": 0,
         "skipped": 0
       },
-      "duration_ms": 639,
+      "duration_ms": 626,
       "sample_failures": []
     },
     {
@@ -114,7 +114,7 @@
         "fail": 0,
         "skipped": 1
       },
-      "duration_ms": 465,
+      "duration_ms": 527,
       "sample_failures": []
     },
     {
@@ -136,7 +136,7 @@
         "fail": 0,
         "skipped": 6
       },
-      "duration_ms": 2,
+      "duration_ms": 1,
       "sample_failures": []
     },
     {
@@ -147,7 +147,7 @@
         "fail": 0,
         "skipped": 6
       },
-      "duration_ms": 1,
+      "duration_ms": 2,
       "sample_failures": []
     },
     {
@@ -169,7 +169,7 @@
         "fail": 0,
         "skipped": 6
       },
-      "duration_ms": 1,
+      "duration_ms": 2,
       "sample_failures": []
     },
     {

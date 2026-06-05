@@ -315,6 +315,14 @@ html, body {
 }
 .impl-state-empty .impl-status-label { color: var(--ink-3); }
 .impl-state-empty .impl-status-value { color: var(--ink-4); }
+.impl-state-bad .impl-status-label { color: var(--ink-2); }
+.impl-state-bad .impl-status-value { color: var(--st-fail); font-weight: 600; }
+
+/* R-7.94 — semantic review todo list */
+.semantic-todo { margin-top: 8px; border: 1px solid var(--rule); border-radius: 8px; background: var(--card); padding: 8px 12px; }
+.semantic-todo-head { font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+.semantic-todo ul { margin: 0; padding-left: 18px; }
+.semantic-todo li { font-size: 12px; color: var(--ink-2); margin: 3px 0; }
 
 /* R-7.90 (S-11) — subsystem progress roll-up */
 .rollup-bar-wrap { display: flex; align-items: center; gap: 10px; margin: 8px 0 6px; }

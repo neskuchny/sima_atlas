@@ -426,6 +426,7 @@ function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSu
   // Status panel (counters: how many runs documented, how many
   // architectural decisions logged for this block).
   const [narrativeText, setNarrativeText] = useState2('');
+  const [semanticReview, setSemanticReview] = useState2(null); // R-7.94 Kanon verdict
   const [decisionsText, setDecisionsText] = useState2('');
   const [tasksText, setTasksText] = useState2('');
   const [loaded, setLoaded] = useState2(false);
@@ -442,10 +443,11 @@ function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSu
       } catch { return ''; }
     };
     (async () => {
-      const [mission, kpi, accept, deps, prov, narr, dec, tk] = await Promise.all([
+      const [mission, kpi, accept, deps, prov, narr, dec, tk, sem] = await Promise.all([
         load('mission.md'), load('kpi.md'), load('acceptance.md'),
         load('depends_on.md'), load('provides.md'),
         load('narrative.md'), load('decisions.log'), load('tasks.md'),
+        load('semantic_review.json'),
       ]);
       if (cancelled) return;
       const stripHead = (s) => s.replace(/^#[^\n]*\n+/, '').replace(/\n+##\s+Layer[\s\S]*$/i, '').trim();
@@ -457,6 +459,7 @@ function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSu
       setNarrativeText(narr || '');
       setDecisionsText(dec || '');
       setTasksText(stripHead(tk));
+      try { setSemanticReview(sem ? JSON.parse(sem) : null); } catch { setSemanticReview(null); }
       setLoaded(true);
     })();
     return () => { cancelled = true; };
@@ -554,6 +557,53 @@ function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSu
                 );
               })}
             </div>
+          </div>
+        );
+      })()}
+
+      {/* R-7.94 (Kanon «Contract as Arbiter») — semantic review. Does the
+          actual implementation match the block's MEANING + conditions +
+          methodology, and will it work as described? Five tri-state
+          dimensions + a todo list of what must change to genuinely satisfy
+          the contract. Run via MCP semantic_verify or
+          `node scripts/semantic_verify.mjs <id>`. */}
+      {semanticReview && (() => {
+        const sr = semanticReview;
+        const dot = (v) => ({ pass: { bg: 'var(--st-done)', mark: '✓' }, fail: { bg: 'var(--st-fail)', mark: '✗' }, inconclusive: { bg: 'var(--st-progress)', mark: '~' } }[v] || { bg: 'var(--ink-4)', mark: '·' });
+        const dims = [
+          ['mission_fulfilled', t('semantic.mission', 'Matches mission (meaning)')],
+          ['conditions_met', t('semantic.conditions', 'Meets KPIs + acceptance')],
+          ['methodology_followed', t('semantic.methodology', 'Follows methodology')],
+          ['works_as_described', t('semantic.works', 'Will work as described')],
+          ['connections_consistent', t('semantic.connections', 'Block connections consistent')],
+        ];
+        const od = dot(sr.overall);
+        return (
+          <div className="ov-section">
+            <div className="ov-head">
+              <h3>{t('overview.semantic', '⚖ Semantic review')} <span className="ov-file">{sr.mock ? t('semantic.mock', 'inconclusive — no live LLM') : (sr.provider || '')}</span></h3>
+              <span className="impl-status-mark" style={{ background: od.bg }}>{od.mark}</span>
+            </div>
+            <div className="impl-status-grid">
+              {dims.map(([k, label], i) => {
+                const v = sr[k]?.verdict || 'inconclusive';
+                const d = dot(v);
+                return (
+                  <div key={i} className={`impl-status-row impl-state-${v === 'pass' ? 'good' : v === 'fail' ? 'bad' : 'warn'}`} title={sr[k]?.reasoning || ''}>
+                    <span className="impl-status-mark" style={{ background: d.bg }}>{d.mark}</span>
+                    <span className="impl-status-label">{label}</span>
+                    <span className="impl-status-value">{v}</span>
+                  </div>
+                );
+              })}
+            </div>
+            {sr.summary && <p className="lede" style={{ fontSize: 12.5, marginTop: 8, whiteSpace: 'pre-wrap' }}>{sr.summary}</p>}
+            {Array.isArray(sr.todo_to_pass) && sr.todo_to_pass.length > 0 && (
+              <div className="semantic-todo">
+                <div className="semantic-todo-head">{t('semantic.todo', 'To genuinely satisfy the contract:')}</div>
+                <ul>{sr.todo_to_pass.map((td, i) => <li key={i}>{td}</li>)}</ul>
+              </div>
+            )}
           </div>
         );
       })()}

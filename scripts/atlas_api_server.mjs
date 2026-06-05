@@ -461,6 +461,7 @@ const server = http.createServer((req, res) => {
     'provides.md', 'files.md', 'checks.log', 'decisions.log', 'patterns.md',
     'lessons.md', 'user_story.md', 'code_summary.md',
     'narrative.md',  // R-7.86 — Memory tab + Overview Implementation Status (run history)
+    'semantic_review.json',  // R-7.94 — Kanon semantic verdict (Overview panel)
   ]);
   {
     const m = req.method === 'GET' && req.url.match(/^\/atlas\/blocks\/([a-zA-Z0-9._-]+)\/file\?(.*)$/);
