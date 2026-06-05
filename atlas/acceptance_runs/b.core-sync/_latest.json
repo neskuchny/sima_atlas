@@ -7,7 +7,7 @@
       "id": "A1",
       "label": null,
       "text": "На пустом графе с одним блоком без зависимостей syncCheck возвращает `synchronized: 1, drift: 0, broken: 0`.",
-      "checked": false,
+      "checked": true,
       "line": 3,
       "evidence_kind": "selftest_run",
       "evidence_spec": {
@@ -15,23 +15,23 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/atlas_sync.selftest.mjs → exit 0 (53ms); first line: \"atlas_sync.selftest: OK\"",
+      "evidence": "node tests/atlas_sync.selftest.mjs → exit 0 (64ms); first line: \"atlas_sync.selftest: OK\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/atlas_sync.selftest.mjs",
         "exit_code": 0,
         "stdout": "atlas_sync.selftest: OK\n",
         "stderr": "",
-        "duration_ms": 53,
+        "duration_ms": 64,
         "timed_out": false
       },
-      "duration_ms": 53
+      "duration_ms": 64
     },
     {
       "id": "A2",
       "label": null,
       "text": "Если блок A заявляет `depends_on: [{block_id: B, capability: foo}]`, а у B нет `provides: [foo]`, syncCheck возвращает `broken` с `reason: missing_capability(B.foo)`.",
-      "checked": false,
+      "checked": true,
       "line": 10,
       "evidence_kind": "exit_code",
       "evidence_spec": {
@@ -39,17 +39,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_dependency_contracts.mjs → exit 0 (53ms); first line: \"Dependency contract validation: OK\"",
+      "evidence": "node scripts/validate_dependency_contracts.mjs → exit 0 (66ms); first line: \"Dependency contract validation: OK\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_dependency_contracts.mjs",
         "exit_code": 0,
         "stdout": "Dependency contract validation: OK\n",
         "stderr": "",
-        "duration_ms": 53,
+        "duration_ms": 66,
         "timed_out": false
       },
-      "duration_ms": 53
+      "duration_ms": 66
     },
     {
       "id": "A3",
@@ -66,12 +66,12 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "6c9be1574ec67967",
+        "prompt_hash": "b744044cf6896960",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 1
+      "duration_ms": 3
     },
     {
       "id": "A4",
@@ -88,7 +88,7 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "3424d62381cd9258",
+        "prompt_hash": "0d05f4f09b7d596f",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
@@ -99,7 +99,7 @@
       "id": "A5",
       "label": null,
       "text": "Все детектированные drift/broken попадают в `atlas/sync_report.json` со ссылкой на конкретный файл/строку (для UI).",
-      "checked": false,
+      "checked": true,
       "line": 19,
       "evidence_kind": "exit_code",
       "evidence_spec": {
@@ -107,17 +107,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (54ms); first line: \"Block contract validation: OK\"",
+      "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (69ms); first line: \"Block contract validation: OK\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_block_contracts.mjs",
         "exit_code": 0,
         "stdout": "Block contract validation: OK\n",
         "stderr": "",
-        "duration_ms": 54,
+        "duration_ms": 69,
         "timed_out": false
       },
-      "duration_ms": 54
+      "duration_ms": 69
     }
   ],
   "counts": {
@@ -126,6 +126,6 @@
     "skipped": 2
   },
   "verdict": "pass",
-  "duration_ms": 161,
-  "checked_at": "2026-06-05T16:42:58.203Z"
+  "duration_ms": 204,
+  "checked_at": "2026-06-05T22:17:13.749Z"
 }

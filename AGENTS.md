@@ -13,8 +13,9 @@ stop-signals.
    `depends_on.md`, `provides.md`, `tasks.md`, `files.md`, `code_summary.md`,
    `checks.log`. Multi-tenant: `atlas/clients/<client>/blocks/<id>/`.
 
-2. **Read mission before code.** Standard order: project → rules → tech_stack
-   → mission → acceptance → depends_on → (deps' provides) → tasks →
+2. **Read mission before code.** Standard order: `/atlas/project.md` →
+   `/atlas/rules.md` → tech_stack → mission → acceptance → depends_on →
+   (deps' provides) → tasks →
    **narrative.md → decisions.log → checks.log → operator_profile/dont_use+always_use**.
    Stop at the first level that answers the question. The last four
    are the **memory layer** (R-7.76+) — they tell you what was tried,

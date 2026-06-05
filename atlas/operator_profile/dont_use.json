@@ -1,6 +1,0 @@
-{
-  "version": 1,
-  "schema": "dont_use",
-  "description": "Operator-locked rules: NEVER do X. Each entry is read by run_block_implementation prompt and by guard_against_drift runtime check. block_id optional. Severity: hard (block run) | soft (warn). Reason mandatory so future operators understand why.",
-  "entries": []
-}

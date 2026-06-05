@@ -22,6 +22,13 @@ document — keep edits in sync.
 claude mcp add sima-atlas node scripts/mcp_atlas_server.mjs
 ```
 
+## Read order for any task
+
+Start with `/atlas/project.md` → `/atlas/rules.md` → `tech_stack.md`, then the
+target block's `mission.md` → `acceptance.md` → `depends_on.md`. Stop at the
+first level that answers the question. Full strategy in
+[`docs/agent-navigation.md`](docs/agent-navigation.md).
+
 ## Most-useful MCP entry points
 
 - `read_block` / `update_block` / `verify_block_acceptance` — per-block contract operations

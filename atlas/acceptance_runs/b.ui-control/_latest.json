@@ -18,12 +18,12 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "2f85e0496833b288",
+        "prompt_hash": "a40355c592dcac9a",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 1
+      "duration_ms": 2
     },
     {
       "id": "A2",
@@ -40,7 +40,7 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "1c1d5cbebe23cd56",
+        "prompt_hash": "59f7e8e2b107d938",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
@@ -62,7 +62,7 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "641c976b8fc2de2e",
+        "prompt_hash": "281f3a85b79b30c0",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
@@ -81,17 +81,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (54ms); first line: \"Block contract validation: OK\"",
+      "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (76ms); first line: \"Block contract validation: OK\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_block_contracts.mjs",
         "exit_code": 0,
         "stdout": "Block contract validation: OK\n",
         "stderr": "",
-        "duration_ms": 54,
+        "duration_ms": 76,
         "timed_out": false
       },
-      "duration_ms": 54
+      "duration_ms": 76
     },
     {
       "id": "A5",
@@ -125,6 +125,6 @@
     "skipped": 3
   },
   "verdict": "pass",
-  "duration_ms": 59,
-  "checked_at": "2026-06-05T16:42:58.041Z"
+  "duration_ms": 81,
+  "checked_at": "2026-06-05T22:17:06.090Z"
 }

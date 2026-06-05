@@ -15,17 +15,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/llm_gateway.selftest.mjs → exit 0 (67ms); first line: \"llm_gateway.selftest: OK (5 cases)\"",
+      "evidence": "node tests/llm_gateway.selftest.mjs → exit 0 (77ms); first line: \"llm_gateway.selftest: OK (5 cases)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/llm_gateway.selftest.mjs",
         "exit_code": 0,
         "stdout": "llm_gateway.selftest: OK (5 cases)\n",
         "stderr": "",
-        "duration_ms": 67,
+        "duration_ms": 77,
         "timed_out": false
       },
-      "duration_ms": 67
+      "duration_ms": 77
     },
     {
       "id": "A2",
@@ -46,10 +46,10 @@
         "exit_code": 2,
         "stdout": "PASS: created b.realtime-ingestion in graph.json\nPASS: b.realtime-ingestion has layer=logic (LLM classification)\nPASS: b.realtime-ingestion folder seeded with mission.md\nPASS: b.core-sync mission preserved (LLM proposal is not auto-applied)\nFAIL: b.core-sync status NOT silently flipped to done\nPASS: b.agent-orchestrator/checks.log has new llm_extraction lines\n",
         "stderr": "simulate_conversation_branches: failed 1/6\n",
-        "duration_ms": 345,
+        "duration_ms": 396,
         "timed_out": false
       },
-      "duration_ms": 345
+      "duration_ms": 396
     },
     {
       "id": "A3",
@@ -66,7 +66,7 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "2690f1d1ff32db70",
+        "prompt_hash": "40466c90342b7747",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
@@ -85,11 +85,11 @@
         "min_count": 1
       },
       "verdict": "pass",
-      "evidence": "glob atlas/llm_traces/*.json → 96 files (min=1); newest 0min ago",
-      "reasoning": "96 files match (≥1)",
+      "evidence": "glob atlas/llm_traces/*.json → 517 files (min=1); newest 0min ago",
+      "reasoning": "517 files match (≥1)",
       "raw": {
         "pattern": "atlas/llm_traces/*.json",
-        "count": 96,
+        "count": 517,
         "min_count": 1,
         "max_age_min": null,
         "newest_minutes_ago": 0,
@@ -101,7 +101,7 @@
           "/home/user/sima_atlas/atlas/llm_traces/2026-06-05T16-42-39-692Z__mock__2d5f6c94bb25dcaa.json"
         ]
       },
-      "duration_ms": 8
+      "duration_ms": 20
     },
     {
       "id": "A5",
@@ -115,17 +115,17 @@
         "expect_in_stdout": "overall avg="
       },
       "verdict": "pass",
-      "evidence": "node tests/llm_extraction.eval.mjs → exit 0 (75ms); first line: \"llm_extraction.eval — overall avg=1.000 (cases=30/30)\"",
+      "evidence": "node tests/llm_extraction.eval.mjs → exit 0 (92ms); first line: \"llm_extraction.eval — overall avg=1.000 (cases=30/30)\"",
       "reasoning": "shell exit code 0 and stdout matches /overall avg=/",
       "raw": {
         "cmd": "node tests/llm_extraction.eval.mjs",
         "exit_code": 0,
-        "stdout": "llm_extraction.eval — overall avg=1.000 (cases=30/30)\n  A_single_block               1.00\n  B_multi_block                1.00\n  C_no_block                   1.00\n  D_layer_classification       1.00\n  E_dependency                 1.00\n  F_confidence                 1.00\n  best_prior=1.000 (regression tolerance 0.05)\n  snapshot=atlas/eval_history/2026-06-05T16-42-54-498Z.json\n\nllm_extraction.eval: OK — overall 1.00 on 30 cases (target 0.70)\n",
+        "stdout": "llm_extraction.eval — overall avg=1.000 (cases=30/30)\n  A_single_block               1.00\n  B_multi_block                1.00\n  C_no_block                   1.00\n  D_layer_classification       1.00\n  E_dependency                 1.00\n  F_confidence                 1.00\n  best_prior=1.000 (regression tolerance 0.05)\n  snapshot=atlas/eval_history/2026-06-05T22-14-09-960Z.json\n\nllm_extraction.eval: OK — overall 1.00 on 30 cases (target 0.70)\n",
         "stderr": "",
-        "duration_ms": 75,
+        "duration_ms": 92,
         "timed_out": false
       },
-      "duration_ms": 75
+      "duration_ms": 92
     }
   ],
   "counts": {
@@ -134,6 +134,6 @@
     "skipped": 1
   },
   "verdict": "fail",
-  "duration_ms": 496,
-  "checked_at": "2026-06-05T16:42:54.506Z"
+  "duration_ms": 587,
+  "checked_at": "2026-06-05T22:14:09.969Z"
 }

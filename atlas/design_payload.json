@@ -151,12 +151,12 @@
         "json",
         "markdown"
       ],
-      "x": 400,
+      "x": 80,
       "y": 100
     },
     {
       "id": "b.agent-orchestrator",
-      "_raw_updated_at": null,
+      "_raw_updated_at": "2026-06-05T22:11:29.247Z",
       "title": "Agent Orchestrator",
       "tag": "agent-orchestrator",
       "layer": "logic",
@@ -198,9 +198,9 @@
       "title": "Docs Builder",
       "tag": "docs",
       "layer": "backend",
-      "status": "progress",
+      "status": "done",
       "priority": 1,
-      "checked": false,
+      "checked": true,
       "size": "md",
       "parent_block_id": null,
       "contract": {
@@ -227,12 +227,12 @@
         "esm",
         "markdown"
       ],
-      "x": 80,
+      "x": 720,
       "y": 100
     },
     {
       "id": "b.llm-gateway",
-      "_raw_updated_at": null,
+      "_raw_updated_at": "2026-06-05T22:11:29.247Z",
       "title": "LLM Gateway",
       "tag": "llm-gateway",
       "layer": "logic",
@@ -269,7 +269,7 @@
     },
     {
       "id": "b.operator-profile-learner",
-      "_raw_updated_at": null,
+      "_raw_updated_at": "2026-06-05T22:11:29.247Z",
       "title": "Operator Profile Learner",
       "tag": "operator-profile-learner",
       "layer": "logic",
@@ -308,9 +308,9 @@
       "title": "Acceptance Verifier Loop",
       "tag": "acceptance-verifier-loop",
       "layer": "tests",
-      "status": "todo",
+      "status": "done",
       "priority": 3,
-      "checked": false,
+      "checked": true,
       "size": "lg",
       "parent_block_id": null,
       "contract": {
@@ -334,12 +334,12 @@
         "esm",
         "json-schema"
       ],
-      "x": 80,
+      "x": 400,
       "y": 760
     },
     {
       "id": "b.user-docs-generator",
-      "_raw_updated_at": null,
+      "_raw_updated_at": "2026-06-05T22:11:29.247Z",
       "title": "End-User Docs Generator",
       "tag": "user-docs-generator",
       "layer": "backend",
@@ -370,7 +370,7 @@
         "markdown",
         "playwright"
       ],
-      "x": 720,
+      "x": 400,
       "y": 100
     },
     {
@@ -404,7 +404,7 @@
         }
       },
       "tech_stack": [],
-      "x": 400,
+      "x": 80,
       "y": 760
     },
     {
@@ -576,77 +576,6 @@
       "tech_stack": [],
       "x": 1080,
       "y": 200
-    },
-    {
-      "id": "b.block-1",
-      "_raw_updated_at": "2026-05-05T20:58:12.722Z",
-      "title": "Новый модуль",
-      "tag": "block-1",
-      "layer": "logic",
-      "status": "todo",
-      "priority": 3,
-      "checked": false,
-      "size": "md",
-      "parent_block_id": null,
-      "contract": {
-        "score": 0.6,
-        "filled": 3,
-        "total": 5,
-        "missing": [
-          "depends_on.md",
-          "provides.md"
-        ]
-      },
-      "progress": {
-        "tasks": {
-          "done": 0,
-          "total": 1
-        },
-        "kpi": {
-          "checked": 5,
-          "total": 5
-        }
-      },
-      "tech_stack": [],
-      "x": 440,
-      "y": 340
-    },
-    {
-      "id": "b.block-2",
-      "_raw_updated_at": "2026-05-07T16:27:02.089Z",
-      "title": "Новый модуль",
-      "tag": "block-2",
-      "layer": "logic",
-      "status": "todo",
-      "priority": 3,
-      "checked": false,
-      "size": "md",
-      "parent_block_id": null,
-      "contract": {
-        "score": 0,
-        "filled": 0,
-        "total": 5,
-        "missing": [
-          "mission.md",
-          "kpi.md",
-          "acceptance.md",
-          "depends_on.md",
-          "provides.md"
-        ]
-      },
-      "progress": {
-        "tasks": {
-          "done": 0,
-          "total": 1
-        },
-        "kpi": {
-          "checked": 0,
-          "total": 1
-        }
-      },
-      "tech_stack": [],
-      "x": 743,
-      "y": 470
     }
   ],
   "edges": [
@@ -2134,6 +2063,41 @@
       "agent": "sima-core",
       "kind": "ok",
       "msg": "b.ui-control: review → done"
+    },
+    {
+      "ts": "22:11",
+      "module": "acceptance-verifier-loop",
+      "agent": "sima-core",
+      "kind": "info",
+      "msg": "b.acceptance-verifier-loop: idea → wip"
+    },
+    {
+      "ts": "22:11",
+      "module": "acceptance-verifier-loop",
+      "agent": "sima-core",
+      "kind": "info",
+      "msg": "b.acceptance-verifier-loop: wip → review"
+    },
+    {
+      "ts": "22:11",
+      "module": "acceptance-verifier-loop",
+      "agent": "sima-core",
+      "kind": "ok",
+      "msg": "b.acceptance-verifier-loop: review → done"
+    },
+    {
+      "ts": "22:11",
+      "module": "docs",
+      "agent": "sima-core",
+      "kind": "info",
+      "msg": "b.docs: wip → review"
+    },
+    {
+      "ts": "22:11",
+      "module": "docs",
+      "agent": "sima-core",
+      "kind": "ok",
+      "msg": "b.docs: review → done"
     }
   ],
   "lessons": [],
@@ -2165,7 +2129,7 @@
     }
   ],
   "_meta": {
-    "generated_at": "2026-06-05T16:42:45.130Z",
+    "generated_at": "2026-06-05T22:16:58.569Z",
     "atlas_root": "atlas",
     "client_id": null,
     "block_count": 17,

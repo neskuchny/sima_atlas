@@ -7,7 +7,7 @@
       "id": "A1",
       "label": null,
       "text": "При наличии в любом mission.md фразы «Ключевая цель блока…» или «Автосоздано из…» команда `node scripts/generate_wiki.mjs` падает с ненулевым exit-кодом. (Гейт против шаблонов.)",
-      "checked": false,
+      "checked": true,
       "line": 3,
       "evidence_kind": "exit_code",
       "evidence_spec": {
@@ -15,23 +15,23 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_no_template_placeholders.mjs → exit 0 (59ms); first line: \"Template-placeholder validation: OK (17 blocks scanned)\"",
+      "evidence": "node scripts/validate_no_template_placeholders.mjs → exit 0 (73ms); first line: \"Template-placeholder validation: OK (17 blocks scanned)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_no_template_placeholders.mjs",
         "exit_code": 0,
         "stdout": "Template-placeholder validation: OK (17 blocks scanned)\n",
-        "stderr": "Template-placeholder validation warnings:\n ⚠ b.smoke-sandbox: tasks.md is suspiciously short (28 chars)\n ⚠ b.block-2: kpi.md too short (49 chars, expected >= 60 for status=idea)\n",
-        "duration_ms": 59,
+        "stderr": "Template-placeholder validation warnings:\n ⚠ b.smoke-sandbox: tasks.md is suspiciously short (28 chars)\n",
+        "duration_ms": 73,
         "timed_out": false
       },
-      "duration_ms": 59
+      "duration_ms": 73
     },
     {
       "id": "A2",
       "label": null,
       "text": "В `wiki.html` присутствует `<div class=\"mermaid\">` с актуальным графом по `graph.json`.",
-      "checked": false,
+      "checked": true,
       "line": 10,
       "evidence_kind": "log_grep",
       "evidence_spec": {
@@ -48,7 +48,7 @@
         "match_count": 2,
         "sample": [
           "<div class=\"mermaid\">flowchart TB",
-          "<li>[ ] <strong>A2.</strong> В <code>wiki.html</code> присутствует <code>&lt;div class=\"mermaid\"&gt;</code> с актуальным графом по <code>graph.json</code>.</li>"
+          "<li>[x] <strong>A2.</strong> В <code>wiki.html</code> присутствует <code>&lt;div class=\"mermaid\"&gt;</code> с актуальным графом по <code>graph.json</code>.</li>"
         ]
       },
       "duration_ms": 1
@@ -68,34 +68,36 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "388197c11f7bddeb",
+        "prompt_hash": "5d5b685b7e3b7d2b",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 1
+      "duration_ms": 0
     },
     {
       "id": "A4",
       "label": null,
       "text": "`auto_tz.md` собран только из non-template mission/kpi и содержит ссылки на исходные `blocks/<id>/*.md`.",
-      "checked": false,
+      "checked": true,
       "line": 18,
       "evidence_kind": "fs_glob",
       "evidence_spec": {
-        "pattern": "ТЗ/auto_tz.md",
+        "pattern": "atlas/auto_tz.md",
         "min_count": 1
       },
-      "verdict": "fail",
-      "evidence": "glob ТЗ/auto_tz.md → 0 files (min=1)",
-      "reasoning": "0 files match; need ≥1",
+      "verdict": "pass",
+      "evidence": "glob atlas/auto_tz.md → 1 files (min=1); newest 0min ago",
+      "reasoning": "1 files match (≥1)",
       "raw": {
-        "pattern": "ТЗ/auto_tz.md",
-        "count": 0,
+        "pattern": "atlas/auto_tz.md",
+        "count": 1,
         "min_count": 1,
         "max_age_min": null,
-        "newest_minutes_ago": null,
-        "sample": []
+        "newest_minutes_ago": 0,
+        "sample": [
+          "/home/user/sima_atlas/atlas/auto_tz.md"
+        ]
       },
       "duration_ms": 0
     },
@@ -114,20 +116,20 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "0b0bde70b92d36a5",
+        "prompt_hash": "5f80dc78fbdae084",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 1
+      "duration_ms": 0
     }
   ],
   "counts": {
-    "pass": 2,
-    "fail": 1,
+    "pass": 3,
+    "fail": 0,
     "skipped": 2
   },
-  "verdict": "fail",
-  "duration_ms": 62,
-  "checked_at": "2026-06-05T16:42:54.009Z"
+  "verdict": "pass",
+  "duration_ms": 76,
+  "checked_at": "2026-06-05T22:17:09.675Z"
 }

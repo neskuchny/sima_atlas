@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-05T16:42:57.981Z",
+  "generated_at": "2026-06-05T22:17:06.007Z",
   "blocks": [
     {
       "block_id": "b.ui-control",
@@ -9,7 +9,7 @@
         "fail": 0,
         "skipped": 3
       },
-      "duration_ms": 59,
+      "duration_ms": 81,
       "sample_failures": []
     },
     {
@@ -20,7 +20,7 @@
         "fail": 0,
         "skipped": 2
       },
-      "duration_ms": 161,
+      "duration_ms": 199,
       "sample_failures": []
     },
     {
@@ -31,18 +31,18 @@
         "fail": 0,
         "skipped": 1
       },
-      "duration_ms": 107,
+      "duration_ms": 137,
       "sample_failures": []
     },
     {
       "block_id": "b.agent-orchestrator",
       "verdict": "fail",
       "counts": {
-        "pass": 1,
-        "fail": 5,
+        "pass": 2,
+        "fail": 4,
         "skipped": 1
       },
-      "duration_ms": 2474,
+      "duration_ms": 3169,
       "sample_failures": [
         {
           "id": "A2",
@@ -63,20 +63,14 @@
     },
     {
       "block_id": "b.docs",
-      "verdict": "fail",
+      "verdict": "pass",
       "counts": {
-        "pass": 2,
-        "fail": 1,
+        "pass": 3,
+        "fail": 0,
         "skipped": 2
       },
-      "duration_ms": 57,
-      "sample_failures": [
-        {
-          "id": "A4",
-          "evidence": "glob ТЗ/auto_tz.md → 0 files (min=1)",
-          "reasoning": "0 files match; need ≥1"
-        }
-      ]
+      "duration_ms": 76,
+      "sample_failures": []
     },
     {
       "block_id": "b.llm-gateway",
@@ -86,7 +80,7 @@
         "fail": 1,
         "skipped": 1
       },
-      "duration_ms": 494,
+      "duration_ms": 658,
       "sample_failures": [
         {
           "id": "A2",
@@ -103,7 +97,7 @@
         "fail": 1,
         "skipped": 1
       },
-      "duration_ms": 718,
+      "duration_ms": 866,
       "sample_failures": [
         {
           "id": "A6",
@@ -114,20 +108,14 @@
     },
     {
       "block_id": "b.acceptance-verifier-loop",
-      "verdict": "fail",
+      "verdict": "pass",
       "counts": {
-        "pass": 6,
-        "fail": 1,
+        "pass": 7,
+        "fail": 0,
         "skipped": 1
       },
-      "duration_ms": 1046,
-      "sample_failures": [
-        {
-          "id": "A5",
-          "evidence": "frontend/arch_canvas.jsx does not exist",
-          "reasoning": "target log file missing"
-        }
-      ]
+      "duration_ms": 1207,
+      "sample_failures": []
     },
     {
       "block_id": "b.user-docs-generator",
@@ -137,7 +125,7 @@
         "fail": 1,
         "skipped": 0
       },
-      "duration_ms": 343,
+      "duration_ms": 402,
       "sample_failures": [
         {
           "id": "A1",
@@ -154,7 +142,7 @@
         "fail": 0,
         "skipped": 1
       },
-      "duration_ms": 516,
+      "duration_ms": 631,
       "sample_failures": []
     },
     {
@@ -165,7 +153,7 @@
         "fail": 0,
         "skipped": 2
       },
-      "duration_ms": 1,
+      "duration_ms": 0,
       "sample_failures": []
     },
     {
@@ -236,11 +224,11 @@
     }
   ],
   "totals": {
-    "pass": 36,
-    "fail": 10,
+    "pass": 39,
+    "fail": 7,
     "skipped": 46,
-    "blocks_pass": 4,
-    "blocks_fail": 6,
+    "blocks_pass": 6,
+    "blocks_fail": 4,
     "blocks_inconclusive": 7
   }
 }

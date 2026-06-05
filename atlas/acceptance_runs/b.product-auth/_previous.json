@@ -23,7 +23,7 @@
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 1
+      "duration_ms": 0
     },
     {
       "id": "A2",
@@ -55,5 +55,5 @@
   },
   "verdict": "inconclusive",
   "duration_ms": 1,
-  "checked_at": "2026-06-05T16:42:57.087Z"
+  "checked_at": "2026-06-05T22:14:12.935Z"
 }

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-05T16:42:50.195Z",
+  "generated_at": "2026-06-05T22:17:04.665Z",
   "block_id": "b.llm-gateway",
   "profile": "design",
   "project": {
@@ -13,7 +13,7 @@
       "id": "b.llm-gateway",
       "title": "LLM Gateway",
       "status": "review",
-      "status_reason": "PR3: gateway implemented (Anthropic + Google + mock), structured output via JSON schema, trace+cost cap, golden eval avg 1.0 in mock. Review needed: live providers untested without keys; UI confidence/diff flow pending PR3.5.",
+      "status_reason": "Phase I: verifier FAIL on A2 (simulate_conversation_branches) — test fixture asserts b.core-sync is NOT done, but it legitimately IS done now. Test-state coupling; provider code works. Needs fixture decoupling.",
       "layer": "ai",
       "type": "module",
       "mvp": true,
@@ -38,7 +38,8 @@
         "tests/llm_mocks/f0b0bb99c4c1a99f.json",
         "tests/fixtures/extraction_golden.json",
         ".env"
-      ]
+      ],
+      "updated_at": "2026-06-05T22:11:29.247Z"
     },
     "mission": "# b.llm-gateway — mission\n\nЕдиная точка входа для всех LLM-вызовов внутри Атласа. Реализовано в `scripts/llm_gateway.mjs`:\n\n- **Provider-agnostic API**: `callLLM({provider, model, system, prompt, schema, max_tokens, temperature, op, strict})` для anthropic / google / mock.\n- **Structured output** через JSON Schema: для Anthropic — через tool-use (`submit_structured_response`), для Gemini — через `responseSchema`.\n- **Mock-провайдер** с двумя уровнями lookup: точный hash (provider+model+prompt) и prompt-only hash. При отсутствии fixture — детерминированный пустой объект по schema. Используется в CI, golden-set eval'ах и при отсутствии API-ключей.\n- **Trace-логирование**: каждый вызов пишет `atlas/llm_traces/<UTC>__<provider>__<hash>.json` с провайдером, моделью, в/о токенами, оценкой стоимости в USD, schema-валидностью и причинами ошибок. `.gitignore` отсекает шум, оставляя `.gitkeep`.\n- **Token budget** (`LLM_MAX_INPUT_TOKENS`) и **per-run cost cap** (`LLM_MAX_USD_PER_RUN`) — оба читаются из `.env`. Превышение → выброс при `strict: true`.\n- **Provider fallback**: если запрошенный провайдер недоступен или отвалился (5xx / timeout / auth), gateway без `strict` падает обратно на mock и логирует это в trace (`fallback_to_mock: true`).\n- **Sugar-функция** `extractBlockSchema(dialogText)` принимает диалог и возвращает `{ blocks: [{id, title, mission, layer, type, mvp, status, depends_on, provides, tech_stack, confidence}] }` — это и есть «извлечение блоков из чата», которое требует ТЗ.\n\nВ PR3 заменён regex `/(?:block|блок)\\s+([a-z0-9._-]+)/giu` в `scripts/analyze_conversation_to_atlas.mjs` на вызов `extractBlockSchema()` через этот gateway. Результат: новый блок создаётся в `graph.json` со всеми структурными полями и заметкой о происхождении (LLM extraction, confidence). Для существующих блоков LLM-предложения **не перезаписывают** content — только дописывают `llm_extraction` запись в `checks.log` (это будущий human-in-loop accept/reject в UI).\n\nGolden eval: 5 эталонных диалогов, средняя точность ≥ 0.7 (на mock — 1.0).\n\n## Layer\nai\n\n## Что должен делать в done-версии (после review)\n1. Live-test против реального Anthropic / Gemini API (нужен ключ в `.env`).\n2. UI confidence/diff flow (composer.jsx) — accept/reject предложенных LLM блоков.\n3. Eval на 30+ реальных диалогов вместо 5 синтетических.\n4. Persistent eval suite в nightly с историей точности.\n5. Подключить gateway во все остальные места, где имеет смысл LLM (sync semantic-check, distillate fact extraction).\n\n## Out of scope\n- Embeddings / vector search.\n- Streaming.\n- Fine-tuning или local-inference (vLLM и т.п.) — оставлено на enterprise mode.\n",
     "kpi": "# b.llm-gateway — KPI\n\n- **KPI-1 (structured output)**: `callLLM({ schema })` гарантирует, что ответ — валидный JSON по `schema`; при невалидном ответе — 1 ретрай + понятная ошибка. Сейчас: ✗ (блока нет).\n- **KPI-2 (mock parity)**: тестовый прогон с `LLM_PROVIDER=mock` и реальный с `LLM_PROVIDER=anthropic` дают одинаковую форму ответа (одна схема). Сейчас: ✗.\n- **KPI-3 (cost cap)**: `LLM_MAX_USD_PER_RUN=0.05` (по умолчанию) — превышение стоп. Сейчас: ✗.\n- **KPI-4 (latency)**: p95 < 6 секунд на 4k токенов входа Claude Haiku. Сейчас: n/a.\n- **KPI-5 (provider fallback)**: при 429 от primary → автоматический fallback на secondary провайдера, если оба ключа есть. Сейчас: ✗.\n",
@@ -72,7 +73,7 @@
     ],
     "files_dead": [],
     "files_archived": [],
-    "checks_log_tail": "2026-05-02T08:41:44Z\thonest_reset\tpass\tPR1 created b.llm-gateway as critical-path block\n2026-05-02T09:27:08Z\tpr2_layered_schema\tpass\tlayer/files/tech_stack populated; bootstrap+wiki+roadmap layered\n2026-05-02T10:00:57Z\tacceptance\tpass\tA1 selftest 4 cases via tests/llm_gateway.selftest.mjs\n2026-05-02T10:00:57Z\tacceptance\tpass\tA2 analyze_conversation_to_atlas reads extractBlockSchema; simulate_conversation_branches green\n2026-05-02T10:00:57Z\tacceptance\tpass\tA4 trace written to atlas/llm_traces (validated by selftest Test 3)\n2026-05-02T10:00:57Z\tacceptance\tpass\tA5 golden eval avg 1.0 on 5 cases (target 0.7) via tests/llm_extraction.eval.mjs\n2026-05-02T10:00:57Z\tkpi\tpass\tK1-K5 baseline established with mock provider; live targeting in PR3.5\n2026-05-02T10:02:24Z\tpr3_llm_gateway\tpass\textractBlockSchema replaces regex; golden eval 1.0/0.7 target; b.llm-gateway in review\n2026-05-02T11:09:54Z\tpr4_cursor_hooks\tpass\tvalid Cursor hooks (4 events) + observe/guard/inject scripts + 9-case test\n2026-05-02T11:34:35Z\tpr4_1_windows_fixes\tpass\tprovider cascade respects LLM_DEFAULT_PROVIDER pin; llm_check.mjs diag; index.html for http.server; analyze --text/--stdin for PowerShell; HOWTO Windows section\n2026-05-02T12:16:30Z\tpr4_2_env_parser\tpass\t.env parser strips inline # comments; llm_check warns on malformed LLM_DEFAULT_PROVIDER; key length sanity check\n2026-05-02T17:40:29Z\tpr3_5_proposals_flow\tpass\tatlas/proposals/ inbox + accept/reject CLI + MCP tools + ProposalsPanel UI + atlas_api_server endpoints with CORS + smoke flow\n2026-05-02T23:16:07Z\tpr_eval_30\tpass\tgolden set 5→30 cases / 6 categories; per-category pass + regression-check vs baseline; eval_history snapshots per run\n2026-05-03T14:12:41.488Z\tacceptance_verifier\tpass\tverdict=pass pass=4 fail=0 skipped=1\n2026-05-05T20:19:58.078Z\tdesign_patch\tpass\tatlas/blocks/b.llm-gateway/user_story.md\n",
+    "checks_log_tail": "2026-05-02T08:41:44Z\thonest_reset\tpass\tPR1 created b.llm-gateway as critical-path block\n2026-05-02T09:27:08Z\tpr2_layered_schema\tpass\tlayer/files/tech_stack populated; bootstrap+wiki+roadmap layered\n2026-05-02T10:00:57Z\tacceptance\tpass\tA1 selftest 4 cases via tests/llm_gateway.selftest.mjs\n2026-05-02T10:00:57Z\tacceptance\tpass\tA2 analyze_conversation_to_atlas reads extractBlockSchema; simulate_conversation_branches green\n2026-05-02T10:00:57Z\tacceptance\tpass\tA4 trace written to atlas/llm_traces (validated by selftest Test 3)\n2026-05-02T10:00:57Z\tacceptance\tpass\tA5 golden eval avg 1.0 on 5 cases (target 0.7) via tests/llm_extraction.eval.mjs\n2026-05-02T10:00:57Z\tkpi\tpass\tK1-K5 baseline established with mock provider; live targeting in PR3.5\n2026-05-02T10:02:24Z\tpr3_llm_gateway\tpass\textractBlockSchema replaces regex; golden eval 1.0/0.7 target; b.llm-gateway in review\n2026-05-02T11:09:54Z\tpr4_cursor_hooks\tpass\tvalid Cursor hooks (4 events) + observe/guard/inject scripts + 9-case test\n2026-05-02T11:34:35Z\tpr4_1_windows_fixes\tpass\tprovider cascade respects LLM_DEFAULT_PROVIDER pin; llm_check.mjs diag; index.html for http.server; analyze --text/--stdin for PowerShell; HOWTO Windows section\n2026-05-02T12:16:30Z\tpr4_2_env_parser\tpass\t.env parser strips inline # comments; llm_check warns on malformed LLM_DEFAULT_PROVIDER; key length sanity check\n2026-05-02T17:40:29Z\tpr3_5_proposals_flow\tpass\tatlas/proposals/ inbox + accept/reject CLI + MCP tools + ProposalsPanel UI + atlas_api_server endpoints with CORS + smoke flow\n2026-05-02T23:16:07Z\tpr_eval_30\tpass\tgolden set 5→30 cases / 6 categories; per-category pass + regression-check vs baseline; eval_history snapshots per run\n2026-05-03T14:12:41.488Z\tacceptance_verifier\tpass\tverdict=pass pass=4 fail=0 skipped=1\n2026-05-05T20:19:58.078Z\tdesign_patch\tpass\tatlas/blocks/b.llm-gateway/user_story.md\n2026-06-05T22:02:55.900Z\tacceptance_verifier\tfail\tverdict=fail pass=3 fail=1 skipped=1 fails=[A2:node scripts/simulate_conversation_branches.mjs → exit 2; st]\n2026-06-05T22:10:07.588Z\tacceptance_verifier\tfail\tverdict=fail pass=3 fail=1 skipped=1 fails=[A2:node scripts/simulate_conversation_branches.mjs → exit 2; st]\n",
     "decisions_log": "",
     "code_summary": "",
     "narrative": ""
@@ -84,8 +85,8 @@
     "always_use": []
   },
   "_meta": {
-    "size_bytes": 17419,
-    "estimated_tokens": 4355,
+    "size_bytes": 17784,
+    "estimated_tokens": 4446,
     "profile": "design"
   }
 }

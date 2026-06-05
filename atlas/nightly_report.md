@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-06-05T16:42:38.853Z_
+_Generated: 2026-06-05T22:16:51.704Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -15,15 +15,15 @@ _Generated: 2026-06-05T16:42:38.853Z_
 - ✅ files_registry: ok
   - output: Files registry validation: OK (alive=177, archived=4, dead=0)
 - ✅ housekeeping_sweep: ok
-  - output: housekeeping_sweeper: 1 proposal(s) — see atlas/cleanup_proposals.md
+  - output: housekeeping_sweeper: 0 proposal(s) — see atlas/cleanup_proposals.md
 - ✅ projects_contracts: ok
   - output: validate_projects: OK (1 projects, 5 blocks)
 - ✅ subschemas_contracts: ok
   - output: validate_subschemas: OK (projects=2, subschemas=1, child_blocks=6)
 - ✅ dependency_contracts: ok
   - output: Dependency contract validation: OK
-- ❌ acceptance_assertions: fail
-  - error: Acceptance assertions validation failed:
+- ✅ acceptance_assertions: ok
+  - output: Acceptance assertions validation: OK
 - ✅ atlas_selftest: ok
   - output: atlas_sync.selftest: OK
 - ❌ bootstrap_layered_smoke: fail
@@ -35,7 +35,7 @@ _Generated: 2026-06-05T16:42:38.853Z_
 - ✅ operator_profile_selftest: ok
   - output: operator_profile.selftest: OK (7 test groups, all assertions green)
 - ✅ aggregate_operator_profile: ok
-  - output: operator_profile: warming_up (done=2, invocations=4, traces=7, proposals=0)
+  - output: operator_profile: warming_up (done=4, invocations=3, traces=616, proposals=7)
 - ✅ operator_profile_lessons_smoke: ok
   - output: operator_profile_lessons.smoke: OK (6 test groups, all assertions green)
 - ✅ operator_profile_inject_smoke: ok
@@ -47,7 +47,7 @@ _Generated: 2026-06-05T16:42:38.853Z_
 - ✅ validate_dont_use_compliance: ok
   - output: validate_dont_use_compliance: banned=0 (none); checked=17; warnings=0
 - ✅ validate_lifecycle_gates: ok
-  - output: validate_lifecycle_gates — 17 blocks, 1 fail, 0 warn
+  - output: validate_lifecycle_gates — 15 blocks, 2 fail, 0 warn
 - ❌ introspect_block_ui_selftest: fail
   - error: introspect_block_ui.selftest: FAIL
 - ✅ user_docs_smoke: ok
@@ -122,8 +122,8 @@ _Generated: 2026-06-05T16:42:38.853Z_
   - output: atlas_live_polling.smoke: OK (state hash changes on disk mutation; payload returns bootstrap shape)
 - ✅ sync_context_packs: ok
   - output: Context packs synced: 17
-- ❌ agent_parity: fail
-  - error: Agent parity validation failed:
+- ✅ agent_parity: ok
+  - output: Agent parity validation: OK
 - ❌ parity_matrix: fail
   - error: Parity matrix validation failed:
 - ✅ generate_wiki: ok
@@ -135,12 +135,12 @@ _Generated: 2026-06-05T16:42:38.853Z_
 - ✅ rebuild_roadmap: ok
   - output: Rebuilt /home/user/sima_atlas/atlas/roadmap.md
 - ✅ verify_all_acceptance: ok
-  - output: verify_all_acceptance: 4 pass / 6 fail / 7 inconclusive (assertions: 36 pass / 10 fail / 46 skipped)
+  - output: verify_all_acceptance: 6 pass / 4 fail / 7 inconclusive (assertions: 39 pass / 7 fail / 46 skipped)
 - ✅ verify_done_blocks_still_green: ok
-  - output: verify_done_blocks_still_green: checked=1 green=1 regressions=0 inconclusive=0
+  - output: verify_done_blocks_still_green: checked=3 green=3 regressions=0 inconclusive=0
 - ✅ mcp_smoke_e2e: ok
   - output: mcp_smoke_e2e: OK
 - ✅ intelligence_health: ok
   - output: Intelligence health: 1 (17/17)
 
-Summary: FAIL (59/70)
+Summary: FAIL (61/70)
