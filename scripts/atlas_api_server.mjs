@@ -225,6 +225,41 @@ const server = http.createServer((req, res) => {
     }
   }
 
+  // R-7.93 — V-1 autonomous run reports (read-only). Latest run + recent list.
+  if (req.method === 'GET' && req.url.startsWith('/atlas/autonomous-runs')) {
+    try {
+      const dir = path.join(ATLAS, 'autonomous_runs');
+      if (!fs.existsSync(dir)) return json(res, 200, { ok: true, latest: null, recent: [] });
+      const files = fs.readdirSync(dir).filter((f) => f.endsWith('.md') && f !== '.gitkeep')
+        .sort().reverse();
+      const latest = files[0] ? { name: files[0], content: fs.readFileSync(path.join(dir, files[0]), 'utf8') } : null;
+      return json(res, 200, { ok: true, latest, recent: files.slice(0, 10) });
+    } catch (e) { return json(res, 200, { ok: false, error: String(e.message || e) }); }
+  }
+
+  // R-7.93 — S-7 change-sets (read-only) for the canvas badge / panel.
+  if (req.method === 'GET' && req.url.startsWith('/atlas/change-sets')) {
+    try {
+      const dir = path.join(ATLAS, 'change_sets');
+      if (!fs.existsSync(dir)) return json(res, 200, { ok: true, change_sets: [] });
+      const sets = fs.readdirSync(dir).filter((f) => f.endsWith('.json'))
+        .map((f) => { try { return JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8')); } catch { return null; } })
+        .filter(Boolean)
+        .sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)));
+      return json(res, 200, { ok: true, change_sets: sets });
+    } catch (e) { return json(res, 200, { ok: false, error: String(e.message || e) }); }
+  }
+
+  // R-7.93 — S-12 cleanup proposals (read-only) for the UI Cleanup tab.
+  if (req.method === 'GET' && req.url.startsWith('/atlas/cleanup-proposals')) {
+    try {
+      const p = path.join(ATLAS, 'cleanup_proposals.json');
+      if (!fs.existsSync(p)) return json(res, 200, { ok: true, proposals: [], summary: {}, generated_at: null });
+      const data = JSON.parse(fs.readFileSync(p, 'utf8'));
+      return json(res, 200, { ok: true, proposals: data.proposals || [], summary: data.summary || {}, generated_at: data.generated_at || null });
+    } catch (e) { return json(res, 200, { ok: false, error: String(e.message || e) }); }
+  }
+
   // Phase O-4 — operator profile (read-only). Frontend «Профиль» tab.
   if (req.method === 'GET' && req.url === '/atlas/operator-profile/get') {
     try {

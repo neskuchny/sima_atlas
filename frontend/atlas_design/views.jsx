@@ -838,6 +838,10 @@ function SystemDocs({ onClose }) {
   // R-7.92 (S-9.1) — global token-economics tab (project-wide, no block filter)
   const [economics, setEconomics] = useStateV(null);
   const [econDays, setEconDays] = useStateV(30);
+  // R-7.93 — V-1 autonomous runs · S-7 change-sets · S-12 cleanup proposals
+  const [autoRun, setAutoRun] = useStateV(null);
+  const [changeSets, setChangeSets] = useStateV(null);
+  const [cleanup, setCleanup] = useStateV(null);
 
   const EDITABLE = new Set(['project.md', 'rules.md', 'tech_stack.md']);
   const tabToFile = (t) => ({
@@ -862,6 +866,15 @@ function SystemDocs({ onClose }) {
       } else if (tab === 'economics') {
         const r = await window.SIMA_API.meta.tokenEconomics({ days: econDays });
         if (alive && r?.ok) setEconomics(r);
+      } else if (tab === 'autonomous') {
+        const r = await window.SIMA_API.meta.autonomousRuns();
+        if (alive && r?.ok) setAutoRun(r);
+      } else if (tab === 'changesets') {
+        const r = await window.SIMA_API.meta.changeSets();
+        if (alive && r?.ok) setChangeSets(r.change_sets || []);
+      } else if (tab === 'cleanup') {
+        const r = await window.SIMA_API.meta.cleanupProposals();
+        if (alive && r?.ok) setCleanup(r);
       }
     })();
     return () => { alive = false; };
@@ -895,6 +908,9 @@ function SystemDocs({ onClose }) {
   const tabs = [
     { id: 'profile',  label: t('sysdocs.tab.profile', 'Profile'), special: 'profile' },
     { id: 'economics', label: t('sysdocs.tab.economics', '💰 Economics'), special: 'economics' },
+    { id: 'autonomous', label: t('sysdocs.tab.autonomous', '🤖 Autonomous'), special: 'autonomous' },
+    { id: 'changesets', label: t('sysdocs.tab.changesets', '🔀 Change-sets'), special: 'changesets' },
+    { id: 'cleanup',  label: t('sysdocs.tab.cleanup', '🧹 Cleanup'), special: 'cleanup' },
     { id: 'roadmap',  label: t('sysdocs.tab.roadmap', 'Roadmap') },
     { id: 'wiki',     label: t('sysdocs.tab.wiki', 'Wiki (mermaid)') },
     { id: 'wiki-md',  label: t('sysdocs.tab.wiki_md', 'WIKI.md') },
@@ -1108,6 +1124,93 @@ function SystemDocs({ onClose }) {
                   </>
                 );
               })()}
+            </div>
+          )}
+          {tab === 'autonomous' && (
+            <div className="econ-body">
+              <div className="acc-counts mono" style={{ marginBottom: 12 }}>
+                <span className="acc-pill">{t('sysdocs.autonomous.title', 'autonomous loop (V-1)')}</span>
+              </div>
+              {!autoRun && <div className="meta" style={{ padding: 14 }}>{t('sysdocs.autonomous.loading', 'Loading…')}</div>}
+              {autoRun && !autoRun.latest && (
+                <div className="lesson" style={{ marginBottom: 12 }}>
+                  {t('sysdocs.autonomous.none', 'No autonomous runs yet. Try a safe dry-run:')} <code>npm run loop</code>{' '}
+                  {t('sysdocs.autonomous.none2', '· then print-only:')} <code>npm run loop:run</code>{' '}
+                  {t('sysdocs.autonomous.none3', '· or real:')} <code>npm run loop:overnight</code>.
+                </div>
+              )}
+              {autoRun && autoRun.latest && (
+                <>
+                  <div className="profile-section">
+                    <h3>{t('sysdocs.autonomous.latest', 'Latest run')} <span className="meta" style={{ fontSize: 11 }}>{autoRun.latest.name.replace('.md', '')}</span></h3>
+                    <pre className="sysdocs-md" style={{ fontSize: 12, whiteSpace: 'pre-wrap' }}>{autoRun.latest.content}</pre>
+                  </div>
+                  {autoRun.recent && autoRun.recent.length > 1 && (
+                    <div className="profile-section">
+                      <h3>{t('sysdocs.autonomous.recent', 'Recent runs')}</h3>
+                      {autoRun.recent.map((r, i) => (
+                        <div key={i} className="econ-row"><span className="econ-row-key">{r.replace('.md', '')}</span></div>
+                      ))}
+                    </div>
+                  )}
+                  <div className="meta" style={{ fontSize: 11, marginTop: 10, padding: '0 4px' }}>
+                    {t('sysdocs.autonomous.note', 'V-1 walks the graph, runs a fresh agent on the next runnable block, verifies, and advances only if green (no regression). Default print-only — pass --agent claude for real autonomy. Schedule overnight via cron (see scripts/agent_loop_daemon.mjs header).')}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+          {tab === 'changesets' && (
+            <div className="econ-body">
+              <div className="acc-counts mono" style={{ marginBottom: 12 }}>
+                <span className="acc-pill">{t('sysdocs.changesets.title', 'transactional change-sets (S-7)')}</span>
+              </div>
+              {!changeSets && <div className="meta" style={{ padding: 14 }}>{t('sysdocs.changesets.loading', 'Loading…')}</div>}
+              {changeSets && changeSets.length === 0 && (
+                <div className="lesson">{t('sysdocs.changesets.none', 'No change-sets. Group blocks touched by one cross-cutting change:')} <code>node scripts/change_set.mjs create --intent "..." --block b.x --block b.y</code></div>
+              )}
+              {changeSets && changeSets.map((cs) => (
+                <div key={cs.id} className="profile-section cs-card">
+                  <h3>
+                    <span className={`cs-state cs-${cs.state}`}>{cs.state}</span> {cs.intent}
+                  </h3>
+                  <div className="meta" style={{ fontSize: 11, marginBottom: 6 }}>{cs.id} · {(cs.blocks || []).length} {t('sysdocs.changesets.blocks', 'block(s) touched by this transaction')}</div>
+                  <div className="chips">
+                    {(cs.blocks || []).map((b, i) => <span key={i} className="chip">{b}</span>)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          {tab === 'cleanup' && (
+            <div className="econ-body">
+              <div className="acc-counts mono" style={{ marginBottom: 12 }}>
+                <span className="acc-pill">{t('sysdocs.cleanup.title', 'housekeeping proposals (S-12)')}</span>
+                {cleanup && cleanup.generated_at && <span className="acc-pill">{t('sysdocs.cleanup.generated', 'swept')} {String(cleanup.generated_at).slice(0, 16).replace('T', ' ')}</span>}
+              </div>
+              {!cleanup && <div className="meta" style={{ padding: 14 }}>{t('sysdocs.cleanup.loading', 'Loading…')}</div>}
+              {cleanup && (cleanup.proposals || []).length === 0 && (
+                <div className="lesson">{t('sysdocs.cleanup.clean', '✓ Workspace is clean — no cleanup proposals. Re-sweep:')} <code>node scripts/housekeeping_sweeper.mjs</code></div>
+              )}
+              {cleanup && (cleanup.proposals || []).length > 0 && (() => {
+                const grouped = {};
+                for (const p of cleanup.proposals) (grouped[p.kind] = grouped[p.kind] || []).push(p);
+                return Object.entries(grouped).map(([kind, list]) => (
+                  <div key={kind} className="profile-section">
+                    <h3>{kind} <span className="meta" style={{ fontSize: 11 }}>({list.length})</span></h3>
+                    {list.slice(0, 20).map((p, i) => (
+                      <div key={i} className="cleanup-row">
+                        <div className="cleanup-file">{p.file}</div>
+                        <div className="cleanup-reason meta">{p.reason}</div>
+                        <code className="cleanup-cmd">{p.apply_command}</code>
+                      </div>
+                    ))}
+                  </div>
+                ));
+              })()}
+              <div className="meta" style={{ fontSize: 11, marginTop: 10, padding: '0 4px' }}>
+                {t('sysdocs.cleanup.note', 'Proposals only — nothing is applied automatically. The apply tool MOVES files (with breadcrumb), never deletes. Run the apply-command for any you approve.')}
+              </div>
             </div>
           )}
           {tab === 'docs' && openDocFor && (

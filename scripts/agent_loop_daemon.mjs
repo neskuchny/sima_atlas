@@ -41,9 +41,22 @@
 //   node scripts/agent_loop_daemon.mjs                      # print-only agent (safe)
 //   node scripts/agent_loop_daemon.mjs --agent claude --max-iterations 3 --max-cost-usd 0.50
 //   node scripts/agent_loop_daemon.mjs --client my-product --json
+//   npm run loop            # dry-run
+//   npm run loop:run        # print-only
+//   npm run loop:overnight  # real agent, overnight defaults (8 iters, $2 cap)
+//
+// ── Schedule it overnight (cron / launchd / Task Scheduler) ────────────────
+// This is a one-shot, not a resident process — cron-friendly. The «you wake up,
+// scan the canvas» promise = schedule it for the small hours, read the
+// Autonomous Run report (and the canvas) in the morning.
+//   crontab -e:
+//     # 02:00 nightly — autonomous loop on the real agent, capped at $2
+//     0 2 * * *  cd /path/to/sima_atlas && /usr/bin/node scripts/agent_loop_daemon.mjs \
+//                  --agent claude --max-iterations 8 --max-cost-usd 2.00 >> atlas/autonomous_runs/cron.log 2>&1
 
 import fs from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
@@ -93,6 +106,42 @@ function parseDeps(id) {
     .filter((l) => l.startsWith('- '))
     .map((l) => l.slice(2).split(':')[0].trim())
     .filter((d) => d && d !== 'none');
+}
+
+function ownedAliveFiles(id) {
+  // Real code files the block owns (alive in files.md), for auto-rollback.
+  const md = readSafe(path.join(blockDir(id), 'files.md'));
+  return md.split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter((l) => l.startsWith('- ') && /\[alive\]/.test(l))
+    .map((l) => l.slice(2).split(/\s+\[alive\]/)[0].trim())
+    .filter((f) => f && fs.existsSync(path.join(ROOT, f)));
+}
+
+function snapshotOwnedFiles(id) {
+  // Copy the block's alive files to a temp dir so a regressing run can be
+  // undone. Returns { restore() } or null if nothing to snapshot.
+  const files = ownedAliveFiles(id);
+  if (!files.length) return null;
+  const snapDir = fs.mkdtempSync(path.join(os.tmpdir(), `sima-rollback-${id}-`));
+  const saved = [];
+  for (const f of files) {
+    const src = path.join(ROOT, f);
+    const dst = path.join(snapDir, f.replace(/[\\/]/g, '__'));
+    try { fs.copyFileSync(src, dst); saved.push({ f, dst }); } catch {}
+  }
+  return {
+    count: saved.length,
+    restore() {
+      let n = 0;
+      for (const { f, dst } of saved) {
+        try { fs.copyFileSync(dst, path.join(ROOT, f)); n += 1; } catch {}
+      }
+      try { fs.rmSync(snapDir, { recursive: true, force: true }); } catch {}
+      return n;
+    },
+    discard() { try { fs.rmSync(snapDir, { recursive: true, force: true }); } catch {} },
+  };
 }
 
 function hasDeterministicAcceptance(id) {
@@ -181,6 +230,10 @@ function iterate() {
       continue;
     }
 
+    // 0. snapshot the block's owned files so a regressing run can be undone.
+    //    Only for real agent runs — print-only edits nothing.
+    const snapshot = AGENT !== 'print-only' ? snapshotOwnedFiles(block.id) : null;
+
     // 1. run a fresh agent on the block (scoped context-pack).
     const runArgs = ['scripts/run_block_implementation.mjs'];
     if (CLIENT) runArgs.push(`--client=${CLIENT}`);
@@ -215,11 +268,27 @@ function iterate() {
       entry.action = 'pass';
       entry.advanced_to = adv.to;
       consecutiveFails = 0;
+      if (snapshot) snapshot.discard(); // run was good — drop the safety copy
     } else {
       entry.action = 'fail';
       entry.reason = !passed ? 'verifier did not pass'
         : 'a previously-green done block regressed — not promoting';
       consecutiveFails += 1;
+      // AUTO-ROLLBACK: if this run regressed a previously-green done block,
+      // undo the agent's edits to this block's owned files. A failed
+      // implementation should leave the tree no worse than it found it
+      // («marks pass/rollback»). We only roll back on REGRESSION, not on a
+      // plain non-pass (a todo block that's simply not done yet is expected
+      // to be red — its partial progress is kept for the next iteration).
+      if (snapshot && regressed) {
+        const restored = snapshot.restore();
+        entry.rolled_back = restored;
+        entry.reason += ` — auto-rolled-back ${restored} owned file(s)`;
+        // re-mark dependents green now that we reverted (best-effort)
+        nodeRun(['scripts/verify_done_blocks_still_green.mjs'], { env: CLIENT ? { ATLAS_ROOT: ATLAS } : {} });
+      } else if (snapshot) {
+        snapshot.discard();
+      }
       // Record the stall in the block's narrative so the next pass (or human)
       // sees what happened — progress lives on disk, Ralph-style.
       try {
