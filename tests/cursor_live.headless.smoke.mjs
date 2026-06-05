@@ -71,7 +71,9 @@ try {
     const r = run('node', ['scripts/observe_file_edit.mjs'], {
       env: {
         ...process.env,
-        CURSOR_FILE_PATH: 'frontend/app_v2.jsx',
+        // R-7.89 (Phase II) — was frontend/app_v2.jsx, cleaned from
+        // b.ui-control/files.md in PR #43. Repointed to a file it owns.
+        CURSOR_FILE_PATH: 'frontend/atlas_sync.js',
       },
     });
     // observe_file_edit may exit 0 with a line written, or skip if it can't

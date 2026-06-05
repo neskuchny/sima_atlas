@@ -108,17 +108,24 @@ try {
 
   // ─── Group 7: real block — proves arrow-function onClick doesn't break parser
   {
-    const r = introspectBlock('b.llm-gateway');
-    // proposals_panel.jsx is the alive JSX file. Parser should NOT corrupt
-    // labels with leftover JSX expression fragments.
-    const labels = r.buttons.map((b) => b.label);
-    check('group7:Accept clean', labels.includes('Accept'));
-    check('group7:Reject clean', labels.includes('Reject'));
+    // R-7.89 (Phase II) — was introspectBlock('b.llm-gateway') reading the
+    // deleted frontend/proposals_panel.jsx. Now introspects b.ui-control,
+    // which owns the real frontend/atlas_design/*.jsx UI (registered in its
+    // files.md). The proposals Accept/Reject buttons there now use dynamic
+    // ternary-i18n labels (`t('composer.proposals.accept', '＋ Accept …')`)
+    // and SIMA_API rather than the old static `>Accept<` / raw fetch — so
+    // this group's real, durable purpose is what it asserts: the parser
+    // extracts many clean button labels from complex real JSX with
+    // arrow-function onClick handlers WITHOUT leaking `{…}` or `=>`
+    // fragments into the labels. (60+ labels exercised vs a handful before.)
+    const r = introspectBlock('b.ui-control');
+    const labels = r.buttons.map((b) => b.label).filter(Boolean);
+    check('group7:extracts real button labels', labels.length >= 10,
+      `expected ≥10 non-empty labels, got ${labels.length}`);
     check('group7:no leftover JSX braces', !labels.some((l) => /\{|\}/.test(l)),
       `labels with stray braces: ${JSON.stringify(labels.filter((l) => /\{|\}/.test(l)))}`);
     check('group7:no `=>` leakage', !labels.some((l) => /=>/.test(l)),
       `labels with =>: ${JSON.stringify(labels.filter((l) => /=>/.test(l)))}`);
-    check('group7:fetch detected', r.fetches.length >= 1);
   }
 } catch (e) {
   failures.push('test runner threw: ' + e.message);

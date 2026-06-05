@@ -36,6 +36,7 @@ first level that answers the question. Full strategy in
 - `sync_check` — drift report (orphan provides, dangling deps)
 - `sima_fill_from_chat` — turn a conversation into block proposals
 - `sima_watch_chats` — scanner for `~/.claude/projects/`, picks up fresh transcripts
+- `enqueue_ingestion` / `ingest_chat_distillate` — queue and apply distilled chat insights into a block's `decisions.log` / `patterns.md` (memory pipeline)
 - `accept_proposal` / `reject_proposal` — process pending UI proposals
 - `nightly_consolidation` — run all 68 validators
 - `generate_full_bundle` — regenerate WIKI / auto_tz / roadmap

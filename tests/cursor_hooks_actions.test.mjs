@@ -51,11 +51,14 @@ const obsBefore = fs.existsSync(OBS_DIR) ? new Set(fs.readdirSync(OBS_DIR)) : ne
 
 try {
   // ─── Test 1: observe_file_edit on a known b.ui-control file ───────────
+  // R-7.89 (Phase II) — fixture was frontend/app_v2.jsx, one of the 27 stale
+  // [alive] entries cleaned from b.ui-control/files.md in PR #43. Repointed
+  // to a file b.ui-control genuinely owns now (frontend/atlas_sync.js).
   {
-    const r = runNode('scripts/observe_file_edit.mjs', ['frontend/app_v2.jsx']);
+    const r = runNode('scripts/observe_file_edit.mjs', ['frontend/atlas_sync.js']);
     eq('observe.known: exit 0', r.status === 0, `stderr=${r.stderr}`);
     const log = fs.readFileSync(path.join(BLOCKS, 'b.ui-control', 'checks.log'), 'utf8');
-    eq('observe.known: cursor_edit line appended to b.ui-control', /cursor_edit\tpass\t.*app_v2\.jsx/.test(log));
+    eq('observe.known: cursor_edit line appended to b.ui-control', /cursor_edit\tpass\t.*atlas_sync\.js/.test(log));
     eq('observe.known: observation file written',
        fs.existsSync(OBS_DIR) && fs.readdirSync(OBS_DIR).length > obsBefore.size);
   }

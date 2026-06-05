@@ -12,15 +12,19 @@ import vm from 'node:vm';
 
 const root = process.cwd();
 const remix = path.join(root, 'frontend');
-const archDataSrc = fs.readFileSync(path.join(remix, 'arch_data.js'), 'utf8');
+// R-7.89 (Phase II) — frontend/arch_data.js was removed in R-7.67 («classic
+// frontend removed»). atlas_bootstrap.js now self-seeds window.ARCH_LAYERS
+// from its own __atlasLayerDefs (verified: 8 layers + atlas-live without
+// arch_data.js). The test used to read the now-deleted file and crashed
+// ENOENT. We start ARCH_LAYERS empty and let bootstrap populate it.
 const bootstrapSrc = fs.readFileSync(path.join(remix, 'atlas_bootstrap.js'), 'utf8');
 
 const sandboxWindow = {};
 sandboxWindow.SIMA_DATA_V2 = { projects: [] };
+sandboxWindow.ARCH_LAYERS = {};
 const ctx = { window: sandboxWindow, console };
 ctx.global = ctx;
 vm.createContext(ctx);
-vm.runInContext(archDataSrc, ctx);
 vm.runInContext(bootstrapSrc, ctx);
 
 const errors = [];

@@ -26,11 +26,13 @@ stop-signals.
    above is pre-injected into your prompt under «## ⚠ Block memory» —
    don't re-fetch.
 
-3. **Use MCP tools, not `Read`**, when available. Sima registers ~64 tools via
+3. **Use MCP tools, not `Read`**, when available. Sima registers ~70 tools via
    `.mcp.json` (Claude Code auto-detects; for Cursor/others see
-   [`docs/integrations.md`](docs/integrations.md)). The five you'll need:
+   [`docs/integrations.md`](docs/integrations.md)). The five you'll need most:
    `read_block`, `list_dependencies`, `update_block`, `verify_block_acceptance`,
-   `sync_check`.
+   `sync_check`. To grow a block's memory from a chat, use `build_context_pack`
+   for input, and `enqueue_ingestion` / `ingest_chat_distillate` to write
+   distilled insights into `decisions.log` / `patterns.md` (the memory pipeline).
 
 4. **Skip-list** — never auto-read these:
    `atlas/llm_traces/`, `atlas/run_logs/`, `atlas/run_state/`,

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-05T22:17:04.312Z",
+  "generated_at": "2026-06-05T22:37:29.300Z",
   "block_id": "b.ui-control",
   "profile": "design",
   "project": {
@@ -51,11 +51,20 @@
     "acceptance": "# b.ui-control — acceptance\n\nБлок переходит в `done` только когда:\n\n- [ ] **A1.** HTML открывается в браузере и `<div id=\"root\">` заполнен (smoke-тест: `headless run` грузит страницу, ловит `error`-события, ждёт что DOM содержит `.l2-top` и `.workarea`).\n- [ ] **A2.** Все JSX-зависимости `app_v2.jsx` подгружены (нет `useTweaks/SourcePalette/CanvasInspector is not defined` в консоли).\n- [ ] **A3.** При выбранном проекте `atlas-live` канвас архитектуры рисует ≥ 3 горизонтальных слоя; в каждом слое — корректные блоки из `graph.json` по полю `layer` (зависит от PR2).\n- [ ] **A4.** Sync-check на 5 блоках возвращает либо ok, либо drift с конкретной причиной (`status_reason`) — без ложных «всё зелёное».\n```yaml\nevidence_kind: exit_code\nevidence_spec:\n  cmd: node scripts/validate_block_contracts.mjs\n  expect_in_stdout: \"OK\"\n```\n- [ ] **A5.** Кнопка Done заблокирована, если `acceptance` чек-листа блока не отмечены полностью И в `checks.log` нет `acceptance pass` + `kpi pass`.\n```yaml\nevidence_kind: log_grep\nevidence_spec:\n  file: scripts/log_transition.mjs\n  pattern: \"verdict !== 'pass'\"\n```\n\n## Не считается acceptance:\n- наличие файлов;\n- прохождение `validate_block_contracts.mjs` (это контрактный gate, не приёмка);\n- генерация `wiki.html` (это `b.docs`).\n",
     "tasks": "# b.ui-control — tasks\n\n- [ ] T1: Подключить пропавшие JSX в `frontend/Сима - универсальный конструктор.html` (components.jsx, sidecol.jsx, canvas_tools.jsx, composer.jsx, library_view.jsx) — **PR1**\n- [ ] T2: Развести блоки по слоям через поле `layer` из `graph.json` v2 — **PR2**\n- [ ] T3: В `arch_canvas.jsx` корректно читать `layer` и рисовать каждый блок в соответствующей полосе — **PR2**\n- [ ] T4: Live update схемы при изменениях в `/atlas/` (через WebSocket или polling) — **PR2**\n- [ ] T5: Подсветка drift/broken блоков с tooltip-причиной из `syncReport.details` — **PR2**\n- [ ] T6: Двойной клик по блоку с `subschema_id` открывает подсхему (рекурсия) — **PR2**\n- [ ] T7: Кнопка «Implement» вызывает `composer.jsx` со сгенерированным context-pack для агента — **PR3**\n",
     "patterns": "",
-    "files": "# b.ui-control — files\n\n- index.html [alive] (PR4.1: repo-root redirect to frontend/index.html)\n- frontend/atlas_sync.js [alive]\n- frontend/atlas_bootstrap.js [alive] (auto-generated)\n- frontend/result_view.jsx [archived] (legacy)\n- frontend/schema_view.jsx [archived] (legacy)\n- frontend/data.js [archived] (v1 data, replaced by data_v2.js)\n- frontend/app.jsx [archived] (v1 root, replaced by app_v2.jsx)\n",
+    "files": "# b.ui-control — files\n\n- index.html [alive] (PR4.1: repo-root redirect to frontend/index.html)\n- frontend/atlas_sync.js [alive]\n- frontend/atlas_bootstrap.js [alive] (auto-generated)\n- frontend/atlas_design/index.html [alive] (R-7.30 — current canvas entry)\n- frontend/atlas_design/panels.jsx [alive] (DetailPanel + Overview + AcceptanceSection + Implementation Status + Token Spend)\n- frontend/atlas_design/views.jsx [alive] (composer, proposals Accept/Reject, modals)\n- frontend/atlas_design/graph.jsx [alive] (canvas graph + edges + drill-down)\n- frontend/atlas_design/tweaks-panel.jsx [alive]\n- frontend/atlas_design/data_loader.js [alive] (live API loader + write-side SIMA_API)\n- frontend/atlas_design/data_static.js [alive] (offline fallback demo)\n- frontend/atlas_design/i18n.js [alive] (644-key EN/RU dictionary)\n- frontend/atlas_design/styles.css [alive]\n- frontend/result_view.jsx [archived] (legacy)\n- frontend/schema_view.jsx [archived] (legacy)\n- frontend/data.js [archived] (v1 data, replaced by data_v2.js)\n- frontend/app.jsx [archived] (v1 root, replaced by app_v2.jsx)\n",
     "files_alive": [
       "index.html",
       "frontend/atlas_sync.js",
       "frontend/atlas_bootstrap.js",
+      "frontend/atlas_design/index.html",
+      "frontend/atlas_design/panels.jsx",
+      "frontend/atlas_design/views.jsx",
+      "frontend/atlas_design/graph.jsx",
+      "frontend/atlas_design/tweaks-panel.jsx",
+      "frontend/atlas_design/data_loader.js",
+      "frontend/atlas_design/data_static.js",
+      "frontend/atlas_design/i18n.js",
+      "frontend/atlas_design/styles.css",
       "frontend/result_view.jsx",
       "frontend/schema_view.jsx",
       "frontend/data.js",
@@ -86,8 +95,8 @@
     "always_use": []
   },
   "_meta": {
-    "size_bytes": 19219,
-    "estimated_tokens": 4805,
+    "size_bytes": 20299,
+    "estimated_tokens": 5075,
     "profile": "design"
   }
 }

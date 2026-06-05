@@ -1,6 +1,6 @@
 # Roadmap (auto-generated, PR2 topo-sort)
 
-_Generated: 2026-06-05T22:17:15.640Z_
+_Generated: 2026-06-05T22:37:40.048Z_
 
 Приоритет внутри уровня: 🔴 broken → 🟣 drift → 🟠 wip → 🔵 review → 🟡 idea → 🟢 done.
 Каждый следующий уровень зависит от предыдущих — реализовывать сверху вниз.

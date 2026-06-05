@@ -61,3 +61,5 @@
 2026-06-05T22:11:11.420Z	transition	pass	review->done	actor=verifier	note=Phase I: verifier 3/3 after auto_tz path fix (ТЗ/→atlas/)
 2026-06-05T22:14:13.293Z	acceptance_verifier	pass	verdict=pass pass=3 fail=0 skipped=2
 2026-06-05T22:17:13.820Z	acceptance_verifier	pass	verdict=pass pass=3 fail=0 skipped=2
+2026-06-05T22:32:30.651Z	ingestion	pass	queue applied
+2026-06-05T22:37:38.404Z	acceptance_verifier	pass	verdict=pass pass=3 fail=0 skipped=2

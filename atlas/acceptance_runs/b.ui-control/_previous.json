@@ -45,7 +45,7 @@
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 0
+      "duration_ms": 1
     },
     {
       "id": "A3",
@@ -81,17 +81,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (66ms); first line: \"Block contract validation: OK\"",
+      "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (76ms); first line: \"Block contract validation: OK\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_block_contracts.mjs",
         "exit_code": 0,
         "stdout": "Block contract validation: OK\n",
         "stderr": "",
-        "duration_ms": 66,
+        "duration_ms": 76,
         "timed_out": false
       },
-      "duration_ms": 66
+      "duration_ms": 76
     },
     {
       "id": "A5",
@@ -125,6 +125,6 @@
     "skipped": 3
   },
   "verdict": "pass",
-  "duration_ms": 71,
-  "checked_at": "2026-06-05T22:14:06.075Z"
+  "duration_ms": 81,
+  "checked_at": "2026-06-05T22:17:06.090Z"
 }
