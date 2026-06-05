@@ -286,11 +286,113 @@ function computeProposals() {
     });
   }
 
+  // ── (4) dead-code by IMPORT GRAPH (S-12 follow-up) ─────────────────────
+  // More precise than orphan-code: a file can be MENTIONED in a comment (so
+  // orphan-code skips it) yet never actually imported — truly dead. We build
+  // the real import graph (import/require/from + <script src>) and flag code
+  // files that NOTHING imports AND that are not entry points (CLI scripts,
+  // HTML, package.json). Conservative on purpose: any `scripts/*.mjs` with a
+  // shebang or invoked as `node scripts/X` somewhere is a CLI entry point,
+  // never dead.
+  const { importedTargets, entryPoints } = buildImportGraph();
+  for (const rel of enumerateWorkspaceFiles()) {
+    if (isWellKnownUntouchable(rel)) continue;
+    if (isAtlasProtectedAsset(rel)) continue;
+    if (!ORPHAN_SCAN_PREFIXES.some((p) => rel.startsWith(p))) continue;
+    const ext = path.extname(rel).toLowerCase();
+    if (!new Set(['.mjs', '.js', '.jsx', '.ts', '.tsx']).has(ext)) continue; // only modules
+    if (claimedFiles.has(rel)) continue;          // a block owns it (alive)
+    if (importedTargets.has(rel)) continue;        // something imports it
+    if (entryPoints.has(rel)) continue;            // CLI / HTML / package entry
+    // belt-and-suspenders: still skip anything an orphan-code proposal already covers
+    if (proposals.some((p) => p.file === rel)) continue;
+    proposals.push({
+      id: `dead-code::${rel}`,
+      kind: 'dead-code-unimported',
+      file: rel,
+      block: null,
+      block_status: null,
+      reason: 'no file imports it (import-graph), not a CLI/HTML/package entry point, no block claims it — likely dead code',
+      action: `move-to-archive/dead-code/<date>/${rel}`,
+      safety: 'move-with-breadcrumb',
+      apply_command: `node scripts/apply_cleanup_proposal.mjs --id "dead-code::${rel}"`,
+    });
+  }
+
   return { generated_at: new Date().toISOString(), root: ROOT, proposals, summary: summarize(proposals) };
 }
 
+// Build { importedTargets:Set<relPath>, entryPoints:Set<relPath> } from the
+// real import graph across the repo.
+function buildImportGraph() {
+  const importedTargets = new Set();
+  const entryPoints = new Set();
+  const codeFiles = [];
+  walkAndScan(ROOT, (filePath) => {
+    const rel = path.relative(ROOT, filePath);
+    if (isInSkipDir(rel)) return;
+    const ext = path.extname(filePath).toLowerCase();
+    if (!['.mjs', '.js', '.jsx', '.ts', '.tsx', '.html', '.htm', '.json', '.md'].includes(ext)) return;
+    const text = safeRead(filePath);
+    if (!text) return;
+
+    // 1. entry points: shebang scripts, HTML files, test-runner files
+    if (['.html', '.htm'].includes(ext)) entryPoints.add(rel);
+    if (/^#!.*node/.test(text)) entryPoints.add(rel);                 // CLI script
+    // test-runner files are entry points (run by node/playwright/jest, never imported)
+    if (/\.(spec|test|selftest|smoke|eval)\.[a-z]+$/.test(rel)) entryPoints.add(rel);
+
+    // 1b. package.json (any, incl. nested like extensions/vscode/) declares
+    //     main / bin / module — those files are entry points.
+    if (path.basename(rel) === 'package.json') {
+      try {
+        const pkg = JSON.parse(text);
+        const pkgDir = path.dirname(filePath);
+        const addRel = (v) => { if (typeof v === 'string') entryPoints.add(path.relative(ROOT, path.resolve(pkgDir, v))); };
+        addRel(pkg.main); addRel(pkg.module);
+        if (pkg.bin && typeof pkg.bin === 'object') Object.values(pkg.bin).forEach(addRel);
+        else addRel(pkg.bin);
+      } catch {}
+    }
+
+    // 2. anything invoked as `node <path>` or `playwright test <path>` is an entry point
+    for (const m of text.match(/(?:node|playwright test)\s+((?:scripts|tests|frontend|extensions)\/[A-Za-z0-9_\-./]+\.(?:mjs|js|jsx|ts|tsx))/g) || []) {
+      entryPoints.add(m.replace(/^(?:node|playwright test)\s+/, '').trim());
+    }
+
+    // 3. import targets: import/require/from + <script src>
+    if (['.mjs', '.js', '.jsx', '.ts', '.tsx'].includes(ext)) codeFiles.push({ rel, dir: path.dirname(filePath), text });
+    for (const m of text.match(/<script[^>]+src=["']([^"']+)["']/g) || []) {
+      const src = (m.match(/src=["']([^"']+)["']/) || [])[1] || '';
+      const clean = src.split('?')[0].replace(/^\.?\//, '');
+      // resolve relative to the HTML file's dir
+      const resolved = path.relative(ROOT, path.resolve(path.dirname(filePath), clean));
+      if (resolved) importedTargets.add(resolved);
+    }
+  });
+
+  // resolve relative imports in code files to real paths
+  const resolveImport = (fromDir, spec) => {
+    if (!spec.startsWith('.')) return null; // bare/npm import — not a local file
+    const base = path.resolve(fromDir, spec);
+    const cands = [base, base + '.mjs', base + '.js', base + '.jsx', base + '.ts', base + '.tsx',
+      path.join(base, 'index.mjs'), path.join(base, 'index.js')];
+    for (const c of cands) { if (fs.existsSync(c) && fs.statSync(c).isFile()) return path.relative(ROOT, c); }
+    return null;
+  };
+  for (const { dir, text } of codeFiles) {
+    const specs = [];
+    for (const m of text.match(/(?:import[^'"]*from|import|require)\s*\(?\s*['"]([^'"]+)['"]/g) || []) {
+      const s = (m.match(/['"]([^'"]+)['"]/) || [])[1];
+      if (s) specs.push(s);
+    }
+    for (const s of specs) { const r = resolveImport(dir, s); if (r) importedTargets.add(r); }
+  }
+  return { importedTargets, entryPoints };
+}
+
 function summarize(proposals) {
-  const by = { 'stale-alive': 0, 'stale-dead': 0, 'stale-archived': 0, 'orphan-code': 0 };
+  const by = { 'stale-alive': 0, 'stale-dead': 0, 'stale-archived': 0, 'orphan-code': 0, 'dead-code-unimported': 0 };
   for (const p of proposals) by[p.kind] = (by[p.kind] || 0) + 1;
   return by;
 }

@@ -120,6 +120,9 @@ function applyMove(p) {
   } else if (p.kind === 'orphan-code') {
     const date = new Date().toISOString().slice(0, 10);
     destRel = path.join('archive', 'orphans', date, p.file);
+  } else if (p.kind === 'dead-code-unimported') {
+    const date = new Date().toISOString().slice(0, 10);
+    destRel = path.join('archive', 'dead-code', date, p.file);
   } else {
     return { ok: false, reason: `unknown move kind: ${p.kind}` };
   }
@@ -154,7 +157,7 @@ function applyMove(p) {
 // ─────────────────────────────────────── dispatcher
 function applyOne(p) {
   if (p.kind === 'stale-alive') return applyStaleAlive(p);
-  if (p.kind === 'stale-dead' || p.kind === 'stale-archived' || p.kind === 'orphan-code') return applyMove(p);
+  if (['stale-dead', 'stale-archived', 'orphan-code', 'dead-code-unimported'].includes(p.kind)) return applyMove(p);
   return { ok: false, reason: `no apply handler for kind: ${p.kind}` };
 }
 

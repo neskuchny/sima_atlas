@@ -393,6 +393,18 @@ html, body {
 .econ-row:last-child { border-bottom: 0; }
 .econ-row-key { color: var(--ink-2); font-weight: 500; }
 .econ-row-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-3); }
+
+/* R-7.93 — change-sets + cleanup surfaces */
+.cs-card h3 { display: flex; align-items: center; gap: 8px; }
+.cs-state { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 7px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; }
+.cs-state.cs-open { background: var(--st-progress); color: var(--ink); }
+.cs-state.cs-committed { background: var(--st-done); color: white; }
+.cs-state.cs-rolled-back { background: var(--st-fail); color: white; }
+.cleanup-row { padding: 7px 0; border-bottom: 1px solid var(--rule); }
+.cleanup-row:last-child { border-bottom: 0; }
+.cleanup-file { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--ink-2); }
+.cleanup-reason { font-size: 11px; margin: 2px 0; }
+.cleanup-cmd { display: block; font-size: 10.5px; color: var(--ink-3); background: var(--card); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--rule); margin-top: 3px; overflow-x: auto; white-space: nowrap; }
 .rail {
   grid-area: rail;
   border-right: 1px solid var(--rule);

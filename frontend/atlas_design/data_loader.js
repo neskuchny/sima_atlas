@@ -303,6 +303,10 @@
       if (block) qs.set('block', block);
       return await getJson('/atlas/token-economics?' + qs.toString());
     },
+    // R-7.93 — V-1 / S-7 / S-12 read surfaces for the canvas.
+    autonomousRuns: async () => await getJson('/atlas/autonomous-runs'),
+    changeSets:     async () => await getJson('/atlas/change-sets'),
+    cleanupProposals: async () => await getJson('/atlas/cleanup-proposals'),
     filesList:    async (block_id, status) => {
       const qs = new URLSearchParams();
       if (block_id) qs.set('block_id', block_id);
