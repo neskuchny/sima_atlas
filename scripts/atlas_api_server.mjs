@@ -1098,6 +1098,7 @@ const server = http.createServer((req, res) => {
           agent:     body.agent ? String(body.agent) : undefined,
           prompt:    body.prompt ? String(body.prompt) : undefined,
           client_id: body.client_id ? String(body.client_id) : (body._client ? String(body._client) : undefined),
+          profile:   body.profile ? String(body.profile) : undefined, // R-7.90 (S-10)
         }));
       }
       // /llm/advice — bridge to b.llm-gateway. Returns ok:true with

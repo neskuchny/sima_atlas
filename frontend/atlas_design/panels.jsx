@@ -256,7 +256,7 @@ function DetailPanel({ data, modules: liveModules, moduleId, onClose, desyncReso
       </div>
 
       <div className="dbody">
-        {tab === 'overview' && <Overview m={m} status={status} desyncResolved={desyncResolved} onSendToAgent={onSendToAgent} onDrillDown={onDrillDown} hasSubsystem={!!data.subsystems?.[m.id]} onOpenTz={onOpenTz} onClaudeAdvice={onClaudeAdvice} />}
+        {tab === 'overview' && <Overview m={m} status={status} desyncResolved={desyncResolved} onSendToAgent={onSendToAgent} onDrillDown={onDrillDown} hasSubsystem={!!data.subsystems?.[m.id]} onOpenTz={onOpenTz} onClaudeAdvice={onClaudeAdvice} childBlocks={(liveModules || data.modules || []).filter(x => x.parent_block_id === m.id)} onSelect={onSelect} />}
         {tab === 'contract' && <ContractSection moduleId={moduleId} layer={m.layer} />}
         {tab === 'tasks' && <TasksList tasks={tasks} desyncResolved={desyncResolved} moduleId={moduleId} onSendToAgent={onSendToAgent} missionText={(MODULE_DESC[moduleId] || {}).why || (MODULE_DESC[moduleId] || {}).logic || ''} layer={m.layer} />}
         {tab === 'runs' && <RunStatusSection moduleId={moduleId} />}
@@ -403,7 +403,7 @@ function TokenSpendWidget({ block_id }) {
   );
 }
 
-function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSubsystem, onOpenTz, onClaudeAdvice }) {
+function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSubsystem, onOpenTz, onClaudeAdvice, childBlocks, onSelect }) {
   const t = window.__SIMA_T || ((_, fb) => fb);
   // R-7.69 — Overview was reading legacy hardcoded MODULE_DESC for
   // Logic/Backend/Frontend/KPI sections. Operator: «Backend / Logic /
@@ -414,6 +414,9 @@ function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSu
   // provides.md) and surface a live summary. To edit them, click
   // «Open Contract →» which switches the right-side tab.
   const desc = MODULE_DESC[m.id] || {};
+  // R-7.90 (S-10) — context-pack profile picked at run-start. design = full
+  // (default); narrower profiles cut prompt size for focused fixes.
+  const [packProfile, setPackProfile] = useState2('design');
   const [missionText, setMissionText] = useState2('');
   const [kpiText, setKpiText] = useState2('');
   const [acceptText, setAcceptText] = useState2('');
@@ -555,6 +558,55 @@ function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSu
         );
       })()}
 
+      {/* R-7.90 (S-11) — cross-block roll-up. When this block is a subsystem
+          (has children via parent_block_id), aggregate how much of the
+          subsystem's contracts are actually shipped. Answers «what % of this
+          subsystem is done?» at a glance, with a per-status breakdown +
+          clickable child rows. Uses graph status (no extra fetches). */}
+      {Array.isArray(childBlocks) && childBlocks.length > 0 && (() => {
+        const total = childBlocks.length;
+        const byStatus = {};
+        for (const c of childBlocks) byStatus[c.status || 'idea'] = (byStatus[c.status || 'idea'] || 0) + 1;
+        const doneN = byStatus['done'] || 0;
+        const pct = Math.round((doneN / total) * 100);
+        const STATUS_COLOR = {
+          done: 'var(--st-done)', review: 'var(--st-progress)', wip: 'var(--st-progress)',
+          progress: 'var(--st-progress)', desync: 'var(--st-fail)', broken: 'var(--st-fail)',
+          fail: 'var(--st-fail)', idea: 'var(--ink-4)', archived: 'var(--ink-4)',
+        };
+        const order = ['done', 'review', 'wip', 'progress', 'desync', 'broken', 'idea', 'archived'];
+        return (
+          <div className="ov-section">
+            <div className="ov-head">
+              <h3>{t('overview.subsystem_rollup', '📊 Subsystem progress')} <span className="ov-file">{total} {t('overview.child_blocks', 'child blocks')}</span></h3>
+            </div>
+            <div className="rollup-bar-wrap">
+              <div className="rollup-bar">
+                {order.filter((s) => byStatus[s]).map((s) => (
+                  <div key={s} className="rollup-seg" style={{ width: `${(byStatus[s] / total) * 100}%`, background: STATUS_COLOR[s] || 'var(--ink-4)' }} title={`${s}: ${byStatus[s]}`} />
+                ))}
+              </div>
+              <div className="rollup-pct">{pct}% {t('overview.done_word', 'done')} <span className="rollup-frac">({doneN}/{total})</span></div>
+            </div>
+            <div className="rollup-legend">
+              {order.filter((s) => byStatus[s]).map((s) => (
+                <span key={s} className="rollup-leg-item"><span className="rollup-dot" style={{ background: STATUS_COLOR[s] || 'var(--ink-4)' }} />{s} {byStatus[s]}</span>
+              ))}
+            </div>
+            <div className="rollup-children">
+              {childBlocks.slice(0, 12).map((c) => (
+                <div key={c.id} className="rollup-child-row" onClick={() => onSelect && onSelect(c.id)} title={t('overview.open_child', 'Open this block')}>
+                  <span className="rollup-dot" style={{ background: STATUS_COLOR[c.status] || 'var(--ink-4)' }} />
+                  <span className="rollup-child-id">{c.id}</span>
+                  <span className="rollup-child-status">{c.status || 'idea'}</span>
+                </div>
+              ))}
+              {total > 12 && <div className="rollup-more">+{total - 12} {t('overview.more_word', 'more')}</div>}
+            </div>
+          </div>
+        );
+      })()}
+
       {/* R-7.87 (S-9) — token economics widget. Operator: «я гоняю
           агентов часами и не вижу куда уходят токены». Pulls from
           /atlas/token-economics with block filter; renders totals +
@@ -639,9 +691,21 @@ function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSu
       <h3>{t('overview.send_to_agent', 'Send to agent')}</h3>
       <div className="send-task">
         <span className="lab">{t('overview.this_block_ctx', 'This block\'s context →')}</span>
-        <button onClick={() => onSendToAgent('claude', m)}>Claude Code</button>
-        <button onClick={() => onSendToAgent('cursor', m)}>Cursor</button>
-        <button onClick={() => onSendToAgent('codex', m)}>Codex</button>
+        <button onClick={() => onSendToAgent('claude', m, packProfile)}>Claude Code</button>
+        <button onClick={() => onSendToAgent('cursor', m, packProfile)}>Cursor</button>
+        <button onClick={() => onSendToAgent('codex', m, packProfile)}>Codex</button>
+      </div>
+      {/* R-7.90 (S-10) — context-pack profile selector. The feature shipped
+          in R-7.86 (CLI flag + env var + MCP arg); this surfaces it at
+          run-start so the operator picks prompt scope per task type. */}
+      <div className="pack-profile-row">
+        <span className="lab">{t('overview.context_pack', 'Context pack')}</span>
+        <select value={packProfile} onChange={(e) => setPackProfile(e.target.value)} title={t('overview.context_pack_hint', 'How much context the agent receives. Smaller = cheaper, for focused fixes.')}>
+          <option value="design">{t('overview.profile_design', 'design — full (new block / refactor)')}</option>
+          <option value="backend-fix">{t('overview.profile_backend', 'backend-fix — mission+acceptance+memory')}</option>
+          <option value="ui-fix">{t('overview.profile_ui', 'ui-fix — frontend-focused, no deps')}</option>
+          <option value="acceptance-only">{t('overview.profile_accept', 'acceptance-only — verify / ship check')}</option>
+        </select>
       </div>
 
       <BlockScreenshot block={m} />

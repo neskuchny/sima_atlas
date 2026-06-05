@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "description": "Drop-in block templates — production-shaped starter contracts. Apply with: node scripts/apply_block_template.mjs --template <id> [--client <id>] [--block-id b.<custom>]",
+  "templates": [
+    {
+      "id": "auth",
+      "title": "Authentication",
+      "block_id": "b.auth",
+      "layer": "logic",
+      "summary": "JWT access + refresh, password hashing, session lifecycle, RBAC hooks.",
+      "provides": ["auth.session", "auth.rbac"]
+    },
+    {
+      "id": "payments",
+      "title": "Payments",
+      "block_id": "b.payments",
+      "layer": "logic",
+      "summary": "Checkout, provider webhooks, idempotent charge handling, refunds.",
+      "provides": ["payments.charge", "payments.webhook"]
+    },
+    {
+      "id": "search",
+      "title": "Search",
+      "block_id": "b.search",
+      "layer": "logic",
+      "summary": "Full-text + filter search over a primary entity, ranked, paginated.",
+      "provides": ["search.query"]
+    },
+    {
+      "id": "ingestion",
+      "title": "Ingestion",
+      "block_id": "b.ingestion",
+      "layer": "logic",
+      "summary": "Event/document intake with validation, dedup, and exactly-once delivery to storage.",
+      "provides": ["ingestion.intake"]
+    },
+    {
+      "id": "billing",
+      "title": "Billing",
+      "block_id": "b.billing",
+      "layer": "logic",
+      "summary": "Subscriptions, usage metering, invoicing, plan limits enforcement.",
+      "provides": ["billing.subscription", "billing.usage"]
+    }
+  ]
+}

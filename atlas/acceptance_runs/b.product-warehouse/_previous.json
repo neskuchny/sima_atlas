@@ -67,7 +67,7 @@
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 0
+      "duration_ms": 1
     },
     {
       "id": "A4",
@@ -133,7 +133,7 @@
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 0
+      "duration_ms": 1
     }
   ],
   "counts": {
@@ -142,6 +142,6 @@
     "skipped": 6
   },
   "verdict": "inconclusive",
-  "duration_ms": 1,
-  "checked_at": "2026-06-05T22:17:13.449Z"
+  "duration_ms": 3,
+  "checked_at": "2026-06-05T22:37:38.065Z"
 }

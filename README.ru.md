@@ -196,11 +196,11 @@ npm run dev
 - ✅ **R-7.87 (S-9)** — token economics aggregator: actual cost + Anthropic Haiku 4.5 «shadow bill» equivalent + per-op / per-provider / daily breakdown, как MCP tool + Token Spend widget
 
 ### Следующее — закрываем цикл (v0.5 → v0.9, Q4 2026)
-- ⬜ **S-1** — marketplace шаблонов блоков (auth / payments / search / ingestion / billing)
+- ✅ **S-1** — шаблоны блоков (auth / payments / search / ingestion / billing): drop-in production-shaped стартовые контракты (mission + KPI + acceptance + depends_on + provides + tasks). Применяются через `apply_block_template` (MCP/CLI). Acceptance стартует КРАСНЫМ — verifiable definition of done (R-7.90)
+- ✅ **S-10** — селектор context-pack профиля при старте run-а, прямо под кнопками агентов (design / backend-fix / ui-fix / acceptance-only) (R-7.90)
+- ✅ **S-11** — cross-block roll-up в Implementation Status: бар «Subsystem progress» + разбивка по статусам + кликабельные дочерние блоки когда у блока есть дети (R-7.90)
 - ⬜ **S-7** — транзакционные change-set'ы для cross-cutting изменений (REST→GraphQL, переименование capability, миграция БД)
 - ⬜ **S-9.1** — global Token Economics tab (отдельно от per-block widget): sparklines, cost-per-pass vs cost-per-fail ROI, A/B сравнение моделей
-- ⬜ **S-10** — UI выбор profile при старте run-а (сейчас только CLI flag + env var)
-- ⬜ **S-11** — cross-block roll-up в Implementation Status: «какой % контрактов в этом subsystem заполнен?»
 - 🟡 **S-12** — housekeeping sweeper: **MVP отгружен (R-7.88)** — предлагает чистки stale-alive / stale-dead / stale-archived / orphan-code в nightly. Follow-ups: import-graph детектор мёртвого кода (файл лежит, никто не импортирует), time-based архивные подсказки (нет коммитов 90 дней → soft hint в архив), вкладка Cleanup в UI для one-click apply
 
 ### Среднесрок — collaboration + локальные модели (v0.6 → v0.9, Q4 2026)

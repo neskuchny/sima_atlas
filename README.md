@@ -233,11 +233,11 @@ This roadmap maps the [vision](#the-vision) onto specific phases. Phases are siz
 - ✅ **R-7.87 (S-9)** — token economics aggregator: actual cost + Anthropic Haiku 4.5 «shadow bill» equivalent + per-op / per-provider / daily breakdown, exposed as MCP tool + Token Spend widget
 
 ### Next — closing the loop (v0.5 → v0.9, Q4 2026)
-- ⬜ **S-1** — block templates marketplace (auth / payments / search / ingestion / billing) — drop-in starters with mission + KPI + acceptance
+- ✅ **S-1** — block templates (auth / payments / search / ingestion / billing): drop-in production-shaped starter contracts (mission + KPI + acceptance + depends_on + provides + tasks). Apply via `apply_block_template` (MCP/CLI). Acceptance starts RED — the verifiable definition of done (R-7.90)
+- ✅ **S-10** — context-pack profile selector at run-start, right under the agent buttons (design / backend-fix / ui-fix / acceptance-only) (R-7.90)
+- ✅ **S-11** — cross-block roll-up in Implementation Status: «Subsystem progress» bar + per-status breakdown + clickable child rows when a block has children (R-7.90)
 - ⬜ **S-7** — transactional change-sets for cross-cutting changes (REST→GraphQL, capability rename, DB migration); UI shows "5 blocks touched by transaction T" with per-block acceptance state
 - ⬜ **S-9.1** — global Token Economics tab (separate from per-block widget): sparklines, cost-per-pass vs cost-per-fail ROI, model A/B comparison
-- ⬜ **S-10** — UI surface for context-pack profile selection at run-start (currently CLI flag + env var only)
-- ⬜ **S-11** — cross-block roll-up in Implementation Status: «what % of contracts in this subsystem are filled?»
 - 🟡 **S-12** — housekeeping sweeper: **MVP shipped (R-7.88)** — proposes stale-alive / stale-dead / stale-archived / orphan-code cleanups in nightly. Follow-ups: import-graph dead-code detection (find files that exist but nobody imports), time-based archival hints (no commits in 90d → soft suggest archive), Cleanup tab in UI for one-click apply
 
 ### Mid — collaboration + local models (v0.6 → v0.9, Q4 2026)
