@@ -15,17 +15,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_no_template_placeholders.mjs → exit 0 (59ms); first line: \"Template-placeholder validation: OK (17 blocks scanned)\"",
+      "evidence": "node scripts/validate_no_template_placeholders.mjs → exit 0 (54ms); first line: \"Template-placeholder validation: OK (17 blocks scanned)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_no_template_placeholders.mjs",
         "exit_code": 0,
         "stdout": "Template-placeholder validation: OK (17 blocks scanned)\n",
         "stderr": "Template-placeholder validation warnings:\n ⚠ b.smoke-sandbox: tasks.md is suspiciously short (28 chars)\n",
-        "duration_ms": 59,
+        "duration_ms": 54,
         "timed_out": false
       },
-      "duration_ms": 59
+      "duration_ms": 54
     },
     {
       "id": "A2",
@@ -121,7 +121,7 @@
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 1
+      "duration_ms": 0
     }
   ],
   "counts": {
@@ -130,6 +130,6 @@
     "skipped": 2
   },
   "verdict": "pass",
-  "duration_ms": 62,
-  "checked_at": "2026-06-05T23:15:32.748Z"
+  "duration_ms": 57,
+  "checked_at": "2026-06-05T23:24:36.432Z"
 }

@@ -835,6 +835,9 @@ function SystemDocs({ onClose }) {
   const [meta, setMeta] = useStateV(null);
   // Phase O-4: operator profile tab data
   const [profile, setProfile] = useStateV(null);
+  // R-7.92 (S-9.1) — global token-economics tab (project-wide, no block filter)
+  const [economics, setEconomics] = useStateV(null);
+  const [econDays, setEconDays] = useStateV(30);
 
   const EDITABLE = new Set(['project.md', 'rules.md', 'tech_stack.md']);
   const tabToFile = (t) => ({
@@ -856,10 +859,13 @@ function SystemDocs({ onClose }) {
       } else if (tab === 'profile') {
         const r = await window.SIMA_API.meta.operatorProfile();
         if (alive && r?.ok) setProfile(r.profile || null);
+      } else if (tab === 'economics') {
+        const r = await window.SIMA_API.meta.tokenEconomics({ days: econDays });
+        if (alive && r?.ok) setEconomics(r);
       }
     })();
     return () => { alive = false; };
-  }, [tab]);
+  }, [tab, econDays]);
 
   const saveMeta = async () => {
     const file = tabToFile(tab);
@@ -888,6 +894,7 @@ function SystemDocs({ onClose }) {
 
   const tabs = [
     { id: 'profile',  label: t('sysdocs.tab.profile', 'Profile'), special: 'profile' },
+    { id: 'economics', label: t('sysdocs.tab.economics', '💰 Economics'), special: 'economics' },
     { id: 'roadmap',  label: t('sysdocs.tab.roadmap', 'Roadmap') },
     { id: 'wiki',     label: t('sysdocs.tab.wiki', 'Wiki (mermaid)') },
     { id: 'wiki-md',  label: t('sysdocs.tab.wiki_md', 'WIKI.md') },
@@ -1025,6 +1032,82 @@ function SystemDocs({ onClose }) {
                   </div>
                 </>
               )}
+            </div>
+          )}
+          {tab === 'economics' && (
+            <div className="econ-body">
+              <div className="econ-head">
+                <div className="acc-counts mono">
+                  <span className="acc-pill">{t('sysdocs.economics.title', 'project-wide token spend')}</span>
+                </div>
+                <select value={econDays} onChange={(e) => setEconDays(Number(e.target.value))} className="econ-days">
+                  <option value={7}>{t('sysdocs.economics.d7', 'last 7d')}</option>
+                  <option value={30}>{t('sysdocs.economics.d30', 'last 30d')}</option>
+                  <option value={90}>{t('sysdocs.economics.d90', 'last 90d')}</option>
+                </select>
+              </div>
+              {!economics && <div className="meta" style={{ padding: 14 }}>{t('sysdocs.economics.loading', 'Loading…')}</div>}
+              {economics && economics.totals && (() => {
+                const fmtUsd = (n) => '$' + (Number(n) || 0).toFixed(4);
+                const fmtTok = (n) => n >= 1e6 ? `${(n / 1e6).toFixed(2)}M` : n >= 1e3 ? `${(n / 1e3).toFixed(1)}K` : String(n || 0);
+                const tot = economics.totals;
+                const daily = economics.daily || [];
+                const maxDay = Math.max(1e-9, ...daily.map(d => d.cost_usd_equivalent || 0));
+                return (
+                  <>
+                    {/* totals */}
+                    <div className="econ-grid">
+                      <div className="econ-tot"><div className="econ-num">{fmtUsd(tot.cost_usd_equivalent)}</div><div className="econ-lbl">{t('sysdocs.economics.equiv', 'equivalent (Haiku 4.5 list)')}</div></div>
+                      <div className="econ-tot"><div className="econ-num">{fmtUsd(tot.cost_usd_actual)}</div><div className="econ-lbl">{t('sysdocs.economics.actual', 'actually charged')}</div></div>
+                      <div className="econ-tot"><div className="econ-num">{fmtTok(tot.input_tokens + tot.output_tokens)}</div><div className="econ-lbl">{t('sysdocs.economics.tokens', 'tokens · {n} traces').replace('{n}', tot.trace_count)}</div></div>
+                    </div>
+                    {/* daily sparkline */}
+                    {daily.length > 0 && (
+                      <div className="profile-section">
+                        <h3>{t('sysdocs.economics.daily', 'Daily spend (equivalent)')}</h3>
+                        <div className="econ-spark" title={t('sysdocs.economics.spark_hint', 'cost_usd_equivalent per day')}>
+                          {daily.map((d, i) => (
+                            <div key={i} className="econ-spark-bar-wrap" title={`${d.key}: ${fmtUsd(d.cost_usd_equivalent)} · ${d.count} calls`}>
+                              <div className="econ-spark-bar" style={{ height: `${Math.max(2, (d.cost_usd_equivalent / maxDay) * 100)}%` }} />
+                            </div>
+                          ))}
+                        </div>
+                        <div className="econ-spark-axis"><span>{daily[0]?.key}</span><span>{daily[daily.length - 1]?.key}</span></div>
+                      </div>
+                    )}
+                    {/* top ops */}
+                    {(economics.top_ops || []).length > 0 && (
+                      <div className="profile-section">
+                        <h3>{t('sysdocs.economics.top_ops', 'Top ops by cost')}</h3>
+                        {economics.top_ops.slice(0, 8).map((o, i) => (
+                          <div key={i} className="econ-row"><span className="econ-row-key">{o.key}</span><span className="econ-row-val">{fmtUsd(o.cost_usd_equivalent)} · {o.count} calls</span></div>
+                        ))}
+                      </div>
+                    )}
+                    {/* top blocks */}
+                    {(economics.top_blocks || []).length > 0 && (
+                      <div className="profile-section">
+                        <h3>{t('sysdocs.economics.top_blocks', 'Top blocks by cost')}</h3>
+                        {economics.top_blocks.slice(0, 8).map((b, i) => (
+                          <div key={i} className="econ-row"><span className="econ-row-key">{b.key}</span><span className="econ-row-val">{fmtUsd(b.cost_usd_equivalent)} · {b.count} calls</span></div>
+                        ))}
+                      </div>
+                    )}
+                    {/* by provider */}
+                    {(economics.by_provider || []).length > 0 && (
+                      <div className="profile-section">
+                        <h3>{t('sysdocs.economics.by_provider', 'By provider')}</h3>
+                        {economics.by_provider.map((p, i) => (
+                          <div key={i} className="econ-row"><span className="econ-row-key">{p.key}</span><span className="econ-row-val">{fmtUsd(p.cost_usd_actual)} actual / {fmtUsd(p.cost_usd_equivalent)} equiv · {p.count} calls</span></div>
+                        ))}
+                      </div>
+                    )}
+                    <div className="meta" style={{ fontSize: 11, marginTop: 10, padding: '0 4px' }}>
+                      {t('sysdocs.economics.note', 'cost_usd_equivalent = what this would cost on Anthropic Haiku 4.5 list price — stable «shadow bill» across providers, visible even when you run on a subscription.')}
+                    </div>
+                  </>
+                );
+              })()}
             </div>
           )}
           {tab === 'docs' && openDocFor && (

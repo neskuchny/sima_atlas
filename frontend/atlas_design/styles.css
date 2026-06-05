@@ -375,6 +375,24 @@ html, body {
 .token-spend-row:last-child { border-bottom: 0; }
 .token-spend-row-key { color: var(--ink-2); font-weight: 500; }
 .token-spend-row-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-3); }
+
+/* R-7.92 (S-9.1) — global economics tab */
+.econ-body { padding: 14px 18px; overflow-y: auto; }
+.econ-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.econ-days { font-size: 11px; padding: 4px 8px; border: 1px solid var(--rule); border-radius: 6px; background: var(--paper); color: var(--ink-2); font-family: inherit; cursor: pointer; }
+.econ-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+.econ-tot { background: var(--card); border: 1px solid var(--rule); border-radius: 8px; padding: 10px 12px; }
+.econ-num { font-family: 'Newsreader', serif; font-size: 22px; font-weight: 600; color: var(--ink); line-height: 1.1; }
+.econ-lbl { font-size: 10.5px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
+.econ-spark { display: flex; align-items: flex-end; gap: 2px; height: 80px; padding: 6px; border: 1px solid var(--rule); border-radius: 8px; background: var(--card); }
+.econ-spark-bar-wrap { flex: 1; height: 100%; display: flex; align-items: flex-end; min-width: 2px; }
+.econ-spark-bar { width: 100%; background: var(--st-progress); border-radius: 2px 2px 0 0; transition: background 0.15s; }
+.econ-spark-bar-wrap:hover .econ-spark-bar { background: var(--ink); }
+.econ-spark-axis { display: flex; justify-content: space-between; font-size: 10px; color: var(--ink-4); margin-top: 4px; font-family: 'JetBrains Mono', monospace; }
+.econ-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--rule); font-size: 12px; }
+.econ-row:last-child { border-bottom: 0; }
+.econ-row-key { color: var(--ink-2); font-weight: 500; }
+.econ-row-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-3); }
 .rail {
   grid-area: rail;
   border-right: 1px solid var(--rule);
