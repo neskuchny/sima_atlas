@@ -75,3 +75,8 @@ atlas/clients/*/autonomous_runs/*
 # print-only mode prompt dumps — runtime.
 atlas/agent_invocations/*
 atlas/clients/*/agent_invocations/*
+
+# S-7 change-sets — operator runtime records.
+atlas/change_sets/*
+!atlas/change_sets/.gitkeep
+atlas/clients/*/change_sets/*

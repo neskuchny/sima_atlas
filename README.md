@@ -236,8 +236,8 @@ This roadmap maps the [vision](#the-vision) onto specific phases. Phases are siz
 - ✅ **S-1** — block templates (auth / payments / search / ingestion / billing): drop-in production-shaped starter contracts (mission + KPI + acceptance + depends_on + provides + tasks). Apply via `apply_block_template` (MCP/CLI). Acceptance starts RED — the verifiable definition of done (R-7.90)
 - ✅ **S-10** — context-pack profile selector at run-start, right under the agent buttons (design / backend-fix / ui-fix / acceptance-only) (R-7.90)
 - ✅ **S-11** — cross-block roll-up in Implementation Status: «Subsystem progress» bar + per-status breakdown + clickable child rows when a block has children (R-7.90)
-- ⬜ **S-7** — transactional change-sets for cross-cutting changes (REST→GraphQL, capability rename, DB migration); UI shows "5 blocks touched by transaction T" with per-block acceptance state
-- ⬜ **S-9.1** — global Token Economics tab (separate from per-block widget): sparklines, cost-per-pass vs cost-per-fail ROI, model A/B comparison
+- 🟡 **S-7** — transactional change-sets for cross-cutting changes (REST→GraphQL, capability rename, DB migration): **MVP shipped (R-7.92)** — `scripts/change_set.mjs` + MCP `change_set_create/status/commit/list`. Groups the blocks touched by one change; treats their acceptance as a UNIT; `commit` is refused unless every member is green (no half-migrated torn state); `rollback` annotates each member's narrative for review. Follow-up: UI badge «N blocks touched by transaction T» on the canvas.
+- ✅ **S-9.1** — global Token Economics tab in the System Docs modal: project-wide totals, daily-spend sparkline, top ops / top blocks / by-provider breakdown, day-window selector. `cost_usd_equivalent` shadow bill (R-7.92)
 - 🟡 **S-12** — housekeeping sweeper: **MVP shipped (R-7.88)** — proposes stale-alive / stale-dead / stale-archived / orphan-code cleanups in nightly. Follow-ups: import-graph dead-code detection (find files that exist but nobody imports), time-based archival hints (no commits in 90d → soft suggest archive), Cleanup tab in UI for one-click apply
 
 ### Mid — collaboration + local models (v0.6 → v0.9, Q4 2026)

@@ -199,8 +199,8 @@ npm run dev
 - ✅ **S-1** — шаблоны блоков (auth / payments / search / ingestion / billing): drop-in production-shaped стартовые контракты (mission + KPI + acceptance + depends_on + provides + tasks). Применяются через `apply_block_template` (MCP/CLI). Acceptance стартует КРАСНЫМ — verifiable definition of done (R-7.90)
 - ✅ **S-10** — селектор context-pack профиля при старте run-а, прямо под кнопками агентов (design / backend-fix / ui-fix / acceptance-only) (R-7.90)
 - ✅ **S-11** — cross-block roll-up в Implementation Status: бар «Subsystem progress» + разбивка по статусам + кликабельные дочерние блоки когда у блока есть дети (R-7.90)
-- ⬜ **S-7** — транзакционные change-set'ы для cross-cutting изменений (REST→GraphQL, переименование capability, миграция БД)
-- ⬜ **S-9.1** — global Token Economics tab (отдельно от per-block widget): sparklines, cost-per-pass vs cost-per-fail ROI, A/B сравнение моделей
+- 🟡 **S-7** — транзакционные change-set'ы для cross-cutting изменений (REST→GraphQL, переименование capability, миграция БД): **MVP отгружен (R-7.92)** — `scripts/change_set.mjs` + MCP `change_set_create/status/commit/list`. Группирует блоки одного изменения; acceptance трактуется как ЕДИНИЦА; `commit` запрещён пока все члены не зелёные (нет half-migrated torn-состояния); `rollback` аннотирует narrative каждого члена. Follow-up: UI-бейдж «N блоков затронуто транзакцией T» на канвасе.
+- ✅ **S-9.1** — global Token Economics tab в System Docs модале: project-wide totals, sparkline дневных расходов, top ops / top blocks / by-provider, селектор окна. `cost_usd_equivalent` shadow bill (R-7.92)
 - 🟡 **S-12** — housekeeping sweeper: **MVP отгружен (R-7.88)** — предлагает чистки stale-alive / stale-dead / stale-archived / orphan-code в nightly. Follow-ups: import-graph детектор мёртвого кода (файл лежит, никто не импортирует), time-based архивные подсказки (нет коммитов 90 дней → soft hint в архив), вкладка Cleanup в UI для one-click apply
 
 ### Среднесрок — collaboration + локальные модели (v0.6 → v0.9, Q4 2026)
