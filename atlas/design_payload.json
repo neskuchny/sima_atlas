@@ -2016,20 +2016,6 @@
   "lanes": [],
   "history": [
     {
-      "ts": "12:40",
-      "module": "core-sync",
-      "agent": "sima-core",
-      "kind": "info",
-      "msg": "b.core-sync: idea → wip"
-    },
-    {
-      "ts": "12:49",
-      "module": "agent-orchestrator",
-      "agent": "sima-core",
-      "kind": "info",
-      "msg": "b.agent-orchestrator: idea → wip"
-    },
-    {
       "ts": "12:50",
       "module": "agent-orchestrator",
       "agent": "sima-core",
@@ -2098,6 +2084,20 @@
       "agent": "sima-core",
       "kind": "ok",
       "msg": "b.docs: review → done"
+    },
+    {
+      "ts": "23:14",
+      "module": "db",
+      "agent": "sima-core",
+      "kind": "info",
+      "msg": "b.db: idea → wip"
+    },
+    {
+      "ts": "23:14",
+      "module": "smoke-sandbox",
+      "agent": "sima-core",
+      "kind": "info",
+      "msg": "b.smoke-sandbox: idea → wip"
     }
   ],
   "lessons": [],
@@ -2129,7 +2129,7 @@
     }
   ],
   "_meta": {
-    "generated_at": "2026-06-05T22:55:39.006Z",
+    "generated_at": "2026-06-05T23:15:20.519Z",
     "atlas_root": "atlas",
     "client_id": null,
     "block_count": 17,

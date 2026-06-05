@@ -247,7 +247,7 @@ This roadmap maps the [vision](#the-vision) onto specific phases. Phases are siz
 - ⬜ **U-3** — Continue / Aider / Zed-AI MCP integration parity
 
 ### Vision — autonomous coding loop + compounding memory (v1.x → v2, 2027+)
-- ⬜ **V-1** — **agent-loop daemon**: overnight autonomous mode. Sima picks `todo` blocks, dispatches an agent, runs acceptance, marks pass/rollback. Watched by `verify_done_blocks_still_green` so it can't break what was previously green.
+- 🟡 **V-1** — **agent-loop daemon**: **MVP shipped (R-7.91)** — `scripts/agent_loop_daemon.mjs` walks the graph, picks the next runnable block (deps done · real mission · ≥1 deterministic acceptance assertion), runs a fresh agent, verifies, and advances one gated lifecycle step ONLY if the verifier passes AND no previously-green `done` block regressed (`verify_done_blocks_still_green`). Ralph-loop shaped: progress lives on disk; each block gets a fresh agent. Guards: default `print-only` (plans+verifies, no real coding agent unless `--agent claude`), budget cap, circuit breaker, `--dry-run`, max-iterations. Writes an Autonomous Run report. Follow-ups: Canvas «Autonomous Run» queue widget, auto-rollback-on-red (revert via `history/`), scheduled overnight trigger.
 - ⬜ **V-2** — one-click deploy: block → docker → cloud with the same acceptance running in production
 - ⬜ **V-3** — **production-monitor**: an observer block that catches unknown-unknowns (production bugs, metric anomalies) and lifts them back into the graph as new acceptance assertions on the affected blocks. Closes autonomy's blind spot.
 - ⬜ **W-1** — **cross-project pattern transfer**: lessons from one project (via `lessons.json`) enrich the next; opt-in "community experience"

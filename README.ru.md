@@ -210,7 +210,7 @@ npm run dev
 - ⬜ **U-3** — Continue / Aider / Zed-AI MCP интеграции
 
 ### Vision — автономный цикл + накопительная память (v1.x → v2, 2027+)
-- ⬜ **V-1** — **agent-loop daemon**: ночной автономный режим. Sima берёт `todo` блоки, спавнит агента, прогоняет acceptance, маркирует pass/rollback
+- 🟡 **V-1** — **agent-loop daemon**: **MVP отгружен (R-7.91)** — `scripts/agent_loop_daemon.mjs` обходит граф, берёт следующий runnable-блок (deps done · реальная mission · ≥1 детерминированный acceptance), спавнит свежего агента, верифицирует, и продвигает на один gated-шаг ТОЛЬКО если verifier pass И ни один ранее-зелёный `done` блок не регрессировал (`verify_done_blocks_still_green`). Ralph-loop форма: прогресс на диске, каждый блок — свежий агент. Guards: по умолчанию `print-only` (планирует+верифицирует, без реального агента пока не `--agent claude`), budget cap, circuit breaker, `--dry-run`, max-iterations. Пишет Autonomous Run отчёт. Follow-ups: Canvas-виджет очереди, auto-rollback-on-red (revert через `history/`), ночной триггер по расписанию.
 - ⬜ **V-2** — one-click deploy с тем же acceptance в проде
 - ⬜ **V-3** — **production-monitor**: ловит unknown-unknowns в проде и поднимает их обратно в граф как новые acceptance assertions
 - ⬜ **W-1** — **cross-project pattern transfer**: lessons из одного проекта обогащают следующий
