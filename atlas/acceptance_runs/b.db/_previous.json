@@ -15,17 +15,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (47ms); first line: \"Block contract validation: OK\"",
+      "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (58ms); first line: \"Block contract validation: OK\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_block_contracts.mjs",
         "exit_code": 0,
         "stdout": "Block contract validation: OK\n",
         "stderr": "",
-        "duration_ms": 47,
+        "duration_ms": 58,
         "timed_out": false
       },
-      "duration_ms": 47
+      "duration_ms": 58
     },
     {
       "id": "A2",
@@ -39,19 +39,19 @@
         "min_count": 1
       },
       "verdict": "pass",
-      "evidence": "glob atlas/transitions.log → 1 files (min=1); newest 0min ago",
+      "evidence": "glob atlas/transitions.log → 1 files (min=1); newest 14min ago",
       "reasoning": "1 files match (≥1)",
       "raw": {
         "pattern": "atlas/transitions.log",
         "count": 1,
         "min_count": 1,
         "max_age_min": null,
-        "newest_minutes_ago": 0,
+        "newest_minutes_ago": 14,
         "sample": [
           "/home/user/sima_atlas/atlas/transitions.log"
         ]
       },
-      "duration_ms": 0
+      "duration_ms": 1
     },
     {
       "id": "A3",
@@ -65,14 +65,14 @@
         "min_count": 1
       },
       "verdict": "pass",
-      "evidence": "glob atlas/db_schema.json → 1 files (min=1); newest 42588min ago",
+      "evidence": "glob atlas/db_schema.json → 1 files (min=1); newest 42614min ago",
       "reasoning": "1 files match (≥1)",
       "raw": {
         "pattern": "atlas/db_schema.json",
         "count": 1,
         "min_count": 1,
         "max_age_min": null,
-        "newest_minutes_ago": 42588,
+        "newest_minutes_ago": 42614,
         "sample": [
           "/home/user/sima_atlas/atlas/db_schema.json"
         ]
@@ -94,12 +94,12 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "635e06ad6d0c20be",
+        "prompt_hash": "445a72ddf2d5cffc",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 0
+      "duration_ms": 3
     },
     {
       "id": "A5",
@@ -113,17 +113,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_files_registry.mjs → exit 0 (48ms); first line: \"Files registry validation: OK (alive=186, archived=4, dead=0)\"",
+      "evidence": "node scripts/validate_files_registry.mjs → exit 0 (57ms); first line: \"Files registry validation: OK (alive=186, archived=4, dead=0)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_files_registry.mjs",
         "exit_code": 0,
         "stdout": "Files registry validation: OK (alive=186, archived=4, dead=0)\n",
         "stderr": "",
-        "duration_ms": 48,
+        "duration_ms": 57,
         "timed_out": false
       },
-      "duration_ms": 48
+      "duration_ms": 57
     }
   ],
   "counts": {
@@ -132,6 +132,6 @@
     "skipped": 1
   },
   "verdict": "pass",
-  "duration_ms": 96,
-  "checked_at": "2026-06-05T23:24:30.558Z"
+  "duration_ms": 119,
+  "checked_at": "2026-06-05T23:50:15.719Z"
 }
