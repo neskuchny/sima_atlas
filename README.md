@@ -170,14 +170,14 @@ Every capability in the original concept, mapped to current code state.
 | Operator principles → reusable library | ✅ + 🟡 | per-project `lessons` + `dont_use` + `always_use` shipped; cross-project transfer (W-1) is on the roadmap |
 | Closed automation system (schema + checks + KPI + conditions) | ✅ | acceptance loop · cascade verify on edit · drift scanner post-run · nightly consolidation runs all validators |
 | Calling various coding tools (Claude / Cursor / Codex) — API + CLI | ✅ | 5-provider LLM cascade · 3 agent-CLI dispatch · print-only fallback when CLI missing |
-| Logs of wins and failures (so they don't repeat) | ✅ | per-block `checks.log` + `narrative` + `decisions` · 12K+ LLM traces with cost per call |
+| Logs of wins and failures (so they don't repeat) | ✅ | per-block `checks.log` + `narrative` + `decisions` · every LLM call traced to `atlas/llm_traces/` with provider + token + cost (gitignored — accumulates as you use it) |
 | No code chaos / fewer hallucinations / no forgetting priorities | ✅ | three-layer defense: arch decisions auto-injection + drift scanner + cascade verify |
 | Auto WIKI for the whole project | ✅ | `generate_wiki.mjs` · mermaid graph · per-layer sections · HTML render |
 | Auto TZ per individual module | ✅ | `generate_tz_from_atlas.mjs` (regenerated 2026-05-09) — pulls mission + tasks per block |
 | Auto tutorials (how to use, capabilities, limitations) | 🟡 | `generate_user_docs.mjs` plumbing works; output quality depends on LLM provider — `claude_cli` headless sometimes confused, recommend Anthropic API for production-quality |
 | External-readable documentation (so others understand the project) | ✅ | README EN+RU · 7 user-facing docs (architecture · getting-started · troubleshooting · integrations · article · agent-navigation) |
 | Vibe-coding tools (consultations on individual elements + sync) | ✅ | ✦ Sima fill-from-chat · ✏ Rewrite · ✨ Expand · Architecture review modal · Claude advice button |
-| Code cleanup — schema of alive / dead / archived files **+ nightly proposals** | ✅ | per-block `files.md` manifest · `validate_files_registry.mjs` (fails CI on missing `[alive]` file) · file-state in context-pack and Implementation Status panel · **R-7.88 housekeeping sweeper proposes (never auto-applies) cleanups; apply tool moves with breadcrumb, never deletes; safety rails protect TZ / refs / non-`done` blocks** · current count: 177 alive · 4 archived · 3 pending |
+| Code cleanup — schema of alive / dead / archived files **+ nightly proposals** | ✅ | per-block `files.md` manifest · `validate_files_registry.mjs` (fails CI on missing `[alive]` file) · file-state in context-pack and Implementation Status panel · **R-7.88 housekeeping sweeper proposes (never auto-applies) cleanups; apply tool moves with breadcrumb, never deletes; safety rails protect TZ / refs / non-`done` blocks** · current count: file states tracked per block (alive · archived · dead · pending) |
 
 **Score: 14 ✅ fully shipped · 1 🟡 partial (auto-tutorials quality) · 1 ✅+🟡 partial (cross-project library — local works, transfer planned).**
 

@@ -162,14 +162,14 @@ npm run dev
 | Принципы оператора → переиспользуемая библиотека | ✅ + 🟡 | per-project `lessons` + `dont_use` + `always_use` отгружены; cross-project transfer (W-1) в roadmap |
 | Замкнутая автоматизация (схема + проверки + KPI + условия) | ✅ | acceptance loop · cascade verify on edit · drift scanner post-run · nightly прогоняет все валидаторы |
 | Вызов разных инструментов (Claude / Cursor / Codex) — API + CLI | ✅ | 5-провайдерный LLM cascade · 3 agent-CLI dispatch · print-only fallback когда CLI отсутствует |
-| Логи удач и провалов (чтобы не повторять) | ✅ | per-block `checks.log` + `narrative` + `decisions` · 12K+ LLM трейсов с cost per call |
+| Логи удач и провалов (чтобы не повторять) | ✅ | per-block `checks.log` + `narrative` + `decisions` · каждый LLM-вызов трейсится в `atlas/llm_traces/` с provider + token + cost (gitignored — копится по мере использования) |
 | Без хаоса в коде / меньше галлюцинаций / не забывать главное | ✅ | защита в три слоя: arch decisions авто-инжект + drift scanner + cascade verify |
 | Авто-WIKI по всему проекту | ✅ | `generate_wiki.mjs` · mermaid-граф · секции по слоям · HTML рендер |
 | Авто-ТЗ по отдельным модулям | ✅ | `generate_tz_from_atlas.mjs` (перегенерён 2026-05-09) — берёт mission + tasks по каждому блоку |
 | Авто-туториалы (как пользоваться, возможности, ограничения) | 🟡 | `generate_user_docs.mjs` plumbing работает; качество вывода зависит от LLM-провайдера — `claude_cli` headless иногда путается, для production-качества рекомендуется Anthropic API |
 | Внешнечитаемая документация (чтобы другие поняли проект) | ✅ | README EN+RU · 7 user-facing docs (architecture · getting-started · troubleshooting · integrations · article · agent-navigation) |
 | Vibe-coding инструменты (consultations + синхронизация) | ✅ | ✦ Sima fill-from-chat · ✏ Rewrite · ✨ Expand · Architecture review modal · Claude advice кнопка |
-| Чистка кода — схема alive / dead / archived **+ ночные предложения** | ✅ | per-block `files.md` · `validate_files_registry.mjs` (фейлит CI на пропавший `[alive]`) · file-state в context-pack и Implementation Status · **R-7.88 housekeeping sweeper предлагает (никогда не применяет) чистки; apply tool переносит в архив с breadcrumb, не удаляет; safety rails защищают ТЗ / refs / non-`done` блоки** · текущий счёт: 177 alive · 4 archived · 3 pending |
+| Чистка кода — схема alive / dead / archived **+ ночные предложения** | ✅ | per-block `files.md` · `validate_files_registry.mjs` (фейлит CI на пропавший `[alive]`) · file-state в context-pack и Implementation Status · **R-7.88 housekeeping sweeper предлагает (никогда не применяет) чистки; apply tool переносит в архив с breadcrumb, не удаляет; safety rails защищают ТЗ / refs / non-`done` блоки** · текущий счёт: file states tracked per block (alive · archived · dead · pending) |
 
 **Итог: 14 ✅ полностью отгружено · 1 🟡 частично (качество авто-туториалов) · 1 ✅+🟡 частично (cross-project библиотека — локально работает, transfer запланирован).**
 

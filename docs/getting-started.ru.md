@@ -18,7 +18,7 @@
 
 ### Зависимости
 - Node.js 18+ (`node -v`)
-- Python 3 (для UI dev-сервера; статический http.server)
+- Больше ничего — Python не нужен. UI dev-сервер на чистом Node (`npm run dev` его поднимает). На headless / серверных / Docker машинах браузер сам не откроется — открой напечатанный `http://localhost:8000/...` руками (или `npm run dev:nobrowser`).
 - Claude Code CLI: `npm install -g @anthropic-ai/claude-code`, затем `claude` → `/login` (нужна Pro/Max или API-ключ)
 - Опционально: Cursor CLI / Codex CLI — без них кнопки запуска fallback'ят в print-only mode
 

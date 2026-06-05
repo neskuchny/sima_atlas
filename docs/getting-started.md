@@ -18,7 +18,7 @@ This turns "AI writes code" from a lottery into a managed process.
 
 ### Dependencies
 - Node.js 18+ (`node -v`)
-- Python 3 (for the UI dev server; just a static `http.server`)
+- That's it — no Python needed. The UI dev server is pure Node (`npm run dev` serves it). On headless / server / Docker boxes the browser won't auto-open; just open the printed `http://localhost:8000/...` URL by hand (or use `npm run dev:nobrowser`).
 - Claude Code CLI: `npm install -g @anthropic-ai/claude-code`, then `claude` → `/login` (Pro/Max plan or API key required)
 - Optional: Cursor CLI / Codex CLI — without them the launch buttons fall back to print-only mode
 
