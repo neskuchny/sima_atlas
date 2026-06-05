@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-05-06T18:42:29.745Z_
+_Generated: 2026-06-05T16:42:38.853Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -11,21 +11,23 @@ _Generated: 2026-05-06T18:42:29.745Z_
 - ✅ block_contracts: ok
   - output: Block contract validation: OK
 - ✅ no_template_placeholders: ok
-  - output: Template-placeholder validation: OK (10 blocks scanned)
+  - output: Template-placeholder validation: OK (17 blocks scanned)
 - ✅ files_registry: ok
-  - output: Files registry validation: OK (alive=197, archived=4, dead=0)
+  - output: Files registry validation: OK (alive=177, archived=4, dead=0)
+- ✅ housekeeping_sweep: ok
+  - output: housekeeping_sweeper: 1 proposal(s) — see atlas/cleanup_proposals.md
 - ✅ projects_contracts: ok
   - output: validate_projects: OK (1 projects, 5 blocks)
 - ✅ subschemas_contracts: ok
   - output: validate_subschemas: OK (projects=2, subschemas=1, child_blocks=6)
 - ✅ dependency_contracts: ok
   - output: Dependency contract validation: OK
-- ✅ acceptance_assertions: ok
-  - output: Acceptance assertions validation: OK
+- ❌ acceptance_assertions: fail
+  - error: Acceptance assertions validation failed:
 - ✅ atlas_selftest: ok
   - output: atlas_sync.selftest: OK
-- ✅ bootstrap_layered_smoke: ok
-  - output: atlas_bootstrap smoke: OK (layers=6, blocks=10, links=21)
+- ❌ bootstrap_layered_smoke: fail
+  - error: node:fs:440
 - ✅ llm_gateway_selftest: ok
   - output: llm_gateway.selftest: OK (5 cases)
 - ✅ pick_template_selftest: ok
@@ -33,7 +35,7 @@ _Generated: 2026-05-06T18:42:29.745Z_
 - ✅ operator_profile_selftest: ok
   - output: operator_profile.selftest: OK (7 test groups, all assertions green)
 - ✅ aggregate_operator_profile: ok
-  - output: operator_profile: warming_up (done=2, invocations=3, traces=11250, proposals=175)
+  - output: operator_profile: warming_up (done=2, invocations=4, traces=7, proposals=0)
 - ✅ operator_profile_lessons_smoke: ok
   - output: operator_profile_lessons.smoke: OK (6 test groups, all assertions green)
 - ✅ operator_profile_inject_smoke: ok
@@ -43,11 +45,11 @@ _Generated: 2026-05-06T18:42:29.745Z_
 - ✅ dont_use_management_selftest: ok
   - output: dont_use_management.selftest: OK (7 test groups, all assertions green)
 - ✅ validate_dont_use_compliance: ok
-  - output: validate_dont_use_compliance: banned=0 (none); checked=10; warnings=0
+  - output: validate_dont_use_compliance: banned=0 (none); checked=17; warnings=0
 - ✅ validate_lifecycle_gates: ok
-  - output: validate_lifecycle_gates — 10 blocks, 0 fail, 0 warn
-- ✅ introspect_block_ui_selftest: ok
-  - output: introspect_block_ui.selftest: OK (7 test groups, all assertions green)
+  - output: validate_lifecycle_gates — 17 blocks, 1 fail, 0 warn
+- ❌ introspect_block_ui_selftest: fail
+  - error: introspect_block_ui.selftest: FAIL
 - ✅ user_docs_smoke: ok
   - output: user_docs.smoke: OK (5 test groups, all assertions green)
 - ✅ screenshots_integration_selftest: ok
@@ -60,10 +62,10 @@ _Generated: 2026-05-06T18:42:29.745Z_
   - output: agent_workspace.selftest: OK (7 test groups, all assertions green)
 - ✅ detect_stalled_runs: ok
   - output: {
-- ✅ cursor_live_headless_smoke: ok
-  - output: cursor_live.headless.smoke: OK (5 phases — hooks valid, drift guard fires, file-edit logged, context pack emitted, detailed suite green)
-- ✅ playwright_canvas: ok
-  - output: Running 2 tests using 1 worker
+- ❌ cursor_live_headless_smoke: fail
+  - error: cursor_live.headless.smoke: FAIL
+- ❌ playwright_canvas: fail
+  - error: Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@playwright/test' imported from /home/user/sima_atlas/playwright.config.js
 - ✅ sima_design_payload_selftest: ok
   - output: sima_design_payload.selftest: OK (8 test groups, all assertions green)
 - ✅ atlas_blocks_api_selftest: ok
@@ -84,10 +86,12 @@ _Generated: 2026-05-06T18:42:29.745Z_
   - output: sima_watch_chats.selftest: OK (4 passes, mock provider, noise filtered, cursor + rotation handled)
 - ✅ chat_fill_accept_selftest: ok
   - output: chat_fill_accept.selftest: OK (plan listed, accepted, blocks created, contract files written, re-accept refused)
+- ✅ multi_tenant_block_routing_selftest: ok
+  - output: multi_tenant_block_routing.selftest: OK (createBlock / patchBlock / patchBlockFile / deleteBlock honour _client; root atlas independent)
 - ✅ build_sima_design_payload: ok
   - output: Built /home/user/sima_atlas/atlas/design_payload.json
-- ✅ playwright_sima_design: ok
-  - output: Running 2 tests using 1 worker
+- ❌ playwright_sima_design: fail
+  - error: Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@playwright/test' imported from /home/user/sima_atlas/playwright.config.js
 - ✅ parse_acceptance_selftest: ok
   - output: parse_acceptance.selftest: OK (9 test groups, all assertions green)
 - ✅ evidence_collectors_selftest: ok
@@ -100,43 +104,43 @@ _Generated: 2026-05-06T18:42:29.745Z_
   - output: seed_llm_mocks: 0 written, 30 unchanged, 30 total
 - ✅ llm_extraction_eval: ok
   - output: llm_extraction.eval — overall avg=1.000 (cases=30/30)
-- ✅ simulate_conversation_branches: ok
-  - output: PASS: created b.realtime-ingestion in graph.json
+- ❌ simulate_conversation_branches: fail
+  - error: simulate_conversation_branches: failed 1/6
 - ✅ validate_cursor_hooks: ok
   - output: cursor hooks validation: OK (4 events, 4 commands)
-- ✅ cursor_hooks_actions: ok
-  - output: cursor_hooks_actions.test: OK (9 cases)
+- ❌ cursor_hooks_actions: fail
+  - error: cursor_hooks_actions.test: FAIL
 - ✅ proposals_flow_smoke: ok
   - output: proposals_flow.smoke: OK (accept + reject + filter, state restored)
 - ✅ list_proposals_index: ok
   - output: [
 - ✅ agent_parity_real: ok
-  - output: agent_parity_real.smoke: OK (10 blocks, MCP pack ≡ disk)
-- ✅ connection_drift: ok
-  - output: connection_drift.smoke: OK (broken capability link detected and propagated to archByProject.links)
+  - output: agent_parity_real.smoke: OK (17 blocks, MCP pack ≡ disk)
+- ❌ connection_drift: fail
+  - error: node:fs:440
 - ✅ atlas_live_polling: ok
   - output: atlas_live_polling.smoke: OK (state hash changes on disk mutation; payload returns bootstrap shape)
 - ✅ sync_context_packs: ok
-  - output: Context packs synced: 10
-- ✅ agent_parity: ok
-  - output: Agent parity validation: OK
-- ✅ parity_matrix: ok
-  - output: Parity matrix validation: OK
+  - output: Context packs synced: 17
+- ❌ agent_parity: fail
+  - error: Agent parity validation failed:
+- ❌ parity_matrix: fail
+  - error: Parity matrix validation failed:
 - ✅ generate_wiki: ok
   - output: Generated /home/user/sima_atlas/atlas/WIKI.md
 - ✅ render_wiki_html: ok
   - output: Rendered /home/user/sima_atlas/atlas/wiki.html
 - ✅ generate_tz: ok
-  - output: Generated /home/user/sima_atlas/ТЗ/auto_tz.md
+  - output: Generated /home/user/sima_atlas/atlas/auto_tz.md
 - ✅ rebuild_roadmap: ok
   - output: Rebuilt /home/user/sima_atlas/atlas/roadmap.md
 - ✅ verify_all_acceptance: ok
-  - output: verify_all_acceptance: 10 pass / 0 fail / 0 inconclusive (assertions: 46 pass / 0 fail / 13 skipped)
+  - output: verify_all_acceptance: 4 pass / 6 fail / 7 inconclusive (assertions: 36 pass / 10 fail / 46 skipped)
 - ✅ verify_done_blocks_still_green: ok
-  - output: verify_done_blocks_still_green: checked=0 green=0 regressions=0 inconclusive=0
+  - output: verify_done_blocks_still_green: checked=1 green=1 regressions=0 inconclusive=0
 - ✅ mcp_smoke_e2e: ok
   - output: mcp_smoke_e2e: OK
 - ✅ intelligence_health: ok
-  - output: Intelligence health: 1 (10/10)
+  - output: Intelligence health: 1 (17/17)
 
-Summary: PASS (68/68)
+Summary: FAIL (59/70)

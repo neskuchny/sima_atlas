@@ -44,6 +44,7 @@
       "priority": 1,
       "checked": false,
       "size": "lg",
+      "parent_block_id": null,
       "contract": {
         "score": 0.6,
         "filled": 3,
@@ -76,10 +77,11 @@
       "title": "Sync Engine",
       "tag": "core-sync",
       "layer": "logic",
-      "status": "progress",
+      "status": "done",
       "priority": 1,
-      "checked": false,
+      "checked": true,
       "size": "md",
+      "parent_block_id": null,
       "contract": {
         "score": 0.6,
         "filled": 3,
@@ -101,9 +103,17 @@
       },
       "tech_stack": [
         "nodejs",
-        "esm"
+        "esm",
+        "typescript",
+        "fastify",
+        "zod",
+        "drizzle-orm",
+        "sqlite",
+        "session-cookies",
+        "pino",
+        "vitest"
       ],
-      "x": 80,
+      "x": 1040,
       "y": 320
     },
     {
@@ -116,6 +126,7 @@
       "priority": 1,
       "checked": false,
       "size": "lg",
+      "parent_block_id": null,
       "contract": {
         "score": 0.6,
         "filled": 3,
@@ -153,6 +164,7 @@
       "priority": 1,
       "checked": false,
       "size": "lg",
+      "parent_block_id": null,
       "contract": {
         "score": 0.6,
         "filled": 3,
@@ -177,7 +189,7 @@
         "esm",
         "mcp"
       ],
-      "x": 400,
+      "x": 80,
       "y": 320
     },
     {
@@ -190,6 +202,7 @@
       "priority": 1,
       "checked": false,
       "size": "md",
+      "parent_block_id": null,
       "contract": {
         "score": 0.6,
         "filled": 3,
@@ -227,6 +240,7 @@
       "priority": 1,
       "checked": false,
       "size": "lg",
+      "parent_block_id": null,
       "contract": {
         "score": 0.8,
         "filled": 4,
@@ -250,7 +264,7 @@
         "anthropic-api",
         "google-genai-api"
       ],
-      "x": 720,
+      "x": 400,
       "y": 320
     },
     {
@@ -263,6 +277,7 @@
       "priority": 3,
       "checked": false,
       "size": "lg",
+      "parent_block_id": null,
       "contract": {
         "score": 1,
         "filled": 5,
@@ -284,7 +299,7 @@
         "esm",
         "json"
       ],
-      "x": 1040,
+      "x": 720,
       "y": 320
     },
     {
@@ -297,6 +312,7 @@
       "priority": 3,
       "checked": false,
       "size": "lg",
+      "parent_block_id": null,
       "contract": {
         "score": 1,
         "filled": 5,
@@ -331,6 +347,7 @@
       "priority": 3,
       "checked": false,
       "size": "lg",
+      "parent_block_id": null,
       "contract": {
         "score": 1,
         "filled": 5,
@@ -366,6 +383,7 @@
       "priority": 3,
       "checked": false,
       "size": "sm",
+      "parent_block_id": null,
       "contract": {
         "score": 0.6,
         "filled": 3,
@@ -388,6 +406,247 @@
       "tech_stack": [],
       "x": 400,
       "y": 760
+    },
+    {
+      "id": "b.product-auth",
+      "_raw_updated_at": "2026-05-05T20:57:52.201Z",
+      "title": "Auth",
+      "tag": "product-auth",
+      "layer": "logic",
+      "status": "todo",
+      "priority": 3,
+      "checked": false,
+      "size": "md",
+      "parent_block_id": null,
+      "contract": {
+        "score": 0.6,
+        "filled": 3,
+        "total": 5,
+        "missing": [
+          "depends_on.md",
+          "provides.md"
+        ]
+      },
+      "progress": {
+        "tasks": {
+          "done": 0,
+          "total": 1
+        },
+        "kpi": {
+          "checked": 0,
+          "total": 5
+        }
+      },
+      "tech_stack": [],
+      "x": 200,
+      "y": 200
+    },
+    {
+      "id": "b.product-ingest",
+      "_raw_updated_at": "2026-05-05T20:57:52.212Z",
+      "title": "Ingest",
+      "tag": "product-ingest",
+      "layer": "logic",
+      "status": "todo",
+      "priority": 3,
+      "checked": false,
+      "size": "sm",
+      "parent_block_id": null,
+      "contract": {
+        "score": 0.6,
+        "filled": 3,
+        "total": 5,
+        "missing": [
+          "depends_on.md",
+          "provides.md"
+        ]
+      },
+      "progress": {
+        "tasks": {
+          "done": 0,
+          "total": 1
+        },
+        "kpi": {
+          "checked": 0,
+          "total": 5
+        }
+      },
+      "tech_stack": [],
+      "x": 420,
+      "y": 200
+    },
+    {
+      "id": "b.product-warehouse",
+      "_raw_updated_at": "2026-05-05T20:57:52.230Z",
+      "title": "Warehouse",
+      "tag": "product-warehouse",
+      "layer": "backend",
+      "status": "todo",
+      "priority": 3,
+      "checked": false,
+      "size": "sm",
+      "parent_block_id": null,
+      "contract": {
+        "score": 0.6,
+        "filled": 3,
+        "total": 5,
+        "missing": [
+          "depends_on.md",
+          "provides.md"
+        ]
+      },
+      "progress": {
+        "tasks": {
+          "done": 0,
+          "total": 1
+        },
+        "kpi": {
+          "checked": 0,
+          "total": 5
+        }
+      },
+      "tech_stack": [],
+      "x": 640,
+      "y": 200
+    },
+    {
+      "id": "b.product-dashboard",
+      "_raw_updated_at": "2026-05-05T20:57:52.242Z",
+      "title": "Dashboard",
+      "tag": "product-dashboard",
+      "layer": "frontend",
+      "status": "todo",
+      "priority": 3,
+      "checked": false,
+      "size": "sm",
+      "parent_block_id": null,
+      "contract": {
+        "score": 0.6,
+        "filled": 3,
+        "total": 5,
+        "missing": [
+          "depends_on.md",
+          "provides.md"
+        ]
+      },
+      "progress": {
+        "tasks": {
+          "done": 0,
+          "total": 1
+        },
+        "kpi": {
+          "checked": 0,
+          "total": 5
+        }
+      },
+      "tech_stack": [],
+      "x": 860,
+      "y": 200
+    },
+    {
+      "id": "b.product-billing",
+      "_raw_updated_at": "2026-05-05T20:57:52.257Z",
+      "title": "Billing",
+      "tag": "product-billing",
+      "layer": "logic",
+      "status": "todo",
+      "priority": 3,
+      "checked": false,
+      "size": "sm",
+      "parent_block_id": null,
+      "contract": {
+        "score": 0.6,
+        "filled": 3,
+        "total": 5,
+        "missing": [
+          "depends_on.md",
+          "provides.md"
+        ]
+      },
+      "progress": {
+        "tasks": {
+          "done": 0,
+          "total": 1
+        },
+        "kpi": {
+          "checked": 0,
+          "total": 5
+        }
+      },
+      "tech_stack": [],
+      "x": 1080,
+      "y": 200
+    },
+    {
+      "id": "b.block-1",
+      "_raw_updated_at": "2026-05-05T20:58:12.722Z",
+      "title": "Новый модуль",
+      "tag": "block-1",
+      "layer": "logic",
+      "status": "todo",
+      "priority": 3,
+      "checked": false,
+      "size": "md",
+      "parent_block_id": null,
+      "contract": {
+        "score": 0.6,
+        "filled": 3,
+        "total": 5,
+        "missing": [
+          "depends_on.md",
+          "provides.md"
+        ]
+      },
+      "progress": {
+        "tasks": {
+          "done": 0,
+          "total": 1
+        },
+        "kpi": {
+          "checked": 5,
+          "total": 5
+        }
+      },
+      "tech_stack": [],
+      "x": 440,
+      "y": 340
+    },
+    {
+      "id": "b.block-2",
+      "_raw_updated_at": "2026-05-07T16:27:02.089Z",
+      "title": "Новый модуль",
+      "tag": "block-2",
+      "layer": "logic",
+      "status": "todo",
+      "priority": 3,
+      "checked": false,
+      "size": "md",
+      "parent_block_id": null,
+      "contract": {
+        "score": 0,
+        "filled": 0,
+        "total": 5,
+        "missing": [
+          "mission.md",
+          "kpi.md",
+          "acceptance.md",
+          "depends_on.md",
+          "provides.md"
+        ]
+      },
+      "progress": {
+        "tasks": {
+          "done": 0,
+          "total": 1
+        },
+        "kpi": {
+          "checked": 0,
+          "total": 1
+        }
+      },
+      "tech_stack": [],
+      "x": 743,
+      "y": 470
     }
   ],
   "edges": [
@@ -537,6 +796,34 @@
       "kind": "data",
       "label": "depends_on",
       "biz": "Зависит от b.llm-gateway."
+    },
+    {
+      "from": "b.product-auth",
+      "to": "b.product-dashboard",
+      "kind": "data",
+      "label": "session_check",
+      "biz": "Зависит от capability `session_check` блока b.product-dashboard."
+    },
+    {
+      "from": "b.product-auth",
+      "to": "b.product-ingest",
+      "kind": "data",
+      "label": "api_key_check",
+      "biz": "Зависит от capability `api_key_check` блока b.product-ingest."
+    },
+    {
+      "from": "b.product-ingest",
+      "to": "b.product-warehouse",
+      "kind": "data",
+      "label": "events_stream",
+      "biz": "Зависит от capability `events_stream` блока b.product-warehouse."
+    },
+    {
+      "from": "b.product-dashboard",
+      "to": "b.product-warehouse",
+      "kind": "data",
+      "label": "metric_query",
+      "biz": "Зависит от capability `metric_query` блока b.product-warehouse."
     }
   ],
   "tasks": {
@@ -1077,7 +1364,7 @@
       },
       {
         "id": "T3.4",
-        "title": "UI — `ProfileHintsSection` в `frontend/arch_canvas.jsx` (PR-6) уже рендерит секцию запретов с кнопками «🔓 Снять запрет» / «🗑 Забыть урок» / «🗑 Забыть паттерн». В `scripts/atlas_api_server.mjs` ",
+        "title": "UI — `ProfileHintsSection` в `frontend/arch_canvas.jsx` (PR-6) уже рендерит секцию запретов с кнопками «🔓 Снять запрет» / «🗑 Забыть урок» / «🗑 Забыть паттерн». В `scripts/atlas_api_server.mjs` доба",
         "status": "done",
         "priority": "P2",
         "agent": null,
@@ -1176,7 +1463,7 @@
       },
       {
         "id": "T6.1",
-        "title": "`frontend/proposals_panel.jsx` — `complianceWithProfile(proposal)` смотрит `proposed.tech_stack` против `profile.tech_stack_history` (high satisfaction + uses≥2) и `dont_use`. Returns `{kind: matc",
+        "title": "`frontend/proposals_panel.jsx` — `complianceWithProfile(proposal)` смотрит `proposed.tech_stack` против `profile.tech_stack_history` (high satisfaction + uses≥2) и `dont_use`. Returns `{kind: match|co",
         "status": "done",
         "priority": "P2",
         "agent": null,
@@ -1194,7 +1481,7 @@
       },
       {
         "id": "T6.3",
-        "title": "`frontend/arch_canvas.jsx` — компонент `<ProfileHintsSection>` рендерит до 6 хинтов (median time / rollback warn / per-scope tech preferences / dont_use bans / lessons). Click → expand с evidence ",
+        "title": "`frontend/arch_canvas.jsx` — компонент `<ProfileHintsSection>` рендерит до 6 хинтов (median time / rollback warn / per-scope tech preferences / dont_use bans / lessons). Click → expand с evidence (blo",
         "status": "done",
         "priority": "P2",
         "agent": null,
@@ -1421,7 +1708,7 @@
       },
       {
         "id": "T5.1",
-        "title": "AcceptanceSection в `frontend/arch_canvas.jsx` — секция «Acceptance verifier» в ArchInspector над «Слой». Цветной badge: ✓ зелёный `pass · N/M`, ✗ красный `fail · K/M (X fail)`, · оранжевый `incon",
+        "title": "AcceptanceSection в `frontend/arch_canvas.jsx` — секция «Acceptance verifier» в ArchInspector над «Слой». Цветной badge: ✓ зелёный `pass · N/M`, ✗ красный `fail · K/M (X fail)`, · оранжевый `inconclus",
         "status": "done",
         "priority": "P2",
         "agent": null,
@@ -1630,7 +1917,7 @@
       },
       {
         "id": "T4.4",
-        "title": "`frontend/arch_canvas.jsx` `<UserDocsLink blockId={...}>` рисует blue-tinted панель под mission блока со ссылкой `/atlas/docs/end-user/<block>.md` + кнопками 🔁 Regenerate / 🔒 Lock | 🔓 Unlock + ",
+        "title": "`frontend/arch_canvas.jsx` `<UserDocsLink blockId={...}>` рисует blue-tinted панель под mission блока со ссылкой `/atlas/docs/end-user/<block>.md` + кнопками 🔁 Regenerate / 🔒 Lock | 🔓 Unlock + rela",
         "status": "done",
         "priority": "P2",
         "agent": null,
@@ -1639,7 +1926,7 @@
       },
       {
         "id": "T4.5",
-        "title": "`frontend/proposals_panel.jsx` распознаёт `kind === 'user_docs_locked'` — рисует amber карточку с hash diff (`old` → `new`) + retry_prompt_hint preview + кнопками 🔓 Unlock + regen / Keep locked (",
+        "title": "`frontend/proposals_panel.jsx` распознаёт `kind === 'user_docs_locked'` — рисует amber карточку с hash diff (`old` → `new`) + retry_prompt_hint preview + кнопками 🔓 Unlock + regen / Keep locked (Reje",
         "status": "done",
         "priority": "P2",
         "agent": null,
@@ -1659,6 +1946,83 @@
         "id": "T4.7",
         "title": "Localization уже работает через `ATLAS_USER_DOCS_LANG` env (PR-2) + `--lang` flag; UserDocsLink показывает текущий lang в meta-line. UI-toggle отложен. DONE PR-4 (env path).",
         "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      }
+    ],
+    "b.product-auth": [
+      {
+        "id": "T1",
+        "title": "первая задача — заполнить mission.md и acceptance.md.",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      }
+    ],
+    "b.product-ingest": [
+      {
+        "id": "T1",
+        "title": "первая задача — заполнить mission.md и acceptance.md.",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      }
+    ],
+    "b.product-warehouse": [
+      {
+        "id": "T1",
+        "title": "первая задача — заполнить mission.md и acceptance.md.",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      }
+    ],
+    "b.product-dashboard": [
+      {
+        "id": "T1",
+        "title": "первая задача — заполнить mission.md и acceptance.md.",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      }
+    ],
+    "b.product-billing": [
+      {
+        "id": "T1",
+        "title": "первая задача — заполнить mission.md и acceptance.md.",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      }
+    ],
+    "b.block-1": [
+      {
+        "id": "T1",
+        "title": "первая задача — заполнить mission.md и acceptance.md.",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      }
+    ],
+    "b.block-2": [
+      {
+        "id": "T1",
+        "title": "первая задача — заполнить mission.md и acceptance.md.",
+        "status": "todo",
         "priority": "P2",
         "agent": null,
         "why": "",
@@ -1696,9 +2060,31 @@
     },
     "b.smoke-sandbox": {
       "short": "Целевой блок для всех e2e/smoke-тестов Атласа. Реальный код продукта на него не ссылается. MCP smoke-сценарии (`scripts/mcp_smoke_e2e.mjs`, future smoke harnesses) пишут сюда mission/tasks/ingestion-queue, чтобы не повреждать содержание реа"
+    },
+    "b.product-auth": {
+      "short": "Этот блок отвечает за многопользовательскую авторизацию и контроль доступа в системе. Он решает проблему разграничения прав доступа к данным и функциональности для разных пользователей и организаций (multi-tenancy). Это необходимо для обесп"
+    },
+    "b.product-ingest": {
+      "short": "Принимает события от SDK, валидирует по схеме, гарантирует exactly-once в Warehouse."
+    },
+    "b.product-warehouse": {
+      "short": "Хранилище событий `b.product-warehouse` предназначено для хранения и обработки больших объемов данных, поступающих из различных источников в системе. Оно решает задачу эффективного хранения миллиардов строк данных и обеспечения возможности "
+    },
+    "b.product-dashboard": {
+      "short": "Конструктор дашбордов — это основной UI для пользователя, позволяющий ему визуализировать и анализировать данные, извлеченные из различных источников. Он решает проблему сложного доступа к информации, предоставляя интуитивно понятный интерф"
+    },
+    "b.product-billing": {
+      "short": "Этот блок отвечает за управление подписками пользователей, включая установку лимитов на использование ресурсов (например, количество событий или рабочих мест), а также за обработку возвратов средств. Он необходим для монетизации продукта и "
+    },
+    "b.block-1": {
+      "short": "Модуль b.block-1 выполняет ключевую логическую функцию в системе, отвечая за [укажите конкретную задачу модуля]. Он решает проблему [опишите проблему, которую решает модуль], обеспечивая [опишите, что модуль предоставляет или делает]. Без э"
+    },
+    "b.block-2": {
+      "short": "Описание модуля Новый модуль. Заполни через детальную панель или через Claude."
     }
   },
   "submodules": {},
+  "lanes": [],
   "history": [
     {
       "ts": "12:40",
@@ -1779,10 +2165,10 @@
     }
   ],
   "_meta": {
-    "generated_at": "2026-05-06T18:43:43.465Z",
+    "generated_at": "2026-06-05T16:42:45.130Z",
     "atlas_root": "atlas",
     "client_id": null,
-    "block_count": 10,
-    "edge_count": 21
+    "block_count": 17,
+    "edge_count": 25
   }
 }

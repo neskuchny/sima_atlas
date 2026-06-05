@@ -15,17 +15,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_cursor_hooks.mjs → exit 0 (59ms); first line: \"cursor hooks validation: OK (4 events, 4 commands)\"",
+      "evidence": "node scripts/validate_cursor_hooks.mjs → exit 0 (50ms); first line: \"cursor hooks validation: OK (4 events, 4 commands)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_cursor_hooks.mjs",
         "exit_code": 0,
         "stdout": "cursor hooks validation: OK (4 events, 4 commands)\n",
         "stderr": "",
-        "duration_ms": 59,
+        "duration_ms": 50,
         "timed_out": false
       },
-      "duration_ms": 59
+      "duration_ms": 50
     },
     {
       "id": "A2",
@@ -38,18 +38,18 @@
         "cmd": "node tests/cursor_hooks_actions.test.mjs",
         "expect_in_stdout": "OK"
       },
-      "verdict": "pass",
-      "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (660ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
-      "reasoning": "shell exit code 0 and stdout matches /OK/",
+      "verdict": "fail",
+      "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 1; stderr: \"cursor_hooks_actions.test: FAIL\"",
+      "reasoning": "shell exit 1",
       "raw": {
         "cmd": "node tests/cursor_hooks_actions.test.mjs",
-        "exit_code": 0,
-        "stdout": "cursor_hooks_actions.test: OK (9 cases)\n",
-        "stderr": "",
-        "duration_ms": 660,
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "cursor_hooks_actions.test: FAIL\n ✗ observe.known: cursor_edit line appended to b.ui-control\n",
+        "duration_ms": 513,
         "timed_out": false
       },
-      "duration_ms": 660
+      "duration_ms": 513
     },
     {
       "id": "A3",
@@ -62,18 +62,18 @@
         "cmd": "node tests/cursor_hooks_actions.test.mjs",
         "expect_in_stdout": "9 cases"
       },
-      "verdict": "pass",
-      "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (618ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
-      "reasoning": "shell exit code 0 and stdout matches /9 cases/",
+      "verdict": "fail",
+      "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 1; stderr: \"cursor_hooks_actions.test: FAIL\"",
+      "reasoning": "shell exit 1",
       "raw": {
         "cmd": "node tests/cursor_hooks_actions.test.mjs",
-        "exit_code": 0,
-        "stdout": "cursor_hooks_actions.test: OK (9 cases)\n",
-        "stderr": "",
-        "duration_ms": 618,
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "cursor_hooks_actions.test: FAIL\n ✗ observe.known: cursor_edit line appended to b.ui-control\n",
+        "duration_ms": 516,
         "timed_out": false
       },
-      "duration_ms": 618
+      "duration_ms": 516
     },
     {
       "id": "A4",
@@ -86,18 +86,18 @@
         "cmd": "node tests/cursor_hooks_actions.test.mjs",
         "expect_in_stdout": "OK"
       },
-      "verdict": "pass",
-      "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (612ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
-      "reasoning": "shell exit code 0 and stdout matches /OK/",
+      "verdict": "fail",
+      "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 1; stderr: \"cursor_hooks_actions.test: FAIL\"",
+      "reasoning": "shell exit 1",
       "raw": {
         "cmd": "node tests/cursor_hooks_actions.test.mjs",
-        "exit_code": 0,
-        "stdout": "cursor_hooks_actions.test: OK (9 cases)\n",
-        "stderr": "",
-        "duration_ms": 612,
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "cursor_hooks_actions.test: FAIL\n ✗ observe.known: cursor_edit line appended to b.ui-control\n",
+        "duration_ms": 507,
         "timed_out": false
       },
-      "duration_ms": 612
+      "duration_ms": 507
     },
     {
       "id": "A5",
@@ -110,18 +110,18 @@
         "cmd": "node tests/cursor_live.headless.smoke.mjs",
         "expect_in_stdout": "OK"
       },
-      "verdict": "pass",
-      "evidence": "node tests/cursor_live.headless.smoke.mjs → exit 0 (1095ms); first line: \"cursor_live.headless.smoke: OK (5 phases — hooks valid, drift guard fires, file-edit logged, context pack emitted, detailed suite green)\"",
-      "reasoning": "shell exit code 0 and stdout matches /OK/",
+      "verdict": "fail",
+      "evidence": "node tests/cursor_live.headless.smoke.mjs → exit 1; stderr: \"cursor_live.headless.smoke: FAIL\"",
+      "reasoning": "shell exit 1",
       "raw": {
         "cmd": "node tests/cursor_live.headless.smoke.mjs",
-        "exit_code": 0,
-        "stdout": "cursor_live.headless.smoke: OK (5 phases — hooks valid, drift guard fires, file-edit logged, context pack emitted, detailed suite green)\n",
-        "stderr": "",
-        "duration_ms": 1095,
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "cursor_live.headless.smoke: FAIL\n ✗ phase3:b.ui-control got cursor_edit line OR observe exited 0 — status=0, last line: 2026-05-07T09:47:52.735Z\tdesign_patch\tpass\tatlas/blocks/b.ui-control/user_story.md\n ✗ phase5:detailed action test OK — stderr=cursor_hooks_actions.test: FAIL\n ✗ observe.known: cursor_edit line appended to b.ui-control\n\n",
+        "duration_ms": 839,
         "timed_out": false
       },
-      "duration_ms": 1095
+      "duration_ms": 839
     },
     {
       "id": "A6",
@@ -132,18 +132,18 @@
       "evidence_kind": "llm_judge",
       "evidence_spec": null,
       "verdict": "skipped",
-      "evidence": "LLM judge → inconclusive via claude_cli/claude-cli ($0)",
-      "reasoning": "LLM returned inconclusive without reasoning",
+      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
       "raw": {
         "judge_verdict": "inconclusive",
-        "provider": "claude_cli",
-        "model": "claude-cli",
-        "prompt_hash": "af67e765c5e71c56",
+        "provider": "mock",
+        "model": "mock-1",
+        "prompt_hash": "8013f2d075661888",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 16294
+      "duration_ms": 1
     },
     {
       "id": "A7",
@@ -164,18 +164,18 @@
         "exit_code": 1,
         "stdout": "",
         "stderr": "Agent parity validation failed:\n - AGENTS.md: missing token /atlas/project.md\n - AGENTS.md: missing token /atlas/rules.md\n - CLAUDE.md: missing token /atlas/project.md\n - CLAUDE.md: missing token /atlas/rules.md\n",
-        "duration_ms": 65,
+        "duration_ms": 47,
         "timed_out": false
       },
-      "duration_ms": 65
+      "duration_ms": 47
     }
   ],
   "counts": {
-    "pass": 5,
-    "fail": 1,
+    "pass": 1,
+    "fail": 5,
     "skipped": 1
   },
   "verdict": "fail",
-  "duration_ms": 19405,
-  "checked_at": "2026-05-09T11:07:50.026Z"
+  "duration_ms": 2474,
+  "checked_at": "2026-06-05T16:43:00.785Z"
 }

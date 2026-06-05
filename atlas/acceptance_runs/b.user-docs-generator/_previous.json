@@ -14,18 +14,18 @@
         "cmd": "node tests/introspect_block_ui.selftest.mjs",
         "expect_in_stdout": "OK"
       },
-      "verdict": "pass",
-      "evidence": "node tests/introspect_block_ui.selftest.mjs → exit 0 (59ms); first line: \"introspect_block_ui.selftest: OK (7 test groups, all assertions green)\"",
-      "reasoning": "shell exit code 0 and stdout matches /OK/",
+      "verdict": "fail",
+      "evidence": "node tests/introspect_block_ui.selftest.mjs → exit 1; stderr: \"introspect_block_ui.selftest: FAIL\"",
+      "reasoning": "shell exit 1",
       "raw": {
         "cmd": "node tests/introspect_block_ui.selftest.mjs",
-        "exit_code": 0,
-        "stdout": "introspect_block_ui.selftest: OK (7 test groups, all assertions green)\n",
-        "stderr": "",
-        "duration_ms": 59,
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "introspect_block_ui.selftest: FAIL\n ✗ group7:Accept clean\n ✗ group7:Reject clean\n ✗ group7:fetch detected\n",
+        "duration_ms": 57,
         "timed_out": false
       },
-      "duration_ms": 59
+      "duration_ms": 57
     },
     {
       "id": "A2",
@@ -39,17 +39,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/user_docs.smoke.mjs → exit 0 (119ms); first line: \"user_docs.smoke: OK (5 test groups, all assertions green)\"",
+      "evidence": "node tests/user_docs.smoke.mjs → exit 0 (106ms); first line: \"user_docs.smoke: OK (5 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/user_docs.smoke.mjs",
         "exit_code": 0,
         "stdout": "user_docs.smoke: OK (5 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 119,
+        "duration_ms": 106,
         "timed_out": false
       },
-      "duration_ms": 119
+      "duration_ms": 106
     },
     {
       "id": "A3",
@@ -63,17 +63,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/screenshots_integration.selftest.mjs → exit 0 (3690ms); first line: \"screenshots_integration.selftest: OK (7 test groups, all assertions green)\"",
+      "evidence": "node tests/screenshots_integration.selftest.mjs → exit 0 (88ms); first line: \"screenshots_integration.selftest: OK (7 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/screenshots_integration.selftest.mjs",
         "exit_code": 0,
         "stdout": "screenshots_integration.selftest: OK (7 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 3690,
+        "duration_ms": 88,
         "timed_out": false
       },
-      "duration_ms": 3690
+      "duration_ms": 88
     },
     {
       "id": "A4",
@@ -87,17 +87,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/user_docs_drift.selftest.mjs → exit 0 (194ms); first line: \"user_docs_drift.selftest: OK (5 test groups, all assertions green)\"",
+      "evidence": "node tests/user_docs_drift.selftest.mjs → exit 0 (111ms); first line: \"user_docs_drift.selftest: OK (5 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/user_docs_drift.selftest.mjs",
         "exit_code": 0,
         "stdout": "user_docs_drift.selftest: OK (5 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 194,
+        "duration_ms": 111,
         "timed_out": false
       },
-      "duration_ms": 194
+      "duration_ms": 111
     },
     {
       "id": "A5",
@@ -122,7 +122,7 @@
           "  // ─── Group 2: idempotent re-run"
         ]
       },
-      "duration_ms": 1
+      "duration_ms": 0
     },
     {
       "id": "A6",
@@ -202,15 +202,15 @@
           "const DEFAULT_LANG = process.env.ATLAS_USER_DOCS_LANG || 'ru';"
         ]
       },
-      "duration_ms": 0
+      "duration_ms": 1
     }
   ],
   "counts": {
-    "pass": 8,
-    "fail": 0,
+    "pass": 7,
+    "fail": 1,
     "skipped": 0
   },
-  "verdict": "pass",
-  "duration_ms": 4063,
-  "checked_at": "2026-05-06T18:44:53.012Z"
+  "verdict": "fail",
+  "duration_ms": 363,
+  "checked_at": "2026-06-05T16:42:56.576Z"
 }

@@ -1,10 +1,12 @@
 {
-  "generated_at": "2026-05-06T18:44:43.092Z",
+  "generated_at": "2026-06-05T16:42:50.036Z",
   "block_id": "b.db",
+  "profile": "design",
   "project": {
     "project": "# Sima Atlas\n\nЦель: единая визуально-документная система, которая устраняет рассинхрон между кодом, агентами и документацией.\n\n## North Star\n- Любой агент работает по одному и тому же block-context.\n- Человек видит статус реализации на схеме без чтения всего кода.\n",
     "rules": "# Rules\n\n1. Любое изменение блока фиксируется в его `tasks.md` и `checks.log`.\n2. Перед изменением кода агент читает: `project.md`, `tech_stack.md`, `rules.md`, `blocks/<id>/*`.\n3. Файлы без владельца-блока считаются out-of-scope.\n4. Блок `done` только при выполнении acceptance + KPI, а не только compile/runtime.\n",
-    "tech_stack": "# Tech Stack (MVP lock)\n\n- Frontend: React (Babel standalone в текущем прототипе)\n- Runtime storage: localStorage (MVP)\n- Atlas storage: Markdown + JSON (`/atlas`)\n- Automation: CLI agents (Cursor/Claude/Codex) через hooks/адаптеры\n- Backend automation: Node.js 18+ (ESM, native fetch)\n- LLM providers: Anthropic API, Google Gemini API (via b.llm-gateway)\n\n## Запреты MVP (machine-readable for guard_against_drift.mjs)\n\n`forbidden_commands` (regex applied to the full command string):\n\n```forbidden\n^pip\\s+install\n^pipx\\s+install\n^poetry\\s+(add|install)\n^conda\\s+install\n^cargo\\s+(add|install)\n^go\\s+install\n^bundle\\s+install\n^gem\\s+install\n^composer\\s+(install|require)\n```\n\n`forbidden_substrings`:\n\n```forbidden_substrings\nyarn add vue\nyarn add @angular\nnpm install vue\nnpm install @angular\nnpm i vue\nnpm i @angular\n```\n\n## Allowed package managers\n\n- `npm` / `npx` (Node.js)\n- `node` / direct script execution\n\n## Прочие правила\n\n- Не смешивать второй фронтенд-фреймворк в активных блоках (см. forbidden_substrings).\n- Не использовать альтернативные «источники правды» вне `/atlas`.\n- Не устанавливать Python/Ruby/Go-зависимости — это репо чисто на Node.js.\n\n"
+    "tech_stack": "# Tech Stack (MVP lock)\n\n- Frontend: React (Babel standalone в текущем прототипе)\n- Runtime storage: localStorage (MVP)\n- Atlas storage: Markdown + JSON (`/atlas`)\n- Automation: CLI agents (Cursor/Claude/Codex) через hooks/адаптеры\n- Backend automation: Node.js 18+ (ESM, native fetch)\n- LLM providers: Anthropic API, Google Gemini API (via b.llm-gateway)\n\n## Запреты MVP (machine-readable for guard_against_drift.mjs)\n\n`forbidden_commands` (regex applied to the full command string):\n\n```forbidden\n^pip\\s+install\n^pipx\\s+install\n^poetry\\s+(add|install)\n^conda\\s+install\n^cargo\\s+(add|install)\n^go\\s+install\n^bundle\\s+install\n^gem\\s+install\n^composer\\s+(install|require)\n```\n\n`forbidden_substrings`:\n\n```forbidden_substrings\nyarn add vue\nyarn add @angular\nnpm install vue\nnpm install @angular\nnpm i vue\nnpm i @angular\n```\n\n## Allowed package managers\n\n- `npm` / `npx` (Node.js)\n- `node` / direct script execution\n\n## Прочие правила\n\n- Не смешивать второй фронтенд-фреймворк в активных блоках (см. forbidden_substrings).\n- Не использовать альтернативные «источники правды» вне `/atlas`.\n- Не устанавливать Python/Ruby/Go-зависимости — это репо чисто на Node.js.\n\n",
+    "architecture_decisions": "# Architecture decisions\n\nThis file is **append-only**. Every architectural choice the operator makes about the product is logged here. Agents read it as part of context-pack and MUST NOT silently reverse a past decision — if they think a decision should change, they surface it in `narrative.md` and ask the operator.\n\nFormat per entry:\n\n```\n## <ISO-date> · <one-line decision>\n\n**Rationale:** <why this and not the alternative>\n**Affects:** <block ids or \"all\">\n**Reversible:** <yes / no / \"needs operator approval\">\n```\n\nThe latest entry is always at the bottom — chronological, not most-important-first.\n\n---\n"
   },
   "block": {
     "meta": {
@@ -70,11 +72,21 @@
       "scripts/hook_ingest_recent_chat.mjs"
     ],
     "files_dead": [],
-    "files_archived": []
+    "files_archived": [],
+    "checks_log_tail": "# checks\n2026-05-02T08:41:44Z\thonest_reset\tpass\tPR1 cleared template mission/kpi/acceptance/tasks; honest status set in graph.json\n2026-05-02T09:27:08Z\tpr2_layered_schema\tpass\tlayer/files/tech_stack populated; bootstrap+wiki+roadmap layered\n2026-05-02T10:02:24Z\tpr3_llm_gateway\tpass\textractBlockSchema replaces regex; golden eval 1.0/0.7 target; b.llm-gateway in review\n2026-05-02T11:09:54Z\tpr4_cursor_hooks\tpass\tvalid Cursor hooks (4 events) + observe/guard/inject scripts + 9-case test\n2026-05-02T13:03:53Z\tpr5_demo_project\tpass\tatlas/projects/demo-todo with 5 blocks; bootstrap multi-project; validate_projects gate; smoke checks both projects\n2026-05-05T20:19:44.936Z\tdesign_patch\tpass\tatlas/blocks/b.db/user_story.md\n",
+    "decisions_log": "",
+    "code_summary": "",
+    "narrative": ""
   },
   "dependencies": [],
+  "operator_memory": {
+    "lessons": [],
+    "dont_use": [],
+    "always_use": []
+  },
   "_meta": {
-    "size_bytes": 10536,
-    "estimated_tokens": 2634
+    "size_bytes": 12164,
+    "estimated_tokens": 3041,
+    "profile": "design"
   }
 }

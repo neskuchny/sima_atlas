@@ -12,18 +12,18 @@
       "evidence_kind": "llm_judge",
       "evidence_spec": null,
       "verdict": "skipped",
-      "evidence": "LLM judge → inconclusive via claude_cli/claude-cli ($0)",
-      "reasoning": "The provided context contains no concrete evidence of the specific A1 smoke-test (headless run loading the page, capturing error events, and asserting DOM contains `.l2-top` and `.workarea`). Related UI checks pass but none verify these exact conditions.",
+      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
       "raw": {
         "judge_verdict": "inconclusive",
-        "provider": "claude_cli",
-        "model": "claude-cli",
-        "prompt_hash": "7cb560771a46ccfa",
+        "provider": "mock",
+        "model": "mock-1",
+        "prompt_hash": "2f85e0496833b288",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 9660
+      "duration_ms": 1
     },
     {
       "id": "A2",
@@ -34,18 +34,18 @@
       "evidence_kind": "llm_judge",
       "evidence_spec": null,
       "verdict": "skipped",
-      "evidence": "LLM judge → inconclusive via claude_cli/claude-cli ($0)",
-      "reasoning": "LLM returned inconclusive without reasoning",
+      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
       "raw": {
         "judge_verdict": "inconclusive",
-        "provider": "claude_cli",
-        "model": "claude-cli",
-        "prompt_hash": "8cca00d1051c8ea2",
+        "provider": "mock",
+        "model": "mock-1",
+        "prompt_hash": "1c1d5cbebe23cd56",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 8448
+      "duration_ms": 1
     },
     {
       "id": "A3",
@@ -56,18 +56,18 @@
       "evidence_kind": "llm_judge",
       "evidence_spec": null,
       "verdict": "skipped",
-      "evidence": "LLM judge → inconclusive via claude_cli/claude-cli ($0)",
-      "reasoning": "LLM returned inconclusive without reasoning",
+      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
       "raw": {
         "judge_verdict": "inconclusive",
-        "provider": "claude_cli",
-        "model": "claude-cli",
-        "prompt_hash": "607dd48071fc9b3f",
+        "provider": "mock",
+        "model": "mock-1",
+        "prompt_hash": "641c976b8fc2de2e",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 15649
+      "duration_ms": 1
     },
     {
       "id": "A4",
@@ -81,17 +81,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (78ms); first line: \"Block contract validation: OK\"",
+      "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (54ms); first line: \"Block contract validation: OK\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_block_contracts.mjs",
         "exit_code": 0,
         "stdout": "Block contract validation: OK\n",
         "stderr": "",
-        "duration_ms": 78,
+        "duration_ms": 54,
         "timed_out": false
       },
-      "duration_ms": 78
+      "duration_ms": 54
     },
     {
       "id": "A5",
@@ -116,7 +116,7 @@
           "    if (latest && latest.verdict !== 'pass') {"
         ]
       },
-      "duration_ms": 1
+      "duration_ms": 0
     }
   ],
   "counts": {
@@ -125,6 +125,6 @@
     "skipped": 3
   },
   "verdict": "pass",
-  "duration_ms": 33839,
-  "checked_at": "2026-05-09T11:07:30.548Z"
+  "duration_ms": 59,
+  "checked_at": "2026-06-05T16:42:58.041Z"
 }

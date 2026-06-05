@@ -15,17 +15,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/parse_acceptance.selftest.mjs → exit 0 (56ms); first line: \"parse_acceptance.selftest: OK (9 test groups, all assertions green)\"",
+      "evidence": "node tests/parse_acceptance.selftest.mjs → exit 0 (54ms); first line: \"parse_acceptance.selftest: OK (9 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/parse_acceptance.selftest.mjs",
         "exit_code": 0,
         "stdout": "parse_acceptance.selftest: OK (9 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 56,
+        "duration_ms": 54,
         "timed_out": false
       },
-      "duration_ms": 56
+      "duration_ms": 54
     },
     {
       "id": "A2",
@@ -39,17 +39,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/evidence_collectors.selftest.mjs → exit 0 (154ms); first line: \"evidence_collectors.selftest: OK (11 test groups, all assertions green)\"",
+      "evidence": "node tests/evidence_collectors.selftest.mjs → exit 0 (159ms); first line: \"evidence_collectors.selftest: OK (11 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/evidence_collectors.selftest.mjs",
         "exit_code": 0,
         "stdout": "evidence_collectors.selftest: OK (11 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 154,
+        "duration_ms": 159,
         "timed_out": false
       },
-      "duration_ms": 154
+      "duration_ms": 159
     },
     {
       "id": "A3",
@@ -63,17 +63,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/llm_judge.smoke.mjs → exit 0 (67ms); first line: \"llm_judge.smoke: OK (4 test groups, all assertions green)\"",
+      "evidence": "node tests/llm_judge.smoke.mjs → exit 0 (70ms); first line: \"llm_judge.smoke: OK (4 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/llm_judge.smoke.mjs",
         "exit_code": 0,
         "stdout": "llm_judge.smoke: OK (4 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 67,
+        "duration_ms": 70,
         "timed_out": false
       },
-      "duration_ms": 67
+      "duration_ms": 70
     },
     {
       "id": "A4",
@@ -87,17 +87,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/acceptance_verifier.e2e.smoke.mjs → exit 0 (347ms); first line: \"acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\"",
+      "evidence": "node tests/acceptance_verifier.e2e.smoke.mjs → exit 0 (352ms); first line: \"acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/acceptance_verifier.e2e.smoke.mjs",
         "exit_code": 0,
         "stdout": "acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\n",
         "stderr": "",
-        "duration_ms": 347,
+        "duration_ms": 352,
         "timed_out": false
       },
-      "duration_ms": 347
+      "duration_ms": 352
     },
     {
       "id": "A5",
@@ -107,24 +107,16 @@
       "line": 33,
       "evidence_kind": "log_grep",
       "evidence_spec": {
-        "file": "Sima (Remix)/arch_canvas.jsx",
+        "file": "frontend/arch_canvas.jsx",
         "pattern": "AcceptanceSection"
       },
-      "verdict": "pass",
-      "evidence": "grep /AcceptanceSection/ Sima (Remix)/arch_canvas.jsx → 3 matches; first: \"      <AcceptanceSection blockId={block.id}/>\"",
-      "reasoning": "3 matching lines found",
+      "verdict": "fail",
+      "evidence": "frontend/arch_canvas.jsx does not exist",
+      "reasoning": "target log file missing",
       "raw": {
-        "file": "/home/user/sima_atlas/Sima (Remix)/arch_canvas.jsx",
-        "pattern": "AcceptanceSection",
-        "since_time": null,
-        "match_count": 3,
-        "sample": [
-          "      <AcceptanceSection blockId={block.id}/>",
-          "function AcceptanceSection({ blockId }) {",
-          "Object.assign(window, { ArchCanvas, ArchInspector, AcceptanceSection, ProfileHintsSection, UserDocsLink, RunStatusSection });"
-        ]
+        "file": "/home/user/sima_atlas/frontend/arch_canvas.jsx"
       },
-      "duration_ms": 1
+      "duration_ms": 0
     },
     {
       "id": "A6",
@@ -138,17 +130,17 @@
         "expect_in_stdout": "5 phases"
       },
       "verdict": "pass",
-      "evidence": "node tests/acceptance_verifier.e2e.smoke.mjs → exit 0 (348ms); first line: \"acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\"",
+      "evidence": "node tests/acceptance_verifier.e2e.smoke.mjs → exit 0 (355ms); first line: \"acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\"",
       "reasoning": "shell exit code 0 and stdout matches /5 phases/",
       "raw": {
         "cmd": "node tests/acceptance_verifier.e2e.smoke.mjs",
         "exit_code": 0,
         "stdout": "acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\n",
         "stderr": "",
-        "duration_ms": 348,
+        "duration_ms": 355,
         "timed_out": false
       },
-      "duration_ms": 348
+      "duration_ms": 355
     },
     {
       "id": "A7",
@@ -162,11 +154,11 @@
         "min_count": 1
       },
       "verdict": "pass",
-      "evidence": "glob atlas/acceptance_runs/*/_latest.json → 10 files (min=1); newest 0min ago",
-      "reasoning": "10 files match (≥1)",
+      "evidence": "glob atlas/acceptance_runs/*/_latest.json → 17 files (min=1); newest 0min ago",
+      "reasoning": "17 files match (≥1)",
       "raw": {
         "pattern": "atlas/acceptance_runs/*/_latest.json",
-        "count": 10,
+        "count": 17,
         "min_count": 1,
         "max_age_min": null,
         "newest_minutes_ago": 0,
@@ -174,11 +166,11 @@
           "/home/user/sima_atlas/atlas/acceptance_runs/b.user-docs-generator/_latest.json",
           "/home/user/sima_atlas/atlas/acceptance_runs/b.ui-control/_latest.json",
           "/home/user/sima_atlas/atlas/acceptance_runs/b.smoke-sandbox/_latest.json",
-          "/home/user/sima_atlas/atlas/acceptance_runs/b.operator-profile-learner/_latest.json",
-          "/home/user/sima_atlas/atlas/acceptance_runs/b.llm-gateway/_latest.json"
+          "/home/user/sima_atlas/atlas/acceptance_runs/b.product-warehouse/_latest.json",
+          "/home/user/sima_atlas/atlas/acceptance_runs/b.product-ingest/_latest.json"
         ]
       },
-      "duration_ms": 2
+      "duration_ms": 1
     },
     {
       "id": "A8",
@@ -195,7 +187,7 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "0c831397e9f5950c",
+        "prompt_hash": "e8ea1080cb248371",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
@@ -204,11 +196,11 @@
     }
   ],
   "counts": {
-    "pass": 7,
-    "fail": 0,
+    "pass": 6,
+    "fail": 1,
     "skipped": 1
   },
-  "verdict": "pass",
-  "duration_ms": 975,
-  "checked_at": "2026-05-06T18:44:59.044Z"
+  "verdict": "fail",
+  "duration_ms": 994,
+  "checked_at": "2026-06-05T16:42:56.212Z"
 }

@@ -31,3 +31,5 @@
 2026-05-06T17:16:05.588Z	proposal	pass	proposal_accepted 2026-05-03T17-08-38-253Z__b.core-sync :: status=done tech_stack+=[typescript,fastify,zod,drizzle-orm,sqlite,session-cookies,pino,vitest]
 2026-05-07T15:49:18.455Z	proposal	pass	proposal_accepted 2026-05-03T17-08-39-215Z__b.core-sync :: status=done tech_stack+=[typescript,fastify,zod,drizzle-orm,sqlite,session-cookies,pino,vitest]
 2026-05-07T15:49:19.257Z	proposal	pass	proposal_accepted 2026-05-03T17-37-03-703Z__b.core-sync :: status=done tech_stack+=[typescript,fastify,zod,drizzle-orm,sqlite,session-cookies,pino,vitest]
+2026-06-05T16:42:04.104Z	acceptance_verifier	pass	verdict=pass pass=3 fail=0 skipped=2
+2026-06-05T16:42:57.337Z	acceptance_verifier	pass	verdict=pass pass=3 fail=0 skipped=2
