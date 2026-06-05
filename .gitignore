@@ -66,3 +66,12 @@ node_modules/
 tests/playwright/_report/
 tests/playwright/test-results/
 test-results/
+
+# V-1 autonomous loop reports — runtime, regenerated each run.
+atlas/autonomous_runs/*
+!atlas/autonomous_runs/.gitkeep
+atlas/clients/*/autonomous_runs/*
+
+# print-only mode prompt dumps — runtime.
+atlas/agent_invocations/*
+atlas/clients/*/agent_invocations/*

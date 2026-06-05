@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-05T22:55:43.162Z",
+  "generated_at": "2026-06-05T23:15:24.492Z",
   "block_id": "b.db",
   "profile": "design",
   "project": {
@@ -76,7 +76,7 @@
     "checks_log_tail": "# checks\n2026-05-02T08:41:44Z\thonest_reset\tpass\tPR1 cleared template mission/kpi/acceptance/tasks; honest status set in graph.json\n2026-05-02T09:27:08Z\tpr2_layered_schema\tpass\tlayer/files/tech_stack populated; bootstrap+wiki+roadmap layered\n2026-05-02T10:02:24Z\tpr3_llm_gateway\tpass\textractBlockSchema replaces regex; golden eval 1.0/0.7 target; b.llm-gateway in review\n2026-05-02T11:09:54Z\tpr4_cursor_hooks\tpass\tvalid Cursor hooks (4 events) + observe/guard/inject scripts + 9-case test\n2026-05-02T13:03:53Z\tpr5_demo_project\tpass\tatlas/projects/demo-todo with 5 blocks; bootstrap multi-project; validate_projects gate; smoke checks both projects\n2026-05-05T20:19:44.936Z\tdesign_patch\tpass\tatlas/blocks/b.db/user_story.md\n2026-06-05T22:03:03.827Z\tacceptance_verifier\tpass\tverdict=pass pass=4 fail=0 skipped=1\n2026-06-05T22:10:15.324Z\tacceptance_verifier\tpass\tverdict=pass pass=4 fail=0 skipped=1\n",
     "decisions_log": "",
     "code_summary": "",
-    "narrative": ""
+    "narrative": "\n## 2026-06-05T23:12:03.622Z · autonomous loop · stalled\n\n### What failed and why\n- cascade broke a dependent — not promoting\n\n### Recommended action\n- Operator review: this block needs a human look (verifier/cascade not green under the autonomous loop).\n\n## 2026-06-05T23:13:19.760Z · autonomous loop · stalled\n\n### What failed and why\n- a previously-green done block regressed — not promoting\n\n### Recommended action\n- Operator review: this block needs a human look (verifier/cascade not green under the autonomous loop).\n"
   },
   "dependencies": [],
   "operator_memory": {
@@ -85,8 +85,8 @@
     "always_use": []
   },
   "_meta": {
-    "size_bytes": 12346,
-    "estimated_tokens": 3087,
+    "size_bytes": 12894,
+    "estimated_tokens": 3224,
     "profile": "design"
   }
 }

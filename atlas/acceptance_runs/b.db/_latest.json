@@ -65,14 +65,14 @@
         "min_count": 1
       },
       "verdict": "pass",
-      "evidence": "glob atlas/db_schema.json → 1 files (min=1); newest 42559min ago",
+      "evidence": "glob atlas/db_schema.json → 1 files (min=1); newest 42579min ago",
       "reasoning": "1 files match (≥1)",
       "raw": {
         "pattern": "atlas/db_schema.json",
         "count": 1,
         "min_count": 1,
         "max_age_min": null,
-        "newest_minutes_ago": 42559,
+        "newest_minutes_ago": 42579,
         "sample": [
           "/home/user/sima_atlas/atlas/db_schema.json"
         ]
@@ -113,17 +113,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_files_registry.mjs → exit 0 (55ms); first line: \"Files registry validation: OK (alive=186, archived=4, dead=0)\"",
+      "evidence": "node scripts/validate_files_registry.mjs → exit 0 (51ms); first line: \"Files registry validation: OK (alive=186, archived=4, dead=0)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_files_registry.mjs",
         "exit_code": 0,
         "stdout": "Files registry validation: OK (alive=186, archived=4, dead=0)\n",
         "stderr": "",
-        "duration_ms": 55,
+        "duration_ms": 51,
         "timed_out": false
       },
-      "duration_ms": 55
+      "duration_ms": 51
     }
   ],
   "counts": {
@@ -132,6 +132,6 @@
     "skipped": 1
   },
   "verdict": "pass",
-  "duration_ms": 108,
-  "checked_at": "2026-06-05T22:55:44.789Z"
+  "duration_ms": 104,
+  "checked_at": "2026-06-05T23:15:25.965Z"
 }

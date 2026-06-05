@@ -45,12 +45,12 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "44a30922bda58eb0",
+        "prompt_hash": "24414280703d16c1",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 1
+      "duration_ms": 2
     },
     {
       "id": "A3",
@@ -64,17 +64,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/mcp_smoke_e2e.mjs → exit 0 (565ms); first line: \"mcp_smoke_e2e: OK\"",
+      "evidence": "node scripts/mcp_smoke_e2e.mjs → exit 0 (459ms); first line: \"mcp_smoke_e2e: OK\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/mcp_smoke_e2e.mjs",
         "exit_code": 0,
         "stdout": "mcp_smoke_e2e: OK\n",
         "stderr": "",
-        "duration_ms": 565,
+        "duration_ms": 459,
         "timed_out": false
       },
-      "duration_ms": 565
+      "duration_ms": 459
     }
   ],
   "counts": {
@@ -83,6 +83,6 @@
     "skipped": 1
   },
   "verdict": "pass",
-  "duration_ms": 566,
-  "checked_at": "2026-06-05T22:37:38.058Z"
+  "duration_ms": 462,
+  "checked_at": "2026-06-05T23:14:11.794Z"
 }
