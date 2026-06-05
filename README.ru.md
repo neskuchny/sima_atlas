@@ -162,14 +162,14 @@ npm run dev
 | Принципы оператора → переиспользуемая библиотека | ✅ + 🟡 | per-project `lessons` + `dont_use` + `always_use` отгружены; cross-project transfer (W-1) в roadmap |
 | Замкнутая автоматизация (схема + проверки + KPI + условия) | ✅ | acceptance loop · cascade verify on edit · drift scanner post-run · nightly прогоняет все валидаторы |
 | Вызов разных инструментов (Claude / Cursor / Codex) — API + CLI | ✅ | 5-провайдерный LLM cascade · 3 agent-CLI dispatch · print-only fallback когда CLI отсутствует |
-| Логи удач и провалов (чтобы не повторять) | ✅ | per-block `checks.log` + `narrative` + `decisions` · 12K+ LLM трейсов с cost per call |
+| Логи удач и провалов (чтобы не повторять) | ✅ | per-block `checks.log` + `narrative` + `decisions` · каждый LLM-вызов трейсится в `atlas/llm_traces/` с provider + token + cost (gitignored — копится по мере использования) |
 | Без хаоса в коде / меньше галлюцинаций / не забывать главное | ✅ | защита в три слоя: arch decisions авто-инжект + drift scanner + cascade verify |
 | Авто-WIKI по всему проекту | ✅ | `generate_wiki.mjs` · mermaid-граф · секции по слоям · HTML рендер |
 | Авто-ТЗ по отдельным модулям | ✅ | `generate_tz_from_atlas.mjs` (перегенерён 2026-05-09) — берёт mission + tasks по каждому блоку |
 | Авто-туториалы (как пользоваться, возможности, ограничения) | 🟡 | `generate_user_docs.mjs` plumbing работает; качество вывода зависит от LLM-провайдера — `claude_cli` headless иногда путается, для production-качества рекомендуется Anthropic API |
 | Внешнечитаемая документация (чтобы другие поняли проект) | ✅ | README EN+RU · 7 user-facing docs (architecture · getting-started · troubleshooting · integrations · article · agent-navigation) |
 | Vibe-coding инструменты (consultations + синхронизация) | ✅ | ✦ Sima fill-from-chat · ✏ Rewrite · ✨ Expand · Architecture review modal · Claude advice кнопка |
-| Чистка кода — схема alive / dead / archived **+ ночные предложения** | ✅ | per-block `files.md` · `validate_files_registry.mjs` (фейлит CI на пропавший `[alive]`) · file-state в context-pack и Implementation Status · **R-7.88 housekeeping sweeper предлагает (никогда не применяет) чистки; apply tool переносит в архив с breadcrumb, не удаляет; safety rails защищают ТЗ / refs / non-`done` блоки** · текущий счёт: 177 alive · 4 archived · 3 pending |
+| Чистка кода — схема alive / dead / archived **+ ночные предложения** | ✅ | per-block `files.md` · `validate_files_registry.mjs` (фейлит CI на пропавший `[alive]`) · file-state в context-pack и Implementation Status · **R-7.88 housekeeping sweeper предлагает (никогда не применяет) чистки; apply tool переносит в архив с breadcrumb, не удаляет; safety rails защищают ТЗ / refs / non-`done` блоки** · текущий счёт: file states tracked per block (alive · archived · dead · pending) |
 
 **Итог: 14 ✅ полностью отгружено · 1 🟡 частично (качество авто-туториалов) · 1 ✅+🟡 частично (cross-project библиотека — локально работает, transfer запланирован).**
 
@@ -196,11 +196,11 @@ npm run dev
 - ✅ **R-7.87 (S-9)** — token economics aggregator: actual cost + Anthropic Haiku 4.5 «shadow bill» equivalent + per-op / per-provider / daily breakdown, как MCP tool + Token Spend widget
 
 ### Следующее — закрываем цикл (v0.5 → v0.9, Q4 2026)
-- ⬜ **S-1** — marketplace шаблонов блоков (auth / payments / search / ingestion / billing)
+- ✅ **S-1** — шаблоны блоков (auth / payments / search / ingestion / billing): drop-in production-shaped стартовые контракты (mission + KPI + acceptance + depends_on + provides + tasks). Применяются через `apply_block_template` (MCP/CLI). Acceptance стартует КРАСНЫМ — verifiable definition of done (R-7.90)
+- ✅ **S-10** — селектор context-pack профиля при старте run-а, прямо под кнопками агентов (design / backend-fix / ui-fix / acceptance-only) (R-7.90)
+- ✅ **S-11** — cross-block roll-up в Implementation Status: бар «Subsystem progress» + разбивка по статусам + кликабельные дочерние блоки когда у блока есть дети (R-7.90)
 - ⬜ **S-7** — транзакционные change-set'ы для cross-cutting изменений (REST→GraphQL, переименование capability, миграция БД)
 - ⬜ **S-9.1** — global Token Economics tab (отдельно от per-block widget): sparklines, cost-per-pass vs cost-per-fail ROI, A/B сравнение моделей
-- ⬜ **S-10** — UI выбор profile при старте run-а (сейчас только CLI flag + env var)
-- ⬜ **S-11** — cross-block roll-up в Implementation Status: «какой % контрактов в этом subsystem заполнен?»
 - 🟡 **S-12** — housekeeping sweeper: **MVP отгружен (R-7.88)** — предлагает чистки stale-alive / stale-dead / stale-archived / orphan-code в nightly. Follow-ups: import-graph детектор мёртвого кода (файл лежит, никто не импортирует), time-based архивные подсказки (нет коммитов 90 дней → soft hint в архив), вкладка Cleanup в UI для one-click apply
 
 ### Среднесрок — collaboration + локальные модели (v0.6 → v0.9, Q4 2026)

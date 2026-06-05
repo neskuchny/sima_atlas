@@ -23,3 +23,4 @@
 - 2026-04-30T21:56:16.102Z: batch-ingest 1-2 / 4
 - 2026-04-30T21:56:16.275Z: batch-ingest 3-4 / 4
 - 2026-05-02T08:47:15.240Z: smoke e2e queued insight
+- 2026-06-05T22:32:30.651Z: Обсуждаем новый блок b.realtime-ingestion, нужен статус wip и layer logic

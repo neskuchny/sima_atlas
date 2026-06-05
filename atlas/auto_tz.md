@@ -142,7 +142,7 @@ ai
 - [x] T9: **Workspace + verifier integration** done — `scripts/run_block_implementation.mjs` теперь: startRun → if `ATLAS_USE_WORKSPACE=1` createWorkspace → fsm('LaunchingAgent') → spawn agent с `cwd=workspace.workspace_path` → fsm('Running') → on exit: fsm('Finishing') → captureDiff (workspace mode) → writeDiffProposal kind=agent_run_diff → fsm('Verifying') → spawn verify_block_acceptance с `ATLAS_ROOT=<workspace>/atlas` → fsm('Succeeded'|'Failed') based on verdict → cleanup workspace ONLY if verdict !== fail AND no pending diff_proposal_id (preserve for inspection / Accept). ProposalsPanel renders kind=agent_run_diff blue card with changed_files list (+/− kind-coded), workspace_path, diff_truncated marker, Accept (apply diff) / Reject buttons. — **PR-9 DONE**
 
 
-## b.docs (wip)
+## b.docs (done)
 
 # b.docs — mission
 
@@ -441,7 +441,7 @@ PR-3 закрыт. tests/dont_use_management.selftest.mjs 7 групп зелё�
 PR-3 (dont-use list) формально не закрыт — но `inject_context_pack` уже умеет читать `atlas/operator_profile/dont_use.json` если файл есть, UI badge тоже читает. PR-3 остаётся как «MCP tools `set_dont_use` / `set_always_use` + guard_against_drift integration» — это узкая работа на ~30 строк, сделается по запросу.
 
 
-## b.acceptance-verifier-loop (idea)
+## b.acceptance-verifier-loop (done)
 
 # b.acceptance-verifier-loop — mission
 
@@ -894,7 +894,7 @@ testing
 - [ ] T1: первая задача — заполнить mission.md и acceptance.md.
 
 
-## b.block-1 (idea)
+## b.block-1 (archived)
 
 # b.block-1 — mission
 
@@ -906,7 +906,7 @@ testing
 - [ ] T1: первая задача — заполнить mission.md и acceptance.md.
 
 
-## b.block-2 (idea)
+## b.block-2 (archived)
 
 # b.block-2 — mission
 

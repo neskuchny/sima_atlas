@@ -170,14 +170,14 @@ Every capability in the original concept, mapped to current code state.
 | Operator principles → reusable library | ✅ + 🟡 | per-project `lessons` + `dont_use` + `always_use` shipped; cross-project transfer (W-1) is on the roadmap |
 | Closed automation system (schema + checks + KPI + conditions) | ✅ | acceptance loop · cascade verify on edit · drift scanner post-run · nightly consolidation runs all validators |
 | Calling various coding tools (Claude / Cursor / Codex) — API + CLI | ✅ | 5-provider LLM cascade · 3 agent-CLI dispatch · print-only fallback when CLI missing |
-| Logs of wins and failures (so they don't repeat) | ✅ | per-block `checks.log` + `narrative` + `decisions` · 12K+ LLM traces with cost per call |
+| Logs of wins and failures (so they don't repeat) | ✅ | per-block `checks.log` + `narrative` + `decisions` · every LLM call traced to `atlas/llm_traces/` with provider + token + cost (gitignored — accumulates as you use it) |
 | No code chaos / fewer hallucinations / no forgetting priorities | ✅ | three-layer defense: arch decisions auto-injection + drift scanner + cascade verify |
 | Auto WIKI for the whole project | ✅ | `generate_wiki.mjs` · mermaid graph · per-layer sections · HTML render |
 | Auto TZ per individual module | ✅ | `generate_tz_from_atlas.mjs` (regenerated 2026-05-09) — pulls mission + tasks per block |
 | Auto tutorials (how to use, capabilities, limitations) | 🟡 | `generate_user_docs.mjs` plumbing works; output quality depends on LLM provider — `claude_cli` headless sometimes confused, recommend Anthropic API for production-quality |
 | External-readable documentation (so others understand the project) | ✅ | README EN+RU · 7 user-facing docs (architecture · getting-started · troubleshooting · integrations · article · agent-navigation) |
 | Vibe-coding tools (consultations on individual elements + sync) | ✅ | ✦ Sima fill-from-chat · ✏ Rewrite · ✨ Expand · Architecture review modal · Claude advice button |
-| Code cleanup — schema of alive / dead / archived files **+ nightly proposals** | ✅ | per-block `files.md` manifest · `validate_files_registry.mjs` (fails CI on missing `[alive]` file) · file-state in context-pack and Implementation Status panel · **R-7.88 housekeeping sweeper proposes (never auto-applies) cleanups; apply tool moves with breadcrumb, never deletes; safety rails protect TZ / refs / non-`done` blocks** · current count: 177 alive · 4 archived · 3 pending |
+| Code cleanup — schema of alive / dead / archived files **+ nightly proposals** | ✅ | per-block `files.md` manifest · `validate_files_registry.mjs` (fails CI on missing `[alive]` file) · file-state in context-pack and Implementation Status panel · **R-7.88 housekeeping sweeper proposes (never auto-applies) cleanups; apply tool moves with breadcrumb, never deletes; safety rails protect TZ / refs / non-`done` blocks** · current count: file states tracked per block (alive · archived · dead · pending) |
 
 **Score: 14 ✅ fully shipped · 1 🟡 partial (auto-tutorials quality) · 1 ✅+🟡 partial (cross-project library — local works, transfer planned).**
 
@@ -233,11 +233,11 @@ This roadmap maps the [vision](#the-vision) onto specific phases. Phases are siz
 - ✅ **R-7.87 (S-9)** — token economics aggregator: actual cost + Anthropic Haiku 4.5 «shadow bill» equivalent + per-op / per-provider / daily breakdown, exposed as MCP tool + Token Spend widget
 
 ### Next — closing the loop (v0.5 → v0.9, Q4 2026)
-- ⬜ **S-1** — block templates marketplace (auth / payments / search / ingestion / billing) — drop-in starters with mission + KPI + acceptance
+- ✅ **S-1** — block templates (auth / payments / search / ingestion / billing): drop-in production-shaped starter contracts (mission + KPI + acceptance + depends_on + provides + tasks). Apply via `apply_block_template` (MCP/CLI). Acceptance starts RED — the verifiable definition of done (R-7.90)
+- ✅ **S-10** — context-pack profile selector at run-start, right under the agent buttons (design / backend-fix / ui-fix / acceptance-only) (R-7.90)
+- ✅ **S-11** — cross-block roll-up in Implementation Status: «Subsystem progress» bar + per-status breakdown + clickable child rows when a block has children (R-7.90)
 - ⬜ **S-7** — transactional change-sets for cross-cutting changes (REST→GraphQL, capability rename, DB migration); UI shows "5 blocks touched by transaction T" with per-block acceptance state
 - ⬜ **S-9.1** — global Token Economics tab (separate from per-block widget): sparklines, cost-per-pass vs cost-per-fail ROI, model A/B comparison
-- ⬜ **S-10** — UI surface for context-pack profile selection at run-start (currently CLI flag + env var only)
-- ⬜ **S-11** — cross-block roll-up in Implementation Status: «what % of contracts in this subsystem are filled?»
 - 🟡 **S-12** — housekeeping sweeper: **MVP shipped (R-7.88)** — proposes stale-alive / stale-dead / stale-archived / orphan-code cleanups in nightly. Follow-ups: import-graph dead-code detection (find files that exist but nobody imports), time-based archival hints (no commits in 90d → soft suggest archive), Cleanup tab in UI for one-click apply
 
 ### Mid — collaboration + local models (v0.6 → v0.9, Q4 2026)

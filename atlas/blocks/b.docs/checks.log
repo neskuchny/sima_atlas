@@ -54,3 +54,13 @@
 2026-05-05T11:11:53.445Z	screenshot	pass	https://example.com
 2026-05-05T11:12:06.843Z	design_patch	pass	{"ui_url":"","updated_at":"2026-05-05T11:12:06.843Z"}
 2026-05-05T20:19:53.775Z	design_patch	pass	atlas/blocks/b.docs/user_story.md
+2026-06-05T22:03:02.631Z	acceptance_verifier	fail	verdict=fail pass=2 fail=1 skipped=2 fails=[A4:glob ТЗ/auto_tz.md → 0 files (min=1)]
+2026-06-05T22:06:13.990Z	acceptance_verifier	pass	verdict=pass pass=3 fail=0 skipped=2
+2026-06-05T22:10:14.113Z	acceptance_verifier	pass	verdict=pass pass=3 fail=0 skipped=2
+2026-06-05T22:11:11.359Z	transition	pass	wip->review	actor=verifier	note=Phase I dogfood: verifier 3/3
+2026-06-05T22:11:11.420Z	transition	pass	review->done	actor=verifier	note=Phase I: verifier 3/3 after auto_tz path fix (ТЗ/→atlas/)
+2026-06-05T22:14:13.293Z	acceptance_verifier	pass	verdict=pass pass=3 fail=0 skipped=2
+2026-06-05T22:17:13.820Z	acceptance_verifier	pass	verdict=pass pass=3 fail=0 skipped=2
+2026-06-05T22:32:30.651Z	ingestion	pass	queue applied
+2026-06-05T22:37:38.404Z	acceptance_verifier	pass	verdict=pass pass=3 fail=0 skipped=2
+2026-06-05T22:55:51.358Z	acceptance_verifier	pass	verdict=pass pass=3 fail=0 skipped=2

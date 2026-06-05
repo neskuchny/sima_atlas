@@ -18,7 +18,7 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "25e67e2a9aa93301",
+        "prompt_hash": "7a2e8da69ecc4fd5",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
@@ -40,7 +40,7 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "9445456044e2b50f",
+        "prompt_hash": "304a59d64880b102",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
@@ -62,12 +62,12 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "1fce042e9236f981",
+        "prompt_hash": "35b6c2f27302f8b2",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 1
+      "duration_ms": 0
     },
     {
       "id": "A4",
@@ -84,12 +84,12 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "65c6e6daa8b2b38e",
+        "prompt_hash": "783ed5afea93c1ab",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 0
+      "duration_ms": 1
     },
     {
       "id": "A5",
@@ -106,7 +106,7 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "1b247e44e8f123e6",
+        "prompt_hash": "db50634298ab8ff0",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
@@ -128,7 +128,7 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "b3bc5b2549936ade",
+        "prompt_hash": "17eb6d42d83f2f6e",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
@@ -142,6 +142,6 @@
     "skipped": 6
   },
   "verdict": "inconclusive",
-  "duration_ms": 1,
-  "checked_at": "2026-05-08T22:04:42.115Z"
+  "duration_ms": 2,
+  "checked_at": "2026-06-05T22:55:51.052Z"
 }

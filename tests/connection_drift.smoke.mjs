@@ -26,9 +26,9 @@ function ensure(p, content) {
 const failures = [];
 
 const remixDir = path.join(ROOT, 'frontend');
-const archDataPath = path.join(remixDir, 'arch_data.js');
+// R-7.89 (Phase II) — frontend/arch_data.js removed in R-7.67; bootstrap
+// self-seeds ARCH_LAYERS. No longer read/restore the deleted file.
 const bootstrapPath = path.join(remixDir, 'atlas_bootstrap.js');
-const archDataBefore = fs.readFileSync(archDataPath, 'utf8');
 const bootstrapBefore = fs.readFileSync(bootstrapPath, 'utf8');
 
 try {
@@ -69,10 +69,10 @@ try {
   // 2. Regenerate bootstrap.
   execFileSync('node', ['scripts/generate_atlas_bootstrap_js.mjs'], { cwd: ROOT, stdio: 'pipe' });
 
-  // 3. Load arch_data + bootstrap in a sandbox and inspect the smoke project.
-  const ctx = { window: { SIMA_DATA_V2: { projects: [] } }, console };
+  // 3. Load bootstrap in a sandbox and inspect the smoke project.
+  //    bootstrap self-seeds ARCH_LAYERS (no arch_data.js needed).
+  const ctx = { window: { SIMA_DATA_V2: { projects: [] }, ARCH_LAYERS: {} }, console };
   vm.createContext(ctx);
-  vm.runInContext(fs.readFileSync(archDataPath, 'utf8'), ctx);
   vm.runInContext(fs.readFileSync(bootstrapPath, 'utf8'), ctx);
   const arch = ctx.window.ARCH_BY_PROJECT && ctx.window.ARCH_BY_PROJECT[SMOKE_PROJ];
   if (!arch) failures.push(`arch entry "${SMOKE_PROJ}" missing from ARCH_BY_PROJECT`);
@@ -87,9 +87,8 @@ try {
     // (We didn't add one in this smoke, but we assert the schema exists anyway.)
   }
 } finally {
-  // 4. Cleanup: remove the smoke project, restore arch_data + bootstrap.
+  // 4. Cleanup: remove the smoke project, restore bootstrap.
   if (fs.existsSync(PROJ_ROOT)) fs.rmSync(PROJ_ROOT, { recursive: true, force: true });
-  fs.writeFileSync(archDataPath, archDataBefore);
   fs.writeFileSync(bootstrapPath, bootstrapBefore);
   // Re-run the generator so atlas_bootstrap.js reflects the real graph again.
   try { execFileSync('node', ['scripts/generate_atlas_bootstrap_js.mjs'], { cwd: ROOT, stdio: 'pipe' }); } catch {}

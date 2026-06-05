@@ -6,3 +6,8 @@
 2026-04-30T13:24:48.585Z	b.ui-control	wip	review	actor=system	note=ready for review
 2026-04-30T13:39:49.117Z	b.core-sync	wip	review	actor=system	note=sync contracts ready
 2026-04-30T13:43:58.629Z	b.ui-control	review	done	actor=system	note=ui accepted
+2026-06-05T22:11:11.190Z	b.acceptance-verifier-loop	idea	wip	actor=verifier	note=Phase I dogfood: verifier 7/7
+2026-06-05T22:11:11.246Z	b.acceptance-verifier-loop	wip	review	actor=verifier	note=Phase I dogfood: verifier 7/7
+2026-06-05T22:11:11.303Z	b.acceptance-verifier-loop	review	done	actor=verifier	note=Phase I: verifier 7/7 after A5 path-drift fix (arch_canvas.jsx→atlas_design/panels.jsx)
+2026-06-05T22:11:11.359Z	b.docs	wip	review	actor=verifier	note=Phase I dogfood: verifier 3/3
+2026-06-05T22:11:11.420Z	b.docs	review	done	actor=verifier	note=Phase I: verifier 3/3 after auto_tz path fix (ТЗ/→atlas/)

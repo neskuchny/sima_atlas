@@ -16,3 +16,5 @@
 2026-05-02T18:23:43Z	pr_sub_recursion	pass	atlas/blocks/<id>/subschemas/<sub>/graph.json + 6 child blocks; bootstrap emits synthetic 'parent:block:sub' project; double-click navigates; breadcrumb stack with back; validate_subschemas gate
 2026-05-02T23:25:04Z	pr_live_polling	pass	atlas_api_server GET /atlas/state (hash) + /atlas/payload (full bootstrap); UI polls every 5s; on hash change merges payload + bumps liveTick + toast
 2026-05-07T09:47:52.735Z	design_patch	pass	atlas/blocks/b.ui-control/user_story.md
+2026-06-05T22:03:03.555Z	acceptance_verifier	pass	verdict=pass pass=2 fail=0 skipped=3
+2026-06-05T22:10:15.063Z	acceptance_verifier	pass	verdict=pass pass=2 fail=0 skipped=3

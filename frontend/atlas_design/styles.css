@@ -316,6 +316,29 @@ html, body {
 .impl-state-empty .impl-status-label { color: var(--ink-3); }
 .impl-state-empty .impl-status-value { color: var(--ink-4); }
 
+/* R-7.90 (S-11) — subsystem progress roll-up */
+.rollup-bar-wrap { display: flex; align-items: center; gap: 10px; margin: 8px 0 6px; }
+.rollup-bar {
+  flex: 1; height: 14px; border-radius: 7px; overflow: hidden;
+  display: flex; border: 1px solid var(--rule); background: var(--card);
+}
+.rollup-seg { height: 100%; }
+.rollup-pct { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--ink); white-space: nowrap; }
+.rollup-frac { color: var(--ink-3); }
+.rollup-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 8px; }
+.rollup-leg-item { font-size: 10.5px; color: var(--ink-3); display: inline-flex; align-items: center; gap: 4px; }
+.rollup-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.rollup-children { border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; background: var(--card); }
+.rollup-child-row {
+  display: flex; align-items: center; gap: 8px; padding: 6px 12px;
+  border-bottom: 1px solid var(--rule); font-size: 12px; cursor: pointer;
+}
+.rollup-child-row:last-child { border-bottom: 0; }
+.rollup-child-row:hover { background: var(--paper); }
+.rollup-child-id { color: var(--ink-2); font-weight: 500; }
+.rollup-child-status { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-3); }
+.rollup-more { padding: 6px 12px; font-size: 11px; color: var(--ink-3); }
+
 /* R-7.87 (S-9) — token-spend widget */
 .token-spend-grid {
   display: grid; grid-template-columns: repeat(3, 1fr);
@@ -1057,6 +1080,16 @@ html, body {
   display: flex; gap: 6px; flex-wrap: wrap;
 }
 .send-task .lab { font-size: 11px; color: var(--ink-3); align-self: center; margin-right: 4px; }
+/* R-7.90 (S-10) — context-pack profile selector under the run buttons */
+.pack-profile-row {
+  margin-top: 7px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
+}
+.pack-profile-row .lab { font-size: 11px; color: var(--ink-3); margin-right: 4px; }
+.pack-profile-row select {
+  font-size: 11px; padding: 4px 8px; border: 1px solid var(--rule);
+  border-radius: 6px; background: var(--paper); color: var(--ink-2);
+  font-family: inherit; cursor: pointer; max-width: 100%;
+}
 .send-task button {
   padding: 5px 10px;
   font-size: 11.5px;

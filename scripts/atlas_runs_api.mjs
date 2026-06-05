@@ -266,14 +266,20 @@ export function getAcceptanceDiff({ block_id, root } = {}) {
 // /runs/log endpoint can tail them. Run id is derived in the same way
 // run_state.startRun does (block_id__<UTC ts>) so we know it up-front
 // without racing the child.
-export function startRunAsync({ block_id, agent, prompt, client_id } = {}) {
+export function startRunAsync({ block_id, agent, prompt, client_id, profile } = {}) {
   if (!block_id) throw new Error('startRunAsync: block_id required');
   if (client_id && !/^[a-zA-Z0-9._-]+$/.test(String(client_id))) {
     throw new Error(`startRunAsync: invalid client_id "${client_id}"`);
   }
+  // R-7.90 (S-10) — context-pack profile selectable at run-start. Validate
+  // against the known set so a bad value can't reach the child shell.
+  const KNOWN_PROFILES = ['design', 'backend-fix', 'ui-fix', 'acceptance-only'];
+  const packProfile = profile && KNOWN_PROFILES.includes(String(profile)) ? String(profile) : null;
   const args = ['scripts/run_block_implementation.mjs'];
   if (client_id) args.push(`--client=${String(client_id)}`);
   args.push(String(block_id));
+  // --profile after block_id so blockId stays argv[0] in the child.
+  if (packProfile) args.push('--profile', packProfile);
   if (prompt) args.push('--', String(prompt));
   const env = { ...process.env };
   if (agent) env.ATLAS_AGENT = String(agent);

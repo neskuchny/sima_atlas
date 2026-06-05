@@ -149,7 +149,7 @@
       "id": "b.agent-orchestrator",
       "title": "Agent Orchestrator",
       "status": "review",
-      "status_reason": "PR4: .cursor/hooks.json now uses valid Cursor events (beforeSubmitPrompt/afterFileEdit/beforeShellExecution/stop) wired to real action scripts. Cursor edits write to checks.log of the right block via files.md mapping. Drift guard rejects pip/yarn-add-vue/etc. inject_context_pack provides per-block context. Live Cursor wiring (real env vars) needs UI test (PR4.5).",
+      "status_reason": "Phase I: verifier FAIL on A5 (cursor_live.headless.smoke) — needs a live cursor-agent CLI, not installed in this env. Env-blocked, not code-blocked. A1-A4+A7 pass.",
       "layer": "ai",
       "type": "module",
       "mvp": true,
@@ -184,12 +184,13 @@
         "tests/run_state.selftest.mjs",
         "scripts/agent_workspace.mjs",
         "tests/agent_workspace.selftest.mjs"
-      ]
+      ],
+      "updated_at": "2026-06-05T22:11:29.247Z"
     },
     {
       "id": "b.docs",
       "title": "Docs Builder",
-      "status": "wip",
+      "status": "done",
       "status_reason": "Generators run but feed on template missions; needs layer-aware wiki and mermaid (PR2)",
       "layer": "content",
       "type": "module",
@@ -219,7 +220,7 @@
       "id": "b.llm-gateway",
       "title": "LLM Gateway",
       "status": "review",
-      "status_reason": "PR3: gateway implemented (Anthropic + Google + mock), structured output via JSON schema, trace+cost cap, golden eval avg 1.0 in mock. Review needed: live providers untested without keys; UI confidence/diff flow pending PR3.5.",
+      "status_reason": "Phase I: verifier FAIL on A2 (simulate_conversation_branches) — test fixture asserts b.core-sync is NOT done, but it legitimately IS done now. Test-state coupling; provider code works. Needs fixture decoupling.",
       "layer": "ai",
       "type": "module",
       "mvp": true,
@@ -244,13 +245,14 @@
         "tests/llm_mocks/f0b0bb99c4c1a99f.json",
         "tests/fixtures/extraction_golden.json",
         ".env"
-      ]
+      ],
+      "updated_at": "2026-06-05T22:11:29.247Z"
     },
     {
       "id": "b.operator-profile-learner",
       "title": "Operator Profile Learner",
       "status": "idea",
-      "status_reason": "PR-Backlog: design-only milestone; one of the LAST PRs. Реальная имплементация (PR-1…PR-6) делается после того, как реальный пользователь пройдёт ≥10 done и накопит данные — иначе наблюдать нечего. Сейчас зарегистрирован как карта будущей работы.",
+      "status_reason": "Phase I: verifier FAIL on A6 — profile-compliance UI badge (complianceWithProfile) was lost in the R-7.30 single-file→atlas_design refactor and not reimplemented. Genuine feature gap, honestly not done.",
       "layer": "ai",
       "type": "module",
       "mvp": false,
@@ -284,12 +286,13 @@
         "scripts/manage_dont_use.mjs",
         "scripts/validate_dont_use_compliance.mjs",
         "tests/dont_use_management.selftest.mjs"
-      ]
+      ],
+      "updated_at": "2026-06-05T22:11:29.247Z"
     },
     {
       "id": "b.acceptance-verifier-loop",
       "title": "Acceptance Verifier Loop",
-      "status": "idea",
+      "status": "done",
       "status_reason": "PR-Backlog: design-only milestone. Closes the verification gap (Symphony trusts agent output, Hermes has no contract layer). После любого run_block_implementation проверяет каждый пункт acceptance.md через детерминированные collectors (exit_code/fs_glob/file_diff/log_grep) + LLM-judge fallback; блокирует wip→done если verdict !== pass. 5-PR breakdown.",
       "layer": "testing",
       "type": "module",
@@ -325,7 +328,7 @@
       "id": "b.user-docs-generator",
       "title": "End-User Docs Generator",
       "status": "idea",
-      "status_reason": "PR-Backlog: design-only milestone. Closes the end-user tutorial gap — Атлас сам пишет UI блоков, значит знает все кнопки и поля; этот блок генерирует 'как пользоваться' markdown для конечного пользователя продукта (не developer wiki — это делает b.docs). Auto-regen на каждое изменение JSX. 3-4 PR breakdown.",
+      "status_reason": "Phase I: verifier FAIL on A1 (introspect_block_ui.selftest) — coupled to deleted frontend/proposals_panel.jsx. Test fixture needs repointing to a current JSX file.",
       "layer": "content",
       "type": "module",
       "mvp": false,
@@ -355,7 +358,8 @@
         "scripts/regenerate_user_docs_drift.mjs",
         "scripts/check_user_docs_locked.mjs",
         "tests/user_docs_drift.selftest.mjs"
-      ]
+      ],
+      "updated_at": "2026-06-05T22:11:29.247Z"
     },
     {
       "id": "b.smoke-sandbox",
@@ -474,11 +478,11 @@
     {
       "id": "b.block-1",
       "title": "Новый модуль",
-      "status": "idea",
-      "status_reason": "Created via design UI at 2026-05-05T20:58:12.722Z",
+      "status": "archived",
+      "status_reason": "Archived via design UI at 2026-06-05T22:09:40.500Z",
       "layer": "logic",
       "type": "module",
-      "updated_at": "2026-05-05T20:58:12.722Z",
+      "updated_at": "2026-06-05T22:09:40.500Z",
       "mvp": false,
       "subschema_id": null,
       "depends_on": [],
@@ -493,11 +497,11 @@
     {
       "id": "b.block-2",
       "title": "Новый модуль",
-      "status": "idea",
-      "status_reason": "Created via design UI at 2026-05-07T16:27:02.089Z",
+      "status": "archived",
+      "status_reason": "Archived via design UI at 2026-06-05T22:09:40.503Z",
       "layer": "logic",
       "type": "module",
-      "updated_at": "2026-05-07T16:27:02.089Z",
+      "updated_at": "2026-06-05T22:09:40.503Z",
       "mvp": false,
       "subschema_id": null,
       "depends_on": [],

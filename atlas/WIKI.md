@@ -1,6 +1,6 @@
 # Sima Atlas Wiki
 
-_Auto-generated: 2026-05-09T14:49:23.200Z_
+_Auto-generated: 2026-06-05T22:55:52.749Z_
 
 ## Граф продукта
 
@@ -21,8 +21,8 @@ flowchart TB
     b_product_auth["Auth<br/><small>idea</small>"]:::idea
     b_product_ingest["Ingest<br/><small>idea</small>"]:::idea
     b_product_billing["Billing<br/><small>idea</small>"]:::idea
-    b_block_1["Новый модуль<br/><small>idea</small>"]:::idea
-    b_block_2["Новый модуль<br/><small>idea</small>"]:::idea
+    b_block_1["Новый модуль<br/><small>archived</small>"]:::archived
+    b_block_2["Новый модуль<br/><small>archived</small>"]:::archived
   end
   subgraph ai["ИИ / агенты"]
     b_agent_orchestrator["Agent Orchestrator<br/><small>review</small>"]:::review
@@ -34,11 +34,11 @@ flowchart TB
     b_product_warehouse["Warehouse<br/><small>idea</small>"]:::idea
   end
   subgraph content["Контент / документация"]
-    b_docs["Docs Builder<br/><small>wip</small>"]:::wip
+    b_docs["Docs Builder<br/><small>done</small>"]:::done
     b_user_docs_generator["End-User Docs Generator<br/><small>idea</small>"]:::idea
   end
   subgraph testing["Тестирование"]
-    b_acceptance_verifier_loop["Acceptance Verifier Loop<br/><small>idea</small>"]:::idea
+    b_acceptance_verifier_loop["Acceptance Verifier Loop<br/><small>done</small>"]:::done
     b_smoke_sandbox["Smoke Sandbox (test target)<br/><small>idea</small>"]:::idea
   end
   b_ui_control --> b_core_sync
@@ -87,19 +87,19 @@ flowchart TB
   - reason: Created via design UI at 2026-05-05T20:57:52.212Z
 - 🟡 **b.product-billing** — Billing _(idea)_
   - reason: Created via design UI at 2026-05-05T20:57:52.257Z
-- 🟡 **b.block-1** — Новый модуль _(idea)_
-  - reason: Created via design UI at 2026-05-05T20:58:12.722Z
-- 🟡 **b.block-2** — Новый модуль _(idea)_
-  - reason: Created via design UI at 2026-05-07T16:27:02.089Z
+- ⚪ **b.block-1** — Новый модуль _(archived)_
+  - reason: Archived via design UI at 2026-06-05T22:09:40.500Z
+- ⚪ **b.block-2** — Новый модуль _(archived)_
+  - reason: Archived via design UI at 2026-06-05T22:09:40.503Z
 
 ### ИИ / агенты (`ai`)
 
 - 🔵 **b.agent-orchestrator** — Agent Orchestrator _(review)_
-  - reason: PR4: .cursor/hooks.json now uses valid Cursor events (beforeSubmitPrompt/afterFileEdit/beforeShellExecution/stop) wired to real action scripts. Cursor edits write to checks.log of the right block via files.md mapping. Drift guard rejects pip/yarn-add-vue/etc. inject_context_pack provides per-block context. Live Cursor wiring (real env vars) needs UI test (PR4.5).
+  - reason: Phase I: verifier FAIL on A5 (cursor_live.headless.smoke) — needs a live cursor-agent CLI, not installed in this env. Env-blocked, not code-blocked. A1-A4+A7 pass.
 - 🔵 **b.llm-gateway** — LLM Gateway _(review)_
-  - reason: PR3: gateway implemented (Anthropic + Google + mock), structured output via JSON schema, trace+cost cap, golden eval avg 1.0 in mock. Review needed: live providers untested without keys; UI confidence/diff flow pending PR3.5.
+  - reason: Phase I: verifier FAIL on A2 (simulate_conversation_branches) — test fixture asserts b.core-sync is NOT done, but it legitimately IS done now. Test-state coupling; provider code works. Needs fixture decoupling.
 - 🟡 **b.operator-profile-learner** — Operator Profile Learner _(idea)_
-  - reason: PR-Backlog: design-only milestone; one of the LAST PRs. Реальная имплементация (PR-1…PR-6) делается после того, как реальный пользователь пройдёт ≥10 done и накопит данные — иначе наблюдать нечего. Сейчас зарегистрирован как карта будущей работы.
+  - reason: Phase I: verifier FAIL on A6 — profile-compliance UI badge (complianceWithProfile) was lost in the R-7.30 single-file→atlas_design refactor and not reimplemented. Genuine feature gap, honestly not done.
 
 ### Данные / хранилище (`data`)
 
@@ -110,14 +110,14 @@ flowchart TB
 
 ### Контент / документация (`content`)
 
-- 🟠 **b.docs** — Docs Builder _(wip)_
+- 🟢 **b.docs** — Docs Builder _(done)_
   - reason: Generators run but feed on template missions; needs layer-aware wiki and mermaid (PR2)
 - 🟡 **b.user-docs-generator** — End-User Docs Generator _(idea)_
-  - reason: PR-Backlog: design-only milestone. Closes the end-user tutorial gap — Атлас сам пишет UI блоков, значит знает все кнопки и поля; этот блок генерирует 'как пользоваться' markdown для конечного пользователя продукта (не developer wiki — это делает b.docs). Auto-regen на каждое изменение JSX. 3-4 PR breakdown.
+  - reason: Phase I: verifier FAIL on A1 (introspect_block_ui.selftest) — coupled to deleted frontend/proposals_panel.jsx. Test fixture needs repointing to a current JSX file.
 
 ### Тестирование (`testing`)
 
-- 🟡 **b.acceptance-verifier-loop** — Acceptance Verifier Loop _(idea)_
+- 🟢 **b.acceptance-verifier-loop** — Acceptance Verifier Loop _(done)_
   - reason: PR-Backlog: design-only milestone. Closes the verification gap (Symphony trusts agent output, Hermes has no contract layer). После любого run_block_implementation проверяет каждый пункт acceptance.md через детерминированные collectors (exit_code/fs_glob/file_diff/log_grep) + LLM-judge fallback; блокирует wip→done если verdict !== pass. 5-PR breakdown.
 - 🟡 **b.smoke-sandbox** — Smoke Sandbox (test target) _(idea)_
   - reason: Reserved write-target for e2e/smoke scripts so they never touch real product blocks
@@ -233,14 +233,14 @@ logic
 
 # b.core-sync — acceptance
 
-- [ ] **A1.** На пустом графе с одним блоком без зависимостей syncCheck возвращает `synchronized: 1, drift: 0, broken: 0`.
+- [x] **A1.** На пустом графе с одним блоком без зависимостей syncCheck возвращает `synchronized: 1, drift: 0, broken: 0`.
 ```yaml
 evidence_kind: selftest_run
 evidence_spec:
   cmd: node tests/atlas_sync.selftest.mjs
   expect_in_stdout: "OK"
 ```
-- [ ] **A2.** Если блок A заявляет `depends_on: [{block_id: B, capability: foo}]`, а у B нет `provides: [foo]`, syncCheck возвращает `broken` с `reason: missing_capability(B.foo)`.
+- [x] **A2.** Если блок A заявляет `depends_on: [{block_id: B, capability: foo}]`, а у B нет `provides: [foo]`, syncCheck возвращает `broken` с `reason: missing_capability(B.foo)`.
 ```yaml
 evidence_kind: exit_code
 evidence_spec:
@@ -249,7 +249,7 @@ evidence_spec:
 ```
 - [ ] **A3.** Если блок имеет `tech_stack: [react]`, а в `files.md` указан `.py`-файл — syncCheck возвращает `drift` с `reason: stack_mismatch`.
 - [ ] **A4.** [PR3] LLM-семантический gate: блок с миссией «принимает платежи через Stripe» и реализацией без `stripe`-импорта в `files.md` помечается `drift` с `reason: mission_implementation_mismatch`.
-- [ ] **A5.** Все детектированные drift/broken попадают в `atlas/sync_report.json` со ссылкой на конкретный файл/строку (для UI).
+- [x] **A5.** Все детектированные drift/broken попадают в `atlas/sync_report.json` со ссылкой на конкретный файл/строку (для UI).
 ```yaml
 evidence_kind: exit_code
 evidence_spec:
@@ -344,7 +344,7 @@ evidence_spec:
 
 - **layer**: `ai`
 - **type**: module
-- **status**: `review` — PR4: .cursor/hooks.json now uses valid Cursor events (beforeSubmitPrompt/afterFileEdit/beforeShellExecution/stop) wired to real action scripts. Cursor edits write to checks.log of the right block via files.md mapping. Drift guard rejects pip/yarn-add-vue/etc. inject_context_pack provides per-block context. Live Cursor wiring (real env vars) needs UI test (PR4.5).
+- **status**: `review` — Phase I: verifier FAIL on A5 (cursor_live.headless.smoke) — needs a live cursor-agent CLI, not installed in this env. Env-blocked, not code-blocked. A1-A4+A7 pass.
 - **mvp**: yes
 - **depends_on**: `b.db`, `b.core-sync`, `b.llm-gateway`
 - **tech_stack**: `nodejs`, `esm`, `mcp`
@@ -448,11 +448,11 @@ evidence_spec:
 
 ---
 
-### 🟠 b.docs — Docs Builder
+### 🟢 b.docs — Docs Builder
 
 - **layer**: `content`
 - **type**: module
-- **status**: `wip` — Generators run but feed on template missions; needs layer-aware wiki and mermaid (PR2)
+- **status**: `done` — Generators run but feed on template missions; needs layer-aware wiki and mermaid (PR2)
 - **mvp**: yes
 - **depends_on**: `b.db`, `b.core-sync`
 - **tech_stack**: `nodejs`, `esm`, `markdown`
@@ -493,14 +493,14 @@ content
 
 # b.docs — acceptance
 
-- [ ] **A1.** При наличии в любом mission.md фразы «Ключевая цель блока…» или «Автосоздано из…» команда `node scripts/generate_wiki.mjs` падает с ненулевым exit-кодом. (Гейт против шаблонов.)
+- [x] **A1.** При наличии в любом mission.md фразы «Ключевая цель блока…» или «Автосоздано из…» команда `node scripts/generate_wiki.mjs` падает с ненулевым exit-кодом. (Гейт против шаблонов.)
 ```yaml
 evidence_kind: exit_code
 evidence_spec:
   cmd: node scripts/validate_no_template_placeholders.mjs
   expect_in_stdout: "OK"
 ```
-- [ ] **A2.** В `wiki.html` присутствует `<div class="mermaid">` с актуальным графом по `graph.json`.
+- [x] **A2.** В `wiki.html` присутствует `<div class="mermaid">` с актуальным графом по `graph.json`.
 ```yaml
 evidence_kind: log_grep
 evidence_spec:
@@ -508,11 +508,11 @@ evidence_spec:
   pattern: "class=\"mermaid\""
 ```
 - [ ] **A3.** Если блок A `depends_on: [B]`, то в `roadmap.md` B появляется на меньшей позиции, чем A — независимо от статуса.
-- [ ] **A4.** `auto_tz.md` собран только из non-template mission/kpi и содержит ссылки на исходные `blocks/<id>/*.md`.
+- [x] **A4.** `auto_tz.md` собран только из non-template mission/kpi и содержит ссылки на исходные `blocks/<id>/*.md`.
 ```yaml
 evidence_kind: fs_glob
 evidence_spec:
-  pattern: ТЗ/auto_tz.md
+  pattern: atlas/auto_tz.md
   min_count: 1
 ```
 - [ ] **A5.** При отсутствии у блока поля `layer` (старый формат) wiki показывает раздел «Без слоя», а не пихает в первый попавшийся.
@@ -526,7 +526,7 @@ evidence_spec:
 
 - **layer**: `ai`
 - **type**: module
-- **status**: `review` — PR3: gateway implemented (Anthropic + Google + mock), structured output via JSON schema, trace+cost cap, golden eval avg 1.0 in mock. Review needed: live providers untested without keys; UI confidence/diff flow pending PR3.5.
+- **status**: `review` — Phase I: verifier FAIL on A2 (simulate_conversation_branches) — test fixture asserts b.core-sync is NOT done, but it legitimately IS done now. Test-state coupling; provider code works. Needs fixture decoupling.
 - **mvp**: yes
 - **tech_stack**: `nodejs`, `anthropic-api`, `google-genai-api`
 - **files**: 13 (`atlas/blocks/b.llm-gateway/files.md`)
@@ -625,7 +625,7 @@ evidence_spec:
 
 - **layer**: `ai`
 - **type**: module
-- **status**: `idea` — PR-Backlog: design-only milestone; one of the LAST PRs. Реальная имплементация (PR-1…PR-6) делается после того, как реальный пользователь пройдёт ≥10 done и накопит данные — иначе наблюдать нечего. Сейчас зарегистрирован как карта будущей работы.
+- **status**: `idea` — Phase I: verifier FAIL on A6 — profile-compliance UI badge (complianceWithProfile) was lost in the R-7.30 single-file→atlas_design refactor and not reimplemented. Genuine feature gap, honestly not done.
 - **mvp**: no
 - **depends_on**: `b.db`, `b.core-sync`, `b.agent-orchestrator`, `b.llm-gateway`, `b.docs`
 - **tech_stack**: `nodejs`, `esm`, `json`
@@ -875,11 +875,11 @@ evidence_spec:
 
 ---
 
-### 🟡 b.acceptance-verifier-loop — Acceptance Verifier Loop
+### 🟢 b.acceptance-verifier-loop — Acceptance Verifier Loop
 
 - **layer**: `testing`
 - **type**: module
-- **status**: `idea` — PR-Backlog: design-only milestone. Closes the verification gap (Symphony trusts agent output, Hermes has no contract layer). После любого run_block_implementation проверяет каждый пункт acceptance.md через детерминированные collectors (exit_code/fs_glob/file_diff/log_grep) + LLM-judge fallback; блокирует wip→done если verdict !== pass. 5-PR breakdown.
+- **status**: `done` — PR-Backlog: design-only milestone. Closes the verification gap (Symphony trusts agent output, Hermes has no contract layer). После любого run_block_implementation проверяет каждый пункт acceptance.md через детерминированные collectors (exit_code/fs_glob/file_diff/log_grep) + LLM-judge fallback; блокирует wip→done если verdict !== pass. 5-PR breakdown.
 - **mvp**: no
 - **depends_on**: `b.db`, `b.core-sync`, `b.agent-orchestrator`, `b.llm-gateway`
 - **tech_stack**: `nodejs`, `esm`, `json-schema`
@@ -1036,49 +1036,49 @@ atlas/blocks/<block_id>/checks.log   ← append: 'acceptance_verifier <pass|fail
 
 Acceptance gate для перехода `idea → wip → review → done`. Каждый пункт должен иметь признак прохождения в `checks.log` либо в auto-evidence из nightly.
 
-- [ ] **A1.** PR-1 (assertion parser) merged: `scripts/parse_acceptance.mjs` парсит `atlas/blocks/<id>/acceptance.md`, возвращает массив `{id, assertion, evidence_kind, evidence_spec}`. Selftest (≥ 8 cases) на разные форматы acceptance.md существующих блоков (b.llm-gateway/b.docs/b.core-sync).
+- [x] **A1.** PR-1 (assertion parser) merged: `scripts/parse_acceptance.mjs` парсит `atlas/blocks/<id>/acceptance.md`, возвращает массив `{id, assertion, evidence_kind, evidence_spec}`. Selftest (≥ 8 cases) на разные форматы acceptance.md существующих блоков (b.llm-gateway/b.docs/b.core-sync).
 ```yaml
 evidence_kind: selftest_run
 evidence_spec:
   cmd: node tests/parse_acceptance.selftest.mjs
   expect_in_stdout: "OK"
 ```
-- [ ] **A2.** PR-2 (evidence collectors) merged: `scripts/collect_evidence.mjs` поддерживает `exit_code`, `fs_glob`, `file_diff`, `log_grep`, `selftest_run` без LLM-вызова; selftest (≥ 6 cases) на каждый kind зелёный.
+- [x] **A2.** PR-2 (evidence collectors) merged: `scripts/collect_evidence.mjs` поддерживает `exit_code`, `fs_glob`, `file_diff`, `log_grep`, `selftest_run` без LLM-вызова; selftest (≥ 6 cases) на каждый kind зелёный.
 ```yaml
 evidence_kind: selftest_run
 evidence_spec:
   cmd: node tests/evidence_collectors.selftest.mjs
   expect_in_stdout: "OK"
 ```
-- [ ] **A3.** PR-3 (LLM-judge fallback) merged: `scripts/judge_assertion.mjs` через `b.llm-gateway` оценивает пункт без явного evidence_spec; cost ≤ $0.02 per assertion; mock-режим для тестов; smoke green.
+- [x] **A3.** PR-3 (LLM-judge fallback) merged: `scripts/judge_assertion.mjs` через `b.llm-gateway` оценивает пункт без явного evidence_spec; cost ≤ $0.02 per assertion; mock-режим для тестов; smoke green.
 ```yaml
 evidence_kind: selftest_run
 evidence_spec:
   cmd: node tests/llm_judge.smoke.mjs
   expect_in_stdout: "OK"
 ```
-- [ ] **A4.** PR-4 (gate hooks) merged: `log_transition.mjs` блокирует `wip → done` если `_latest.json` отсутствует или `verdict !== "pass"`; `run_block_implementation.mjs` после exit 0 спавнит verifier; nightly включает `verify_done_blocks_still_green` step.
+- [x] **A4.** PR-4 (gate hooks) merged: `log_transition.mjs` блокирует `wip → done` если `_latest.json` отсутствует или `verdict !== "pass"`; `run_block_implementation.mjs` после exit 0 спавнит verifier; nightly включает `verify_done_blocks_still_green` step.
 ```yaml
 evidence_kind: selftest_run
 evidence_spec:
   cmd: node tests/acceptance_verifier.e2e.smoke.mjs
   expect_in_stdout: "OK"
 ```
-- [ ] **A5.** PR-5 (UI) merged: Inspector секция «Acceptance verifier» (зелёные/красные badge per item, click → reasoning + evidence); ProposalsPanel `acceptance_blocked` proposal с retry-кнопкой; smoke (Playwright) подтверждает оба сценария.
+- [x] **A5.** PR-5 (UI) merged: Inspector секция «Acceptance verifier» (зелёные/красные badge per item, click → reasoning + evidence); ProposalsPanel `acceptance_blocked` proposal с retry-кнопкой; smoke (Playwright) подтверждает оба сценария.
 ```yaml
 evidence_kind: log_grep
 evidence_spec:
-  file: frontend/arch_canvas.jsx
+  file: frontend/atlas_design/panels.jsx
   pattern: "AcceptanceSection"
 ```
-- [ ] **A6.** End-to-end smoke `tests/acceptance_verifier.e2e.smoke.mjs`: создать тестовый блок с 3 acceptance items (1 deterministic, 1 LLM-judge, 1 заведомо-fail) → run agent (mock) → verifier даёт verdict=fail с правильным `retry_prompt_hint` → `transition_block done` блокируется.
+- [x] **A6.** End-to-end smoke `tests/acceptance_verifier.e2e.smoke.mjs`: создать тестовый блок с 3 acceptance items (1 deterministic, 1 LLM-judge, 1 заведомо-fail) → run agent (mock) → verifier даёт verdict=fail с правильным `retry_prompt_hint` → `transition_block done` блокируется.
 ```yaml
 evidence_kind: selftest_run
 evidence_spec:
   cmd: node tests/acceptance_verifier.e2e.smoke.mjs
   expect_in_stdout: "5 phases"
 ```
-- [ ] **A7.** Cache: при повторном вызове без новых коммитов и без новых traces — verdict из `_latest.json` без LLM-вызова; integration test проверяет, что cost_usd на 2-й вызов = 0.
+- [x] **A7.** Cache: при повторном вызове без новых коммитов и без новых traces — verdict из `_latest.json` без LLM-вызова; integration test проверяет, что cost_usd на 2-й вызов = 0.
 ```yaml
 evidence_kind: fs_glob
 evidence_spec:
@@ -1107,7 +1107,7 @@ evidence_spec:
 
 - **layer**: `content`
 - **type**: module
-- **status**: `idea` — PR-Backlog: design-only milestone. Closes the end-user tutorial gap — Атлас сам пишет UI блоков, значит знает все кнопки и поля; этот блок генерирует 'как пользоваться' markdown для конечного пользователя продукта (не developer wiki — это делает b.docs). Auto-regen на каждое изменение JSX. 3-4 PR breakdown.
+- **status**: `idea` — Phase I: verifier FAIL on A1 (introspect_block_ui.selftest) — coupled to deleted frontend/proposals_panel.jsx. Test fixture needs repointing to a current JSX file.
 - **mvp**: no
 - **depends_on**: `b.db`, `b.docs`, `b.agent-orchestrator`, `b.llm-gateway`
 - **tech_stack**: `nodejs`, `esm`, `markdown`, `playwright`
@@ -1560,11 +1560,11 @@ evidence_spec:
 
 ---
 
-### 🟡 b.block-1 — Новый модуль
+### ⚪ b.block-1 — Новый модуль
 
 - **layer**: `logic`
 - **type**: module
-- **status**: `idea` — Created via design UI at 2026-05-05T20:58:12.722Z
+- **status**: `archived` — Archived via design UI at 2026-06-05T22:09:40.500Z
 - **mvp**: no
 - **files**: 1 (`atlas/blocks/b.block-1/files.md`)
 
@@ -1595,11 +1595,11 @@ evidence_spec:
 
 ---
 
-### 🟡 b.block-2 — Новый модуль
+### ⚪ b.block-2 — Новый модуль
 
 - **layer**: `logic`
 - **type**: module
-- **status**: `idea` — Created via design UI at 2026-05-07T16:27:02.089Z
+- **status**: `archived` — Archived via design UI at 2026-06-05T22:09:40.503Z
 - **mvp**: no
 - **files**: 1 (`atlas/blocks/b.block-2/files.md`)
 

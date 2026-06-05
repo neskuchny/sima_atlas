@@ -15,17 +15,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/operator_profile.selftest.mjs → exit 0 (92ms); first line: \"operator_profile.selftest: OK (7 test groups, all assertions green)\"",
+      "evidence": "node tests/operator_profile.selftest.mjs → exit 0 (71ms); first line: \"operator_profile.selftest: OK (7 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/operator_profile.selftest.mjs",
         "exit_code": 0,
         "stdout": "operator_profile.selftest: OK (7 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 92,
+        "duration_ms": 71,
         "timed_out": false
       },
-      "duration_ms": 92
+      "duration_ms": 71
     },
     {
       "id": "A2",
@@ -39,17 +39,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/pick_template.selftest.mjs → exit 0 (231ms); first line: \"pick_template.selftest: OK (8 test groups, all assertions green)\"",
+      "evidence": "node tests/pick_template.selftest.mjs → exit 0 (53ms); first line: \"pick_template.selftest: OK (8 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/pick_template.selftest.mjs",
         "exit_code": 0,
         "stdout": "pick_template.selftest: OK (8 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 231,
+        "duration_ms": 53,
         "timed_out": false
       },
-      "duration_ms": 231
+      "duration_ms": 53
     },
     {
       "id": "A3",
@@ -63,17 +63,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/dont_use_management.selftest.mjs → exit 0 (318ms); first line: \"dont_use_management.selftest: OK (7 test groups, all assertions green)\"",
+      "evidence": "node tests/dont_use_management.selftest.mjs → exit 0 (275ms); first line: \"dont_use_management.selftest: OK (7 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/dont_use_management.selftest.mjs",
         "exit_code": 0,
         "stdout": "dont_use_management.selftest: OK (7 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 318,
+        "duration_ms": 275,
         "timed_out": false
       },
-      "duration_ms": 318
+      "duration_ms": 275
     },
     {
       "id": "A4",
@@ -87,17 +87,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/operator_profile_lessons.smoke.mjs → exit 0 (23161ms); first line: \"[llm-gateway] using provider=claude_cli (subscription via claude CLI)\"",
+      "evidence": "node tests/operator_profile_lessons.smoke.mjs → exit 0 (79ms); first line: \"operator_profile_lessons.smoke: OK (6 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/operator_profile_lessons.smoke.mjs",
         "exit_code": 0,
-        "stdout": "[llm-gateway] using provider=claude_cli (subscription via claude CLI)\n[llm-gateway] using provider=claude_cli (subscription via claude CLI)\n[llm-gateway] using provider=claude_cli (subscription via claude CLI)\noperator_profile_lessons.smoke: OK (6 test groups, all assertions green)\n",
-        "stderr": "[llm-gateway] claude_cli schema-parse failed; envelope=json, text-head=These uncommitted changes are pre-existing — not from this task. I won't commit them without your explicit instruction. Let me know if you'd like me to commit/p\n",
-        "duration_ms": 23161,
+        "stdout": "operator_profile_lessons.smoke: OK (6 test groups, all assertions green)\n",
+        "stderr": "",
+        "duration_ms": 79,
         "timed_out": false
       },
-      "duration_ms": 23161
+      "duration_ms": 79
     },
     {
       "id": "A5",
@@ -111,17 +111,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/operator_profile_inject.smoke.mjs → exit 0 (339ms); first line: \"operator_profile_inject.smoke: OK (4 test groups, all assertions green)\"",
+      "evidence": "node tests/operator_profile_inject.smoke.mjs → exit 0 (257ms); first line: \"operator_profile_inject.smoke: OK (4 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/operator_profile_inject.smoke.mjs",
         "exit_code": 0,
-        "stdout": "operator_profile_inject.smoke: OK (4 test groups, all assertions green)\n<!-- ATLAS CONTEXT PACK — auto-injected by .cursor/hooks.json -->\n<!-- block: b.ui-control -->\n\n## Project\n# Sima Atlas\n\nЦель: единая визуально-документная система, которая устраняет рассинхрон между кодом, агентами и документацией.\n\n## North Star\n- Любой агент работает по одному и тому же block-context.\n- Человек видит статус реализации на схеме без чтения всего кода.\n\n\n## Rules\n# Rules\n\n1. Любое изменение блока фиксируется в его `tasks.md` и `checks.log`.\n2. Перед изменением кода агент читает: `project.md`, `tech_stack.md`, `rules.md`, `blocks/<id>/*`.\n3. Файлы без владельца-блока считаются out-of-scope.\n4. Блок `done` только при выполнении acceptance + KPI, а не только compile/runtime.\n\n\n## Tech stack (forbidden commands enforced via guard_against_drift)\n# Tech Stack (MVP lock)\n\n- Frontend: React (Babel standalone в текущем прототипе)\n- Runtime storage: localStorage (MVP)\n- Atlas storage: Markdown + JSON (`/atlas`)\n- Automation: CLI agents (Cursor/Claude/Codex) через hooks/адаптеры\n- Backend automation: Node.js 18+ (ESM, native fetch)\n- LLM providers: Anthropic API, Google Gemini API (via b.llm-gateway)\n\n## Запреты MVP (machine-readable for guard_against_drift.mjs)\n\n`forbidden_commands` (regex applied to the full command string):\n\n```forbidden\n^pip\\s+install\n^pipx\\s+install\n^poetry\\s+(add|install)\n^conda\\s+install\n^cargo\\s+(add|install)\n^go\\s+install\n^bundle\\s+install\n^gem\\s+install\n^composer\\s+(install|require)\n```\n\n`forbidden_substrings`:\n\n```forbidden_substrings\nyarn add vue\nyarn add @angular\nnpm install vue\nnpm install @angular\nnpm i vue\nnpm i @angular\n```\n\n## Allowed package managers\n\n- `npm` / `npx` (Node.js)\n- `node` / direct script execution\n\n## Прочие правила\n\n- Не смешивать второй фронтенд-фреймворк в активных блоках (см. forbidden_substrings).\n- Не использовать альтернативные «источники правды» вне `/atlas`.\n- Не устанавливать Python/Ruby/Go-зависимости — это репо чисто на Node.js.\n\n\n\n\n## Block: b.ui-control\n\n### mission\n# b.ui-control — mission\n\nВизуальная control plane Симы: один React-канвас, в котором человек видит схему продукта (слои, блоки, связи), статус каждого блока (idea/wip/review/done/broken/drift), запускает действия по блоку (Implement / Review / Done / Rollback / mark-dead) и собирает context-pack для агента.\n\nГлавное назначение — заменить чтение кода и переключение между чатами Cursor/Claude/Codex на одну визуальную карту, где видно: что сделано, что сломано, что синхронизировано с миссией продукта, что нет.\n\n## Scope\n- 4 layer switcher (Канвас источников / Карта продукта / ТЗ / Реализация) + Галерея.\n- Архитектурный канвас (горизонтальные слои, блоки с портами, типизированные связи, drag&drop).\n- Inspector блока: mission/kpi/tasks/checks, кнопки lifecycle, экспорт context-pack.\n- Подсветка рассинхрона и broken/drift-фильтры.\n\n## Out of scope (для PR1)\n- LLM-вызовы из UI (PR3).\n- Watcher событий Cursor (PR4).\n\n\n### KPI\n# b.ui-control — KPI\n\n- **KPI-1 (boot)**: HTML-страница `frontend/Сима - универсальный конструктор.html` открывается в браузере без ошибок в консоли (всё React-дерево рендерится). Сейчас: ✗ (часть JSX не подключена).\n- **KPI-2 (multi-layer)**: канвас рисует не менее 5 горизонтальных слоёв из `ARCH_LAYERS`, и блоки распределены по этим слоям по полю `layer`. Сейчас: ✗ (графа без поля `layer`, всё валится в один контейнер).\n- **KPI-3 (sync visibility)**: при `syncCheck` блоки со статусом drift/broken визуально подсвечиваются на канвасе с причиной из `syncReport.details`. Сейчас: △ (логика есть в `atlas_sync.js`, но завязана только на наличие файлов).\n- **KPI-4 (lifecycle gating)**: кнопка Done на блоке заблокирована, пока не пройдены acceptance + kpi проверки. Сейчас: ✓ (логика `isReadyToDone` в `app_v2.jsx`).\n- **KPI-5 (context-pack export)**: для выбранного блока копируется в буфер deterministic JSON со всеми ссылками на mission/kpi/depends/provides. Сейчас: ✓ для UI-кнопки, файл-output генерируется через `scripts/build_context_pack.mjs`.\n\n\n### Acceptance\n# b.ui-control — acceptance\n\nБлок переходит в `don… [truncated]",
+        "stdout": "operator_profile_inject.smoke: OK (4 test groups, all assertions green)\n<!-- ATLAS CONTEXT PACK — auto-injected by .cursor/hooks.json -->\n<!-- block: b.core-sync -->\n\n## Project\n# Sima Atlas\n\nЦель: единая визуально-документная система, которая устраняет рассинхрон между кодом, агентами и документацией.\n\n## North Star\n- Любой агент работает по одному и тому же block-context.\n- Человек видит статус реализации на схеме без чтения всего кода.\n\n\n## Rules\n# Rules\n\n1. Любое изменение блока фиксируется в его `tasks.md` и `checks.log`.\n2. Перед изменением кода агент читает: `project.md`, `tech_stack.md`, `rules.md`, `blocks/<id>/*`.\n3. Файлы без владельца-блока считаются out-of-scope.\n4. Блок `done` только при выполнении acceptance + KPI, а не только compile/runtime.\n\n\n## Tech stack (forbidden commands enforced via guard_against_drift)\n# Tech Stack (MVP lock)\n\n- Frontend: React (Babel standalone в текущем прототипе)\n- Runtime storage: localStorage (MVP)\n- Atlas storage: Markdown + JSON (`/atlas`)\n- Automation: CLI agents (Cursor/Claude/Codex) через hooks/адаптеры\n- Backend automation: Node.js 18+ (ESM, native fetch)\n- LLM providers: Anthropic API, Google Gemini API (via b.llm-gateway)\n\n## Запреты MVP (machine-readable for guard_against_drift.mjs)\n\n`forbidden_commands` (regex applied to the full command string):\n\n```forbidden\n^pip\\s+install\n^pipx\\s+install\n^poetry\\s+(add|install)\n^conda\\s+install\n^cargo\\s+(add|install)\n^go\\s+install\n^bundle\\s+install\n^gem\\s+install\n^composer\\s+(install|require)\n```\n\n`forbidden_substrings`:\n\n```forbidden_substrings\nyarn add vue\nyarn add @angular\nnpm install vue\nnpm install @angular\nnpm i vue\nnpm i @angular\n```\n\n## Allowed package managers\n\n- `npm` / `npx` (Node.js)\n- `node` / direct script execution\n\n## Прочие правила\n\n- Не смешивать второй фронтенд-фреймворк в активных блоках (см. forbidden_substrings).\n- Не использовать альтернативные «источники правды» вне `/atlas`.\n- Не устанавливать Python/Ruby/Go-зависимости — это репо чисто на Node.js.\n\n\n\n\n## Block: b.core-sync\n\n### mission\n# b.core-sync — mission\n\nSync Engine — движок проверки синхронизации блоков продукта с миссией, KPI, стэком и кодом. Главная задача — детектить «рассинхрон»: код пишется в одном фреймворке, ТЗ говорит про другой; блок A объявляет, что зависит от capability X у блока B, а B такой capability не предоставляет; KPI задан, но в `checks.log` нет ни одной измеренной записи.\n\nТекущая реализация (`frontend/atlas_sync.js` + `scripts/validate_*`) — каркас: проверяет наличие файлов, подсчитывает прогресс tasks/KPI, сравнивает `depends_on/provides`. Этого недостаточно для миссии «решить рассинхрон» — нужно семантическое сопоставление миссии блока с реализацией (требует LLM, PR3) и реальный анализ кода (PR4).\n\n## Layer\nlogic\n\n## Что должен делать в done-версии (роадмап)\n1. Структурный sync (PR2): contract-валидация графа, layer/depends/provides консистентность.\n2. Семантический sync (PR3): LLM проверяет `code(impl) ↔ mission/kpi блока`, выдаёт `drift_reason`.\n3. Реальный sync с кодом (PR4): на каждый `git diff` сопоставляет изменённые файлы с `files.md` блоков и логирует факт изменения в `checks.log`.\n\n## Out of scope\n- Генерация документации (это `b.docs`).\n- UI-визуализация sync-репорта (это `b.ui-control`).\n\n\n### KPI\n# b.core-sync — KPI\n\n- **KPI-1 (contract sync)**: для каждого блока `X` с `depends_on: [{ block_id: Y, capability: C }]` проверяется, что `Y.provides` содержит `C`. Если нет — `drift_reason=\"missing_capability\"`. Сейчас: △ (есть `validate_dependency_contracts.mjs`, но capability-формат пока строковый).\n- **KPI-2 (stack sync)**: каждое заявленное `tech_stack` блока (frontend/backend) подтверждается реальным импортом / зависимостью в `files.md` блока. Сейчас: ✗ (`files.md` пустой у всех блоков).\n- **KPI-3 (semantic sync)** [PR3]: LLM сравнивает `mission.md ↔ checks.log + tasks.md` и возвращает `is_consistent: bool, reasons: []`. Цель — `precision >= 0.8` на golden set из 10 блоков. Сейчас: ✗.\n- **KPI-4 (false-positive rate)**: при двух прогонах syncCheck без изменений отчёт идентичен (нет случайных drift-flag). Сейчас: ✓ … [truncated]",
         "stderr": "",
-        "duration_ms": 339,
+        "duration_ms": 257,
         "timed_out": false
       },
-      "duration_ms": 339
+      "duration_ms": 257
     },
     {
       "id": "A6",
@@ -151,18 +151,18 @@
       "evidence_kind": "llm_judge",
       "evidence_spec": null,
       "verdict": "skipped",
-      "evidence": "LLM judge → inconclusive via claude_cli/claude-cli ($0)",
-      "reasoning": "LLM returned inconclusive without reasoning",
+      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
       "raw": {
         "judge_verdict": "inconclusive",
-        "provider": "claude_cli",
-        "model": "claude-cli",
-        "prompt_hash": "060b8bb07c83dd23",
+        "provider": "mock",
+        "model": "mock-1",
+        "prompt_hash": "5ac5358cf1640105",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 11839
+      "duration_ms": 0
     },
     {
       "id": "A8",
@@ -196,6 +196,6 @@
     "skipped": 1
   },
   "verdict": "fail",
-  "duration_ms": 35984,
-  "checked_at": "2026-05-09T11:09:02.255Z"
+  "duration_ms": 737,
+  "checked_at": "2026-06-05T22:55:48.739Z"
 }

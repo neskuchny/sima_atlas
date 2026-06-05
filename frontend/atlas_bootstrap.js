@@ -9,7 +9,7 @@ window.SIMA_BOOTSTRAP = {
         "taskKind": "продукт",
         "taskTitle": "Живая схема Atlas",
         "taskNote": "Блоки, слои, статусы и зависимости автогенерируются из /atlas",
-        "created": "2026-05-06",
+        "created": "2026-06-05",
         "owner": "Cursor / Claude / Codex",
         "canvas": {
           "task": {
@@ -48,7 +48,7 @@ window.SIMA_BOOTSTRAP = {
               "source": "front · idea",
               "title": "Dashboard",
               "meta": "b.product-dashboard",
-              "take": "Drag-n-drop конструктор дашбордов — главный пользовательский UI.",
+              "take": "Конструктор дашбордов — это основной UI для пользователя, позволяющий ему визуализировать и анализировать данные, извлеченные из различных источников.",
               "tags": [
                 "#idea",
                 "#front"
@@ -80,7 +80,7 @@ window.SIMA_BOOTSTRAP = {
               "source": "logic · idea",
               "title": "Auth",
               "meta": "b.product-auth",
-              "take": "Многотенантная авторизация, RBAC на уровне dataset, SSO через OIDC.",
+              "take": "Этот блок отвечает за многопользовательскую авторизацию и контроль доступа в системе.",
               "tags": [
                 "#idea",
                 "#logic"
@@ -112,7 +112,7 @@ window.SIMA_BOOTSTRAP = {
               "source": "logic · idea",
               "title": "Billing",
               "meta": "b.product-billing",
-              "take": "Подписки, лимиты по событиям/seat, возвраты.",
+              "take": "Этот блок отвечает за управление подписками пользователей, включая установку лимитов на использование ресурсов (например, количество событий или рабочих мест), а также за обработку",
               "tags": [
                 "#idea",
                 "#logic"
@@ -125,20 +125,36 @@ window.SIMA_BOOTSTRAP = {
               "y": 360,
               "w": 220,
               "h": 130,
-              "source": "logic · idea",
+              "source": "logic · archived",
               "title": "Новый модуль",
               "meta": "b.block-1",
+              "take": "Модуль b.block-1 выполняет ключевую логическую функцию в системе, отвечая за [укажите конкретную задачу модуля].",
+              "tags": [
+                "#archived",
+                "#logic"
+              ]
+            },
+            {
+              "id": "b.block-2",
+              "type": "artifact",
+              "x": 810,
+              "y": 360,
+              "w": 220,
+              "h": 130,
+              "source": "logic · archived",
+              "title": "Новый модуль",
+              "meta": "b.block-2",
               "take": "Описание модуля Новый модуль.",
               "tags": [
-                "#idea",
+                "#archived",
                 "#logic"
               ]
             },
             {
               "id": "b.agent-orchestrator",
               "type": "artifact",
-              "x": 810,
-              "y": 360,
+              "x": 120,
+              "y": 520,
               "w": 220,
               "h": 130,
               "source": "ai · review",
@@ -153,7 +169,7 @@ window.SIMA_BOOTSTRAP = {
             {
               "id": "b.llm-gateway",
               "type": "artifact",
-              "x": 120,
+              "x": 350,
               "y": 520,
               "w": 220,
               "h": 130,
@@ -169,7 +185,7 @@ window.SIMA_BOOTSTRAP = {
             {
               "id": "b.operator-profile-learner",
               "type": "artifact",
-              "x": 350,
+              "x": 580,
               "y": 520,
               "w": 220,
               "h": 130,
@@ -185,7 +201,7 @@ window.SIMA_BOOTSTRAP = {
             {
               "id": "b.db",
               "type": "artifact",
-              "x": 580,
+              "x": 810,
               "y": 520,
               "w": 220,
               "h": 130,
@@ -201,14 +217,14 @@ window.SIMA_BOOTSTRAP = {
             {
               "id": "b.product-warehouse",
               "type": "artifact",
-              "x": 810,
-              "y": 520,
+              "x": 120,
+              "y": 680,
               "w": 220,
               "h": 130,
               "source": "data · idea",
               "title": "Warehouse",
               "meta": "b.product-warehouse",
-              "take": "Хранилище событий: миллиарды строк, OLAP-агрегации.",
+              "take": "Хранилище событий `b.",
               "tags": [
                 "#idea",
                 "#data"
@@ -217,23 +233,23 @@ window.SIMA_BOOTSTRAP = {
             {
               "id": "b.docs",
               "type": "artifact",
-              "x": 120,
+              "x": 350,
               "y": 680,
               "w": 220,
               "h": 130,
-              "source": "content · wip",
+              "source": "content · done",
               "title": "Docs Builder",
               "meta": "b.docs",
               "take": "Документ-генератор Атласа: на каждый блок собирает живую страницу wiki из его `mission.",
               "tags": [
-                "#wip",
+                "#done",
                 "#content"
               ]
             },
             {
               "id": "b.user-docs-generator",
               "type": "artifact",
-              "x": 350,
+              "x": 580,
               "y": 680,
               "w": 220,
               "h": 130,
@@ -249,24 +265,24 @@ window.SIMA_BOOTSTRAP = {
             {
               "id": "b.acceptance-verifier-loop",
               "type": "artifact",
-              "x": 580,
+              "x": 810,
               "y": 680,
               "w": 220,
               "h": 130,
-              "source": "testing · idea",
+              "source": "testing · done",
               "title": "Acceptance Verifier Loop",
               "meta": "b.acceptance-verifier-loop",
               "take": "«Закрывающий контур» для каждого агент-прогона.",
               "tags": [
-                "#idea",
+                "#done",
                 "#testing"
               ]
             },
             {
               "id": "b.smoke-sandbox",
               "type": "artifact",
-              "x": 810,
-              "y": 680,
+              "x": 120,
+              "y": 840,
               "w": 220,
               "h": 130,
               "source": "testing · idea",
@@ -485,7 +501,7 @@ window.SIMA_BOOTSTRAP = {
                 "filled": true
               },
               {
-                "label": "Docs Builder (content · wip)",
+                "label": "Docs Builder (content · done)",
                 "filled": true
               }
             ]
@@ -502,11 +518,11 @@ window.SIMA_BOOTSTRAP = {
                 "body": "Визуальная control plane Симы: один React-канвас, в котором человек видит схему продукта (слои, блоки, связи), статус каждого блока (idea/wip/review/done/broken/drift), запускает д",
                 "hasSubschema": true,
                 "sources": [
-                  "frontend/Сима - универсальный конструктор.html [alive]",
-                  "frontend/index.html [alive] (PR4.1: ASCII alias for python http.server compatibility)",
                   "index.html [alive] (PR4.1: repo-root redirect to frontend/index.html)",
-                  "frontend/app_v2.jsx [alive]",
-                  "frontend/arch_canvas.jsx [alive]"
+                  "frontend/atlas_sync.js [alive]",
+                  "frontend/atlas_bootstrap.js [alive] (auto-generated)",
+                  "frontend/atlas_design/index.html [alive] (R-7.30 — current canvas entry)",
+                  "frontend/atlas_design/panels.jsx [alive] (DetailPanel + Overview + AcceptanceSection + Implementation Status + Token Spend)"
                 ]
               },
               {
@@ -514,7 +530,7 @@ window.SIMA_BOOTSTRAP = {
                 "title": "Dashboard",
                 "kind": "блок · front",
                 "filled": true,
-                "body": "Drag-n-drop конструктор дашбордов — главный пользовательский UI.",
+                "body": "Конструктор дашбордов — это основной UI для пользователя, позволяющий ему визуализировать и анализировать данные, извлеченные из различных источников.",
                 "hasSubschema": false,
                 "sources": [
                   "atlas/blocks/b.product-dashboard/mission.md [alive]"
@@ -540,7 +556,7 @@ window.SIMA_BOOTSTRAP = {
                 "title": "Auth",
                 "kind": "блок · logic",
                 "filled": true,
-                "body": "Многотенантная авторизация, RBAC на уровне dataset, SSO через OIDC.",
+                "body": "Этот блок отвечает за многопользовательскую авторизацию и контроль доступа в системе.",
                 "hasSubschema": false,
                 "sources": [
                   "atlas/blocks/b.product-auth/mission.md [alive]"
@@ -562,7 +578,7 @@ window.SIMA_BOOTSTRAP = {
                 "title": "Billing",
                 "kind": "блок · logic",
                 "filled": true,
-                "body": "Подписки, лимиты по событиям/seat, возвраты.",
+                "body": "Этот блок отвечает за управление подписками пользователей, включая установку лимитов на использование ресурсов (например, количество событий или рабочих мест), а также за обработку",
                 "hasSubschema": false,
                 "sources": [
                   "atlas/blocks/b.product-billing/mission.md [alive]"
@@ -573,10 +589,21 @@ window.SIMA_BOOTSTRAP = {
                 "title": "Новый модуль",
                 "kind": "блок · logic",
                 "filled": true,
-                "body": "Описание модуля Новый модуль.",
+                "body": "Модуль b.block-1 выполняет ключевую логическую функцию в системе, отвечая за [укажите конкретную задачу модуля].",
                 "hasSubschema": false,
                 "sources": [
                   "atlas/blocks/b.block-1/mission.md [alive]"
+                ]
+              },
+              {
+                "id": "b.block-2",
+                "title": "Новый модуль",
+                "kind": "блок · logic",
+                "filled": true,
+                "body": "Описание модуля Новый модуль.",
+                "hasSubschema": false,
+                "sources": [
+                  "atlas/blocks/b.block-2/mission.md [alive]"
                 ]
               },
               {
@@ -644,7 +671,7 @@ window.SIMA_BOOTSTRAP = {
                 "title": "Warehouse",
                 "kind": "блок · data",
                 "filled": true,
-                "body": "Хранилище событий: миллиарды строк, OLAP-агрегации.",
+                "body": "Хранилище событий `b.",
                 "hasSubschema": false,
                 "sources": [
                   "atlas/blocks/b.product-warehouse/mission.md [alive]"
@@ -973,7 +1000,13 @@ window.SIMA_BOOTSTRAP = {
             {
               "id": "b.block-1",
               "title": "Новый модуль",
-              "status": "idea",
+              "status": "archived",
+              "layer": "logic"
+            },
+            {
+              "id": "b.block-2",
+              "title": "Новый модуль",
+              "status": "archived",
               "layer": "logic"
             },
             {
@@ -1009,7 +1042,7 @@ window.SIMA_BOOTSTRAP = {
             {
               "id": "b.docs",
               "title": "Docs Builder",
-              "status": "wip",
+              "status": "done",
               "layer": "content"
             },
             {
@@ -1021,7 +1054,7 @@ window.SIMA_BOOTSTRAP = {
             {
               "id": "b.acceptance-verifier-loop",
               "title": "Acceptance Verifier Loop",
-              "status": "idea",
+              "status": "done",
               "layer": "testing"
             },
             {
@@ -1039,7 +1072,7 @@ window.SIMA_BOOTSTRAP = {
         "taskKind": "продукт",
         "taskTitle": "Минимальный пример пользовательского продукта в Атласе, чтобы показать: Сима умеет вести **любой** продукт, не только сама себя.",
         "taskNote": "Project under atlas/projects/demo-todo",
-        "created": "2026-05-06",
+        "created": "2026-06-05",
         "owner": "demo",
         "canvas": {
           "task": {
@@ -1391,7 +1424,7 @@ window.SIMA_BOOTSTRAP = {
         "taskKind": "продукт",
         "taskTitle": "Подсхема блока b.ui-control",
         "taskNote": "Subschema \"components\" of atlas-live/b.ui-control",
-        "created": "2026-05-06",
+        "created": "2026-06-05",
         "owner": "Cursor / Claude / Codex",
         "canvas": {
           "task": {
@@ -1800,11 +1833,11 @@ window.SIMA_BOOTSTRAP = {
           "w": 210,
           "note": "Визуальная control plane Симы: один React-канвас, в котором человек видит схему продукта (слои, блоки, связи), статус каждого блока (idea/wip/review/done/broken/drift), запускает д",
           "sources": [
-            "frontend/Сима - универсальный конструктор.html [alive]",
-            "frontend/index.html [alive] (PR4.1: ASCII alias for python http.server compatibility)",
             "index.html [alive] (PR4.1: repo-root redirect to frontend/index.html)",
-            "frontend/app_v2.jsx [alive]",
-            "frontend/arch_canvas.jsx [alive]"
+            "frontend/atlas_sync.js [alive]",
+            "frontend/atlas_bootstrap.js [alive] (auto-generated)",
+            "frontend/atlas_design/index.html [alive] (R-7.30 — current canvas entry)",
+            "frontend/atlas_design/panels.jsx [alive] (DetailPanel + Overview + AcceptanceSection + Implementation Status + Token Spend)"
           ],
           "tech_stack": [
             "react",
@@ -1822,7 +1855,7 @@ window.SIMA_BOOTSTRAP = {
           "subschema": null,
           "x": 270,
           "w": 210,
-          "note": "Drag-n-drop конструктор дашбордов — главный пользовательский UI.",
+          "note": "Конструктор дашбордов — это основной UI для пользователя, позволяющий ему визуализировать и анализировать данные, извлеченные из различных источников.",
           "sources": [
             "atlas/blocks/b.product-dashboard/mission.md [alive]"
           ],
@@ -1871,7 +1904,7 @@ window.SIMA_BOOTSTRAP = {
           "subschema": null,
           "x": 270,
           "w": 210,
-          "note": "Многотенантная авторизация, RBAC на уровне dataset, SSO через OIDC.",
+          "note": "Этот блок отвечает за многопользовательскую авторизацию и контроль доступа в системе.",
           "sources": [
             "atlas/blocks/b.product-auth/mission.md [alive]"
           ],
@@ -1905,7 +1938,7 @@ window.SIMA_BOOTSTRAP = {
           "subschema": null,
           "x": 730,
           "w": 210,
-          "note": "Подписки, лимиты по событиям/seat, возвраты.",
+          "note": "Этот блок отвечает за управление подписками пользователей, включая установку лимитов на использование ресурсов (например, количество событий или рабочих мест), а также за обработку",
           "sources": [
             "atlas/blocks/b.product-billing/mission.md [alive]"
           ],
@@ -1916,15 +1949,32 @@ window.SIMA_BOOTSTRAP = {
           "title": "Новый модуль",
           "layer": "logic",
           "type": "module",
-          "status": "idea",
-          "status_reason": "Created via design UI at 2026-05-05T20:58:12.722Z",
+          "status": "archived",
+          "status_reason": "Archived via design UI at 2026-06-05T22:09:40.500Z",
           "mvp": false,
           "subschema": null,
           "x": 960,
           "w": 210,
-          "note": "Описание модуля Новый модуль.",
+          "note": "Модуль b.block-1 выполняет ключевую логическую функцию в системе, отвечая за [укажите конкретную задачу модуля].",
           "sources": [
             "atlas/blocks/b.block-1/mission.md [alive]"
+          ],
+          "tech_stack": []
+        },
+        {
+          "id": "b.block-2",
+          "title": "Новый модуль",
+          "layer": "logic",
+          "type": "module",
+          "status": "archived",
+          "status_reason": "Archived via design UI at 2026-06-05T22:09:40.503Z",
+          "mvp": false,
+          "subschema": null,
+          "x": 1190,
+          "w": 210,
+          "note": "Описание модуля Новый модуль.",
+          "sources": [
+            "atlas/blocks/b.block-2/mission.md [alive]"
           ],
           "tech_stack": []
         },
@@ -1934,7 +1984,7 @@ window.SIMA_BOOTSTRAP = {
           "layer": "ai",
           "type": "module",
           "status": "review",
-          "status_reason": "PR4: .cursor/hooks.json now uses valid Cursor events (beforeSubmitPrompt/afterFileEdit/beforeShellExecution/stop) wired to real action scripts. Cursor edits write to checks.log of the right block via files.md mapping. Drift guard rejects pip/yarn-add-vue/etc. inject_context_pack provides per-block context. Live Cursor wiring (real env vars) needs UI test (PR4.5).",
+          "status_reason": "Phase I: verifier FAIL on A5 (cursor_live.headless.smoke) — needs a live cursor-agent CLI, not installed in this env. Env-blocked, not code-blocked. A1-A4+A7 pass.",
           "mvp": true,
           "subschema": null,
           "x": 40,
@@ -1959,7 +2009,7 @@ window.SIMA_BOOTSTRAP = {
           "layer": "ai",
           "type": "module",
           "status": "review",
-          "status_reason": "PR3: gateway implemented (Anthropic + Google + mock), structured output via JSON schema, trace+cost cap, golden eval avg 1.0 in mock. Review needed: live providers untested without keys; UI confidence/diff flow pending PR3.5.",
+          "status_reason": "Phase I: verifier FAIL on A2 (simulate_conversation_branches) — test fixture asserts b.core-sync is NOT done, but it legitimately IS done now. Test-state coupling; provider code works. Needs fixture decoupling.",
           "mvp": true,
           "subschema": null,
           "x": 270,
@@ -1984,7 +2034,7 @@ window.SIMA_BOOTSTRAP = {
           "layer": "ai",
           "type": "module",
           "status": "idea",
-          "status_reason": "PR-Backlog: design-only milestone; one of the LAST PRs. Реальная имплементация (PR-1…PR-6) делается после того, как реальный пользователь пройдёт ≥10 done и накопит данные — иначе наблюдать нечего. Сейчас зарегистрирован как карта будущей работы.",
+          "status_reason": "Phase I: verifier FAIL on A6 — profile-compliance UI badge (complianceWithProfile) was lost in the R-7.30 single-file→atlas_design refactor and not reimplemented. Genuine feature gap, honestly not done.",
           "mvp": false,
           "subschema": null,
           "x": 500,
@@ -2039,7 +2089,7 @@ window.SIMA_BOOTSTRAP = {
           "subschema": null,
           "x": 270,
           "w": 210,
-          "note": "Хранилище событий: миллиарды строк, OLAP-агрегации.",
+          "note": "Хранилище событий `b.",
           "sources": [
             "atlas/blocks/b.product-warehouse/mission.md [alive]"
           ],
@@ -2050,7 +2100,7 @@ window.SIMA_BOOTSTRAP = {
           "title": "Docs Builder",
           "layer": "content",
           "type": "module",
-          "status": "wip",
+          "status": "done",
           "status_reason": "Generators run but feed on template missions; needs layer-aware wiki and mermaid (PR2)",
           "mvp": true,
           "subschema": null,
@@ -2076,7 +2126,7 @@ window.SIMA_BOOTSTRAP = {
           "layer": "content",
           "type": "module",
           "status": "idea",
-          "status_reason": "PR-Backlog: design-only milestone. Closes the end-user tutorial gap — Атлас сам пишет UI блоков, значит знает все кнопки и поля; этот блок генерирует 'как пользоваться' markdown для конечного пользователя продукта (не developer wiki — это делает b.docs). Auto-regen на каждое изменение JSX. 3-4 PR breakdown.",
+          "status_reason": "Phase I: verifier FAIL on A1 (introspect_block_ui.selftest) — coupled to deleted frontend/proposals_panel.jsx. Test fixture needs repointing to a current JSX file.",
           "mvp": false,
           "subschema": null,
           "x": 270,
@@ -2101,7 +2151,7 @@ window.SIMA_BOOTSTRAP = {
           "title": "Acceptance Verifier Loop",
           "layer": "testing",
           "type": "module",
-          "status": "idea",
+          "status": "done",
           "status_reason": "PR-Backlog: design-only milestone. Closes the verification gap (Symphony trusts agent output, Hermes has no contract layer). После любого run_block_implementation проверяет каждый пункт acceptance.md через детерминированные collectors (exit_code/fs_glob/file_diff/log_grep) + LLM-judge fallback; блокирует wip→done если verdict !== pass. 5-PR breakdown.",
           "mvp": false,
           "subschema": null,
@@ -2656,7 +2706,7 @@ window.SIMA_BOOTSTRAP = {
     }
   },
   "acceptanceSummary": {
-    "generated_at": "2026-05-06T17:23:32.101Z",
+    "generated_at": "2026-06-05T22:37:30.781Z",
     "blocks": [
       {
         "block_id": "b.ui-control",
@@ -2666,7 +2716,7 @@ window.SIMA_BOOTSTRAP = {
           "fail": 0,
           "skipped": 3
         },
-        "duration_ms": 55,
+        "duration_ms": 66,
         "sample_failures": []
       },
       {
@@ -2677,7 +2727,7 @@ window.SIMA_BOOTSTRAP = {
           "fail": 0,
           "skipped": 2
         },
-        "duration_ms": 163,
+        "duration_ms": 186,
         "sample_failures": []
       },
       {
@@ -2688,7 +2738,7 @@ window.SIMA_BOOTSTRAP = {
           "fail": 0,
           "skipped": 1
         },
-        "duration_ms": 105,
+        "duration_ms": 121,
         "sample_failures": []
       },
       {
@@ -2699,7 +2749,7 @@ window.SIMA_BOOTSTRAP = {
           "fail": 0,
           "skipped": 1
         },
-        "duration_ms": 2374,
+        "duration_ms": 2910,
         "sample_failures": []
       },
       {
@@ -2710,7 +2760,7 @@ window.SIMA_BOOTSTRAP = {
           "fail": 0,
           "skipped": 2
         },
-        "duration_ms": 57,
+        "duration_ms": 64,
         "sample_failures": []
       },
       {
@@ -2721,19 +2771,25 @@ window.SIMA_BOOTSTRAP = {
           "fail": 0,
           "skipped": 1
         },
-        "duration_ms": 603,
+        "duration_ms": 580,
         "sample_failures": []
       },
       {
         "block_id": "b.operator-profile-learner",
-        "verdict": "pass",
+        "verdict": "fail",
         "counts": {
-          "pass": 7,
-          "fail": 0,
+          "pass": 6,
+          "fail": 1,
           "skipped": 1
         },
-        "duration_ms": 686,
-        "sample_failures": []
+        "duration_ms": 865,
+        "sample_failures": [
+          {
+            "id": "A6",
+            "evidence": "frontend/proposals_panel.jsx does not exist",
+            "reasoning": "target log file missing"
+          }
+        ]
       },
       {
         "block_id": "b.acceptance-verifier-loop",
@@ -2743,7 +2799,7 @@ window.SIMA_BOOTSTRAP = {
           "fail": 0,
           "skipped": 1
         },
-        "duration_ms": 962,
+        "duration_ms": 1145,
         "sample_failures": []
       },
       {
@@ -2754,7 +2810,7 @@ window.SIMA_BOOTSTRAP = {
           "fail": 0,
           "skipped": 0
         },
-        "duration_ms": 3994,
+        "duration_ms": 766,
         "sample_failures": []
       },
       {
@@ -2765,17 +2821,94 @@ window.SIMA_BOOTSTRAP = {
           "fail": 0,
           "skipped": 1
         },
-        "duration_ms": 392,
+        "duration_ms": 566,
+        "sample_failures": []
+      },
+      {
+        "block_id": "b.product-auth",
+        "verdict": "inconclusive",
+        "counts": {
+          "pass": 0,
+          "fail": 0,
+          "skipped": 2
+        },
+        "duration_ms": 0,
+        "sample_failures": []
+      },
+      {
+        "block_id": "b.product-ingest",
+        "verdict": "inconclusive",
+        "counts": {
+          "pass": 0,
+          "fail": 0,
+          "skipped": 6
+        },
+        "duration_ms": 2,
+        "sample_failures": []
+      },
+      {
+        "block_id": "b.product-warehouse",
+        "verdict": "inconclusive",
+        "counts": {
+          "pass": 0,
+          "fail": 0,
+          "skipped": 6
+        },
+        "duration_ms": 3,
+        "sample_failures": []
+      },
+      {
+        "block_id": "b.product-dashboard",
+        "verdict": "inconclusive",
+        "counts": {
+          "pass": 0,
+          "fail": 0,
+          "skipped": 6
+        },
+        "duration_ms": 2,
+        "sample_failures": []
+      },
+      {
+        "block_id": "b.product-billing",
+        "verdict": "inconclusive",
+        "counts": {
+          "pass": 0,
+          "fail": 0,
+          "skipped": 6
+        },
+        "duration_ms": 2,
+        "sample_failures": []
+      },
+      {
+        "block_id": "b.block-1",
+        "verdict": "inconclusive",
+        "counts": {
+          "pass": 0,
+          "fail": 0,
+          "skipped": 6
+        },
+        "duration_ms": 3,
+        "sample_failures": []
+      },
+      {
+        "block_id": "b.block-2",
+        "verdict": "inconclusive",
+        "counts": {
+          "pass": 0,
+          "fail": 0,
+          "skipped": 1
+        },
+        "duration_ms": 0,
         "sample_failures": []
       }
     ],
     "totals": {
-      "pass": 46,
-      "fail": 0,
-      "skipped": 13,
-      "blocks_pass": 10,
-      "blocks_fail": 0,
-      "blocks_inconclusive": 0
+      "pass": 45,
+      "fail": 1,
+      "skipped": 46,
+      "blocks_pass": 9,
+      "blocks_fail": 1,
+      "blocks_inconclusive": 7
     }
   },
   "acceptanceRuns": {
@@ -2786,77 +2919,77 @@ window.SIMA_BOOTSTRAP = {
         "fail": 0,
         "skipped": 1
       },
-      "checked_at": "2026-05-06T17:23:37.112Z",
+      "checked_at": "2026-06-05T22:37:39.550Z",
       "assertions": [
         {
           "id": "A1",
           "label": null,
           "text": "PR-1 (assertion parser) merged: `scripts/parse_acceptance.mjs` парсит `atlas/blocks/<id>/acceptance.md`, возвращает массив `{id, assertion, evidence_kind, evidence_spec}`. Selftest (≥ 8 cases) на разные форматы acceptance.md существующих блоков (b.llm-gateway/b.docs/b.core-sync).",
-          "checked": false,
+          "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/parse_acceptance.selftest.mjs → exit 0 (53ms); first line: \"parse_acceptance.selftest: OK (9 test groups, all assertions green)\"",
+          "evidence": "node tests/parse_acceptance.selftest.mjs → exit 0 (57ms); first line: \"parse_acceptance.selftest: OK (9 test groups, all assertions green)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
           "id": "A2",
           "label": null,
           "text": "PR-2 (evidence collectors) merged: `scripts/collect_evidence.mjs` поддерживает `exit_code`, `fs_glob`, `file_diff`, `log_grep`, `selftest_run` без LLM-вызова; selftest (≥ 6 cases) на каждый kind зелёный.",
-          "checked": false,
+          "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/evidence_collectors.selftest.mjs → exit 0 (154ms); first line: \"evidence_collectors.selftest: OK (11 test groups, all assertions green)\"",
+          "evidence": "node tests/evidence_collectors.selftest.mjs → exit 0 (167ms); first line: \"evidence_collectors.selftest: OK (11 test groups, all assertions green)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
           "id": "A3",
           "label": null,
           "text": "PR-3 (LLM-judge fallback) merged: `scripts/judge_assertion.mjs` через `b.llm-gateway` оценивает пункт без явного evidence_spec; cost ≤ $0.02 per assertion; mock-режим для тестов; smoke green.",
-          "checked": false,
+          "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/llm_judge.smoke.mjs → exit 0 (64ms); first line: \"llm_judge.smoke: OK (4 test groups, all assertions green)\"",
+          "evidence": "node tests/llm_judge.smoke.mjs → exit 0 (73ms); first line: \"llm_judge.smoke: OK (4 test groups, all assertions green)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
           "id": "A4",
           "label": null,
           "text": "PR-4 (gate hooks) merged: `log_transition.mjs` блокирует `wip → done` если `_latest.json` отсутствует или `verdict !== \"pass\"`; `run_block_implementation.mjs` после exit 0 спавнит verifier; nightly включает `verify_done_blocks_still_green` step.",
-          "checked": false,
+          "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/acceptance_verifier.e2e.smoke.mjs → exit 0 (348ms); first line: \"acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\"",
+          "evidence": "node tests/acceptance_verifier.e2e.smoke.mjs → exit 0 (412ms); first line: \"acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
           "id": "A5",
           "label": null,
           "text": "PR-5 (UI) merged: Inspector секция «Acceptance verifier» (зелёные/красные badge per item, click → reasoning + evidence); ProposalsPanel `acceptance_blocked` proposal с retry-кнопкой; smoke (Playwright) подтверждает оба сценария.",
-          "checked": false,
+          "checked": true,
           "verdict": "pass",
           "evidence_kind": "log_grep",
-          "evidence": "grep /AcceptanceSection/ frontend/arch_canvas.jsx → 3 matches; first: \"      <AcceptanceSection blockId={block.id}/>\"",
-          "reasoning": "3 matching lines found"
+          "evidence": "grep /AcceptanceSection/ frontend/atlas_design/panels.jsx → 2 matches; first: \"        {tab === 'acceptance' && <AcceptanceSection moduleId={moduleId} moduleObj={m} onClaudeAdvice={onClaudeAdvice} />}\"",
+          "reasoning": "2 matching lines found"
         },
         {
           "id": "A6",
           "label": null,
           "text": "End-to-end smoke `tests/acceptance_verifier.e2e.smoke.mjs`: создать тестовый блок с 3 acceptance items (1 deterministic, 1 LLM-judge, 1 заведомо-fail) → run agent (mock) → verifier даёт verdict=fail с правильным `retry_prompt_hint` → `transition_block done` блокируется.",
-          "checked": false,
+          "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/acceptance_verifier.e2e.smoke.mjs → exit 0 (340ms); first line: \"acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\"",
+          "evidence": "node tests/acceptance_verifier.e2e.smoke.mjs → exit 0 (426ms); first line: \"acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\"",
           "reasoning": "shell exit code 0 and stdout matches /5 phases/"
         },
         {
           "id": "A7",
           "label": null,
           "text": "Cache: при повторном вызове без новых коммитов и без новых traces — verdict из `_latest.json` без LLM-вызова; integration test проверяет, что cost_usd на 2-й вызов = 0.",
-          "checked": false,
+          "checked": true,
           "verdict": "pass",
           "evidence_kind": "fs_glob",
-          "evidence": "glob atlas/acceptance_runs/*/_latest.json → 10 files (min=1); newest 0min ago",
-          "reasoning": "10 files match (≥1)"
+          "evidence": "glob atlas/acceptance_runs/*/_latest.json → 17 files (min=1); newest 0min ago",
+          "reasoning": "17 files match (≥1)"
         },
         {
           "id": "A8",
@@ -2877,7 +3010,7 @@ window.SIMA_BOOTSTRAP = {
         "fail": 0,
         "skipped": 1
       },
-      "checked_at": "2026-05-06T17:23:34.803Z",
+      "checked_at": "2026-06-05T22:37:34.068Z",
       "assertions": [
         {
           "id": "A1",
@@ -2886,7 +3019,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "exit_code",
-          "evidence": "node scripts/validate_cursor_hooks.mjs → exit 0 (47ms); first line: \"cursor hooks validation: OK (4 events, 4 commands)\"",
+          "evidence": "node scripts/validate_cursor_hooks.mjs → exit 0 (54ms); first line: \"cursor hooks validation: OK (4 events, 4 commands)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -2896,7 +3029,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (508ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
+          "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (606ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -2906,7 +3039,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (490ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
+          "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (616ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
           "reasoning": "shell exit code 0 and stdout matches /9 cases/"
         },
         {
@@ -2916,7 +3049,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (489ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
+          "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (608ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -2926,7 +3059,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": false,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/cursor_live.headless.smoke.mjs → exit 0 (790ms); first line: \"cursor_live.headless.smoke: OK (5 phases — hooks valid, drift guard fires, file-edit logged, context pack emitted, detailed suite green)\"",
+          "evidence": "node tests/cursor_live.headless.smoke.mjs → exit 0 (970ms); first line: \"cursor_live.headless.smoke: OK (5 phases — hooks valid, drift guard fires, file-edit logged, context pack emitted, detailed suite green)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -2946,8 +3079,100 @@ window.SIMA_BOOTSTRAP = {
           "checked": false,
           "verdict": "pass",
           "evidence_kind": "exit_code",
-          "evidence": "node scripts/validate_agent_parity.mjs → exit 0 (49ms); first line: \"Agent parity validation: OK\"",
+          "evidence": "node scripts/validate_agent_parity.mjs → exit 0 (55ms); first line: \"Agent parity validation: OK\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
+        }
+      ]
+    },
+    "b.block-1": {
+      "verdict": "inconclusive",
+      "counts": {
+        "pass": 0,
+        "fail": 0,
+        "skipped": 6
+      },
+      "checked_at": "2026-06-05T22:37:38.073Z",
+      "assertions": [
+        {
+          "id": "A1",
+          "label": null,
+          "text": "Модуль успешно обрабатывает запросы в соответствии с KPI-1 (среднее время обработки менее 200 мс) при тестировании с нагрузкой, имитирующей типичное использование.",
+          "checked": false,
+          "verdict": "skipped",
+          "evidence_kind": "llm_judge",
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
+        },
+        {
+          "id": "A2",
+          "label": null,
+          "text": "Модуль демонстрирует процент ошибок при обработке запросов, не превышающий 1% (KPI-2) в течение длительного периода тестирования с различными входными данными.",
+          "checked": false,
+          "verdict": "skipped",
+          "evidence_kind": "llm_judge",
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
+        },
+        {
+          "id": "A3",
+          "label": null,
+          "text": "Модуль обеспечивает пропускную способность не менее 500 запросов в секунду (KPI-3) при нагрузочном тестировании, что подтверждает его способность справляться с ожидаемой нагрузкой.",
+          "checked": false,
+          "verdict": "skipped",
+          "evidence_kind": "llm_judge",
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
+        },
+        {
+          "id": "A4",
+          "label": null,
+          "text": "Успешное выполнение ключевых бизнес-задач (например, создание, обновление, удаление сущностей) происходит в 99% случаев (KPI-4) при автоматизированном тестировании.",
+          "checked": false,
+          "verdict": "skipped",
+          "evidence_kind": "llm_judge",
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
+        },
+        {
+          "id": "A5",
+          "label": null,
+          "text": "Время восстановления модуля после искусственно вызванного сбоя не превышает 5 минут (KPI-5), что подтверждается автоматическим мониторингом и системой оповещений.",
+          "checked": false,
+          "verdict": "skipped",
+          "evidence_kind": "llm_judge",
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
+        },
+        {
+          "id": "A6",
+          "label": null,
+          "text": "Все зависимости модуля (другие модули или компоненты) успешно интегрированы и функционируют корректно, что подтверждается сквозным тестированием связанных функций.",
+          "checked": false,
+          "verdict": "skipped",
+          "evidence_kind": "llm_judge",
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
+        }
+      ]
+    },
+    "b.block-2": {
+      "verdict": "inconclusive",
+      "counts": {
+        "pass": 0,
+        "fail": 0,
+        "skipped": 1
+      },
+      "checked_at": "2026-06-05T22:37:38.073Z",
+      "assertions": [
+        {
+          "id": "A1",
+          "label": null,
+          "text": "Заполни через детальную панель: что именно подтвердит готовность модуля.",
+          "checked": false,
+          "verdict": "skipped",
+          "evidence_kind": "llm_judge",
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
         }
       ]
     },
@@ -2958,26 +3183,26 @@ window.SIMA_BOOTSTRAP = {
         "fail": 0,
         "skipped": 2
       },
-      "checked_at": "2026-05-06T17:52:15.104Z",
+      "checked_at": "2026-06-05T22:37:38.335Z",
       "assertions": [
         {
           "id": "A1",
           "label": null,
           "text": "На пустом графе с одним блоком без зависимостей syncCheck возвращает `synchronized: 1, drift: 0, broken: 0`.",
-          "checked": false,
+          "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/atlas_sync.selftest.mjs → exit 0 (49ms); first line: \"atlas_sync.selftest: OK\"",
+          "evidence": "node tests/atlas_sync.selftest.mjs → exit 0 (61ms); first line: \"atlas_sync.selftest: OK\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
           "id": "A2",
           "label": null,
           "text": "Если блок A заявляет `depends_on: [{block_id: B, capability: foo}]`, а у B нет `provides: [foo]`, syncCheck возвращает `broken` с `reason: missing_capability(B.foo)`.",
-          "checked": false,
+          "checked": true,
           "verdict": "pass",
           "evidence_kind": "exit_code",
-          "evidence": "node scripts/validate_dependency_contracts.mjs → exit 0 (50ms); first line: \"Dependency contract validation: OK\"",
+          "evidence": "node scripts/validate_dependency_contracts.mjs → exit 0 (55ms); first line: \"Dependency contract validation: OK\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -2987,8 +3212,8 @@ window.SIMA_BOOTSTRAP = {
           "checked": false,
           "verdict": "skipped",
           "evidence_kind": "llm_judge",
-          "evidence": "LLM judge → inconclusive via claude_cli/claude-cli ($0)",
-          "reasoning": "LLM returned inconclusive without reasoning"
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
         },
         {
           "id": "A4",
@@ -2997,17 +3222,17 @@ window.SIMA_BOOTSTRAP = {
           "checked": false,
           "verdict": "skipped",
           "evidence_kind": "llm_judge",
-          "evidence": "LLM judge → inconclusive via claude_cli/claude-cli ($0)",
-          "reasoning": "LLM returned inconclusive without reasoning"
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
         },
         {
           "id": "A5",
           "label": null,
           "text": "Все детектированные drift/broken попадают в `atlas/sync_report.json` со ссылкой на конкретный файл/строку (для UI).",
-          "checked": false,
+          "checked": true,
           "verdict": "pass",
           "evidence_kind": "exit_code",
-          "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (48ms); first line: \"Block contract validation: OK\"",
+          "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (60ms); first line: \"Block contract validation: OK\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         }
       ]
@@ -3019,7 +3244,7 @@ window.SIMA_BOOTSTRAP = {
         "fail": 0,
         "skipped": 1
       },
-      "checked_at": "2026-05-06T17:23:32.429Z",
+      "checked_at": "2026-06-05T22:37:31.157Z",
       "assertions": [
         {
           "id": "A1",
@@ -3028,7 +3253,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": false,
           "verdict": "pass",
           "evidence_kind": "exit_code",
-          "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (51ms); first line: \"Block contract validation: OK\"",
+          "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (58ms); first line: \"Block contract validation: OK\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -3048,7 +3273,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": false,
           "verdict": "pass",
           "evidence_kind": "fs_glob",
-          "evidence": "glob atlas/db_schema.json → 1 files (min=1); newest 6289min ago",
+          "evidence": "glob atlas/db_schema.json → 1 files (min=1); newest 42541min ago",
           "reasoning": "1 files match (≥1)"
         },
         {
@@ -3068,7 +3293,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": false,
           "verdict": "pass",
           "evidence_kind": "exit_code",
-          "evidence": "node scripts/validate_files_registry.mjs → exit 0 (53ms); first line: \"Files registry validation: OK (alive=197, archived=4, dead=0)\"",
+          "evidence": "node scripts/validate_files_registry.mjs → exit 0 (62ms); first line: \"Files registry validation: OK (alive=186, archived=4, dead=0)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         }
       ]
@@ -3080,23 +3305,23 @@ window.SIMA_BOOTSTRAP = {
         "fail": 0,
         "skipped": 2
       },
-      "checked_at": "2026-05-06T17:23:34.860Z",
+      "checked_at": "2026-06-05T22:37:38.404Z",
       "assertions": [
         {
           "id": "A1",
           "label": null,
           "text": "При наличии в любом mission.md фразы «Ключевая цель блока…» или «Автосоздано из…» команда `node scripts/generate_wiki.mjs` падает с ненулевым exit-кодом. (Гейт против шаблонов.)",
-          "checked": false,
+          "checked": true,
           "verdict": "pass",
           "evidence_kind": "exit_code",
-          "evidence": "node scripts/validate_no_template_placeholders.mjs → exit 0 (54ms); first line: \"Template-placeholder validation: OK (10 blocks scanned)\"",
+          "evidence": "node scripts/validate_no_template_placeholders.mjs → exit 0 (64ms); first line: \"Template-placeholder validation: OK (17 blocks scanned)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
           "id": "A2",
           "label": null,
           "text": "В `wiki.html` присутствует `<div class=\"mermaid\">` с актуальным графом по `graph.json`.",
-          "checked": false,
+          "checked": true,
           "verdict": "pass",
           "evidence_kind": "log_grep",
           "evidence": "grep /class=\\\"mermaid\\\"/ atlas/wiki.html → 2 matches; first: \"<div class=\"mermaid\">flowchart TB\"",
@@ -3116,10 +3341,10 @@ window.SIMA_BOOTSTRAP = {
           "id": "A4",
           "label": null,
           "text": "`auto_tz.md` собран только из non-template mission/kpi и содержит ссылки на исходные `blocks/<id>/*.md`.",
-          "checked": false,
+          "checked": true,
           "verdict": "pass",
           "evidence_kind": "fs_glob",
-          "evidence": "glob ТЗ/auto_tz.md → 1 files (min=1); newest 0min ago",
+          "evidence": "glob atlas/auto_tz.md → 1 files (min=1); newest 0min ago",
           "reasoning": "1 files match (≥1)"
         },
         {
@@ -3141,7 +3366,7 @@ window.SIMA_BOOTSTRAP = {
         "fail": 0,
         "skipped": 1
       },
-      "checked_at": "2026-05-06T17:23:35.463Z",
+      "checked_at": "2026-06-05T22:37:34.713Z",
       "assertions": [
         {
           "id": "A1",
@@ -3150,7 +3375,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/llm_gateway.selftest.mjs → exit 0 (80ms); first line: \"llm_gateway.selftest: OK (5 cases)\"",
+          "evidence": "node tests/llm_gateway.selftest.mjs → exit 0 (77ms); first line: \"llm_gateway.selftest: OK (5 cases)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -3160,7 +3385,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node scripts/simulate_conversation_branches.mjs → exit 0 (320ms); first line: \"PASS: created b.realtime-ingestion in graph.json\"",
+          "evidence": "node scripts/simulate_conversation_branches.mjs → exit 0 (398ms); first line: \"PASS: created b.realtime-ingestion in graph.json\"",
           "reasoning": "shell exit code 0 and stdout matches /simulate_conversation_branches: OK/"
         },
         {
@@ -3180,8 +3405,8 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "fs_glob",
-          "evidence": "glob atlas/llm_traces/*.json → 11155 files (min=1); newest 0min ago",
-          "reasoning": "11155 files match (≥1)"
+          "evidence": "glob atlas/llm_traces/*.json → 92 files (min=1); newest 0min ago",
+          "reasoning": "92 files match (≥1)"
         },
         {
           "id": "A5",
@@ -3190,19 +3415,19 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/llm_extraction.eval.mjs → exit 0 (75ms); first line: \"llm_extraction.eval — overall avg=1.000 (cases=30/30)\"",
+          "evidence": "node tests/llm_extraction.eval.mjs → exit 0 (95ms); first line: \"llm_extraction.eval — overall avg=1.000 (cases=30/30)\"",
           "reasoning": "shell exit code 0 and stdout matches /overall avg=/"
         }
       ]
     },
     "b.operator-profile-learner": {
-      "verdict": "pass",
+      "verdict": "fail",
       "counts": {
-        "pass": 7,
-        "fail": 0,
+        "pass": 6,
+        "fail": 1,
         "skipped": 1
       },
-      "checked_at": "2026-05-06T17:23:36.149Z",
+      "checked_at": "2026-06-05T22:37:35.578Z",
       "assertions": [
         {
           "id": "A1",
@@ -3211,7 +3436,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": false,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/operator_profile.selftest.mjs → exit 0 (66ms); first line: \"operator_profile.selftest: OK (7 test groups, all assertions green)\"",
+          "evidence": "node tests/operator_profile.selftest.mjs → exit 0 (83ms); first line: \"operator_profile.selftest: OK (7 test groups, all assertions green)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -3221,7 +3446,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": false,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/pick_template.selftest.mjs → exit 0 (52ms); first line: \"pick_template.selftest: OK (8 test groups, all assertions green)\"",
+          "evidence": "node tests/pick_template.selftest.mjs → exit 0 (64ms); first line: \"pick_template.selftest: OK (8 test groups, all assertions green)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -3231,7 +3456,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": false,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/dont_use_management.selftest.mjs → exit 0 (252ms); first line: \"dont_use_management.selftest: OK (7 test groups, all assertions green)\"",
+          "evidence": "node tests/dont_use_management.selftest.mjs → exit 0 (325ms); first line: \"dont_use_management.selftest: OK (7 test groups, all assertions green)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -3241,7 +3466,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": false,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/operator_profile_lessons.smoke.mjs → exit 0 (70ms); first line: \"operator_profile_lessons.smoke: OK (6 test groups, all assertions green)\"",
+          "evidence": "node tests/operator_profile_lessons.smoke.mjs → exit 0 (85ms); first line: \"operator_profile_lessons.smoke: OK (6 test groups, all assertions green)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -3251,7 +3476,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": false,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/operator_profile_inject.smoke.mjs → exit 0 (245ms); first line: \"operator_profile_inject.smoke: OK (4 test groups, all assertions green)\"",
+          "evidence": "node tests/operator_profile_inject.smoke.mjs → exit 0 (307ms); first line: \"operator_profile_inject.smoke: OK (4 test groups, all assertions green)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -3259,10 +3484,10 @@ window.SIMA_BOOTSTRAP = {
           "label": null,
           "text": "PR-6 (UI hints) merged: ProposalsPanel показывает badge `соответствует профилю` / `противоречит профилю`; Inspector под mission блока — секция `Подсказки от профиля` со списком (`evidence: [block_id]` рядом с каждой подсказкой).",
           "checked": false,
-          "verdict": "pass",
+          "verdict": "fail",
           "evidence_kind": "log_grep",
-          "evidence": "grep /complianceWithProfile/ frontend/proposals_panel.jsx → 2 matches; first: \"function complianceWithProfile(proposal) {\"",
-          "reasoning": "2 matching lines found"
+          "evidence": "frontend/proposals_panel.jsx does not exist",
+          "reasoning": "target log file missing"
         },
         {
           "id": "A7",
@@ -3286,6 +3511,321 @@ window.SIMA_BOOTSTRAP = {
         }
       ]
     },
+    "b.product-auth": {
+      "verdict": "inconclusive",
+      "counts": {
+        "pass": 0,
+        "fail": 0,
+        "skipped": 2
+      },
+      "checked_at": "2026-06-05T22:37:38.059Z",
+      "assertions": [
+        {
+          "id": "A1",
+          "label": null,
+          "text": "JWT + refresh работает",
+          "checked": false,
+          "verdict": "skipped",
+          "evidence_kind": "llm_judge",
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
+        },
+        {
+          "id": "A2",
+          "label": null,
+          "text": "Роли viewer/editor/admin развёрнуты",
+          "checked": false,
+          "verdict": "skipped",
+          "evidence_kind": "llm_judge",
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
+        }
+      ]
+    },
+    "b.product-billing": {
+      "verdict": "inconclusive",
+      "counts": {
+        "pass": 0,
+        "fail": 0,
+        "skipped": 6
+      },
+      "checked_at": "2026-06-05T22:37:38.070Z",
+      "assertions": [
+        {
+          "id": "A1",
+          "label": null,
+          "text": "Подтверждено отсутствие потерянных webhook-ов при эмуляции 1000 запросов.",
+          "checked": false,
+          "verdict": "skipped",
+          "evidence_kind": "llm_judge",
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
+        },
+        {
+          "id": "A2",
+          "label": null,
+          "text": "Задержка обработки 99% платежей не превышает 1 секунду при нагрузке в 100 транзакций в минуту.",
+          "checked": false,
+          "verdict": "skipped",
+          "evidence_kind": "llm_judge",
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
+        },
+        {
+          "id": "A3",
+          "label": null,
+          "text": "Успешность выставления счетов составляет 99.99% при тестировании на 10000 счетов.",
+          "checked": false,
+          "verdict": "skipped",
+          "evidence_kind": "llm_judge",
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
+        },
+        {
+          "id": "A4",
+          "label": null,
+          "text": "Среднее время разрешения проблем с биллингом составляет менее 4 часов, согласно данным мониторинга за последний месяц.",
+          "checked": false,
+          "verdict": "skipped",
+          "evidence_kind": "llm_judge",
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
+        },
+        {
+          "id": "A5",
+          "label": null,
+          "text": "ARPU (Average Revenue Per User) превышает установленное значение $X, согласно отчету за последний квартал.",
+          "checked": false,
+          "verdict": "skipped",
+          "evidence_kind": "llm_judge",
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
+        },
+        {
+          "id": "A6",
+          "label": null,
+          "text": "Реализована и протестирована логика обработки возвратов средств с учетом различных сценариев (полный возврат, частичный возврат, отмена подписки).",
+          "checked": false,
+          "verdict": "skipped",
+          "evidence_kind": "llm_judge",
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
+        }
+      ]
+    },
+    "b.product-dashboard": {
+      "verdict": "inconclusive",
+      "counts": {
+        "pass": 0,
+        "fail": 0,
+        "skipped": 6
+      },
+      "checked_at": "2026-06-05T22:37:38.067Z",
+      "assertions": [
+        {
+          "id": "A7",
+          "label": null,
+          "text": "Пользователь может добавлять на дашборд артефакты (блоки схемы, документы, текст, ссылки на встречи).",
+          "checked": false,
+          "verdict": "skipped",
+          "evidence_kind": "llm_judge",
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
+        },
+        {
+          "id": "A8",
+          "label": null,
+          "text": "Пользователь может настраивать связи между элементами дашборда, указывая направление и тип связи.",
+          "checked": false,
+          "verdict": "skipped",
+          "evidence_kind": "llm_judge",
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
+        },
+        {
+          "id": "A9",
+          "label": null,
+          "text": "Система позволяет искать встречи и другие элементы для добавления на дашборд.",
+          "checked": false,
+          "verdict": "skipped",
+          "evidence_kind": "llm_judge",
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
+        },
+        {
+          "id": "A10",
+          "label": null,
+          "text": "Пользователь может добавлять текстовое описание к дашборду.",
+          "checked": false,
+          "verdict": "skipped",
+          "evidence_kind": "llm_judge",
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
+        },
+        {
+          "id": "A11",
+          "label": null,
+          "text": "Система позволяет добавлять аудиозаписи с тезисами к дашборду.",
+          "checked": false,
+          "verdict": "skipped",
+          "evidence_kind": "llm_judge",
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
+        },
+        {
+          "id": "A12",
+          "label": null,
+          "text": "На дашборде отображается основная задача/цель, для которой он создан.",
+          "checked": false,
+          "verdict": "skipped",
+          "evidence_kind": "llm_judge",
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
+        }
+      ]
+    },
+    "b.product-ingest": {
+      "verdict": "inconclusive",
+      "counts": {
+        "pass": 0,
+        "fail": 0,
+        "skipped": 6
+      },
+      "checked_at": "2026-06-05T22:37:38.062Z",
+      "assertions": [
+        {
+          "id": "A1",
+          "label": null,
+          "text": "Все события, отправленные в `b.product-ingest`, успешно валидируются на соответствие схеме.",
+          "checked": false,
+          "verdict": "skipped",
+          "evidence_kind": "llm_judge",
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
+        },
+        {
+          "id": "A2",
+          "label": null,
+          "text": "Каждый event_id обрабатывается ровно один раз и записывается в Warehouse (отсутствие дубликатов).",
+          "checked": false,
+          "verdict": "skipped",
+          "evidence_kind": "llm_judge",
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
+        },
+        {
+          "id": "A3",
+          "label": null,
+          "text": "Задержка подтверждения (ack) для 95% событий не превышает 25 мс при нормальной нагрузке.",
+          "checked": false,
+          "verdict": "skipped",
+          "evidence_kind": "llm_judge",
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
+        },
+        {
+          "id": "A4",
+          "label": null,
+          "text": "Система способна обрабатывать 50 000 событий в секунду без ошибок.",
+          "checked": false,
+          "verdict": "skipped",
+          "evidence_kind": "llm_judge",
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
+        },
+        {
+          "id": "A5",
+          "label": null,
+          "text": "Утилизация ресурсов (CPU, память) не превышает 70% при пиковой нагрузке 50k/s.",
+          "checked": false,
+          "verdict": "skipped",
+          "evidence_kind": "llm_judge",
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
+        },
+        {
+          "id": "A6",
+          "label": null,
+          "text": "В случае ошибки валидации события, в monitoring отправляется соответствующая метрика и событие не попадает в Warehouse.",
+          "checked": false,
+          "verdict": "skipped",
+          "evidence_kind": "llm_judge",
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
+        }
+      ]
+    },
+    "b.product-warehouse": {
+      "verdict": "inconclusive",
+      "counts": {
+        "pass": 0,
+        "fail": 0,
+        "skipped": 6
+      },
+      "checked_at": "2026-06-05T22:37:38.065Z",
+      "assertions": [
+        {
+          "id": "A1",
+          "label": null,
+          "text": "Данные успешно агрегируются с заданной частотой (например, каждый час) и сохраняются в хранилище.",
+          "checked": false,
+          "verdict": "skipped",
+          "evidence_kind": "llm_judge",
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
+        },
+        {
+          "id": "A2",
+          "label": null,
+          "text": "Запросы агрегации выполняются в пределах заданного времени (p95 < 200ms для 10M строк).",
+          "checked": false,
+          "verdict": "skipped",
+          "evidence_kind": "llm_judge",
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
+        },
+        {
+          "id": "A3",
+          "label": null,
+          "text": "Утилизация CPU не превышает 70% при пиковой нагрузке на запросы агрегации.",
+          "checked": false,
+          "verdict": "skipped",
+          "evidence_kind": "llm_judge",
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
+        },
+        {
+          "id": "A4",
+          "label": null,
+          "text": "Успешность выполнения запросов агрегации составляет не менее 99.99%.",
+          "checked": false,
+          "verdict": "skipped",
+          "evidence_kind": "llm_judge",
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
+        },
+        {
+          "id": "A5",
+          "label": null,
+          "text": "Продемонстрировано восстановление данных из резервной копии в течение 15 минут.",
+          "checked": false,
+          "verdict": "skipped",
+          "evidence_kind": "llm_judge",
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
+        },
+        {
+          "id": "A6",
+          "label": null,
+          "text": "Подтверждено, что объем хранимых данных растет не более чем на 10% в месяц при заданном темпе поступления новых данных.",
+          "checked": false,
+          "verdict": "skipped",
+          "evidence_kind": "llm_judge",
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
+        }
+      ]
+    },
     "b.smoke-sandbox": {
       "verdict": "pass",
       "counts": {
@@ -3293,7 +3833,7 @@ window.SIMA_BOOTSTRAP = {
         "fail": 0,
         "skipped": 1
       },
-      "checked_at": "2026-05-06T17:23:41.499Z",
+      "checked_at": "2026-06-05T22:37:38.058Z",
       "assertions": [
         {
           "id": "A1",
@@ -3322,7 +3862,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": false,
           "verdict": "pass",
           "evidence_kind": "exit_code",
-          "evidence": "node scripts/mcp_smoke_e2e.mjs → exit 0 (392ms); first line: \"mcp_smoke_e2e: OK\"",
+          "evidence": "node scripts/mcp_smoke_e2e.mjs → exit 0 (565ms); first line: \"mcp_smoke_e2e: OK\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         }
       ]
@@ -3334,7 +3874,7 @@ window.SIMA_BOOTSTRAP = {
         "fail": 0,
         "skipped": 3
       },
-      "checked_at": "2026-05-06T17:51:56.971Z",
+      "checked_at": "2026-06-05T22:37:30.849Z",
       "assertions": [
         {
           "id": "A1",
@@ -3343,8 +3883,8 @@ window.SIMA_BOOTSTRAP = {
           "checked": false,
           "verdict": "skipped",
           "evidence_kind": "llm_judge",
-          "evidence": "LLM judge → inconclusive via claude_cli/claude-cli ($0)",
-          "reasoning": "LLM returned inconclusive without reasoning"
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
         },
         {
           "id": "A2",
@@ -3353,8 +3893,8 @@ window.SIMA_BOOTSTRAP = {
           "checked": false,
           "verdict": "skipped",
           "evidence_kind": "llm_judge",
-          "evidence": "LLM judge → inconclusive via claude_cli/claude-cli ($0)",
-          "reasoning": "LLM returned inconclusive without reasoning"
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
         },
         {
           "id": "A3",
@@ -3363,8 +3903,8 @@ window.SIMA_BOOTSTRAP = {
           "checked": false,
           "verdict": "skipped",
           "evidence_kind": "llm_judge",
-          "evidence": "LLM judge → inconclusive via claude_cli/claude-cli ($0)",
-          "reasoning": "The provided excerpts mention a layered schema being populated (pr2_layered_schema) and a default arch view, but contain no concrete evidence about the atlas-live project specifically rendering ≥3 horizontal layers with correct blocks per graph.json layer field."
+          "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
+          "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)"
         },
         {
           "id": "A4",
@@ -3373,7 +3913,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": false,
           "verdict": "pass",
           "evidence_kind": "exit_code",
-          "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (893ms); first line: \"Block contract validation: OK\"",
+          "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (62ms); first line: \"Block contract validation: OK\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -3395,7 +3935,7 @@ window.SIMA_BOOTSTRAP = {
         "fail": 0,
         "skipped": 0
       },
-      "checked_at": "2026-05-06T17:23:41.106Z",
+      "checked_at": "2026-06-05T22:37:37.491Z",
       "assertions": [
         {
           "id": "A1",
@@ -3404,7 +3944,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": false,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/introspect_block_ui.selftest.mjs → exit 0 (59ms); first line: \"introspect_block_ui.selftest: OK (7 test groups, all assertions green)\"",
+          "evidence": "node tests/introspect_block_ui.selftest.mjs → exit 0 (118ms); first line: \"introspect_block_ui.selftest: OK (7 test groups, all assertions green)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -3414,7 +3954,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": false,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/user_docs.smoke.mjs → exit 0 (116ms); first line: \"user_docs.smoke: OK (5 test groups, all assertions green)\"",
+          "evidence": "node tests/user_docs.smoke.mjs → exit 0 (120ms); first line: \"user_docs.smoke: OK (5 test groups, all assertions green)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -3424,7 +3964,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": false,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/screenshots_integration.selftest.mjs → exit 0 (3622ms); first line: \"screenshots_integration.selftest: OK (7 test groups, all assertions green)\"",
+          "evidence": "node tests/screenshots_integration.selftest.mjs → exit 0 (82ms); first line: \"screenshots_integration.selftest: OK (7 test groups, all assertions green)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -3434,7 +3974,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": false,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/user_docs_drift.selftest.mjs → exit 0 (196ms); first line: \"user_docs_drift.selftest: OK (5 test groups, all assertions green)\"",
+          "evidence": "node tests/user_docs_drift.selftest.mjs → exit 0 (445ms); first line: \"user_docs_drift.selftest: OK (5 test groups, all assertions green)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -3482,19 +4022,19 @@ window.SIMA_BOOTSTRAP = {
   },
   "operatorProfile": {
     "operator_id": "default",
-    "updated_at": "2026-05-06T18:42:36.393Z",
+    "updated_at": "2026-06-05T22:55:34.874Z",
     "_status": "warming_up",
     "_min_data": {
-      "done_transitions": 2,
+      "done_transitions": 4,
       "done_required": 5,
-      "invocations": 3,
+      "invocations": 4,
       "invocations_required": 10
     },
     "_preview": {
-      "total_done": 2,
-      "total_invocations": 3,
-      "total_traces": 11250,
-      "total_proposals": 175
+      "total_done": 4,
+      "total_invocations": 4,
+      "total_traces": 190,
+      "total_proposals": 12
     }
   },
   "operatorLessons": [],

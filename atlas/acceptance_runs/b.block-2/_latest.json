@@ -18,7 +18,7 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "3fac457735934b03",
+        "prompt_hash": "79bbe0ecffc970b1",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
@@ -33,5 +33,5 @@
   },
   "verdict": "inconclusive",
   "duration_ms": 0,
-  "checked_at": "2026-05-08T22:04:42.116Z"
+  "checked_at": "2026-06-05T22:55:51.053Z"
 }

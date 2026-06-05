@@ -18,12 +18,12 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "3fac457735934b03",
+        "prompt_hash": "79bbe0ecffc970b1",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 1
+      "duration_ms": 0
     }
   ],
   "counts": {
@@ -32,6 +32,6 @@
     "skipped": 1
   },
   "verdict": "inconclusive",
-  "duration_ms": 1,
-  "checked_at": "2026-05-08T22:02:01.098Z"
+  "duration_ms": 0,
+  "checked_at": "2026-06-05T22:37:38.073Z"
 }

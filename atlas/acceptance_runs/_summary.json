@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-06T18:44:53.985Z",
+  "generated_at": "2026-06-05T22:55:44.452Z",
   "blocks": [
     {
       "block_id": "b.ui-control",
@@ -9,7 +9,7 @@
         "fail": 0,
         "skipped": 3
       },
-      "duration_ms": 56,
+      "duration_ms": 64,
       "sample_failures": []
     },
     {
@@ -20,7 +20,7 @@
         "fail": 0,
         "skipped": 2
       },
-      "duration_ms": 153,
+      "duration_ms": 162,
       "sample_failures": []
     },
     {
@@ -31,7 +31,7 @@
         "fail": 0,
         "skipped": 1
       },
-      "duration_ms": 99,
+      "duration_ms": 108,
       "sample_failures": []
     },
     {
@@ -42,7 +42,7 @@
         "fail": 0,
         "skipped": 1
       },
-      "duration_ms": 2417,
+      "duration_ms": 2624,
       "sample_failures": []
     },
     {
@@ -53,7 +53,7 @@
         "fail": 0,
         "skipped": 2
       },
-      "duration_ms": 57,
+      "duration_ms": 61,
       "sample_failures": []
     },
     {
@@ -64,19 +64,25 @@
         "fail": 0,
         "skipped": 1
       },
-      "duration_ms": 609,
+      "duration_ms": 524,
       "sample_failures": []
     },
     {
       "block_id": "b.operator-profile-learner",
-      "verdict": "pass",
+      "verdict": "fail",
       "counts": {
-        "pass": 7,
-        "fail": 0,
+        "pass": 6,
+        "fail": 1,
         "skipped": 1
       },
-      "duration_ms": 686,
-      "sample_failures": []
+      "duration_ms": 737,
+      "sample_failures": [
+        {
+          "id": "A6",
+          "evidence": "frontend/proposals_panel.jsx does not exist",
+          "reasoning": "target log file missing"
+        }
+      ]
     },
     {
       "block_id": "b.acceptance-verifier-loop",
@@ -86,7 +92,7 @@
         "fail": 0,
         "skipped": 1
       },
-      "duration_ms": 975,
+      "duration_ms": 1069,
       "sample_failures": []
     },
     {
@@ -97,7 +103,7 @@
         "fail": 0,
         "skipped": 0
       },
-      "duration_ms": 3957,
+      "duration_ms": 711,
       "sample_failures": []
     },
     {
@@ -108,16 +114,93 @@
         "fail": 0,
         "skipped": 1
       },
-      "duration_ms": 379,
+      "duration_ms": 518,
+      "sample_failures": []
+    },
+    {
+      "block_id": "b.product-auth",
+      "verdict": "inconclusive",
+      "counts": {
+        "pass": 0,
+        "fail": 0,
+        "skipped": 2
+      },
+      "duration_ms": 1,
+      "sample_failures": []
+    },
+    {
+      "block_id": "b.product-ingest",
+      "verdict": "inconclusive",
+      "counts": {
+        "pass": 0,
+        "fail": 0,
+        "skipped": 6
+      },
+      "duration_ms": 1,
+      "sample_failures": []
+    },
+    {
+      "block_id": "b.product-warehouse",
+      "verdict": "inconclusive",
+      "counts": {
+        "pass": 0,
+        "fail": 0,
+        "skipped": 6
+      },
+      "duration_ms": 2,
+      "sample_failures": []
+    },
+    {
+      "block_id": "b.product-dashboard",
+      "verdict": "inconclusive",
+      "counts": {
+        "pass": 0,
+        "fail": 0,
+        "skipped": 6
+      },
+      "duration_ms": 2,
+      "sample_failures": []
+    },
+    {
+      "block_id": "b.product-billing",
+      "verdict": "inconclusive",
+      "counts": {
+        "pass": 0,
+        "fail": 0,
+        "skipped": 6
+      },
+      "duration_ms": 2,
+      "sample_failures": []
+    },
+    {
+      "block_id": "b.block-1",
+      "verdict": "inconclusive",
+      "counts": {
+        "pass": 0,
+        "fail": 0,
+        "skipped": 6
+      },
+      "duration_ms": 2,
+      "sample_failures": []
+    },
+    {
+      "block_id": "b.block-2",
+      "verdict": "inconclusive",
+      "counts": {
+        "pass": 0,
+        "fail": 0,
+        "skipped": 1
+      },
+      "duration_ms": 0,
       "sample_failures": []
     }
   ],
   "totals": {
-    "pass": 46,
-    "fail": 0,
-    "skipped": 13,
-    "blocks_pass": 10,
-    "blocks_fail": 0,
-    "blocks_inconclusive": 0
+    "pass": 45,
+    "fail": 1,
+    "skipped": 46,
+    "blocks_pass": 9,
+    "blocks_fail": 1,
+    "blocks_inconclusive": 7
   }
 }

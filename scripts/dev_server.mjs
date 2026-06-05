@@ -194,7 +194,21 @@ if (!noBrowser) {
     else if (process.platform === 'darwin') opener = ['open', [url]];
     else opener = ['xdg-open', [url]];
     console.log(`[dev] opening ${url}`);
-    spawn(opener[0], opener[1], { detached: true, stdio: 'ignore' }).unref();
+    try {
+      // R-7.89 — headless/CI/Docker boxes have no xdg-open (Linux) or
+      // `open` (sandboxed mac). Without an 'error' listener the failed
+      // spawn emits an UNCAUGHT 'error' event that kills the whole dev
+      // server — even though the API + UI already bound successfully.
+      // Attach the listener so a missing browser-opener is a no-op, not
+      // a crash. Operator just opens the printed URL by hand.
+      const child = spawn(opener[0], opener[1], { detached: true, stdio: 'ignore' });
+      child.on('error', () => {
+        console.log(`[dev] (couldn't auto-open a browser — open ${url} manually)`);
+      });
+      child.unref();
+    } catch {
+      console.log(`[dev] (couldn't auto-open a browser — open ${url} manually)`);
+    }
   }, 1500);
 }
 
