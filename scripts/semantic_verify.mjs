@@ -109,23 +109,39 @@ const methodology = {
 };
 
 // ── the judge schema (tri-state per dimension; inconclusive first) ──────────
+//
+// Schema is intentionally FLAT — Gemini Flash reliably honours response_schema
+// when fields are top-level but stumbles on deeply-nested objects (verified by
+// direct curl + gateway tests: nested 5-dim schema returns text, flat returns
+// strict JSON). We reshape into the nested {verdict, reasoning} structure
+// after parsing so the rest of the system sees the friendlier form.
 
-const DIM = { type: 'object', properties: {
-  verdict: { type: 'string', enum: ['inconclusive', 'pass', 'fail'] },
-  reasoning: { type: 'string' },
-  evidence_quote: { type: 'string' },
-}, required: ['verdict', 'reasoning'] };
-
+const TRI = { type: 'string', enum: ['inconclusive', 'pass', 'fail'] };
 const SCHEMA = { type: 'object', properties: {
-  mission_fulfilled: DIM,
-  conditions_met: DIM,
-  methodology_followed: DIM,
-  works_as_described: DIM,
-  connections_consistent: DIM,
-  overall: { type: 'string', enum: ['inconclusive', 'pass', 'fail'] },
+  mission_fulfilled: TRI,        mission_reasoning: { type: 'string' },
+  conditions_met: TRI,           conditions_reasoning: { type: 'string' },
+  methodology_followed: TRI,     methodology_reasoning: { type: 'string' },
+  works_as_described: TRI,       works_reasoning: { type: 'string' },
+  connections_consistent: TRI,   connections_reasoning: { type: 'string' },
+  overall: TRI,
   summary: { type: 'string' },
   todo_to_pass: { type: 'array', items: { type: 'string' } },
-}, required: ['mission_fulfilled', 'conditions_met', 'methodology_followed', 'works_as_described', 'connections_consistent', 'overall', 'summary', 'todo_to_pass'] };
+}, required: ['mission_fulfilled', 'mission_reasoning', 'conditions_met', 'conditions_reasoning', 'methodology_followed', 'methodology_reasoning', 'works_as_described', 'works_reasoning', 'connections_consistent', 'connections_reasoning', 'overall', 'summary', 'todo_to_pass'] };
+
+function reshapeVerdict(flat) {
+  if (!flat || typeof flat !== 'object') return null;
+  const pair = (v, r) => ({ verdict: flat[v] || 'inconclusive', reasoning: flat[r] || '', evidence_quote: '' });
+  return {
+    mission_fulfilled: pair('mission_fulfilled', 'mission_reasoning'),
+    conditions_met: pair('conditions_met', 'conditions_reasoning'),
+    methodology_followed: pair('methodology_followed', 'methodology_reasoning'),
+    works_as_described: pair('works_as_described', 'works_reasoning'),
+    connections_consistent: pair('connections_consistent', 'connections_reasoning'),
+    overall: flat.overall || 'inconclusive',
+    summary: flat.summary || '',
+    todo_to_pass: Array.isArray(flat.todo_to_pass) ? flat.todo_to_pass : [],
+  };
+}
 
 function buildPrompt() {
   const s = [];
@@ -172,20 +188,21 @@ const COST_CAP = Number(process.env.SEMANTIC_VERIFY_COST_CAP_USD || 0.05);
   const t0 = Date.now();
   let value, trace;
   try {
-    const r = await callLLM({ prompt: buildPrompt(), schema: SCHEMA, op: 'semantic_verify', max_tokens: 1200, temperature: 0 });
+    const r = await callLLM({ prompt: buildPrompt(), schema: SCHEMA, op: 'semantic_verify', max_tokens: 8000, temperature: 0 });
     value = r.value || {}; trace = r.trace || {};
   } catch (e) {
     value = null; trace = { provider: 'error', cost_usd: 0 };
   }
 
+  // Reshape flat schema → nested {verdict, reasoning} per dimension.
+  const reshaped = reshapeVerdict(value);
   const inconclusiveDim = (reason) => ({ verdict: 'inconclusive', reasoning: reason, evidence_quote: '' });
-  // A mock / no-key / error run yields a deterministic-empty shape (overall set
-  // to the enum's first value «inconclusive», but no real reasoning). Treat
+  // A mock / no-key / error run yields a deterministic-empty shape. Treat
   // that — and any genuinely empty summary — as the honest «no live judge»
   // fallback, never a silent pass.
   const isMock = trace.provider === 'mock' || trace.provider === 'error';
-  const hasRealVerdict = value && value.overall && value.summary && value.summary.trim().length > 0 && !isMock;
-  const safe = hasRealVerdict ? value : {
+  const hasRealVerdict = reshaped && reshaped.overall && reshaped.summary && reshaped.summary.trim().length > 0 && !isMock;
+  const safe = hasRealVerdict ? reshaped : {
     mission_fulfilled: inconclusiveDim('no LLM verdict (mock / no key / error) — semantic check could not run'),
     conditions_met: inconclusiveDim('no LLM verdict'),
     methodology_followed: inconclusiveDim('no LLM verdict'),

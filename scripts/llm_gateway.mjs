@@ -433,7 +433,17 @@ async function callGoogle({ model, system, prompt, schema, max_tokens, temperatu
   };
   if (schema) {
     let parsed;
-    try { parsed = JSON.parse(text); }
+    // Strip markdown fences (```json ... ``` or ``` ... ```) — gemini-2.5-flash
+    // emits them despite responseMimeType=application/json on long schemas.
+    let body = text.trim();
+    const fence = body.match(/^```(?:json)?\s*\n([\s\S]*?)\n```\s*$/);
+    if (fence) body = fence[1].trim();
+    // Also tolerate a stray prefix line and only-first-object cases.
+    if (!body.startsWith('{') && !body.startsWith('[')) {
+      const m = body.match(/[{\[]/);
+      if (m) body = body.slice(m.index);
+    }
+    try { parsed = JSON.parse(body); }
     catch (e) { throw new Error(`google did not return JSON: ${text.slice(0, 200)}`); }
     return { value: parsed, usage };
   }
