@@ -64,3 +64,5 @@
 2026-06-05T22:32:30.651Z	ingestion	pass	queue applied
 2026-06-05T22:37:38.404Z	acceptance_verifier	pass	verdict=pass pass=3 fail=0 skipped=2
 2026-06-05T22:55:51.358Z	acceptance_verifier	pass	verdict=pass pass=3 fail=0 skipped=2
+2026-06-06T06:39:28.451Z	semantic_verify	fail	mission_fulfilled=fail conditions_met=fail methodology_followed=pass works_as_described=fail connections_consistent=pass
+2026-06-06T06:43:53.809Z	agent_invocation	pass	agent=print-only mode=print-only file=atlas/agent_invocations/2026-06-06T06-43-53-806Z__b.docs.txt

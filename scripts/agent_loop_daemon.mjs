@@ -187,8 +187,15 @@ function pickNextRunnable(graph, attempted) {
     if (!eligibleStatus) return false;
     if (isPlaceholderMission(b.id)) return false;          // nothing to implement yet
     if (!hasDeterministicAcceptance(b.id)) return false;   // verifier can't gate it autonomously
-    const deps = parseDeps(b.id);
-    if (!deps.every((d) => !byId.has(d) || isDone(d))) return false; // deps satisfied
+    // Deps check: required for blocks being implemented FROM SCRATCH (idea/
+    // todo/wip → done). NOT required for done-block remediation: if the block
+    // is already done, its deps were satisfied at promotion time and we're
+    // only fixing its semantic gap (e.g. an internal bug), not rebuilding.
+    const isRemediation = b.status === 'done';
+    if (!isRemediation) {
+      const deps = parseDeps(b.id);
+      if (!deps.every((d) => !byId.has(d) || isDone(d))) return false;
+    }
     return true;
   });
   // Prefer closest-to-done (wip > todo > idea), then semantic-red done blocks
