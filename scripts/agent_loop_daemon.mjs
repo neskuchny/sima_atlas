@@ -156,20 +156,44 @@ function isPlaceholderMission(id) {
   return !md || /Заполни через|fill in via|укажите конкретную|первая задача|first task|Описание модуля Новый/i.test(md);
 }
 
+// R-7.95 — a `done` block whose persisted semantic_review.json says the
+// implementation does NOT match the contract (mission or methodology FAILED)
+// is no longer truly done by the Kanon's «Contract as Arbiter» standard.
+// Operator's transcript: «мы могли потом запустить нашу систему, и она
+// прошлась по всем блокам, всё проверила и всё переписала так, как нужно».
+// The loop picks such blocks back up (treats them as runnable) so the agent
+// gets the previous run's todo_to_pass and can remediate.
+function isDoneButSemanticRed(id) {
+  const p = path.join(blockDir(id), 'semantic_review.json');
+  if (!fs.existsSync(p)) return false;
+  try {
+    const sr = JSON.parse(fs.readFileSync(p, 'utf8'));
+    if (sr.mock) return false; // inconclusive → don't disturb
+    return sr.mission_fulfilled?.verdict === 'fail' || sr.methodology_followed?.verdict === 'fail';
+  } catch { return false; }
+}
+
 function pickNextRunnable(graph, attempted) {
   const byId = new Map((graph.blocks || []).map((b) => [b.id, b]));
   const isDone = (id) => DONE_STATUSES.has(byId.get(id)?.status);
+  // «still done» for dependency-satisfaction: a semantic-red done block still
+  // counts as done for OTHER blocks (depends_on satisfied) — we don't cascade
+  // distrust — but the daemon will revisit it on its own pass.
   const candidates = (graph.blocks || []).filter((b) => {
     if (attempted.has(b.id)) return false;                 // one shot per block per run
-    if (!RUNNABLE_STATUSES.has(b.status)) return false;    // skip done/review/broken/desync/archived
+    // Include done blocks ONLY IF semantic review says they failed.
+    const eligibleStatus = RUNNABLE_STATUSES.has(b.status)
+      || (b.status === 'done' && isDoneButSemanticRed(b.id));
+    if (!eligibleStatus) return false;
     if (isPlaceholderMission(b.id)) return false;          // nothing to implement yet
     if (!hasDeterministicAcceptance(b.id)) return false;   // verifier can't gate it autonomously
     const deps = parseDeps(b.id);
     if (!deps.every((d) => !byId.has(d) || isDone(d))) return false; // deps satisfied
     return true;
   });
-  // Prefer closest-to-done (wip > todo > idea), then fewest deps.
-  const rank = { wip: 0, todo: 1, idea: 2 };
+  // Prefer closest-to-done (wip > todo > idea), then semantic-red done blocks
+  // (so the loop finishes started work before starting new), then fewest deps.
+  const rank = { wip: 0, todo: 1, idea: 2, done: 3 };
   candidates.sort((a, b) =>
     (rank[a.status] ?? 9) - (rank[b.status] ?? 9) || parseDeps(a.id).length - parseDeps(b.id).length);
   return candidates[0] || null;
@@ -285,9 +309,18 @@ function iterate() {
     }
 
     if (passed && !regressed && !semanticFail) {
-      const adv = advanceTowardDone(block.id, block.status, `agent-loop: verifier pass + semantic ${semanticVerdict} (iteration ${iteration})`);
-      entry.action = 'pass';
-      entry.advanced_to = adv.to;
+      // For a semantic-red done block we just re-judged: if it's now green we
+      // DON'T need to advance (it stays `done`) — the verdict update IS the
+      // promotion. Otherwise walk one gated step.
+      const wasDoneRemediation = block.status === 'done';
+      if (wasDoneRemediation) {
+        entry.action = 'pass';
+        entry.advanced_to = 'done (remediated)';
+      } else {
+        const adv = advanceTowardDone(block.id, block.status, `agent-loop: verifier pass + semantic ${semanticVerdict} (iteration ${iteration})`);
+        entry.action = 'pass';
+        entry.advanced_to = adv.to;
+      }
       consecutiveFails = 0;
       if (snapshot) snapshot.discard(); // run was good — drop the safety copy
     } else {

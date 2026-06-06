@@ -2016,6 +2016,13 @@
   "lanes": [],
   "history": [
     {
+      "ts": "12:40",
+      "module": "core-sync",
+      "agent": "sima-core",
+      "kind": "info",
+      "msg": "b.core-sync: idea → wip"
+    },
+    {
       "ts": "12:49",
       "module": "agent-orchestrator",
       "agent": "sima-core",
@@ -2091,13 +2098,6 @@
       "agent": "sima-core",
       "kind": "ok",
       "msg": "b.docs: review → done"
-    },
-    {
-      "ts": "23:50",
-      "module": "db",
-      "agent": "sima-core",
-      "kind": "info",
-      "msg": "b.db: idea → wip"
     }
   ],
   "lessons": [],
@@ -2129,7 +2129,7 @@
     }
   ],
   "_meta": {
-    "generated_at": "2026-06-05T23:52:29.220Z",
+    "generated_at": "2026-06-06T00:24:14.507Z",
     "atlas_root": "atlas",
     "client_id": null,
     "block_count": 17,
