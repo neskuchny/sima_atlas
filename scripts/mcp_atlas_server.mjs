@@ -262,7 +262,7 @@ rl.on('line', (line) => {
   try { msg = JSON.parse(line); } catch { return; }
   const { id, method, params } = msg;
   try {
-    if (method === 'initialize') return respond(id, { protocolVersion:'2024-11-05', serverInfo:{ name:'sima-atlas-mcp', version:'0.1.0' }, capabilities:{ tools:{} } });
+    if (method === 'initialize') return respond(id, { protocolVersion:'2024-11-05', serverInfo:{ name:'sima-atlas-mcp', version:'0.3.0' }, capabilities:{ tools:{} } });
     if (method === 'tools/list') return respond(id, { tools: toolList() });
     if (method === 'tools/call') {
       const name = params?.name;

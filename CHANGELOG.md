@@ -6,6 +6,96 @@ Sima Atlas сейчас в early-stage (`0.x`), API может меняться 
 
 ---
 
+## [0.3.0] — 2026-06-06 — *the loop actually closes*
+
+> Roll-up of the arc that finished «closing the loop» (Phases I–IV +
+> R-7.91 → R-7.96). v0.2.0 shipped the memory layer, lock-in, context
+> economy and the at-a-glance status. v0.3.0 adds the two pieces that make
+> the loop autonomous and honest: **the V-1 autonomous loop daemon** and
+> **the semantic verifier (Contract as Arbiter)** — Sima now walks its own
+> graph and judges whether the code matches the *meaning*, not just whether
+> files exist.
+
+### What landed
+
+**Autonomy — V-1 autonomous loop daemon (Phase IV, R-7.91 → R-7.96)**
+- `scripts/agent_loop_daemon.mjs` — Ralph-loop-shaped one-shot (cron-friendly,
+  not a resident process): pick next runnable block → fresh agent →
+  tri-state verifier → CI-stays-green guard → semantic gate → record to disk
+  → repeat, with iteration / budget / circuit-breaker caps. Print-only by
+  default (the first run shows what it *would* do; `--agent claude` arms it).
+- **Auto-rollback** via owned-files snapshot: a run that regresses a
+  previously-green `done` block is reverted, leaving the tree no worse.
+- **Autonomous** + **Change-sets** + **Cleanup** canvas tabs; nightly cron
+  recipe documented (R-7.93).
+- V-1 **revisits semantic-red `done` blocks**: a block the semantic judge
+  marked `fail` is picked back up and fed the previous run's `todo_to_pass`,
+  so «the system walks every block and rewrites what's wrong» is real
+  (R-7.95). Remediation skips the deps gate — a done block's deps were
+  already satisfied at promotion (R-7.96).
+
+**Contract as Arbiter — the semantic verifier (R-7.94 → R-7.95)**
+- `scripts/semantic_verify.mjs` — an LLM-judge that reads the WHOLE contract
+  (mission · user_story · kpi · acceptance · provides · depends_on) +
+  methodology (architecture_decisions · tech_stack · rules · dont_use ·
+  always_use) + the REAL code + neighbour contracts, and returns a tri-state
+  verdict on five dimensions: *matches mission (meaning) · meets KPIs +
+  acceptance · follows methodology · will work as described · connections
+  consistent* — plus a `todo_to_pass` punch-list. Persisted to
+  `blocks/<id>/semantic_review.json`, surfaced as a Semantic Review panel.
+- **Honest degradation**: no API key / mock → `inconclusive`, never a false
+  pass. With a live key it runs on a **non-thinking** model (gemini-2.5-flash);
+  Gemini-Flash schema quirks worked around (flat 13-field schema, fence/prose
+  stripping, budget bump).
+- Wired into V-1 as a promotion gate: deterministic checks passing is no
+  longer enough — a hard mission/methodology `fail` blocks promotion.
+
+**user_story as a first-class TOP layer (R-7.95)**
+- `blocks/<id>/user_story.md` now flows into the design + backend-fix
+  context-packs, the implementation prompt, and the semantic bundle — so
+  «what the user actually wants» sits above mission everywhere.
+
+**Transactional change-sets (S-7) + global economics (S-9.1)**
+- `scripts/change_set.mjs` — group cross-cutting edits; commit is refused
+  unless every member block is green. Rollback writes to narrative for
+  operator review (never silently reverts code).
+- Global **Token Economics** tab with sparkline + cost-per-pass ROI.
+
+**Import-graph dead-code (S-12)**
+- Detects files unreachable from any entrypoint's import graph (vs orphan-code
+  which only catches files unmentioned in contracts) — 0 false positives on a
+  clean tree. Surfaced in the Cleanup tab; never auto-deletes (move-with-
+  breadcrumb only).
+
+**Production-Ready Starter (Phase III) + dogfood (Phases I–II)**
+- S-1 block templates, S-10 profile-UI, S-11 subsystem roll-up.
+- «Sima fixes Sima»: graph brought in sync with reality; nightly honestly
+  green 70/70 (corrected from a stale 68/68 that was really 60/70).
+
+### What's still on the roadmap (next, post-0.3.0)
+- **Gap #15** — auto-ingest Cursor / Codex chats (SQLite `state.vscdb` +
+  Codex logs) the way `~/.claude/projects/` is already watched.
+- Run the semantic verifier across the remaining `done` blocks for a full
+  red-state map.
+
+### Verification
+```bash
+node scripts/nightly_consolidation.mjs                 # 70/70 PASS
+node scripts/agent_loop_daemon.mjs --dry-run           # V-1 plans, runs nothing
+node scripts/semantic_verify.mjs b.docs --json         # inconclusive without a key
+node scripts/token_economics.mjs --days 30
+```
+
+### PRs merged in this release
+- [#47](https://github.com/neskuchny/sima_atlas/pull/47) — Phase III «Production-Ready Starter»: S-1 templates + S-10 profile UI + S-11 roll-up
+- [#48](https://github.com/neskuchny/sima_atlas/pull/48) — Phase IV (V-1 MVP): autonomous loop daemon, Ralph-loop shaped
+- [#49](https://github.com/neskuchny/sima_atlas/pull/49) — S-7 transactional change-sets + S-9.1 global economics tab
+- [#50](https://github.com/neskuchny/sima_atlas/pull/50) — V-1 auto-rollback + Autonomous/Change-sets/Cleanup tabs + S-12 import-graph dead-code
+- [#51](https://github.com/neskuchny/sima_atlas/pull/51) — holistic semantic verifier (Contract as Arbiter)
+- [#52](https://github.com/neskuchny/sima_atlas/pull/52) — user_story everywhere + V-1 re-enters semantic-red done blocks
+
+---
+
 ## [0.2.0] — 2026-05-09 — *closing the loop*
 
 > Roll-up of phases R-7.76 → R-7.87 + full doc-sync. Per-phase detail in
