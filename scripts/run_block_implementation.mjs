@@ -110,6 +110,21 @@ const checksTail = tailLines(readSafe(path.join(blockDir, 'checks.log')), 30);
 const decisions = readSafe(path.join(blockDir, 'decisions.log')).trim();
 const codeSummary = readSafe(path.join(blockDir, 'code_summary.md')).trim();
 const narrative = readSafe(path.join(blockDir, 'narrative.md')).trim();
+// R-7.95 — the last semantic review's `todo_to_pass` is the concrete list of
+// what the «Contract as Arbiter» said must change for the block to genuinely
+// satisfy its contract. When present, inject it into the prompt so the agent
+// works from that list, not from its own guess. This is the loop that
+// «доделывает блоки исходя из того что там написано» (operator's words).
+const userStory = readSafe(path.join(blockDir, 'user_story.md')).trim();
+let semanticTodo = '';
+try {
+  const sr = JSON.parse(readSafe(path.join(blockDir, 'semantic_review.json')) || '{}');
+  if (!sr.mock && Array.isArray(sr.todo_to_pass) && sr.todo_to_pass.length) {
+    semanticTodo = `### Semantic verdict (Contract-as-Arbiter) said this is NOT yet right\n`
+      + `overall: ${sr.overall} · summary: ${sr.summary || ''}\n\n**TO GENUINELY SATISFY THE CONTRACT, DO THESE (this is the most important section):**\n`
+      + sr.todo_to_pass.map((t) => `  - ${t}`).join('\n') + '\n';
+  }
+} catch {}
 const profileDir = path.join(ATLAS, 'operator_profile');
 const opMem = {
   lessons:    (readJsonSafe(path.join(profileDir, 'lessons.json'))?.lessons || []).filter(e => !e.block_id || e.block_id === blockId).slice(-15),
@@ -167,6 +182,8 @@ const prompt = [
   narrative ? `### Run history (human-readable):\n${tailLines(narrative, 80)}\n` : '',
   codeSummary ? `### Current code summary:\n${codeSummary}\n` : '',
   checksTail ? `### Recent run log (last 30 lines of checks.log):\n\`\`\`\n${checksTail}\n\`\`\`\n` : '',
+  userStory ? `### User story (TOP-layer — what the user actually wants)\n${userStory}\n` : '',
+  semanticTodo,
   extraPrompt ? `## Operator note\n${extraPrompt}\n` : '',
   '## How to report progress',
   `Append a line to \`${path.relative(ROOT, blockDir).split(path.sep).join('/')}/checks.log\` with the test/check result.`,

@@ -94,6 +94,11 @@ const filterByBlock = (arr) => arr.filter((e) => !e.block_id || e.block_id === b
 
 const contract = {
   mission: read(path.join(dir, 'mission.md')),
+  // R-7.95 — user_story is the «top layer» (per operator's transcript: «User
+  // story у нас тоже должен быть… LLM-валидатор проверяет что код реально
+  // решает эту историю»). The judge must see what the USER actually wants,
+  // not just the mission's framing.
+  user_story: read(path.join(dir, 'user_story.md')),
   kpi: read(path.join(dir, 'kpi.md')),
   acceptance: read(path.join(dir, 'acceptance.md')),
   provides: read(path.join(dir, 'provides.md')),
@@ -109,23 +114,39 @@ const methodology = {
 };
 
 // ── the judge schema (tri-state per dimension; inconclusive first) ──────────
+//
+// Schema is intentionally FLAT — Gemini Flash reliably honours response_schema
+// when fields are top-level but stumbles on deeply-nested objects (verified by
+// direct curl + gateway tests: nested 5-dim schema returns text, flat returns
+// strict JSON). We reshape into the nested {verdict, reasoning} structure
+// after parsing so the rest of the system sees the friendlier form.
 
-const DIM = { type: 'object', properties: {
-  verdict: { type: 'string', enum: ['inconclusive', 'pass', 'fail'] },
-  reasoning: { type: 'string' },
-  evidence_quote: { type: 'string' },
-}, required: ['verdict', 'reasoning'] };
-
+const TRI = { type: 'string', enum: ['inconclusive', 'pass', 'fail'] };
 const SCHEMA = { type: 'object', properties: {
-  mission_fulfilled: DIM,
-  conditions_met: DIM,
-  methodology_followed: DIM,
-  works_as_described: DIM,
-  connections_consistent: DIM,
-  overall: { type: 'string', enum: ['inconclusive', 'pass', 'fail'] },
+  mission_fulfilled: TRI,        mission_reasoning: { type: 'string' },
+  conditions_met: TRI,           conditions_reasoning: { type: 'string' },
+  methodology_followed: TRI,     methodology_reasoning: { type: 'string' },
+  works_as_described: TRI,       works_reasoning: { type: 'string' },
+  connections_consistent: TRI,   connections_reasoning: { type: 'string' },
+  overall: TRI,
   summary: { type: 'string' },
   todo_to_pass: { type: 'array', items: { type: 'string' } },
-}, required: ['mission_fulfilled', 'conditions_met', 'methodology_followed', 'works_as_described', 'connections_consistent', 'overall', 'summary', 'todo_to_pass'] };
+}, required: ['mission_fulfilled', 'mission_reasoning', 'conditions_met', 'conditions_reasoning', 'methodology_followed', 'methodology_reasoning', 'works_as_described', 'works_reasoning', 'connections_consistent', 'connections_reasoning', 'overall', 'summary', 'todo_to_pass'] };
+
+function reshapeVerdict(flat) {
+  if (!flat || typeof flat !== 'object') return null;
+  const pair = (v, r) => ({ verdict: flat[v] || 'inconclusive', reasoning: flat[r] || '', evidence_quote: '' });
+  return {
+    mission_fulfilled: pair('mission_fulfilled', 'mission_reasoning'),
+    conditions_met: pair('conditions_met', 'conditions_reasoning'),
+    methodology_followed: pair('methodology_followed', 'methodology_reasoning'),
+    works_as_described: pair('works_as_described', 'works_reasoning'),
+    connections_consistent: pair('connections_consistent', 'connections_reasoning'),
+    overall: flat.overall || 'inconclusive',
+    summary: flat.summary || '',
+    todo_to_pass: Array.isArray(flat.todo_to_pass) ? flat.todo_to_pass : [],
+  };
+}
 
 function buildPrompt() {
   const s = [];
@@ -133,6 +154,13 @@ function buildPrompt() {
   s.push('');
   s.push('## The block contract (what it is supposed to be)');
   s.push(`### mission (the MEANING)\n${contract.mission || '(empty)'}`);
+  // user_story is the TOP layer (as I/who/want/so-that): the user's actual
+  // job. The judge must check the implementation against this BEFORE the
+  // narrower acceptance — if acceptance passes but the user_story isn't
+  // satisfied, that's a mission_fulfilled FAIL.
+  if (contract.user_story && contract.user_story.trim().length > 30) {
+    s.push(`### user_story (the TOP layer — what the user actually wants)\n${contract.user_story}`);
+  }
   s.push(`### kpi (measurable conditions)\n${contract.kpi || '(empty)'}`);
   s.push(`### acceptance (definition of done)\n${contract.acceptance || '(empty)'}`);
   s.push(`### provides (downstream contract)\n${contract.provides || '(none)'}`);
@@ -154,7 +182,7 @@ function buildPrompt() {
   for (const d of depProvides) s.push(`### ${d.id} provides\n${d.provides || '(empty)'}`);
   s.push('');
   s.push('## Your judgment — five dimensions, each tri-state {pass|fail|inconclusive}');
-  s.push('1. mission_fulfilled — does the built code fulfil the mission\'s MEANING (not a locally-simpler substitute that misses the point)?');
+  s.push('1. mission_fulfilled — does the built code fulfil the mission\'s MEANING and, where given, the USER_STORY (what the user actually wants — As/When/I want/So that)? A locally-simpler substitute that misses the point is a FAIL even if the mission text is loosely satisfied.');
   s.push('2. conditions_met — does it satisfy the KPIs and the INTENT of acceptance (even beyond the literal deterministic checks)?');
   s.push('3. methodology_followed — does it honour architecture_decisions / tech_stack / rules / dont_use / always_use? A violation here (e.g. a regex where an LLM was required, a JSON file where Postgres was locked) is a FAIL even if tests pass.');
   s.push('4. works_as_described — reasoning about functional correctness: given the code, will it actually behave as the mission describes? Name concrete risks.');
@@ -172,20 +200,21 @@ const COST_CAP = Number(process.env.SEMANTIC_VERIFY_COST_CAP_USD || 0.05);
   const t0 = Date.now();
   let value, trace;
   try {
-    const r = await callLLM({ prompt: buildPrompt(), schema: SCHEMA, op: 'semantic_verify', max_tokens: 1200, temperature: 0 });
+    const r = await callLLM({ prompt: buildPrompt(), schema: SCHEMA, op: 'semantic_verify', max_tokens: 8000, temperature: 0 });
     value = r.value || {}; trace = r.trace || {};
   } catch (e) {
     value = null; trace = { provider: 'error', cost_usd: 0 };
   }
 
+  // Reshape flat schema → nested {verdict, reasoning} per dimension.
+  const reshaped = reshapeVerdict(value);
   const inconclusiveDim = (reason) => ({ verdict: 'inconclusive', reasoning: reason, evidence_quote: '' });
-  // A mock / no-key / error run yields a deterministic-empty shape (overall set
-  // to the enum's first value «inconclusive», but no real reasoning). Treat
+  // A mock / no-key / error run yields a deterministic-empty shape. Treat
   // that — and any genuinely empty summary — as the honest «no live judge»
   // fallback, never a silent pass.
   const isMock = trace.provider === 'mock' || trace.provider === 'error';
-  const hasRealVerdict = value && value.overall && value.summary && value.summary.trim().length > 0 && !isMock;
-  const safe = hasRealVerdict ? value : {
+  const hasRealVerdict = reshaped && reshaped.overall && reshaped.summary && reshaped.summary.trim().length > 0 && !isMock;
+  const safe = hasRealVerdict ? reshaped : {
     mission_fulfilled: inconclusiveDim('no LLM verdict (mock / no key / error) — semantic check could not run'),
     conditions_met: inconclusiveDim('no LLM verdict'),
     methodology_followed: inconclusiveDim('no LLM verdict'),

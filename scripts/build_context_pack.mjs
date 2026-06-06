@@ -108,6 +108,7 @@ function buildBlockSection(profile) {
     return {
       ...base,
       mission: read(path.join(dir, 'mission.md')),
+      user_story: read(path.join(dir, 'user_story.md')),
       acceptance: read(path.join(dir, 'acceptance.md')),
       files_alive: aliveFilesFromMd(read(path.join(dir, 'files.md'))),
       narrative: read(path.join(dir, 'narrative.md')),
@@ -118,6 +119,7 @@ function buildBlockSection(profile) {
     return {
       ...base,
       mission: read(path.join(dir, 'mission.md')),
+      user_story: read(path.join(dir, 'user_story.md')),
       acceptance: read(path.join(dir, 'acceptance.md')),
       tasks: read(path.join(dir, 'tasks.md')),
       files_alive: aliveFilesFromMd(read(path.join(dir, 'files.md'))),
@@ -132,6 +134,7 @@ function buildBlockSection(profile) {
   return {
     ...base,
     mission: read(path.join(dir, 'mission.md')),
+    user_story: read(path.join(dir, 'user_story.md')),
     kpi: read(path.join(dir, 'kpi.md')),
     acceptance: read(path.join(dir, 'acceptance.md')),
     tasks: read(path.join(dir, 'tasks.md')),
