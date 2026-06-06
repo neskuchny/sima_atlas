@@ -64,17 +64,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/mcp_smoke_e2e.mjs → exit 0 (518ms); first line: \"mcp_smoke_e2e: OK\"",
+      "evidence": "node scripts/mcp_smoke_e2e.mjs → exit 0 (465ms); first line: \"mcp_smoke_e2e: OK\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/mcp_smoke_e2e.mjs",
         "exit_code": 0,
         "stdout": "mcp_smoke_e2e: OK\n",
         "stderr": "",
-        "duration_ms": 518,
+        "duration_ms": 465,
         "timed_out": false
       },
-      "duration_ms": 518
+      "duration_ms": 465
     }
   ],
   "counts": {
@@ -83,6 +83,6 @@
     "skipped": 1
   },
   "verdict": "pass",
-  "duration_ms": 520,
-  "checked_at": "2026-06-06T00:24:25.399Z"
+  "duration_ms": 465,
+  "checked_at": "2026-06-06T15:50:54.107Z"
 }
