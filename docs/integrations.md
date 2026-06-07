@@ -163,6 +163,16 @@ Create `.cursor/mcp.json` in your project directory:
 
 **Verification:** Cursor → Settings → MCP → sima-atlas should be `green`. Or in chat, ask "list available MCP tools" — you should see `mcp__sima-atlas__*`.
 
+**Auto-ingest Cursor chats into Sima** (R-7.97). `sima_watch_chats` can read Cursor's chat history directly from `state.vscdb` (the SQLite store Cursor uses for composer chats, bubble rows, and the legacy chat panel). Requirements: `sqlite3` CLI on PATH (`apt/brew install sqlite3`). Default DB paths it probes:
+
+| OS | Path |
+|---|---|
+| Linux | `~/.config/Cursor/User/globalStorage/state.vscdb` |
+| macOS | `~/Library/Application Support/Cursor/User/globalStorage/state.vscdb` |
+| Windows | `%APPDATA%/Cursor/User/globalStorage/state.vscdb` |
+
+Override with `CURSOR_STATE_DB=/path/to/state.vscdb`. Reads are `-readonly` so they don't fight Cursor's own writes. Try it: `node scripts/sima_watch_chats.mjs --once --source cursor --json`.
+
 ---
 
 ## Codex CLI (OpenAI)
@@ -179,6 +189,8 @@ cwd = "/absolute/path/to/sima_atlas"
 **Verification:** `codex mcp list` should show `sima-atlas`. In a session — ask Codex to use a Sima tool.
 
 > The exact Codex config syntax can shift between versions. If this format doesn't work — check `codex mcp --help` and `codex --version`, and send a PR with the current shape.
+
+**Auto-ingest Codex chats into Sima** (R-7.97). `sima_watch_chats` reads `~/.codex/sessions/*.jsonl` (and `~/.codex/history/` as a fallback). Handles three line shapes: structured message content blocks, flat `{role, content: "..."}`, and the older streaming `input_text` / `output_text` chunks (auto-merged into clean turns). Override with `CODEX_SESSIONS_DIR=/path/to/sessions`. Try it: `node scripts/sima_watch_chats.mjs --once --source codex --json`.
 
 ---
 
@@ -280,7 +292,7 @@ If your agent doesn't support MCP, you can still use Sima via plain shell comman
 | MCP tool | CLI equivalent |
 |---|---|
 | `sima_fill_from_chat` | `node scripts/sima_fill_from_chat.mjs --stdin --json` |
-| `sima_watch_chats` | `node scripts/sima_watch_chats.mjs --once --json` |
+| `sima_watch_chats` | `node scripts/sima_watch_chats.mjs --once --json` (all sources) · `... --source claude,codex` (subset) |
 | `read_block` | `cat atlas/blocks/<id>/*.md` |
 | `verify_block_acceptance` | `node scripts/acceptance_verifier.mjs <id>` |
 | `cascade_verify` | `node scripts/cascade_verify.mjs <id> [--dry-run] [--client <c>]` |

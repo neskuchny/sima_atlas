@@ -48,7 +48,7 @@ const noise = [
 fs.writeFileSync(sessionFile, [...realConvo, ...noise].join(''), 'utf8');
 
 // Run 1: should harvest the real convo, ignore noise, produce a plan.
-const r1 = await watchOnce({ root: tmp, mode: 'propose', minNewChars: 50 });
+const r1 = await watchOnce({ root: tmp, sources: ['claude'], mode: 'propose', minNewChars: 50 });
 assert.ok(r1.files_total >= 1, 'should see synthetic jsonl');
 assert.ok(r1.new_turns >= 3, `expected ≥3 conversational turns, got ${r1.new_turns}`);
 assert.ok(r1.new_chars >= 100, `expected meaningful new chars, got ${r1.new_chars}`);
@@ -57,20 +57,20 @@ assert.ok(r1.plan && r1.plan.id, 'plan must be produced');
 assert.ok(r1.plan.mock === true, 'in mock mode plan should be flagged mock');
 
 // Run 2: same file, cursor advanced → nothing new.
-const r2 = await watchOnce({ root: tmp, mode: 'propose', minNewChars: 50 });
+const r2 = await watchOnce({ root: tmp, sources: ['claude'], mode: 'propose', minNewChars: 50 });
 assert.equal(r2.new_turns, 0, 'second pass should see no new turns');
 assert.ok(r2.skipped_reason, 'second pass should record skipped_reason');
 assert.equal(r2.plan, null, 'no plan on a no-op pass');
 
 // Run 3: append more conversation → picked up.
 fs.appendFileSync(sessionFile, jl({ type: 'user', timestamp: '2026-05-06T11:00:00Z', message: { role: 'user', content: 'А ещё надо блок биллинга — Stripe-подписки, retry для failed charges, и KPI churn < 5% в месяц.' } }), 'utf8');
-const r3 = await watchOnce({ root: tmp, mode: 'propose', minNewChars: 50 });
+const r3 = await watchOnce({ root: tmp, sources: ['claude'], mode: 'propose', minNewChars: 50 });
 assert.equal(r3.new_turns, 1, `third pass should pick up the appended turn (got ${r3.new_turns})`);
 assert.ok(r3.plan && r3.plan.id, 'third pass should produce a plan');
 
 // Run 4: file truncated (rotated) — cursor should reset and re-read.
 fs.writeFileSync(sessionFile, realConvo[0], 'utf8');
-const r4 = await watchOnce({ root: tmp, mode: 'propose', minNewChars: 50 });
+const r4 = await watchOnce({ root: tmp, sources: ['claude'], mode: 'propose', minNewChars: 50 });
 assert.ok(r4.new_turns >= 1, `rotated file should be re-read from 0 (got new_turns=${r4.new_turns}, skipped=${r4.skipped_reason})`);
 
 console.log('sima_watch_chats.selftest: OK (4 passes, mock provider, noise filtered, cursor + rotation handled)');

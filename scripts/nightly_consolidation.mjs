@@ -58,6 +58,8 @@ const checks = [
   ['atlas_files_api_selftest', 'node tests/atlas_files_api.selftest.mjs'],
   ['cleanup_block_memory_selftest', 'node tests/cleanup_block_memory.selftest.mjs'],
   ['sima_watch_chats_selftest', 'node tests/sima_watch_chats.selftest.mjs'],
+  ['codex_source_selftest', 'node tests/codex_source.selftest.mjs'],
+  ['cursor_source_selftest', 'node tests/cursor_source.selftest.mjs'],
   ['chat_fill_accept_selftest', 'node tests/chat_fill_accept.selftest.mjs'],
   ['multi_tenant_block_routing_selftest', 'node tests/multi_tenant_block_routing.selftest.mjs'],
   ['build_sima_design_payload', 'node scripts/build_sima_design_payload.mjs'],

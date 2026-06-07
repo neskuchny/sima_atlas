@@ -70,11 +70,27 @@ Sima Atlas сейчас в early-stage (`0.x`), API может меняться 
 **Production-Ready Starter (Phase III) + dogfood (Phases I–II)**
 - S-1 block templates, S-10 profile-UI, S-11 subsystem roll-up.
 - «Sima fixes Sima»: graph brought in sync with reality; nightly honestly
-  green 70/70 (corrected from a stale 68/68 that was really 60/70).
+  green 72/72 (corrected from a stale 68/68 that was really 60/70; +2 from
+  the R-7.97 source selftests).
+
+**Multi-source chat ingestion (R-7.97, Gap #15)**
+- `scripts/chat_sources/{claude,cursor,codex}.mjs` — three adapters behind
+  one interface, picked up by `sima_watch_chats` via per-source key in the
+  unified cursor file. Old single-source cursor auto-migrates.
+- `cursor` adapter reads `state.vscdb` via `sqlite3 -readonly` (graceful
+  skip if `sqlite3` CLI absent), parses both `cursorDiskKV` composer chats /
+  bubble rows and the legacy `ItemTable` chat-data schema. Tracks
+  seen-bubble-keys for dedup.
+- `codex` adapter reads `~/.codex/sessions/*.jsonl`, handles 3 line shapes
+  including the older streaming `input_text` / `output_text` chunks
+  (auto-merged into clean turns).
+- New `--source claude|cursor|codex` CLI flag (CSV-friendly), MCP
+  `sima_watch_chats` exposes the same.
+- Latent UTF-8 cursor bug fixed: harvest now advances in byte-space, not
+  UTF-16 code-units, so Cyrillic / emoji content no longer causes duplicate
+  harvests on the next tick.
 
 ### What's still on the roadmap (next, post-0.3.0)
-- **Gap #15** — auto-ingest Cursor / Codex chats (SQLite `state.vscdb` +
-  Codex logs) the way `~/.claude/projects/` is already watched.
 - Run the semantic verifier across the remaining `done` blocks for a full
   red-state map.
 

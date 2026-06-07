@@ -96,6 +96,25 @@ node scripts/agent_loop_daemon.mjs --agent claude --max-iterations 8 --max-cost-
   charged) + `cost_usd_equivalent` (stable shadow bill across providers).
   Global **Token Economics** tab with sparkline + cost-per-pass ROI.
 
+## 🔌 Multi-source chat ingestion (R-7.97, closes Gap #15)
+
+`sima_watch_chats` now harvests from **three** agent transcripts, not just one:
+
+- **`claude`** — `~/.claude/projects/*.jsonl` (original)
+- **`codex`** — `~/.codex/sessions/*.jsonl` (OpenAI Codex CLI), incl. older
+  streaming `input_text` / `output_text` shape, auto-merged into clean turns
+- **`cursor`** — `state.vscdb` (Cursor / VS Code fork), read via
+  `sqlite3 -readonly`; covers both new composer chats (`cursorDiskKV`) and
+  the legacy `ItemTable` schema. Skipped gracefully if `sqlite3` CLI isn't
+  installed — Cursor support is opt-in by environment.
+
+`--source claude,codex` selects a subset. The old single-source cursor file
+auto-migrates; nothing breaks for existing installs. Latent UTF-8 bug fixed
+along the way: per-file offsets now advance in byte-space, not UTF-16
+code-units, so Cyrillic / emoji no longer cause duplicate harvests.
+
+Nightly: 70 → **72/72 PASS** (two new source selftests).
+
 ## 🔁 Transactional change-sets + dead-code hygiene
 
 - **Change-sets** (`scripts/change_set.mjs`) — group cross-cutting edits;
@@ -165,8 +184,6 @@ adopters welcome.
 
 ## What's next (post-0.3.0)
 
-- 🔌 Auto-ingest **Cursor / Codex** chats (SQLite `state.vscdb` + Codex logs)
-  the way `~/.claude/projects/` is already watched (Gap #15).
 - 🎯 Run the semantic verifier across every `done` block for a full red-state map.
 - 🔬 Token-savings benchmark on a 50-block product (vs. raw Claude Code).
 - 🛠️ vLLM / LM Studio adapters in `llm_gateway.mjs`.
