@@ -1,12 +1,24 @@
 {
-  "generated_at": "2026-06-06T15:50:38.597Z",
+  "generated_at": "2026-06-07T17:47:59.325Z",
   "root": "/home/user/sima_atlas",
-  "proposals": [],
+  "proposals": [
+    {
+      "id": "dead-code::scripts/chat_sources/claude.mjs",
+      "kind": "dead-code-unimported",
+      "file": "scripts/chat_sources/claude.mjs",
+      "block": null,
+      "block_status": null,
+      "reason": "no file imports it (import-graph), not a CLI/HTML/package entry point, no block claims it — likely dead code",
+      "action": "move-to-archive/dead-code/<date>/scripts/chat_sources/claude.mjs",
+      "safety": "move-with-breadcrumb",
+      "apply_command": "node scripts/apply_cleanup_proposal.mjs --id \"dead-code::scripts/chat_sources/claude.mjs\""
+    }
+  ],
   "summary": {
     "stale-alive": 0,
     "stale-dead": 0,
     "stale-archived": 0,
     "orphan-code": 0,
-    "dead-code-unimported": 0
+    "dead-code-unimported": 1
   }
 }

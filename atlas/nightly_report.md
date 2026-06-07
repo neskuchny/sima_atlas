@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-06-06T15:50:37.967Z_
+_Generated: 2026-06-07T17:47:57.759Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -15,7 +15,7 @@ _Generated: 2026-06-06T15:50:37.967Z_
 - ✅ files_registry: ok
   - output: Files registry validation: OK (alive=186, archived=4, dead=0)
 - ✅ housekeeping_sweep: ok
-  - output: housekeeping_sweeper: 0 proposal(s) — see atlas/cleanup_proposals.md
+  - output: housekeeping_sweeper: 1 proposal(s) — see atlas/cleanup_proposals.md
 - ✅ projects_contracts: ok
   - output: validate_projects: OK (1 projects, 5 blocks)
 - ✅ subschemas_contracts: ok
@@ -35,7 +35,7 @@ _Generated: 2026-06-06T15:50:37.967Z_
 - ✅ operator_profile_selftest: ok
   - output: operator_profile.selftest: OK (7 test groups, all assertions green)
 - ✅ aggregate_operator_profile: ok
-  - output: operator_profile: warming_up (done=4, invocations=5, traces=1577, proposals=26)
+  - output: operator_profile: warming_up (done=4, invocations=5, traces=1767, proposals=28)
 - ✅ operator_profile_lessons_smoke: ok
   - output: operator_profile_lessons.smoke: OK (6 test groups, all assertions green)
 - ✅ operator_profile_inject_smoke: ok
@@ -84,6 +84,10 @@ _Generated: 2026-06-06T15:50:37.967Z_
   - output: cleanup_block_memory.selftest: OK (4 test groups, all assertions green)
 - ✅ sima_watch_chats_selftest: ok
   - output: sima_watch_chats.selftest: OK (4 passes, mock provider, noise filtered, cursor + rotation handled)
+- ✅ codex_source_selftest: ok
+  - output: codex_source.selftest: OK (4 passes, 3 line shapes, stream merge, noise filtered, cursor + rotation handled)
+- ✅ cursor_source_selftest: ok
+  - output: cursor_source.selftest: OK (11 unit checks + full sqlite3 end-to-end with seen-set advance)
 - ✅ chat_fill_accept_selftest: ok
   - output: chat_fill_accept.selftest: OK (plan listed, accepted, blocks created, contract files written, re-accept refused)
 - ✅ multi_tenant_block_routing_selftest: ok
@@ -143,4 +147,4 @@ _Generated: 2026-06-06T15:50:37.967Z_
 - ✅ intelligence_health: ok
   - output: Intelligence health: 1 (17/17)
 
-Summary: PASS (70/70)
+Summary: PASS (72/72)
