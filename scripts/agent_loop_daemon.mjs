@@ -70,6 +70,11 @@ const has = (flag) => args.includes(flag);
 const DRY_RUN = has('--dry-run');
 const JSON_OUT = has('--json');
 const AGENT = arg('--agent', 'print-only');               // print-only | claude | cursor | codex
+// R-7.99 — operator-targeted run: `--only b.x,b.y` restricts the queue to
+// the named blocks (eligibility rules still apply — a block that isn't
+// runnable/semantic-red is still skipped). The «доделай вот этот блок
+// сейчас» case, without waiting for the queue to reach it.
+const ONLY = String(arg('--only', '')).split(',').map((s) => s.trim()).filter(Boolean);
 const MAX_ITERATIONS = Math.max(1, Number(arg('--max-iterations', 5)));
 const MAX_COST_USD = Number(arg('--max-cost-usd', 1.0));   // shadow-bill budget
 const FAIL_LIMIT = Math.max(1, Number(arg('--consecutive-fail-limit', 2)));
@@ -181,6 +186,7 @@ function pickNextRunnable(graph, attempted) {
   // distrust — but the daemon will revisit it on its own pass.
   const candidates = (graph.blocks || []).filter((b) => {
     if (attempted.has(b.id)) return false;                 // one shot per block per run
+    if (ONLY.length && !ONLY.includes(b.id)) return false; // operator-targeted run
     // Include done blocks ONLY IF semantic review says they failed.
     const eligibleStatus = RUNNABLE_STATUSES.has(b.status)
       || (b.status === 'done' && isDoneButSemanticRed(b.id));

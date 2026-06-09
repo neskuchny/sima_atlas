@@ -218,11 +218,16 @@ function appendCheck(kind, result, note) {
 }
 
 function runCli(cmd, args, opts) {
+  // R-7.99 — agent timeout is env-tunable: 240s suits quick fixes, but a
+  // real remediation pass (V-1 feeding todo_to_pass to a live agent) often
+  // needs more than 4 minutes of wall-clock.
+  const timeoutMs = Number(process.env.ATLAS_AGENT_TIMEOUT_MS) > 0
+    ? Number(process.env.ATLAS_AGENT_TIMEOUT_MS) : 240_000;
   const r = spawnSync(cmd, args, {
     cwd: ROOT,
     stdio: ['ignore', 'pipe', 'pipe'],
     encoding: 'utf8',
-    timeout: 240_000,
+    timeout: timeoutMs,
     ...opts,
   });
   return r;
