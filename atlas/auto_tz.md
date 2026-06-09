@@ -20,6 +20,13 @@ _Each section is built from `atlas/blocks/<id>/mission.md` + `tasks.md`. Regener
 - LLM-вызовы из UI (PR3).
 - Watcher событий Cursor (PR4).
 
+# b.ui-control — KPI
+
+- **KPI-1 (boot)**: HTML-страница `frontend/Сима - универсальный конструктор.html` открывается в браузере без ошибок в консоли (всё React-дерево рендерится). Сейчас: ✗ (часть JSX не подключена).
+- **KPI-2 (multi-layer)**: канвас рисует не менее 5 горизонтальных слоёв из `ARCH_LAYERS`, и блоки распределены по этим слоям по полю `layer`. Сейчас: ✗ (графа без поля `layer`, всё валится в один контейнер).
+- **KPI-3 (sync visibility)**: при `syncCheck` блоки со статусом drift/broken визуально подсвечиваются на канвасе с причиной из `syncReport.details`. Сейчас: △ (логика есть в `atlas_sync.js`, но завязана только на наличие файлов).
+- **KPI-4 (lifecycle gating)**: кнопка Done на блоке заблокирована, пока не пройдены acceptance + kpi проверки. Сейчас: ✓ (логика `isReadyToDone` в `app_v2.jsx`).
+- **KPI-5 (context-pack export)**: для выбранного блока копируется в буфер deterministic JSON со всеми ссылками на mission/kpi/depends/provides. Сейчас: ✓ для UI-кнопки, файл-output генерируется через `scripts/build_context_pack.mjs`.
 
 # b.ui-control — tasks
 
@@ -31,6 +38,7 @@ _Each section is built from `atlas/blocks/<id>/mission.md` + `tasks.md`. Regener
 - [ ] T6: Двойной клик по блоку с `subschema_id` открывает подсхему (рекурсия) — **PR2**
 - [ ] T7: Кнопка «Implement» вызывает `composer.jsx` со сгенерированным context-pack для агента — **PR3**
 
+_Sources: [mission](blocks/b.ui-control/mission.md) · [kpi](blocks/b.ui-control/kpi.md) · [acceptance](blocks/b.ui-control/acceptance.md) · [tasks](blocks/b.ui-control/tasks.md)_
 
 ## b.core-sync (done)
 
@@ -52,6 +60,13 @@ logic
 - Генерация документации (это `b.docs`).
 - UI-визуализация sync-репорта (это `b.ui-control`).
 
+# b.core-sync — KPI
+
+- **KPI-1 (contract sync)**: для каждого блока `X` с `depends_on: [{ block_id: Y, capability: C }]` проверяется, что `Y.provides` содержит `C`. Если нет — `drift_reason="missing_capability"`. Сейчас: △ (есть `validate_dependency_contracts.mjs`, но capability-формат пока строковый).
+- **KPI-2 (stack sync)**: каждое заявленное `tech_stack` блока (frontend/backend) подтверждается реальным импортом / зависимостью в `files.md` блока. Сейчас: ✗ (`files.md` пустой у всех блоков).
+- **KPI-3 (semantic sync)** [PR3]: LLM сравнивает `mission.md ↔ checks.log + tasks.md` и возвращает `is_consistent: bool, reasons: []`. Цель — `precision >= 0.8` на golden set из 10 блоков. Сейчас: ✗.
+- **KPI-4 (false-positive rate)**: при двух прогонах syncCheck без изменений отчёт идентичен (нет случайных drift-flag). Сейчас: ✓ (детерминирован).
+- **KPI-5 (latency)**: `runSyncWithChecks` отрабатывает за < 500 ms на 20 блоках. Сейчас: ✓ (≈ 50 ms на 5 блоках).
 
 # b.core-sync — tasks
 
@@ -62,6 +77,7 @@ logic
 - [ ] T5: Сохранение детального `sync_report.json` (не только `details: []`, а с file/line ссылками) — **PR2**
 - [ ] T6: false-positive guard: при двух запусках без изменений — отчёт идентичен — **PR2**
 
+_Sources: [mission](blocks/b.core-sync/mission.md) · [kpi](blocks/b.core-sync/kpi.md) · [acceptance](blocks/b.core-sync/acceptance.md) · [tasks](blocks/b.core-sync/tasks.md)_
 
 ## b.db (idea)
 
@@ -84,6 +100,13 @@ data
 - Векторный поиск (это backup-память, не основная).
 - Multi-project namespacing (PR в стек после PR4).
 
+# b.db — KPI
+
+- **KPI-1 (atomicity)**: при kill -9 во время `update_block` файлы блока остаются в консистентном состоянии (либо все изменения применены, либо ни одного). Сейчас: ✗ (нет atomic-write через rename).
+- **KPI-2 (history)**: каждый `transition_block` и `update_block` создаёт запись в `atlas/transitions.log` с before/after. Сейчас: ✓ (`scripts/log_transition.mjs`).
+- **KPI-3 (versioning)**: при `update_block` старая версия mission/kpi сохраняется в `blocks/<id>/history/<timestamp>.md`. Сейчас: ✗ (history-папок нет).
+- **KPI-4 (read-API)**: MCP tool `read_block` возвращает все *.md и *.log одной операцией < 50 ms. Сейчас: ✓.
+- **KPI-5 (migration)**: при изменении схемы graph.json есть `scripts/migrate_<from>_<to>.mjs` и nightly его прогоняет. Сейчас: ✗ (миграции нет).
 
 # b.db — tasks
 
@@ -94,6 +117,7 @@ data
 - [ ] T5: Расширить `db_schema.json` валидной JSON Schema для `graph.json` и блоков — **PR2**
 - [ ] T6: Multi-project namespace: `/atlas/projects/<name>/blocks/...` — **PR4**
 
+_Sources: [mission](blocks/b.db/mission.md) · [kpi](blocks/b.db/kpi.md) · [acceptance](blocks/b.db/acceptance.md) · [tasks](blocks/b.db/tasks.md)_
 
 ## b.agent-orchestrator (review)
 
@@ -125,6 +149,13 @@ ai
 - LLM-извлечение смысла из чата (это `b.llm-gateway`).
 - UI-операции по блоку (это `b.ui-control`).
 
+# b.agent-orchestrator — KPI
+
+- **KPI-1 (valid hooks)**: `.cursor/hooks.json` использует только реальные Cursor события и формат `action.run_command` соответствует Cursor SDK. Сейчас: ✗ (`afterPromptSent` не существует у Cursor).
+- **KPI-2 (real observation)**: после каждого `afterFileEdit` в `checks.log` соответствующего блока появляется запись с актуальным `git diff --stat`. Сейчас: ✗ (хук просто дописывает напоминание, не читает diff).
+- **KPI-3 (drift guard)**: shell-команда, противоречащая `tech_stack.md`, блокируется хуком и логируется в `decisions.log`. Сейчас: ✗ (validate_text без реальной проверки).
+- **KPI-4 (parity)**: `validate_agent_parity.mjs` подтверждает, что для любого блока context-pack одинаков для Cursor (через MCP `build_context_pack`) и для Claude Code (через CLI с `--add-dir`). Сейчас: △ (есть `validate_parity_matrix.mjs`, но проверка формальная).
+- **KPI-5 (no-chat-leak)**: чат с агентом не попадает в долгую память Atlas; в `decisions.log` блока — только distillate, не сырые сообщения. Сейчас: ✓ (есть, но distillate приходит через regex-grep, не LLM).
 
 # b.agent-orchestrator — tasks
 
@@ -141,6 +172,7 @@ ai
 - [x] T8: **Per-block sandboxed workspace** done — `scripts/agent_workspace.mjs` (`createWorkspace / captureDiff / writeDiffProposal / cleanupWorkspace / listWorkspaces`). Workspaces под `~/.atlas_workspaces/<run_id>/` (override `ATLAS_WORKSPACES_ROOT`). SKIP_DIRS пропускает `node_modules / atlas/llm_traces / process_runs / run_state / acceptance_runs / history / eval_history / dist / .git`. Diff capture через unix `diff -urN` + sha256 hash compare; truncate text >4KB. cleanupWorkspace safety: refuses paths outside WORKSPACES_ROOT AND requires `.atlas_workspace.json` marker. tests/agent_workspace.selftest.mjs 7 групп (create + marker; SKIP_DIRS not copied; zero-change; added/modified/removed detection; writeDiffProposal kind=agent_run_diff with changed_files + diff_preview; cleanup safety + happy path; listWorkspaces). MCP tools list_workspaces + cleanup_workspace. — **PR-8 DONE**
 - [x] T9: **Workspace + verifier integration** done — `scripts/run_block_implementation.mjs` теперь: startRun → if `ATLAS_USE_WORKSPACE=1` createWorkspace → fsm('LaunchingAgent') → spawn agent с `cwd=workspace.workspace_path` → fsm('Running') → on exit: fsm('Finishing') → captureDiff (workspace mode) → writeDiffProposal kind=agent_run_diff → fsm('Verifying') → spawn verify_block_acceptance с `ATLAS_ROOT=<workspace>/atlas` → fsm('Succeeded'|'Failed') based on verdict → cleanup workspace ONLY if verdict !== fail AND no pending diff_proposal_id (preserve for inspection / Accept). ProposalsPanel renders kind=agent_run_diff blue card with changed_files list (+/− kind-coded), workspace_path, diff_truncated marker, Accept (apply diff) / Reject buttons. — **PR-9 DONE**
 
+_Sources: [mission](blocks/b.agent-orchestrator/mission.md) · [kpi](blocks/b.agent-orchestrator/kpi.md) · [acceptance](blocks/b.agent-orchestrator/acceptance.md) · [tasks](blocks/b.agent-orchestrator/tasks.md)_
 
 ## b.docs (done)
 
@@ -165,6 +197,13 @@ content
 ## Out of scope
 - Извлечение содержимого блоков из чата (это `b.llm-gateway` + `b.agent-orchestrator`).
 
+# b.docs — KPI
+
+- **KPI-1 (no template leakage)**: ни одна страница wiki не содержит шаблонных фраз («Ключевая цель блока», «Автосоздано», «определить»). Сейчас: ✗ (пока проверка не подключена; PR1 чинит).
+- **KPI-2 (graph diagram)**: `wiki.html` содержит Mermaid-диаграмму с блоками и зависимостями. Сейчас: ✗ (`render_wiki_html.mjs` рендерит plain markdown).
+- **KPI-3 (layer navigation)**: wiki разбит на разделы по слоям (front/logic/ai/data/...). Сейчас: ✗ (зависит от поля `layer` в graph.json — добавляется в PR2).
+- **KPI-4 (roadmap topo-sort)**: при двух блоках A→B (A зависит от B), B всегда раньше A в roadmap, даже если у B статус `done`, а у A `wip`. Сейчас: ✗ (`rebuild_atlas_roadmap.mjs` сортирует только по статусу).
+- **KPI-5 (auto_tz coverage)**: auto_tz.md содержит секции для каждого активного блока с заполненной mission, и пропускает блоки в статусе `idea` без mission. Сейчас: △ (генерирует все, без фильтра по template).
 
 # b.docs — tasks
 
@@ -175,6 +214,7 @@ content
 - [ ] T5: Skip blocks `idea+empty mission` в `auto_tz.md` — **PR1**
 - [ ] T6: Cross-link между блоками через ссылки в wiki — **PR2**
 
+_Sources: [mission](blocks/b.docs/mission.md) · [kpi](blocks/b.docs/kpi.md) · [acceptance](blocks/b.docs/acceptance.md) · [tasks](blocks/b.docs/tasks.md)_
 
 ## b.llm-gateway (review)
 
@@ -209,6 +249,13 @@ ai
 - Streaming.
 - Fine-tuning или local-inference (vLLM и т.п.) — оставлено на enterprise mode.
 
+# b.llm-gateway — KPI
+
+- **KPI-1 (structured output)**: `callLLM({ schema })` гарантирует, что ответ — валидный JSON по `schema`; при невалидном ответе — 1 ретрай + понятная ошибка. Сейчас: ✗ (блока нет).
+- **KPI-2 (mock parity)**: тестовый прогон с `LLM_PROVIDER=mock` и реальный с `LLM_PROVIDER=anthropic` дают одинаковую форму ответа (одна схема). Сейчас: ✗.
+- **KPI-3 (cost cap)**: `LLM_MAX_USD_PER_RUN=0.05` (по умолчанию) — превышение стоп. Сейчас: ✗.
+- **KPI-4 (latency)**: p95 < 6 секунд на 4k токенов входа Claude Haiku. Сейчас: n/a.
+- **KPI-5 (provider fallback)**: при 429 от primary → автоматический fallback на secondary провайдера, если оба ключа есть. Сейчас: ✗.
 
 # b.llm-gateway — tasks
 
@@ -222,6 +269,7 @@ ai
 - [ ] T8: Замена regex в `analyze_conversation_to_atlas.mjs` на `extractBlockSchema`
 - [ ] T9: Eval на golden set из 5 диалогов (precision >= 0.7)
 
+_Sources: [mission](blocks/b.llm-gateway/mission.md) · [kpi](blocks/b.llm-gateway/kpi.md) · [acceptance](blocks/b.llm-gateway/acceptance.md) · [tasks](blocks/b.llm-gateway/tasks.md)_
 
 ## b.operator-profile-learner (idea)
 
@@ -384,6 +432,15 @@ atlas/operator_profile/
   5. `inject_context_pack hook` — добавление секции «Operator profile»
   6. `UI hints` — badge'и в Inspector / ProposalsPanel
 
+# b.operator-profile-learner — KPI
+
+- **KPI-1 (signal coverage)**: `profile.json` агрегирует ≥ 6 из 10 источников из mission.md (checks.log / transitions.log / proposals / agent_invocations / llm_traces / cursor_observations / decisions.log / patterns.md / tech_stack.md / cross-ref). Сейчас: ✗ (блока нет).
+- **KPI-2 (real-time freshness)**: `accept_proposal` / `transition_block done|broken` / `agent_invocation` мутирует profile.json без LLM-вызова за < 100 ms. Сейчас: ✗.
+- **KPI-3 (silent under min-data)**: при < 5 transitions `done` И < 10 `agent_invocations` модуль молчит — не подмешивает советы в context-pack, не пишет proposals. Сейчас: ✗.
+- **KPI-4 (advice ROI)**: при `accept_rate` proposal с badge `соответствует профилю` ≥ accept_rate без badge на 20% (на горизонте 30 проколов). Сейчас: n/a.
+- **KPI-5 (lessons retention)**: после `add_lesson` урок попадает в `inject_context_pack` секцию `## Operator profile` для всех агент-вызовов, пока не `revoke_lesson` или `expires_at` не наступит. Сейчас: ✗.
+- **KPI-6 (privacy & reversibility)**: 100% записей в profile имеют `evidence: [block_id]`; любой урок / dont_use / always_use можно отозвать одной MCP-tool — вернёт identical context-pack как до записи. Сейчас: ✗.
+- **KPI-7 (low cost)**: nightly aggregation работает без LLM-вызовов (только rule-based counters). Только `recompute_operator_profile {analyze_failures: true}` стоит ≤ $0.05 / запуск через b.llm-gateway. Сейчас: ✗.
 
 # b.operator-profile-learner — tasks
 
@@ -440,6 +497,7 @@ PR-3 закрыт. tests/dont_use_management.selftest.mjs 7 групп зелё�
 
 PR-3 (dont-use list) формально не закрыт — но `inject_context_pack` уже умеет читать `atlas/operator_profile/dont_use.json` если файл есть, UI badge тоже читает. PR-3 остаётся как «MCP tools `set_dont_use` / `set_always_use` + guard_against_drift integration» — это узкая работа на ~30 строк, сделается по запросу.
 
+_Sources: [mission](blocks/b.operator-profile-learner/mission.md) · [kpi](blocks/b.operator-profile-learner/kpi.md) · [acceptance](blocks/b.operator-profile-learner/acceptance.md) · [tasks](blocks/b.operator-profile-learner/tasks.md)_
 
 ## b.acceptance-verifier-loop (done)
 
@@ -576,6 +634,15 @@ atlas/blocks/<block_id>/checks.log   ← append: 'acceptance_verifier <pass|fail
   4. `gate hooks` — интеграция в `log_transition` + `run_block_implementation` + nightly
   5. `UI surface` — Inspector секция + ProposalsPanel acceptance_blocked + retry-кнопка
 
+# b.acceptance-verifier-loop — KPI
+
+- **KPI-1 (no false done)**: ни один блок не уходит в `done` если хоть один пункт `acceptance.md` не получил `pass`. Сейчас: ✗ (gate отсутствует).
+- **KPI-2 (deterministic evidence first)**: ≥ 70% пунктов acceptance в среднем по репо имеют `evidence_kind ∈ {exit_code, fs_glob, file_diff, log_grep}` — без LLM. LLM-judge только как fallback. Сейчас: ✗.
+- **KPI-3 (gate latency)**: для блока с ≤ 8 пунктами acceptance verifier завершается за < 30 секунд (deterministic) или < 60 секунд (с LLM-judge). Сейчас: ✗.
+- **KPI-4 (retry-prompt usefulness)**: ≥ 50% retry-прогонов с `retry_prompt_hint` приводят к verdict=pass на следующей итерации (на горизонте 20 retry). Сейчас: n/a.
+- **KPI-5 (no spurious rollbacks)**: nightly re-verify done блоков даёт `done → broken` rollback **только** когда есть реальная регрессия (новые коммиты после последнего pass либо изменение acceptance.md). Сейчас: ✗.
+- **KPI-6 (cache hit rate)**: при отсутствии новых коммитов / новых traces / новых checks.log — verifier возвращает кэш за < 50 ms. Hit rate ≥ 80% на nightly. Сейчас: ✗.
+- **KPI-7 (cost cap)**: LLM-judge на один блок ≤ $0.02; полный nightly re-verify всех done блоков ≤ $0.20. Сейчас: ✗.
 
 # b.acceptance-verifier-loop — tasks
 
@@ -633,6 +700,7 @@ PR-5 закрыт (T5.1-T5.4). T5.5 unblocked (инфраструктура го
 - [ ] S2: Cross-block acceptance suites («все блоки в layer:ai green») — отдельный gate `validate_layer_acceptance.mjs`.
 - [ ] S3: Acceptance-генератор от LLM (наполняет пустой acceptance.md проекта) — но как proposal, не auto-write.
 
+_Sources: [mission](blocks/b.acceptance-verifier-loop/mission.md) · [kpi](blocks/b.acceptance-verifier-loop/kpi.md) · [acceptance](blocks/b.acceptance-verifier-loop/acceptance.md) · [tasks](blocks/b.acceptance-verifier-loop/tasks.md)_
 
 ## b.user-docs-generator (idea)
 
@@ -767,6 +835,15 @@ atlas/projects/<proj>/docs/end-user/AUTOGENERATED.md  ← маркер «не р
   3. `screenshot integration` — Playwright snapshot per flow (опц.; работает без него)
   4. `auto-regen + UI` — nightly drift-check + Inspector кнопка + locked-flag protection
 
+# b.user-docs-generator — KPI
+
+- **KPI-1 (coverage)**: 100% блоков с `layer ∈ {user, front}` или `user_facing: true` имеют свежий `docs/end-user/<block>.md` (т.е. hash источников совпадает с hash в `_meta/<block>.json`). Сейчас: ✗.
+- **KPI-2 (idempotent)**: regen без изменений источников даёт diff = пустой (байт-в-байт идентичный файл). Сейчас: ✗.
+- **KPI-3 (cost cap)**: одна регенерация одного блока ≤ $0.03 (LLM tokens); полный regen всех user-facing блоков среднего проекта (8 блоков) ≤ $0.25. Сейчас: ✗.
+- **KPI-4 (no jargon)**: 0 случаев технических терминов (`module`, `component`, `endpoint`, `prop`, `state`) в финальном markdown — LLM-prompt + post-validation. Сейчас: ✗.
+- **KPI-5 (drift detection)**: при ручной правке `<block>.md` без `LOCKED: true` — pre-commit hook просит подтвердить либо отменить (warn, не fail). Сейчас: ✗.
+- **KPI-6 (latency)**: один блок ≤ 30 секунд (только LLM, без Playwright); с Playwright ≤ 60 секунд. Сейчас: ✗.
+- **KPI-7 (graceful degradation)**: если Playwright не настроен — текст всё равно валидный, без `[broken image]`. Сейчас: ✗.
 
 # b.user-docs-generator — tasks
 
@@ -810,6 +887,7 @@ PR-3 закрыт. T5.5 b.acceptance-verifier-loop (Playwright smoke screenshots
 
 PR-4 закрыт. tests/user_docs_drift.selftest.mjs 5 групп зелёный (bare repo seed; idempotent re-run; hash drift unlocked → refreshed; hash drift locked → proposal + dedup; list/read/lock helpers). b.user-docs-generator закрыт целиком — все 4 PR'а (1 introspection / 2 LLM writer / 3 screenshots / 4 auto-regen+UI).
 
+_Sources: [mission](blocks/b.user-docs-generator/mission.md) · [kpi](blocks/b.user-docs-generator/kpi.md) · [acceptance](blocks/b.user-docs-generator/acceptance.md) · [tasks](blocks/b.user-docs-generator/tasks.md)_
 
 ## b.smoke-sandbox (idea)
 
@@ -828,11 +906,17 @@ testing
 ## Out of scope
 - Любые продуктовые фичи.
 
+# b.smoke-sandbox — KPI
+
+- **KPI-1 (idempotency)**: повторный запуск `mcp_smoke_e2e.mjs` оставляет sandbox в идентичном состоянии (нет накопления мусора в graph.json или других блоках).
+- **KPI-2 (isolation)**: ни одно действие smoke-теста не модифицирует другой блок atlas; gate `validate_no_template_placeholders` остаётся зелёным после прогона.
+- **KPI-3 (smoke-coverage)**: smoke-тест прокатывает все 21+ MCP-tools хотя бы раз без ошибок.
 
 # b.smoke-sandbox — tasks
 
 - [ ] nightly smoke e2e task
 
+_Sources: [mission](blocks/b.smoke-sandbox/mission.md) · [kpi](blocks/b.smoke-sandbox/kpi.md) · [acceptance](blocks/b.smoke-sandbox/acceptance.md) · [tasks](blocks/b.smoke-sandbox/tasks.md)_
 
 ## b.product-auth (idea)
 
@@ -840,11 +924,19 @@ testing
 
 Этот блок отвечает за многопользовательскую авторизацию и контроль доступа в системе. Он решает проблему разграничения прав доступа к данным и функциональности для разных пользователей и организаций (multi-tenancy). Это необходимо для обеспечения безопасности данных, соответствия требованиям регуляторов и предоставления гибких возможностей управления доступом. Реализация включает в себя поддержку ролей (RBAC) на уровне наборов данных (dataset), а также единый вход (SSO) через OIDC для упрощения аутентификации и интеграции с другими системами. Без этого блока продукт не может быть безопасно использован несколькими пользователями или организациями.
 
+# b.product-auth — KPI
+
+- < 50ms verify p95
+- 0 CVE high
+- 99.9% uptime
+- < 100ms OIDC login p95
+- 99% RBAC accuracy
 
 # b.product-auth — tasks
 
 - [ ] T1: первая задача — заполнить mission.md и acceptance.md.
 
+_Sources: [mission](blocks/b.product-auth/mission.md) · [kpi](blocks/b.product-auth/kpi.md) · [acceptance](blocks/b.product-auth/acceptance.md) · [tasks](blocks/b.product-auth/tasks.md)_
 
 ## b.product-ingest (idea)
 
@@ -852,11 +944,19 @@ testing
 
 Принимает события от SDK, валидирует по схеме, гарантирует exactly-once в Warehouse.
 
+# b.product-ingest — KPI
+
+- < 25ms p95 ack
+- 50k/s throughput
+- 0% дубликатов в Warehouse
+- 0% событий, не прошедших валидацию схемы
+- Утилизация ресурсов < 70% при пиковой нагрузке
 
 # b.product-ingest — tasks
 
 - [ ] T1: первая задача — заполнить mission.md и acceptance.md.
 
+_Sources: [mission](blocks/b.product-ingest/mission.md) · [kpi](blocks/b.product-ingest/kpi.md) · [acceptance](blocks/b.product-ingest/acceptance.md) · [tasks](blocks/b.product-ingest/tasks.md)_
 
 ## b.product-warehouse (idea)
 
@@ -864,11 +964,19 @@ testing
 
 Хранилище событий `b.product-warehouse` предназначено для хранения и обработки больших объемов данных, поступающих из различных источников в системе. Оно решает задачу эффективного хранения миллиардов строк данных и обеспечения возможности выполнения OLAP-агрегаций для аналитики. Этот блок позволяет быстро получать аналитические срезы данных, необходимые для принятия решений и мониторинга ключевых показателей. Без надежного хранилища событий невозможно эффективно анализировать данные о продукте и принимать обоснованные решения на основе этих данных. Хранилище обеспечивает масштабируемость и производительность, необходимые для работы с большими объемами информации, и является ключевым компонентом для обеспечения аналитических возможностей системы.
 
+# b.product-warehouse — kpi
+
+- Задержка записи данных < 50 мс (p95)
+- Доступность хранилища 99.99%
+- Успешное выполнение 99.9% заданий резервного копирования
+- Среднее время ответа на аналитические запросы < 1 секунды
+- Объем хранимых данных соответствует прогнозируемому росту с отклонением не более 5%
 
 # b.product-warehouse — tasks
 
 - [ ] T1: первая задача — заполнить mission.md и acceptance.md.
 
+_Sources: [mission](blocks/b.product-warehouse/mission.md) · [kpi](blocks/b.product-warehouse/kpi.md) · [acceptance](blocks/b.product-warehouse/acceptance.md) · [tasks](blocks/b.product-warehouse/tasks.md)_
 
 ## b.product-dashboard (idea)
 
@@ -876,11 +984,19 @@ testing
 
 Конструктор дашбордов — это основной UI для пользователя, позволяющий ему визуализировать и анализировать данные, извлеченные из различных источников. Он решает проблему сложного доступа к информации, предоставляя интуитивно понятный интерфейс для создания настраиваемых представлений данных. Drag-n-drop функциональность упрощает процесс создания дашбордов, позволяя пользователям быстро добавлять и упорядочивать виджеты. Это позволяет пользователям получать ценные инсайты и принимать обоснованные решения на основе актуальных данных. Без конструктора дашбордов пользователям было бы сложно эффективно использовать данные, собранные системой, что снизило бы ценность продукта в целом. Он также обеспечивает гибкость в настройке отображения данных, позволяя адаптировать дашборды под конкретные потребности и задачи.
 
+# b.product-dashboard — KPI
+
+- < 2s TTI
+- < 5min до первого дашборда
+- 99% CR для основных сценариев
+- < 1% ошибок при создании и редактировании дашбордов
+- Среднее время сеанса > 10 минут
 
 # b.product-dashboard — tasks
 
 - [ ] T1: первая задача — заполнить mission.md и acceptance.md.
 
+_Sources: [mission](blocks/b.product-dashboard/mission.md) · [kpi](blocks/b.product-dashboard/kpi.md) · [acceptance](blocks/b.product-dashboard/acceptance.md) · [tasks](blocks/b.product-dashboard/tasks.md)_
 
 ## b.product-billing (idea)
 
@@ -888,11 +1004,19 @@ testing
 
 Этот блок отвечает за управление подписками пользователей, включая установку лимитов на использование ресурсов (например, количество событий или рабочих мест), а также за обработку возвратов средств. Он необходим для монетизации продукта и обеспечения справедливого использования ресурсов. Без этого блока невозможно контролировать доступ к функциям продукта на основе платных подписок, что может привести к финансовым потерям и неэффективному распределению ресурсов. Он решает проблему неконтролируемого доступа к ресурсам и обеспечивает гибкость в настройке тарифных планов.
 
+# b.product-billing — kpi
+
+- 0 потерянных webhook
+- Задержка обработки платежей < 1 секунда
+- Успешность выставления счетов 99.99%
+- Время разрешения проблем с биллингом < 4 часов
+- ARPU (Average Revenue Per User) > $X
 
 # b.product-billing — tasks
 
 - [ ] T1: первая задача — заполнить mission.md и acceptance.md.
 
+_Sources: [mission](blocks/b.product-billing/mission.md) · [kpi](blocks/b.product-billing/kpi.md) · [acceptance](blocks/b.product-billing/acceptance.md) · [tasks](blocks/b.product-billing/tasks.md)_
 
 ## b.block-1 (archived)
 
@@ -900,11 +1024,19 @@ testing
 
 Модуль b.block-1 выполняет ключевую логическую функцию в системе, отвечая за [укажите конкретную задачу модуля]. Он решает проблему [опишите проблему, которую решает модуль], обеспечивая [опишите, что модуль предоставляет или делает]. Без этого модуля, [объясните последствия отсутствия модуля]. Его цель - [опишите главную цель модуля]. Он взаимодействует с [перечислите другие модули или компоненты] для [опишите, как модуль взаимодействует с другими частями системы]. Этот модуль необходим для [укажите, для чего необходим модуль].
 
+# b.block-1 — kpi
+
+- KPI-1: Среднее время обработки запроса (latency) должно быть менее 200 мс.
+- KPI-2: Процент ошибок при обработке запросов не должен превышать 1%.
+- KPI-3: Количество обработанных запросов в секунду (throughput) должно быть не менее 500.
+- KPI-4: Успешное выполнение бизнес-задачи (например, создание нового пользователя) должно происходить в 99% случаев.
+- KPI-5: Время восстановления после сбоя (MTTR) должно быть менее 5 минут.
 
 # b.block-1 — tasks
 
 - [ ] T1: первая задача — заполнить mission.md и acceptance.md.
 
+_Sources: [mission](blocks/b.block-1/mission.md) · [kpi](blocks/b.block-1/kpi.md) · [acceptance](blocks/b.block-1/acceptance.md) · [tasks](blocks/b.block-1/tasks.md)_
 
 ## b.block-2 (archived)
 
@@ -915,9 +1047,13 @@ testing
 ## Layer
 это тестовый модуль  для проверки системы
 
+# b.block-2 — KPI
+
+- KPI-1: добавь конкретную метрику успеха модуля.
 
 # b.block-2 — tasks
 
 - [ ] T1: первая задача — заполнить mission.md и acceptance.md.
 
+_Sources: [mission](blocks/b.block-2/mission.md) · [kpi](blocks/b.block-2/kpi.md) · [acceptance](blocks/b.block-2/acceptance.md) · [tasks](blocks/b.block-2/tasks.md)_
 

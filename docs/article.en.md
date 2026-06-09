@@ -681,20 +681,32 @@ To avoid disappointments:
 
 ## Part 9. What already works
 
-As of publication (May 2026), Sima Atlas is:
+Block statuses below are regenerated from `graph.json` by
+`scripts/sync_article_status.mjs` — Kanon principle VII applied to this very
+article (the original hand-written table claimed `done` for blocks the graph
+honestly held at `idea`; that drift is now mechanically impossible).
 
-| Block | Status | What it does |
+<!-- BLOCK-STATUS:BEGIN (auto-generated from graph.json — edit via scripts/sync_article_status.mjs, not by hand) -->
+_Statuses are honest, from `graph.json` at generation time: `idea` means «contract exists, acceptance not yet walked through the gates to done» — not «doesn't work». A block's code can be fully operational at `idea` — see the «What it does» column._
+
+| Block | Status (live from graph.json) | What it does |
 |-------|--------|--------------|
-| `b.core-sync`             | done | contract consistency, drift detection, validator passes |
-| `b.db`                    | done | `atlas/` as a file-based DB with migrations |
-| `b.llm-gateway`           | done | provider cascade (anthropic/google/claude_cli/mock), trace, schema-retry |
-| `b.acceptance-verifier-loop` | done | parsing acceptance.md, 5 evidence kinds, llm-judge fallback |
-| `b.operator-profile-learner` | done | archetype, lessons, dont_use, always_use, patterns |
-| `b.agent-orchestrator`    | done | per-block agent invocations, run_state tracking, stalled detection |
-| `b.docs`                  | done | WIKI.md, wiki.html, auto_tz.md, roadmap.md auto-generation |
-| `b.user-docs-generator`   | done | end-user tutorials from JSX introspection |
-| `b.ui-control`            | done | visual canvas, composer, proposals panel |
-| `b.smoke-sandbox`         | done | end-to-end smoke test for regression |
+| `b.ui-control` | wip | visual canvas, composer, proposals panel |
+| `b.core-sync` | done | contract consistency, drift detection, validator passes |
+| `b.db` | idea | `atlas/` as a file-based DB with migrations |
+| `b.agent-orchestrator` | review | per-block agent invocations, run_state tracking, stalled detection |
+| `b.docs` | done | WIKI.md, wiki.html, auto_tz.md, roadmap.md auto-generation (template-gated) |
+| `b.llm-gateway` | review | provider cascade (claude_cli/anthropic/google/ollama/mock), trace, schema-retry |
+| `b.operator-profile-learner` | idea | archetype, lessons, dont_use, always_use, profile-compliance badges |
+| `b.acceptance-verifier-loop` | done | parsing acceptance.md, 5 evidence kinds + inconclusive_if, llm-judge fallback |
+| `b.user-docs-generator` | idea | end-user tutorials from JSX introspection |
+| `b.smoke-sandbox` | idea | end-to-end smoke test for regression |
+<!-- BLOCK-STATUS:END -->
+
+The capability layer (cross-block features, narrative — hand-maintained):
+
+| Capability | Status | What it does |
+|-------|--------|--------------|
 | Per-block memory layer       | done | `narrative.md` + `decisions.log` auto-injected into every prompt (R-7.76→R-7.80) |
 | Typed `operator_profile/*`   | done | `dont_use.json` / `always_use.json` / `lessons.json` with `severity:hard\|soft`, auto-seeded at startup (R-7.76→R-7.81) |
 | Architecture decisions store | done | `atlas/architecture_decisions.md`, append-only, project-level lock-in, auto-injected (R-7.85, S-6) |
@@ -730,25 +742,25 @@ This is a living roadmap — adjusted after each phase. Markers: ✅ done, 🟡 
 - **R-5** — soft lifecycle gates + design-payload protected from 500 on empty client + defensive UI ✅
 
 **In progress (Q3 2026):**
-- **S-1** 🟡 — block templates marketplace: baseline contract templates (auth, payments, search, ingestion) with ready-made KPIs and acceptance.
+- **S-1** ✅ R-7.89 — block templates: 5 baseline contract templates (auth, billing, ingestion, payments, search) with ready-made KPIs and acceptance at `atlas/templates/`.
 - **S-2** ❌ wontfix — hard lifecycle gates. Originally on the roadmap, now decided canonically: hard mode **is not happening** (see Appendix B.2). Gates remain soft with explicit hints visible everywhere in the UI. Hard-blocking status transitions is an anti-feature for the design phase.
 - **S-3** ✅ R-7.82 — runtime drift scanner: `scripts/scan_run_for_drift.mjs` walks the run after the fact and fails it on `dont_use:hard` violations (post-hoc scanner — same outcome as the originally-planned interactive cursor-hook).
 - **S-4** ✅ R-7.86 — context-pack profiles: `scripts/build_context_pack.mjs` accepts `--profile design | backend-fix | ui-fix | acceptance-only`; each profile decides which neighbours to read fully, which partially, which to skip. Implementation Status panel in Overview shows what was loaded.
 - **S-5** ⬜ — marketing-narrative skill: a second LLM pass over auto-WIKI + `product/positioning.md` (a new file the operator fills out once: what we sell, to whom, how we differ). Output: three landing-copy variants, a deck, a "why us" piece. Closes the gap between "structurally accurate auto-docs" and "production-ready marketing material." See Appendix B.5.
 - **S-6** ✅ R-7.85 — `scripts/architecture_decisions_api.mjs` + `atlas/architecture_decisions.md` — append-only project-level lock-in for agreements not derivable from acceptance (sync vs. async, queueing, caching, error handling). Auto-injected into every block's context-pack.
-- **S-7** ⬜ — transactional change-sets: an atomic multi-block change for cross-cutting modifications (REST→GraphQL, capability rename, DB migration). Commit metadata explicitly lists `affected_blocks: [...]`; the acceptance loop runs over each; the UI canvas shows "these 5 blocks are touched by transaction T" and the state of each. See Appendix B.4.
+- **S-7** ✅ R-7.92/93 — transactional change-sets: `scripts/change_set.mjs` groups cross-cutting edits; commit refused unless every member block is green; Change-sets canvas tab shows members + state. Rollback writes to narrative for operator review. See Appendix B.4.
 - **S-8** ✅ R-7.84 — `scripts/cascade_verify.mjs` cross-block break detection on edit: broken dependents are auto-marked `status: desync` inline in `graph.json`. Drift is visible on the canvas without manually re-reading CI logs.
 - **S-9** ✅ R-7.87 — token economics: `scripts/token_economics.mjs` aggregator + Token Spend widget in Overview tab. First cut, per-block / per-profile / per-provider.
-- **S-9.1** ⬜ — global token-economics tab: cross-project rollups, trendlines, alerting on cost regressions.
+- **S-9.1** ✅ R-7.92 — global Token Economics tab: rollups, sparkline trend, cost-per-pass ROI.
 
 **Mid-term (Q4 2026):**
 - **T-1** ⬜ — multi-operator collaboration + full client isolation: CRDT-merging contract files; nightly respects client scope.
-- **U-1** ⬜ — local models as first-class providers: Ollama / vLLM / LM Studio adapters in the LLM gateway, eval against Llama 3.3 70B / Qwen Coder 32B / DeepSeek V3.
+- **U-1** 🟡 — local models as first-class providers: **Ollama adapter shipped** (`LLM_PREFER_OLLAMA=1`); vLLM / LM Studio adapters + eval against Llama 3.3 70B / Qwen Coder 32B / DeepSeek V3 pending.
 - **U-2** ⬜ — `Sima Shell`: a lightweight MCP client shell optimised for local models; cheap moves on small models, complex moves on large ones.
 - **U-3** ⬜ — Continue / Aider / Zed-AI MCP integration parity.
 
 **Long-term (2027+):**
-- **V-1** ⬜ — agent-loop daemon: overnight autonomous mode, in which the agent picks `todo` blocks, codes, runs acceptance, marks success/rollback. Works in steady state: no architectural pivots, watched by `verify_done_blocks_still_green` + V-3.
+- **V-1** ✅ R-7.91→96 — agent-loop daemon shipped: Ralph-loop-shaped one-shot (`scripts/agent_loop_daemon.mjs`), print-only by default, budget + circuit-breaker caps, auto-rollback from owned-files snapshot, semantic gate, revisits semantic-red done blocks with the judge's `todo_to_pass`. Watched by `verify_done_blocks_still_green`; V-3 production-monitor still pending.
 - **V-2** ⬜ — one-click deployment: block → docker → cloud, with bound acceptance running in production.
 - **V-3** ⬜ — production-monitor: a dedicated observer block that catches unknown-unknowns (production bugs, metric anomalies) and lifts them back into the graph as new acceptance assertions on the affected blocks. Closes autonomy's blind spot — what the operator didn't think to specify but production saw. See Appendix B.6.
 - **W-1** ⬜ — cross-project pattern transfer: lessons from one project (via `lessons.json`) enrich others; opt-in "community experience."

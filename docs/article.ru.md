@@ -675,20 +675,32 @@ Claude Code и Cursor — отличные оболочки, но они при�
 
 ## Часть 9. Что уже работает
 
-На момент публикации (май 2026) Sima Atlas — это:
+Таблица статусов блоков регенерируется из `graph.json` скриптом
+`scripts/sync_article_status.mjs` — принцип VII канона, применённый к самой
+этой статье (рукописная таблица заявляла `done` для блоков, которые граф
+честно держал в `idea`; теперь этот дрейф механически невозможен).
 
-| Блок | Статус | Что делает |
+<!-- BLOCK-STATUS:BEGIN (auto-generated from graph.json — edit via scripts/sync_article_status.mjs, not by hand) -->
+_Статусы — честные, из `graph.json` на момент генерации: `idea` значит «контракт есть, acceptance ещё не доведён до done через гейты», а не «не работает». Код блока может полноценно работать и в `idea` — см. колонку «Что делает»._
+
+| Блок | Статус (live из graph.json) | Что делает |
 |------|--------|------------|
-| `b.core-sync`             | done | контрактная согласованность, drift-detection, valid-проходы |
-| `b.db`                    | done | atlas/ как файловая БД с migrations |
-| `b.llm-gateway`           | done | каскад провайдеров (anthropic/google/claude_cli/mock), trace, schema-retry |
-| `b.acceptance-verifier-loop` | done | парсинг acceptance.md, 5 типов evidence, llm-judge fallback |
-| `b.operator-profile-learner` | done | archetype, lessons, dont_use, always_use, patterns |
-| `b.agent-orchestrator`    | done | per-block agent invocations, run_state tracking, stalled detection |
-| `b.docs`                  | done | WIKI.md, wiki.html, auto_tz.md, roadmap.md auto-generation |
-| `b.user-docs-generator`   | done | пользовательские туториалы из JSX-интроспекции |
-| `b.ui-control`            | done | визуальный canvas, composer, proposals panel |
-| `b.smoke-sandbox`         | done | end-to-end smoke test для регрессии |
+| `b.ui-control` | wip | визуальный canvas, composer, proposals panel |
+| `b.core-sync` | done | контрактная согласованность, drift-detection, valid-проходы |
+| `b.db` | idea | atlas/ как файловая БД с migrations |
+| `b.agent-orchestrator` | review | per-block agent invocations, run_state tracking, stalled detection |
+| `b.docs` | done | WIKI.md, wiki.html, auto_tz.md, roadmap.md auto-generation (гейт против шаблонов) |
+| `b.llm-gateway` | review | каскад провайдеров (claude_cli/anthropic/google/ollama/mock), trace, schema-retry |
+| `b.operator-profile-learner` | idea | archetype, lessons, dont_use, always_use, бейджи соответствия профилю |
+| `b.acceptance-verifier-loop` | done | парсинг acceptance.md, 5 типов evidence + inconclusive_if, llm-judge fallback |
+| `b.user-docs-generator` | idea | пользовательские туториалы из JSX-интроспекции |
+| `b.smoke-sandbox` | idea | end-to-end smoke test для регрессии |
+<!-- BLOCK-STATUS:END -->
+
+Слой возможностей (кросс-блочные фичи, нарратив — поддерживается вручную):
+
+| Возможность | Статус | Что делает |
+|------|--------|------------|
 | Per-block memory layer       | done | `narrative.md` + `decisions.log` авто-инжектятся в каждый промпт (R-7.76→R-7.80) |
 | Типизированный `operator_profile/*` | done | `dont_use.json` / `always_use.json` / `lessons.json` с `severity:hard\|soft`, авто-сидируются на старте (R-7.76→R-7.81) |
 | Architecture decisions store | done | `atlas/architecture_decisions.md`, append-only, project-level lock-in, авто-инжектится (R-7.85, S-6) |
@@ -724,25 +736,25 @@ Claude Code и Cursor — отличные оболочки, но они при�
 - **R-5** — soft lifecycle gates + защита design-payload от 500 на пустом клиенте + defensive UI ✅
 
 **В работе (Q3 2026):**
-- **S-1** 🟡 — block templates marketplace: базовые контрактные шаблоны (auth, payments, search, ingestion) с готовыми KPI и acceptance.
+- **S-1** ✅ R-7.89 — block templates: 5 базовых контрактных шаблонов (auth, billing, ingestion, payments, search) с готовыми KPI и acceptance в `atlas/templates/`.
 - **S-2** ❌ wontfix — hard lifecycle gates. Изначально в roadmap, но решено канонически: hard-режим **не делаем** (см. Приложение B.2). Гейты остаются soft с явными подсказками везде в UI. Жёсткое блокирование status-транзишна — анти-фича для дизайн-стадии.
 - **S-3** ✅ R-7.82 — runtime drift scanner: `scripts/scan_run_for_drift.mjs` ходит по run'у пост-фактум и валит его на нарушениях `dont_use:hard` (post-hoc сканер — тот же эффект, что у изначально-планировавшегося интерактивного cursor-hook).
 - **S-4** ✅ R-7.86 — context-pack profiles: `scripts/build_context_pack.mjs` принимает `--profile design | backend-fix | ui-fix | acceptance-only`; каждый профиль решает, кого из соседей читать полностью, кого частично, кого скипнуть. Панель Implementation Status в Overview показывает, что было загружено.
 - **S-5** ⬜ — marketing-narrative skill: второй LLM-проход поверх авто-WIKI + `product/positioning.md` (новый файл, который оператор заполняет один раз: что продаём, кому, чем отличаемся). Output — три варианта лендинг-копирайта, презентация, статья «зачем мы». Закрывает разрыв между «структурно точные авто-доки» и «production-ready маркетинговый материал». См. Приложение B.5.
 - **S-6** ✅ R-7.85 — `scripts/architecture_decisions_api.mjs` + `atlas/architecture_decisions.md` — append-only project-level lock-in для соглашений, не выводимых из acceptance (sync vs async, queueing, кэш-стратегия, обработка ошибок). Авто-инжектится в context-pack каждого блока.
-- **S-7** ⬜ — transactional change-sets: атомарный multi-block change для cross-cutting изменений (REST→GraphQL, переименование capability, миграция БД). Commit-метаданные явно перечисляют `affected_blocks: [...]`; acceptance loop гонится по каждому из них; UI canvas показывает «эти 5 блоков затронуты transaction'ом T» и состояние каждого. См. Приложение B.4.
+- **S-7** ✅ R-7.92/93 — transactional change-sets: `scripts/change_set.mjs` группирует cross-cutting правки; commit отклоняется, пока каждый блок-участник не зелёный; вкладка Change-sets на канвасе показывает участников и их состояние. Rollback пишет в narrative для операторского ревью. См. Приложение B.4.
 - **S-8** ✅ R-7.84 — `scripts/cascade_verify.mjs` cross-block break detection при правке: сломанные зависимые блоки авто-помечаются `status: desync` inline в `graph.json`. Drift виден на canvas без ручного перечитывания CI-лога.
 - **S-9** ✅ R-7.87 — token economics: агрегатор `scripts/token_economics.mjs` + виджет Token Spend на вкладке Overview. Первый срез, по блокам / профилям / провайдерам.
-- **S-9.1** ⬜ — глобальная вкладка token-economics: cross-project rollups, тренды, alerting на cost-регрессии.
+- **S-9.1** ✅ R-7.92 — глобальная вкладка Token Economics: rollups, sparkline-тренд, cost-per-pass ROI.
 
 **Среднесрочно (Q4 2026):**
 - **T-1** ⬜ — multi-operator collaboration + полная изоляция клиентов: CRDT-merging contract files; nightly уважает client-scope.
-- **U-1** ⬜ — local models як first-class providers: Ollama / vLLM / LM Studio адаптеры в LLM gateway, eval на Llama 3.3 70B / Qwen Coder 32B / DeepSeek V3.
+- **U-1** 🟡 — local models как first-class providers: **Ollama-адаптер отгружен** (`LLM_PREFER_OLLAMA=1`); vLLM / LM Studio адаптеры + eval на Llama 3.3 70B / Qwen Coder 32B / DeepSeek V3 — впереди.
 - **U-2** ⬜ — `Sima Shell`: лёгкая оболочка-MCP-клиент, оптимизированная под локальные модели; «холостые ходы» на маленьких, сложные на больших.
 - **U-3** ⬜ — Continue / Aider / Zed-AI MCP integration parity.
 
 **Долгосрочно (2027+):**
-- **V-1** ⬜ — agent-loop daemon: ночной автономный режим, в котором агент сам берёт `todo`-блоки, кодит, гонит acceptance, помечает успех/откат. Работает в steady-state: без архитектурных пивотов, под наблюдением `verify_done_blocks_still_green` + V-3.
+- **V-1** ✅ R-7.91→96 — agent-loop daemon отгружен: Ralph-loop one-shot (`scripts/agent_loop_daemon.mjs`), по умолчанию print-only, бюджет + circuit-breaker, авто-rollback из снапшота owned-файлов, семантический гейт, повторно заходит в semantic-red done-блоки с `todo_to_pass` судьи. Под наблюдением `verify_done_blocks_still_green`; V-3 production-monitor — впереди.
 - **V-2** ⬜ — one-click deployment: блок → docker → cloud, с привязанным acceptance в проде.
 - **V-3** ⬜ — production-monitor: отдельный блок-наблюдатель, который ловит unknown-unknowns (production-баги, аномалии метрик) и поднимает их обратно в граф как новые acceptance-assertions для затронутых блоков. Закрывает «слепое пятно» автономии — то, что оператор не подумал специфицировать, но что увидел продакшн. См. Приложение B.6.
 - **W-1** ⬜ — cross-project pattern transfer: уроки одного проекта (через `lessons.json`) обогащают другие; общий «опыт сообщества» как опция.

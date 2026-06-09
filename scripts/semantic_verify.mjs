@@ -73,13 +73,19 @@ function codeExcerpt() {
   // alive files so the judge sees the real implementation, not just a summary.
   const summary = read(path.join(dir, 'code_summary.md'));
   const files = aliveFiles();
-  let body = '';
-  const BUDGET = 14000; // chars — keep the judge prompt bounded
+  // R-7.98 — ALWAYS open with the full inventory of alive files (existence
+  // checked on disk). Without it, a file dropped by the char budget reads to
+  // the judge as «script is missing» and it fails the block over a file that
+  // exists. Caught live on b.docs: rebuild_atlas_roadmap.mjs fell outside
+  // the 14K budget and the judge demanded it be «provided and integrated».
+  let body = `FILE INVENTORY (existence verified on disk; content below may be truncated):\n`
+    + files.map((f) => `  - ${f}${fs.existsSync(path.join(ROOT, f)) ? '' : '  [MISSING ON DISK]'}`).join('\n') + '\n';
+  const BUDGET = 24000; // chars — keep the judge prompt bounded
   for (const f of files) {
     const c = read(path.join(ROOT, f));
     if (!c) continue;
-    const chunk = `\n----- ${f} -----\n${c.slice(0, 4000)}\n`;
-    if (body.length + chunk.length > BUDGET) { body += `\n(… ${files.length} files total, truncated to fit)\n`; break; }
+    const chunk = `\n----- ${f} -----\n${c.slice(0, 5000)}\n`;
+    if (body.length + chunk.length > BUDGET) { body += `\n(… remaining files truncated to fit — they EXIST, see FILE INVENTORY above; do NOT report inventory files as missing)\n`; break; }
     body += chunk;
   }
   return { summary, body, fileCount: files.length };

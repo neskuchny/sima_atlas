@@ -19,6 +19,7 @@ const checks = [
   ['ingestion_quality', 'node scripts/validate_ingestion_quality.mjs'],
   ['block_contracts', 'node scripts/validate_block_contracts.mjs'],
   ['no_template_placeholders', 'node scripts/validate_no_template_placeholders.mjs'],
+  ['article_status_projection', 'node scripts/sync_article_status.mjs --check'],
   ['files_registry', 'node scripts/validate_files_registry.mjs'],
   // R-7.88 (S-12 MVP) — sweeper writes atlas/cleanup_proposals.{md,json}.
   // Proposes only — never applies. Operator reviews + decides via

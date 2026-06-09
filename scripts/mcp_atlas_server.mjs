@@ -242,6 +242,12 @@ function generateTz(){
   execSync('node scripts/generate_tz_from_atlas.mjs', { cwd: root, stdio: 'pipe' });
 }
 
+function syncArticleStatus(){
+  // R-7.98 (Kanon VII) — the article's Part 9 block table is a projection of
+  // graph.json; regenerate it with every bundle so it can't drift.
+  execSync('node scripts/sync_article_status.mjs', { cwd: root, stdio: 'pipe' });
+}
+
 
 function validateAllStrict(){
   const report = runSync();
@@ -402,7 +408,8 @@ rl.on('line', (line) => {
         generateWiki();
         generateTz();
         generateRoadmap();
-        return respond(id, { content:[{ type:'text', text: 'generated wiki + auto_tz + roadmap' }] });
+        syncArticleStatus();
+        return respond(id, { content:[{ type:'text', text: 'generated wiki + auto_tz + roadmap + article block-status' }] });
       }
       if (name === 'generate_validated_bundle') {
         const ok = validateAllStrict();
@@ -410,6 +417,7 @@ rl.on('line', (line) => {
         generateWiki();
         generateTz();
         generateRoadmap();
+        syncArticleStatus();
         return respond(id, { content:[{ type:'text', text: 'validated bundle generated' }] });
       }
       if (name === 'nightly_consolidation') {

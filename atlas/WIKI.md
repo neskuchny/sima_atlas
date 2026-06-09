@@ -1,6 +1,6 @@
 # Sima Atlas Wiki
 
-_Auto-generated: 2026-06-07T17:48:22.289Z_
+_Auto-generated: 2026-06-09T18:01:44.540Z_
 
 ## Граф продукта
 
@@ -189,6 +189,42 @@ evidence_spec:
 - прохождение `validate_block_contracts.mjs` (это контрактный gate, не приёмка);
 - генерация `wiki.html` (это `b.docs`).
 
+#### Provides
+
+# b.ui-control — provides
+
+- visual_control_panel
+
+#### Depends on
+
+# b.ui-control — depends_on
+
+- b.core-sync: sync_report
+- b.agent-orchestrator: pipeline_execution
+
+#### Files
+
+# b.ui-control — files
+
+- index.html [alive] (PR4.1: repo-root redirect to frontend/index.html)
+- frontend/atlas_sync.js [alive]
+- frontend/atlas_bootstrap.js [alive] (auto-generated)
+- frontend/atlas_design/index.html [alive] (R-7.30 — current canvas entry)
+- frontend/atlas_design/panels.jsx [alive] (DetailPanel + Overview + AcceptanceSection + Implementation Status + Token Spend)
+- frontend/atlas_design/views.jsx [alive] (composer, proposals Accept/Reject, modals)
+- frontend/atlas_design/graph.jsx [alive] (canvas graph + edges + drill-down)
+- frontend/atlas_design/tweaks-panel.jsx [alive]
+- frontend/atlas_design/data_loader.js [alive] (live API loader + write-side SIMA_API)
+- frontend/atlas_design/data_static.js [alive] (offline fallback demo)
+- frontend/atlas_design/i18n.js [alive] (644-key EN/RU dictionary)
+- frontend/atlas_design/styles.css [alive]
+- frontend/result_view.jsx [archived] (legacy)
+- frontend/schema_view.jsx [archived] (legacy)
+- frontend/data.js [archived] (v1 data, replaced by data_v2.js)
+- frontend/app.jsx [archived] (v1 root, replaced by app_v2.jsx)
+
+_Sources: [mission](blocks/b.ui-control/mission.md) · [kpi](blocks/b.ui-control/kpi.md) · [acceptance](blocks/b.ui-control/acceptance.md) · [depends_on](blocks/b.ui-control/depends_on.md) · [provides](blocks/b.ui-control/provides.md) · [patterns](blocks/b.ui-control/patterns.md) · [files](blocks/b.ui-control/files.md)_
+
 ---
 
 ### 🟢 b.core-sync — Sync Engine
@@ -260,6 +296,58 @@ evidence_spec:
 ## Не считается acceptance:
 - наличие `mission.md` (это контрактный gate).
 - факт того, что `runSync` не упал (это smoke).
+
+#### Provides
+
+# b.core-sync — provides
+
+- sync_report
+- contract_validation
+
+#### Depends on
+
+# b.core-sync — depends_on
+
+- b.db: atlas_state_store
+- b.db: file_registry
+
+#### Patterns
+
+# b.core-sync — patterns
+
+- 2026-04-30T19:54:08.006Z: branch semantic ingestion
+- 2026-04-30T19:54:14.566Z: branch semantic ingestion
+- 2026-04-30T19:54:40.301Z: branch semantic ingestion
+- 2026-04-30T19:54:51.540Z: branch semantic ingestion
+- 2026-04-30T19:55:17.135Z: branch semantic ingestion
+- 2026-04-30T20:04:36.976Z: branch semantic ingestion
+- 2026-04-30T20:10:07.400Z: branch semantic ingestion
+- 2026-04-30T20:10:24.409Z: branch semantic ingestion
+- 2026-04-30T20:23:39.501Z: branch semantic ingestion
+- 2026-04-30T20:30:24.920Z: branch semantic ingestion
+
+#### Files
+
+# b.core-sync — files
+
+- frontend/atlas_sync.js [alive] (client-side syncCheck + transitions)
+- scripts/validate_block_contracts.mjs [alive]
+- scripts/validate_dependency_contracts.mjs [alive]
+- scripts/validate_acceptance_assertions.mjs [alive]
+- scripts/validate_no_template_placeholders.mjs [alive] (PR1)
+- scripts/validate_files_registry.mjs [alive] (PR2 — checks files in files.md exist on disk)
+- scripts/validate_ingestion_contracts.mjs [alive]
+- scripts/validate_ingestion_quality.mjs [alive]
+- scripts/validate_agent_parity.mjs [alive]
+- scripts/validate_parity_matrix.mjs [alive]
+- scripts/validate_bootstrap_projection.mjs [alive]
+- scripts/validate_bootstrap_regeneration.mjs [alive]
+- scripts/calc_intelligence_health.mjs [alive]
+- scripts/audit_production_readiness.mjs [alive]
+- scripts/log_transition.mjs [alive]
+- atlas/transitions.log [alive]
+
+_Sources: [mission](blocks/b.core-sync/mission.md) · [kpi](blocks/b.core-sync/kpi.md) · [acceptance](blocks/b.core-sync/acceptance.md) · [depends_on](blocks/b.core-sync/depends_on.md) · [provides](blocks/b.core-sync/provides.md) · [patterns](blocks/b.core-sync/patterns.md) · [files](blocks/b.core-sync/files.md)_
 
 ---
 
@@ -337,6 +425,51 @@ evidence_spec:
 
 ## Не считается acceptance:
 - факт того, что markdown-файлы блока существуют (это контрактный gate).
+
+#### Provides
+
+# b.db — provides
+
+- atlas_state_store
+- file_registry
+
+#### Depends on
+
+# b.db — depends_on
+
+- none
+
+#### Files
+
+# b.db — files
+
+- atlas/graph.json [alive] (v2 — main schema source of truth)
+- atlas/db_schema.json [alive]
+- atlas/project.md [alive]
+- atlas/rules.md [alive]
+- atlas/tech_stack.md [alive] (project-wide stack lock)
+- atlas/operator_profile.json [alive]
+- atlas/transitions.log [alive]
+- atlas/ingestion_queue.jsonl [alive]
+- atlas/intelligence_health.json [alive]
+- atlas/intelligence_health.md [alive]
+- atlas/STATUS_REPORT.md [alive]
+- atlas/STOPPOINT.md [alive]
+- atlas/progress_tz_checklist.md [alive]
+- atlas/IMPLEMENTATION_PROGRESS.md [alive]
+- atlas/production_audit_report.md [alive]
+- atlas/tasks_master.md [alive]
+- scripts/log_transition.mjs [alive]
+- scripts/manage_block.mjs [alive]
+- scripts/advance_block_state.mjs [alive]
+- scripts/dedup_block_memory.mjs [alive]
+- scripts/enqueue_ingestion_item.mjs [alive]
+- scripts/apply_ingestion_queue.mjs [alive]
+- scripts/ingest_chat_distillate.mjs [alive]
+- scripts/ingest_chat_batches.mjs [alive]
+- scripts/hook_ingest_recent_chat.mjs [alive] (waiting for PR4 valid hooks)
+
+_Sources: [mission](blocks/b.db/mission.md) · [kpi](blocks/b.db/kpi.md) · [acceptance](blocks/b.db/acceptance.md) · [depends_on](blocks/b.db/depends_on.md) · [provides](blocks/b.db/provides.md) · [patterns](blocks/b.db/patterns.md) · [files](blocks/b.db/files.md)_
 
 ---
 
@@ -446,6 +579,53 @@ evidence_spec:
 - `b.agent-orchestrator` depends_on: b.db, b.core-sync, b.llm-gateway.
 - Этот блок sync с `b.ui-control` через единый context-pack JSON.
 
+#### Provides
+
+# b.agent-orchestrator — provides
+
+- pipeline_execution
+
+#### Depends on
+
+# b.agent-orchestrator — depends_on
+
+- b.db: atlas_state_store
+- b.core-sync: sync_report
+
+#### Files
+
+# b.agent-orchestrator — files
+
+- scripts/mcp_atlas_server.mjs [alive] (21+ tools over JSON-RPC stdio)
+- scripts/atlas_api_server.mjs [alive] (HTTP facade for orchestration)
+- scripts/generate_cursor_hooks.mjs [alive] (PR4: emits valid Cursor format with real action scripts)
+- scripts/validate_cursor_hooks.mjs [alive] (PR4: gate; fails if hooks.json has wrong shape or missing scripts)
+- scripts/observe_file_edit.mjs [alive] (PR4: afterFileEdit action — files.md → block reverse-map)
+- scripts/guard_against_drift.mjs [alive] (PR4: beforeShellExecution action — tech_stack.md guard)
+- scripts/inject_context_pack.mjs [alive] (PR4: beforeSubmitPrompt action — block-scoped context)
+- tests/cursor_hooks_actions.test.mjs [alive] (PR4: 9-case integration test for the three actions)
+- scripts/run_block_implementation.mjs [alive] (PR4.5: build prompt + invoke claude/codex/cursor CLI)
+- tests/agent_parity_real.smoke.mjs [alive] (PR4.5: real MCP pack ≡ Claude --add-dir disk parity)
+- scripts/generate_agent_contracts.mjs [alive] (writes AGENTS.md / CLAUDE.md)
+- scripts/build_context_pack.mjs [alive]
+- scripts/sync_context_packs.mjs [alive]
+- scripts/finalize_cursor_iteration.mjs [alive]
+- scripts/run_block_process.mjs [alive]
+- scripts/pipeline_step.mjs [alive]
+- scripts/auto_sync_iteration.mjs [alive] (regex-only flow; will be replaced after PR3 wiring)
+- scripts/analyze_conversation_to_atlas.mjs [alive] (PR3: replaced regex with extractBlockSchema via b.llm-gateway)
+- scripts/simulate_conversation_branches.mjs [alive] (PR3: rewritten as smoke for the LLM extraction + safe-upsert flow)
+- .cursor/hooks.json [alive] (current content uses invented Cursor events — PR4)
+- .cursor/mcp.json [alive]
+- AGENTS.md [alive]
+- CLAUDE.md [alive]
+- scripts/run_state.mjs [alive] (PR-7 Symphony-inspired FSM; runs are tracked in atlas/run_state/<run_id>.json)
+- tests/run_state.selftest.mjs [alive] (PR-7; 8 test groups)
+- scripts/agent_workspace.mjs [alive] (PR-8 sandboxed workspaces under ~/.atlas_workspaces/)
+- tests/agent_workspace.selftest.mjs [alive] (PR-8; 7 test groups)
+
+_Sources: [mission](blocks/b.agent-orchestrator/mission.md) · [kpi](blocks/b.agent-orchestrator/kpi.md) · [acceptance](blocks/b.agent-orchestrator/acceptance.md) · [depends_on](blocks/b.agent-orchestrator/depends_on.md) · [provides](blocks/b.agent-orchestrator/provides.md) · [patterns](blocks/b.agent-orchestrator/patterns.md) · [files](blocks/b.agent-orchestrator/files.md)_
+
 ---
 
 ### 🟢 b.docs — Docs Builder
@@ -519,6 +699,66 @@ evidence_spec:
 
 ## Не считается acceptance:
 - наличие файлов `wiki.html`, `auto_tz.md`, `roadmap.md` (это smoke).
+
+#### Provides
+
+# b.docs — provides
+
+- wiki_bundle
+- tz_bundle
+
+#### Depends on
+
+# b.docs — depends_on
+
+- b.db: atlas_state_store
+- b.db: file_registry
+- b.core-sync: sync_report
+
+#### Patterns
+
+# b.docs — patterns
+
+- 2026-04-30T15:37:16.336Z: nightly: distilled insight for P6
+- 2026-04-30T17:31:53.545Z: queue test insight
+- 2026-04-30T17:32:32.367Z: handler fix check
+- 2026-04-30T17:35:51.828Z: smoke e2e queued insight
+- 2026-04-30T17:36:17.484Z: smoke e2e queued insight
+- 2026-04-30T17:36:23.007Z: smoke e2e queued insight
+- 2026-04-30T19:13:55.396Z: smoke e2e queued insight
+- 2026-04-30T19:48:09.055Z: semantic test
+- 2026-04-30T19:54:07.898Z: branch semantic ingestion
+- 2026-04-30T19:54:14.439Z: branch semantic ingestion
+- 2026-04-30T19:54:40.180Z: branch semantic ingestion
+- 2026-04-30T19:54:51.428Z: branch semantic ingestion
+- 2026-04-30T19:55:17.024Z: branch semantic ingestion
+- 2026-04-30T20:04:36.862Z: branch semantic ingestion
+- 2026-04-30T20:10:07.285Z: branch semantic ingestion
+- 2026-04-30T20:10:24.293Z: branch semantic ingestion
+- 2026-04-30T20:23:39.393Z: branch semantic ingestion
+- 2026-04-30T20:23:42.373Z: smoke e2e queued insight
+- 2026-04-30T20:30:24.805Z: branch semantic ingestion
+- 2026-04-30T20:30:30.127Z: smoke e2e queued insight
+- 2026-04-30T21:56:16.102Z: batch-ingest 1-2 / 4
+- 2026-04-30T21:56:16.275Z: batch-ingest 3-4 / 4
+- 2026-05-02T08:47:15.240Z: smoke e2e queued insight
+- 2026-06-05T22:32:30.651Z: Обсуждаем новый блок b.realtime-ingestion, нужен статус wip и layer logic
+
+#### Files
+
+# b.docs — files
+
+- scripts/generate_wiki.mjs [alive]
+- scripts/generate_tz_from_atlas.mjs [alive]
+- scripts/render_wiki_html.mjs [alive]
+- scripts/rebuild_atlas_roadmap.mjs [alive]
+- scripts/generate_atlas_bootstrap_js.mjs [alive] (PR2 — emits layered bootstrap)
+- atlas/WIKI.md [alive] (auto-generated)
+- atlas/wiki.html [alive] (auto-generated)
+- atlas/roadmap.md [alive] (auto-generated)
+- atlas/nightly_report.md [alive] (auto-generated)
+
+_Sources: [mission](blocks/b.docs/mission.md) · [kpi](blocks/b.docs/kpi.md) · [acceptance](blocks/b.docs/acceptance.md) · [depends_on](blocks/b.docs/depends_on.md) · [provides](blocks/b.docs/provides.md) · [patterns](blocks/b.docs/patterns.md) · [files](blocks/b.docs/files.md)_
 
 ---
 
@@ -618,6 +858,50 @@ evidence_spec:
 ## Зависимости
 - b.llm-gateway → нет prereq внутри Атласа.
 - b.agent-orchestrator depends_on b.llm-gateway (use as semantic ingestion engine).
+
+#### Provides
+
+# b.llm-gateway — provides
+
+- llm_call_structured
+- llm_extract_block_schema
+- llm_validate_drift
+- llm_summarize_distillate
+
+#### Depends on
+
+# b.llm-gateway — depends_on
+
+- none
+
+#### Files
+
+# b.llm-gateway — files
+
+- scripts/llm_gateway.mjs [alive] (PR3 — main implementation, PR4.2 inline-comment-safe .env parser)
+- scripts/llm_check.mjs [alive] (PR4.1 — diagnostic for env + provider ping)
+- tests/llm_gateway.selftest.mjs [alive] (4 cases: schema validation, extractBlockSchema, trace write, no-schema fallback)
+- tests/llm_extraction.eval.mjs [alive] (5-case golden eval, target precision >= 0.7)
+- tests/fixtures/extraction_golden.json [alive]
+- tests/llm_mocks/_default.json [alive]
+- tests/llm_mocks/c2d381615a8dc73a.json [alive] (payments_stripe golden)
+- tests/llm_mocks/3b627c7e1be3704b.json [alive] (auth_jwt golden)
+- tests/llm_mocks/bd85bbb8b0c013de.json [alive] (search_block golden)
+- tests/llm_mocks/b5ad6311ecc46c29.json [alive] (notifications_dual golden)
+- tests/llm_mocks/052b57272d7d7d4c.json [alive] (no_block_chat golden)
+- tests/llm_mocks/6a03ef6e33f5d57e.json [alive] (legacy fixture: realtime-ingestion)
+- tests/llm_mocks/f0b0bb99c4c1a99f.json [alive] (legacy fixture: core-sync done proposal)
+- atlas/llm_traces/.gitkeep [alive] (trace directory placeholder; runtime traces are .gitignored)
+- atlas/proposals/.gitkeep [alive] (PR3.5 — Accept/Reject inbox for LLM block updates)
+- scripts/list_proposals.mjs [alive] (PR3.5)
+- scripts/accept_proposal.mjs [alive] (PR3.5)
+- scripts/reject_proposal.mjs [alive] (PR3.5)
+- tests/proposals_flow.smoke.mjs [alive] (PR3.5)
+- scripts/seed_llm_mocks.mjs [alive] (PR-Eval: regenerate mock fixtures from golden)
+- atlas/eval_history/.gitkeep [alive] (PR-Eval: per-run snapshots; .gitignored except baseline.json)
+- atlas/eval_history/baseline.json [alive] (PR-Eval: pinned regression baseline)
+
+_Sources: [mission](blocks/b.llm-gateway/mission.md) · [kpi](blocks/b.llm-gateway/kpi.md) · [acceptance](blocks/b.llm-gateway/acceptance.md) · [depends_on](blocks/b.llm-gateway/depends_on.md) · [provides](blocks/b.llm-gateway/provides.md) · [patterns](blocks/b.llm-gateway/patterns.md) · [files](blocks/b.llm-gateway/files.md)_
 
 ---
 
@@ -843,11 +1127,11 @@ evidence_spec:
   cmd: node tests/operator_profile_inject.smoke.mjs
   expect_in_stdout: "OK"
 ```
-- [ ] **A6.** PR-6 (UI hints) merged: ProposalsPanel показывает badge `соответствует профилю` / `противоречит профилю`; Inspector под mission блока — секция `Подсказки от профиля` со списком (`evidence: [block_id]` рядом с каждой подсказкой).
+- [x] **A6.** UI hints: ProposalsPanel показывает badge `соответствует профилю` / `противоречит профилю` — содержимое каждого proposal сверяется с operator locks (`dont_use` / `always_use`) через `GET /atlas/operator-profile/hints`. (R-7.98: исходный `frontend/proposals_panel.jsx` был удалён при миграции UI; фича пересоздана в актуальной панели `views.jsx` — контракт пересмотрен осознанно, не молча.)
 ```yaml
 evidence_kind: log_grep
 evidence_spec:
-  file: frontend/proposals_panel.jsx
+  file: frontend/atlas_design/views.jsx
   pattern: "complianceWithProfile"
 ```
 - [ ] **A7.** Privacy gate: `atlas/operator_profile/` упоминается в `.gitignore` (опц.) с пояснением в `atlas/rules.md`; никакого PII (имена / e-mail / API-ключи) не пишется в profile.json — selftest A1 проверяет regex.
@@ -872,6 +1156,82 @@ evidence_spec:
 ## Зависимости
 - b.operator-profile-learner → читает b.db (graph + transitions), b.core-sync (checks.log), b.agent-orchestrator (invocations + context-pack), b.llm-gateway (on-demand failure analysis), b.docs (рендер карточки).
 - Никто из других блоков не depends_on b.operator-profile-learner — это чисто-аддитивный слой.
+
+#### Provides
+
+# b.operator-profile-learner — provides
+
+- operator_profile (для inject_context_pack + Inspector)
+- personal_templates (для analyze_conversation_to_atlas tech_stack defaults)
+- personal_dont_use (для guard_against_drift расширения forbidden_substrings)
+- personal_always_use (категория → значение, для подсветки в proposals)
+- lessons_learned (для inject_context_pack + Inspector evidence)
+- agent_routing_hint (для run_block_implementation выбора провайдера по `agents_used.<x>.best_for`)
+
+#### Depends on
+
+# b.operator-profile-learner — depends_on
+
+- b.db: atlas_state_store
+- b.core-sync: sync_report
+- b.agent-orchestrator: pipeline_execution
+- b.llm-gateway: llm_call_structured
+- b.docs: wiki_bundle
+
+#### Files
+
+# b.operator-profile-learner — files
+
+Все пути с тегом `[pending]` — *планируемые* (status: idea). Реальные `[alive]` помечаются по мере мержа PR-1…PR-6.
+
+## Aggregator + storage (PR-1)
+- scripts/aggregate_operator_profile.mjs [alive]
+- atlas/operator_profile/profile.json [alive]
+- atlas/operator_profile/patterns/work_style.json [alive]
+- atlas/operator_profile/patterns/agents.json [alive]
+- atlas/operator_profile/patterns/tech_stack.json [alive]
+- atlas/operator_profile/patterns/environment.json [alive]
+- atlas/operator_profile/patterns/failures.json [alive]
+- tests/operator_profile.selftest.mjs [alive]
+
+## Templates (PR-2)
+- atlas/operator_profile/templates/backend-mvp.json [alive]
+- atlas/operator_profile/templates/backend-prod.json [alive]
+- atlas/operator_profile/templates/frontend-spa.json [alive]
+- atlas/operator_profile/templates/testing-stack.json [alive]
+- scripts/pick_template.mjs [alive] (PR-2: pickTemplate(scope, profile?) + scopeFromLayer + flattenTechStack; CLI for inspection)
+- tests/pick_template.selftest.mjs [alive] (PR-2: 8 test groups: scopeFromLayer + invalid scope + each scope returns expected template + canonicalization + warming_up state + profile-driven tech_stack adjustment + dont_use forces alternative)
+
+## Don't-use (PR-3)
+- scripts/manage_dont_use.mjs [alive]
+- scripts/validate_dont_use_compliance.mjs [alive]
+- tests/dont_use_management.selftest.mjs [alive]
+
+## Lessons (PR-4)
+- scripts/analyze_lessons_from_history.mjs [alive]
+- tests/operator_profile_lessons.smoke.mjs [alive]
+
+## Inject (PR-5) — touches inject_context_pack.mjs (owned by b.agent-orchestrator)
+- tests/operator_profile_inject.smoke.mjs [alive]
+
+## UI (PR-6) — touches arch_canvas.jsx (b.ui-control) + proposals_panel.jsx (b.llm-gateway)
+PR-6 cross-cutting changes (host blocks own JSX; documented in checks.log + tasks.md):
+
+  • `frontend/arch_canvas.jsx` (owned by b.ui-control) gained ProfileHintsSection
+  • `frontend/proposals_panel.jsx` (owned by b.llm-gateway) gained complianceWithProfile + match/conflict badge
+  • `scripts/generate_atlas_bootstrap_js.mjs` (owned by b.ui-control) now exposes operatorProfile + operatorLessons + operatorDontUse
+
+## Documentation
+- atlas/blocks/b.operator-profile-learner/mission.md [alive]
+- atlas/blocks/b.operator-profile-learner/kpi.md [alive]
+- atlas/blocks/b.operator-profile-learner/acceptance.md [alive]
+- atlas/blocks/b.operator-profile-learner/tasks.md [alive]
+- atlas/blocks/b.operator-profile-learner/depends_on.md [alive]
+- atlas/blocks/b.operator-profile-learner/provides.md [alive]
+- atlas/blocks/b.operator-profile-learner/files.md [alive]
+- atlas/blocks/b.operator-profile-learner/checks.log [alive]
+
+_Sources: [mission](blocks/b.operator-profile-learner/mission.md) · [kpi](blocks/b.operator-profile-learner/kpi.md) · [acceptance](blocks/b.operator-profile-learner/acceptance.md) · [depends_on](blocks/b.operator-profile-learner/depends_on.md) · [provides](blocks/b.operator-profile-learner/provides.md) · [patterns](blocks/b.operator-profile-learner/patterns.md) · [files](blocks/b.operator-profile-learner/files.md)_
 
 ---
 
@@ -1100,6 +1460,72 @@ evidence_spec:
 ## Зависимости
 - b.acceptance-verifier-loop → читает b.db, b.core-sync, b.agent-orchestrator (post-run hook), b.llm-gateway (judge fallback).
 - Никто из других блоков не блокируется этим (это аддитивный gate; по умолчанию `done` без verifier'а уже работал в PR1–PR-Live).
+
+#### Provides
+
+# b.acceptance-verifier-loop — provides
+
+- acceptance_run_report
+- acceptance_gate_decision
+- retry_prompt_hint
+- evidence_collector_runtime
+- assertion_parser
+
+#### Depends on
+
+# b.acceptance-verifier-loop — depends_on
+
+- b.db: atlas_state_store
+- b.core-sync: sync_report
+- b.agent-orchestrator: pipeline_execution
+- b.llm-gateway: llm_call_structured
+
+#### Files
+
+# b.acceptance-verifier-loop — files
+
+Все пути с тегом `[pending]` — *планируемые* (status: idea). Реальные `[alive]` помечаются по мере мержа PR-1…PR-5.
+
+## Parser (PR-1)
+- scripts/parse_acceptance.mjs [alive]
+- tests/parse_acceptance.selftest.mjs [alive]
+
+## Evidence collectors (PR-2)
+- scripts/collect_evidence.mjs [alive]
+- tests/evidence_collectors.selftest.mjs [alive]
+
+## LLM-judge (PR-3)
+- scripts/judge_assertion.mjs [alive]
+- tests/llm_judge.smoke.mjs [alive]
+
+## Gate hooks (PR-4)
+- scripts/verify_block_acceptance.mjs [alive]
+- scripts/verify_all_acceptance.mjs [alive] (PR-2 migration: walks all blocks, writes acceptance_runs/<block>/<UTC>.json + _latest.json + _summary.json; nightly-friendly, exit 0 always)
+- atlas/acceptance_runs/_summary.json [alive] (PR-2 migration: aggregate verdicts across all blocks)
+- scripts/verify_done_blocks_still_green.mjs [alive] (PR-4: nightly regression check; writes acceptance_regression proposals, never auto-flips done→broken)
+- tests/acceptance_verifier.e2e.smoke.mjs [alive]
+
+## UI (PR-5)
+PR-5 touches files owned by other blocks (UI host blocks own JSX; bootstrap
+generator is owned by b.ui-control). Cross-cutting changes are documented
+in checks.log + tasks.md (not listed here because files.md only enumerates
+this block's own owned files):
+
+  • `frontend/arch_canvas.jsx` (owned by b.ui-control) gained AcceptanceSection
+  • `frontend/proposals_panel.jsx` (owned by b.llm-gateway) gained acceptance_regression card
+  • `scripts/generate_atlas_bootstrap_js.mjs` (owned by b.ui-control) now exposes acceptanceRuns + acceptanceSummary in the payload
+
+## Documentation
+- atlas/blocks/b.acceptance-verifier-loop/mission.md [alive]
+- atlas/blocks/b.acceptance-verifier-loop/kpi.md [alive]
+- atlas/blocks/b.acceptance-verifier-loop/acceptance.md [alive]
+- atlas/blocks/b.acceptance-verifier-loop/tasks.md [alive]
+- atlas/blocks/b.acceptance-verifier-loop/depends_on.md [alive]
+- atlas/blocks/b.acceptance-verifier-loop/provides.md [alive]
+- atlas/blocks/b.acceptance-verifier-loop/files.md [alive]
+- atlas/blocks/b.acceptance-verifier-loop/checks.log [alive]
+
+_Sources: [mission](blocks/b.acceptance-verifier-loop/mission.md) · [kpi](blocks/b.acceptance-verifier-loop/kpi.md) · [acceptance](blocks/b.acceptance-verifier-loop/acceptance.md) · [depends_on](blocks/b.acceptance-verifier-loop/depends_on.md) · [provides](blocks/b.acceptance-verifier-loop/provides.md) · [patterns](blocks/b.acceptance-verifier-loop/patterns.md) · [files](blocks/b.acceptance-verifier-loop/files.md)_
 
 ---
 
@@ -1331,6 +1757,75 @@ evidence_spec:
 - b.user-docs-generator → читает b.db, b.docs (общий wiki-pipeline), b.agent-orchestrator (опц. screenshots), b.llm-gateway (генерация).
 - Никто из других блоков не depends_on этот — это аддитивный слой контента.
 
+#### Provides
+
+# b.user-docs-generator — provides
+
+- end_user_docs_set
+- user_docs_meta
+- tutorial_renderer
+- block_ui_introspection
+
+#### Depends on
+
+# b.user-docs-generator — depends_on
+
+- b.db: atlas_state_store
+- b.docs: wiki_bundle
+- b.agent-orchestrator: pipeline_execution
+- b.llm-gateway: llm_call_structured
+
+#### Files
+
+# b.user-docs-generator — files
+
+Все пути с тегом `[pending]` — *планируемые* (status: idea).
+
+## Introspection (PR-1)
+- scripts/introspect_block_ui.mjs [alive]
+- tests/fixtures/jsx/synthetic_panel.jsx [alive]
+- tests/introspect_block_ui.selftest.mjs [alive]
+
+## LLM writer (PR-2)
+- scripts/generate_user_docs.mjs [alive]
+- tests/user_docs.smoke.mjs [alive]
+
+## Screenshots (PR-3, опц.)
+- scripts/take_screenshots.mjs [alive]
+- tests/playwright/user_docs_screenshots.spec.ts [alive]
+- tests/screenshots_integration.selftest.mjs [alive]
+
+## Auto-regen + UI (PR-4)
+- scripts/regenerate_user_docs_drift.mjs [alive]
+- scripts/check_user_docs_locked.mjs [alive]
+- tests/user_docs_drift.selftest.mjs [alive]
+
+PR-4 also touches files owned by other blocks (cross-cutting; documented
+in checks.log + tasks.md):
+
+  • `frontend/arch_canvas.jsx` (owned by b.ui-control) gained
+    UserDocsLink component
+  • `frontend/proposals_panel.jsx` (owned by b.llm-gateway) gained
+    user_docs_locked card branch
+  • `scripts/generate_atlas_bootstrap_js.mjs` (owned by b.ui-control)
+    now exposes userDocsByBlock
+  • `scripts/log_transition.mjs` (owned by b.db) gained the
+    user-facing-block auto-regen spawn
+  • `scripts/atlas_api_server.mjs` (owned by b.agent-orchestrator)
+    gained /user-docs/{regenerate,lock,unlock-and-regen} endpoints
+
+## Documentation
+- atlas/blocks/b.user-docs-generator/mission.md [alive]
+- atlas/blocks/b.user-docs-generator/kpi.md [alive]
+- atlas/blocks/b.user-docs-generator/acceptance.md [alive]
+- atlas/blocks/b.user-docs-generator/tasks.md [alive]
+- atlas/blocks/b.user-docs-generator/depends_on.md [alive]
+- atlas/blocks/b.user-docs-generator/provides.md [alive]
+- atlas/blocks/b.user-docs-generator/files.md [alive]
+- atlas/blocks/b.user-docs-generator/checks.log [alive]
+
+_Sources: [mission](blocks/b.user-docs-generator/mission.md) · [kpi](blocks/b.user-docs-generator/kpi.md) · [acceptance](blocks/b.user-docs-generator/acceptance.md) · [depends_on](blocks/b.user-docs-generator/depends_on.md) · [provides](blocks/b.user-docs-generator/provides.md) · [patterns](blocks/b.user-docs-generator/patterns.md) · [files](blocks/b.user-docs-generator/files.md)_
+
 ---
 
 ### 🟡 b.smoke-sandbox — Smoke Sandbox (test target)
@@ -1384,6 +1879,262 @@ evidence_spec:
   expect_in_stdout: "OK"
 ```
 
+#### Provides
+
+# b.smoke-sandbox — provides
+
+- e2e_test_target
+
+#### Depends on
+
+# b.smoke-sandbox — depends_on
+
+- none
+
+#### Patterns
+
+# b.smoke-sandbox — patterns
+
+- 2026-05-02T08:48:38.676Z: smoke e2e queued insight
+- 2026-05-02T08:49:10.654Z: smoke e2e queued insight
+- 2026-05-02T09:25:46.679Z: smoke e2e queued insight
+- 2026-05-02T10:00:14.861Z: smoke e2e queued insight
+- 2026-05-02T10:01:02.165Z: smoke e2e queued insight
+- 2026-05-02T10:01:09.348Z: smoke e2e queued insight
+- 2026-05-02T11:06:56.442Z: smoke e2e queued insight
+- 2026-05-02T11:07:32.253Z: smoke e2e queued insight
+- 2026-05-02T11:09:57.121Z: smoke e2e queued insight
+- 2026-05-02T11:34:27.948Z: smoke e2e queued insight
+- 2026-05-02T12:16:05.861Z: smoke e2e queued insight
+- 2026-05-02T12:37:33.402Z: smoke e2e queued insight
+- 2026-05-02T12:43:06.469Z: smoke e2e queued insight
+- 2026-05-02T13:03:19.103Z: smoke e2e queued insight
+- 2026-05-02T14:37:44.047Z: smoke e2e queued insight
+- 2026-05-02T16:50:43.340Z: smoke e2e queued insight
+- 2026-05-02T17:23:01.754Z: smoke e2e queued insight
+- 2026-05-02T17:39:57.575Z: smoke e2e queued insight
+- 2026-05-02T17:44:27.797Z: smoke e2e queued insight
+- 2026-05-02T18:15:21.134Z: smoke e2e queued insight
+- 2026-05-02T18:23:09.530Z: smoke e2e queued insight
+- 2026-05-02T18:28:25.313Z: smoke e2e queued insight
+- 2026-05-02T23:15:35.363Z: smoke e2e queued insight
+- 2026-05-02T23:24:33.013Z: smoke e2e queued insight
+- 2026-05-02T23:33:50.812Z: smoke e2e queued insight
+- 2026-05-02T23:34:47.268Z: smoke e2e queued insight
+- 2026-05-02T23:34:53.997Z: smoke e2e queued insight
+- 2026-05-03T04:31:48.176Z: smoke e2e queued insight
+- 2026-05-03T04:32:07.002Z: smoke e2e queued insight
+- 2026-05-03T04:39:05.017Z: smoke e2e queued insight
+- 2026-05-03T06:08:23.750Z: smoke e2e queued insight
+- 2026-05-03T12:36:17.737Z: smoke e2e queued insight
+- 2026-05-03T13:41:49.570Z: smoke e2e queued insight
+- 2026-05-03T13:51:53.384Z: smoke e2e queued insight
+- 2026-05-03T14:09:21.391Z: smoke e2e queued insight
+- 2026-05-03T14:18:57.151Z: smoke e2e queued insight
+- 2026-05-03T17:07:49.217Z: smoke e2e queued insight
+- 2026-05-03T17:08:19.099Z: smoke e2e queued insight
+- 2026-05-03T17:08:42.373Z: smoke e2e queued insight
+- 2026-05-03T17:37:07.280Z: smoke e2e queued insight
+- 2026-05-03T17:45:09.354Z: smoke e2e queued insight
+- 2026-05-03T17:46:06.289Z: smoke e2e queued insight
+- 2026-05-03T19:29:53.021Z: smoke e2e queued insight
+- 2026-05-03T21:49:52.318Z: smoke e2e queued insight
+- 2026-05-04T08:30:49.404Z: smoke e2e queued insight
+- 2026-05-04T10:53:33.352Z: smoke e2e queued insight
+- 2026-05-04T11:05:54.065Z: smoke e2e queued insight
+- 2026-05-04T12:15:09.345Z: smoke e2e queued insight
+- 2026-05-04T12:15:26.493Z: smoke e2e queued insight
+- 2026-05-04T12:15:41.550Z: smoke e2e queued insight
+- 2026-05-04T12:15:46.111Z: smoke e2e queued insight
+- 2026-05-04T15:47:11.451Z: smoke e2e queued insight
+- 2026-05-04T15:47:26.040Z: smoke e2e queued insight
+- 2026-05-04T15:47:30.000Z: smoke e2e queued insight
+- 2026-05-04T15:58:23.803Z: smoke e2e queued insight
+- 2026-05-04T15:58:27.862Z: smoke e2e queued insight
+- 2026-05-04T16:00:23.871Z: smoke e2e queued insight
+- 2026-05-04T16:00:27.819Z: smoke e2e queued insight
+- 2026-05-04T16:04:34.800Z: smoke e2e queued insight
+- 2026-05-04T16:04:39.002Z: smoke e2e queued insight
+- 2026-05-04T16:04:48.304Z: smoke e2e queued insight
+- 2026-05-04T16:05:32.052Z: smoke e2e queued insight
+- 2026-05-04T16:07:36.203Z: smoke e2e queued insight
+- 2026-05-04T16:07:36.597Z: smoke e2e queued insight
+- 2026-05-04T16:07:45.636Z: smoke e2e queued insight
+- 2026-05-04T16:08:29.322Z: smoke e2e queued insight
+- 2026-05-04T16:09:08.962Z: smoke e2e queued insight
+- 2026-05-04T16:09:55.045Z: smoke e2e queued insight
+- 2026-05-04T16:10:43.816Z: smoke e2e queued insight
+- 2026-05-04T16:11:06.309Z: smoke e2e queued insight
+- 2026-05-04T16:11:27.411Z: smoke e2e queued insight
+- 2026-05-04T16:12:34.595Z: smoke e2e queued insight
+- 2026-05-04T16:12:35.034Z: smoke e2e queued insight
+- 2026-05-04T16:12:44.180Z: smoke e2e queued insight
+- 2026-05-04T16:13:27.869Z: smoke e2e queued insight
+- 2026-05-04T16:57:59.166Z: smoke e2e queued insight
+- 2026-05-04T16:57:59.608Z: smoke e2e queued insight
+- 2026-05-04T17:00:05.246Z: smoke e2e queued insight
+- 2026-05-04T17:00:05.691Z: smoke e2e queued insight
+- 2026-05-04T17:00:15.045Z: smoke e2e queued insight
+- 2026-05-04T17:00:58.783Z: smoke e2e queued insight
+- 2026-05-04T18:40:41.749Z: smoke e2e queued insight
+- 2026-05-04T18:40:42.185Z: smoke e2e queued insight
+- 2026-05-04T18:40:51.391Z: smoke e2e queued insight
+- 2026-05-04T18:41:35.266Z: smoke e2e queued insight
+- 2026-05-04T19:27:41.512Z: smoke e2e queued insight
+- 2026-05-04T19:27:41.927Z: smoke e2e queued insight
+- 2026-05-04T19:27:50.802Z: smoke e2e queued insight
+- 2026-05-04T19:28:34.509Z: smoke e2e queued insight
+- 2026-05-04T20:43:26.449Z: smoke e2e queued insight
+- 2026-05-04T20:43:26.952Z: smoke e2e queued insight
+- 2026-05-04T20:43:36.320Z: smoke e2e queued insight
+- 2026-05-04T20:44:20.184Z: smoke e2e queued insight
+- 2026-05-04T20:59:20.895Z: smoke e2e queued insight
+- 2026-05-04T20:59:21.323Z: smoke e2e queued insight
+- 2026-05-04T20:59:30.612Z: smoke e2e queued insight
+- 2026-05-04T21:00:14.341Z: smoke e2e queued insight
+- 2026-05-04T22:00:24.805Z: smoke e2e queued insight
+- 2026-05-04T22:00:25.275Z: smoke e2e queued insight
+- 2026-05-04T22:00:34.896Z: smoke e2e queued insight
+- 2026-05-04T22:01:18.873Z: smoke e2e queued insight
+- 2026-05-04T23:20:09.062Z: smoke e2e queued insight
+- 2026-05-04T23:20:09.635Z: smoke e2e queued insight
+- 2026-05-04T23:20:20.670Z: smoke e2e queued insight
+- 2026-05-04T23:21:05.209Z: smoke e2e queued insight
+- 2026-05-04T23:26:23.856Z: smoke e2e queued insight
+- 2026-05-04T23:26:24.403Z: smoke e2e queued insight
+- 2026-05-04T23:26:35.565Z: smoke e2e queued insight
+- 2026-05-04T23:27:20.130Z: smoke e2e queued insight
+- 2026-05-04T23:44:41.592Z: smoke e2e queued insight
+- 2026-05-04T23:44:42.007Z: smoke e2e queued insight
+- 2026-05-04T23:44:50.877Z: smoke e2e queued insight
+- 2026-05-04T23:45:34.481Z: smoke e2e queued insight
+- 2026-05-04T23:56:56.253Z: smoke e2e queued insight
+- 2026-05-04T23:56:56.668Z: smoke e2e queued insight
+- 2026-05-04T23:57:05.460Z: smoke e2e queued insight
+- 2026-05-04T23:57:49.030Z: smoke e2e queued insight
+- 2026-05-05T00:06:28.201Z: smoke e2e queued insight
+- 2026-05-05T00:06:28.634Z: smoke e2e queued insight
+- 2026-05-05T00:06:37.345Z: smoke e2e queued insight
+- 2026-05-05T00:07:20.868Z: smoke e2e queued insight
+- 2026-05-05T00:09:42.740Z: smoke e2e queued insight
+- 2026-05-05T00:09:43.187Z: smoke e2e queued insight
+- 2026-05-05T00:09:52.136Z: smoke e2e queued insight
+- 2026-05-05T00:10:35.775Z: smoke e2e queued insight
+- 2026-05-05T00:22:28.455Z: smoke e2e queued insight
+- 2026-05-05T00:22:28.870Z: smoke e2e queued insight
+- 2026-05-05T00:22:37.869Z: smoke e2e queued insight
+- 2026-05-05T00:23:21.758Z: smoke e2e queued insight
+- 2026-05-05T00:30:14.669Z: smoke e2e queued insight
+- 2026-05-05T00:30:15.055Z: smoke e2e queued insight
+- 2026-05-05T00:30:23.253Z: smoke e2e queued insight
+- 2026-05-05T00:31:06.780Z: smoke e2e queued insight
+- 2026-05-05T00:51:20.404Z: smoke e2e queued insight
+- 2026-05-05T00:51:20.817Z: smoke e2e queued insight
+- 2026-05-05T00:51:29.865Z: smoke e2e queued insight
+- 2026-05-05T00:52:13.538Z: smoke e2e queued insight
+- 2026-05-05T01:04:29.005Z: smoke e2e queued insight
+- 2026-05-05T01:04:29.423Z: smoke e2e queued insight
+- 2026-05-05T01:04:38.322Z: smoke e2e queued insight
+- 2026-05-05T01:05:21.945Z: smoke e2e queued insight
+- 2026-05-05T01:14:39.423Z: smoke e2e queued insight
+- 2026-05-05T01:14:39.848Z: smoke e2e queued insight
+- 2026-05-05T01:14:48.689Z: smoke e2e queued insight
+- 2026-05-05T01:15:32.350Z: smoke e2e queued insight
+- 2026-05-05T02:18:10.799Z: smoke e2e queued insight
+- 2026-05-05T02:18:11.226Z: smoke e2e queued insight
+- 2026-05-05T02:18:20.182Z: smoke e2e queued insight
+- 2026-05-05T02:19:03.773Z: smoke e2e queued insight
+- 2026-05-05T04:06:53.328Z: smoke e2e queued insight
+- 2026-05-05T04:06:53.764Z: smoke e2e queued insight
+- 2026-05-05T04:07:03.302Z: smoke e2e queued insight
+- 2026-05-05T04:07:47.124Z: smoke e2e queued insight
+- 2026-05-05T06:00:40.326Z: smoke e2e queued insight
+- 2026-05-05T06:00:40.784Z: smoke e2e queued insight
+- 2026-05-05T06:00:50.161Z: smoke e2e queued insight
+- 2026-05-05T06:01:33.865Z: smoke e2e queued insight
+- 2026-05-05T06:44:48.922Z: smoke e2e queued insight
+- 2026-05-05T06:44:49.395Z: smoke e2e queued insight
+- 2026-05-05T06:44:59.082Z: smoke e2e queued insight
+- 2026-05-05T06:45:42.987Z: smoke e2e queued insight
+- 2026-05-05T06:59:48.553Z: smoke e2e queued insight
+- 2026-05-05T06:59:48.999Z: smoke e2e queued insight
+- 2026-05-05T06:59:58.516Z: smoke e2e queued insight
+- 2026-05-05T07:00:42.631Z: smoke e2e queued insight
+- 2026-05-05T07:10:56.610Z: smoke e2e queued insight
+- 2026-05-05T07:10:57.101Z: smoke e2e queued insight
+- 2026-05-05T07:11:06.656Z: smoke e2e queued insight
+- 2026-05-05T07:11:50.492Z: smoke e2e queued insight
+- 2026-05-05T07:23:24.178Z: smoke e2e queued insight
+- 2026-05-05T07:23:24.630Z: smoke e2e queued insight
+- 2026-05-05T07:23:34.050Z: smoke e2e queued insight
+- 2026-05-05T07:24:17.903Z: smoke e2e queued insight
+- 2026-05-05T07:46:31.606Z: smoke e2e queued insight
+- 2026-05-05T07:46:32.001Z: smoke e2e queued insight
+- 2026-05-05T07:46:40.757Z: smoke e2e queued insight
+- 2026-05-05T07:47:24.275Z: smoke e2e queued insight
+- 2026-05-05T08:20:59.318Z: smoke e2e queued insight
+- 2026-05-05T08:20:59.746Z: smoke e2e queued insight
+- 2026-05-05T08:21:09.478Z: smoke e2e queued insight
+- 2026-05-05T08:21:53.270Z: smoke e2e queued insight
+- 2026-05-05T10:59:04.717Z: smoke e2e queued insight
+- 2026-05-05T10:59:05.183Z: smoke e2e queued insight
+- 2026-05-05T10:59:15.100Z: smoke e2e queued insight
+- 2026-05-05T10:59:59.112Z: smoke e2e queued insight
+- 2026-05-05T11:14:31.388Z: smoke e2e queued insight
+- 2026-05-05T11:14:31.972Z: smoke e2e queued insight
+- 2026-05-05T11:14:43.486Z: smoke e2e queued insight
+- 2026-05-05T11:15:28.110Z: smoke e2e queued insight
+- 2026-05-05T11:36:04.699Z: smoke e2e queued insight
+- 2026-05-05T11:36:05.279Z: smoke e2e queued insight
+- 2026-05-05T11:36:16.420Z: smoke e2e queued insight
+- 2026-05-05T11:37:00.953Z: smoke e2e queued insight
+- 2026-05-05T18:00:07.396Z: smoke e2e queued insight
+- 2026-05-05T18:00:08.026Z: smoke e2e queued insight
+- 2026-05-05T18:26:28.624Z: smoke e2e queued insight
+- 2026-05-05T18:26:29.188Z: smoke e2e queued insight
+- 2026-05-05T18:26:40.625Z: smoke e2e queued insight
+- 2026-05-05T18:27:25.253Z: smoke e2e queued insight
+- 2026-05-06T16:31:38.175Z: smoke e2e queued insight
+- 2026-05-06T16:31:38.624Z: smoke e2e queued insight
+- 2026-05-06T16:31:48.057Z: smoke e2e queued insight
+- 2026-05-06T16:31:49.268Z: smoke e2e queued insight
+- 2026-05-06T17:23:31.321Z: smoke e2e queued insight
+- 2026-05-06T17:23:31.790Z: smoke e2e queued insight
+- 2026-05-06T17:23:41.308Z: smoke e2e queued insight
+- 2026-05-06T17:23:42.515Z: smoke e2e queued insight
+- 2026-05-06T18:44:53.209Z: smoke e2e queued insight
+- 2026-05-06T18:44:53.680Z: smoke e2e queued insight
+- 2026-05-06T18:45:03.194Z: smoke e2e queued insight
+- 2026-05-06T18:45:04.395Z: smoke e2e queued insight
+- 2026-06-05T16:42:56.776Z: smoke e2e queued insight
+- 2026-06-05T16:42:57.558Z: smoke e2e queued insight
+- 2026-06-05T16:43:03.640Z: smoke e2e queued insight
+- 2026-06-05T16:43:05.009Z: smoke e2e queued insight
+- 2026-06-05T22:03:03.006Z: smoke e2e queued insight
+- 2026-06-05T22:10:14.462Z: smoke e2e queued insight
+- 2026-06-05T22:14:12.579Z: smoke e2e queued insight
+- 2026-06-05T22:14:14.692Z: smoke e2e queued insight
+- 2026-06-05T22:17:13.047Z: smoke e2e queued insight
+- 2026-06-05T22:17:15.362Z: smoke e2e queued insight
+- 2026-06-05T22:37:37.715Z: smoke e2e queued insight
+- 2026-06-05T22:37:39.788Z: smoke e2e queued insight
+- 2026-06-05T22:55:50.730Z: smoke e2e queued insight
+- 2026-06-05T22:55:52.640Z: smoke e2e queued insight
+- 2026-06-06T15:50:53.821Z: smoke e2e queued insight
+- 2026-06-06T15:50:55.581Z: smoke e2e queued insight
+- 2026-06-07T17:48:19.889Z: smoke e2e queued insight
+- 2026-06-07T17:48:22.156Z: smoke e2e queued insight
+- 2026-06-09T17:48:26.921Z: smoke e2e queued insight
+
+#### Files
+
+# b.smoke-sandbox — files
+
+- scripts/mcp_smoke_e2e.mjs [alive] (writes only into b.smoke-sandbox)
+- tests/atlas_sync.selftest.mjs [alive]
+
+_Sources: [mission](blocks/b.smoke-sandbox/mission.md) · [kpi](blocks/b.smoke-sandbox/kpi.md) · [acceptance](blocks/b.smoke-sandbox/acceptance.md) · [depends_on](blocks/b.smoke-sandbox/depends_on.md) · [provides](blocks/b.smoke-sandbox/provides.md) · [patterns](blocks/b.smoke-sandbox/patterns.md) · [files](blocks/b.smoke-sandbox/files.md)_
+
 ---
 
 ### 🟡 b.product-auth — Auth
@@ -1415,6 +2166,27 @@ evidence_spec:
 
 - [ ] **A1.** JWT + refresh работает
 - [ ] **A2.** Роли viewer/editor/admin развёрнуты
+
+#### Provides
+
+# b.product-auth — provides
+
+- product_auth_capability
+
+#### Depends on
+
+# b.product-auth — depends_on
+
+- b.product-dashboard: session_check
+- b.product-ingest: api_key_check
+
+#### Files
+
+# b.product-auth — files
+
+- atlas/blocks/b.product-auth/mission.md [alive]
+
+_Sources: [mission](blocks/b.product-auth/mission.md) · [kpi](blocks/b.product-auth/kpi.md) · [acceptance](blocks/b.product-auth/acceptance.md) · [depends_on](blocks/b.product-auth/depends_on.md) · [provides](blocks/b.product-auth/provides.md) · [patterns](blocks/b.product-auth/patterns.md) · [files](blocks/b.product-auth/files.md)_
 
 ---
 
@@ -1452,6 +2224,27 @@ evidence_spec:
 - [ ] **A5.** Утилизация ресурсов (CPU, память) не превышает 70% при пиковой нагрузке 50k/s.
 - [ ] **A6.** В случае ошибки валидации события, в monitoring отправляется соответствующая метрика и событие не попадает в Warehouse.
 
+#### Provides
+
+# b.product-ingest — provides
+
+- product_ingest_capability
+- api_key_check
+
+#### Depends on
+
+# b.product-ingest — depends_on
+
+- b.product-warehouse: events_stream
+
+#### Files
+
+# b.product-ingest — files
+
+- atlas/blocks/b.product-ingest/mission.md [alive]
+
+_Sources: [mission](blocks/b.product-ingest/mission.md) · [kpi](blocks/b.product-ingest/kpi.md) · [acceptance](blocks/b.product-ingest/acceptance.md) · [depends_on](blocks/b.product-ingest/depends_on.md) · [provides](blocks/b.product-ingest/provides.md) · [patterns](blocks/b.product-ingest/patterns.md) · [files](blocks/b.product-ingest/files.md)_
+
 ---
 
 ### 🟡 b.product-warehouse — Warehouse
@@ -1486,6 +2279,28 @@ evidence_spec:
 - [ ] **A4.** Успешность выполнения запросов агрегации составляет не менее 99.99%.
 - [ ] **A5.** Продемонстрировано восстановление данных из резервной копии в течение 15 минут.
 - [ ] **A6.** Подтверждено, что объем хранимых данных растет не более чем на 10% в месяц при заданном темпе поступления новых данных.
+
+#### Provides
+
+# b.product-warehouse — provides
+
+- product_warehouse_capability
+- events_stream
+- metric_query
+
+#### Depends on
+
+# b.product-warehouse — depends_on
+
+- none
+
+#### Files
+
+# b.product-warehouse — files
+
+- atlas/blocks/b.product-warehouse/mission.md [alive]
+
+_Sources: [mission](blocks/b.product-warehouse/mission.md) · [kpi](blocks/b.product-warehouse/kpi.md) · [acceptance](blocks/b.product-warehouse/acceptance.md) · [depends_on](blocks/b.product-warehouse/depends_on.md) · [provides](blocks/b.product-warehouse/provides.md) · [patterns](blocks/b.product-warehouse/patterns.md) · [files](blocks/b.product-warehouse/files.md)_
 
 ---
 
@@ -1523,6 +2338,27 @@ evidence_spec:
 - [ ] **A11.** Система позволяет добавлять аудиозаписи с тезисами к дашборду.
 - [ ] **A12.** На дашборде отображается основная задача/цель, для которой он создан.
 
+#### Provides
+
+# b.product-dashboard — provides
+
+- product_dashboard_capability
+- session_check
+
+#### Depends on
+
+# b.product-dashboard — depends_on
+
+- b.product-warehouse: metric_query
+
+#### Files
+
+# b.product-dashboard — files
+
+- atlas/blocks/b.product-dashboard/mission.md [alive]
+
+_Sources: [mission](blocks/b.product-dashboard/mission.md) · [kpi](blocks/b.product-dashboard/kpi.md) · [acceptance](blocks/b.product-dashboard/acceptance.md) · [depends_on](blocks/b.product-dashboard/depends_on.md) · [provides](blocks/b.product-dashboard/provides.md) · [patterns](blocks/b.product-dashboard/patterns.md) · [files](blocks/b.product-dashboard/files.md)_
+
 ---
 
 ### 🟡 b.product-billing — Billing
@@ -1557,6 +2393,26 @@ evidence_spec:
 - [ ] **A4.** Среднее время разрешения проблем с биллингом составляет менее 4 часов, согласно данным мониторинга за последний месяц.
 - [ ] **A5.** ARPU (Average Revenue Per User) превышает установленное значение $X, согласно отчету за последний квартал.
 - [ ] **A6.** Реализована и протестирована логика обработки возвратов средств с учетом различных сценариев (полный возврат, частичный возврат, отмена подписки).
+
+#### Provides
+
+# b.product-billing — provides
+
+- product_billing_capability
+
+#### Depends on
+
+# b.product-billing — depends_on
+
+- none
+
+#### Files
+
+# b.product-billing — files
+
+- atlas/blocks/b.product-billing/mission.md [alive]
+
+_Sources: [mission](blocks/b.product-billing/mission.md) · [kpi](blocks/b.product-billing/kpi.md) · [acceptance](blocks/b.product-billing/acceptance.md) · [depends_on](blocks/b.product-billing/depends_on.md) · [provides](blocks/b.product-billing/provides.md) · [patterns](blocks/b.product-billing/patterns.md) · [files](blocks/b.product-billing/files.md)_
 
 ---
 
@@ -1593,6 +2449,26 @@ evidence_spec:
 - [ ] **A5.** Время восстановления модуля после искусственно вызванного сбоя не превышает 5 минут (KPI-5), что подтверждается автоматическим мониторингом и системой оповещений.
 - [ ] **A6.** Все зависимости модуля (другие модули или компоненты) успешно интегрированы и функционируют корректно, что подтверждается сквозным тестированием связанных функций.
 
+#### Provides
+
+# b.block-1 — provides
+
+- block_1_capability
+
+#### Depends on
+
+# b.block-1 — depends_on
+
+- none
+
+#### Files
+
+# b.block-1 — files
+
+- atlas/blocks/b.block-1/mission.md [alive]
+
+_Sources: [mission](blocks/b.block-1/mission.md) · [kpi](blocks/b.block-1/kpi.md) · [acceptance](blocks/b.block-1/acceptance.md) · [depends_on](blocks/b.block-1/depends_on.md) · [provides](blocks/b.block-1/provides.md) · [patterns](blocks/b.block-1/patterns.md) · [files](blocks/b.block-1/files.md)_
+
 ---
 
 ### ⚪ b.block-2 — Новый модуль
@@ -1621,6 +2497,26 @@ evidence_spec:
 # b.block-2 — acceptance
 
 - [ ] **A1.** Заполни через детальную панель: что именно подтвердит готовность модуля.
+
+#### Provides
+
+# b.block-2 — provides
+
+- block_2_capability
+
+#### Depends on
+
+# b.block-2 — depends_on
+
+- none
+
+#### Files
+
+# b.block-2 — files
+
+- atlas/blocks/b.block-2/mission.md [alive]
+
+_Sources: [mission](blocks/b.block-2/mission.md) · [kpi](blocks/b.block-2/kpi.md) · [acceptance](blocks/b.block-2/acceptance.md) · [depends_on](blocks/b.block-2/depends_on.md) · [provides](blocks/b.block-2/provides.md) · [patterns](blocks/b.block-2/patterns.md) · [files](blocks/b.block-2/files.md)_
 
 ---
 

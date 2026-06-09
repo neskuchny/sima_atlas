@@ -1,9 +1,26 @@
 // PR2: layered + mermaid wiki
+// R-7.98 (b.docs A1 / KPI-1) — template gate: the wiki REFUSES to render if
+// any block contract still contains template phrases («Ключевая цель
+// блока…», «Автосоздано…», TBD…). Kanon principle VII: documentation is a
+// projection of the graph — projecting templates would publish lies. The
+// gate is validate_no_template_placeholders.mjs run as a subprocess; its
+// non-zero exit aborts generation with the validator's own report.
 import fs from 'node:fs';
 import path from 'node:path';
+import { spawnSync } from 'node:child_process';
 
 const root = process.cwd();
 const atlas = path.join(root, 'atlas');
+
+{
+  const gate = spawnSync('node', ['scripts/validate_no_template_placeholders.mjs'], { cwd: root, encoding: 'utf8' });
+  if (gate.status !== 0) {
+    console.error('generate_wiki: ABORTED — template placeholders found in block contracts (A1 gate):');
+    console.error((gate.stdout || '') + (gate.stderr || ''));
+    process.exit(1);
+  }
+}
+
 const graph = JSON.parse(fs.readFileSync(path.join(atlas, 'graph.json'), 'utf8'));
 const out = path.join(atlas, 'WIKI.md');
 
@@ -102,6 +119,23 @@ for (const b of graph.blocks || []) {
 
   const acc = read(path.join(dir, 'acceptance.md'));
   if (acc) md += '#### Acceptance\n\n' + acc + '\n\n';
+
+  // R-7.98 — the mission promises the wiki page is assembled from ALL seven
+  // contract files (mission / kpi / acceptance / depends_on / provides /
+  // files / patterns); patterns + the graph-side trio were missing.
+  const provides = read(path.join(dir, 'provides.md'));
+  if (provides) md += '#### Provides\n\n' + provides + '\n\n';
+
+  const dependsOn = read(path.join(dir, 'depends_on.md'));
+  if (dependsOn) md += '#### Depends on\n\n' + dependsOn + '\n\n';
+
+  const patterns = read(path.join(dir, 'patterns.md'));
+  if (patterns) md += '#### Patterns\n\n' + patterns + '\n\n';
+
+  const filesMd = read(path.join(dir, 'files.md'));
+  if (filesMd) md += '#### Files\n\n' + filesMd + '\n\n';
+
+  md += `_Sources: [mission](blocks/${b.id}/mission.md) · [kpi](blocks/${b.id}/kpi.md) · [acceptance](blocks/${b.id}/acceptance.md) · [depends_on](blocks/${b.id}/depends_on.md) · [provides](blocks/${b.id}/provides.md) · [patterns](blocks/${b.id}/patterns.md) · [files](blocks/${b.id}/files.md)_\n\n`;
 
   md += '---\n\n';
 }
