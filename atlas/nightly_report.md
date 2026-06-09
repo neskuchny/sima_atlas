@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-06-07T17:47:57.759Z_
+_Generated: 2026-06-09T18:15:24.825Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -12,6 +12,8 @@ _Generated: 2026-06-07T17:47:57.759Z_
   - output: Block contract validation: OK
 - ✅ no_template_placeholders: ok
   - output: Template-placeholder validation: OK (17 blocks scanned)
+- ✅ article_status_projection: ok
+  - output: docs/article.en.md: up to date
 - ✅ files_registry: ok
   - output: Files registry validation: OK (alive=186, archived=4, dead=0)
 - ✅ housekeeping_sweep: ok
@@ -35,7 +37,7 @@ _Generated: 2026-06-07T17:47:57.759Z_
 - ✅ operator_profile_selftest: ok
   - output: operator_profile.selftest: OK (7 test groups, all assertions green)
 - ✅ aggregate_operator_profile: ok
-  - output: operator_profile: warming_up (done=4, invocations=5, traces=1767, proposals=28)
+  - output: operator_profile: live (done=6, invocations=5, traces=2461, proposals=36)
 - ✅ operator_profile_lessons_smoke: ok
   - output: operator_profile_lessons.smoke: OK (6 test groups, all assertions green)
 - ✅ operator_profile_inject_smoke: ok
@@ -47,7 +49,7 @@ _Generated: 2026-06-07T17:47:57.759Z_
 - ✅ validate_dont_use_compliance: ok
   - output: validate_dont_use_compliance: banned=0 (none); checked=17; warnings=0
 - ✅ validate_lifecycle_gates: ok
-  - output: validate_lifecycle_gates — 15 blocks, 0 fail, 0 warn
+  - output: validate_lifecycle_gates — 15 blocks, 1 fail, 0 warn
 - ✅ introspect_block_ui_selftest: ok
   - output: introspect_block_ui.selftest: OK (7 test groups, all assertions green)
 - ✅ user_docs_smoke: ok
@@ -99,7 +101,7 @@ _Generated: 2026-06-07T17:47:57.759Z_
 - ✅ parse_acceptance_selftest: ok
   - output: parse_acceptance.selftest: OK (9 test groups, all assertions green)
 - ✅ evidence_collectors_selftest: ok
-  - output: evidence_collectors.selftest: OK (11 test groups, all assertions green)
+  - output: evidence_collectors.selftest: OK (13 test groups, all assertions green)
 - ✅ llm_judge_smoke: ok
   - output: llm_judge.smoke: OK (4 test groups, all assertions green)
 - ✅ acceptance_verifier_e2e_smoke: ok
@@ -135,16 +137,16 @@ _Generated: 2026-06-07T17:47:57.759Z_
 - ✅ render_wiki_html: ok
   - output: Rendered /home/user/sima_atlas/atlas/wiki.html
 - ✅ generate_tz: ok
-  - output: Generated /home/user/sima_atlas/atlas/auto_tz.md
+  - output: Generated /home/user/sima_atlas/atlas/auto_tz.md (17 specified, 0 skipped as unspecified ideas)
 - ✅ rebuild_roadmap: ok
   - output: Rebuilt /home/user/sima_atlas/atlas/roadmap.md
 - ✅ verify_all_acceptance: ok
-  - output: verify_all_acceptance: 9 pass / 1 fail / 7 inconclusive (assertions: 45 pass / 1 fail / 46 skipped)
+  - output: verify_all_acceptance: 10 pass / 0 fail / 7 inconclusive (assertions: 46 pass / 0 fail / 46 skipped)
 - ✅ verify_done_blocks_still_green: ok
-  - output: verify_done_blocks_still_green: checked=3 green=3 regressions=0 inconclusive=0
+  - output: verify_done_blocks_still_green: checked=5 green=5 regressions=0 inconclusive=0
 - ✅ mcp_smoke_e2e: ok
   - output: mcp_smoke_e2e: OK
 - ✅ intelligence_health: ok
   - output: Intelligence health: 1 (17/17)
 
-Summary: PASS (72/72)
+Summary: PASS (73/73)

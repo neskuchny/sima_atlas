@@ -11,3 +11,9 @@
 2026-06-05T22:11:11.303Z	b.acceptance-verifier-loop	review	done	actor=verifier	note=Phase I: verifier 7/7 after A5 path-drift fix (arch_canvas.jsx→atlas_design/panels.jsx)
 2026-06-05T22:11:11.359Z	b.docs	wip	review	actor=verifier	note=Phase I dogfood: verifier 3/3
 2026-06-05T22:11:11.420Z	b.docs	review	done	actor=verifier	note=Phase I: verifier 3/3 after auto_tz path fix (ТЗ/→atlas/)
+2026-06-09T18:06:03.748Z	b.user-docs-generator	idea	wip	actor=operator-audit	note=R-7.98: stale status_reason — introspect selftest green (7 groups), verifier 8/8 pass; walking gates honestly
+2026-06-09T18:06:03.797Z	b.user-docs-generator	wip	review	actor=operator-audit	note=R-7.98: stale status_reason — introspect selftest green (7 groups), verifier 8/8 pass; walking gates honestly
+2026-06-09T18:06:03.845Z	b.user-docs-generator	review	done	actor=operator-audit	note=R-7.98: stale status_reason — introspect selftest green (7 groups), verifier 8/8 pass; walking gates honestly
+2026-06-09T18:06:11.549Z	b.operator-profile-learner	idea	wip	actor=operator-audit	note=R-7.98: A6 profile-compliance badge rebuilt in views.jsx (+API /atlas/operator-profile/hints); verifier 7/0; walking gates honestly
+2026-06-09T18:06:11.598Z	b.operator-profile-learner	wip	review	actor=operator-audit	note=R-7.98: A6 profile-compliance badge rebuilt in views.jsx (+API /atlas/operator-profile/hints); verifier 7/0; walking gates honestly
+2026-06-09T18:06:11.648Z	b.operator-profile-learner	review	done	actor=operator-audit	note=R-7.98: A6 profile-compliance badge rebuilt in views.jsx (+API /atlas/operator-profile/hints); verifier 7/0; walking gates honestly

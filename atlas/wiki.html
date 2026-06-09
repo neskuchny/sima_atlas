@@ -15,7 +15,7 @@
 </style>
 </head><body>
 <h1>Sima Atlas Wiki</h1>
-<p><em>Auto-generated: 2026-06-07T17:48:22.289Z</em></p>
+<p><em>Auto-generated: 2026-06-09T18:15:45.175Z</em></p>
 <h2>Граф продукта</h2>
 <div class="mermaid">flowchart TB
   classDef done    fill:#dcfce7,stroke:#16a34a,color:#15803d;
@@ -39,7 +39,7 @@
   subgraph ai["ИИ / агенты"]
     b_agent_orchestrator["Agent Orchestrator&lt;br/&gt;&lt;small&gt;review&lt;/small&gt;"]:::review
     b_llm_gateway["LLM Gateway&lt;br/&gt;&lt;small&gt;review&lt;/small&gt;"]:::review
-    b_operator_profile_learner["Operator Profile Learner&lt;br/&gt;&lt;small&gt;idea&lt;/small&gt;"]:::idea
+    b_operator_profile_learner["Operator Profile Learner&lt;br/&gt;&lt;small&gt;done&lt;/small&gt;"]:::done
   end
   subgraph data["Данные / хранилище"]
     b_db["Atlas Database&lt;br/&gt;&lt;small&gt;idea&lt;/small&gt;"]:::idea
@@ -47,7 +47,7 @@
   end
   subgraph content["Контент / документация"]
     b_docs["Docs Builder&lt;br/&gt;&lt;small&gt;done&lt;/small&gt;"]:::done
-    b_user_docs_generator["End-User Docs Generator&lt;br/&gt;&lt;small&gt;idea&lt;/small&gt;"]:::idea
+    b_user_docs_generator["End-User Docs Generator&lt;br/&gt;&lt;small&gt;done&lt;/small&gt;"]:::done
   end
   subgraph testing["Тестирование"]
     b_acceptance_verifier_loop["Acceptance Verifier Loop&lt;br/&gt;&lt;small&gt;done&lt;/small&gt;"]:::done
@@ -107,7 +107,7 @@
 <ul><li>reason: Phase I: verifier FAIL on A5 (cursor_live.headless.smoke) — needs a live cursor-agent CLI, not installed in this env. Env-blocked, not code-blocked. A1-A4+A7 pass.</li></ul>
 <li>🔵 <strong>b.llm-gateway</strong> — LLM Gateway <em>(review)</em></li>
 <ul><li>reason: Phase I: verifier FAIL on A2 (simulate<em>conversation</em>branches) — test fixture asserts b.core-sync is NOT done, but it legitimately IS done now. Test-state coupling; provider code works. Needs fixture decoupling.</li></ul>
-<li>🟡 <strong>b.operator-profile-learner</strong> — Operator Profile Learner <em>(idea)</em></li>
+<li>🟢 <strong>b.operator-profile-learner</strong> — Operator Profile Learner <em>(done)</em></li>
 <ul><li>reason: Phase I: verifier FAIL on A6 — profile-compliance UI badge (complianceWithProfile) was lost in the R-7.30 single-file→atlas_design refactor and not reimplemented. Genuine feature gap, honestly not done.</li></ul>
 </ul>
 <h3>Данные / хранилище (<code>data</code>)</h3>
@@ -121,7 +121,7 @@
 <ul>
 <li>🟢 <strong>b.docs</strong> — Docs Builder <em>(done)</em></li>
 <ul><li>reason: Generators run but feed on template missions; needs layer-aware wiki and mermaid (PR2)</li></ul>
-<li>🟡 <strong>b.user-docs-generator</strong> — End-User Docs Generator <em>(idea)</em></li>
+<li>🟢 <strong>b.user-docs-generator</strong> — End-User Docs Generator <em>(done)</em></li>
 <ul><li>reason: Phase I: verifier FAIL on A1 (introspect<em>block</em>ui.selftest) — coupled to deleted frontend/proposals_panel.jsx. Test fixture needs repointing to a current JSX file.</li></ul>
 </ul>
 <h3>Тестирование (<code>testing</code>)</h3>
@@ -192,6 +192,38 @@ evidence_spec:
 <li>прохождение <code>validate<em>block</em>contracts.mjs</code> (это контрактный gate, не приёмка);</li>
 <li>генерация <code>wiki.html</code> (это <code>b.docs</code>).</li>
 </ul>
+<h4>Provides</h4>
+<h1>b.ui-control — provides</h1>
+<ul>
+<li>visual<em>control</em>panel</li>
+</ul>
+<h4>Depends on</h4>
+<h1>b.ui-control — depends_on</h1>
+<ul>
+<li>b.core-sync: sync_report</li>
+<li>b.agent-orchestrator: pipeline_execution</li>
+</ul>
+<h4>Files</h4>
+<h1>b.ui-control — files</h1>
+<ul>
+<li>index.html [alive] (PR4.1: repo-root redirect to frontend/index.html)</li>
+<li>frontend/atlas_sync.js [alive]</li>
+<li>frontend/atlas_bootstrap.js [alive] (auto-generated)</li>
+<li>frontend/atlas_design/index.html [alive] (R-7.30 — current canvas entry)</li>
+<li>frontend/atlas_design/panels.jsx [alive] (DetailPanel + Overview + AcceptanceSection + Implementation Status + Token Spend)</li>
+<li>frontend/atlas_design/views.jsx [alive] (composer, proposals Accept/Reject, modals)</li>
+<li>frontend/atlas_design/graph.jsx [alive] (canvas graph + edges + drill-down)</li>
+<li>frontend/atlas_design/tweaks-panel.jsx [alive]</li>
+<li>frontend/atlas<em>design/data</em>loader.js [alive] (live API loader + write-side SIMA_API)</li>
+<li>frontend/atlas<em>design/data</em>static.js [alive] (offline fallback demo)</li>
+<li>frontend/atlas_design/i18n.js [alive] (644-key EN/RU dictionary)</li>
+<li>frontend/atlas_design/styles.css [alive]</li>
+<li>frontend/result_view.jsx [archived] (legacy)</li>
+<li>frontend/schema_view.jsx [archived] (legacy)</li>
+<li>frontend/data.js [archived] (v1 data, replaced by data_v2.js)</li>
+<li>frontend/app.jsx [archived] (v1 root, replaced by app_v2.jsx)</li>
+</ul>
+<p><em>Sources: [mission](blocks/b.ui-control/mission.md) · [kpi](blocks/b.ui-control/kpi.md) · [acceptance](blocks/b.ui-control/acceptance.md) · [depends</em>on](blocks/b.ui-control/depends<em>on.md) · [provides](blocks/b.ui-control/provides.md) · [patterns](blocks/b.ui-control/patterns.md) · [files](blocks/b.ui-control/files.md)</em></p>
 <hr/>
 <h3>🟢 b.core-sync — Sync Engine</h3>
 <ul>
@@ -256,6 +288,53 @@ evidence_spec:
 <li>наличие <code>mission.md</code> (это контрактный gate).</li>
 <li>факт того, что <code>runSync</code> не упал (это smoke).</li>
 </ul>
+<h4>Provides</h4>
+<h1>b.core-sync — provides</h1>
+<ul>
+<li>sync_report</li>
+<li>contract_validation</li>
+</ul>
+<h4>Depends on</h4>
+<h1>b.core-sync — depends_on</h1>
+<ul>
+<li>b.db: atlas<em>state</em>store</li>
+<li>b.db: file_registry</li>
+</ul>
+<h4>Patterns</h4>
+<h1>b.core-sync — patterns</h1>
+<ul>
+<li>2026-04-30T19:54:08.006Z: branch semantic ingestion</li>
+<li>2026-04-30T19:54:14.566Z: branch semantic ingestion</li>
+<li>2026-04-30T19:54:40.301Z: branch semantic ingestion</li>
+<li>2026-04-30T19:54:51.540Z: branch semantic ingestion</li>
+<li>2026-04-30T19:55:17.135Z: branch semantic ingestion</li>
+<li>2026-04-30T20:04:36.976Z: branch semantic ingestion</li>
+<li>2026-04-30T20:10:07.400Z: branch semantic ingestion</li>
+<li>2026-04-30T20:10:24.409Z: branch semantic ingestion</li>
+<li>2026-04-30T20:23:39.501Z: branch semantic ingestion</li>
+<li>2026-04-30T20:30:24.920Z: branch semantic ingestion</li>
+</ul>
+<h4>Files</h4>
+<h1>b.core-sync — files</h1>
+<ul>
+<li>frontend/atlas_sync.js [alive] (client-side syncCheck + transitions)</li>
+<li>scripts/validate<em>block</em>contracts.mjs [alive]</li>
+<li>scripts/validate<em>dependency</em>contracts.mjs [alive]</li>
+<li>scripts/validate<em>acceptance</em>assertions.mjs [alive]</li>
+<li>scripts/validate<em>no</em>template_placeholders.mjs [alive] (PR1)</li>
+<li>scripts/validate<em>files</em>registry.mjs [alive] (PR2 — checks files in files.md exist on disk)</li>
+<li>scripts/validate<em>ingestion</em>contracts.mjs [alive]</li>
+<li>scripts/validate<em>ingestion</em>quality.mjs [alive]</li>
+<li>scripts/validate<em>agent</em>parity.mjs [alive]</li>
+<li>scripts/validate<em>parity</em>matrix.mjs [alive]</li>
+<li>scripts/validate<em>bootstrap</em>projection.mjs [alive]</li>
+<li>scripts/validate<em>bootstrap</em>regeneration.mjs [alive]</li>
+<li>scripts/calc<em>intelligence</em>health.mjs [alive]</li>
+<li>scripts/audit<em>production</em>readiness.mjs [alive]</li>
+<li>scripts/log_transition.mjs [alive]</li>
+<li>atlas/transitions.log [alive]</li>
+</ul>
+<p><em>Sources: [mission](blocks/b.core-sync/mission.md) · [kpi](blocks/b.core-sync/kpi.md) · [acceptance](blocks/b.core-sync/acceptance.md) · [depends</em>on](blocks/b.core-sync/depends<em>on.md) · [provides](blocks/b.core-sync/provides.md) · [patterns](blocks/b.core-sync/patterns.md) · [files](blocks/b.core-sync/files.md)</em></p>
 <hr/>
 <h3>🟡 b.db — Atlas Database</h3>
 <ul>
@@ -325,6 +404,47 @@ evidence_spec:
 <ul>
 <li>факт того, что markdown-файлы блока существуют (это контрактный gate).</li>
 </ul>
+<h4>Provides</h4>
+<h1>b.db — provides</h1>
+<ul>
+<li>atlas<em>state</em>store</li>
+<li>file_registry</li>
+</ul>
+<h4>Depends on</h4>
+<h1>b.db — depends_on</h1>
+<ul>
+<li>none</li>
+</ul>
+<h4>Files</h4>
+<h1>b.db — files</h1>
+<ul>
+<li>atlas/graph.json [alive] (v2 — main schema source of truth)</li>
+<li>atlas/db_schema.json [alive]</li>
+<li>atlas/project.md [alive]</li>
+<li>atlas/rules.md [alive]</li>
+<li>atlas/tech_stack.md [alive] (project-wide stack lock)</li>
+<li>atlas/operator_profile.json [alive]</li>
+<li>atlas/transitions.log [alive]</li>
+<li>atlas/ingestion_queue.jsonl [alive]</li>
+<li>atlas/intelligence_health.json [alive]</li>
+<li>atlas/intelligence_health.md [alive]</li>
+<li>atlas/STATUS_REPORT.md [alive]</li>
+<li>atlas/STOPPOINT.md [alive]</li>
+<li>atlas/progress<em>tz</em>checklist.md [alive]</li>
+<li>atlas/IMPLEMENTATION_PROGRESS.md [alive]</li>
+<li>atlas/production<em>audit</em>report.md [alive]</li>
+<li>atlas/tasks_master.md [alive]</li>
+<li>scripts/log_transition.mjs [alive]</li>
+<li>scripts/manage_block.mjs [alive]</li>
+<li>scripts/advance<em>block</em>state.mjs [alive]</li>
+<li>scripts/dedup<em>block</em>memory.mjs [alive]</li>
+<li>scripts/enqueue<em>ingestion</em>item.mjs [alive]</li>
+<li>scripts/apply<em>ingestion</em>queue.mjs [alive]</li>
+<li>scripts/ingest<em>chat</em>distillate.mjs [alive]</li>
+<li>scripts/ingest<em>chat</em>batches.mjs [alive]</li>
+<li>scripts/hook<em>ingest</em>recent_chat.mjs [alive] (waiting for PR4 valid hooks)</li>
+</ul>
+<p><em>Sources: [mission](blocks/b.db/mission.md) · [kpi](blocks/b.db/kpi.md) · [acceptance](blocks/b.db/acceptance.md) · [depends</em>on](blocks/b.db/depends<em>on.md) · [provides](blocks/b.db/provides.md) · [patterns](blocks/b.db/patterns.md) · [files](blocks/b.db/files.md)</em></p>
 <hr/>
 <h3>🔵 b.agent-orchestrator — Agent Orchestrator</h3>
 <ul>
@@ -426,6 +546,49 @@ evidence_spec:
 <li><code>b.agent-orchestrator</code> depends_on: b.db, b.core-sync, b.llm-gateway.</li>
 <li>Этот блок sync с <code>b.ui-control</code> через единый context-pack JSON.</li>
 </ul>
+<h4>Provides</h4>
+<h1>b.agent-orchestrator — provides</h1>
+<ul>
+<li>pipeline_execution</li>
+</ul>
+<h4>Depends on</h4>
+<h1>b.agent-orchestrator — depends_on</h1>
+<ul>
+<li>b.db: atlas<em>state</em>store</li>
+<li>b.core-sync: sync_report</li>
+</ul>
+<h4>Files</h4>
+<h1>b.agent-orchestrator — files</h1>
+<ul>
+<li>scripts/mcp<em>atlas</em>server.mjs [alive] (21+ tools over JSON-RPC stdio)</li>
+<li>scripts/atlas<em>api</em>server.mjs [alive] (HTTP facade for orchestration)</li>
+<li>scripts/generate<em>cursor</em>hooks.mjs [alive] (PR4: emits valid Cursor format with real action scripts)</li>
+<li>scripts/validate<em>cursor</em>hooks.mjs [alive] (PR4: gate; fails if hooks.json has wrong shape or missing scripts)</li>
+<li>scripts/observe<em>file</em>edit.mjs [alive] (PR4: afterFileEdit action — files.md → block reverse-map)</li>
+<li>scripts/guard<em>against</em>drift.mjs [alive] (PR4: beforeShellExecution action — tech_stack.md guard)</li>
+<li>scripts/inject<em>context</em>pack.mjs [alive] (PR4: beforeSubmitPrompt action — block-scoped context)</li>
+<li>tests/cursor<em>hooks</em>actions.test.mjs [alive] (PR4: 9-case integration test for the three actions)</li>
+<li>scripts/run<em>block</em>implementation.mjs [alive] (PR4.5: build prompt + invoke claude/codex/cursor CLI)</li>
+<li>tests/agent<em>parity</em>real.smoke.mjs [alive] (PR4.5: real MCP pack ≡ Claude --add-dir disk parity)</li>
+<li>scripts/generate<em>agent</em>contracts.mjs [alive] (writes AGENTS.md / CLAUDE.md)</li>
+<li>scripts/build<em>context</em>pack.mjs [alive]</li>
+<li>scripts/sync<em>context</em>packs.mjs [alive]</li>
+<li>scripts/finalize<em>cursor</em>iteration.mjs [alive]</li>
+<li>scripts/run<em>block</em>process.mjs [alive]</li>
+<li>scripts/pipeline_step.mjs [alive]</li>
+<li>scripts/auto<em>sync</em>iteration.mjs [alive] (regex-only flow; will be replaced after PR3 wiring)</li>
+<li>scripts/analyze<em>conversation</em>to_atlas.mjs [alive] (PR3: replaced regex with extractBlockSchema via b.llm-gateway)</li>
+<li>scripts/simulate<em>conversation</em>branches.mjs [alive] (PR3: rewritten as smoke for the LLM extraction + safe-upsert flow)</li>
+<li>.cursor/hooks.json [alive] (current content uses invented Cursor events — PR4)</li>
+<li>.cursor/mcp.json [alive]</li>
+<li>AGENTS.md [alive]</li>
+<li>CLAUDE.md [alive]</li>
+<li>scripts/run<em>state.mjs [alive] (PR-7 Symphony-inspired FSM; runs are tracked in atlas/run</em>state/&lt;run_id&gt;.json)</li>
+<li>tests/run_state.selftest.mjs [alive] (PR-7; 8 test groups)</li>
+<li>scripts/agent<em>workspace.mjs [alive] (PR-8 sandboxed workspaces under ~/.atlas</em>workspaces/)</li>
+<li>tests/agent_workspace.selftest.mjs [alive] (PR-8; 7 test groups)</li>
+</ul>
+<p><em>Sources: [mission](blocks/b.agent-orchestrator/mission.md) · [kpi](blocks/b.agent-orchestrator/kpi.md) · [acceptance](blocks/b.agent-orchestrator/acceptance.md) · [depends</em>on](blocks/b.agent-orchestrator/depends<em>on.md) · [provides](blocks/b.agent-orchestrator/provides.md) · [patterns](blocks/b.agent-orchestrator/patterns.md) · [files](blocks/b.agent-orchestrator/files.md)</em></p>
 <hr/>
 <h3>🟢 b.docs — Docs Builder</h3>
 <ul>
@@ -493,6 +656,61 @@ evidence_spec:
 <ul>
 <li>наличие файлов <code>wiki.html</code>, <code>auto_tz.md</code>, <code>roadmap.md</code> (это smoke).</li>
 </ul>
+<h4>Provides</h4>
+<h1>b.docs — provides</h1>
+<ul>
+<li>wiki_bundle</li>
+<li>tz_bundle</li>
+</ul>
+<h4>Depends on</h4>
+<h1>b.docs — depends_on</h1>
+<ul>
+<li>b.db: atlas<em>state</em>store</li>
+<li>b.db: file_registry</li>
+<li>b.core-sync: sync_report</li>
+</ul>
+<h4>Patterns</h4>
+<h1>b.docs — patterns</h1>
+<ul>
+<li>2026-04-30T15:37:16.336Z: nightly: distilled insight for P6</li>
+<li>2026-04-30T17:31:53.545Z: queue test insight</li>
+<li>2026-04-30T17:32:32.367Z: handler fix check</li>
+<li>2026-04-30T17:35:51.828Z: smoke e2e queued insight</li>
+<li>2026-04-30T17:36:17.484Z: smoke e2e queued insight</li>
+<li>2026-04-30T17:36:23.007Z: smoke e2e queued insight</li>
+<li>2026-04-30T19:13:55.396Z: smoke e2e queued insight</li>
+<li>2026-04-30T19:48:09.055Z: semantic test</li>
+<li>2026-04-30T19:54:07.898Z: branch semantic ingestion</li>
+<li>2026-04-30T19:54:14.439Z: branch semantic ingestion</li>
+<li>2026-04-30T19:54:40.180Z: branch semantic ingestion</li>
+<li>2026-04-30T19:54:51.428Z: branch semantic ingestion</li>
+<li>2026-04-30T19:55:17.024Z: branch semantic ingestion</li>
+<li>2026-04-30T20:04:36.862Z: branch semantic ingestion</li>
+<li>2026-04-30T20:10:07.285Z: branch semantic ingestion</li>
+<li>2026-04-30T20:10:24.293Z: branch semantic ingestion</li>
+<li>2026-04-30T20:23:39.393Z: branch semantic ingestion</li>
+<li>2026-04-30T20:23:42.373Z: smoke e2e queued insight</li>
+<li>2026-04-30T20:30:24.805Z: branch semantic ingestion</li>
+<li>2026-04-30T20:30:30.127Z: smoke e2e queued insight</li>
+<li>2026-04-30T21:56:16.102Z: batch-ingest 1-2 / 4</li>
+<li>2026-04-30T21:56:16.275Z: batch-ingest 3-4 / 4</li>
+<li>2026-05-02T08:47:15.240Z: smoke e2e queued insight</li>
+<li>2026-06-05T22:32:30.651Z: Обсуждаем новый блок b.realtime-ingestion, нужен статус wip и layer logic</li>
+</ul>
+<h4>Files</h4>
+<h1>b.docs — files</h1>
+<ul>
+<li>scripts/generate_wiki.mjs [alive]</li>
+<li>scripts/generate<em>tz</em>from_atlas.mjs [alive]</li>
+<li>scripts/render<em>wiki</em>html.mjs [alive]</li>
+<li>scripts/rebuild<em>atlas</em>roadmap.mjs [alive]</li>
+<li>scripts/generate<em>atlas</em>bootstrap_js.mjs [alive] (PR2 — emits layered bootstrap)</li>
+<li>atlas/WIKI.md [alive] (auto-generated)</li>
+<li>atlas/wiki.html [alive] (auto-generated)</li>
+<li>atlas/roadmap.md [alive] (auto-generated)</li>
+<li>atlas/nightly_report.md [alive] (auto-generated)</li>
+</ul>
+<p><em>Sources: [mission](blocks/b.docs/mission.md) · [kpi](blocks/b.docs/kpi.md) · [acceptance](blocks/b.docs/acceptance.md) · [depends</em>on](blocks/b.docs/depends<em>on.md) · [provides](blocks/b.docs/provides.md) · [patterns](blocks/b.docs/patterns.md) · [files](blocks/b.docs/files.md)</em></p>
 <hr/>
 <h3>🔵 b.llm-gateway — LLM Gateway</h3>
 <ul>
@@ -583,12 +801,52 @@ evidence_spec:
 <li>b.llm-gateway → нет prereq внутри Атласа.</li>
 <li>b.agent-orchestrator depends_on b.llm-gateway (use as semantic ingestion engine).</li>
 </ul>
+<h4>Provides</h4>
+<h1>b.llm-gateway — provides</h1>
+<ul>
+<li>llm<em>call</em>structured</li>
+<li>llm<em>extract</em>block_schema</li>
+<li>llm<em>validate</em>drift</li>
+<li>llm<em>summarize</em>distillate</li>
+</ul>
+<h4>Depends on</h4>
+<h1>b.llm-gateway — depends_on</h1>
+<ul>
+<li>none</li>
+</ul>
+<h4>Files</h4>
+<h1>b.llm-gateway — files</h1>
+<ul>
+<li>scripts/llm_gateway.mjs [alive] (PR3 — main implementation, PR4.2 inline-comment-safe .env parser)</li>
+<li>scripts/llm_check.mjs [alive] (PR4.1 — diagnostic for env + provider ping)</li>
+<li>tests/llm_gateway.selftest.mjs [alive] (4 cases: schema validation, extractBlockSchema, trace write, no-schema fallback)</li>
+<li>tests/llm_extraction.eval.mjs [alive] (5-case golden eval, target precision &gt;= 0.7)</li>
+<li>tests/fixtures/extraction_golden.json [alive]</li>
+<li>tests/llm<em>mocks/</em>default.json [alive]</li>
+<li>tests/llm<em>mocks/c2d381615a8dc73a.json [alive] (payments</em>stripe golden)</li>
+<li>tests/llm<em>mocks/3b627c7e1be3704b.json [alive] (auth</em>jwt golden)</li>
+<li>tests/llm<em>mocks/bd85bbb8b0c013de.json [alive] (search</em>block golden)</li>
+<li>tests/llm<em>mocks/b5ad6311ecc46c29.json [alive] (notifications</em>dual golden)</li>
+<li>tests/llm<em>mocks/052b57272d7d7d4c.json [alive] (no</em>block_chat golden)</li>
+<li>tests/llm_mocks/6a03ef6e33f5d57e.json [alive] (legacy fixture: realtime-ingestion)</li>
+<li>tests/llm_mocks/f0b0bb99c4c1a99f.json [alive] (legacy fixture: core-sync done proposal)</li>
+<li>atlas/llm_traces/.gitkeep [alive] (trace directory placeholder; runtime traces are .gitignored)</li>
+<li>atlas/proposals/.gitkeep [alive] (PR3.5 — Accept/Reject inbox for LLM block updates)</li>
+<li>scripts/list_proposals.mjs [alive] (PR3.5)</li>
+<li>scripts/accept_proposal.mjs [alive] (PR3.5)</li>
+<li>scripts/reject_proposal.mjs [alive] (PR3.5)</li>
+<li>tests/proposals_flow.smoke.mjs [alive] (PR3.5)</li>
+<li>scripts/seed<em>llm</em>mocks.mjs [alive] (PR-Eval: regenerate mock fixtures from golden)</li>
+<li>atlas/eval_history/.gitkeep [alive] (PR-Eval: per-run snapshots; .gitignored except baseline.json)</li>
+<li>atlas/eval_history/baseline.json [alive] (PR-Eval: pinned regression baseline)</li>
+</ul>
+<p><em>Sources: [mission](blocks/b.llm-gateway/mission.md) · [kpi](blocks/b.llm-gateway/kpi.md) · [acceptance](blocks/b.llm-gateway/acceptance.md) · [depends</em>on](blocks/b.llm-gateway/depends<em>on.md) · [provides](blocks/b.llm-gateway/provides.md) · [patterns](blocks/b.llm-gateway/patterns.md) · [files](blocks/b.llm-gateway/files.md)</em></p>
 <hr/>
-<h3>🟡 b.operator-profile-learner — Operator Profile Learner</h3>
+<h3>🟢 b.operator-profile-learner — Operator Profile Learner</h3>
 <ul>
 <li><strong>layer</strong>: <code>ai</code></li>
 <li><strong>type</strong>: module</li>
-<li><strong>status</strong>: <code>idea</code> — Phase I: verifier FAIL on A6 — profile-compliance UI badge (complianceWithProfile) was lost in the R-7.30 single-file→atlas_design refactor and not reimplemented. Genuine feature gap, honestly not done.</li>
+<li><strong>status</strong>: <code>done</code> — Phase I: verifier FAIL on A6 — profile-compliance UI badge (complianceWithProfile) was lost in the R-7.30 single-file→atlas_design refactor and not reimplemented. Genuine feature gap, honestly not done.</li>
 <li><strong>mvp</strong>: no</li>
 <li><strong>depends_on</strong>: <code>b.db</code>, <code>b.core-sync</code>, <code>b.agent-orchestrator</code>, <code>b.llm-gateway</code>, <code>b.docs</code></li>
 <li><strong>tech_stack</strong>: <code>nodejs</code>, <code>esm</code>, <code>json</code></li>
@@ -775,11 +1033,11 @@ evidence_spec:
   cmd: node tests/operator_profile_inject.smoke.mjs
   expect_in_stdout: "OK"</code></pre>
 <ul>
-<li>[ ] <strong>A6.</strong> PR-6 (UI hints) merged: ProposalsPanel показывает badge <code>соответствует профилю</code> / <code>противоречит профилю</code>; Inspector под mission блока — секция <code>Подсказки от профиля</code> со списком (<code>evidence: [block_id]</code> рядом с каждой подсказкой).</li>
+<li>[x] <strong>A6.</strong> UI hints: ProposalsPanel показывает badge <code>соответствует профилю</code> / <code>противоречит профилю</code> — содержимое каждого proposal сверяется с operator locks (<code>dont<em>use</code> / <code>always</em>use</code>) через <code>GET /atlas/operator-profile/hints</code>. (R-7.98: исходный <code>frontend/proposals_panel.jsx</code> был удалён при миграции UI; фича пересоздана в актуальной панели <code>views.jsx</code> — контракт пересмотрен осознанно, не молча.)</li>
 </ul>
 <pre><code class="lang-yaml">evidence_kind: log_grep
 evidence_spec:
-  file: frontend/proposals_panel.jsx
+  file: frontend/atlas_design/views.jsx
   pattern: "complianceWithProfile"</code></pre>
 <ul>
 <li>[ ] <strong>A7.</strong> Privacy gate: <code>atlas/operator_profile/</code> упоминается в <code>.gitignore</code> (опц.) с пояснением в <code>atlas/rules.md</code>; никакого PII (имена / e-mail / API-ключи) не пишется в profile.json — selftest A1 проверяет regex.</li>
@@ -806,6 +1064,80 @@ evidence_spec:
 <li>b.operator-profile-learner → читает b.db (graph + transitions), b.core-sync (checks.log), b.agent-orchestrator (invocations + context-pack), b.llm-gateway (on-demand failure analysis), b.docs (рендер карточки).</li>
 <li>Никто из других блоков не depends_on b.operator-profile-learner — это чисто-аддитивный слой.</li>
 </ul>
+<h4>Provides</h4>
+<h1>b.operator-profile-learner — provides</h1>
+<ul>
+<li>operator<em>profile (для inject</em>context_pack + Inspector)</li>
+<li>personal<em>templates (для analyze</em>conversation<em>to</em>atlas tech_stack defaults)</li>
+<li>personal<em>dont</em>use (для guard<em>against</em>drift расширения forbidden_substrings)</li>
+<li>personal<em>always</em>use (категория → значение, для подсветки в proposals)</li>
+<li>lessons<em>learned (для inject</em>context_pack + Inspector evidence)</li>
+<li>agent<em>routing</em>hint (для run<em>block</em>implementation выбора провайдера по <code>agents<em>used.&lt;x&gt;.best</em>for</code>)</li>
+</ul>
+<h4>Depends on</h4>
+<h1>b.operator-profile-learner — depends_on</h1>
+<ul>
+<li>b.db: atlas<em>state</em>store</li>
+<li>b.core-sync: sync_report</li>
+<li>b.agent-orchestrator: pipeline_execution</li>
+<li>b.llm-gateway: llm<em>call</em>structured</li>
+<li>b.docs: wiki_bundle</li>
+</ul>
+<h4>Files</h4>
+<h1>b.operator-profile-learner — files</h1>
+<p>Все пути с тегом <code>[pending]</code> — *планируемые* (status: idea). Реальные <code>[alive]</code> помечаются по мере мержа PR-1…PR-6.</p>
+<h2>Aggregator + storage (PR-1)</h2>
+<ul>
+<li>scripts/aggregate<em>operator</em>profile.mjs [alive]</li>
+<li>atlas/operator_profile/profile.json [alive]</li>
+<li>atlas/operator<em>profile/patterns/work</em>style.json [alive]</li>
+<li>atlas/operator_profile/patterns/agents.json [alive]</li>
+<li>atlas/operator<em>profile/patterns/tech</em>stack.json [alive]</li>
+<li>atlas/operator_profile/patterns/environment.json [alive]</li>
+<li>atlas/operator_profile/patterns/failures.json [alive]</li>
+<li>tests/operator_profile.selftest.mjs [alive]</li>
+</ul>
+<h2>Templates (PR-2)</h2>
+<ul>
+<li>atlas/operator_profile/templates/backend-mvp.json [alive]</li>
+<li>atlas/operator_profile/templates/backend-prod.json [alive]</li>
+<li>atlas/operator_profile/templates/frontend-spa.json [alive]</li>
+<li>atlas/operator_profile/templates/testing-stack.json [alive]</li>
+<li>scripts/pick_template.mjs [alive] (PR-2: pickTemplate(scope, profile?) + scopeFromLayer + flattenTechStack; CLI for inspection)</li>
+<li>tests/pick<em>template.selftest.mjs [alive] (PR-2: 8 test groups: scopeFromLayer + invalid scope + each scope returns expected template + canonicalization + warming</em>up state + profile-driven tech<em>stack adjustment + dont</em>use forces alternative)</li>
+</ul>
+<h2>Don't-use (PR-3)</h2>
+<ul>
+<li>scripts/manage<em>dont</em>use.mjs [alive]</li>
+<li>scripts/validate<em>dont</em>use_compliance.mjs [alive]</li>
+<li>tests/dont<em>use</em>management.selftest.mjs [alive]</li>
+</ul>
+<h2>Lessons (PR-4)</h2>
+<ul>
+<li>scripts/analyze<em>lessons</em>from_history.mjs [alive]</li>
+<li>tests/operator<em>profile</em>lessons.smoke.mjs [alive]</li>
+</ul>
+<h2>Inject (PR-5) — touches inject<em>context</em>pack.mjs (owned by b.agent-orchestrator)</h2>
+<ul>
+<li>tests/operator<em>profile</em>inject.smoke.mjs [alive]</li>
+</ul>
+<h2>UI (PR-6) — touches arch<em>canvas.jsx (b.ui-control) + proposals</em>panel.jsx (b.llm-gateway)</h2>
+<p>PR-6 cross-cutting changes (host blocks own JSX; documented in checks.log + tasks.md):</p>
+<p>  • <code>frontend/arch_canvas.jsx</code> (owned by b.ui-control) gained ProfileHintsSection</p>
+<p>  • <code>frontend/proposals_panel.jsx</code> (owned by b.llm-gateway) gained complianceWithProfile + match/conflict badge</p>
+<p>  • <code>scripts/generate<em>atlas</em>bootstrap_js.mjs</code> (owned by b.ui-control) now exposes operatorProfile + operatorLessons + operatorDontUse</p>
+<h2>Documentation</h2>
+<ul>
+<li>atlas/blocks/b.operator-profile-learner/mission.md [alive]</li>
+<li>atlas/blocks/b.operator-profile-learner/kpi.md [alive]</li>
+<li>atlas/blocks/b.operator-profile-learner/acceptance.md [alive]</li>
+<li>atlas/blocks/b.operator-profile-learner/tasks.md [alive]</li>
+<li>atlas/blocks/b.operator-profile-learner/depends_on.md [alive]</li>
+<li>atlas/blocks/b.operator-profile-learner/provides.md [alive]</li>
+<li>atlas/blocks/b.operator-profile-learner/files.md [alive]</li>
+<li>atlas/blocks/b.operator-profile-learner/checks.log [alive]</li>
+</ul>
+<p><em>Sources: [mission](blocks/b.operator-profile-learner/mission.md) · [kpi](blocks/b.operator-profile-learner/kpi.md) · [acceptance](blocks/b.operator-profile-learner/acceptance.md) · [depends</em>on](blocks/b.operator-profile-learner/depends<em>on.md) · [provides](blocks/b.operator-profile-learner/provides.md) · [patterns](blocks/b.operator-profile-learner/patterns.md) · [files](blocks/b.operator-profile-learner/files.md)</em></p>
 <hr/>
 <h3>🟢 b.acceptance-verifier-loop — Acceptance Verifier Loop</h3>
 <ul>
@@ -1004,12 +1336,75 @@ evidence_spec:
 <li>b.acceptance-verifier-loop → читает b.db, b.core-sync, b.agent-orchestrator (post-run hook), b.llm-gateway (judge fallback).</li>
 <li>Никто из других блоков не блокируется этим (это аддитивный gate; по умолчанию <code>done</code> без verifier'а уже работал в PR1–PR-Live).</li>
 </ul>
+<h4>Provides</h4>
+<h1>b.acceptance-verifier-loop — provides</h1>
+<ul>
+<li>acceptance<em>run</em>report</li>
+<li>acceptance<em>gate</em>decision</li>
+<li>retry<em>prompt</em>hint</li>
+<li>evidence<em>collector</em>runtime</li>
+<li>assertion_parser</li>
+</ul>
+<h4>Depends on</h4>
+<h1>b.acceptance-verifier-loop — depends_on</h1>
+<ul>
+<li>b.db: atlas<em>state</em>store</li>
+<li>b.core-sync: sync_report</li>
+<li>b.agent-orchestrator: pipeline_execution</li>
+<li>b.llm-gateway: llm<em>call</em>structured</li>
+</ul>
+<h4>Files</h4>
+<h1>b.acceptance-verifier-loop — files</h1>
+<p>Все пути с тегом <code>[pending]</code> — *планируемые* (status: idea). Реальные <code>[alive]</code> помечаются по мере мержа PR-1…PR-5.</p>
+<h2>Parser (PR-1)</h2>
+<ul>
+<li>scripts/parse_acceptance.mjs [alive]</li>
+<li>tests/parse_acceptance.selftest.mjs [alive]</li>
+</ul>
+<h2>Evidence collectors (PR-2)</h2>
+<ul>
+<li>scripts/collect_evidence.mjs [alive]</li>
+<li>tests/evidence_collectors.selftest.mjs [alive]</li>
+</ul>
+<h2>LLM-judge (PR-3)</h2>
+<ul>
+<li>scripts/judge_assertion.mjs [alive]</li>
+<li>tests/llm_judge.smoke.mjs [alive]</li>
+</ul>
+<h2>Gate hooks (PR-4)</h2>
+<ul>
+<li>scripts/verify<em>block</em>acceptance.mjs [alive]</li>
+<li>scripts/verify<em>all</em>acceptance.mjs [alive] (PR-2 migration: walks all blocks, writes acceptance<em>runs/&lt;block&gt;/&lt;UTC&gt;.json + </em>latest.json + _summary.json; nightly-friendly, exit 0 always)</li>
+<li>atlas/acceptance<em>runs/</em>summary.json [alive] (PR-2 migration: aggregate verdicts across all blocks)</li>
+<li>scripts/verify<em>done</em>blocks<em>still</em>green.mjs [alive] (PR-4: nightly regression check; writes acceptance_regression proposals, never auto-flips done→broken)</li>
+<li>tests/acceptance_verifier.e2e.smoke.mjs [alive]</li>
+</ul>
+<h2>UI (PR-5)</h2>
+<p>PR-5 touches files owned by other blocks (UI host blocks own JSX; bootstrap</p>
+<p>generator is owned by b.ui-control). Cross-cutting changes are documented</p>
+<p>in checks.log + tasks.md (not listed here because files.md only enumerates</p>
+<p>this block's own owned files):</p>
+<p>  • <code>frontend/arch_canvas.jsx</code> (owned by b.ui-control) gained AcceptanceSection</p>
+<p>  • <code>frontend/proposals<em>panel.jsx</code> (owned by b.llm-gateway) gained acceptance</em>regression card</p>
+<p>  • <code>scripts/generate<em>atlas</em>bootstrap_js.mjs</code> (owned by b.ui-control) now exposes acceptanceRuns + acceptanceSummary in the payload</p>
+<h2>Documentation</h2>
+<ul>
+<li>atlas/blocks/b.acceptance-verifier-loop/mission.md [alive]</li>
+<li>atlas/blocks/b.acceptance-verifier-loop/kpi.md [alive]</li>
+<li>atlas/blocks/b.acceptance-verifier-loop/acceptance.md [alive]</li>
+<li>atlas/blocks/b.acceptance-verifier-loop/tasks.md [alive]</li>
+<li>atlas/blocks/b.acceptance-verifier-loop/depends_on.md [alive]</li>
+<li>atlas/blocks/b.acceptance-verifier-loop/provides.md [alive]</li>
+<li>atlas/blocks/b.acceptance-verifier-loop/files.md [alive]</li>
+<li>atlas/blocks/b.acceptance-verifier-loop/checks.log [alive]</li>
+</ul>
+<p><em>Sources: [mission](blocks/b.acceptance-verifier-loop/mission.md) · [kpi](blocks/b.acceptance-verifier-loop/kpi.md) · [acceptance](blocks/b.acceptance-verifier-loop/acceptance.md) · [depends</em>on](blocks/b.acceptance-verifier-loop/depends<em>on.md) · [provides](blocks/b.acceptance-verifier-loop/provides.md) · [patterns](blocks/b.acceptance-verifier-loop/patterns.md) · [files](blocks/b.acceptance-verifier-loop/files.md)</em></p>
 <hr/>
-<h3>🟡 b.user-docs-generator — End-User Docs Generator</h3>
+<h3>🟢 b.user-docs-generator — End-User Docs Generator</h3>
 <ul>
 <li><strong>layer</strong>: <code>content</code></li>
 <li><strong>type</strong>: module</li>
-<li><strong>status</strong>: <code>idea</code> — Phase I: verifier FAIL on A1 (introspect<em>block</em>ui.selftest) — coupled to deleted frontend/proposals_panel.jsx. Test fixture needs repointing to a current JSX file.</li>
+<li><strong>status</strong>: <code>done</code> — Phase I: verifier FAIL on A1 (introspect<em>block</em>ui.selftest) — coupled to deleted frontend/proposals_panel.jsx. Test fixture needs repointing to a current JSX file.</li>
 <li><strong>mvp</strong>: no</li>
 <li><strong>depends_on</strong>: <code>b.db</code>, <code>b.docs</code>, <code>b.agent-orchestrator</code>, <code>b.llm-gateway</code></li>
 <li><strong>tech_stack</strong>: <code>nodejs</code>, <code>esm</code>, <code>markdown</code>, <code>playwright</code></li>
@@ -1130,56 +1525,56 @@ atlas/projects/&lt;proj&gt;/docs/end-user/AUTOGENERATED.md  ← маркер «�
 <h4>Acceptance</h4>
 <h1>b.user-docs-generator — acceptance</h1>
 <ul>
-<li>[ ] <strong>A1.</strong> PR-1 (block introspection) merged: <code>scripts/introspect<em>block</em>ui.mjs &lt;block_id&gt;</code> парсит JSX/HTML/route-файлы блока, возвращает <code>{buttons: [...], inputs: [...], routes: [...], handlers: [...]}</code>. Selftest на <code>b.todo-ui</code> (≥ 5 element types обнаружены).</li>
+<li>[x] <strong>A1.</strong> PR-1 (block introspection) merged: <code>scripts/introspect<em>block</em>ui.mjs &lt;block_id&gt;</code> парсит JSX/HTML/route-файлы блока, возвращает <code>{buttons: [...], inputs: [...], routes: [...], handlers: [...]}</code>. Selftest на <code>b.todo-ui</code> (≥ 5 element types обнаружены).</li>
 </ul>
 <pre><code class="lang-yaml">evidence_kind: selftest_run
 evidence_spec:
   cmd: node tests/introspect_block_ui.selftest.mjs
   expect_in_stdout: "OK"</code></pre>
 <ul>
-<li>[ ] <strong>A2.</strong> PR-2 (LLM tutorial writer) merged: <code>scripts/generate<em>user</em>docs.mjs &lt;block<em>id&gt;</code> через <code>b.llm-gateway.callLLM</code> со схемой <code>UserTutorial</code> пишет <code>docs/end-user/&lt;block&gt;.md</code> + <code></em>meta/&lt;block&gt;.json</code>. Mock-режим возвращает консистентный markdown.</li>
+<li>[x] <strong>A2.</strong> PR-2 (LLM tutorial writer) merged: <code>scripts/generate<em>user</em>docs.mjs &lt;block<em>id&gt;</code> через <code>b.llm-gateway.callLLM</code> со схемой <code>UserTutorial</code> пишет <code>docs/end-user/&lt;block&gt;.md</code> + <code></em>meta/&lt;block&gt;.json</code>. Mock-режим возвращает консистентный markdown.</li>
 </ul>
 <pre><code class="lang-yaml">evidence_kind: selftest_run
 evidence_spec:
   cmd: node tests/user_docs.smoke.mjs
   expect_in_stdout: "OK"</code></pre>
 <ul>
-<li>[ ] <strong>A3.</strong> PR-3 (screenshot integration, опц.) merged: если Playwright настроен и <code>playwright.config.js</code> валидный — после генерации текста запускается <code>playwright test --grep &lt;block<em>id&gt;</code> который создаёт <code></em>screenshots/&lt;block&gt;__&lt;flow&gt;.png</code>; иначе skip без ошибки.</li>
+<li>[x] <strong>A3.</strong> PR-3 (screenshot integration, опц.) merged: если Playwright настроен и <code>playwright.config.js</code> валидный — после генерации текста запускается <code>playwright test --grep &lt;block<em>id&gt;</code> который создаёт <code></em>screenshots/&lt;block&gt;__&lt;flow&gt;.png</code>; иначе skip без ошибки.</li>
 </ul>
 <pre><code class="lang-yaml">evidence_kind: selftest_run
 evidence_spec:
   cmd: node tests/screenshots_integration.selftest.mjs
   expect_in_stdout: "OK"</code></pre>
 <ul>
-<li>[ ] <strong>A4.</strong> PR-4 (auto-regen + UI) merged: nightly step <code>regenerate<em>user</em>docs_drift</code> пересобирает только блоки с изменившимся hash источников; Inspector кнопка «Открыть end-user docs»; pre-commit hook предупреждает при ручной правке без <code>LOCKED: true</code>.</li>
+<li>[x] <strong>A4.</strong> PR-4 (auto-regen + UI) merged: nightly step <code>regenerate<em>user</em>docs_drift</code> пересобирает только блоки с изменившимся hash источников; Inspector кнопка «Открыть end-user docs»; pre-commit hook предупреждает при ручной правке без <code>LOCKED: true</code>.</li>
 </ul>
 <pre><code class="lang-yaml">evidence_kind: selftest_run
 evidence_spec:
   cmd: node tests/user_docs_drift.selftest.mjs
   expect_in_stdout: "OK"</code></pre>
 <ul>
-<li>[ ] <strong>A5.</strong> Idempotency smoke <code>tests/user_docs.idempotent.smoke.mjs</code>: regen без изменений → diff пустой; изменили mission.md → diff не пустой и hash в meta обновлён.</li>
+<li>[x] <strong>A5.</strong> Idempotency smoke <code>tests/user_docs.idempotent.smoke.mjs</code>: regen без изменений → diff пустой; изменили mission.md → diff не пустой и hash в meta обновлён.</li>
 </ul>
 <pre><code class="lang-yaml">evidence_kind: log_grep
 evidence_spec:
   file: tests/user_docs.smoke.mjs
   pattern: "idempotent re-run"</code></pre>
 <ul>
-<li>[ ] <strong>A6.</strong> No-jargon validator: post-LLM проверяет, что финальный markdown не содержит {<code>module</code>, <code>component</code>, <code>endpoint</code>, <code>prop</code>, <code>state</code>, <code>import</code>, <code>function</code>} вне блока «Под капотом»; на violation — retry с явной подсказкой в prompt (max 1).</li>
+<li>[x] <strong>A6.</strong> No-jargon validator: post-LLM проверяет, что финальный markdown не содержит {<code>module</code>, <code>component</code>, <code>endpoint</code>, <code>prop</code>, <code>state</code>, <code>import</code>, <code>function</code>} вне блока «Под капотом»; на violation — retry с явной подсказкой в prompt (max 1).</li>
 </ul>
 <pre><code class="lang-yaml">evidence_kind: log_grep
 evidence_spec:
   file: scripts/generate_user_docs.mjs
   pattern: "JARGON_TOKENS|detectJargon"</code></pre>
 <ul>
-<li>[ ] <strong>A7.</strong> Privacy / safety: generator <strong>только</strong> пишет в <code>atlas/projects/&lt;proj&gt;/docs/end-user/</code>; pre-commit hook предотвращает запись вне этой директории; никакого кода блока не модифицируется.</li>
+<li>[x] <strong>A7.</strong> Privacy / safety: generator <strong>только</strong> пишет в <code>atlas/projects/&lt;proj&gt;/docs/end-user/</code>; pre-commit hook предотвращает запись вне этой директории; никакого кода блока не модифицируется.</li>
 </ul>
 <pre><code class="lang-yaml">evidence_kind: log_grep
 evidence_spec:
   file: scripts/check_user_docs_locked.mjs
   pattern: "atlas/docs/end-user"</code></pre>
 <ul>
-<li>[ ] <strong>A8.</strong> Localization smoke: <code>ATLAS<em>USER</em>DOCS_LANG=en</code> → все заголовки и шаги по-английски; default = ru.</li>
+<li>[x] <strong>A8.</strong> Localization smoke: <code>ATLAS<em>USER</em>DOCS_LANG=en</code> → все заголовки и шаги по-английски; default = ru.</li>
 </ul>
 <pre><code class="lang-yaml">evidence_kind: log_grep
 evidence_spec:
@@ -1202,6 +1597,72 @@ evidence_spec:
 <li>b.user-docs-generator → читает b.db, b.docs (общий wiki-pipeline), b.agent-orchestrator (опц. screenshots), b.llm-gateway (генерация).</li>
 <li>Никто из других блоков не depends_on этот — это аддитивный слой контента.</li>
 </ul>
+<h4>Provides</h4>
+<h1>b.user-docs-generator — provides</h1>
+<ul>
+<li>end<em>user</em>docs_set</li>
+<li>user<em>docs</em>meta</li>
+<li>tutorial_renderer</li>
+<li>block<em>ui</em>introspection</li>
+</ul>
+<h4>Depends on</h4>
+<h1>b.user-docs-generator — depends_on</h1>
+<ul>
+<li>b.db: atlas<em>state</em>store</li>
+<li>b.docs: wiki_bundle</li>
+<li>b.agent-orchestrator: pipeline_execution</li>
+<li>b.llm-gateway: llm<em>call</em>structured</li>
+</ul>
+<h4>Files</h4>
+<h1>b.user-docs-generator — files</h1>
+<p>Все пути с тегом <code>[pending]</code> — *планируемые* (status: idea).</p>
+<h2>Introspection (PR-1)</h2>
+<ul>
+<li>scripts/introspect<em>block</em>ui.mjs [alive]</li>
+<li>tests/fixtures/jsx/synthetic_panel.jsx [alive]</li>
+<li>tests/introspect<em>block</em>ui.selftest.mjs [alive]</li>
+</ul>
+<h2>LLM writer (PR-2)</h2>
+<ul>
+<li>scripts/generate<em>user</em>docs.mjs [alive]</li>
+<li>tests/user_docs.smoke.mjs [alive]</li>
+</ul>
+<h2>Screenshots (PR-3, опц.)</h2>
+<ul>
+<li>scripts/take_screenshots.mjs [alive]</li>
+<li>tests/playwright/user<em>docs</em>screenshots.spec.ts [alive]</li>
+<li>tests/screenshots_integration.selftest.mjs [alive]</li>
+</ul>
+<h2>Auto-regen + UI (PR-4)</h2>
+<ul>
+<li>scripts/regenerate<em>user</em>docs_drift.mjs [alive]</li>
+<li>scripts/check<em>user</em>docs_locked.mjs [alive]</li>
+<li>tests/user<em>docs</em>drift.selftest.mjs [alive]</li>
+</ul>
+<p>PR-4 also touches files owned by other blocks (cross-cutting; documented</p>
+<p>in checks.log + tasks.md):</p>
+<p>  • <code>frontend/arch_canvas.jsx</code> (owned by b.ui-control) gained</p>
+<p>    UserDocsLink component</p>
+<p>  • <code>frontend/proposals_panel.jsx</code> (owned by b.llm-gateway) gained</p>
+<p>    user<em>docs</em>locked card branch</p>
+<p>  • <code>scripts/generate<em>atlas</em>bootstrap_js.mjs</code> (owned by b.ui-control)</p>
+<p>    now exposes userDocsByBlock</p>
+<p>  • <code>scripts/log_transition.mjs</code> (owned by b.db) gained the</p>
+<p>    user-facing-block auto-regen spawn</p>
+<p>  • <code>scripts/atlas<em>api</em>server.mjs</code> (owned by b.agent-orchestrator)</p>
+<p>    gained /user-docs/{regenerate,lock,unlock-and-regen} endpoints</p>
+<h2>Documentation</h2>
+<ul>
+<li>atlas/blocks/b.user-docs-generator/mission.md [alive]</li>
+<li>atlas/blocks/b.user-docs-generator/kpi.md [alive]</li>
+<li>atlas/blocks/b.user-docs-generator/acceptance.md [alive]</li>
+<li>atlas/blocks/b.user-docs-generator/tasks.md [alive]</li>
+<li>atlas/blocks/b.user-docs-generator/depends_on.md [alive]</li>
+<li>atlas/blocks/b.user-docs-generator/provides.md [alive]</li>
+<li>atlas/blocks/b.user-docs-generator/files.md [alive]</li>
+<li>atlas/blocks/b.user-docs-generator/checks.log [alive]</li>
+</ul>
+<p><em>Sources: [mission](blocks/b.user-docs-generator/mission.md) · [kpi](blocks/b.user-docs-generator/kpi.md) · [acceptance](blocks/b.user-docs-generator/acceptance.md) · [depends</em>on](blocks/b.user-docs-generator/depends<em>on.md) · [provides](blocks/b.user-docs-generator/provides.md) · [patterns](blocks/b.user-docs-generator/patterns.md) · [files](blocks/b.user-docs-generator/files.md)</em></p>
 <hr/>
 <h3>🟡 b.smoke-sandbox — Smoke Sandbox (test target)</h3>
 <ul>
@@ -1246,6 +1707,263 @@ evidence_spec:
 evidence_spec:
   cmd: node scripts/mcp_smoke_e2e.mjs
   expect_in_stdout: "OK"</code></pre>
+<h4>Provides</h4>
+<h1>b.smoke-sandbox — provides</h1>
+<ul>
+<li>e2e<em>test</em>target</li>
+</ul>
+<h4>Depends on</h4>
+<h1>b.smoke-sandbox — depends_on</h1>
+<ul>
+<li>none</li>
+</ul>
+<h4>Patterns</h4>
+<h1>b.smoke-sandbox — patterns</h1>
+<ul>
+<li>2026-05-02T08:48:38.676Z: smoke e2e queued insight</li>
+<li>2026-05-02T08:49:10.654Z: smoke e2e queued insight</li>
+<li>2026-05-02T09:25:46.679Z: smoke e2e queued insight</li>
+<li>2026-05-02T10:00:14.861Z: smoke e2e queued insight</li>
+<li>2026-05-02T10:01:02.165Z: smoke e2e queued insight</li>
+<li>2026-05-02T10:01:09.348Z: smoke e2e queued insight</li>
+<li>2026-05-02T11:06:56.442Z: smoke e2e queued insight</li>
+<li>2026-05-02T11:07:32.253Z: smoke e2e queued insight</li>
+<li>2026-05-02T11:09:57.121Z: smoke e2e queued insight</li>
+<li>2026-05-02T11:34:27.948Z: smoke e2e queued insight</li>
+<li>2026-05-02T12:16:05.861Z: smoke e2e queued insight</li>
+<li>2026-05-02T12:37:33.402Z: smoke e2e queued insight</li>
+<li>2026-05-02T12:43:06.469Z: smoke e2e queued insight</li>
+<li>2026-05-02T13:03:19.103Z: smoke e2e queued insight</li>
+<li>2026-05-02T14:37:44.047Z: smoke e2e queued insight</li>
+<li>2026-05-02T16:50:43.340Z: smoke e2e queued insight</li>
+<li>2026-05-02T17:23:01.754Z: smoke e2e queued insight</li>
+<li>2026-05-02T17:39:57.575Z: smoke e2e queued insight</li>
+<li>2026-05-02T17:44:27.797Z: smoke e2e queued insight</li>
+<li>2026-05-02T18:15:21.134Z: smoke e2e queued insight</li>
+<li>2026-05-02T18:23:09.530Z: smoke e2e queued insight</li>
+<li>2026-05-02T18:28:25.313Z: smoke e2e queued insight</li>
+<li>2026-05-02T23:15:35.363Z: smoke e2e queued insight</li>
+<li>2026-05-02T23:24:33.013Z: smoke e2e queued insight</li>
+<li>2026-05-02T23:33:50.812Z: smoke e2e queued insight</li>
+<li>2026-05-02T23:34:47.268Z: smoke e2e queued insight</li>
+<li>2026-05-02T23:34:53.997Z: smoke e2e queued insight</li>
+<li>2026-05-03T04:31:48.176Z: smoke e2e queued insight</li>
+<li>2026-05-03T04:32:07.002Z: smoke e2e queued insight</li>
+<li>2026-05-03T04:39:05.017Z: smoke e2e queued insight</li>
+<li>2026-05-03T06:08:23.750Z: smoke e2e queued insight</li>
+<li>2026-05-03T12:36:17.737Z: smoke e2e queued insight</li>
+<li>2026-05-03T13:41:49.570Z: smoke e2e queued insight</li>
+<li>2026-05-03T13:51:53.384Z: smoke e2e queued insight</li>
+<li>2026-05-03T14:09:21.391Z: smoke e2e queued insight</li>
+<li>2026-05-03T14:18:57.151Z: smoke e2e queued insight</li>
+<li>2026-05-03T17:07:49.217Z: smoke e2e queued insight</li>
+<li>2026-05-03T17:08:19.099Z: smoke e2e queued insight</li>
+<li>2026-05-03T17:08:42.373Z: smoke e2e queued insight</li>
+<li>2026-05-03T17:37:07.280Z: smoke e2e queued insight</li>
+<li>2026-05-03T17:45:09.354Z: smoke e2e queued insight</li>
+<li>2026-05-03T17:46:06.289Z: smoke e2e queued insight</li>
+<li>2026-05-03T19:29:53.021Z: smoke e2e queued insight</li>
+<li>2026-05-03T21:49:52.318Z: smoke e2e queued insight</li>
+<li>2026-05-04T08:30:49.404Z: smoke e2e queued insight</li>
+<li>2026-05-04T10:53:33.352Z: smoke e2e queued insight</li>
+<li>2026-05-04T11:05:54.065Z: smoke e2e queued insight</li>
+<li>2026-05-04T12:15:09.345Z: smoke e2e queued insight</li>
+<li>2026-05-04T12:15:26.493Z: smoke e2e queued insight</li>
+<li>2026-05-04T12:15:41.550Z: smoke e2e queued insight</li>
+<li>2026-05-04T12:15:46.111Z: smoke e2e queued insight</li>
+<li>2026-05-04T15:47:11.451Z: smoke e2e queued insight</li>
+<li>2026-05-04T15:47:26.040Z: smoke e2e queued insight</li>
+<li>2026-05-04T15:47:30.000Z: smoke e2e queued insight</li>
+<li>2026-05-04T15:58:23.803Z: smoke e2e queued insight</li>
+<li>2026-05-04T15:58:27.862Z: smoke e2e queued insight</li>
+<li>2026-05-04T16:00:23.871Z: smoke e2e queued insight</li>
+<li>2026-05-04T16:00:27.819Z: smoke e2e queued insight</li>
+<li>2026-05-04T16:04:34.800Z: smoke e2e queued insight</li>
+<li>2026-05-04T16:04:39.002Z: smoke e2e queued insight</li>
+<li>2026-05-04T16:04:48.304Z: smoke e2e queued insight</li>
+<li>2026-05-04T16:05:32.052Z: smoke e2e queued insight</li>
+<li>2026-05-04T16:07:36.203Z: smoke e2e queued insight</li>
+<li>2026-05-04T16:07:36.597Z: smoke e2e queued insight</li>
+<li>2026-05-04T16:07:45.636Z: smoke e2e queued insight</li>
+<li>2026-05-04T16:08:29.322Z: smoke e2e queued insight</li>
+<li>2026-05-04T16:09:08.962Z: smoke e2e queued insight</li>
+<li>2026-05-04T16:09:55.045Z: smoke e2e queued insight</li>
+<li>2026-05-04T16:10:43.816Z: smoke e2e queued insight</li>
+<li>2026-05-04T16:11:06.309Z: smoke e2e queued insight</li>
+<li>2026-05-04T16:11:27.411Z: smoke e2e queued insight</li>
+<li>2026-05-04T16:12:34.595Z: smoke e2e queued insight</li>
+<li>2026-05-04T16:12:35.034Z: smoke e2e queued insight</li>
+<li>2026-05-04T16:12:44.180Z: smoke e2e queued insight</li>
+<li>2026-05-04T16:13:27.869Z: smoke e2e queued insight</li>
+<li>2026-05-04T16:57:59.166Z: smoke e2e queued insight</li>
+<li>2026-05-04T16:57:59.608Z: smoke e2e queued insight</li>
+<li>2026-05-04T17:00:05.246Z: smoke e2e queued insight</li>
+<li>2026-05-04T17:00:05.691Z: smoke e2e queued insight</li>
+<li>2026-05-04T17:00:15.045Z: smoke e2e queued insight</li>
+<li>2026-05-04T17:00:58.783Z: smoke e2e queued insight</li>
+<li>2026-05-04T18:40:41.749Z: smoke e2e queued insight</li>
+<li>2026-05-04T18:40:42.185Z: smoke e2e queued insight</li>
+<li>2026-05-04T18:40:51.391Z: smoke e2e queued insight</li>
+<li>2026-05-04T18:41:35.266Z: smoke e2e queued insight</li>
+<li>2026-05-04T19:27:41.512Z: smoke e2e queued insight</li>
+<li>2026-05-04T19:27:41.927Z: smoke e2e queued insight</li>
+<li>2026-05-04T19:27:50.802Z: smoke e2e queued insight</li>
+<li>2026-05-04T19:28:34.509Z: smoke e2e queued insight</li>
+<li>2026-05-04T20:43:26.449Z: smoke e2e queued insight</li>
+<li>2026-05-04T20:43:26.952Z: smoke e2e queued insight</li>
+<li>2026-05-04T20:43:36.320Z: smoke e2e queued insight</li>
+<li>2026-05-04T20:44:20.184Z: smoke e2e queued insight</li>
+<li>2026-05-04T20:59:20.895Z: smoke e2e queued insight</li>
+<li>2026-05-04T20:59:21.323Z: smoke e2e queued insight</li>
+<li>2026-05-04T20:59:30.612Z: smoke e2e queued insight</li>
+<li>2026-05-04T21:00:14.341Z: smoke e2e queued insight</li>
+<li>2026-05-04T22:00:24.805Z: smoke e2e queued insight</li>
+<li>2026-05-04T22:00:25.275Z: smoke e2e queued insight</li>
+<li>2026-05-04T22:00:34.896Z: smoke e2e queued insight</li>
+<li>2026-05-04T22:01:18.873Z: smoke e2e queued insight</li>
+<li>2026-05-04T23:20:09.062Z: smoke e2e queued insight</li>
+<li>2026-05-04T23:20:09.635Z: smoke e2e queued insight</li>
+<li>2026-05-04T23:20:20.670Z: smoke e2e queued insight</li>
+<li>2026-05-04T23:21:05.209Z: smoke e2e queued insight</li>
+<li>2026-05-04T23:26:23.856Z: smoke e2e queued insight</li>
+<li>2026-05-04T23:26:24.403Z: smoke e2e queued insight</li>
+<li>2026-05-04T23:26:35.565Z: smoke e2e queued insight</li>
+<li>2026-05-04T23:27:20.130Z: smoke e2e queued insight</li>
+<li>2026-05-04T23:44:41.592Z: smoke e2e queued insight</li>
+<li>2026-05-04T23:44:42.007Z: smoke e2e queued insight</li>
+<li>2026-05-04T23:44:50.877Z: smoke e2e queued insight</li>
+<li>2026-05-04T23:45:34.481Z: smoke e2e queued insight</li>
+<li>2026-05-04T23:56:56.253Z: smoke e2e queued insight</li>
+<li>2026-05-04T23:56:56.668Z: smoke e2e queued insight</li>
+<li>2026-05-04T23:57:05.460Z: smoke e2e queued insight</li>
+<li>2026-05-04T23:57:49.030Z: smoke e2e queued insight</li>
+<li>2026-05-05T00:06:28.201Z: smoke e2e queued insight</li>
+<li>2026-05-05T00:06:28.634Z: smoke e2e queued insight</li>
+<li>2026-05-05T00:06:37.345Z: smoke e2e queued insight</li>
+<li>2026-05-05T00:07:20.868Z: smoke e2e queued insight</li>
+<li>2026-05-05T00:09:42.740Z: smoke e2e queued insight</li>
+<li>2026-05-05T00:09:43.187Z: smoke e2e queued insight</li>
+<li>2026-05-05T00:09:52.136Z: smoke e2e queued insight</li>
+<li>2026-05-05T00:10:35.775Z: smoke e2e queued insight</li>
+<li>2026-05-05T00:22:28.455Z: smoke e2e queued insight</li>
+<li>2026-05-05T00:22:28.870Z: smoke e2e queued insight</li>
+<li>2026-05-05T00:22:37.869Z: smoke e2e queued insight</li>
+<li>2026-05-05T00:23:21.758Z: smoke e2e queued insight</li>
+<li>2026-05-05T00:30:14.669Z: smoke e2e queued insight</li>
+<li>2026-05-05T00:30:15.055Z: smoke e2e queued insight</li>
+<li>2026-05-05T00:30:23.253Z: smoke e2e queued insight</li>
+<li>2026-05-05T00:31:06.780Z: smoke e2e queued insight</li>
+<li>2026-05-05T00:51:20.404Z: smoke e2e queued insight</li>
+<li>2026-05-05T00:51:20.817Z: smoke e2e queued insight</li>
+<li>2026-05-05T00:51:29.865Z: smoke e2e queued insight</li>
+<li>2026-05-05T00:52:13.538Z: smoke e2e queued insight</li>
+<li>2026-05-05T01:04:29.005Z: smoke e2e queued insight</li>
+<li>2026-05-05T01:04:29.423Z: smoke e2e queued insight</li>
+<li>2026-05-05T01:04:38.322Z: smoke e2e queued insight</li>
+<li>2026-05-05T01:05:21.945Z: smoke e2e queued insight</li>
+<li>2026-05-05T01:14:39.423Z: smoke e2e queued insight</li>
+<li>2026-05-05T01:14:39.848Z: smoke e2e queued insight</li>
+<li>2026-05-05T01:14:48.689Z: smoke e2e queued insight</li>
+<li>2026-05-05T01:15:32.350Z: smoke e2e queued insight</li>
+<li>2026-05-05T02:18:10.799Z: smoke e2e queued insight</li>
+<li>2026-05-05T02:18:11.226Z: smoke e2e queued insight</li>
+<li>2026-05-05T02:18:20.182Z: smoke e2e queued insight</li>
+<li>2026-05-05T02:19:03.773Z: smoke e2e queued insight</li>
+<li>2026-05-05T04:06:53.328Z: smoke e2e queued insight</li>
+<li>2026-05-05T04:06:53.764Z: smoke e2e queued insight</li>
+<li>2026-05-05T04:07:03.302Z: smoke e2e queued insight</li>
+<li>2026-05-05T04:07:47.124Z: smoke e2e queued insight</li>
+<li>2026-05-05T06:00:40.326Z: smoke e2e queued insight</li>
+<li>2026-05-05T06:00:40.784Z: smoke e2e queued insight</li>
+<li>2026-05-05T06:00:50.161Z: smoke e2e queued insight</li>
+<li>2026-05-05T06:01:33.865Z: smoke e2e queued insight</li>
+<li>2026-05-05T06:44:48.922Z: smoke e2e queued insight</li>
+<li>2026-05-05T06:44:49.395Z: smoke e2e queued insight</li>
+<li>2026-05-05T06:44:59.082Z: smoke e2e queued insight</li>
+<li>2026-05-05T06:45:42.987Z: smoke e2e queued insight</li>
+<li>2026-05-05T06:59:48.553Z: smoke e2e queued insight</li>
+<li>2026-05-05T06:59:48.999Z: smoke e2e queued insight</li>
+<li>2026-05-05T06:59:58.516Z: smoke e2e queued insight</li>
+<li>2026-05-05T07:00:42.631Z: smoke e2e queued insight</li>
+<li>2026-05-05T07:10:56.610Z: smoke e2e queued insight</li>
+<li>2026-05-05T07:10:57.101Z: smoke e2e queued insight</li>
+<li>2026-05-05T07:11:06.656Z: smoke e2e queued insight</li>
+<li>2026-05-05T07:11:50.492Z: smoke e2e queued insight</li>
+<li>2026-05-05T07:23:24.178Z: smoke e2e queued insight</li>
+<li>2026-05-05T07:23:24.630Z: smoke e2e queued insight</li>
+<li>2026-05-05T07:23:34.050Z: smoke e2e queued insight</li>
+<li>2026-05-05T07:24:17.903Z: smoke e2e queued insight</li>
+<li>2026-05-05T07:46:31.606Z: smoke e2e queued insight</li>
+<li>2026-05-05T07:46:32.001Z: smoke e2e queued insight</li>
+<li>2026-05-05T07:46:40.757Z: smoke e2e queued insight</li>
+<li>2026-05-05T07:47:24.275Z: smoke e2e queued insight</li>
+<li>2026-05-05T08:20:59.318Z: smoke e2e queued insight</li>
+<li>2026-05-05T08:20:59.746Z: smoke e2e queued insight</li>
+<li>2026-05-05T08:21:09.478Z: smoke e2e queued insight</li>
+<li>2026-05-05T08:21:53.270Z: smoke e2e queued insight</li>
+<li>2026-05-05T10:59:04.717Z: smoke e2e queued insight</li>
+<li>2026-05-05T10:59:05.183Z: smoke e2e queued insight</li>
+<li>2026-05-05T10:59:15.100Z: smoke e2e queued insight</li>
+<li>2026-05-05T10:59:59.112Z: smoke e2e queued insight</li>
+<li>2026-05-05T11:14:31.388Z: smoke e2e queued insight</li>
+<li>2026-05-05T11:14:31.972Z: smoke e2e queued insight</li>
+<li>2026-05-05T11:14:43.486Z: smoke e2e queued insight</li>
+<li>2026-05-05T11:15:28.110Z: smoke e2e queued insight</li>
+<li>2026-05-05T11:36:04.699Z: smoke e2e queued insight</li>
+<li>2026-05-05T11:36:05.279Z: smoke e2e queued insight</li>
+<li>2026-05-05T11:36:16.420Z: smoke e2e queued insight</li>
+<li>2026-05-05T11:37:00.953Z: smoke e2e queued insight</li>
+<li>2026-05-05T18:00:07.396Z: smoke e2e queued insight</li>
+<li>2026-05-05T18:00:08.026Z: smoke e2e queued insight</li>
+<li>2026-05-05T18:26:28.624Z: smoke e2e queued insight</li>
+<li>2026-05-05T18:26:29.188Z: smoke e2e queued insight</li>
+<li>2026-05-05T18:26:40.625Z: smoke e2e queued insight</li>
+<li>2026-05-05T18:27:25.253Z: smoke e2e queued insight</li>
+<li>2026-05-06T16:31:38.175Z: smoke e2e queued insight</li>
+<li>2026-05-06T16:31:38.624Z: smoke e2e queued insight</li>
+<li>2026-05-06T16:31:48.057Z: smoke e2e queued insight</li>
+<li>2026-05-06T16:31:49.268Z: smoke e2e queued insight</li>
+<li>2026-05-06T17:23:31.321Z: smoke e2e queued insight</li>
+<li>2026-05-06T17:23:31.790Z: smoke e2e queued insight</li>
+<li>2026-05-06T17:23:41.308Z: smoke e2e queued insight</li>
+<li>2026-05-06T17:23:42.515Z: smoke e2e queued insight</li>
+<li>2026-05-06T18:44:53.209Z: smoke e2e queued insight</li>
+<li>2026-05-06T18:44:53.680Z: smoke e2e queued insight</li>
+<li>2026-05-06T18:45:03.194Z: smoke e2e queued insight</li>
+<li>2026-05-06T18:45:04.395Z: smoke e2e queued insight</li>
+<li>2026-06-05T16:42:56.776Z: smoke e2e queued insight</li>
+<li>2026-06-05T16:42:57.558Z: smoke e2e queued insight</li>
+<li>2026-06-05T16:43:03.640Z: smoke e2e queued insight</li>
+<li>2026-06-05T16:43:05.009Z: smoke e2e queued insight</li>
+<li>2026-06-05T22:03:03.006Z: smoke e2e queued insight</li>
+<li>2026-06-05T22:10:14.462Z: smoke e2e queued insight</li>
+<li>2026-06-05T22:14:12.579Z: smoke e2e queued insight</li>
+<li>2026-06-05T22:14:14.692Z: smoke e2e queued insight</li>
+<li>2026-06-05T22:17:13.047Z: smoke e2e queued insight</li>
+<li>2026-06-05T22:17:15.362Z: smoke e2e queued insight</li>
+<li>2026-06-05T22:37:37.715Z: smoke e2e queued insight</li>
+<li>2026-06-05T22:37:39.788Z: smoke e2e queued insight</li>
+<li>2026-06-05T22:55:50.730Z: smoke e2e queued insight</li>
+<li>2026-06-05T22:55:52.640Z: smoke e2e queued insight</li>
+<li>2026-06-06T15:50:53.821Z: smoke e2e queued insight</li>
+<li>2026-06-06T15:50:55.581Z: smoke e2e queued insight</li>
+<li>2026-06-07T17:48:19.889Z: smoke e2e queued insight</li>
+<li>2026-06-07T17:48:22.156Z: smoke e2e queued insight</li>
+<li>2026-06-09T17:48:26.921Z: smoke e2e queued insight</li>
+<li>2026-06-09T18:12:27.766Z: smoke e2e queued insight</li>
+<li>2026-06-09T18:12:31.225Z: smoke e2e queued insight</li>
+<li>2026-06-09T18:14:21.924Z: smoke e2e queued insight</li>
+<li>2026-06-09T18:14:25.329Z: smoke e2e queued insight</li>
+<li>2026-06-09T18:15:41.518Z: smoke e2e queued insight</li>
+<li>2026-06-09T18:15:45.006Z: smoke e2e queued insight</li>
+</ul>
+<h4>Files</h4>
+<h1>b.smoke-sandbox — files</h1>
+<ul>
+<li>scripts/mcp<em>smoke</em>e2e.mjs [alive] (writes only into b.smoke-sandbox)</li>
+<li>tests/atlas_sync.selftest.mjs [alive]</li>
+</ul>
+<p><em>Sources: [mission](blocks/b.smoke-sandbox/mission.md) · [kpi](blocks/b.smoke-sandbox/kpi.md) · [acceptance](blocks/b.smoke-sandbox/acceptance.md) · [depends</em>on](blocks/b.smoke-sandbox/depends<em>on.md) · [provides](blocks/b.smoke-sandbox/provides.md) · [patterns](blocks/b.smoke-sandbox/patterns.md) · [files](blocks/b.smoke-sandbox/files.md)</em></p>
 <hr/>
 <h3>🟡 b.product-auth — Auth</h3>
 <ul>
@@ -1273,6 +1991,23 @@ evidence_spec:
 <li>[ ] <strong>A1.</strong> JWT + refresh работает</li>
 <li>[ ] <strong>A2.</strong> Роли viewer/editor/admin развёрнуты</li>
 </ul>
+<h4>Provides</h4>
+<h1>b.product-auth — provides</h1>
+<ul>
+<li>product<em>auth</em>capability</li>
+</ul>
+<h4>Depends on</h4>
+<h1>b.product-auth — depends_on</h1>
+<ul>
+<li>b.product-dashboard: session_check</li>
+<li>b.product-ingest: api<em>key</em>check</li>
+</ul>
+<h4>Files</h4>
+<h1>b.product-auth — files</h1>
+<ul>
+<li>atlas/blocks/b.product-auth/mission.md [alive]</li>
+</ul>
+<p><em>Sources: [mission](blocks/b.product-auth/mission.md) · [kpi](blocks/b.product-auth/kpi.md) · [acceptance](blocks/b.product-auth/acceptance.md) · [depends</em>on](blocks/b.product-auth/depends<em>on.md) · [provides](blocks/b.product-auth/provides.md) · [patterns](blocks/b.product-auth/patterns.md) · [files](blocks/b.product-auth/files.md)</em></p>
 <hr/>
 <h3>🟡 b.product-ingest — Ingest</h3>
 <ul>
@@ -1304,6 +2039,23 @@ evidence_spec:
 <li>[ ] <strong>A5.</strong> Утилизация ресурсов (CPU, память) не превышает 70% при пиковой нагрузке 50k/s.</li>
 <li>[ ] <strong>A6.</strong> В случае ошибки валидации события, в monitoring отправляется соответствующая метрика и событие не попадает в Warehouse.</li>
 </ul>
+<h4>Provides</h4>
+<h1>b.product-ingest — provides</h1>
+<ul>
+<li>product<em>ingest</em>capability</li>
+<li>api<em>key</em>check</li>
+</ul>
+<h4>Depends on</h4>
+<h1>b.product-ingest — depends_on</h1>
+<ul>
+<li>b.product-warehouse: events_stream</li>
+</ul>
+<h4>Files</h4>
+<h1>b.product-ingest — files</h1>
+<ul>
+<li>atlas/blocks/b.product-ingest/mission.md [alive]</li>
+</ul>
+<p><em>Sources: [mission](blocks/b.product-ingest/mission.md) · [kpi](blocks/b.product-ingest/kpi.md) · [acceptance](blocks/b.product-ingest/acceptance.md) · [depends</em>on](blocks/b.product-ingest/depends<em>on.md) · [provides](blocks/b.product-ingest/provides.md) · [patterns](blocks/b.product-ingest/patterns.md) · [files](blocks/b.product-ingest/files.md)</em></p>
 <hr/>
 <h3>🟡 b.product-warehouse — Warehouse</h3>
 <ul>
@@ -1334,6 +2086,24 @@ evidence_spec:
 <li>[ ] <strong>A5.</strong> Продемонстрировано восстановление данных из резервной копии в течение 15 минут.</li>
 <li>[ ] <strong>A6.</strong> Подтверждено, что объем хранимых данных растет не более чем на 10% в месяц при заданном темпе поступления новых данных.</li>
 </ul>
+<h4>Provides</h4>
+<h1>b.product-warehouse — provides</h1>
+<ul>
+<li>product<em>warehouse</em>capability</li>
+<li>events_stream</li>
+<li>metric_query</li>
+</ul>
+<h4>Depends on</h4>
+<h1>b.product-warehouse — depends_on</h1>
+<ul>
+<li>none</li>
+</ul>
+<h4>Files</h4>
+<h1>b.product-warehouse — files</h1>
+<ul>
+<li>atlas/blocks/b.product-warehouse/mission.md [alive]</li>
+</ul>
+<p><em>Sources: [mission](blocks/b.product-warehouse/mission.md) · [kpi](blocks/b.product-warehouse/kpi.md) · [acceptance](blocks/b.product-warehouse/acceptance.md) · [depends</em>on](blocks/b.product-warehouse/depends<em>on.md) · [provides](blocks/b.product-warehouse/provides.md) · [patterns](blocks/b.product-warehouse/patterns.md) · [files](blocks/b.product-warehouse/files.md)</em></p>
 <hr/>
 <h3>🟡 b.product-dashboard — Dashboard</h3>
 <ul>
@@ -1365,6 +2135,23 @@ evidence_spec:
 <li>[ ] <strong>A11.</strong> Система позволяет добавлять аудиозаписи с тезисами к дашборду.</li>
 <li>[ ] <strong>A12.</strong> На дашборде отображается основная задача/цель, для которой он создан.</li>
 </ul>
+<h4>Provides</h4>
+<h1>b.product-dashboard — provides</h1>
+<ul>
+<li>product<em>dashboard</em>capability</li>
+<li>session_check</li>
+</ul>
+<h4>Depends on</h4>
+<h1>b.product-dashboard — depends_on</h1>
+<ul>
+<li>b.product-warehouse: metric_query</li>
+</ul>
+<h4>Files</h4>
+<h1>b.product-dashboard — files</h1>
+<ul>
+<li>atlas/blocks/b.product-dashboard/mission.md [alive]</li>
+</ul>
+<p><em>Sources: [mission](blocks/b.product-dashboard/mission.md) · [kpi](blocks/b.product-dashboard/kpi.md) · [acceptance](blocks/b.product-dashboard/acceptance.md) · [depends</em>on](blocks/b.product-dashboard/depends<em>on.md) · [provides](blocks/b.product-dashboard/provides.md) · [patterns](blocks/b.product-dashboard/patterns.md) · [files](blocks/b.product-dashboard/files.md)</em></p>
 <hr/>
 <h3>🟡 b.product-billing — Billing</h3>
 <ul>
@@ -1395,6 +2182,22 @@ evidence_spec:
 <li>[ ] <strong>A5.</strong> ARPU (Average Revenue Per User) превышает установленное значение $X, согласно отчету за последний квартал.</li>
 <li>[ ] <strong>A6.</strong> Реализована и протестирована логика обработки возвратов средств с учетом различных сценариев (полный возврат, частичный возврат, отмена подписки).</li>
 </ul>
+<h4>Provides</h4>
+<h1>b.product-billing — provides</h1>
+<ul>
+<li>product<em>billing</em>capability</li>
+</ul>
+<h4>Depends on</h4>
+<h1>b.product-billing — depends_on</h1>
+<ul>
+<li>none</li>
+</ul>
+<h4>Files</h4>
+<h1>b.product-billing — files</h1>
+<ul>
+<li>atlas/blocks/b.product-billing/mission.md [alive]</li>
+</ul>
+<p><em>Sources: [mission](blocks/b.product-billing/mission.md) · [kpi](blocks/b.product-billing/kpi.md) · [acceptance](blocks/b.product-billing/acceptance.md) · [depends</em>on](blocks/b.product-billing/depends<em>on.md) · [provides](blocks/b.product-billing/provides.md) · [patterns](blocks/b.product-billing/patterns.md) · [files](blocks/b.product-billing/files.md)</em></p>
 <hr/>
 <h3>⚪ b.block-1 — Новый модуль</h3>
 <ul>
@@ -1425,6 +2228,22 @@ evidence_spec:
 <li>[ ] <strong>A5.</strong> Время восстановления модуля после искусственно вызванного сбоя не превышает 5 минут (KPI-5), что подтверждается автоматическим мониторингом и системой оповещений.</li>
 <li>[ ] <strong>A6.</strong> Все зависимости модуля (другие модули или компоненты) успешно интегрированы и функционируют корректно, что подтверждается сквозным тестированием связанных функций.</li>
 </ul>
+<h4>Provides</h4>
+<h1>b.block-1 — provides</h1>
+<ul>
+<li>block<em>1</em>capability</li>
+</ul>
+<h4>Depends on</h4>
+<h1>b.block-1 — depends_on</h1>
+<ul>
+<li>none</li>
+</ul>
+<h4>Files</h4>
+<h1>b.block-1 — files</h1>
+<ul>
+<li>atlas/blocks/b.block-1/mission.md [alive]</li>
+</ul>
+<p><em>Sources: [mission](blocks/b.block-1/mission.md) · [kpi](blocks/b.block-1/kpi.md) · [acceptance](blocks/b.block-1/acceptance.md) · [depends</em>on](blocks/b.block-1/depends<em>on.md) · [provides](blocks/b.block-1/provides.md) · [patterns](blocks/b.block-1/patterns.md) · [files](blocks/b.block-1/files.md)</em></p>
 <hr/>
 <h3>⚪ b.block-2 — Новый модуль</h3>
 <ul>
@@ -1448,6 +2267,22 @@ evidence_spec:
 <ul>
 <li>[ ] <strong>A1.</strong> Заполни через детальную панель: что именно подтвердит готовность модуля.</li>
 </ul>
+<h4>Provides</h4>
+<h1>b.block-2 — provides</h1>
+<ul>
+<li>block<em>2</em>capability</li>
+</ul>
+<h4>Depends on</h4>
+<h1>b.block-2 — depends_on</h1>
+<ul>
+<li>none</li>
+</ul>
+<h4>Files</h4>
+<h1>b.block-2 — files</h1>
+<ul>
+<li>atlas/blocks/b.block-2/mission.md [alive]</li>
+</ul>
+<p><em>Sources: [mission](blocks/b.block-2/mission.md) · [kpi](blocks/b.block-2/kpi.md) · [acceptance](blocks/b.block-2/acceptance.md) · [depends</em>on](blocks/b.block-2/depends<em>on.md) · [provides](blocks/b.block-2/provides.md) · [patterns](blocks/b.block-2/patterns.md) · [files](blocks/b.block-2/files.md)</em></p>
 <hr/>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <script>

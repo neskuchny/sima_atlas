@@ -80,16 +80,30 @@ import('../scripts/inject_context_pack.mjs').catch(() => {}); // Side-effect run
 // real atlas/ with the real profile (currently warming_up → section absent).
 
 try {
-  // ─── Group 1: warming_up profile (real repo state) → no Operator profile section
+  // ─── Group 1: warming_up profile → no Operator profile section.
+  // R-7.98: was «real repo state» — broke the day the real profile honestly
+  // crossed the min-data threshold and flipped to live. Hermetic now: swap
+  // in a warming_up profile for the duration, restore after (same pattern
+  // as group 2).
   {
-    const r = spawnSync('node', [path.join(REPO_ROOT, 'scripts', 'inject_context_pack.mjs')], {
-      cwd: REPO_ROOT, encoding: 'utf8',
-      env: { ...process.env, SIMA_BLOCK_ID: 'b.llm-gateway' },
-    });
-    check('group1:exit 0', r.status === 0, `stderr=${r.stderr}`);
-    check('group1:no operator section in warming_up',
-      !/## Operator profile/.test(r.stdout || ''),
-      'section should be absent when profile._status=warming_up');
+    const realProfilePath = path.join(REPO_ROOT, 'atlas', 'operator_profile', 'profile.json');
+    const backup = fs.existsSync(realProfilePath) ? fs.readFileSync(realProfilePath, 'utf8') : null;
+    fs.writeFileSync(realProfilePath, JSON.stringify({
+      operator_id: 'smoke', updated_at: new Date().toISOString(), _status: 'warming_up',
+      _min_data: { done_transitions: 1, done_required: 5, invocations: 1, invocations_required: 10 },
+    }, null, 2));
+    try {
+      const r = spawnSync('node', [path.join(REPO_ROOT, 'scripts', 'inject_context_pack.mjs')], {
+        cwd: REPO_ROOT, encoding: 'utf8',
+        env: { ...process.env, SIMA_BLOCK_ID: 'b.llm-gateway' },
+      });
+      check('group1:exit 0', r.status === 0, `stderr=${r.stderr}`);
+      check('group1:no operator section in warming_up',
+        !/## Operator profile/.test(r.stdout || ''),
+        'section should be absent when profile._status=warming_up');
+    } finally {
+      if (backup !== null) fs.writeFileSync(realProfilePath, backup);
+    }
   }
 
   // ─── Group 2: temporarily inject a "live" profile + run; cleanup

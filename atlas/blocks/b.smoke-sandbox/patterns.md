@@ -229,3 +229,10 @@
 - 2026-06-06T15:50:55.581Z: smoke e2e queued insight
 - 2026-06-07T17:48:19.889Z: smoke e2e queued insight
 - 2026-06-07T17:48:22.156Z: smoke e2e queued insight
+- 2026-06-09T17:48:26.921Z: smoke e2e queued insight
+- 2026-06-09T18:12:27.766Z: smoke e2e queued insight
+- 2026-06-09T18:12:31.225Z: smoke e2e queued insight
+- 2026-06-09T18:14:21.924Z: smoke e2e queued insight
+- 2026-06-09T18:14:25.329Z: smoke e2e queued insight
+- 2026-06-09T18:15:41.518Z: smoke e2e queued insight
+- 2026-06-09T18:15:45.006Z: smoke e2e queued insight

@@ -7,7 +7,7 @@
       "id": "A1",
       "label": null,
       "text": "PR-1 (block introspection) merged: `scripts/introspect_block_ui.mjs <block_id>` парсит JSX/HTML/route-файлы блока, возвращает `{buttons: [...], inputs: [...], routes: [...], handlers: [...]}`. Selftest на `b.todo-ui` (≥ 5 element types обнаружены).",
-      "checked": false,
+      "checked": true,
       "line": 3,
       "evidence_kind": "selftest_run",
       "evidence_spec": {
@@ -15,23 +15,23 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/introspect_block_ui.selftest.mjs → exit 0 (93ms); first line: \"introspect_block_ui.selftest: OK (7 test groups, all assertions green)\"",
+      "evidence": "node tests/introspect_block_ui.selftest.mjs → exit 0 (101ms); first line: \"introspect_block_ui.selftest: OK (7 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/introspect_block_ui.selftest.mjs",
         "exit_code": 0,
         "stdout": "introspect_block_ui.selftest: OK (7 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 93,
+        "duration_ms": 101,
         "timed_out": false
       },
-      "duration_ms": 93
+      "duration_ms": 101
     },
     {
       "id": "A2",
       "label": null,
       "text": "PR-2 (LLM tutorial writer) merged: `scripts/generate_user_docs.mjs <block_id>` через `b.llm-gateway.callLLM` со схемой `UserTutorial` пишет `docs/end-user/<block>.md` + `_meta/<block>.json`. Mock-режим возвращает консистентный markdown.",
-      "checked": false,
+      "checked": true,
       "line": 10,
       "evidence_kind": "selftest_run",
       "evidence_spec": {
@@ -39,23 +39,23 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/user_docs.smoke.mjs → exit 0 (112ms); first line: \"user_docs.smoke: OK (5 test groups, all assertions green)\"",
+      "evidence": "node tests/user_docs.smoke.mjs → exit 0 (110ms); first line: \"user_docs.smoke: OK (5 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/user_docs.smoke.mjs",
         "exit_code": 0,
         "stdout": "user_docs.smoke: OK (5 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 112,
+        "duration_ms": 110,
         "timed_out": false
       },
-      "duration_ms": 112
+      "duration_ms": 110
     },
     {
       "id": "A3",
       "label": null,
       "text": "PR-3 (screenshot integration, опц.) merged: если Playwright настроен и `playwright.config.js` валидный — после генерации текста запускается `playwright test --grep <block_id>` который создаёт `_screenshots/<block>__<flow>.png`; иначе skip без ошибки.",
-      "checked": false,
+      "checked": true,
       "line": 17,
       "evidence_kind": "selftest_run",
       "evidence_spec": {
@@ -63,23 +63,23 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/screenshots_integration.selftest.mjs → exit 0 (65ms); first line: \"screenshots_integration.selftest: OK (7 test groups, all assertions green)\"",
+      "evidence": "node tests/screenshots_integration.selftest.mjs → exit 0 (78ms); first line: \"screenshots_integration.selftest: OK (7 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/screenshots_integration.selftest.mjs",
         "exit_code": 0,
         "stdout": "screenshots_integration.selftest: OK (7 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 65,
+        "duration_ms": 78,
         "timed_out": false
       },
-      "duration_ms": 65
+      "duration_ms": 78
     },
     {
       "id": "A4",
       "label": null,
       "text": "PR-4 (auto-regen + UI) merged: nightly step `regenerate_user_docs_drift` пересобирает только блоки с изменившимся hash источников; Inspector кнопка «Открыть end-user docs»; pre-commit hook предупреждает при ручной правке без `LOCKED: true`.",
-      "checked": false,
+      "checked": true,
       "line": 24,
       "evidence_kind": "selftest_run",
       "evidence_spec": {
@@ -87,23 +87,23 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/user_docs_drift.selftest.mjs → exit 0 (359ms); first line: \"user_docs_drift.selftest: OK (5 test groups, all assertions green)\"",
+      "evidence": "node tests/user_docs_drift.selftest.mjs → exit 0 (413ms); first line: \"user_docs_drift.selftest: OK (5 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/user_docs_drift.selftest.mjs",
         "exit_code": 0,
         "stdout": "user_docs_drift.selftest: OK (5 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 359,
+        "duration_ms": 413,
         "timed_out": false
       },
-      "duration_ms": 359
+      "duration_ms": 413
     },
     {
       "id": "A5",
       "label": null,
       "text": "Idempotency smoke `tests/user_docs.idempotent.smoke.mjs`: regen без изменений → diff пустой; изменили mission.md → diff не пустой и hash в meta обновлён.",
-      "checked": false,
+      "checked": true,
       "line": 31,
       "evidence_kind": "log_grep",
       "evidence_spec": {
@@ -122,13 +122,13 @@
           "  // ─── Group 2: idempotent re-run"
         ]
       },
-      "duration_ms": 1
+      "duration_ms": 0
     },
     {
       "id": "A6",
       "label": null,
       "text": "No-jargon validator: post-LLM проверяет, что финальный markdown не содержит {`module`, `component`, `endpoint`, `prop`, `state`, `import`, `function`} вне блока «Под капотом»; на violation — retry с явной подсказкой в prompt (max 1).",
-      "checked": false,
+      "checked": true,
       "line": 38,
       "evidence_kind": "log_grep",
       "evidence_spec": {
@@ -155,7 +155,7 @@
       "id": "A7",
       "label": null,
       "text": "Privacy / safety: generator **только** пишет в `atlas/projects/<proj>/docs/end-user/`; pre-commit hook предотвращает запись вне этой директории; никакого кода блока не модифицируется.",
-      "checked": false,
+      "checked": true,
       "line": 45,
       "evidence_kind": "log_grep",
       "evidence_spec": {
@@ -182,7 +182,7 @@
       "id": "A8",
       "label": null,
       "text": "Localization smoke: `ATLAS_USER_DOCS_LANG=en` → все заголовки и шаги по-английски; default = ru.",
-      "checked": false,
+      "checked": true,
       "line": 52,
       "evidence_kind": "log_grep",
       "evidence_spec": {
@@ -211,6 +211,6 @@
     "skipped": 0
   },
   "verdict": "pass",
-  "duration_ms": 630,
-  "checked_at": "2026-06-06T15:50:53.641Z"
+  "duration_ms": 702,
+  "checked_at": "2026-06-09T18:15:41.303Z"
 }

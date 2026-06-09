@@ -9,3 +9,10 @@
 2026-05-05T20:20:00.373Z	design_patch	pass	atlas/blocks/b.operator-profile-learner/user_story.md
 2026-06-05T22:03:01.906Z	acceptance_verifier	fail	verdict=fail pass=6 fail=1 skipped=1 fails=[A6:frontend/proposals_panel.jsx does not exist]
 2026-06-05T22:10:13.348Z	acceptance_verifier	fail	verdict=fail pass=6 fail=1 skipped=1 fails=[A6:frontend/proposals_panel.jsx does not exist]
+2026-06-09T17:52:51.250Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=1
+2026-06-09T18:06:11.549Z	transition	pass	idea->wip	actor=operator-audit	note=R-7.98: A6 profile-compliance badge rebuilt in views.jsx (+API /atlas/operator-profile/hints); verifier 7/0; walking gates honestly
+2026-06-09T18:06:11.598Z	transition	pass	wip->review	actor=operator-audit	note=R-7.98: A6 profile-compliance badge rebuilt in views.jsx (+API /atlas/operator-profile/hints); verifier 7/0; walking gates honestly
+2026-06-09T18:06:11.648Z	transition	pass	review->done	actor=operator-audit	note=R-7.98: A6 profile-compliance badge rebuilt in views.jsx (+API /atlas/operator-profile/hints); verifier 7/0; walking gates honestly
+2026-06-09T18:12:29.264Z	acceptance_verifier	fail	verdict=fail pass=5 fail=2 skipped=1 fails=[A2:node tests/pick_template.selftest.mjs → exit 1; stderr: "pic; A5:node tests/operator_profile_inject.smoke.mjs → exit 1; stder]
+2026-06-09T18:14:23.410Z	acceptance_verifier	fail	verdict=fail pass=6 fail=1 skipped=1 fails=[A2:node tests/pick_template.selftest.mjs → exit 1; stderr: "pic]
+2026-06-09T18:15:43.080Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=1

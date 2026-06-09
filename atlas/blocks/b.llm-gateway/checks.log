@@ -15,3 +15,4 @@
 2026-05-05T20:19:58.078Z	design_patch	pass	atlas/blocks/b.llm-gateway/user_story.md
 2026-06-05T22:02:55.900Z	acceptance_verifier	fail	verdict=fail pass=3 fail=1 skipped=1 fails=[A2:node scripts/simulate_conversation_branches.mjs → exit 2; st]
 2026-06-05T22:10:07.588Z	acceptance_verifier	fail	verdict=fail pass=3 fail=1 skipped=1 fails=[A2:node scripts/simulate_conversation_branches.mjs → exit 2; st]
+2026-06-09T18:07:02.147Z	semantic_verify	fail	mission_fulfilled=pass conditions_met=fail methodology_followed=pass works_as_described=fail connections_consistent=inconclusive

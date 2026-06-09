@@ -741,6 +741,8 @@
       'proposals.accept':         '✓ принять',
       'proposals.rejecting':      'отклоняю…',
       'proposals.reject':         '✗ отклонить',
+      'proposals.profile_violates': '⚠ противоречит профилю',
+      'proposals.profile_matches':  '✓ соответствует профилю',
       'proposals.reason_placeholder': 'Причина отклонения (по умолчанию)',
       'proposals.reject_default': 'rejected from UI',
 
@@ -1485,6 +1487,8 @@
       'proposals.accept':         '✓ accept',
       'proposals.rejecting':      'rejecting…',
       'proposals.reject':         '✗ reject',
+      'proposals.profile_violates': '⚠ violates profile',
+      'proposals.profile_matches':  '✓ matches profile',
       'proposals.reason_placeholder': 'Rejection reason (default)',
       'proposals.reject_default': 'rejected from UI',
 

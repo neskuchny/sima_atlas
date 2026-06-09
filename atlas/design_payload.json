@@ -227,7 +227,7 @@
         "esm",
         "markdown"
       ],
-      "x": 720,
+      "x": 400,
       "y": 100
     },
     {
@@ -273,9 +273,9 @@
       "title": "Operator Profile Learner",
       "tag": "operator-profile-learner",
       "layer": "logic",
-      "status": "todo",
+      "status": "done",
       "priority": 3,
-      "checked": false,
+      "checked": true,
       "size": "lg",
       "parent_block_id": null,
       "contract": {
@@ -343,9 +343,9 @@
       "title": "End-User Docs Generator",
       "tag": "user-docs-generator",
       "layer": "backend",
-      "status": "todo",
+      "status": "done",
       "priority": 3,
-      "checked": false,
+      "checked": true,
       "size": "lg",
       "parent_block_id": null,
       "contract": {
@@ -370,7 +370,7 @@
         "markdown",
         "playwright"
       ],
-      "x": 400,
+      "x": 720,
       "y": 100
     },
     {
@@ -2016,48 +2016,6 @@
   "lanes": [],
   "history": [
     {
-      "ts": "12:40",
-      "module": "core-sync",
-      "agent": "sima-core",
-      "kind": "info",
-      "msg": "b.core-sync: idea → wip"
-    },
-    {
-      "ts": "12:49",
-      "module": "agent-orchestrator",
-      "agent": "sima-core",
-      "kind": "info",
-      "msg": "b.agent-orchestrator: idea → wip"
-    },
-    {
-      "ts": "12:50",
-      "module": "agent-orchestrator",
-      "agent": "sima-core",
-      "kind": "info",
-      "msg": "b.agent-orchestrator: wip → review"
-    },
-    {
-      "ts": "12:53",
-      "module": "agent-orchestrator",
-      "agent": "sima-core",
-      "kind": "ok",
-      "msg": "b.agent-orchestrator: review → done"
-    },
-    {
-      "ts": "13:24",
-      "module": "ui-control",
-      "agent": "sima-core",
-      "kind": "info",
-      "msg": "b.ui-control: wip → review"
-    },
-    {
-      "ts": "13:39",
-      "module": "core-sync",
-      "agent": "sima-core",
-      "kind": "info",
-      "msg": "b.core-sync: wip → review"
-    },
-    {
       "ts": "13:43",
       "module": "ui-control",
       "agent": "sima-core",
@@ -2098,6 +2056,48 @@
       "agent": "sima-core",
       "kind": "ok",
       "msg": "b.docs: review → done"
+    },
+    {
+      "ts": "18:06",
+      "module": "user-docs-generator",
+      "agent": "sima-core",
+      "kind": "info",
+      "msg": "b.user-docs-generator: idea → wip"
+    },
+    {
+      "ts": "18:06",
+      "module": "user-docs-generator",
+      "agent": "sima-core",
+      "kind": "info",
+      "msg": "b.user-docs-generator: wip → review"
+    },
+    {
+      "ts": "18:06",
+      "module": "user-docs-generator",
+      "agent": "sima-core",
+      "kind": "ok",
+      "msg": "b.user-docs-generator: review → done"
+    },
+    {
+      "ts": "18:06",
+      "module": "operator-profile-learner",
+      "agent": "sima-core",
+      "kind": "info",
+      "msg": "b.operator-profile-learner: idea → wip"
+    },
+    {
+      "ts": "18:06",
+      "module": "operator-profile-learner",
+      "agent": "sima-core",
+      "kind": "info",
+      "msg": "b.operator-profile-learner: wip → review"
+    },
+    {
+      "ts": "18:06",
+      "module": "operator-profile-learner",
+      "agent": "sima-core",
+      "kind": "ok",
+      "msg": "b.operator-profile-learner: review → done"
     }
   ],
   "lessons": [],
@@ -2129,7 +2129,7 @@
     }
   ],
   "_meta": {
-    "generated_at": "2026-06-07T17:48:05.755Z",
+    "generated_at": "2026-06-09T18:15:30.217Z",
     "atlas_root": "atlas",
     "client_id": null,
     "block_count": 17,

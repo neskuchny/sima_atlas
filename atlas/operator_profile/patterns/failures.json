@@ -1,3 +1,134 @@
-{
-  "_status": "warming_up"
-}
+[
+  {
+    "block_id": "b.acceptance-verifier-loop",
+    "ts": "2026-06-05T22:03:00.923Z",
+    "kind": "acceptance_verifier",
+    "note": "verdict=fail pass=6 fail=1 skipped=1 fails=[A5:frontend/arch_canvas.jsx does not exist]"
+  },
+  {
+    "block_id": "b.acceptance-verifier-loop",
+    "ts": "2026-06-09T18:06:29.833Z",
+    "kind": "semantic_verify",
+    "note": "mission_fulfilled=pass conditions_met=fail methodology_followed=fail works_as_described=pass connections_consistent=pass"
+  },
+  {
+    "block_id": "b.agent-orchestrator",
+    "ts": "2026-05-03T17:43:55.320Z",
+    "kind": "drift_guard",
+    "note": "drift_blocked: command \"npm install qzqz_smoke_only\" matched substring \"qzqz_smoke_only\" in operator_profile/dont_use.json"
+  },
+  {
+    "block_id": "b.agent-orchestrator",
+    "ts": "2026-05-03T17:45:03.437Z",
+    "kind": "drift_guard",
+    "note": "drift_blocked: command \"npm install qzqz_smoke_only\" matched substring \"qzqz_smoke_only\" in operator_profile/dont_use.json"
+  },
+  {
+    "block_id": "b.agent-orchestrator",
+    "ts": "2026-06-05T22:02:59.548Z",
+    "kind": "acceptance_verifier",
+    "note": "verdict=fail pass=1 fail=5 skipped=1 fails=[A2:node tests/cursor_hooks_actions.test.mjs → exit 1; stderr: \"; A3:node tests/cursor_hooks_actions.test.mjs → exit 1; stderr: \"]"
+  },
+  {
+    "block_id": "b.agent-orchestrator",
+    "ts": "2026-06-05T22:08:22.503Z",
+    "kind": "acceptance_verifier",
+    "note": "verdict=fail pass=2 fail=4 skipped=1 fails=[A2:node tests/cursor_hooks_actions.test.mjs → exit 1; stderr: \"; A3:node tests/cursor_hooks_actions.test.mjs → exit 1; stderr: \"]"
+  },
+  {
+    "block_id": "b.agent-orchestrator",
+    "ts": "2026-06-05T22:10:10.937Z",
+    "kind": "acceptance_verifier",
+    "note": "verdict=fail pass=2 fail=4 skipped=1 fails=[A2:node tests/cursor_hooks_actions.test.mjs → exit 1; stderr: \"; A3:node tests/cursor_hooks_actions.test.mjs → exit 1; stderr: \"]"
+  },
+  {
+    "block_id": "b.agent-orchestrator",
+    "ts": "2026-06-09T18:07:34.226Z",
+    "kind": "semantic_verify",
+    "note": "mission_fulfilled=fail conditions_met=fail methodology_followed=pass works_as_described=fail connections_consistent=fail"
+  },
+  {
+    "block_id": "b.core-sync",
+    "ts": "2026-06-09T18:05:53.718Z",
+    "kind": "semantic_verify",
+    "note": "mission_fulfilled=fail conditions_met=fail methodology_followed=pass works_as_described=fail connections_consistent=fail"
+  },
+  {
+    "block_id": "b.docs",
+    "ts": "2026-06-05T22:03:02.631Z",
+    "kind": "acceptance_verifier",
+    "note": "verdict=fail pass=2 fail=1 skipped=2 fails=[A4:glob ТЗ/auto_tz.md → 0 files (min=1)]"
+  },
+  {
+    "block_id": "b.docs",
+    "ts": "2026-06-06T06:39:28.451Z",
+    "kind": "semantic_verify",
+    "note": "mission_fulfilled=fail conditions_met=fail methodology_followed=pass works_as_described=fail connections_consistent=pass"
+  },
+  {
+    "block_id": "b.docs",
+    "ts": "2026-06-09T17:59:17.234Z",
+    "kind": "semantic_verify",
+    "note": "mission_fulfilled=fail conditions_met=fail methodology_followed=pass works_as_described=fail connections_consistent=pass"
+  },
+  {
+    "block_id": "b.llm-gateway",
+    "ts": "2026-06-05T22:02:55.900Z",
+    "kind": "acceptance_verifier",
+    "note": "verdict=fail pass=3 fail=1 skipped=1 fails=[A2:node scripts/simulate_conversation_branches.mjs → exit 2; st]"
+  },
+  {
+    "block_id": "b.llm-gateway",
+    "ts": "2026-06-05T22:10:07.588Z",
+    "kind": "acceptance_verifier",
+    "note": "verdict=fail pass=3 fail=1 skipped=1 fails=[A2:node scripts/simulate_conversation_branches.mjs → exit 2; st]"
+  },
+  {
+    "block_id": "b.llm-gateway",
+    "ts": "2026-06-09T18:07:02.147Z",
+    "kind": "semantic_verify",
+    "note": "mission_fulfilled=pass conditions_met=fail methodology_followed=pass works_as_described=fail connections_consistent=inconclusive"
+  },
+  {
+    "block_id": "b.operator-profile-learner",
+    "ts": "2026-06-05T22:03:01.906Z",
+    "kind": "acceptance_verifier",
+    "note": "verdict=fail pass=6 fail=1 skipped=1 fails=[A6:frontend/proposals_panel.jsx does not exist]"
+  },
+  {
+    "block_id": "b.operator-profile-learner",
+    "ts": "2026-06-05T22:10:13.348Z",
+    "kind": "acceptance_verifier",
+    "note": "verdict=fail pass=6 fail=1 skipped=1 fails=[A6:frontend/proposals_panel.jsx does not exist]"
+  },
+  {
+    "block_id": "b.operator-profile-learner",
+    "ts": "2026-06-09T18:12:29.264Z",
+    "kind": "acceptance_verifier",
+    "note": "verdict=fail pass=5 fail=2 skipped=1 fails=[A2:node tests/pick_template.selftest.mjs → exit 1; stderr: \"pic; A5:node tests/operator_profile_inject.smoke.mjs → exit 1; stder]"
+  },
+  {
+    "block_id": "b.operator-profile-learner",
+    "ts": "2026-06-09T18:14:23.410Z",
+    "kind": "acceptance_verifier",
+    "note": "verdict=fail pass=6 fail=1 skipped=1 fails=[A2:node tests/pick_template.selftest.mjs → exit 1; stderr: \"pic]"
+  },
+  {
+    "block_id": "b.ui-control",
+    "ts": "2026-06-09T18:08:00.693Z",
+    "kind": "semantic_verify",
+    "note": "mission_fulfilled=fail conditions_met=fail methodology_followed=pass works_as_described=fail connections_consistent=fail"
+  },
+  {
+    "block_id": "b.user-docs-generator",
+    "ts": "2026-06-05T22:03:02.444Z",
+    "kind": "acceptance_verifier",
+    "note": "verdict=fail pass=7 fail=1 skipped=0 fails=[A1:node tests/introspect_block_ui.selftest.mjs → exit 1; stderr]"
+  },
+  {
+    "block_id": "b.user-docs-generator",
+    "ts": "2026-06-05T22:10:13.911Z",
+    "kind": "acceptance_verifier",
+    "note": "verdict=fail pass=7 fail=1 skipped=0 fails=[A1:node tests/introspect_block_ui.selftest.mjs → exit 1; stderr]"
+  }
+]

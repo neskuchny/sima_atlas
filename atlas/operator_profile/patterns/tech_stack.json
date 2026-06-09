@@ -1,3 +1,281 @@
 {
-  "_status": "warming_up"
+  "frontend": [
+    {
+      "name": "react",
+      "uses": 2,
+      "satisfaction": "high",
+      "evidence": [
+        "b.ui-control",
+        "b.todo-ui"
+      ]
+    },
+    {
+      "name": "babel-standalone",
+      "uses": 1,
+      "satisfaction": "high",
+      "evidence": [
+        "b.ui-control"
+      ]
+    },
+    {
+      "name": "vite",
+      "uses": 1,
+      "satisfaction": "unknown",
+      "evidence": [
+        "b.todo-ui"
+      ]
+    },
+    {
+      "name": "typescript",
+      "uses": 1,
+      "satisfaction": "unknown",
+      "evidence": [
+        "b.todo-ui"
+      ]
+    },
+    {
+      "name": "tailwindcss",
+      "uses": 1,
+      "satisfaction": "unknown",
+      "evidence": [
+        "b.todo-ui"
+      ]
+    }
+  ],
+  "backend": [
+    {
+      "name": "drizzle-orm",
+      "uses": 3,
+      "satisfaction": "unknown",
+      "evidence": [
+        "b.core-sync",
+        "b.todo-api",
+        "b.todo-db"
+      ]
+    },
+    {
+      "name": "nodejs",
+      "uses": 2,
+      "satisfaction": "unknown",
+      "evidence": [
+        "b.core-sync",
+        "b.todo-api"
+      ]
+    },
+    {
+      "name": "typescript",
+      "uses": 2,
+      "satisfaction": "unknown",
+      "evidence": [
+        "b.core-sync",
+        "b.todo-api"
+      ]
+    },
+    {
+      "name": "fastify",
+      "uses": 2,
+      "satisfaction": "unknown",
+      "evidence": [
+        "b.core-sync",
+        "b.todo-api"
+      ]
+    },
+    {
+      "name": "esm",
+      "uses": 1,
+      "satisfaction": "unknown",
+      "evidence": [
+        "b.core-sync"
+      ]
+    },
+    {
+      "name": "zod",
+      "uses": 1,
+      "satisfaction": "unknown",
+      "evidence": [
+        "b.core-sync"
+      ]
+    },
+    {
+      "name": "sqlite",
+      "uses": 1,
+      "satisfaction": "unknown",
+      "evidence": [
+        "b.core-sync"
+      ]
+    },
+    {
+      "name": "session-cookies",
+      "uses": 1,
+      "satisfaction": "unknown",
+      "evidence": [
+        "b.core-sync"
+      ]
+    },
+    {
+      "name": "pino",
+      "uses": 1,
+      "satisfaction": "unknown",
+      "evidence": [
+        "b.core-sync"
+      ]
+    },
+    {
+      "name": "vitest",
+      "uses": 1,
+      "satisfaction": "unknown",
+      "evidence": [
+        "b.core-sync"
+      ]
+    },
+    {
+      "name": "filesystem",
+      "uses": 1,
+      "satisfaction": "unknown",
+      "evidence": [
+        "b.db"
+      ]
+    },
+    {
+      "name": "json",
+      "uses": 1,
+      "satisfaction": "unknown",
+      "evidence": [
+        "b.db"
+      ]
+    },
+    {
+      "name": "markdown",
+      "uses": 1,
+      "satisfaction": "unknown",
+      "evidence": [
+        "b.db"
+      ]
+    },
+    {
+      "name": "postgresql",
+      "uses": 1,
+      "satisfaction": "unknown",
+      "evidence": [
+        "b.todo-db"
+      ]
+    }
+  ],
+  "ai": [
+    {
+      "name": "nodejs",
+      "uses": 4,
+      "satisfaction": "high",
+      "evidence": [
+        "b.agent-orchestrator",
+        "b.llm-gateway",
+        "b.operator-profile-learner",
+        "b.smart-categorizer"
+      ]
+    },
+    {
+      "name": "esm",
+      "uses": 2,
+      "satisfaction": "high",
+      "evidence": [
+        "b.agent-orchestrator",
+        "b.operator-profile-learner"
+      ]
+    },
+    {
+      "name": "mcp",
+      "uses": 1,
+      "satisfaction": "high",
+      "evidence": [
+        "b.agent-orchestrator"
+      ]
+    },
+    {
+      "name": "anthropic-api",
+      "uses": 1,
+      "satisfaction": "unknown",
+      "evidence": [
+        "b.llm-gateway"
+      ]
+    },
+    {
+      "name": "google-genai-api",
+      "uses": 1,
+      "satisfaction": "unknown",
+      "evidence": [
+        "b.llm-gateway"
+      ]
+    },
+    {
+      "name": "json",
+      "uses": 1,
+      "satisfaction": "high",
+      "evidence": [
+        "b.operator-profile-learner"
+      ]
+    }
+  ],
+  "content": [
+    {
+      "name": "nodejs",
+      "uses": 2,
+      "satisfaction": "high",
+      "evidence": [
+        "b.docs",
+        "b.user-docs-generator"
+      ]
+    },
+    {
+      "name": "esm",
+      "uses": 2,
+      "satisfaction": "high",
+      "evidence": [
+        "b.docs",
+        "b.user-docs-generator"
+      ]
+    },
+    {
+      "name": "markdown",
+      "uses": 2,
+      "satisfaction": "high",
+      "evidence": [
+        "b.docs",
+        "b.user-docs-generator"
+      ]
+    },
+    {
+      "name": "playwright",
+      "uses": 1,
+      "satisfaction": "high",
+      "evidence": [
+        "b.user-docs-generator"
+      ]
+    }
+  ],
+  "testing": [
+    {
+      "name": "nodejs",
+      "uses": 1,
+      "satisfaction": "high",
+      "evidence": [
+        "b.acceptance-verifier-loop"
+      ]
+    },
+    {
+      "name": "esm",
+      "uses": 1,
+      "satisfaction": "high",
+      "evidence": [
+        "b.acceptance-verifier-loop"
+      ]
+    },
+    {
+      "name": "json-schema",
+      "uses": 1,
+      "satisfaction": "high",
+      "evidence": [
+        "b.acceptance-verifier-loop"
+      ]
+    }
+  ]
 }

@@ -271,7 +271,7 @@ ai
 
 _Sources: [mission](blocks/b.llm-gateway/mission.md) · [kpi](blocks/b.llm-gateway/kpi.md) · [acceptance](blocks/b.llm-gateway/acceptance.md) · [tasks](blocks/b.llm-gateway/tasks.md)_
 
-## b.operator-profile-learner (idea)
+## b.operator-profile-learner (done)
 
 # b.operator-profile-learner — mission
 
@@ -702,7 +702,7 @@ PR-5 закрыт (T5.1-T5.4). T5.5 unblocked (инфраструктура го
 
 _Sources: [mission](blocks/b.acceptance-verifier-loop/mission.md) · [kpi](blocks/b.acceptance-verifier-loop/kpi.md) · [acceptance](blocks/b.acceptance-verifier-loop/acceptance.md) · [tasks](blocks/b.acceptance-verifier-loop/tasks.md)_
 
-## b.user-docs-generator (idea)
+## b.user-docs-generator (done)
 
 # b.user-docs-generator — mission
 

@@ -12,3 +12,11 @@
    - Adapt this block's code to match the new b.core-sync contract, OR
    - Revert the breaking change in b.core-sync (operator decision)
 3. Re-run `verify_block_acceptance b.acceptance-verifier-loop` to clear the desync status
+
+## 2026-06-09T18:06:29.833Z · semantic verify · fail
+
+### Contract-as-Arbiter judgment
+- The b.acceptance-verifier-loop implementation largely delivers on its core mission of automated post-verification, blocking transitions, and providing actionable feedback. However, it fails to fully meet its own acceptance criteria and described methodology due to the absence of the specified pre-commit hook for privacy and safety, which is crucial for contract adherence.
+
+### To genuinely satisfy the contract
+- Implement the pre-commit hook as described in acceptance criterion A8 to prevent the verifier from writing to 'acceptance.md', thereby fulfilling the privacy/safety methodology.

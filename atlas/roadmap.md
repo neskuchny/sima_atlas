@@ -1,6 +1,6 @@
 # Roadmap (auto-generated, PR2 topo-sort)
 
-_Generated: 2026-06-07T17:48:22.427Z_
+_Generated: 2026-06-09T18:15:45.346Z_
 
 Приоритет внутри уровня: 🔴 broken → 🟣 drift → 🟠 wip → 🔵 review → 🟡 idea → 🟢 done.
 Каждый следующий уровень зависит от предыдущих — реализовывать сверху вниз.
@@ -46,12 +46,12 @@ _Generated: 2026-06-07T17:48:22.427Z_
 
 - 🟠 **b.ui-control** (wip) — UI Control Plane · _front_ · deps: `b.core-sync`, `b.agent-orchestrator`
   - HTML loses references to components.jsx/sidecol.jsx/canvas_tools.jsx — UI does not boot in production; multi-layer rendering depends on PR2 (this PR)
-- 🟡 **b.operator-profile-learner** (idea) — Operator Profile Learner · _ai_ · deps: `b.db`, `b.core-sync`, `b.agent-orchestrator`, `b.llm-gateway`, `b.docs`
-  - Phase I: verifier FAIL on A6 — profile-compliance UI badge (complianceWithProfile) was lost in the R-7.30 single-file→atlas_design refactor and not reimplemented. Genuine feature gap, honestly not done.
-- 🟡 **b.user-docs-generator** (idea) — End-User Docs Generator · _content_ · deps: `b.db`, `b.docs`, `b.agent-orchestrator`, `b.llm-gateway`
-  - Phase I: verifier FAIL on A1 (introspect_block_ui.selftest) — coupled to deleted frontend/proposals_panel.jsx. Test fixture needs repointing to a current JSX file.
 - 🟢 **b.acceptance-verifier-loop** (done) — Acceptance Verifier Loop · _testing_ · deps: `b.db`, `b.core-sync`, `b.agent-orchestrator`, `b.llm-gateway`
   - PR-Backlog: design-only milestone. Closes the verification gap (Symphony trusts agent output, Hermes has no contract layer). После любого run_block_implementation проверяет каждый пункт acceptance.md через детерминированные collectors (exit_code/fs_glob/file_diff/log_grep) + LLM-judge fallback; блокирует wip→done если verdict !== pass. 5-PR breakdown.
+- 🟢 **b.operator-profile-learner** (done) — Operator Profile Learner · _ai_ · deps: `b.db`, `b.core-sync`, `b.agent-orchestrator`, `b.llm-gateway`, `b.docs`
+  - Phase I: verifier FAIL on A6 — profile-compliance UI badge (complianceWithProfile) was lost in the R-7.30 single-file→atlas_design refactor and not reimplemented. Genuine feature gap, honestly not done.
+- 🟢 **b.user-docs-generator** (done) — End-User Docs Generator · _content_ · deps: `b.db`, `b.docs`, `b.agent-orchestrator`, `b.llm-gateway`
+  - Phase I: verifier FAIL on A1 (introspect_block_ui.selftest) — coupled to deleted frontend/proposals_panel.jsx. Test fixture needs repointing to a current JSX file.
 
 ## Сводка по слоям
 
@@ -73,7 +73,7 @@ _Generated: 2026-06-07T17:48:22.427Z_
 
 - 🔵 **b.agent-orchestrator** — Agent Orchestrator _(review)_
 - 🔵 **b.llm-gateway** — LLM Gateway _(review)_
-- 🟡 **b.operator-profile-learner** — Operator Profile Learner _(idea)_
+- 🟢 **b.operator-profile-learner** — Operator Profile Learner _(done)_
 
 ### Данные / хранилище (`data`)
 
@@ -83,7 +83,7 @@ _Generated: 2026-06-07T17:48:22.427Z_
 ### Контент / документация (`content`)
 
 - 🟢 **b.docs** — Docs Builder _(done)_
-- 🟡 **b.user-docs-generator** — End-User Docs Generator _(idea)_
+- 🟢 **b.user-docs-generator** — End-User Docs Generator _(done)_
 
 ### Тестирование (`testing`)
 

@@ -18,7 +18,7 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "a40355c592dcac9a",
+        "prompt_hash": "1d67587970fbbc6a",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
@@ -40,7 +40,7 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "59f7e8e2b107d938",
+        "prompt_hash": "6eacd59f52c93aad",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
@@ -62,12 +62,12 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "281f3a85b79b30c0",
+        "prompt_hash": "8b7f138467612ff7",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 1
+      "duration_ms": 2
     },
     {
       "id": "A4",
@@ -81,17 +81,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (75ms); first line: \"Block contract validation: OK\"",
+      "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (56ms); first line: \"Block contract validation: OK\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_block_contracts.mjs",
         "exit_code": 0,
         "stdout": "Block contract validation: OK\n",
         "stderr": "",
-        "duration_ms": 75,
+        "duration_ms": 56,
         "timed_out": false
       },
-      "duration_ms": 75
+      "duration_ms": 56
     },
     {
       "id": "A5",
@@ -116,7 +116,7 @@
           "    if (latest && latest.verdict !== 'pass') {"
         ]
       },
-      "duration_ms": 0
+      "duration_ms": 1
     }
   ],
   "counts": {
@@ -125,6 +125,6 @@
     "skipped": 3
   },
   "verdict": "pass",
-  "duration_ms": 80,
-  "checked_at": "2026-06-07T17:48:12.251Z"
+  "duration_ms": 61,
+  "checked_at": "2026-06-09T18:15:35.453Z"
 }

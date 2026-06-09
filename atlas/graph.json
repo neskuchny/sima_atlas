@@ -251,7 +251,7 @@
     {
       "id": "b.operator-profile-learner",
       "title": "Operator Profile Learner",
-      "status": "idea",
+      "status": "done",
       "status_reason": "Phase I: verifier FAIL on A6 — profile-compliance UI badge (complianceWithProfile) was lost in the R-7.30 single-file→atlas_design refactor and not reimplemented. Genuine feature gap, honestly not done.",
       "layer": "ai",
       "type": "module",
@@ -327,7 +327,7 @@
     {
       "id": "b.user-docs-generator",
       "title": "End-User Docs Generator",
-      "status": "idea",
+      "status": "done",
       "status_reason": "Phase I: verifier FAIL on A1 (introspect_block_ui.selftest) — coupled to deleted frontend/proposals_panel.jsx. Test fixture needs repointing to a current JSX file.",
       "layer": "content",
       "type": "module",

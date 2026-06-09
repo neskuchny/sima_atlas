@@ -6,3 +6,10 @@
 2026-05-05T20:20:05.614Z	design_patch	pass	atlas/blocks/b.user-docs-generator/user_story.md
 2026-06-05T22:03:02.444Z	acceptance_verifier	fail	verdict=fail pass=7 fail=1 skipped=0 fails=[A1:node tests/introspect_block_ui.selftest.mjs → exit 1; stderr]
 2026-06-05T22:10:13.911Z	acceptance_verifier	fail	verdict=fail pass=7 fail=1 skipped=0 fails=[A1:node tests/introspect_block_ui.selftest.mjs → exit 1; stderr]
+2026-06-09T18:05:38.153Z	acceptance_verifier	pass	verdict=pass pass=8 fail=0 skipped=0
+2026-06-09T18:06:03.748Z	transition	pass	idea->wip	actor=operator-audit	note=R-7.98: stale status_reason — introspect selftest green (7 groups), verifier 8/8 pass; walking gates honestly
+2026-06-09T18:06:03.797Z	transition	pass	wip->review	actor=operator-audit	note=R-7.98: stale status_reason — introspect selftest green (7 groups), verifier 8/8 pass; walking gates honestly
+2026-06-09T18:06:03.845Z	transition	pass	review->done	actor=operator-audit	note=R-7.98: stale status_reason — introspect selftest green (7 groups), verifier 8/8 pass; walking gates honestly
+2026-06-09T18:12:31.006Z	acceptance_verifier	pass	verdict=pass pass=8 fail=0 skipped=0
+2026-06-09T18:14:25.112Z	acceptance_verifier	pass	verdict=pass pass=8 fail=0 skipped=0
+2026-06-09T18:15:44.809Z	acceptance_verifier	pass	verdict=pass pass=8 fail=0 skipped=0

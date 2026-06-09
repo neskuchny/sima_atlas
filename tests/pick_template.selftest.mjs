@@ -75,8 +75,11 @@ check('pickTemplate:no args→null', pickTemplate() === null);
 }
 
 // ─── Test 7: warming_up profile state
+// R-7.98: hermetic — point at a nonexistent profile path instead of the real
+// atlas profile, which legitimately flips to `live` as the repo accrues
+// done-transitions (the default-path variant broke the day that happened).
 {
-  const t = pickTemplate({ scope: 'backend' });
+  const t = pickTemplate({ scope: 'backend', profile_path: path.join(os.tmpdir(), 'sima-no-such-profile', 'profile.json') });
   check('pickTemplate:no profile→warming_up', t?.profile_state === 'warming_up');
   check('pickTemplate:no adjustments when warming_up',
     Array.isArray(t?.adjustments) && t.adjustments.length === 0);

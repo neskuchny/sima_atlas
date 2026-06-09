@@ -27,3 +27,4 @@
 2026-06-05T22:08:22.503Z	acceptance_verifier	fail	verdict=fail pass=2 fail=4 skipped=1 fails=[A2:node tests/cursor_hooks_actions.test.mjs → exit 1; stderr: "; A3:node tests/cursor_hooks_actions.test.mjs → exit 1; stderr: "]
 2026-06-05T22:10:10.937Z	acceptance_verifier	fail	verdict=fail pass=2 fail=4 skipped=1 fails=[A2:node tests/cursor_hooks_actions.test.mjs → exit 1; stderr: "; A3:node tests/cursor_hooks_actions.test.mjs → exit 1; stderr: "]
 2026-06-05T22:32:30.721Z	llm_extraction	pass	skipped touched=0 provider=mock model=mock-1 cost_usd=0.000000 hash=b9c49eb556fdd1d8
+2026-06-09T18:07:34.226Z	semantic_verify	fail	mission_fulfilled=fail conditions_met=fail methodology_followed=pass works_as_described=fail connections_consistent=fail
