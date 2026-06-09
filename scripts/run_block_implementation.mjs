@@ -223,9 +223,13 @@ function runCli(cmd, args, opts) {
   // needs more than 4 minutes of wall-clock.
   const timeoutMs = Number(process.env.ATLAS_AGENT_TIMEOUT_MS) > 0
     ? Number(process.env.ATLAS_AGENT_TIMEOUT_MS) : 240_000;
+  // stdin must be 'pipe' when a prompt is passed via `input` — an explicit
+  // stdio[0]='ignore' silently discards the input option, and `claude
+  // --print` then exits 1 with «Input must be provided either through
+  // stdin…». Caught live on the first real V-1 agent run (R-7.99).
   const r = spawnSync(cmd, args, {
     cwd: ROOT,
-    stdio: ['ignore', 'pipe', 'pipe'],
+    stdio: [opts && opts.input !== undefined ? 'pipe' : 'ignore', 'pipe', 'pipe'],
     encoding: 'utf8',
     timeout: timeoutMs,
     ...opts,

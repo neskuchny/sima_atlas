@@ -307,25 +307,44 @@ function iterate() {
     //    hard semantic FAIL (mission or methodology). `inconclusive` (e.g. no
     //    live LLM) does NOT block — graceful degradation — but is surfaced.
     let semanticFail = false, semanticVerdict = 'skipped';
+    const wasDoneRemediation = block.status === 'done';
     if (passed && !regressed) {
       const semArgs = ['scripts/semantic_verify.mjs', block.id, '--json'];
       if (CLIENT) semArgs.push('--client', CLIENT);
-      const sem = nodeRun(semArgs);
-      try {
-        const sv = JSON.parse(sem.stdout || '{}');
+      nodeRun(semArgs);
+      // R-7.99 — source of truth is the PERSISTED semantic_review.json that
+      // semantic_verify writes before exiting, NOT its stdout. Caught live:
+      // the gateway logs a provider line to stdout before the JSON, so
+      // JSON.parse(stdout) threw, the catch silently yielded `inconclusive`,
+      // and a block whose fresh verdict was fail-on-all-five-dimensions got
+      // promoted to «done (remediated)». A parse failure must never
+      // green-light.
+      let sv = null;
+      try { sv = JSON.parse(fs.readFileSync(path.join(blockDir(block.id), 'semantic_review.json'), 'utf8')); } catch {}
+      if (sv && !sv.mock) {
         semanticVerdict = sv.overall || 'inconclusive';
         // hard-fail only when the judge is sure the meaning/methodology is wrong
         semanticFail = sv.mission_fulfilled?.verdict === 'fail' || sv.methodology_followed?.verdict === 'fail';
         if (semanticFail) entry.semantic_todo = (sv.todo_to_pass || []).slice(0, 5);
-        entry.semantic = semanticVerdict;
-      } catch { semanticVerdict = 'inconclusive'; }
+      } else {
+        semanticVerdict = 'inconclusive';
+      }
+      entry.semantic = semanticVerdict;
+      // For a block picked BECAUSE it was semantic-red, the bar is higher:
+      // «remediated» requires the red to be ACTUALLY CLEARED by a live
+      // verdict. `inconclusive` (no key / mock / parse issue) clears nothing
+      // — without this, the loop would stamp «remediated» on every revisit
+      // while the persisted verdict stays fail, forever.
+      if (wasDoneRemediation && !semanticFail && semanticVerdict === 'inconclusive') {
+        semanticFail = true;
+        entry.reason_hint = 'remediation requires a live semantic verdict clearing the red — got inconclusive';
+      }
     }
 
     if (passed && !regressed && !semanticFail) {
       // For a semantic-red done block we just re-judged: if it's now green we
       // DON'T need to advance (it stays `done`) — the verdict update IS the
       // promotion. Otherwise walk one gated step.
-      const wasDoneRemediation = block.status === 'done';
       if (wasDoneRemediation) {
         entry.action = 'pass';
         entry.advanced_to = 'done (remediated)';
@@ -340,7 +359,7 @@ function iterate() {
       entry.action = 'fail';
       entry.reason = !passed ? 'verifier did not pass'
         : regressed ? 'a previously-green done block regressed — not promoting'
-        : 'semantic verify FAILED — implementation does not match the block\'s meaning/methodology';
+        : entry.reason_hint || 'semantic verify FAILED — implementation does not match the block\'s meaning/methodology';
       consecutiveFails += 1;
       // AUTO-ROLLBACK: if this run regressed a previously-green done block,
       // undo the agent's edits to this block's owned files. A failed
