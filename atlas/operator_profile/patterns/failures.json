@@ -12,6 +12,36 @@
     "note": "mission_fulfilled=pass conditions_met=fail methodology_followed=fail works_as_described=pass connections_consistent=pass"
   },
   {
+    "block_id": "b.acceptance-verifier-loop",
+    "ts": "2026-06-09T19:36:33.866Z",
+    "kind": "acceptance_verifier",
+    "note": "verdict=fail pass=6 fail=1 skipped=1 fails=[A3:node tests/llm_judge.smoke.mjs → exit 1; stderr: \"[llm-gatew]"
+  },
+  {
+    "block_id": "b.acceptance-verifier-loop",
+    "ts": "2026-06-09T19:36:06.640Z",
+    "kind": "cascade_check",
+    "note": "broken by parent b.core-sync edit — verifier failed; status auto-set to desync"
+  },
+  {
+    "block_id": "b.acceptance-verifier-loop",
+    "ts": "2026-06-09T19:51:24.121Z",
+    "kind": "acceptance_verifier",
+    "note": "verdict=fail pass=6 fail=1 skipped=1 fails=[A3:node tests/llm_judge.smoke.mjs → exit 1; stderr: \"[llm-gatew]"
+  },
+  {
+    "block_id": "b.acceptance-verifier-loop",
+    "ts": "2026-06-09T19:50:57.102Z",
+    "kind": "cascade_check",
+    "note": "broken by parent b.core-sync edit — verifier failed; status auto-set to desync"
+  },
+  {
+    "block_id": "b.acceptance-verifier-loop",
+    "ts": "2026-06-09T20:15:33.665Z",
+    "kind": "acceptance_verifier",
+    "note": "verdict=fail pass=5 fail=2 skipped=1 fails=[A2:node tests/evidence_collectors.selftest.mjs → exit null; tim; A3:node tests/llm_judge.smoke.mjs → exit null; timed out after ]"
+  },
+  {
     "block_id": "b.agent-orchestrator",
     "ts": "2026-05-03T17:43:55.320Z",
     "kind": "drift_guard",
@@ -52,6 +82,36 @@
     "ts": "2026-06-09T18:05:53.718Z",
     "kind": "semantic_verify",
     "note": "mission_fulfilled=fail conditions_met=fail methodology_followed=pass works_as_described=fail connections_consistent=fail"
+  },
+  {
+    "block_id": "b.core-sync",
+    "ts": "2026-06-09T19:36:06.364Z",
+    "kind": "agent_invocation",
+    "note": "agent=claude exit=1"
+  },
+  {
+    "block_id": "b.core-sync",
+    "ts": "2026-06-09T19:38:44.072Z",
+    "kind": "semantic_verify",
+    "note": "mission_fulfilled=fail conditions_met=fail methodology_followed=fail works_as_described=fail connections_consistent=fail"
+  },
+  {
+    "block_id": "b.core-sync",
+    "ts": "2026-06-09T19:40:27.567Z",
+    "kind": "agent_invocation",
+    "note": "agent=claude exit=1"
+  },
+  {
+    "block_id": "b.core-sync",
+    "ts": "2026-06-09T19:50:56.760Z",
+    "kind": "agent_invocation",
+    "note": "agent=claude error=spawnSync claude ETIMEDOUT"
+  },
+  {
+    "block_id": "b.core-sync",
+    "ts": "2026-06-09T19:53:35.745Z",
+    "kind": "semantic_verify",
+    "note": "mission_fulfilled=fail conditions_met=fail methodology_followed=fail works_as_described=fail connections_consistent=fail"
   },
   {
     "block_id": "b.docs",
@@ -114,6 +174,24 @@
     "note": "verdict=fail pass=6 fail=1 skipped=1 fails=[A2:node tests/pick_template.selftest.mjs → exit 1; stderr: \"pic]"
   },
   {
+    "block_id": "b.operator-profile-learner",
+    "ts": "2026-06-09T20:01:36.679Z",
+    "kind": "acceptance_verifier",
+    "note": "verdict=fail pass=6 fail=1 skipped=1 fails=[A4:node tests/operator_profile_lessons.smoke.mjs → exit null; t]"
+  },
+  {
+    "block_id": "b.operator-profile-learner",
+    "ts": "2026-06-09T20:06:59.196Z",
+    "kind": "acceptance_verifier",
+    "note": "verdict=fail pass=6 fail=1 skipped=1 fails=[A4:node tests/operator_profile_lessons.smoke.mjs → exit null; t]"
+  },
+  {
+    "block_id": "b.operator-profile-learner",
+    "ts": "2026-06-09T20:13:36.968Z",
+    "kind": "acceptance_verifier",
+    "note": "verdict=fail pass=6 fail=1 skipped=1 fails=[A4:node tests/operator_profile_lessons.smoke.mjs → exit null; t]"
+  },
+  {
     "block_id": "b.ui-control",
     "ts": "2026-06-09T18:08:00.693Z",
     "kind": "semantic_verify",
@@ -130,5 +208,23 @@
     "ts": "2026-06-05T22:10:13.911Z",
     "kind": "acceptance_verifier",
     "note": "verdict=fail pass=7 fail=1 skipped=0 fails=[A1:node tests/introspect_block_ui.selftest.mjs → exit 1; stderr]"
+  },
+  {
+    "block_id": "b.user-docs-generator",
+    "ts": "2026-06-09T20:03:06.669Z",
+    "kind": "acceptance_verifier",
+    "note": "verdict=fail pass=6 fail=2 skipped=0 fails=[A2:node tests/user_docs.smoke.mjs → exit null; timed out after ; A4:node tests/user_docs_drift.selftest.mjs → exit null; timed o]"
+  },
+  {
+    "block_id": "b.user-docs-generator",
+    "ts": "2026-06-09T20:08:29.380Z",
+    "kind": "acceptance_verifier",
+    "note": "verdict=fail pass=5 fail=3 skipped=0 fails=[A2:node tests/user_docs.smoke.mjs → exit null; timed out after ; A3:node tests/screenshots_integration.selftest.mjs → exit null;]"
+  },
+  {
+    "block_id": "b.user-docs-generator",
+    "ts": "2026-06-09T20:17:03.840Z",
+    "kind": "acceptance_verifier",
+    "note": "verdict=fail pass=5 fail=3 skipped=0 fails=[A2:node tests/user_docs.smoke.mjs → exit null; timed out after ; A3:node tests/screenshots_integration.selftest.mjs → exit null;]"
   }
 ]

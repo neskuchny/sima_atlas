@@ -31,3 +31,7 @@
 2026-05-05T20:18:32.282Z	proposal_rejected	2026-05-03T14-12-41-336Z__b.core-sync	rejected from UI
 2026-05-05T20:18:32.829Z	proposal_rejected	2026-05-03T14-18-52-327Z__b.core-sync	rejected from UI
 2026-05-05T20:18:33.379Z	proposal_rejected	2026-05-03T14-18-53-495Z__b.core-sync	rejected from UI
+2026-06-09T20:00:00.000Z | stack_mismatch classified as drift not broken | cross-language file is an implementation concern, not a contract-level breakage; missing_capability is broken
+2026-06-09T20:00:00.000Z | sync_report.json uses named-section merge strategy | multiple validators need to write separate sections without overwriting each other; read→update→write per section
+2026-06-09T20:00:00.000Z | depends_on: b.db retained | filesystem IS b.db's implementation layer; removing dependency would misrepresent the block's actual data access
+2026-06-09T20:00:00.000Z | stack mismatch check is unidirectional (file ext vs stack, not stack vs file count) | declaring typescript but having no .ts files is a linter concern, not a sync concern

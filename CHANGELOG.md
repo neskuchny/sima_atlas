@@ -6,6 +6,56 @@ Sima Atlas сейчас в early-stage (`0.x`), API может меняться 
 
 ---
 
+## [Unreleased] — R-7.98 → R-7.99 — *the system passes its own protocol*
+
+> The Kanon-compliance audit found the reference implementation violating
+> its own spec in 5 places, the article drifting from the graph, and the
+> semantic map covering 1 block of 17. All closed.
+
+**Kanon spec compliance — Level 3 claimed (R-7.98)**
+- §3.2: `llm_judge` can no longer be the sole basis for a block-level pass —
+  ≥1 deterministic passing assertion required, judge-only → `inconclusive`
+  flagged `llm_judge_only`.
+- §2.4: `inconclusive_if` sections in acceptance.md — precondition checks
+  whose failure forces `inconclusive` (deterministic FAIL still wins).
+- §4.1: `cascade_verify` walks the transitive reverse-dependency closure
+  (cycle-safe BFS), not just direct dependents.
+- §2.2: spec 0.1.1 legitimizes the flat block layout (Layout B) the
+  reference implementation actually ships.
+- §7.4: README declares **Level 3 — Cost-transparent** with a mapping table.
+
+**Article is a projection of the graph (Kanon VII)**
+- `scripts/sync_article_status.mjs` regenerates the Part 9 block table in
+  both articles from `graph.json`; wired into full-bundle and nightly
+  (`--check`: stale table = red validator). Part 10 roadmap markers
+  corrected (S-1/S-7/S-9.1/V-1 ✅, U-1 🟡).
+
+**Semantic red-state map — full graph coverage**
+- All six non-idea blocks judged by live Gemini: b.docs **PASS** (after
+  remediation: template gate wired into both doc generators, all 7 contract
+  files in wiki, kpi + source-links + idea-filter in auto_tz),
+  b.core-sync / b.acceptance-verifier-loop / b.llm-gateway /
+  b.agent-orchestrator / b.ui-control **FAIL** with persisted
+  `todo_to_pass` — now the V-1 work queue.
+- semantic_verify: code bundle opens with a FILE INVENTORY (existence
+  verified on disk) so the judge can't fail a block over a file the char
+  budget truncated; budget 14K → 24K.
+
+**Honest lifecycle + tests that outgrew the repo**
+- b.user-docs-generator and b.operator-profile-learner had stale «broken»
+  status_reasons with green verifiers — walked through the gates to done.
+  The A6 profile-compliance badge was genuinely rebuilt (API
+  `/atlas/operator-profile/hints` + ProposalsPanel badges + i18n EN/RU).
+- Two selftests asserted «the real operator profile is warming_up» — the
+  real profile honestly flipped to `live`; both hermetic now.
+- Nightly: 73/73 PASS (new validator: `article_status_projection`).
+
+**V-1 operator controls (R-7.99)**
+- `--only b.x,b.y` — targeted runs («доделай вот этот блок сейчас»).
+- `ATLAS_AGENT_TIMEOUT_MS` — the 240s agent timeout is env-tunable.
+
+---
+
 ## [0.3.0] — 2026-06-06 — *the loop actually closes*
 
 > Roll-up of the arc that finished «closing the loop» (Phases I–IV +

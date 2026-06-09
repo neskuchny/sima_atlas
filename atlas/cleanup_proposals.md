@@ -1,6 +1,6 @@
 # Cleanup proposals
 
-_Generated: 2026-06-09T18:15:25.385Z_  ·  _root: `.`_
+_Generated: 2026-06-09T20:18:39.751Z_  ·  _root: `.`_
 
 Pure proposals — **nothing is applied automatically**. Each item below has
 an apply-command. The apply tool MOVES files (with breadcrumb), never deletes.

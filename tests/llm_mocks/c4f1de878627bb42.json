@@ -1,0 +1,19 @@
+{
+  "lessons": [
+    {
+      "lesson": "Webhook integrations need real provider testing — mock differs from prod consistently.",
+      "evidence": [
+        "b.payments@2026-06-04",
+        "b.search@2026-06-04"
+      ],
+      "expires_at": null
+    },
+    {
+      "lesson": "Solo-only — only 1 evidence",
+      "evidence": [
+        "b.payments@2026-06-04"
+      ],
+      "expires_at": null
+    }
+  ]
+}

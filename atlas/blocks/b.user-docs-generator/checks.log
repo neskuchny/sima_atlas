@@ -13,3 +13,14 @@
 2026-06-09T18:12:31.006Z	acceptance_verifier	pass	verdict=pass pass=8 fail=0 skipped=0
 2026-06-09T18:14:25.112Z	acceptance_verifier	pass	verdict=pass pass=8 fail=0 skipped=0
 2026-06-09T18:15:44.809Z	acceptance_verifier	pass	verdict=pass pass=8 fail=0 skipped=0
+2026-06-09T19:37:23.308Z	acceptance_verifier	pass	verdict=pass pass=8 fail=0 skipped=0
+2026-06-09T19:38:21.101Z	acceptance_verifier	pass	verdict=pass pass=8 fail=0 skipped=0
+2026-06-09T19:52:10.080Z	acceptance_verifier	pass	verdict=pass pass=8 fail=0 skipped=0
+2026-06-09T19:53:05.018Z	acceptance_verifier	pass	verdict=pass pass=8 fail=0 skipped=0
+2026-06-09T19:56:28.885Z	acceptance_verifier	pass	verdict=pass pass=8 fail=0 skipped=0
+2026-06-09T20:03:06.669Z	acceptance_verifier	fail	verdict=fail pass=6 fail=2 skipped=0 fails=[A2:node tests/user_docs.smoke.mjs → exit null; timed out after ; A4:node tests/user_docs_drift.selftest.mjs → exit null; timed o]
+2026-06-09T20:03:30.278Z	acceptance_verifier	pass	verdict=pass pass=8 fail=0 skipped=0
+2026-06-09T20:08:29.380Z	acceptance_verifier	fail	verdict=fail pass=5 fail=3 skipped=0 fails=[A2:node tests/user_docs.smoke.mjs → exit null; timed out after ; A3:node tests/screenshots_integration.selftest.mjs → exit null;]
+2026-06-09T20:17:03.840Z	acceptance_verifier	fail	verdict=fail pass=5 fail=3 skipped=0 fails=[A2:node tests/user_docs.smoke.mjs → exit null; timed out after ; A3:node tests/screenshots_integration.selftest.mjs → exit null;]
+2026-06-09T20:18:31.743Z	acceptance_verifier	pass	verdict=pass pass=8 fail=0 skipped=0
+2026-06-09T20:18:59.224Z	acceptance_verifier	pass	verdict=pass pass=8 fail=0 skipped=0

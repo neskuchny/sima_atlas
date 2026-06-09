@@ -15,17 +15,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/operator_profile.selftest.mjs → exit 0 (71ms); first line: \"operator_profile.selftest: OK (7 test groups, all assertions green)\"",
+      "evidence": "node tests/operator_profile.selftest.mjs → exit 0 (68ms); first line: \"operator_profile.selftest: OK (7 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/operator_profile.selftest.mjs",
         "exit_code": 0,
         "stdout": "operator_profile.selftest: OK (7 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 71,
+        "duration_ms": 68,
         "timed_out": false
       },
-      "duration_ms": 71
+      "duration_ms": 68
     },
     {
       "id": "A2",
@@ -39,17 +39,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/pick_template.selftest.mjs → exit 0 (53ms); first line: \"pick_template.selftest: OK (8 test groups, all assertions green)\"",
+      "evidence": "node tests/pick_template.selftest.mjs → exit 0 (55ms); first line: \"pick_template.selftest: OK (8 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/pick_template.selftest.mjs",
         "exit_code": 0,
         "stdout": "pick_template.selftest: OK (8 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 53,
+        "duration_ms": 55,
         "timed_out": false
       },
-      "duration_ms": 53
+      "duration_ms": 55
     },
     {
       "id": "A3",
@@ -63,17 +63,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/dont_use_management.selftest.mjs → exit 0 (266ms); first line: \"dont_use_management.selftest: OK (7 test groups, all assertions green)\"",
+      "evidence": "node tests/dont_use_management.selftest.mjs → exit 0 (259ms); first line: \"dont_use_management.selftest: OK (7 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/dont_use_management.selftest.mjs",
         "exit_code": 0,
         "stdout": "dont_use_management.selftest: OK (7 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 266,
+        "duration_ms": 259,
         "timed_out": false
       },
-      "duration_ms": 266
+      "duration_ms": 259
     },
     {
       "id": "A4",
@@ -87,17 +87,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/operator_profile_lessons.smoke.mjs → exit 0 (76ms); first line: \"operator_profile_lessons.smoke: OK (6 test groups, all assertions green)\"",
+      "evidence": "node tests/operator_profile_lessons.smoke.mjs → exit 0 (75ms); first line: \"operator_profile_lessons.smoke: OK (6 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/operator_profile_lessons.smoke.mjs",
         "exit_code": 0,
         "stdout": "operator_profile_lessons.smoke: OK (6 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 76,
+        "duration_ms": 75,
         "timed_out": false
       },
-      "duration_ms": 76
+      "duration_ms": 75
     },
     {
       "id": "A5",
@@ -111,17 +111,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/operator_profile_inject.smoke.mjs → exit 0 (256ms); first line: \"operator_profile_inject.smoke: OK (4 test groups, all assertions green)\"",
+      "evidence": "node tests/operator_profile_inject.smoke.mjs → exit 0 (255ms); first line: \"operator_profile_inject.smoke: OK (4 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/operator_profile_inject.smoke.mjs",
         "exit_code": 0,
         "stdout": "operator_profile_inject.smoke: OK (4 test groups, all assertions green)\n<!-- ATLAS CONTEXT PACK — auto-injected by .cursor/hooks.json -->\n<!-- block: b.core-sync -->\n\n## Project\n# Sima Atlas\n\nЦель: единая визуально-документная система, которая устраняет рассинхрон между кодом, агентами и документацией.\n\n## North Star\n- Любой агент работает по одному и тому же block-context.\n- Человек видит статус реализации на схеме без чтения всего кода.\n\n\n## Rules\n# Rules\n\n1. Любое изменение блока фиксируется в его `tasks.md` и `checks.log`.\n2. Перед изменением кода агент читает: `project.md`, `tech_stack.md`, `rules.md`, `blocks/<id>/*`.\n3. Файлы без владельца-блока считаются out-of-scope.\n4. Блок `done` только при выполнении acceptance + KPI, а не только compile/runtime.\n\n\n## Tech stack (forbidden commands enforced via guard_against_drift)\n# Tech Stack (MVP lock)\n\n- Frontend: React (Babel standalone в текущем прототипе)\n- Runtime storage: localStorage (MVP)\n- Atlas storage: Markdown + JSON (`/atlas`)\n- Automation: CLI agents (Cursor/Claude/Codex) через hooks/адаптеры\n- Backend automation: Node.js 18+ (ESM, native fetch)\n- LLM providers: Anthropic API, Google Gemini API (via b.llm-gateway)\n\n## Запреты MVP (machine-readable for guard_against_drift.mjs)\n\n`forbidden_commands` (regex applied to the full command string):\n\n```forbidden\n^pip\\s+install\n^pipx\\s+install\n^poetry\\s+(add|install)\n^conda\\s+install\n^cargo\\s+(add|install)\n^go\\s+install\n^bundle\\s+install\n^gem\\s+install\n^composer\\s+(install|require)\n```\n\n`forbidden_substrings`:\n\n```forbidden_substrings\nyarn add vue\nyarn add @angular\nnpm install vue\nnpm install @angular\nnpm i vue\nnpm i @angular\n```\n\n## Allowed package managers\n\n- `npm` / `npx` (Node.js)\n- `node` / direct script execution\n\n## Прочие правила\n\n- Не смешивать второй фронтенд-фреймворк в активных блоках (см. forbidden_substrings).\n- Не использовать альтернативные «источники правды» вне `/atlas`.\n- Не устанавливать Python/Ruby/Go-зависимости — это репо чисто на Node.js.\n\n\n\n## Operator profile (likely preferences)\n\n- Этот оператор обычно проходит idea→done за ~0h.\n- frontend: оператор предпочитает `react`.\n- Чаще всего использует агента `mock` (success-rate 100%).\n\n_Источники профиля: aggregate_operator_profile + analyze_lessons_from_history. Эти подсказки тихие — не диктуй, но учитывай._\n\n## Block: b.core-sync\n\n### mission\n# b.core-sync — mission\n\nSync Engine — движок проверки синхронизации блоков продукта с миссией, KPI, стэком и кодом. Главная задача — детектить «рассинхрон»: код пишется в одном фреймворке, ТЗ говорит про другой; блок A объявляет, что зависит от capability X у блока B, а B такой capability не предоставляет; KPI задан, но в `checks.log` нет ни одной измеренной записи.\n\nТекущая реализация (`frontend/atlas_sync.js` + `scripts/validate_*`) — каркас: проверяет наличие файлов, подсчитывает прогресс tasks/KPI, сравнивает `depends_on/provides`. Этого недостаточно для миссии «решить рассинхрон» — нужно семантическое сопоставление миссии блока с реализацией (требует LLM, PR3) и реальный анализ кода (PR4).\n\n## Layer\nlogic\n\n## Что должен делать в done-версии (роадмап)\n1. Структурный sync (PR2): contract-валидация графа, layer/depends/provides консистентность.\n2. Семантический sync (PR3): LLM проверяет `code(impl) ↔ mission/kpi блока`, выдаёт `drift_reason`.\n3. Реальный sync с кодом (PR4): на каждый `git diff` сопоставляет изменённые файлы с `files.md` блоков и логирует факт изменения в `checks.log`.\n\n## Out of scope\n- Генерация документации (это `b.docs`).\n- UI-визуализация sync-репорта (это `b.ui-control`).\n\n\n### KPI\n# b.core-sync — KPI\n\n- **KPI-1 (contract sync)**: для каждого блока `X` с `depends_on: [{ block_id: Y, capability: C }]` проверяется, что `Y.provides` содержит `C`. Если нет — `drift_reason=\"missing_capability\"`. Сейчас: △ (есть `validate_dependency_contracts.mjs`, но capability-формат пока строковый).\n- **KPI-2 (stack sync)**: каждое заявленное `tech_stack` блока (frontend/backend) подтверждается реальным импортом / зависимостью в `files.md` блока. Сейчас: ✗ (`files.md` пустой у всех блоков).\n- **KPI-3 (… [truncated]",
         "stderr": "",
-        "duration_ms": 256,
+        "duration_ms": 255,
         "timed_out": false
       },
-      "duration_ms": 256
+      "duration_ms": 255
     },
     {
       "id": "A6",
@@ -164,7 +164,7 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "ddf7854013f886f4",
+        "prompt_hash": "3ee95d17a3a73afc",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
@@ -203,6 +203,6 @@
     "skipped": 1
   },
   "verdict": "pass",
-  "duration_ms": 724,
-  "checked_at": "2026-06-09T18:15:39.580Z"
+  "duration_ms": 715,
+  "checked_at": "2026-06-09T20:18:53.997Z"
 }

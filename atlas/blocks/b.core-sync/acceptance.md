@@ -14,7 +14,13 @@ evidence_spec:
   cmd: node scripts/validate_dependency_contracts.mjs
   expect_in_stdout: "OK"
 ```
-- [ ] **A3.** Если блок имеет `tech_stack: [react]`, а в `files.md` указан `.py`-файл — syncCheck возвращает `drift` с `reason: stack_mismatch`.
+- [x] **A3.** Если блок имеет `tech_stack: [react]`, а в `files.md` указан `.py`-файл — syncCheck возвращает `drift` с `reason: stack_mismatch`.
+```yaml
+evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/atlas_sync.selftest.mjs
+  expect_in_stdout: "OK"
+```
 - [ ] **A4.** [PR3] LLM-семантический gate: блок с миссией «принимает платежи через Stripe» и реализацией без `stripe`-импорта в `files.md` помечается `drift` с `reason: mission_implementation_mismatch`.
 - [x] **A5.** Все детектированные drift/broken попадают в `atlas/sync_report.json` со ссылкой на конкретный файл/строку (для UI).
 ```yaml

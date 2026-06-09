@@ -1,6 +1,6 @@
 # Roadmap (auto-generated, PR2 topo-sort)
 
-_Generated: 2026-06-09T18:15:45.346Z_
+_Generated: 2026-06-09T20:18:59.772Z_
 
 Приоритет внутри уровня: 🔴 broken → 🟣 drift → 🟠 wip → 🔵 review → 🟡 idea → 🟢 done.
 Каждый следующий уровень зависит от предыдущих — реализовывать сверху вниз.
@@ -47,7 +47,7 @@ _Generated: 2026-06-09T18:15:45.346Z_
 - 🟠 **b.ui-control** (wip) — UI Control Plane · _front_ · deps: `b.core-sync`, `b.agent-orchestrator`
   - HTML loses references to components.jsx/sidecol.jsx/canvas_tools.jsx — UI does not boot in production; multi-layer rendering depends on PR2 (this PR)
 - 🟢 **b.acceptance-verifier-loop** (done) — Acceptance Verifier Loop · _testing_ · deps: `b.db`, `b.core-sync`, `b.agent-orchestrator`, `b.llm-gateway`
-  - PR-Backlog: design-only milestone. Closes the verification gap (Symphony trusts agent output, Hermes has no contract layer). После любого run_block_implementation проверяет каждый пункт acceptance.md через детерминированные collectors (exit_code/fs_glob/file_diff/log_grep) + LLM-judge fallback; блокирует wip→done если verdict !== pass. 5-PR breakdown.
+  - cascade: parent b.core-sync edit at 2026-06-09T19:50:57 broke acceptance
 - 🟢 **b.operator-profile-learner** (done) — Operator Profile Learner · _ai_ · deps: `b.db`, `b.core-sync`, `b.agent-orchestrator`, `b.llm-gateway`, `b.docs`
   - Phase I: verifier FAIL on A6 — profile-compliance UI badge (complianceWithProfile) was lost in the R-7.30 single-file→atlas_design refactor and not reimplemented. Genuine feature gap, honestly not done.
 - 🟢 **b.user-docs-generator** (done) — End-User Docs Generator · _content_ · deps: `b.db`, `b.docs`, `b.agent-orchestrator`, `b.llm-gateway`

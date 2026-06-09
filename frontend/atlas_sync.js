@@ -189,6 +189,46 @@ ${rows.length ? rows.join('\n') : '- none'}\n`;
     return issues;
   }
 
+  // Language-specific file extensions (cross-ecosystem conflicts only)
+  const LANG_FINGERPRINT_EXTS = {
+    python: ['.py', '.pyx', '.pyi'],
+    ruby:   ['.rb', '.erb', '.rake'],
+    go:     ['.go'],
+    rust:   ['.rs'],
+    java:   ['.java'],
+    kotlin: ['.kt', '.kts'],
+    swift:  ['.swift'],
+    csharp: ['.cs'],
+    php:    ['.php'],
+  };
+  const JS_STACKS = new Set([
+    'react', 'vue', 'angular', 'svelte', 'nodejs', 'node', 'esm',
+    'typescript', 'javascript', 'babel-standalone', 'nextjs', 'next',
+    'fastify', 'express', 'vitest', 'jest',
+  ]);
+
+  function validateStackConsistency(atlas, block){
+    const issues = [];
+    const stack = (block.stack || '').toLowerCase();
+    if (!stack) return issues;
+
+    // Determine if declared stack is JS ecosystem
+    const isJsStack = JS_STACKS.has(stack) || stack.includes('typescript') || stack.includes('javascript');
+    if (!isJsStack) return issues;
+
+    for (const f of (block.files || [])) {
+      const dotIdx = f.lastIndexOf('.');
+      if (dotIdx === -1) continue;
+      const ext = f.slice(dotIdx).toLowerCase();
+      for (const [lang, exts] of Object.entries(LANG_FINGERPRINT_EXTS)) {
+        if (exts.includes(ext)) {
+          issues.push(`stack_mismatch: stack "${block.stack}" но файл "${f}" относится к ${lang}`);
+        }
+      }
+    }
+    return issues;
+  }
+
   function syncCheck(atlas, arch){
     const byId = Object.fromEntries((arch.blocks || []).map(b => [b.id, b]));
     const report = { at: nowIso(), total: 0, synchronized: 0, drift: 0, broken: 0, details: [] };
@@ -202,11 +242,16 @@ ${rows.length ? rows.join('\n') : '- none'}\n`;
       if (p.kpiTotal > 0 && p.kpiPassed === 0) issues.push('Нет пройденных KPI');
       issues.push(...validateDependencyContracts(atlas, block));
       issues.push(...validateFilesRegistry(atlas, block));
+      issues.push(...validateStackConsistency(atlas, block));
       if ((block.kpi || []).length && !hasPassingCheck(block, 'kpi')) issues.push('Нет check kind=kpi со статусом pass');
       if ((block.acceptance || []).length && !hasPassingCheck(block, 'acceptance')) issues.push('Нет check kind=acceptance со статусом pass');
       if (issues.length === 0) {
         report.synchronized += 1;
-      } else if (issues.some(i => i.includes('mismatch') || i.includes('отсутствует'))) {
+      } else if (issues.some(i => i.includes('stack_mismatch'))) {
+        // stack_mismatch is drift (implementation diverged from declaration), not hard broken
+        report.drift += 1;
+        report.details.push({ blockId: block.id, status: 'drift', reason: 'stack_mismatch', issues });
+      } else if (issues.some(i => i.includes('depends/provides mismatch') || i.includes('отсутствует'))) {
         report.broken += 1;
         report.details.push({ blockId: block.id, status: 'broken', issues });
       } else {
@@ -235,7 +280,7 @@ ${rows.length ? rows.join('\n') : '- none'}\n`;
     loadAtlas, saveAtlas, syncCheck, blockProgress,
     ensureBlock, logCheck, markFileStatus, buildContextPack,
     renderFilesMd, refreshBlockFilesMd,
-    validateDependencyContracts, validateFilesRegistry,
+    validateDependencyContracts, validateFilesRegistry, validateStackConsistency,
     canTransition, transitionBlock,
     runSyncWithChecks
   };

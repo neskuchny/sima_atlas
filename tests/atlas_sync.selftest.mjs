@@ -67,4 +67,19 @@ if (!t4.ok) throw new Error('Expected valid transition review->done');
 const pack = core.buildContextPack(atlas, arch, 'b.a');
 if (!pack || pack.block.id !== 'b.a') throw new Error('Context pack build failed');
 
+// A3: stack_mismatch — block declares react stack but files.md has a .py file
+const archStack = { blocks: [{ id: 'b.stack', title: 'StackTest' }] };
+let atlasStack = core.loadAtlas('p_stack', archStack);
+atlasStack.blocks['b.stack'].stack = 'react';
+core.markFileStatus(atlasStack, 'src/app.py', 'alive', '', 'b.stack');
+const reportStack = core.syncCheck(atlasStack, archStack);
+if (reportStack.drift !== 1) throw new Error(`A3: expected drift=1, got drift=${reportStack.drift}`);
+const stackDetail = (reportStack.details || []).find(d => d.blockId === 'b.stack');
+if (!stackDetail || stackDetail.reason !== 'stack_mismatch') {
+  throw new Error('A3: expected detail with reason=stack_mismatch');
+}
+if (!stackDetail.issues.some(i => String(i).includes('stack_mismatch'))) {
+  throw new Error('A3: expected stack_mismatch in issues');
+}
+
 console.log('atlas_sync.selftest: OK');

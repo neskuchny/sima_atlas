@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-06-09T18:15:24.825Z_
+_Generated: 2026-06-09T20:18:39.192Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -15,7 +15,7 @@ _Generated: 2026-06-09T18:15:24.825Z_
 - ✅ article_status_projection: ok
   - output: docs/article.en.md: up to date
 - ✅ files_registry: ok
-  - output: Files registry validation: OK (alive=186, archived=4, dead=0)
+  - output: Files registry validation: OK (alive=187, archived=4, dead=0)
 - ✅ housekeeping_sweep: ok
   - output: housekeeping_sweeper: 1 proposal(s) — see atlas/cleanup_proposals.md
 - ✅ projects_contracts: ok
@@ -37,7 +37,7 @@ _Generated: 2026-06-09T18:15:24.825Z_
 - ✅ operator_profile_selftest: ok
   - output: operator_profile.selftest: OK (7 test groups, all assertions green)
 - ✅ aggregate_operator_profile: ok
-  - output: operator_profile: live (done=6, invocations=5, traces=2461, proposals=36)
+  - output: operator_profile: live (done=7, invocations=9, traces=3011, proposals=42)
 - ✅ operator_profile_lessons_smoke: ok
   - output: operator_profile_lessons.smoke: OK (6 test groups, all assertions green)
 - ✅ operator_profile_inject_smoke: ok
@@ -49,7 +49,7 @@ _Generated: 2026-06-09T18:15:24.825Z_
 - ✅ validate_dont_use_compliance: ok
   - output: validate_dont_use_compliance: banned=0 (none); checked=17; warnings=0
 - ✅ validate_lifecycle_gates: ok
-  - output: validate_lifecycle_gates — 15 blocks, 1 fail, 0 warn
+  - output: validate_lifecycle_gates — 15 blocks, 0 fail, 0 warn
 - ✅ introspect_block_ui_selftest: ok
   - output: introspect_block_ui.selftest: OK (7 test groups, all assertions green)
 - ✅ user_docs_smoke: ok
@@ -141,7 +141,7 @@ _Generated: 2026-06-09T18:15:24.825Z_
 - ✅ rebuild_roadmap: ok
   - output: Rebuilt /home/user/sima_atlas/atlas/roadmap.md
 - ✅ verify_all_acceptance: ok
-  - output: verify_all_acceptance: 10 pass / 0 fail / 7 inconclusive (assertions: 46 pass / 0 fail / 46 skipped)
+  - output: verify_all_acceptance: 10 pass / 0 fail / 7 inconclusive (assertions: 47 pass / 0 fail / 45 skipped)
 - ✅ verify_done_blocks_still_green: ok
   - output: verify_done_blocks_still_green: checked=5 green=5 regressions=0 inconclusive=0
 - ✅ mcp_smoke_e2e: ok

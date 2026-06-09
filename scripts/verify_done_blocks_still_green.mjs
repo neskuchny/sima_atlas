@@ -15,7 +15,21 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { verifyAndPersist } from './verify_block_acceptance.mjs';
+
+// R-7.99 — the green-guard's job is DETERMINISTIC regression detection:
+// «did a previously-green done block go red?» must answer the same way on
+// every run. Without forcing mock, selftest_run assertions whose tests call
+// the LLM gateway internally go through live providers, randomly exceed the
+// 30s collector timeout, and report fail — blocks that verify 8/0 under a
+// deterministic judge showed up as 5/3 «regressions». Live-LLM judgment is
+// semantic_verify's lane. Opt back into live collectors with
+// ATLAS_GREEN_GUARD_LIVE=1. (Set BEFORE importing the verifier so every
+// child process inherits it.)
+if (process.env.ATLAS_GREEN_GUARD_LIVE !== '1') {
+  process.env.ATLAS_FORCE_MOCK_LLM = '1';
+}
+
+const { verifyAndPersist } = await import('./verify_block_acceptance.mjs');
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(__filename), '..');

@@ -15,7 +15,7 @@
 </style>
 </head><body>
 <h1>Sima Atlas Wiki</h1>
-<p><em>Auto-generated: 2026-06-09T18:15:45.175Z</em></p>
+<p><em>Auto-generated: 2026-06-09T20:18:59.595Z</em></p>
 <h2>Граф продукта</h2>
 <div class="mermaid">flowchart TB
   classDef done    fill:#dcfce7,stroke:#16a34a,color:#15803d;
@@ -127,7 +127,7 @@
 <h3>Тестирование (<code>testing</code>)</h3>
 <ul>
 <li>🟢 <strong>b.acceptance-verifier-loop</strong> — Acceptance Verifier Loop <em>(done)</em></li>
-<ul><li>reason: PR-Backlog: design-only milestone. Closes the verification gap (Symphony trusts agent output, Hermes has no contract layer). После любого run<em>block</em>implementation проверяет каждый пункт acceptance.md через детерминированные collectors (exit<em>code/fs</em>glob/file<em>diff/log</em>grep) + LLM-judge fallback; блокирует wip→done если verdict !== pass. 5-PR breakdown.</li></ul>
+<ul><li>reason: cascade: parent b.core-sync edit at 2026-06-09T19:50:57 broke acceptance</li></ul>
 <li>🟡 <strong>b.smoke-sandbox</strong> — Smoke Sandbox (test target) <em>(idea)</em></li>
 <ul><li>reason: Reserved write-target for e2e/smoke scripts so they never touch real product blocks</li></ul>
 </ul>
@@ -275,7 +275,13 @@ evidence_spec:
   cmd: node scripts/validate_dependency_contracts.mjs
   expect_in_stdout: "OK"</code></pre>
 <ul>
-<li>[ ] <strong>A3.</strong> Если блок имеет <code>tech<em>stack: [react]</code>, а в <code>files.md</code> указан <code>.py</code>-файл — syncCheck возвращает <code>drift</code> с <code>reason: stack</em>mismatch</code>.</li>
+<li>[x] <strong>A3.</strong> Если блок имеет <code>tech<em>stack: [react]</code>, а в <code>files.md</code> указан <code>.py</code>-файл — syncCheck возвращает <code>drift</code> с <code>reason: stack</em>mismatch</code>.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/atlas_sync.selftest.mjs
+  expect_in_stdout: "OK"</code></pre>
+<ul>
 <li>[ ] <strong>A4.</strong> [PR3] LLM-семантический gate: блок с миссией «принимает платежи через Stripe» и реализацией без <code>stripe</code>-импорта в <code>files.md</code> помечается <code>drift</code> с <code>reason: mission<em>implementation</em>mismatch</code>.</li>
 <li>[x] <strong>A5.</strong> Все детектированные drift/broken попадают в <code>atlas/sync_report.json</code> со ссылкой на конкретный файл/строку (для UI).</li>
 </ul>
@@ -323,6 +329,7 @@ evidence_spec:
 <li>scripts/validate<em>acceptance</em>assertions.mjs [alive]</li>
 <li>scripts/validate<em>no</em>template_placeholders.mjs [alive] (PR1)</li>
 <li>scripts/validate<em>files</em>registry.mjs [alive] (PR2 — checks files in files.md exist on disk)</li>
+<li>scripts/validate<em>stack</em>mismatch.mjs [alive] (PR2 — detects cross-language stack mismatches, writes sync_report.json)</li>
 <li>scripts/validate<em>ingestion</em>contracts.mjs [alive]</li>
 <li>scripts/validate<em>ingestion</em>quality.mjs [alive]</li>
 <li>scripts/validate<em>agent</em>parity.mjs [alive]</li>
@@ -1143,7 +1150,7 @@ evidence_spec:
 <ul>
 <li><strong>layer</strong>: <code>testing</code></li>
 <li><strong>type</strong>: module</li>
-<li><strong>status</strong>: <code>done</code> — PR-Backlog: design-only milestone. Closes the verification gap (Symphony trusts agent output, Hermes has no contract layer). После любого run<em>block</em>implementation проверяет каждый пункт acceptance.md через детерминированные collectors (exit<em>code/fs</em>glob/file<em>diff/log</em>grep) + LLM-judge fallback; блокирует wip→done если verdict !== pass. 5-PR breakdown.</li>
+<li><strong>status</strong>: <code>done</code> — cascade: parent b.core-sync edit at 2026-06-09T19:50:57 broke acceptance</li>
 <li><strong>mvp</strong>: no</li>
 <li><strong>depends_on</strong>: <code>b.db</code>, <code>b.core-sync</code>, <code>b.agent-orchestrator</code>, <code>b.llm-gateway</code></li>
 <li><strong>tech_stack</strong>: <code>nodejs</code>, <code>esm</code>, <code>json-schema</code></li>
@@ -1956,6 +1963,10 @@ evidence_spec:
 <li>2026-06-09T18:14:25.329Z: smoke e2e queued insight</li>
 <li>2026-06-09T18:15:41.518Z: smoke e2e queued insight</li>
 <li>2026-06-09T18:15:45.006Z: smoke e2e queued insight</li>
+<li>2026-06-09T19:56:26.590Z: smoke e2e queued insight</li>
+<li>2026-06-09T19:56:29.097Z: smoke e2e queued insight</li>
+<li>2026-06-09T20:18:55.921Z: smoke e2e queued insight</li>
+<li>2026-06-09T20:18:59.424Z: smoke e2e queued insight</li>
 </ul>
 <h4>Files</h4>
 <h1>b.smoke-sandbox — files</h1>

@@ -261,7 +261,12 @@ async function collectLlmJudge(spec, { block_id, assertion } = {}) {
   try {
     r = await judgeAssertion({ assertion, block_id });
   } catch (e) {
-    return { verdict: 'fail', evidence: `judge_assertion threw: ${e.message}`, reasoning: 'LLM-judge crashed', raw: { error: e.message }, duration_ms: Date.now() - t0 };
+    // R-7.99 (Kanon spec §3.1) — a crashed judge PRODUCED NO EVIDENCE; that
+    // is inconclusive (skipped), never fail. The old `fail` here caused
+    // false «regressions» in verify_done_blocks_still_green whenever the
+    // claude_cli provider hiccuped: blocks that pass 8/0 under a working
+    // judge were reported 5/3 red purely because the judge process died.
+    return { verdict: 'skipped', evidence: `judge_assertion threw: ${e.message}`, reasoning: 'LLM-judge unavailable/crashed — no evidence either way (inconclusive per spec §3.1)', raw: { error: e.message }, duration_ms: Date.now() - t0 };
   }
   // Map judge verdict → collector verdict. inconclusive → skipped (so the
   // overall block verdict logic stays unchanged: skipped doesn't block, fail

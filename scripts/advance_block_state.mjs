@@ -25,6 +25,12 @@ const TRANSITIONS = {
   review: ['done', 'wip', 'broken'],
   done: ['wip'],
   broken: ['wip'],
+  // R-7.99 — cascade_verify writes `desync` straight into graph.json, but
+  // the lifecycle had NO exit from it: a transiently-broken dependent stayed
+  // desync forever even after re-verifying green. Recovery paths:
+  //   desync → done  (re-verify came back green — transient break)
+  //   desync → wip   (genuinely broken by the upstream change — needs work)
+  desync: ['done', 'wip'],
 };
 
 const from = blocks[idx].status || 'idea';

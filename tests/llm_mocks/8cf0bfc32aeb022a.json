@@ -1,0 +1,11 @@
+{
+  "lessons": [
+    {
+      "lesson": "single point",
+      "evidence": [
+        "only-one"
+      ],
+      "expires_at": null
+    }
+  ]
+}

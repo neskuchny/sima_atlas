@@ -293,7 +293,7 @@
       "id": "b.acceptance-verifier-loop",
       "title": "Acceptance Verifier Loop",
       "status": "done",
-      "status_reason": "PR-Backlog: design-only milestone. Closes the verification gap (Symphony trusts agent output, Hermes has no contract layer). После любого run_block_implementation проверяет каждый пункт acceptance.md через детерминированные collectors (exit_code/fs_glob/file_diff/log_grep) + LLM-judge fallback; блокирует wip→done если verdict !== pass. 5-PR breakdown.",
+      "status_reason": "cascade: parent b.core-sync edit at 2026-06-09T19:50:57 broke acceptance",
       "layer": "testing",
       "type": "module",
       "mvp": false,
@@ -322,7 +322,8 @@
         "scripts/verify_block_acceptance.mjs",
         "scripts/verify_done_blocks_still_green.mjs",
         "tests/acceptance_verifier.e2e.smoke.mjs"
-      ]
+      ],
+      "updated_at": "2026-06-09T19:50:57.102Z"
     },
     {
       "id": "b.user-docs-generator",

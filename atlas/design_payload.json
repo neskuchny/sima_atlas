@@ -93,7 +93,7 @@
       },
       "progress": {
         "tasks": {
-          "done": 0,
+          "done": 2,
           "total": 6
         },
         "kpi": {
@@ -304,7 +304,7 @@
     },
     {
       "id": "b.acceptance-verifier-loop",
-      "_raw_updated_at": null,
+      "_raw_updated_at": "2026-06-09T19:50:57.102Z",
       "title": "Acceptance Verifier Loop",
       "tag": "acceptance-verifier-loop",
       "layer": "tests",
@@ -843,7 +843,7 @@
       {
         "id": "T3",
         "title": "Stack-mismatch detector: сопоставлять `tech_stack` блока с расширениями файлов в `files.md` — PR2",
-        "status": "todo",
+        "status": "done",
         "priority": "P2",
         "agent": null,
         "why": "",
@@ -861,7 +861,7 @@
       {
         "id": "T5",
         "title": "Сохранение детального `sync_report.json` (не только `details: []`, а с file/line ссылками) — PR2",
-        "status": "todo",
+        "status": "done",
         "priority": "P2",
         "agent": null,
         "why": "",
@@ -2016,13 +2016,6 @@
   "lanes": [],
   "history": [
     {
-      "ts": "13:43",
-      "module": "ui-control",
-      "agent": "sima-core",
-      "kind": "ok",
-      "msg": "b.ui-control: review → done"
-    },
-    {
       "ts": "22:11",
       "module": "acceptance-verifier-loop",
       "agent": "sima-core",
@@ -2098,6 +2091,13 @@
       "agent": "sima-core",
       "kind": "ok",
       "msg": "b.operator-profile-learner: review → done"
+    },
+    {
+      "ts": "20:10",
+      "module": "acceptance-verifier-loop",
+      "agent": "sima-core",
+      "kind": "ok",
+      "msg": "b.acceptance-verifier-loop: desync → done"
     }
   ],
   "lessons": [],
@@ -2129,7 +2129,7 @@
     }
   ],
   "_meta": {
-    "generated_at": "2026-06-09T18:15:30.217Z",
+    "generated_at": "2026-06-09T20:18:44.541Z",
     "atlas_root": "atlas",
     "client_id": null,
     "block_count": 17,

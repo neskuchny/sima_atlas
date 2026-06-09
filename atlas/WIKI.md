@@ -1,6 +1,6 @@
 # Sima Atlas Wiki
 
-_Auto-generated: 2026-06-09T18:15:45.175Z_
+_Auto-generated: 2026-06-09T20:18:59.595Z_
 
 ## Граф продукта
 
@@ -118,7 +118,7 @@ flowchart TB
 ### Тестирование (`testing`)
 
 - 🟢 **b.acceptance-verifier-loop** — Acceptance Verifier Loop _(done)_
-  - reason: PR-Backlog: design-only milestone. Closes the verification gap (Symphony trusts agent output, Hermes has no contract layer). После любого run_block_implementation проверяет каждый пункт acceptance.md через детерминированные collectors (exit_code/fs_glob/file_diff/log_grep) + LLM-judge fallback; блокирует wip→done если verdict !== pass. 5-PR breakdown.
+  - reason: cascade: parent b.core-sync edit at 2026-06-09T19:50:57 broke acceptance
 - 🟡 **b.smoke-sandbox** — Smoke Sandbox (test target) _(idea)_
   - reason: Reserved write-target for e2e/smoke scripts so they never touch real product blocks
 
@@ -283,7 +283,13 @@ evidence_spec:
   cmd: node scripts/validate_dependency_contracts.mjs
   expect_in_stdout: "OK"
 ```
-- [ ] **A3.** Если блок имеет `tech_stack: [react]`, а в `files.md` указан `.py`-файл — syncCheck возвращает `drift` с `reason: stack_mismatch`.
+- [x] **A3.** Если блок имеет `tech_stack: [react]`, а в `files.md` указан `.py`-файл — syncCheck возвращает `drift` с `reason: stack_mismatch`.
+```yaml
+evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/atlas_sync.selftest.mjs
+  expect_in_stdout: "OK"
+```
 - [ ] **A4.** [PR3] LLM-семантический gate: блок с миссией «принимает платежи через Stripe» и реализацией без `stripe`-импорта в `files.md` помечается `drift` с `reason: mission_implementation_mismatch`.
 - [x] **A5.** Все детектированные drift/broken попадают в `atlas/sync_report.json` со ссылкой на конкретный файл/строку (для UI).
 ```yaml
@@ -336,6 +342,7 @@ evidence_spec:
 - scripts/validate_acceptance_assertions.mjs [alive]
 - scripts/validate_no_template_placeholders.mjs [alive] (PR1)
 - scripts/validate_files_registry.mjs [alive] (PR2 — checks files in files.md exist on disk)
+- scripts/validate_stack_mismatch.mjs [alive] (PR2 — detects cross-language stack mismatches, writes sync_report.json)
 - scripts/validate_ingestion_contracts.mjs [alive]
 - scripts/validate_ingestion_quality.mjs [alive]
 - scripts/validate_agent_parity.mjs [alive]
@@ -1239,7 +1246,7 @@ _Sources: [mission](blocks/b.operator-profile-learner/mission.md) · [kpi](block
 
 - **layer**: `testing`
 - **type**: module
-- **status**: `done` — PR-Backlog: design-only milestone. Closes the verification gap (Symphony trusts agent output, Hermes has no contract layer). После любого run_block_implementation проверяет каждый пункт acceptance.md через детерминированные collectors (exit_code/fs_glob/file_diff/log_grep) + LLM-judge fallback; блокирует wip→done если verdict !== pass. 5-PR breakdown.
+- **status**: `done` — cascade: parent b.core-sync edit at 2026-06-09T19:50:57 broke acceptance
 - **mvp**: no
 - **depends_on**: `b.db`, `b.core-sync`, `b.agent-orchestrator`, `b.llm-gateway`
 - **tech_stack**: `nodejs`, `esm`, `json-schema`
@@ -2131,6 +2138,10 @@ evidence_spec:
 - 2026-06-09T18:14:25.329Z: smoke e2e queued insight
 - 2026-06-09T18:15:41.518Z: smoke e2e queued insight
 - 2026-06-09T18:15:45.006Z: smoke e2e queued insight
+- 2026-06-09T19:56:26.590Z: smoke e2e queued insight
+- 2026-06-09T19:56:29.097Z: smoke e2e queued insight
+- 2026-06-09T20:18:55.921Z: smoke e2e queued insight
+- 2026-06-09T20:18:59.424Z: smoke e2e queued insight
 
 #### Files
 

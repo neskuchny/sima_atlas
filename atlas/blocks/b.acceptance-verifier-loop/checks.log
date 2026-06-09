@@ -22,3 +22,12 @@
 2026-06-09T18:12:30.309Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=1
 2026-06-09T18:14:24.426Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=1
 2026-06-09T18:15:44.123Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=1
+2026-06-09T19:36:33.866Z	acceptance_verifier	fail	verdict=fail pass=6 fail=1 skipped=1 fails=[A3:node tests/llm_judge.smoke.mjs → exit 1; stderr: "[llm-gatew]
+2026-06-09T19:36:06.640Z	cascade_check	fail	broken by parent b.core-sync edit — verifier failed; status auto-set to desync
+2026-06-09T19:51:24.121Z	acceptance_verifier	fail	verdict=fail pass=6 fail=1 skipped=1 fails=[A3:node tests/llm_judge.smoke.mjs → exit 1; stderr: "[llm-gatew]
+2026-06-09T19:50:57.102Z	cascade_check	fail	broken by parent b.core-sync edit — verifier failed; status auto-set to desync
+2026-06-09T19:57:35.575Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=1
+2026-06-09T20:10:03.975Z	transition	pass	desync->done	actor=operator-audit	note=R-7.99: transient desync (cascade hit mid-agent-edit); re-verified green 7/0
+2026-06-09T20:15:33.665Z	acceptance_verifier	fail	verdict=fail pass=5 fail=2 skipped=1 fails=[A2:node tests/evidence_collectors.selftest.mjs → exit null; tim; A3:node tests/llm_judge.smoke.mjs → exit null; timed out after ]
+2026-06-09T20:18:31.045Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=1
+2026-06-09T20:18:58.525Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=1
