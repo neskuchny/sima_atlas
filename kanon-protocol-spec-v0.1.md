@@ -1,7 +1,9 @@
 # Kanon Protocol Specification
 
-**Version:** 0.1 (Draft)
+**Version:** 0.1.1 (Draft)
 **Status:** Pre-release. Subject to change before v1.0.
+**Changes in 0.1.1:** §2.2 now permits two equivalent block layouts (nested
+`contract/` + JSON, or flat + Markdown); §8 reserves the Markdown variants.
 **Audience:** Implementers of Kanon-compliant tools.
 
 This document defines the structural and behavioural requirements that any Kanon-compliant implementation MUST, SHOULD, or MAY satisfy. It complements the Kanon Protocol Manifesto, which establishes principles; this document establishes enforceable contracts.
@@ -45,7 +47,11 @@ Block identifiers MUST be stable across renames of human-readable names. Impleme
 
 ### 2.2 Required structure
 
-A Kanon-compliant block MUST contain at minimum:
+A Kanon-compliant block MUST contain at minimum the four contract artefacts
+(mission, acceptance, depends_on, provides) plus narrative memory. Two
+equivalent layouts are permitted.
+
+**Layout A — nested (contract/ subdirectory, JSON graph files):**
 
 ```
 blocks/<block-id>/
@@ -58,7 +64,39 @@ blocks/<block-id>/
 └── code/                   # OPTIONAL until the block is implemented
 ```
 
-Implementations MAY add files to `contract/` (for example, `kpi.md`, `constraints.md`, `interface.md`) provided the four required files are present.
+**Layout B — flat (contract files at block root, Markdown graph files):**
+
+```
+blocks/<block-id>/
+├── mission.md              # REQUIRED
+├── acceptance.md           # REQUIRED
+├── depends_on.md           # REQUIRED (list form, MAY be `- none`)
+├── provides.md             # REQUIRED (list form, MAY be empty)
+└── narrative.md            # REQUIRED, MAY be empty on creation
+```
+
+In Layout B, `depends_on.md` / `provides.md` encode the same arrays as their
+JSON counterparts as Markdown list items, one per line:
+
+```markdown
+- block-auth: jwt_middleware
+- block-db-schema
+```
+
+The text before the first `:` is the referenced block identifier; an optional
+suffix after `:` names the specific capability consumed/exposed. A document
+whose only item is `- none` is equivalent to an empty array. Code in Layout B
+lives anywhere in the repository and is registered in an implementation-defined
+manifest (for example `files.md`).
+
+Implementations MUST treat the two layouts as semantically equivalent and MAY
+support either or both. Implementations MAY add contract files (for example,
+`kpi.md`, `user_story.md`, `constraints.md`, `interface.md`) provided the
+required artefacts are present.
+
+> Changed in 0.1.1: Layout B added — the reference implementation (Sima
+> Atlas) ships the flat layout, and the nested-only requirement made the
+> reference itself non-compliant. Both layouts carry identical information.
 
 ### 2.3 `mission.md`
 
@@ -271,7 +309,7 @@ To avoid collisions across implementations, the following file and directory nam
 - `contract/`, `narrative.md` (block scope)
 - `architecture_decisions.md`, `decisions.log` (project scope)
 - `operator_profile/`, `lessons.json`, `dont_use.json`, `always_use.json` (operator scope)
-- `mission.md`, `acceptance.md`, `depends_on.json`, `provides.json` (contract scope)
+- `mission.md`, `acceptance.md`, `depends_on.json`, `provides.json`, `depends_on.md`, `provides.md` (contract scope)
 
 Implementations MUST NOT use these names for unrelated purposes within Kanon-managed directories. Implementations MAY use these names outside Kanon-managed paths.
 

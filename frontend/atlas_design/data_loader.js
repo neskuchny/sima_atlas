@@ -295,6 +295,8 @@
     clientReset:   async (id)              => await postJson('/atlas/clients/reset', { id, confirm: true }),
     // Phase R-4 — client-scoped so a fresh client tab doesn't see the root pile.
     proposalsList: async ()                => await getJson('/atlas/proposals/list' + (client ? `?client=${encodeURIComponent(client)}` : '')),
+    // R-7.98 — operator locks for proposal compliance badges (A6).
+    profileHints:  async ()                => await getJson('/atlas/operator-profile/hints'),
     activityLogTail:   async (limit = 100) => await getJson('/atlas/activity-log/tail?limit=' + limit),
     activityLogAppend: async (entry)       => await postJson('/atlas/activity-log/append', entry),
     // R-7.87 (S-9) — token economics roll-up (LLM trace aggregator).

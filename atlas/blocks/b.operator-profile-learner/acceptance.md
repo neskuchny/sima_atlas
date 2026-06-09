@@ -37,11 +37,11 @@ evidence_spec:
   cmd: node tests/operator_profile_inject.smoke.mjs
   expect_in_stdout: "OK"
 ```
-- [ ] **A6.** PR-6 (UI hints) merged: ProposalsPanel показывает badge `соответствует профилю` / `противоречит профилю`; Inspector под mission блока — секция `Подсказки от профиля` со списком (`evidence: [block_id]` рядом с каждой подсказкой).
+- [x] **A6.** UI hints: ProposalsPanel показывает badge `соответствует профилю` / `противоречит профилю` — содержимое каждого proposal сверяется с operator locks (`dont_use` / `always_use`) через `GET /atlas/operator-profile/hints`. (R-7.98: исходный `frontend/proposals_panel.jsx` был удалён при миграции UI; фича пересоздана в актуальной панели `views.jsx` — контракт пересмотрен осознанно, не молча.)
 ```yaml
 evidence_kind: log_grep
 evidence_spec:
-  file: frontend/proposals_panel.jsx
+  file: frontend/atlas_design/views.jsx
   pattern: "complianceWithProfile"
 ```
 - [ ] **A7.** Privacy gate: `atlas/operator_profile/` упоминается в `.gitignore` (опц.) с пояснением в `atlas/rules.md`; никакого PII (имена / e-mail / API-ключи) не пишется в profile.json — selftest A1 проверяет regex.

@@ -81,23 +81,41 @@ const blocksDir = path.join(atlasRoot, 'blocks');
 // ─────────────────────────────────────────── find dependents
 // A block D depends on X iff X is referenced in D's depends_on.md
 // (format: `- <block_id>: <capability>` or `- <block_id>:scope`).
-// We do this by reading depends_on.md for every block — graph.json
-// already mirrors this in block.depends_on, so we use that for speed.
+// graph.json mirrors this in block.depends_on, so we use that for speed.
+//
+// R-7.98 (Kanon spec §4.1): the walk covers the reverse-dependency CLOSURE —
+// «every block that lists X (directly or transitively) in its depends_on» —
+// not just the first hop. If A→B→C and C changes, A must be re-verified too:
+// a break can propagate through an intermediate block that itself still
+// passes (e.g. B's contract is loose where A's is strict). BFS, cycle-safe.
 
-const dependents = (graph.blocks || []).filter(b => {
-  if (!Array.isArray(b.depends_on)) return false;
-  return b.depends_on.some(d => {
-    const id = String(d).split(':')[0].trim();
-    return id === blockId;
-  });
-});
+const dependsOnIds = (b) => Array.isArray(b.depends_on)
+  ? b.depends_on.map((d) => String(d).split(':')[0].trim()).filter(Boolean)
+  : [];
+
+const allBlocks = graph.blocks || [];
+const seen = new Set([blockId]);
+const dependents = [];
+let frontier = [blockId];
+while (frontier.length) {
+  const next = [];
+  for (const b of allBlocks) {
+    if (seen.has(b.id)) continue;
+    if (dependsOnIds(b).some((id) => frontier.includes(id))) {
+      seen.add(b.id);
+      dependents.push(b);
+      next.push(b.id);
+    }
+  }
+  frontier = next;
+}
 
 if (!dependents.length) {
   console.log(`[cascade] ${blockId} has no dependents — nothing to check`);
   process.exit(0);
 }
 
-console.log(`[cascade] checking ${dependents.length} dependent(s) of ${blockId}: ${dependents.map(d => d.id).join(', ')}`);
+console.log(`[cascade] checking ${dependents.length} dependent(s) in reverse-dep closure of ${blockId}: ${dependents.map(d => d.id).join(', ')}`);
 
 if (dryRun) {
   console.log('[cascade] dry-run — no verification spawned, no status patched');

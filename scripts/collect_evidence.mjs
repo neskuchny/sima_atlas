@@ -323,10 +323,43 @@ export async function verifyBlock(blockId, opts = {}) {
   }
   const counts = { pass: 0, fail: 0, skipped: 0 };
   for (const a of enriched) counts[a.verdict] = (counts[a.verdict] || 0) + 1;
-  // Block verdict: fail iff ANY fail; pass iff ≥1 pass and 0 fails; otherwise
-  // (all skipped) inconclusive. PR-4 will turn fail into a hard gate against
-  // wip → done transitions.
-  const verdict = counts.fail > 0 ? 'fail' : (counts.pass > 0 ? 'pass' : 'inconclusive');
+  // Block verdict: fail iff ANY fail; pass iff ≥1 DETERMINISTIC pass and 0
+  // fails; otherwise inconclusive.
+  //
+  // Kanon spec §3.2: «An LLM-as-judge result alone is INSUFFICIENT for pass —
+  // it MAY contribute to a verdict but MUST be paired with at least one
+  // deterministic collector.» So passes that come exclusively from llm_judge
+  // assertions do NOT promote the block to pass — they leave it inconclusive,
+  // surfaced via `llm_judge_only: true` so the UI can explain why.
+  const deterministicPass = enriched.some((a) => a.verdict === 'pass' && a.evidence_kind !== 'llm_judge');
+  const llmJudgeOnlyPass = !deterministicPass && enriched.some((a) => a.verdict === 'pass' && a.evidence_kind === 'llm_judge');
+  let verdict = counts.fail > 0 ? 'fail' : (deterministicPass ? 'pass' : 'inconclusive');
+
+  // R-7.98 (Kanon spec §2.4) — inconclusive_if preconditions. Each condition
+  // with a deterministic spec is a PRECONDITION for conclusive verification:
+  // if its check FAILS, the declared circumstance holds and the verdict is
+  // forced to inconclusive. A deterministic assertion FAIL still wins —
+  // refutation beats unknown. Declarative-only conditions (no spec) are
+  // surfaced but not evaluated.
+  let inconclusiveTriggered = null;
+  const incConditions = Array.isArray(parsed.inconclusive_if) ? parsed.inconclusive_if : [];
+  if (verdict === 'pass') {
+    for (const cond of incConditions) {
+      if (!cond.evidence_kind || cond.evidence_kind === 'llm_judge' || !cond.evidence_spec) continue;
+      const r = await collectEvidence({
+        evidence_kind: cond.evidence_kind,
+        evidence_spec: cond.evidence_spec,
+        cwd: opts.cwd,
+        timeout_ms: opts.timeout_ms,
+        block_id: blockId,
+      });
+      if (r.verdict === 'fail') {
+        verdict = 'inconclusive';
+        inconclusiveTriggered = { id: cond.id, text: cond.text, evidence: r.evidence };
+        break;
+      }
+    }
+  }
   return {
     block_id: blockId,
     source_path: parsed.source_path,
@@ -334,6 +367,9 @@ export async function verifyBlock(blockId, opts = {}) {
     assertions: enriched,
     counts,
     verdict,
+    llm_judge_only: llmJudgeOnlyPass || undefined,
+    inconclusive_if_triggered: inconclusiveTriggered || undefined,
+    inconclusive_if_declared: incConditions.length || undefined,
     duration_ms: Date.now() - t0,
     checked_at: new Date().toISOString(),
   };

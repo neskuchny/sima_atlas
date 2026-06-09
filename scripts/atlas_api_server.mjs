@@ -272,6 +272,19 @@ const server = http.createServer((req, res) => {
     }
   }
 
+  // R-7.98 (b.operator-profile-learner A6) — profile locks for UI compliance
+  // badges: ProposalsPanel matches proposal content against dont_use /
+  // always_use and renders «противоречит профилю» / «соответствует профилю».
+  if (req.method === 'GET' && req.url === '/atlas/operator-profile/hints') {
+    const readEntries = (name) => {
+      try {
+        const j = JSON.parse(fs.readFileSync(path.join(ATLAS, 'operator_profile', name), 'utf8'));
+        return Array.isArray(j.entries) ? j.entries : [];
+      } catch { return []; }
+    };
+    return json(res, 200, { ok: true, dont_use: readEntries('dont_use.json'), always_use: readEntries('always_use.json') });
+  }
+
   // Phase P-3 — block screenshots: GET binary file. URL pattern:
   //   /atlas/blocks/<id>/screenshot-file?name=<filename>
   // name is whitelisted to *.png in the block's screenshots/ dir.

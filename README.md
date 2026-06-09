@@ -181,6 +181,19 @@ Every capability in the original concept, mapped to current code state.
 
 **Score: 14 ✅ fully shipped · 1 🟡 partial (auto-tutorials quality) · 1 ✅+🟡 partial (cross-project library — local works, transfer planned).**
 
+## Kanon Protocol compliance
+
+Sima Atlas is the **reference implementation** of the
+[Kanon Protocol](kanon-protocol-manifesto-v2.1-ru.md) ([EN manifesto](kanon-protocol-manifesto-v2-en.md))
+and claims **Level 3 — Cost-transparent** compliance per the
+[Kanon Protocol Specification v0.1.1](kanon-protocol-spec-v0.1.md):
+
+| Level | Requirement (spec section) | Where in Sima |
+|---|---|---|
+| **1 — Core** | Block structure (§2, flat Layout B) · tri-state acceptance: deterministic collectors, `llm_judge` never the sole basis for pass, `inconclusive_if` preconditions (§3, §2.4) · typed memory + injection rules (§5) · required operations (§6) | `atlas/blocks/<id>/*.md` · `scripts/collect_evidence.mjs` · `operator_profile/` + `architecture_decisions.md` auto-injection · MCP/CLI/HTTP |
+| **2 — Cascade-aware** | Reverse-dependency **closure** re-verified after every pass; `desync` surfaced same-session + narrative entry (§4) · `graph.visualise` (§6) | `scripts/cascade_verify.mjs` (transitive BFS) · canvas status colours |
+| **3 — Cost-transparent** | Tokens / op / provider / **shadow-bill** per run; aggregation by block, op, provider, day; cost on the same surface as status (§7.3) | `atlas/llm_traces/` → `scripts/token_economics.mjs` → Token Spend widget + Economics tab |
+
 ## What's in the box (today)
 
 **Foundations**

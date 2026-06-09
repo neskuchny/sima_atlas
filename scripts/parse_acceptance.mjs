@@ -16,10 +16,29 @@
 // Supported evidence_kind values: exit_code, fs_glob, file_diff, log_grep,
 // selftest_run, llm_judge (default when not specified).
 //
+// R-7.98 (Kanon spec §2.4) — `inconclusive_if` section. Markdown section
+// headed `## inconclusive_if` (case-insensitive, `## Inconclusive if` ok)
+// containing plain bullets, each optionally followed by the same fenced-YAML
+// evidence block as assertions:
+//
+//   ## inconclusive_if
+//   - no LLM API key is configured in the environment
+//   ```yaml
+//   evidence_kind: exit_code
+//   evidence_spec:
+//     cmd: node -e "process.exit(process.env.GOOGLE_API_KEY ? 0 : 1)"
+//   ```
+//
+// Semantics: the YAML spec describes a PRECONDITION for conclusive
+// verification. If the precondition check FAILS, the declared circumstance
+// holds and the run verdict is forced to `inconclusive` (a deterministic
+// assertion FAIL still wins — refutation beats unknown). Bullets without a
+// spec are declarative-only: surfaced in the parse result, not evaluated.
+//
 // API:
 //   import { parseAcceptance, parseAcceptanceText } from './parse_acceptance.mjs';
 //   const r = parseAcceptance('b.llm-gateway');
-//   r → { block_id, source_path, assertions: [...], warnings: [...] }
+//   r → { block_id, source_path, assertions: [...], inconclusive_if: [...], warnings: [...] }
 //
 // CLI:
 //   node scripts/parse_acceptance.mjs <block_id> [--json]
@@ -98,6 +117,78 @@ function coerce(v) {
   return v;
 }
 
+// Look ahead from bullet line `i` for a fenced YAML evidence block. Returns
+// { evidence_kind, evidence_spec, consumed, warnings } — `consumed` is how
+// many extra lines (beyond the bullet) the YAML occupied, 0 when absent.
+function consumeEvidenceYaml(lines, i, ownerId) {
+  const warnings = [];
+  let evidence_kind = DEFAULT_EVIDENCE_KIND;
+  let evidence_spec = null;
+  let consumed = 0;
+  let j = i + 1;
+  while (j < lines.length && lines[j].trim() === '') j += 1;
+  if (lines[j] && /^```ya?ml\s*$/i.test(lines[j].trim())) {
+    const start = j + 1;
+    let end = start;
+    while (end < lines.length && !/^```\s*$/.test(lines[end].trim())) end += 1;
+    if (end < lines.length) {
+      const parsed = parseYamlSimple(lines.slice(start, end).join('\n'));
+      if (parsed) {
+        if (typeof parsed.evidence_kind === 'string') {
+          if (VALID_EVIDENCE_KINDS.has(parsed.evidence_kind)) {
+            evidence_kind = parsed.evidence_kind;
+          } else {
+            warnings.push(`invalid evidence_kind "${parsed.evidence_kind}" for ${ownerId} at line ${start + 1}`);
+          }
+        }
+        if (parsed.evidence_spec && typeof parsed.evidence_spec === 'object') {
+          evidence_spec = parsed.evidence_spec;
+        }
+        consumed = end - i;
+      } else {
+        warnings.push(`malformed YAML block for ${ownerId} at line ${start + 1}`);
+      }
+    } else {
+      warnings.push(`unterminated YAML fence for ${ownerId} at line ${j + 1}`);
+    }
+  }
+  return { evidence_kind, evidence_spec, consumed, warnings };
+}
+
+// R-7.98 (spec §2.4) — parse the `## inconclusive_if` section anywhere in the
+// document. Plain bullets; optional evidence YAML per bullet (same format as
+// assertions). Bullets without a spec are declarative-only.
+const INCONCLUSIVE_HEADER_RE = /^#{1,6}\s+inconclusive[_ ]if\b/i;
+
+function parseInconclusiveSection(lines) {
+  const out = [];
+  const warnings = [];
+  let i = lines.findIndex((l) => INCONCLUSIVE_HEADER_RE.test(l));
+  if (i === -1) return { conditions: out, warnings };
+  i += 1;
+  while (i < lines.length) {
+    const line = lines[i];
+    if (SECTION_HEADER_RE.test(line)) break; // next section ends ours
+    const m = line.match(/^- (.+)$/);
+    if (!m) { i += 1; continue; }
+    const text = m[1].trim();
+    const condId = `I${out.length + 1}`;
+    const y = consumeEvidenceYaml(lines, i, condId);
+    warnings.push(...y.warnings);
+    out.push({
+      id: condId,
+      text,
+      line: i + 1,
+      // Declarative-only bullets keep evidence_kind null — they are listed,
+      // not evaluated. (DEFAULT_EVIDENCE_KIND would wrongly imply llm_judge.)
+      evidence_kind: y.consumed ? y.evidence_kind : null,
+      evidence_spec: y.consumed ? y.evidence_spec : null,
+    });
+    i += y.consumed ? y.consumed + 1 : 1;
+  }
+  return { conditions: out, warnings };
+}
+
 export function parseAcceptanceText(text, sourceLabel = '<inline>') {
   const lines = text.split(/\r?\n/);
   const assertions = [];
@@ -123,37 +214,8 @@ export function parseAcceptanceText(text, sourceLabel = '<inline>') {
     seenIds.add(id);
 
     // Look ahead for fenced YAML block immediately after this bullet.
-    let evidence_kind = DEFAULT_EVIDENCE_KIND;
-    let evidence_spec = null;
-    let yamlConsumed = 0;
-    let j = i + 1;
-    while (j < lines.length && lines[j].trim() === '') j += 1;
-    if (lines[j] && /^```ya?ml\s*$/i.test(lines[j].trim())) {
-      const start = j + 1;
-      let end = start;
-      while (end < lines.length && !/^```\s*$/.test(lines[end].trim())) end += 1;
-      if (end < lines.length) {
-        const yamlBody = lines.slice(start, end).join('\n');
-        const parsed = parseYamlSimple(yamlBody);
-        if (parsed) {
-          if (typeof parsed.evidence_kind === 'string') {
-            if (VALID_EVIDENCE_KINDS.has(parsed.evidence_kind)) {
-              evidence_kind = parsed.evidence_kind;
-            } else {
-              warnings.push(`invalid evidence_kind "${parsed.evidence_kind}" for ${id} at line ${start + 1}`);
-            }
-          }
-          if (parsed.evidence_spec && typeof parsed.evidence_spec === 'object') {
-            evidence_spec = parsed.evidence_spec;
-          }
-          yamlConsumed = (end - i);
-        } else {
-          warnings.push(`malformed YAML block for ${id} at line ${start + 1}`);
-        }
-      } else {
-        warnings.push(`unterminated YAML fence for ${id} at line ${j + 1}`);
-      }
-    }
+    const y = consumeEvidenceYaml(lines, i, id);
+    warnings.push(...y.warnings);
 
     assertions.push({
       id,
@@ -161,12 +223,17 @@ export function parseAcceptanceText(text, sourceLabel = '<inline>') {
       text: textRaw.trim(),
       checked: checkboxRaw.toLowerCase() === 'x',
       line: i + 1,
-      evidence_kind,
-      evidence_spec,
+      evidence_kind: y.evidence_kind,
+      evidence_spec: y.evidence_spec,
     });
 
-    i = yamlConsumed ? i + yamlConsumed + 1 : i + 1;
+    i = y.consumed ? i + y.consumed + 1 : i + 1;
   }
+
+  // R-7.98 — inconclusive_if section (anywhere in the doc, incl. after the
+  // assertion-terminating section header).
+  const inc = parseInconclusiveSection(lines);
+  warnings.push(...inc.warnings);
 
   // Sanity warnings
   if (!assertions.length) {
@@ -180,7 +247,7 @@ export function parseAcceptanceText(text, sourceLabel = '<inline>') {
     }
   }
 
-  return { assertions, warnings, stopped_at_section_line: stoppedAtSection };
+  return { assertions, inconclusive_if: inc.conditions, warnings, stopped_at_section_line: stoppedAtSection };
 }
 
 export function parseAcceptance(blockId, atlasRoot) {

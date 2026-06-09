@@ -199,9 +199,68 @@ evidence_spec:
   fs.rmSync(tmp, { recursive: true, force: true });
 }
 
+// ─── Group 12 (R-7.98, Kanon spec §3.2): llm_judge alone is NOT sufficient
+// for a block-level pass. A block with no deterministic assertion must never
+// come out 'pass', whatever the judge says.
+{
+  process.env.ATLAS_FORCE_MOCK_LLM = '1';
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'sima-judgeonly-'));
+  const atlas = path.join(tmp, 'atlas');
+  const blockDir = path.join(atlas, 'blocks', 'b.judgeonly');
+  fs.mkdirSync(blockDir, { recursive: true });
+  fs.writeFileSync(path.join(blockDir, 'mission.md'), '# b.judgeonly — mission\n\nSynthetic.\n');
+  fs.writeFileSync(path.join(blockDir, 'acceptance.md'), `# b.judgeonly — acceptance
+
+- [ ] **A1.** Judged only by the LLM.
+`);
+  const r = await verifyBlock('b.judgeonly', { atlas_root: atlas });
+  check('judge-only: verdict not pass', r.verdict !== 'pass', `verdict=${r.verdict}`);
+  fs.rmSync(tmp, { recursive: true, force: true });
+}
+
+// ─── Group 13 (R-7.98, Kanon spec §2.4): inconclusive_if preconditions.
+// A passing block whose declared precondition check fails → inconclusive.
+{
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'sima-incif-'));
+  const atlas = path.join(tmp, 'atlas');
+  const blockDir = path.join(atlas, 'blocks', 'b.incif');
+  fs.mkdirSync(blockDir, { recursive: true });
+  fs.writeFileSync(path.join(blockDir, 'mission.md'), '# b.incif — mission\n\nSynthetic.\n');
+  const writeAcceptance = (precondCmd) => fs.writeFileSync(path.join(blockDir, 'acceptance.md'), `# b.incif — acceptance
+
+- [ ] **A1.** Echo passes.
+\`\`\`yaml
+evidence_kind: exit_code
+evidence_spec:
+  cmd: echo OK
+  expect_in_stdout: OK
+\`\`\`
+
+## inconclusive_if
+- environment is not verifiable
+\`\`\`yaml
+evidence_kind: exit_code
+evidence_spec:
+  cmd: ${precondCmd}
+\`\`\`
+- declarative-only condition without a spec
+`);
+  // Precondition holds (exit 0) → conclusive → pass.
+  writeAcceptance('exit 0');
+  const ok = await verifyBlock('b.incif', { atlas_root: atlas });
+  check('inconclusive_if: precondition ok → pass', ok.verdict === 'pass', `verdict=${ok.verdict}`);
+  check('inconclusive_if: declared count surfaced', ok.inconclusive_if_declared === 2, `declared=${ok.inconclusive_if_declared}`);
+  // Precondition broken (exit 1) → forced inconclusive despite A1 pass.
+  writeAcceptance('exit 1');
+  const forced = await verifyBlock('b.incif', { atlas_root: atlas });
+  check('inconclusive_if: precondition fail → inconclusive', forced.verdict === 'inconclusive', `verdict=${forced.verdict}`);
+  check('inconclusive_if: trigger surfaced', forced.inconclusive_if_triggered?.id === 'I1', JSON.stringify(forced.inconclusive_if_triggered || null));
+  fs.rmSync(tmp, { recursive: true, force: true });
+}
+
 if (failures.length) {
   console.error('evidence_collectors.selftest: FAIL');
   failures.forEach((f) => console.error(' ✗', f));
   process.exit(1);
 }
-console.log('evidence_collectors.selftest: OK (11 test groups, all assertions green)');
+console.log('evidence_collectors.selftest: OK (13 test groups, all assertions green)');

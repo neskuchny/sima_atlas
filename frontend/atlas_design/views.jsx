@@ -1238,12 +1238,33 @@ function SystemDocs({ onClose }) {
    can accept/reject them. Backend endpoints live in atlas_api_server.mjs:
    /atlas/proposals/list (read), /proposals/accept, /proposals/reject.
 */
+// R-7.98 (b.operator-profile-learner A6) — match a proposal's content against
+// operator locks. Returns { verdict: 'violates'|'matches'|null, hits: [...] }.
+// `violates` wins: a dont_use hit is a red flag even if always_use also hits.
+function complianceWithProfile(proposal, hints) {
+  if (!hints) return { verdict: null, hits: [] };
+  const text = [
+    proposal.diff_summary || '',
+    JSON.stringify(proposal.proposed || {}),
+    JSON.stringify(proposal.new_block_proposals || []),
+  ].join('\n').toLowerCase();
+  const hitOf = (entries) => (Array.isArray(entries) ? entries : [])
+    .filter((e) => e && typeof e.value === 'string' && e.value.trim())
+    .filter((e) => text.includes(e.value.trim().toLowerCase()));
+  const bad = hitOf(hints.dont_use);
+  if (bad.length) return { verdict: 'violates', hits: bad };
+  const good = hitOf(hints.always_use);
+  if (good.length) return { verdict: 'matches', hits: good };
+  return { verdict: null, hits: [] };
+}
+
 function ProposalsPanel({ onClose, onAfterAction }) {
   const t = window.__SIMA_T || ((_, fb) => fb);
   const [items, setItems] = useStateV([]);
   const [loading, setLoading] = useStateV(true);
   const [busy, setBusy] = useStateV({});
   const [reason, setReason] = useStateV('');
+  const [profileHints, setProfileHints] = useStateV(null);
 
   const refresh = async () => {
     setLoading(true);
@@ -1251,7 +1272,15 @@ function ProposalsPanel({ onClose, onAfterAction }) {
     setItems(r?.ok ? r.items.filter((i) => !i.resolved && !i.accepted_at && !i.rejected_at) : []);
     setLoading(false);
   };
-  useEffectV(() => { refresh(); }, []);
+  useEffectV(() => {
+    refresh();
+    (async () => {
+      try {
+        const h = await window.SIMA_API.meta.profileHints();
+        if (h?.ok) setProfileHints({ dont_use: h.dont_use, always_use: h.always_use });
+      } catch {}
+    })();
+  }, []);
 
   const act = async (id, kind) => {
     setBusy((b) => ({ ...b, [id]: kind }));
@@ -1284,13 +1313,27 @@ function ProposalsPanel({ onClose, onAfterAction }) {
           {!loading && !items.length && <div className="meta" style={{ padding: 14 }}>
             {t('proposals.empty', 'No open proposals. Sima adds them automatically based on chat distillates, sync-check, and other processes.')}
           </div>}
-          {items.map((p) => (
+          {items.map((p) => {
+            const compliance = complianceWithProfile(p, profileHints);
+            return (
             <div key={p.id} className="proposal-card">
               <div className="proposal-card-head">
                 <span className="mono" style={{ fontSize: 10.5 }}>{p.kind}</span>
                 <span className="mono" style={{ fontSize: 10.5, color: 'var(--ink-3)' }}>
                   {p.block_id} · conf {((p.source?.confidence || 0) * 100).toFixed(0)}% · {p.source?.provider}
                 </span>
+                {compliance.verdict === 'violates' && (
+                  <span className="mono" style={{ fontSize: 10, color: '#b3261e', border: '1px solid #b3261e', borderRadius: 8, padding: '1px 7px' }}
+                        title={compliance.hits.map((h) => `${h.value}: ${h.reason || ''}`).join('\n')}>
+                    {t('proposals.profile_violates', '⚠ противоречит профилю')}: {compliance.hits.map((h) => h.value).slice(0, 2).join(', ')}
+                  </span>
+                )}
+                {compliance.verdict === 'matches' && (
+                  <span className="mono" style={{ fontSize: 10, color: '#2e7d32', border: '1px solid #2e7d32', borderRadius: 8, padding: '1px 7px' }}
+                        title={compliance.hits.map((h) => `${h.value}: ${h.reason || ''}`).join('\n')}>
+                    {t('proposals.profile_matches', '✓ соответствует профилю')}
+                  </span>
+                )}
               </div>
               {p.diff_summary && <div style={{ fontSize: 12.5, marginTop: 4 }}>{p.diff_summary}</div>}
               {p.proposed && (
@@ -1307,7 +1350,8 @@ function ProposalsPanel({ onClose, onAfterAction }) {
                 </button>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
         {items.length > 0 && (
           <div className="sysdocs-foot">
