@@ -1,22 +1,22 @@
 {
   "operator_id": "default",
-  "updated_at": "2026-06-19T18:44:27.430Z",
+  "updated_at": "2026-06-19T19:01:27.241Z",
   "_status": "live",
   "_min_data": {
-    "done_transitions": 7,
+    "done_transitions": 8,
     "done_required": 5,
     "invocations": 9,
     "invocations_required": 10
   },
   "work_style": {
-    "total_done": 7,
+    "total_done": 8,
     "total_broken": 0,
-    "total_wip_started": 5,
+    "total_wip_started": 6,
     "rollback_rate": 0,
-    "median_time_idea_to_done_h": 0.00003138888888888889,
+    "median_time_idea_to_done_h": 0.0000275,
     "common_failure_modes": {
       "acceptance_verifier": 22,
-      "semantic_verify": 13,
+      "semantic_verify": 14,
       "cascade_check": 2,
       "drift_guard": 2,
       "agent_invocation": 3
@@ -87,21 +87,23 @@
     "backend": [
       {
         "name": "nodejs",
-        "uses": 3,
-        "satisfaction": "unknown",
+        "uses": 4,
+        "satisfaction": "high",
         "evidence": [
           "b.core-sync",
           "b.code-graph",
+          "b.desktop",
           "b.todo-api"
         ]
       },
       {
         "name": "esm",
-        "uses": 2,
-        "satisfaction": "unknown",
+        "uses": 3,
+        "satisfaction": "high",
         "evidence": [
           "b.core-sync",
-          "b.code-graph"
+          "b.code-graph",
+          "b.desktop"
         ]
       },
       {
@@ -145,6 +147,22 @@
         "satisfaction": "unknown",
         "evidence": [
           "b.db"
+        ]
+      },
+      {
+        "name": "electron",
+        "uses": 1,
+        "satisfaction": "high",
+        "evidence": [
+          "b.desktop"
+        ]
+      },
+      {
+        "name": "electron-builder",
+        "uses": 1,
+        "satisfaction": "high",
+        "evidence": [
+          "b.desktop"
         ]
       },
       {
@@ -292,10 +310,10 @@
   },
   "llm_provider_stats": {
     "mock": {
-      "count": 3928,
+      "count": 4340,
       "fallback_to_mock_count": 79,
       "total_cost_usd": 0,
-      "schema_ok_count": 3928,
+      "schema_ok_count": 4340,
       "fallback_rate": 0.02,
       "schema_ok_rate": 1,
       "avg_cost_usd": 0
@@ -310,28 +328,28 @@
       "avg_cost_usd": 0
     },
     "google": {
-      "count": 30,
+      "count": 31,
       "fallback_to_mock_count": 0,
-      "total_cost_usd": 0.0229065,
-      "schema_ok_count": 30,
+      "total_cost_usd": 0.0246598,
+      "schema_ok_count": 31,
       "fallback_rate": 0,
       "schema_ok_rate": 1,
-      "avg_cost_usd": 0.000764
+      "avg_cost_usd": 0.000795
     }
   },
   "proposals_stats": {
-    "total": 52,
+    "total": 56,
     "accept_rate": 0,
     "reject_rate": 0,
-    "pending": 52
+    "pending": 56
   },
   "decisions_stats": {
-    "total": 310,
-    "blocks_with_decisions": 5
+    "total": 322,
+    "blocks_with_decisions": 6
   },
   "patterns_stats": {
-    "with_patterns": 4,
-    "total": 19
+    "with_patterns": 5,
+    "total": 20
   },
   "failures": [
     {
@@ -473,6 +491,12 @@
       "note": "mission_fulfilled=fail conditions_met=fail methodology_followed=fail works_as_described=fail connections_consistent=fail"
     },
     {
+      "block_id": "b.core-sync",
+      "ts": "2026-06-19T18:44:43.245Z",
+      "kind": "semantic_verify",
+      "note": "mission_fulfilled=fail conditions_met=fail methodology_followed=fail works_as_described=fail connections_consistent=fail"
+    },
+    {
       "block_id": "b.docs",
       "ts": "2026-06-05T22:03:02.631Z",
       "kind": "acceptance_verifier",
@@ -589,9 +613,9 @@
   ],
   "invocations_total": 9,
   "_preview": {
-    "total_done": 7,
+    "total_done": 8,
     "total_invocations": 9,
-    "total_traces": 4004,
-    "total_proposals": 52
+    "total_traces": 4417,
+    "total_proposals": 56
   }
 }

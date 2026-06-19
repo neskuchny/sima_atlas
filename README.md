@@ -42,6 +42,23 @@ This is not where we are today. This is the trajectory of the next 12 months. Th
 
 ## Quickstart (60 seconds)
 
+### Option A — Desktop app (no terminal, no Node prerequisite)
+
+Download the installer for your OS from the
+[latest release](https://github.com/neskuchny/sima_atlas/releases/latest):
+
+| OS | File | Notes |
+|---|---|---|
+| macOS | `Sima Atlas-*.dmg` | Apple Silicon + Intel · unsigned, click through Gatekeeper on first launch |
+| Windows | `Sima Atlas Setup-*.exe` | Installer · portable `.exe` also available · unsigned, click through SmartScreen |
+| Linux | `Sima Atlas-*.AppImage` | Single file, `chmod +x` and double-click · `.deb` also available |
+
+Double-click → window opens on the canvas with a populated demo project.
+No `git clone`, no `npm install`, no terminal. Block contract:
+[`atlas/blocks/b.desktop/`](atlas/blocks/b.desktop/).
+
+### Option B — From source (developers / contributors)
+
 ```bash
 git clone https://github.com/neskuchny/sima_atlas
 cd sima_atlas

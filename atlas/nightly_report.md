@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-06-19T18:44:25.431Z_
+_Generated: 2026-06-19T19:01:25.037Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -11,20 +11,22 @@ _Generated: 2026-06-19T18:44:25.431Z_
 - ✅ block_contracts: ok
   - output: Block contract validation: OK
 - ✅ no_template_placeholders: ok
-  - output: Template-placeholder validation: OK (18 blocks scanned)
+  - output: Template-placeholder validation: OK (19 blocks scanned)
 - ✅ article_status_projection: ok
   - output: docs/article.en.md: up to date
 - ✅ code_graph_build: ok
   - output: build_code_graph --check: code_graph.json up-to-date
 - ✅ code_graph_drift: ok
 - ✅ code_graph_extractor_selftest: ok
-  - output: deterministic — sha256(f97ad80e3d5c…) matches across runs
+  - output: deterministic — sha256(5f6f1264cfc5…) matches across runs
 - ✅ code_graph_validator_selftest: ok
   - output: code_graph_validator.selftest: OK (6 test groups, all assertions green)
 - ✅ checks_append_endpoint_selftest: ok
   - output: checks_append_endpoint.selftest: OK (6 test groups, all assertions green)
+- ✅ desktop_structure_selftest: ok
+  - output: desktop_structure.selftest: OK (7 test groups, all assertions green)
 - ✅ files_registry: ok
-  - output: Files registry validation: OK (alive=193, archived=4, dead=0)
+  - output: Files registry validation: OK (alive=199, archived=4, dead=0)
 - ✅ housekeeping_sweep: ok
   - output: housekeeping_sweeper: 1 proposal(s) — see atlas/cleanup_proposals.md
 - ✅ projects_contracts: ok
@@ -38,7 +40,7 @@ _Generated: 2026-06-19T18:44:25.431Z_
 - ✅ atlas_selftest: ok
   - output: atlas_sync.selftest: OK
 - ✅ bootstrap_layered_smoke: ok
-  - output: atlas_bootstrap smoke: OK (layers=6, blocks=18, links=24)
+  - output: atlas_bootstrap smoke: OK (layers=7, blocks=19, links=27)
 - ✅ llm_gateway_selftest: ok
   - output: llm_gateway.selftest: OK (5 cases)
 - ✅ pick_template_selftest: ok
@@ -46,7 +48,7 @@ _Generated: 2026-06-19T18:44:25.431Z_
 - ✅ operator_profile_selftest: ok
   - output: operator_profile.selftest: OK (7 test groups, all assertions green)
 - ✅ aggregate_operator_profile: ok
-  - output: operator_profile: live (done=7, invocations=9, traces=4004, proposals=52)
+  - output: operator_profile: live (done=8, invocations=9, traces=4417, proposals=56)
 - ✅ operator_profile_lessons_smoke: ok
   - output: operator_profile_lessons.smoke: OK (6 test groups, all assertions green)
 - ✅ operator_profile_inject_smoke: ok
@@ -56,9 +58,9 @@ _Generated: 2026-06-19T18:44:25.431Z_
 - ✅ dont_use_management_selftest: ok
   - output: dont_use_management.selftest: OK (7 test groups, all assertions green)
 - ✅ validate_dont_use_compliance: ok
-  - output: validate_dont_use_compliance: banned=0 (none); checked=18; warnings=0
+  - output: validate_dont_use_compliance: banned=0 (none); checked=19; warnings=0
 - ✅ validate_lifecycle_gates: ok
-  - output: validate_lifecycle_gates — 16 blocks, 0 fail, 0 warn
+  - output: validate_lifecycle_gates — 17 blocks, 0 fail, 0 warn
 - ✅ introspect_block_ui_selftest: ok
   - output: introspect_block_ui.selftest: OK (7 test groups, all assertions green)
 - ✅ user_docs_smoke: ok
@@ -130,13 +132,13 @@ _Generated: 2026-06-19T18:44:25.431Z_
 - ✅ list_proposals_index: ok
   - output: [
 - ✅ agent_parity_real: ok
-  - output: agent_parity_real.smoke: OK (18 blocks, MCP pack ≡ disk)
+  - output: agent_parity_real.smoke: OK (19 blocks, MCP pack ≡ disk)
 - ✅ connection_drift: ok
   - output: connection_drift.smoke: OK (broken capability link detected and propagated to archByProject.links)
 - ✅ atlas_live_polling: ok
   - output: atlas_live_polling.smoke: OK (state hash changes on disk mutation; payload returns bootstrap shape)
 - ✅ sync_context_packs: ok
-  - output: Context packs synced: 18
+  - output: Context packs synced: 19
 - ✅ agent_parity: ok
   - output: Agent parity validation: OK
 - ✅ parity_matrix: ok
@@ -146,16 +148,16 @@ _Generated: 2026-06-19T18:44:25.431Z_
 - ✅ render_wiki_html: ok
   - output: Rendered /home/user/sima_atlas/atlas/wiki.html
 - ✅ generate_tz: ok
-  - output: Generated /home/user/sima_atlas/atlas/auto_tz.md (18 specified, 0 skipped as unspecified ideas)
+  - output: Generated /home/user/sima_atlas/atlas/auto_tz.md (19 specified, 0 skipped as unspecified ideas)
 - ✅ rebuild_roadmap: ok
   - output: Rebuilt /home/user/sima_atlas/atlas/roadmap.md
 - ✅ verify_all_acceptance: ok
-  - output: verify_all_acceptance: 10 pass / 0 fail / 8 inconclusive (assertions: 47 pass / 0 fail / 52 skipped)
+  - output: verify_all_acceptance: 11 pass / 0 fail / 8 inconclusive (assertions: 54 pass / 0 fail / 52 skipped)
 - ✅ verify_done_blocks_still_green: ok
-  - output: verify_done_blocks_still_green: checked=5 green=5 regressions=0 inconclusive=0
+  - output: verify_done_blocks_still_green: checked=6 green=6 regressions=0 inconclusive=0
 - ✅ mcp_smoke_e2e: ok
   - output: mcp_smoke_e2e: OK
 - ✅ intelligence_health: ok
-  - output: Intelligence health: 0.9444 (17/18)
+  - output: Intelligence health: 0.9474 (18/19)
 
-Summary: PASS (78/78)
+Summary: PASS (79/79)

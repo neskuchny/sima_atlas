@@ -138,6 +138,12 @@
     "note": "mission_fulfilled=fail conditions_met=fail methodology_followed=fail works_as_described=fail connections_consistent=fail"
   },
   {
+    "block_id": "b.core-sync",
+    "ts": "2026-06-19T18:44:43.245Z",
+    "kind": "semantic_verify",
+    "note": "mission_fulfilled=fail conditions_met=fail methodology_followed=fail works_as_described=fail connections_consistent=fail"
+  },
+  {
     "block_id": "b.docs",
     "ts": "2026-06-05T22:03:02.631Z",
     "kind": "acceptance_verifier",

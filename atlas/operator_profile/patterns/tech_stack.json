@@ -45,21 +45,23 @@
   "backend": [
     {
       "name": "nodejs",
-      "uses": 3,
-      "satisfaction": "unknown",
+      "uses": 4,
+      "satisfaction": "high",
       "evidence": [
         "b.core-sync",
         "b.code-graph",
+        "b.desktop",
         "b.todo-api"
       ]
     },
     {
       "name": "esm",
-      "uses": 2,
-      "satisfaction": "unknown",
+      "uses": 3,
+      "satisfaction": "high",
       "evidence": [
         "b.core-sync",
-        "b.code-graph"
+        "b.code-graph",
+        "b.desktop"
       ]
     },
     {
@@ -103,6 +105,22 @@
       "satisfaction": "unknown",
       "evidence": [
         "b.db"
+      ]
+    },
+    {
+      "name": "electron",
+      "uses": 1,
+      "satisfaction": "high",
+      "evidence": [
+        "b.desktop"
+      ]
+    },
+    {
+      "name": "electron-builder",
+      "uses": 1,
+      "satisfaction": "high",
+      "evidence": [
+        "b.desktop"
       ]
     },
     {

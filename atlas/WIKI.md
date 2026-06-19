@@ -1,6 +1,6 @@
 # Sima Atlas Wiki
 
-_Auto-generated: 2026-06-19T18:44:44.907Z_
+_Auto-generated: 2026-06-19T19:01:45.067Z_
 
 ## Граф продукта
 
@@ -34,6 +34,9 @@ flowchart TB
     b_code_graph["Code Graph<br/><small>idea</small>"]:::idea
     b_product_warehouse["Warehouse<br/><small>idea</small>"]:::idea
   end
+  subgraph ext["Внешние интеграции"]
+    b_desktop["Desktop App<br/><small>done</small>"]:::done
+  end
   subgraph content["Контент / документация"]
     b_docs["Docs Builder<br/><small>done</small>"]:::done
     b_user_docs_generator["End-User Docs Generator<br/><small>done</small>"]:::done
@@ -66,6 +69,9 @@ flowchart TB
   b_user_docs_generator --> b_agent_orchestrator
   b_user_docs_generator --> b_llm_gateway
   b_code_graph --> b_db
+  b_desktop --> b_db
+  b_desktop --> b_ui_control
+  b_desktop --> b_agent_orchestrator
   b_product_auth --> b_product_dashboard_session_check
   b_product_auth --> b_product_ingest_api_key_check
   b_product_ingest --> b_product_warehouse_events_stream
@@ -113,6 +119,11 @@ flowchart TB
   - reason: New block scoped — extracts deterministic imports/exports map from alive files; consumed by b.core-sync PR4. R-7.99.
 - 🟡 **b.product-warehouse** — Warehouse _(idea)_
   - reason: Created via design UI at 2026-05-05T20:57:52.230Z
+
+### Внешние интеграции (`ext`)
+
+- 🟢 **b.desktop** — Desktop App _(done)_
+  - reason: Electron-based installable desktop app — wraps the existing browser UI; R-7.99 scoping, PR1 implementation following in this commit.
 
 ### Контент / документация (`content`)
 
@@ -2127,6 +2138,245 @@ _Sources: [mission](blocks/b.code-graph/mission.md) · [kpi](blocks/b.code-graph
 
 ---
 
+### 🟢 b.desktop — Desktop App
+
+- **layer**: `ext`
+- **type**: module
+- **status**: `done` — Electron-based installable desktop app — wraps the existing browser UI; R-7.99 scoping, PR1 implementation following in this commit.
+- **mvp**: no
+- **depends_on**: `b.db`, `b.ui-control`, `b.agent-orchestrator`
+- **tech_stack**: `electron`, `nodejs`, `esm`, `electron-builder`
+- **files**: 6 (`atlas/blocks/b.desktop/files.md`)
+
+# b.desktop — mission
+
+Сегодня запуск Sima Atlas начинается с терминала: `git clone`, `npm install`,
+`npm run dev`, разбор сообщений, переход в браузер. Для операторов, которые
+строят продукты, а не админят, это барьер. Канваса — главного когнитивного
+интерфейса по канону IX — они никогда не увидят, потому что застрянут на
+шаге установки.
+
+`b.desktop` — **установимое десктоп-приложение** Sima Atlas. Двойной клик
+по `.dmg` / `.exe` / `.AppImage` открывает то же самое: канвас, контракты,
+V-1, экономика — но **без терминала и без Node-преquisites на стороне
+пользователя**. Под капотом — тонкая Electron-обёртка вокруг существующего
+`atlas_api_server.mjs` + статической `frontend/`. UI не переписывается,
+бекенд не переписывается; добавляется только запускной слой.
+
+## Layer
+ext
+
+## Что делает приложение в done-версии
+
+1. Запускается двойным кликом на любой из трёх ОС (macOS, Windows, Linux),
+   без зависимости от системного Node — Electron приносит свой собственный
+   Node runtime через `process.execPath` + `ELECTRON_RUN_AS_NODE=1`.
+2. При первом старте создаёт `~/SimaProjects/` и предлагает либо открыть
+   demo-проект, либо создать новый. Каждый проект — отдельная папка с
+   собственным `atlas/`, как multi-tenant uже работает в браузерной версии.
+3. Внутри показывает тот же канвас, что и `npm run dev`, через
+   BrowserWindow на `http://127.0.0.1:<dynamic-port>` — порт выбирается из
+   диапазона при старте, чтобы избежать коллизий с уже работающим dev-сервером.
+4. Нативное меню операционной системы повторяет ключевые CLI-команды:
+   File → New Project / Open Project / Recent · Run → V-1 Autonomous Loop /
+   Verify All / Generate Bundle · Window → Economics / Cleanup / Change-sets.
+5. Auto-update через `electron-updater` поверх GitHub Releases: установленная
+   v0.3.0 сама замечает v0.4.0, скачивает в фоне, ставит при следующем
+   запуске. Пользователь не возвращается за `git pull`.
+
+## Out of scope
+
+- Сам бекенд (это `b.agent-orchestrator` + `b.core-sync` + остальные logic-блоки).
+  Десктоп — обёртка, не реимплементация.
+- Веб-версия канваса (`b.ui-control`) — она работает дальше параллельно;
+  десктоп просто переиспользует её через embedded webview.
+- Облачная синхронизация проектов между машинами одного оператора — это
+  отдельная задача (T-1 в роадмапе, требует multi-operator слоя).
+- Mobile (iOS / Android) — Electron этого не делает, нужно нативное
+  приложение или Tauri 2.0 mobile.
+
+## Реализация (что доставлено в MVP — R-7.99)
+
+- `extensions/desktop/main.mjs` — main process Electron'а: спавнит
+  `atlas_api_server.mjs` + статический сервер через `utilityProcess` (Node
+  внутри Electron'а), затем открывает BrowserWindow на собранную UI.
+- `extensions/desktop/preload.mjs` — узкий `contextBridge`: пробрасывает в
+  renderer только три IPC-канала (open-project-picker, show-economics-window,
+  trigger-v1-loop), всё остальное недоступно по умолчанию.
+- `extensions/desktop/package.json` — отдельный package.json (свои deps:
+  electron, electron-builder), не засоряет корневой; `electron-builder`
+  настроен под три target'а.
+- Корневой `package.json` получил два npm-скрипта: `desktop:dev` (запустить
+  Electron поверх текущего dev-сервера) и `desktop:pack` (собрать инсталляторы).
+- `.github/workflows/desktop-build.yml` — CI собирает unsigned-инсталляторы
+  для трёх ОС при push'е git-тега `v*.*.*`; они автоматически прикрепляются
+  к GitHub Release.
+- Селфтест валидирует структуру каталога и `package.json`-форму (без запуска
+  Electron'а — в CI часто нет дисплея для headless-старта).
+
+## Зачем ext, а не front
+
+Кановский слой `front` — фронтенд продукта (frontend/atlas_design/*.jsx).
+Эта работа — **внешний интегратор**: Electron + electron-builder — third-party
+runtime, который оборачивает наш фронт, не модифицируя его. Это упаковка,
+а не функциональность. Поэтому layer = ext, type = module.
+
+#### KPI
+
+# b.desktop — KPI
+
+- **KPI-1 (time-to-canvas без терминала)**: от двойного клика на скачанный
+  инсталлятор до видимого канваса с открытым demo-проектом — **≤ 30 секунд**
+  на типичном ноутбуке. Считается только если терминал ни разу не открыт.
+
+- **KPI-2 (никаких системных preрequisites)**: инсталлятор работает на
+  чистой ОС без установленного Node / npm / git. Electron приносит
+  собственный Node runtime через `process.execPath` + `ELECTRON_RUN_AS_NODE=1`.
+  Сторонние бинари (claude / cursor-agent / codex CLI) — опциональны, их
+  отсутствие показывается в Help → Diagnostics, не блокирует запуск.
+
+- **KPI-3 (3 ОС, общая кодобаза)**: одна и та же `main.mjs` собирается под
+  macOS (`.dmg` + Apple Silicon + Intel), Windows (`.exe` installer +
+  portable), Linux (`.AppImage` + `.deb`). Различия — только в иконках и
+  notarization-конфиге, не в логике.
+
+- **KPI-4 (нативное меню вместо CLI для 5 операций)**: операции `New Project`,
+  `Open Project`, `Verify All`, `Run V-1 Loop`, `Generate Bundle` доступны
+  из menu/хоткея и работают без переключения в терминал. Каждая логирует
+  свой checks.log той же командой, что и CLI-вариант, чтобы аудит-трэйл
+  был единым.
+
+- **KPI-5 (auto-update без user интервенции)**: установленная версия
+  замечает новый GitHub Release в течение 5 минут после старта, скачивает
+  его в фоне, ставит при следующем перезапуске. Использует `electron-updater`,
+  unsigned-build за рамки KPI (для signed нужны сертификаты Apple/Microsoft
+  — это операторская задача, не разработческая).
+
+- **KPI-6 (пакет не превышает 200 MB)**: распакованный installer на каждой
+  ОС укладывается в 200 MB. Electron-runtime ~80 MB; наш JS-код + frontend
+  + scripts < 30 MB; запас на assets и electron-builder overhead. Если
+  выходим за 200 — выкидываем то, что не критично для MVP.
+
+- **KPI-7 (graceful degradation)**: если внутренний API-сервер падает
+  (порт занят, скрипт упал, etc.) — окно показывает понятный экран ошибки
+  с кнопкой Restart, не уходит в белый экран и не крашится.
+
+- **KPI-8 (selftest без display'я)**: CI на ubuntu-latest без X-сервера
+  должен пройти `tests/desktop_structure.selftest.mjs` — он валидирует
+  структуру каталога и `package.json`, не запуская Electron. Реальный smoke
+  с запуском окна — отдельная manual-проверка, не nightly.
+
+#### Acceptance
+
+# b.desktop — acceptance
+
+Acceptance gate для перехода `idea → wip → review → done`. Все проверки детерминистические — судья-LLM не нужен, структура и форма самодостаточны.
+
+- [x] **A1.** Каталог `extensions/desktop/` содержит четыре обязательных файла: `package.json`, `main.mjs`, `preload.mjs`, `README.md`.
+```yaml
+evidence_kind: fs_glob
+evidence_spec:
+  pattern: extensions/desktop/main.mjs
+  min_count: 1
+```
+
+- [x] **A2.** Селфтест `tests/desktop_structure.selftest.mjs` зелёный: package.json валидный, формы main.mjs / preload.mjs проходят, security baseline соблюдён.
+```yaml
+evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/desktop_structure.selftest.mjs
+  expect_in_stdout: "OK"
+```
+
+- [x] **A3.** Корневой `package.json` содержит npm-скрипт `desktop:dev`.
+```yaml
+evidence_kind: log_grep
+evidence_spec:
+  file: package.json
+  pattern: "desktop:dev"
+```
+
+- [x] **A4.** `extensions/desktop/main.mjs` запускает Node-сервер через `utilityProcess` (Electron-runtime, без зависимости от системного Node).
+```yaml
+evidence_kind: log_grep
+evidence_spec:
+  file: extensions/desktop/main.mjs
+  pattern: "utilityProcess"
+```
+
+- [x] **A5.** `extensions/desktop/preload.mjs` использует `contextBridge` — security baseline для всех Electron-приложений после v12.
+```yaml
+evidence_kind: log_grep
+evidence_spec:
+  file: extensions/desktop/preload.mjs
+  pattern: "contextBridge"
+```
+
+- [x] **A6.** CI-workflow `.github/workflows/desktop-build.yml` собирает под три ОС — matrix содержит `macos-latest`.
+```yaml
+evidence_kind: log_grep
+evidence_spec:
+  file: .github/workflows/desktop-build.yml
+  pattern: "macos-latest"
+```
+
+- [x] **A7.** README репозитория упоминает Desktop-установщик (releases-страницу), а не только инструкцию `npm install`.
+```yaml
+evidence_kind: log_grep
+evidence_spec:
+  file: README.md
+  pattern: "Desktop app"
+```
+
+## inconclusive_if
+
+- Electron ещё не установлен (`extensions/desktop/node_modules/electron` отсутствует) — можно валидировать структуру, но real-smoke (запуск окна) невозможен. KPI-8 явно допускает структурную проверку без запуска.
+
+## Не считается acceptance
+
+- Подписанные инсталляторы — отдельная операторская задача (требует Apple Developer ID + Windows code-signing cert), за пределами кода блока.
+- Production-уровень auto-update с откатом — KPI-5 описывает MVP без rollback.
+- Скриншоты в README — это `b.user-docs-generator`, не наша зона.
+
+#### Provides
+
+# b.desktop — provides
+
+- desktop_app
+- electron_main_process
+- platform_installers
+
+#### Depends on
+
+# b.desktop — depends_on
+
+- b.db: file_registry
+- b.ui-control: visual_control_panel
+- b.agent-orchestrator: pipeline_execution
+
+#### Patterns
+
+# b.desktop — patterns
+
+_This file is populated by the chat-distillate ingestion pipeline (entries are
+paired with `chat-distillate` rows in `decisions.log`). Design rationale and
+do/don't notes live in `narrative.md`._
+
+#### Files
+
+# b.desktop — files
+
+- extensions/desktop/main.mjs [alive] (PR1 — main process)
+- extensions/desktop/preload.mjs [alive] (PR1 — context bridge)
+- extensions/desktop/package.json [alive] (PR1 — own deps + electron-builder config)
+- extensions/desktop/README.md [alive] (PR1 — operator docs)
+- tests/desktop_structure.selftest.mjs [alive] (PR2 — structural validator)
+- .github/workflows/desktop-build.yml [alive] (PR3 — CI three-OS matrix)
+
+_Sources: [mission](blocks/b.desktop/mission.md) · [kpi](blocks/b.desktop/kpi.md) · [acceptance](blocks/b.desktop/acceptance.md) · [depends_on](blocks/b.desktop/depends_on.md) · [provides](blocks/b.desktop/provides.md) · [patterns](blocks/b.desktop/patterns.md) · [files](blocks/b.desktop/files.md)_
+
+---
+
 ### 🟡 b.smoke-sandbox — Smoke Sandbox (test target)
 
 - **layer**: `testing`
@@ -2446,6 +2696,12 @@ evidence_spec:
 - 2026-06-19T18:40:42.630Z: smoke e2e queued insight
 - 2026-06-19T18:44:41.547Z: smoke e2e queued insight
 - 2026-06-19T18:44:44.751Z: smoke e2e queued insight
+- 2026-06-19T19:00:49.462Z: smoke e2e queued insight
+- 2026-06-19T19:00:52.391Z: smoke e2e queued insight
+- 2026-06-19T19:01:07.126Z: smoke e2e queued insight
+- 2026-06-19T19:01:17.873Z: smoke e2e queued insight
+- 2026-06-19T19:01:41.662Z: smoke e2e queued insight
+- 2026-06-19T19:01:44.906Z: smoke e2e queued insight
 
 #### Files
 

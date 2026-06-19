@@ -1,0 +1,81 @@
+# R-7.99 (b.desktop PR3) — build unsigned Sima Atlas Desktop installers
+# for macOS, Windows, and Linux whenever a v*.*.* tag is pushed, and attach
+# them to the matching GitHub Release.
+#
+# Signing is intentionally out of scope (KPI-5 / tasks T13-T15):
+#   * macOS notarization needs an Apple Developer ID ($99/year);
+#   * Windows code-signing needs a cert ($200-400/year).
+# Both are operator responsibilities — adding them is a one-line config flip
+# once the secrets are in the repo's settings, but we don't block the MVP
+# release on it.
+
+name: desktop-build
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:        # manual trigger for testing
+    inputs:
+      ref:
+        description: Branch or commit to build from (optional)
+        required: false
+
+permissions:
+  contents: write           # needed to upload to the Release
+
+jobs:
+  build:
+    name: ${{ matrix.os }} desktop installer
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            artifact_pattern: 'extensions/desktop/dist/*.dmg'
+          - os: windows-latest
+            artifact_pattern: 'extensions/desktop/dist/*.exe'
+          - os: ubuntu-latest
+            artifact_pattern: 'extensions/desktop/dist/*.AppImage'
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install root dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Install desktop dependencies (Electron + electron-builder)
+        working-directory: extensions/desktop
+        run: npm install --no-audit --no-fund
+
+      - name: Build installer
+        working-directory: extensions/desktop
+        run: npm run pack
+        env:
+          # No signing in this MVP — unsigned artifacts will trigger a
+          # one-time Gatekeeper / SmartScreen prompt on first launch.
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+
+      - name: Upload artifacts to job summary (manual triggers)
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sima-atlas-desktop-${{ matrix.os }}
+          path: ${{ matrix.artifact_pattern }}
+          if-no-files-found: error
+
+      - name: Attach installer to GitHub Release (tag pushes)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ matrix.artifact_pattern }}
+          fail_on_unmatched_files: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

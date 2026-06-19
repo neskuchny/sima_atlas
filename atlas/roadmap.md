@@ -1,6 +1,6 @@
 # Roadmap (auto-generated, PR2 topo-sort)
 
-_Generated: 2026-06-19T18:44:45.064Z_
+_Generated: 2026-06-19T19:01:45.221Z_
 
 Приоритет внутри уровня: 🔴 broken → 🟣 drift → 🟠 wip → 🔵 review → 🟡 idea → 🟢 done.
 Каждый следующий уровень зависит от предыдущих — реализовывать сверху вниз.
@@ -57,6 +57,8 @@ _Generated: 2026-06-19T18:44:45.064Z_
   - cascade: parent b.core-sync edit at 2026-06-09T19:50:57 broke acceptance
 - 🟢 **b.user-docs-generator** (done) — End-User Docs Generator · _content_ · deps: `b.db`, `b.docs`, `b.agent-orchestrator`, `b.llm-gateway`
   - Phase I: verifier FAIL on A1 (introspect_block_ui.selftest) — coupled to deleted frontend/proposals_panel.jsx. Test fixture needs repointing to a current JSX file.
+- 🟢 **b.desktop** (done) — Desktop App · _ext_ · deps: `b.db`, `b.ui-control`, `b.agent-orchestrator`
+  - Electron-based installable desktop app — wraps the existing browser UI; R-7.99 scoping, PR1 implementation following in this commit.
 
 ## Сводка по слоям
 
@@ -85,6 +87,10 @@ _Generated: 2026-06-19T18:44:45.064Z_
 - 🟡 **b.db** — Atlas Database _(idea)_
 - 🟡 **b.code-graph** — Code Graph _(idea)_
 - 🟡 **b.product-warehouse** — Warehouse _(idea)_
+
+### Внешние интеграции (`ext`)
+
+- 🟢 **b.desktop** — Desktop App _(done)_
 
 ### Контент / документация (`content`)
 

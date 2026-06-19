@@ -25,6 +25,7 @@ const checks = [
   ['code_graph_extractor_selftest', 'node tests/code_graph_extractor.selftest.mjs'],
   ['code_graph_validator_selftest', 'node tests/code_graph_validator.selftest.mjs'],
   ['checks_append_endpoint_selftest', 'node tests/checks_append_endpoint.selftest.mjs'],
+  ['desktop_structure_selftest', 'node tests/desktop_structure.selftest.mjs'],
   ['files_registry', 'node scripts/validate_files_registry.mjs'],
   // R-7.88 (S-12 MVP) — sweeper writes atlas/cleanup_proposals.{md,json}.
   // Proposes only — never applies. Operator reviews + decides via

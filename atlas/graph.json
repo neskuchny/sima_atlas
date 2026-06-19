@@ -384,6 +384,35 @@
       ]
     },
     {
+      "id": "b.desktop",
+      "title": "Desktop App",
+      "status": "done",
+      "status_reason": "Electron-based installable desktop app — wraps the existing browser UI; R-7.99 scoping, PR1 implementation following in this commit.",
+      "layer": "ext",
+      "type": "module",
+      "mvp": false,
+      "subschema_id": null,
+      "depends_on": [
+        "b.db",
+        "b.ui-control",
+        "b.agent-orchestrator"
+      ],
+      "tech_stack": [
+        "electron",
+        "nodejs",
+        "esm",
+        "electron-builder"
+      ],
+      "files": [
+        "extensions/desktop/main.mjs",
+        "extensions/desktop/preload.mjs",
+        "extensions/desktop/package.json",
+        "extensions/desktop/README.md",
+        "tests/desktop_structure.selftest.mjs",
+        ".github/workflows/desktop-build.yml"
+      ]
+    },
+    {
       "id": "b.smoke-sandbox",
       "title": "Smoke Sandbox (test target)",
       "status": "idea",

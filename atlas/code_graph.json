@@ -83,6 +83,13 @@
         "scripts/manage_block.mjs"
       ]
     },
+    "b.desktop": {
+      "files": [
+        "extensions/desktop/main.mjs",
+        "extensions/desktop/preload.mjs",
+        "tests/desktop_structure.selftest.mjs"
+      ]
+    },
     "b.docs": {
       "files": [
         "scripts/generate_atlas_bootstrap_js.mjs",
@@ -260,6 +267,150 @@
     }
   ],
   "files": {
+    "extensions/desktop/main.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "electron",
+          "kind": "static",
+          "line": 20,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "app"
+            },
+            {
+              "kind": "named",
+              "name": "BrowserWindow"
+            },
+            {
+              "kind": "named",
+              "name": "dialog"
+            },
+            {
+              "kind": "named",
+              "name": "ipcMain"
+            },
+            {
+              "kind": "named",
+              "name": "Menu"
+            },
+            {
+              "kind": "named",
+              "name": "shell"
+            },
+            {
+              "kind": "named",
+              "name": "utilityProcess"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 21,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 22,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:os",
+          "kind": "static",
+          "line": 23,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:net",
+          "kind": "static",
+          "line": 24,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "net"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:http",
+          "kind": "static",
+          "line": 25,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "http"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 26,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.desktop"
+    },
+    "extensions/desktop/preload.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "electron",
+          "kind": "static",
+          "line": 9,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "contextBridge"
+            },
+            {
+              "kind": "named",
+              "name": "ipcRenderer"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.desktop"
+    },
     "frontend/atlas_bootstrap.js": {
       "exports": [],
       "imports": [],
@@ -4985,6 +5136,51 @@
         }
       ],
       "owning_block": "b.agent-orchestrator"
+    },
+    "tests/desktop_structure.selftest.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 14,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 15,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 16,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.desktop"
     },
     "tests/dont_use_management.selftest.mjs": {
       "exports": [],

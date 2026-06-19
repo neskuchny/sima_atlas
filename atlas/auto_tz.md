@@ -1081,6 +1081,179 @@ data
 
 _Sources: [mission](blocks/b.code-graph/mission.md) · [kpi](blocks/b.code-graph/kpi.md) · [acceptance](blocks/b.code-graph/acceptance.md) · [tasks](blocks/b.code-graph/tasks.md)_
 
+## b.desktop (done)
+
+# b.desktop — mission
+
+Сегодня запуск Sima Atlas начинается с терминала: `git clone`, `npm install`,
+`npm run dev`, разбор сообщений, переход в браузер. Для операторов, которые
+строят продукты, а не админят, это барьер. Канваса — главного когнитивного
+интерфейса по канону IX — они никогда не увидят, потому что застрянут на
+шаге установки.
+
+`b.desktop` — **установимое десктоп-приложение** Sima Atlas. Двойной клик
+по `.dmg` / `.exe` / `.AppImage` открывает то же самое: канвас, контракты,
+V-1, экономика — но **без терминала и без Node-преquisites на стороне
+пользователя**. Под капотом — тонкая Electron-обёртка вокруг существующего
+`atlas_api_server.mjs` + статической `frontend/`. UI не переписывается,
+бекенд не переписывается; добавляется только запускной слой.
+
+## Layer
+ext
+
+## Что делает приложение в done-версии
+
+1. Запускается двойным кликом на любой из трёх ОС (macOS, Windows, Linux),
+   без зависимости от системного Node — Electron приносит свой собственный
+   Node runtime через `process.execPath` + `ELECTRON_RUN_AS_NODE=1`.
+2. При первом старте создаёт `~/SimaProjects/` и предлагает либо открыть
+   demo-проект, либо создать новый. Каждый проект — отдельная папка с
+   собственным `atlas/`, как multi-tenant uже работает в браузерной версии.
+3. Внутри показывает тот же канвас, что и `npm run dev`, через
+   BrowserWindow на `http://127.0.0.1:<dynamic-port>` — порт выбирается из
+   диапазона при старте, чтобы избежать коллизий с уже работающим dev-сервером.
+4. Нативное меню операционной системы повторяет ключевые CLI-команды:
+   File → New Project / Open Project / Recent · Run → V-1 Autonomous Loop /
+   Verify All / Generate Bundle · Window → Economics / Cleanup / Change-sets.
+5. Auto-update через `electron-updater` поверх GitHub Releases: установленная
+   v0.3.0 сама замечает v0.4.0, скачивает в фоне, ставит при следующем
+   запуске. Пользователь не возвращается за `git pull`.
+
+## Out of scope
+
+- Сам бекенд (это `b.agent-orchestrator` + `b.core-sync` + остальные logic-блоки).
+  Десктоп — обёртка, не реимплементация.
+- Веб-версия канваса (`b.ui-control`) — она работает дальше параллельно;
+  десктоп просто переиспользует её через embedded webview.
+- Облачная синхронизация проектов между машинами одного оператора — это
+  отдельная задача (T-1 в роадмапе, требует multi-operator слоя).
+- Mobile (iOS / Android) — Electron этого не делает, нужно нативное
+  приложение или Tauri 2.0 mobile.
+
+## Реализация (что доставлено в MVP — R-7.99)
+
+- `extensions/desktop/main.mjs` — main process Electron'а: спавнит
+  `atlas_api_server.mjs` + статический сервер через `utilityProcess` (Node
+  внутри Electron'а), затем открывает BrowserWindow на собранную UI.
+- `extensions/desktop/preload.mjs` — узкий `contextBridge`: пробрасывает в
+  renderer только три IPC-канала (open-project-picker, show-economics-window,
+  trigger-v1-loop), всё остальное недоступно по умолчанию.
+- `extensions/desktop/package.json` — отдельный package.json (свои deps:
+  electron, electron-builder), не засоряет корневой; `electron-builder`
+  настроен под три target'а.
+- Корневой `package.json` получил два npm-скрипта: `desktop:dev` (запустить
+  Electron поверх текущего dev-сервера) и `desktop:pack` (собрать инсталляторы).
+- `.github/workflows/desktop-build.yml` — CI собирает unsigned-инсталляторы
+  для трёх ОС при push'е git-тега `v*.*.*`; они автоматически прикрепляются
+  к GitHub Release.
+- Селфтест валидирует структуру каталога и `package.json`-форму (без запуска
+  Electron'а — в CI часто нет дисплея для headless-старта).
+
+## Зачем ext, а не front
+
+Кановский слой `front` — фронтенд продукта (frontend/atlas_design/*.jsx).
+Эта работа — **внешний интегратор**: Electron + electron-builder — third-party
+runtime, который оборачивает наш фронт, не модифицируя его. Это упаковка,
+а не функциональность. Поэтому layer = ext, type = module.
+
+# b.desktop — KPI
+
+- **KPI-1 (time-to-canvas без терминала)**: от двойного клика на скачанный
+  инсталлятор до видимого канваса с открытым demo-проектом — **≤ 30 секунд**
+  на типичном ноутбуке. Считается только если терминал ни разу не открыт.
+
+- **KPI-2 (никаких системных preрequisites)**: инсталлятор работает на
+  чистой ОС без установленного Node / npm / git. Electron приносит
+  собственный Node runtime через `process.execPath` + `ELECTRON_RUN_AS_NODE=1`.
+  Сторонние бинари (claude / cursor-agent / codex CLI) — опциональны, их
+  отсутствие показывается в Help → Diagnostics, не блокирует запуск.
+
+- **KPI-3 (3 ОС, общая кодобаза)**: одна и та же `main.mjs` собирается под
+  macOS (`.dmg` + Apple Silicon + Intel), Windows (`.exe` installer +
+  portable), Linux (`.AppImage` + `.deb`). Различия — только в иконках и
+  notarization-конфиге, не в логике.
+
+- **KPI-4 (нативное меню вместо CLI для 5 операций)**: операции `New Project`,
+  `Open Project`, `Verify All`, `Run V-1 Loop`, `Generate Bundle` доступны
+  из menu/хоткея и работают без переключения в терминал. Каждая логирует
+  свой checks.log той же командой, что и CLI-вариант, чтобы аудит-трэйл
+  был единым.
+
+- **KPI-5 (auto-update без user интервенции)**: установленная версия
+  замечает новый GitHub Release в течение 5 минут после старта, скачивает
+  его в фоне, ставит при следующем перезапуске. Использует `electron-updater`,
+  unsigned-build за рамки KPI (для signed нужны сертификаты Apple/Microsoft
+  — это операторская задача, не разработческая).
+
+- **KPI-6 (пакет не превышает 200 MB)**: распакованный installer на каждой
+  ОС укладывается в 200 MB. Electron-runtime ~80 MB; наш JS-код + frontend
+  + scripts < 30 MB; запас на assets и electron-builder overhead. Если
+  выходим за 200 — выкидываем то, что не критично для MVP.
+
+- **KPI-7 (graceful degradation)**: если внутренний API-сервер падает
+  (порт занят, скрипт упал, etc.) — окно показывает понятный экран ошибки
+  с кнопкой Restart, не уходит в белый экран и не крашится.
+
+- **KPI-8 (selftest без display'я)**: CI на ubuntu-latest без X-сервера
+  должен пройти `tests/desktop_structure.selftest.mjs` — он валидирует
+  структуру каталога и `package.json`, не запуская Electron. Реальный smoke
+  с запуском окна — отдельная manual-проверка, не nightly.
+
+# b.desktop — tasks
+
+## PR1 — Electron-скелет, рабочий локально (R-7.99)
+
+- [ ] T1: `extensions/desktop/main.mjs` — main-процесс: запускает
+  `atlas_api_server.mjs` через `utilityProcess.fork`, открывает
+  `BrowserWindow` на `http://127.0.0.1:<dynamic-port>` после готовности
+  сервера.
+- [ ] T2: `extensions/desktop/preload.mjs` — `contextBridge.exposeInMainWorld`
+  трёх IPC-каналов (open-project-picker, show-economics, trigger-v1).
+  `nodeIntegration: false`, `contextIsolation: true`.
+- [ ] T3: `extensions/desktop/package.json` — own deps (electron,
+  electron-builder), скрипт `start` = electron .
+- [ ] T4: Корневой `package.json` — добавить `desktop:dev` (cd extensions/desktop
+  && npm install && npm start) и `desktop:pack` (electron-builder).
+- [ ] T5: `extensions/desktop/README.md` — что это, как поставить, как
+  собрать инсталлятор локально, ссылка на блок-контракт.
+
+## PR2 — Селфтест + nightly
+
+- [ ] T6: `tests/desktop_structure.selftest.mjs` — структурная проверка
+  (без запуска Electron). Валидирует наличие 4 обязательных файлов, форму
+  `package.json`, наличие `contextBridge` в preload, отсутствие
+  `nodeIntegration: true`.
+- [ ] T7: Регистрация селфтеста в `scripts/nightly_consolidation.mjs`.
+
+## PR3 — CI сборка трёх ОС
+
+- [ ] T8: `.github/workflows/desktop-build.yml` — на `push` тега `v*.*.*`
+  собирает матрица macos / windows / ubuntu, прикрепляет артефакты к
+  GitHub Release. Unsigned (signing — задача оператора).
+- [ ] T9: README.md репо — секция «Install as desktop app» со ссылками на
+  релизные артефакты.
+
+## PR4 (future) — нативное меню + auto-update
+
+- [ ] T10: `Menu.setApplicationMenu` с File / Run / Window / Help; хоткеи
+  для V-1, Verify All, Generate Bundle. Каждое действие пишет в checks.log
+  той же командой, что и CLI.
+- [ ] T11: `electron-updater` поверх GitHub Releases. На старте проверка
+  обновлений; диалог «Update available — install on next restart?».
+- [ ] T12: Project picker UI — список папок из `~/SimaProjects/` с
+  возможностью создать новую и сразу инициализировать `atlas/`.
+
+## PR5 (future) — подпись и нотаризация
+
+- [ ] T13: macOS — `electron-builder` notarize step (требует Apple
+  Developer ID, $99/год). Без него — пользователи кликают «Open Anyway».
+- [ ] T14: Windows — code-signing cert ($200-400/год). Без него — SmartScreen
+  предупреждение.
+- [ ] T15: Документация по разовой настройке сертификатов для оператора
+  репо. Не блокирует MVP-релиз.
+
+_Sources: [mission](blocks/b.desktop/mission.md) · [kpi](blocks/b.desktop/kpi.md) · [acceptance](blocks/b.desktop/acceptance.md) · [tasks](blocks/b.desktop/tasks.md)_
+
 ## b.smoke-sandbox (idea)
 
 # b.smoke-sandbox — mission

@@ -1,0 +1,194 @@
+{
+  "block_id": "b.desktop",
+  "source_path": "/home/user/sima_atlas/atlas/blocks/b.desktop/acceptance.md",
+  "parsed_warnings": [],
+  "assertions": [
+    {
+      "id": "A1",
+      "label": null,
+      "text": "Каталог `extensions/desktop/` содержит четыре обязательных файла: `package.json`, `main.mjs`, `preload.mjs`, `README.md`.",
+      "checked": true,
+      "line": 5,
+      "evidence_kind": "fs_glob",
+      "evidence_spec": {
+        "pattern": "extensions/desktop/main.mjs",
+        "min_count": 1
+      },
+      "verdict": "pass",
+      "evidence": "glob extensions/desktop/main.mjs → 1 files (min=1); newest 5min ago",
+      "reasoning": "1 files match (≥1)",
+      "raw": {
+        "pattern": "extensions/desktop/main.mjs",
+        "count": 1,
+        "min_count": 1,
+        "max_age_min": null,
+        "newest_minutes_ago": 5,
+        "sample": [
+          "/home/user/sima_atlas/extensions/desktop/main.mjs"
+        ]
+      },
+      "duration_ms": 0
+    },
+    {
+      "id": "A2",
+      "label": null,
+      "text": "Селфтест `tests/desktop_structure.selftest.mjs` зелёный: package.json валидный, формы main.mjs / preload.mjs проходят, security baseline соблюдён.",
+      "checked": true,
+      "line": 13,
+      "evidence_kind": "selftest_run",
+      "evidence_spec": {
+        "cmd": "node tests/desktop_structure.selftest.mjs",
+        "expect_in_stdout": "OK"
+      },
+      "verdict": "pass",
+      "evidence": "node tests/desktop_structure.selftest.mjs → exit 0 (47ms); first line: \"desktop_structure.selftest: OK (7 test groups, all assertions green)\"",
+      "reasoning": "shell exit code 0 and stdout matches /OK/",
+      "raw": {
+        "cmd": "node tests/desktop_structure.selftest.mjs",
+        "exit_code": 0,
+        "stdout": "desktop_structure.selftest: OK (7 test groups, all assertions green)\n",
+        "stderr": "",
+        "duration_ms": 47,
+        "timed_out": false
+      },
+      "duration_ms": 47
+    },
+    {
+      "id": "A3",
+      "label": null,
+      "text": "Корневой `package.json` содержит npm-скрипт `desktop:dev`.",
+      "checked": true,
+      "line": 21,
+      "evidence_kind": "log_grep",
+      "evidence_spec": {
+        "file": "package.json",
+        "pattern": "desktop:dev"
+      },
+      "verdict": "pass",
+      "evidence": "grep /desktop:dev/ package.json → 1 matches; first: \"    \"desktop:dev\": \"cd extensions/desktop && npm install && npm start\",\"",
+      "reasoning": "1 matching lines found",
+      "raw": {
+        "file": "/home/user/sima_atlas/package.json",
+        "pattern": "desktop:dev",
+        "since_time": null,
+        "match_count": 1,
+        "sample": [
+          "    \"desktop:dev\": \"cd extensions/desktop && npm install && npm start\","
+        ]
+      },
+      "duration_ms": 0
+    },
+    {
+      "id": "A4",
+      "label": null,
+      "text": "`extensions/desktop/main.mjs` запускает Node-сервер через `utilityProcess` (Electron-runtime, без зависимости от системного Node).",
+      "checked": true,
+      "line": 29,
+      "evidence_kind": "log_grep",
+      "evidence_spec": {
+        "file": "extensions/desktop/main.mjs",
+        "pattern": "utilityProcess"
+      },
+      "verdict": "pass",
+      "evidence": "grep /utilityProcess/ extensions/desktop/main.mjs → 7 matches; first: \"//   1. spawns scripts/atlas_api_server.mjs via Electron's utilityProcess\"",
+      "reasoning": "7 matching lines found",
+      "raw": {
+        "file": "/home/user/sima_atlas/extensions/desktop/main.mjs",
+        "pattern": "utilityProcess",
+        "since_time": null,
+        "match_count": 7,
+        "sample": [
+          "//   1. spawns scripts/atlas_api_server.mjs via Electron's utilityProcess",
+          "// Why utilityProcess: Electron 21+ provides a Node-only subprocess that",
+          "import { app, BrowserWindow, ipcMain, Menu, shell, dialog, utilityProcess } from 'electron';"
+        ]
+      },
+      "duration_ms": 0
+    },
+    {
+      "id": "A5",
+      "label": null,
+      "text": "`extensions/desktop/preload.mjs` использует `contextBridge` — security baseline для всех Electron-приложений после v12.",
+      "checked": true,
+      "line": 37,
+      "evidence_kind": "log_grep",
+      "evidence_spec": {
+        "file": "extensions/desktop/preload.mjs",
+        "pattern": "contextBridge"
+      },
+      "verdict": "pass",
+      "evidence": "grep /contextBridge/ extensions/desktop/preload.mjs → 2 matches; first: \"import { contextBridge, ipcRenderer } from 'electron';\"",
+      "reasoning": "2 matching lines found",
+      "raw": {
+        "file": "/home/user/sima_atlas/extensions/desktop/preload.mjs",
+        "pattern": "contextBridge",
+        "since_time": null,
+        "match_count": 2,
+        "sample": [
+          "import { contextBridge, ipcRenderer } from 'electron';",
+          "contextBridge.exposeInMainWorld('sima', {"
+        ]
+      },
+      "duration_ms": 0
+    },
+    {
+      "id": "A6",
+      "label": null,
+      "text": "CI-workflow `.github/workflows/desktop-build.yml` собирает под три ОС — matrix содержит `macos-latest`.",
+      "checked": true,
+      "line": 45,
+      "evidence_kind": "log_grep",
+      "evidence_spec": {
+        "file": ".github/workflows/desktop-build.yml",
+        "pattern": "macos-latest"
+      },
+      "verdict": "pass",
+      "evidence": "grep /macos-latest/ .github/workflows/desktop-build.yml → 1 matches; first: \"          - os: macos-latest\"",
+      "reasoning": "1 matching lines found",
+      "raw": {
+        "file": "/home/user/sima_atlas/.github/workflows/desktop-build.yml",
+        "pattern": "macos-latest",
+        "since_time": null,
+        "match_count": 1,
+        "sample": [
+          "          - os: macos-latest"
+        ]
+      },
+      "duration_ms": 0
+    },
+    {
+      "id": "A7",
+      "label": null,
+      "text": "README репозитория упоминает Desktop-установщик (releases-страницу), а не только инструкцию `npm install`.",
+      "checked": true,
+      "line": 53,
+      "evidence_kind": "log_grep",
+      "evidence_spec": {
+        "file": "README.md",
+        "pattern": "Desktop app"
+      },
+      "verdict": "pass",
+      "evidence": "grep /Desktop app/ README.md → 1 matches; first: \"### Option A — Desktop app (no terminal, no Node prerequisite)\"",
+      "reasoning": "1 matching lines found",
+      "raw": {
+        "file": "/home/user/sima_atlas/README.md",
+        "pattern": "Desktop app",
+        "since_time": null,
+        "match_count": 1,
+        "sample": [
+          "### Option A — Desktop app (no terminal, no Node prerequisite)"
+        ]
+      },
+      "duration_ms": 0
+    }
+  ],
+  "counts": {
+    "pass": 7,
+    "fail": 0,
+    "skipped": 0
+  },
+  "verdict": "pass",
+  "inconclusive_if_declared": 1,
+  "duration_ms": 47,
+  "checked_at": "2026-06-19T19:01:41.492Z"
+}

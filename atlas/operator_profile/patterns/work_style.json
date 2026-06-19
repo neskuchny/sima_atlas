@@ -1,12 +1,12 @@
 {
-  "total_done": 7,
+  "total_done": 8,
   "total_broken": 0,
-  "total_wip_started": 5,
+  "total_wip_started": 6,
   "rollback_rate": 0,
-  "median_time_idea_to_done_h": 0.00003138888888888889,
+  "median_time_idea_to_done_h": 0.0000275,
   "common_failure_modes": {
     "acceptance_verifier": 22,
-    "semantic_verify": 13,
+    "semantic_verify": 14,
     "cascade_check": 2,
     "drift_guard": 2,
     "agent_invocation": 3

@@ -221,7 +221,7 @@
         "esm",
         "markdown"
       ],
-      "x": 720,
+      "x": 1040,
       "y": 100
     },
     {
@@ -364,7 +364,7 @@
         "markdown",
         "playwright"
       ],
-      "x": 1040,
+      "x": 1360,
       "y": 100
     },
     {
@@ -402,6 +402,44 @@
         "esm"
       ],
       "x": 400,
+      "y": 100
+    },
+    {
+      "id": "b.desktop",
+      "_raw_updated_at": null,
+      "title": "Desktop App",
+      "tag": "desktop",
+      "layer": "backend",
+      "status": "done",
+      "priority": 3,
+      "checked": true,
+      "size": "md",
+      "parent_block_id": null,
+      "contract": {
+        "score": 0.8,
+        "filled": 4,
+        "total": 5,
+        "missing": [
+          "provides.md"
+        ]
+      },
+      "progress": {
+        "tasks": {
+          "done": 0,
+          "total": 15
+        },
+        "kpi": {
+          "checked": 0,
+          "total": 33
+        }
+      },
+      "tech_stack": [
+        "electron",
+        "nodejs",
+        "esm",
+        "electron-builder"
+      ],
+      "x": 720,
       "y": 100
     },
     {
@@ -777,6 +815,27 @@
       "kind": "data",
       "label": "depends_on",
       "biz": "Зависит от b.db."
+    },
+    {
+      "from": "b.desktop",
+      "to": "b.db",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.db."
+    },
+    {
+      "from": "b.desktop",
+      "to": "b.ui-control",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.ui-control."
+    },
+    {
+      "from": "b.desktop",
+      "to": "b.agent-orchestrator",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.agent-orchestrator."
     },
     {
       "from": "b.product-auth",
@@ -2043,6 +2102,143 @@
         "accept": ""
       }
     ],
+    "b.desktop": [
+      {
+        "id": "T1",
+        "title": "`extensions/desktop/main.mjs` — main-процесс: запускает",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T2",
+        "title": "`extensions/desktop/preload.mjs` — `contextBridge.exposeInMainWorld`",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T3",
+        "title": "`extensions/desktop/package.json` — own deps (electron,",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T4",
+        "title": "Корневой `package.json` — добавить `desktop:dev` (cd extensions/desktop",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T5",
+        "title": "`extensions/desktop/README.md` — что это, как поставить, как",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T6",
+        "title": "`tests/desktop_structure.selftest.mjs` — структурная проверка",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T7",
+        "title": "Регистрация селфтеста в `scripts/nightly_consolidation.mjs`.",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T8",
+        "title": "`.github/workflows/desktop-build.yml` — на `push` тега `v*.*.*`",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T9",
+        "title": "README.md репо — секция «Install as desktop app» со ссылками на",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T10",
+        "title": "`Menu.setApplicationMenu` с File / Run / Window / Help; хоткеи",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T11",
+        "title": "`electron-updater` поверх GitHub Releases. На старте проверка",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T12",
+        "title": "Project picker UI — список папок из `~/SimaProjects/` с",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T13",
+        "title": "macOS — `electron-builder` notarize step (требует Apple",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T14",
+        "title": "Windows — code-signing cert ($200-400/год). Без него — SmartScreen",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T15",
+        "title": "Документация по разовой настройке сертификатов для оператора",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      }
+    ],
     "b.product-auth": [
       {
         "id": "T1",
@@ -2152,6 +2348,9 @@
     "b.code-graph": {
       "short": "Sima Atlas сейчас знает граф продукта на уровне **контрактов** (`depends_on.md`, `provides.md`) и на уровне **файлов** (`files.md`). Между ними дыра: что на самом деле импортируется внутри файлов одного блока из файлов другого — никто не пр"
     },
+    "b.desktop": {
+      "short": "Сегодня запуск Sima Atlas начинается с терминала: `git clone`, `npm install`, `npm run dev`, разбор сообщений, переход в браузер. Для операторов, которые строят продукты, а не админят, это барьер. Канваса — главного когнитивного интерфейса "
+    },
     "b.smoke-sandbox": {
       "short": "Целевой блок для всех e2e/smoke-тестов Атласа. Реальный код продукта на него не ссылается. MCP smoke-сценарии (`scripts/mcp_smoke_e2e.mjs`, future smoke harnesses) пишут сюда mission/tasks/ingestion-queue, чтобы не повреждать содержание реа"
     },
@@ -2180,27 +2379,6 @@
   "submodules": {},
   "lanes": [],
   "history": [
-    {
-      "ts": "22:11",
-      "module": "acceptance-verifier-loop",
-      "agent": "sima-core",
-      "kind": "info",
-      "msg": "b.acceptance-verifier-loop: idea → wip"
-    },
-    {
-      "ts": "22:11",
-      "module": "acceptance-verifier-loop",
-      "agent": "sima-core",
-      "kind": "info",
-      "msg": "b.acceptance-verifier-loop: wip → review"
-    },
-    {
-      "ts": "22:11",
-      "module": "acceptance-verifier-loop",
-      "agent": "sima-core",
-      "kind": "ok",
-      "msg": "b.acceptance-verifier-loop: review → done"
-    },
     {
       "ts": "22:11",
       "module": "docs",
@@ -2263,6 +2441,27 @@
       "agent": "sima-core",
       "kind": "ok",
       "msg": "b.acceptance-verifier-loop: desync → done"
+    },
+    {
+      "ts": "19:00",
+      "module": "desktop",
+      "agent": "sima-core",
+      "kind": "info",
+      "msg": "b.desktop: idea → wip"
+    },
+    {
+      "ts": "19:00",
+      "module": "desktop",
+      "agent": "sima-core",
+      "kind": "info",
+      "msg": "b.desktop: wip → review"
+    },
+    {
+      "ts": "19:00",
+      "module": "desktop",
+      "agent": "sima-core",
+      "kind": "ok",
+      "msg": "b.desktop: review → done"
     }
   ],
   "lessons": [],
@@ -2294,10 +2493,10 @@
     }
   ],
   "_meta": {
-    "generated_at": "2026-06-19T18:44:31.120Z",
+    "generated_at": "2026-06-19T19:01:31.032Z",
     "atlas_root": "atlas",
     "client_id": null,
-    "block_count": 18,
-    "edge_count": 28
+    "block_count": 19,
+    "edge_count": 31
   }
 }

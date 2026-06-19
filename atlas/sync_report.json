@@ -1,7 +1,7 @@
 {
   "contractValidation": {
-    "checkedAt": "2026-06-19T18:44:42.290Z",
-    "total": 18,
+    "checkedAt": "2026-06-19T19:01:42.372Z",
+    "total": 19,
     "broken": 0,
     "details": []
   },
@@ -11,8 +11,8 @@
     "details": []
   },
   "codeGraphDrift": {
-    "checkedAt": "2026-06-19T18:44:25.908Z",
-    "driftCount": 20,
+    "checkedAt": "2026-06-19T19:01:25.544Z",
+    "driftCount": 22,
     "details": [
       {
         "kind": "provided_capability_not_exported",
@@ -254,6 +254,45 @@
       {
         "kind": "provided_capability_not_exported",
         "severity": "warning",
+        "block": "b.desktop",
+        "capability": "desktop_app",
+        "scanned_files": [
+          "extensions/desktop/main.mjs",
+          "extensions/desktop/preload.mjs",
+          "tests/desktop_structure.selftest.mjs"
+        ],
+        "exported_names_in_block": [],
+        "hint": "«desktop_app» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.desktop/provides.md."
+      },
+      {
+        "kind": "provided_capability_not_exported",
+        "severity": "warning",
+        "block": "b.desktop",
+        "capability": "electron_main_process",
+        "scanned_files": [
+          "extensions/desktop/main.mjs",
+          "extensions/desktop/preload.mjs",
+          "tests/desktop_structure.selftest.mjs"
+        ],
+        "exported_names_in_block": [],
+        "hint": "«electron_main_process» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.desktop/provides.md."
+      },
+      {
+        "kind": "provided_capability_not_exported",
+        "severity": "warning",
+        "block": "b.desktop",
+        "capability": "platform_installers",
+        "scanned_files": [
+          "extensions/desktop/main.mjs",
+          "extensions/desktop/preload.mjs",
+          "tests/desktop_structure.selftest.mjs"
+        ],
+        "exported_names_in_block": [],
+        "hint": "«platform_installers» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.desktop/provides.md."
+      },
+      {
+        "kind": "provided_capability_not_exported",
+        "severity": "warning",
         "block": "b.docs",
         "capability": "tz_bundle",
         "scanned_files": [
@@ -388,24 +427,6 @@
         ],
         "exported_names_in_block": [],
         "hint": "«e2e_test_target» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.smoke-sandbox/provides.md."
-      },
-      {
-        "kind": "provided_capability_not_exported",
-        "severity": "warning",
-        "block": "b.ui-control",
-        "capability": "visual_control_panel",
-        "scanned_files": [
-          "frontend/atlas_bootstrap.js",
-          "frontend/atlas_design/data_loader.js",
-          "frontend/atlas_design/data_static.js",
-          "frontend/atlas_design/graph.jsx",
-          "frontend/atlas_design/i18n.js",
-          "frontend/atlas_design/panels.jsx",
-          "frontend/atlas_design/tweaks-panel.jsx",
-          "frontend/atlas_design/views.jsx"
-        ],
-        "exported_names_in_block": [],
-        "hint": "«visual_control_panel» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.ui-control/provides.md."
       },
       {
         "kind": "provided_capability_not_exported",

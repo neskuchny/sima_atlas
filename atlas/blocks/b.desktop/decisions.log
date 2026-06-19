@@ -1,0 +1,6 @@
+2026-06-19T19:30:00Z | runtime=electron_not_tauri | We already ship a Node backend (atlas_api_server + V-1 daemon + ~70 MCP scripts); Electron holds Node natively, Tauri needs a Node sidecar (pkg/nexe). Electron's auto-updater + electron-builder also more mature for our scenario. Trade-off accepted: +80 MB vs Tauri for the bundled Chromium.
+2026-06-19T19:30:00Z | layer=ext | This block wraps our product without modifying it (third-party runtime integration); front is reserved for our actual UI code (frontend/atlas_design/*.jsx).
+2026-06-19T19:30:00Z | child_process=utilityProcess.fork | Packaged app must not require system Node (KPI-2). utilityProcess uses Electron's bundled Node via ELECTRON_RUN_AS_NODE, available since Electron 21.
+2026-06-19T19:30:00Z | mvp_scope=PR1_PR2_PR3 | Skeleton + selftest + CI. PR4 (native menu, auto-update) and PR5 (Apple/Microsoft signing) explicit in tasks.md as post-MVP — signing requires operator certificates.
+2026-06-19T19:30:00Z | security=context_isolation_true | Default for all Electron apps post-v12 to prevent renderer escape; preload uses contextBridge only.
+2026-06-19T19:30:00Z | selftest_headless | Validates structure + file shapes only — CI on ubuntu-latest has no X-server for real Electron boot; real smoke is manual when operator cuts a release.

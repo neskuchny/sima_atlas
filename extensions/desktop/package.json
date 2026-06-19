@@ -1,0 +1,64 @@
+{
+  "name": "sima-atlas-desktop",
+  "version": "0.3.0",
+  "private": true,
+  "description": "Electron-based installable desktop app for Sima Atlas — see atlas/blocks/b.desktop/ for the contract.",
+  "main": "main.mjs",
+  "type": "module",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder",
+    "pack:mac": "electron-builder --mac",
+    "pack:win": "electron-builder --win",
+    "pack:linux": "electron-builder --linux"
+  },
+  "devDependencies": {
+    "electron": "^32.0.0",
+    "electron-builder": "^25.0.0"
+  },
+  "build": {
+    "appId": "ai.synlabs.sima-atlas",
+    "productName": "Sima Atlas",
+    "files": [
+      "main.mjs",
+      "preload.mjs",
+      "package.json",
+      "../../scripts/**/*.mjs",
+      "../../scripts/**/*.js",
+      "../../frontend/**/*",
+      "../../atlas/**/*",
+      "!../../atlas/llm_traces/**",
+      "!../../atlas/autonomous_runs/**",
+      "!../../node_modules"
+    ],
+    "extraMetadata": {
+      "main": "main.mjs"
+    },
+    "asar": false,
+    "mac": {
+      "target": [
+        { "target": "dmg", "arch": ["x64", "arm64"] }
+      ],
+      "category": "public.app-category.developer-tools",
+      "icon": "../../tests/playwright/screenshots/sima_design_live.png"
+    },
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ]
+    },
+    "linux": {
+      "target": [
+        { "target": "AppImage", "arch": ["x64"] },
+        { "target": "deb", "arch": ["x64"] }
+      ],
+      "category": "Development"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "neskuchny",
+      "repo": "sima_atlas"
+    }
+  }
+}

@@ -18,3 +18,6 @@
 2026-06-09T18:06:11.598Z	b.operator-profile-learner	wip	review	actor=operator-audit	note=R-7.98: A6 profile-compliance badge rebuilt in views.jsx (+API /atlas/operator-profile/hints); verifier 7/0; walking gates honestly
 2026-06-09T18:06:11.648Z	b.operator-profile-learner	review	done	actor=operator-audit	note=R-7.98: A6 profile-compliance badge rebuilt in views.jsx (+API /atlas/operator-profile/hints); verifier 7/0; walking gates honestly
 2026-06-09T20:10:03.975Z	b.acceptance-verifier-loop	desync	done	actor=operator-audit	note=R-7.99: transient desync (cascade hit mid-agent-edit); re-verified green 7/0
+2026-06-19T19:00:12.096Z	b.desktop	idea	wip	actor=operator-R7.99	note=PR1+PR2+PR3 shipped: Electron skeleton + selftest + CI workflow; verifier 7/0 pass
+2026-06-19T19:00:12.142Z	b.desktop	wip	review	actor=operator-R7.99	note=PR1+PR2+PR3 shipped: Electron skeleton + selftest + CI workflow; verifier 7/0 pass
+2026-06-19T19:00:12.188Z	b.desktop	review	done	actor=operator-R7.99	note=PR1+PR2+PR3 shipped: Electron skeleton + selftest + CI workflow; verifier 7/0 pass

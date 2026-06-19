@@ -31,6 +31,8 @@
     "atlas:api": "node scripts/atlas_api_server.mjs",
     "ui:serve": "node scripts/dev_server.mjs --no-browser",
     "hero:capture": "node scripts/capture_hero_screenshot.mjs",
+    "desktop:dev": "cd extensions/desktop && npm install && npm start",
+    "desktop:pack": "cd extensions/desktop && npm install && npm run pack",
     "loop": "node scripts/agent_loop_daemon.mjs --dry-run",
     "loop:run": "node scripts/agent_loop_daemon.mjs",
     "loop:overnight": "node scripts/agent_loop_daemon.mjs --agent claude --max-iterations 8 --max-cost-usd 2.00 --consecutive-fail-limit 3"
