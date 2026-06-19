@@ -15,7 +15,7 @@
 </style>
 </head><body>
 <h1>Sima Atlas Wiki</h1>
-<p><em>Auto-generated: 2026-06-19T18:23:29.954Z</em></p>
+<p><em>Auto-generated: 2026-06-19T18:32:10.527Z</em></p>
 <h2>Граф продукта</h2>
 <div class="mermaid">flowchart TB
   classDef done    fill:#dcfce7,stroke:#16a34a,color:#15803d;
@@ -242,18 +242,64 @@ evidence_spec:
 <li><strong>files</strong>: 8 (<code>atlas/blocks/b.core-sync/files.md</code>)</li>
 </ul>
 <h1>b.core-sync — mission</h1>
-<p>Sync Engine — движок проверки синхронизации блоков продукта с миссией, KPI, стэком и кодом. Главная задача — детектить «рассинхрон»: код пишется в одном фреймворке, ТЗ говорит про другой; блок A объявляет, что зависит от capability X у блока B, а B такой capability не предоставляет; KPI задан, но в <code>checks.log</code> нет ни одной измеренной записи.</p>
-<p>Текущая реализация (<code>frontend/atlas<em>sync.js</code> + <code>scripts/validate</em>*</code>) — каркас: проверяет наличие файлов, подсчитывает прогресс tasks/KPI, сравнивает <code>depends_on/provides</code>. Этого недостаточно для миссии «решить рассинхрон» — нужно семантическое сопоставление миссии блока с реализацией (требует LLM, PR3) и реальный анализ кода (PR4).</p>
+<p><code>b.core-sync</code> — <strong>структурный</strong> Sync Engine: проверяет, что граф контрактов</p>
+<p>консистентен (mission/kpi/acceptance/depends_on/provides/files заполнены и</p>
+<p>согласованы), что заявленные <code>tech_stack</code> не противоречат расширениям файлов</p>
+<p>в <code>files.md</code>, и сводит все находки в один отчёт <code>atlas/sync_report.json</code>.</p>
+<p>Это <strong>детерминистический</strong> слой — без LLM, без семантики, без «понимания</p>
+<p>значения функций». Прогон — миллисекунды, повторяемость — побитовая.</p>
+<p>«Рассинхрон» в полном смысле (код vs миссия, реальные импорты vs контракт,</p>
+<p>семантика реализации vs обещание) <strong>разделён архитектурно</strong> между тремя</p>
+<p>блоками — попытка сделать всё внутри одного блока вырастает в монолит и</p>
+<p>смешивает дешёвые детерминистические проверки с дорогими LLM-вызовами:</p>
+<ul>
+<li><strong>код-vs-контракт</strong> (реальные <code>import</code>/<code>export</code> блока vs его</li>
+<p>  <code>depends_on</code>/<code>provides</code>) — <strong>делегирован в <code>b.code-graph</code></strong>. Тот блок</p>
+<p>  собирает детерминистическую карту imports/exports в</p>
+<p>  <code>atlas/code_graph.json</code> и запускает детекторы</p>
+<p>  <code>undeclared<em>code</em>dependency</code> + <code>provided<em>capability</em>not_exported</code>.</p>
+<p>  <code>b.core-sync</code> потребляет <code>code<em>graph</code> через <code>depends</em>on</code> и ссылается на</p>
+<p>  его результаты в своём агрегированном <code>sync_report.json</code>.</p>
+<li><strong>семантический sync</strong> (LLM судит, реализует ли действительная функция</li>
+<p>  то, что обещает миссия) — отдельная задача <strong>T7 (PR3)</strong> ниже. Запускается</p>
+<p>  поверх уже зелёного <code>code_graph</code>: если структура ломается, тратить токены</p>
+<p>  LLM на семантику бессмысленно. До оформления в T7 «соответствует ли</p>
+<p>  реализация миссии?» уже выполняется через <code>scripts/semantic_verify.mjs</code></p>
+<p>  (<code>Contract as Arbiter</code>, R-7.94), который тоже потребляет <code>code_graph</code></p>
+<p>  как часть бандла кода — фактически T7 — это перенос вызова под</p>
+<p>  контракт-крышу этого блока.</p>
+</ul>
+<p>Текущая реализация (<code>frontend/atlas<em>sync.js</code> + <code>scripts/validate</em>*</code>)</p>
+<p>закрывает структурный слой полностью; код-vs-контракт делегирован и работает</p>
+<p>через <code>b.code-graph</code>; семантический слой существует через</p>
+<p><code>semantic_verify.mjs</code> и формально оформится в T7. Единственный остающийся</p>
+<p>реальный долг — расщепление источника правды: <code>frontend/atlas_sync.js</code> пишет</p>
+<p>проверки в <code>localStorage</code>, а Rule 1 требует фиксации каждого изменения в</p>
+<p><code>checks.log</code> на файловой системе. Это <strong>T8</strong> ниже.</p>
 <h2>Layer</h2>
 <p>logic</p>
 <h2>Что должен делать в done-версии (роадмап)</h2>
-<p>1. Структурный sync (PR2): contract-валидация графа, layer/depends/provides консистентность.</p>
-<p>2. Семантический sync (PR3): LLM проверяет <code>code(impl) ↔ mission/kpi блока</code>, выдаёт <code>drift_reason</code>.</p>
-<p>3. Реальный sync с кодом (PR4): на каждый <code>git diff</code> сопоставляет изменённые файлы с <code>files.md</code> блоков и логирует факт изменения в <code>checks.log</code>.</p>
+<p>1. <strong>Структурный sync (PR2, DONE)</strong> — <code>validate<em>block</em>contracts</code>,</p>
+<p>   <code>validate<em>dependency</em>contracts</code>, <code>validate<em>files</em>registry</code>,</p>
+<p>   <code>validate<em>no</em>template<em>placeholders</code>, <code>validate</em>stack_mismatch</code>. Все</p>
+<p>   пишут в <code>atlas/sync_report.json</code>.</p>
+<p>2. <strong>Код-vs-контракт sync (R-7.99, DELEGATED to <code>b.code-graph</code>)</strong> —</p>
+<p>   <code>b.core-sync.depends<em>on: b.code-graph: code</em>graph</code>; нарушения видны на</p>
+<p>   канвасе как drift на источнике-блоке, не на нас. См. отдельную задачу</p>
+<p>   <code>b.code-graph</code> за деталями детектора.</p>
+<p>3. <strong>Семантический sync (T7, PR3)</strong> — LLM судит код ↔ миссия поверх</p>
+<p>   детерминистической карты. Зависит от <code>b.llm-gateway: llm<em>call</em>structured</code>.</p>
+<p>   Запускается только когда <code>code_graph</code> зелёный.</p>
+<p>4. <strong>Унификация источника правды checks.log (T8)</strong> — <code>frontend/atlas_sync.js</code></p>
+<p>   перестаёт быть «теневым» источником: всё, что он сейчас пишет в</p>
+<p>   <code>localStorage</code>, уходит через <code>b.db: file_registry</code> в реальный <code>checks.log</code></p>
+<p>   на диске. Закрывает методологическое нарушение Rule 1.</p>
 <h2>Out of scope</h2>
 <ul>
 <li>Генерация документации (это <code>b.docs</code>).</li>
-<li>UI-визуализация sync-репорта (это <code>b.ui-control</code>).</li>
+<li>UI-визуализация sync-отчёта (это <code>b.ui-control</code>).</li>
+<li>Карта imports/exports как таковая (это <code>b.code-graph</code> — мы только</li>
+<p>  потребитель и агрегатор).</p>
 </ul>
 <h4>KPI</h4>
 <h1>b.core-sync — KPI</h1>
@@ -2191,6 +2237,8 @@ evidence_spec:
 <li>2026-06-19T18:23:10.729Z: smoke e2e queued insight</li>
 <li>2026-06-19T18:23:26.733Z: smoke e2e queued insight</li>
 <li>2026-06-19T18:23:29.803Z: smoke e2e queued insight</li>
+<li>2026-06-19T18:32:07.121Z: smoke e2e queued insight</li>
+<li>2026-06-19T18:32:10.364Z: smoke e2e queued insight</li>
 </ul>
 <h4>Files</h4>
 <h1>b.smoke-sandbox — files</h1>

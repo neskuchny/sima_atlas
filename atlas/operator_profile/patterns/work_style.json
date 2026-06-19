@@ -6,7 +6,7 @@
   "median_time_idea_to_done_h": 0.00003138888888888889,
   "common_failure_modes": {
     "acceptance_verifier": 22,
-    "semantic_verify": 9,
+    "semantic_verify": 11,
     "cascade_check": 2,
     "drift_guard": 2,
     "agent_invocation": 3

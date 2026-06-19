@@ -1,6 +1,6 @@
 {
   "operator_id": "default",
-  "updated_at": "2026-06-19T18:23:12.904Z",
+  "updated_at": "2026-06-19T18:31:53.187Z",
   "_status": "live",
   "_min_data": {
     "done_transitions": 7,
@@ -16,7 +16,7 @@
     "median_time_idea_to_done_h": 0.00003138888888888889,
     "common_failure_modes": {
       "acceptance_verifier": 22,
-      "semantic_verify": 9,
+      "semantic_verify": 11,
       "cascade_check": 2,
       "drift_guard": 2,
       "agent_invocation": 3
@@ -325,10 +325,10 @@
   },
   "llm_provider_stats": {
     "mock": {
-      "count": 3330,
+      "count": 3530,
       "fallback_to_mock_count": 79,
       "total_cost_usd": 0,
-      "schema_ok_count": 3330,
+      "schema_ok_count": 3530,
       "fallback_rate": 0.02,
       "schema_ok_rate": 1,
       "avg_cost_usd": 0
@@ -343,23 +343,23 @@
       "avg_cost_usd": 0
     },
     "google": {
-      "count": 26,
+      "count": 28,
       "fallback_to_mock_count": 0,
-      "total_cost_usd": 0.0166534,
-      "schema_ok_count": 26,
+      "total_cost_usd": 0.019551199999999998,
+      "schema_ok_count": 28,
       "fallback_rate": 0,
       "schema_ok_rate": 1,
-      "avg_cost_usd": 0.000641
+      "avg_cost_usd": 0.000698
     }
   },
   "proposals_stats": {
-    "total": 46,
+    "total": 48,
     "accept_rate": 0,
     "reject_rate": 0,
-    "pending": 46
+    "pending": 48
   },
   "decisions_stats": {
-    "total": 304,
+    "total": 306,
     "blocks_with_decisions": 5
   },
   "patterns_stats": {
@@ -482,6 +482,18 @@
       "note": "mission_fulfilled=fail conditions_met=fail methodology_followed=fail works_as_described=fail connections_consistent=fail"
     },
     {
+      "block_id": "b.core-sync",
+      "ts": "2026-06-19T18:27:51.465Z",
+      "kind": "semantic_verify",
+      "note": "mission_fulfilled=fail conditions_met=fail methodology_followed=fail works_as_described=fail connections_consistent=fail"
+    },
+    {
+      "block_id": "b.core-sync",
+      "ts": "2026-06-19T18:30:52.291Z",
+      "kind": "semantic_verify",
+      "note": "mission_fulfilled=pass conditions_met=fail methodology_followed=fail works_as_described=fail connections_consistent=fail"
+    },
+    {
       "block_id": "b.docs",
       "ts": "2026-06-05T22:03:02.631Z",
       "kind": "acceptance_verifier",
@@ -600,7 +612,7 @@
   "_preview": {
     "total_done": 7,
     "total_invocations": 9,
-    "total_traces": 3402,
-    "total_proposals": 46
+    "total_traces": 3604,
+    "total_proposals": 48
   }
 }

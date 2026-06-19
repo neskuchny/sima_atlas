@@ -45,7 +45,7 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "770d0ba924cc7142",
+        "prompt_hash": "249199ffb67e6e5c",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
@@ -63,26 +63,26 @@
         "cmd": "node scripts/mcp_smoke_e2e.mjs",
         "expect_in_stdout": "OK"
       },
-      "verdict": "fail",
-      "evidence": "node scripts/mcp_smoke_e2e.mjs → exit 1; stderr: \"mcp_smoke_e2e: call failed for id=6\"",
-      "reasoning": "shell exit 1",
+      "verdict": "pass",
+      "evidence": "node scripts/mcp_smoke_e2e.mjs → exit 0 (604ms); first line: \"mcp_smoke_e2e: OK\"",
+      "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/mcp_smoke_e2e.mjs",
-        "exit_code": 1,
-        "stdout": "",
-        "stderr": "mcp_smoke_e2e: call failed for id=6\n{\n  \"jsonrpc\": \"2.0\",\n  \"id\": 6,\n  \"error\": {\n    \"code\": -32000,\n    \"message\": \"validation failed; bundle not generated\"\n  }\n}\n",
-        "duration_ms": 299,
+        "exit_code": 0,
+        "stdout": "mcp_smoke_e2e: OK\n",
+        "stderr": "",
+        "duration_ms": 604,
         "timed_out": false
       },
-      "duration_ms": 299
+      "duration_ms": 604
     }
   ],
   "counts": {
-    "pass": 1,
-    "fail": 1,
+    "pass": 2,
+    "fail": 0,
     "skipped": 1
   },
-  "verdict": "fail",
-  "duration_ms": 300,
-  "checked_at": "2026-06-19T18:21:16.638Z"
+  "verdict": "pass",
+  "duration_ms": 604,
+  "checked_at": "2026-06-19T18:23:27.154Z"
 }

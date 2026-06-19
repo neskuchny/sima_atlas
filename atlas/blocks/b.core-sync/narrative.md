@@ -69,3 +69,30 @@ Two previous runs failed semantic verify because: (1) no `atlas/sync_report.json
 
 ### Recommended action
 - Operator review: this block needs a human look (verifier/cascade not green under the autonomous loop).
+
+## 2026-06-19T18:27:51.465Z · semantic verify · fail
+
+### Contract-as-Arbiter judgment
+- The b.core-sync block provides a foundational set of structural contract validations, fulfilling some KPIs and acceptance criteria. However, it critically fails to deliver on its full mission, explicitly lacking semantic and real code analysis (PR3, PR4). There are significant methodological and functional inconsistencies, particularly regarding the source of truth for checks (localStorage in frontend vs. checks.log for CLI) and the frontend's failure to genuinely depend on b.db as declared.
+
+### To genuinely satisfy the contract
+- Implement Semantic Sync (PR3): Integrate LLM functionality to compare mission.md with checks.log and tasks.md, fulfilling KPI-3 and acceptance criterion A4.
+- Implement Real Code Sync (PR4): Develop a mechanism to analyze git diff against files.md and log changes, as outlined in the mission roadmap.
+- Unify Check Logging: Resolve the discrepancy between frontend/atlas_sync.js (localStorage-based checks) and the CLI validate_*.mjs scripts (file-based checks.log). Ensure a single, persistent source of truth for all block checks, ideally by modifying frontend/atlas_sync.js to write to checks.log files on the filesystem.
+- Align Frontend Dependencies with Contract: Modify frontend/atlas_sync.js to genuinely depend on b.db's atlas_state_store and file_registry (which are described as filesystem-based) instead of using localStorage for these purposes, or update the depends_on contract to accurately reflect the frontend's localStorage usage.
+- Address KPI-2 (stack sync): Ensure files.md is populated across blocks and validate_stack_mismatch.mjs is fully integrated to check tech_stack against actual file types/imports.
+- Ensure Comprehensive sync_report.json Contribution: Verify that all validate_*.mjs scripts consistently write their findings (drift/broken items with file/line references) into the structured atlas/sync_report.json, not just a subset.
+
+## 2026-06-19T18:30:52.291Z · semantic verify · fail
+
+### Contract-as-Arbiter judgment
+- The `b.core-sync` block provides a foundational set of structural contract validations, fulfilling parts of its mission. However, it critically fails to deliver on its full contract due to significant methodological and functional inconsistencies, including a split source of truth for checks, unfulfilled `b.db` and `b.code-graph` dependencies, and an incomplete stack synchronization mechanism.
+
+### To genuinely satisfy the contract
+- Unify Check Logging (T8): Modify `frontend/atlas_sync.js` to write all block checks to `checks.log` files on the filesystem, adhering to Rule 1, instead of using `localStorage`.
+- Align `b.db` Dependencies: Refactor `frontend/atlas_sync.js` and `validate_*.mjs` scripts to genuinely depend on `b.db` for `atlas_state_store` and `file_registry`, or update the `depends_on` contract to accurately reflect the current `localStorage` and direct file system usage.
+- Integrate `b.code-graph` Dependency: Implement the consumption of `b.code-graph: code_graph` within `b.core-sync` to reference its results in the aggregated `sync_report.json`, as stated in the mission.
+- Address KPI-2 (Stack Sync) and A3: Develop and integrate a robust mechanism to check `tech_stack` against actual file types/imports in `files.md`, ensuring `files.md` is populated across blocks for effective validation.
+- Ensure Comprehensive `sync_report.json` Contribution: Verify that *all* `validate_*.mjs` scripts consistently write their findings (drift/broken items with file/line references) into the structured `atlas/sync_report.json`.
+- Implement Semantic Sync (PR3/T7): Integrate LLM functionality to compare `mission.md` with `checks.log` and `tasks.md`, fulfilling KPI-3 and acceptance criterion A4.
+- Address Frontend Tech Stack Inconsistency: Either refactor `frontend/atlas_sync.js` to use React or update the `tech_stack` contract to reflect its plain JavaScript implementation.

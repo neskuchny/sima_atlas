@@ -94,7 +94,7 @@
       "progress": {
         "tasks": {
           "done": 3,
-          "total": 7
+          "total": 8
         },
         "kpi": {
           "checked": 0,
@@ -935,7 +935,16 @@
       },
       {
         "id": "T7",
-        "title": "(PR3): LLM-семантический слой ПОВЕРХ `code_graph` — судит, реализует ли действительная функция то, что обещает миссия. Запускается только на блоках, где детерминистический `code_graph` уже зелёный.",
+        "title": "(PR3): LLM-семантический слой ПОВЕРХ `code_graph` — судит, реализует ли действительная функция то, что обещает миссия. Запускается только на блоках, где детерминистический `code_graph` уже зелёный. Фа",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T8",
+        "title": "Унификация источника правды `checks.log`: `frontend/atlas_sync.js` сейчас пишет проверки в `localStorage`, а Rule 1 требует фиксации в `checks.log` на диске. Через `b.db: file_registry` соединить два ",
         "status": "todo",
         "priority": "P2",
         "agent": null,
@@ -2122,7 +2131,7 @@
       "short": "Визуальная control plane Симы: один React-канвас, в котором человек видит схему продукта (слои, блоки, связи), статус каждого блока (idea/wip/review/done/broken/drift), запускает действия по блоку (Implement / Review / Done / Rollback / mar"
     },
     "b.core-sync": {
-      "short": "Sync Engine — движок проверки синхронизации блоков продукта с миссией, KPI, стэком и кодом. Главная задача — детектить «рассинхрон»: код пишется в одном фреймворке, ТЗ говорит про другой; блок A объявляет, что зависит от capability X у блок"
+      "short": "`b.core-sync` — **структурный** Sync Engine: проверяет, что граф контрактов консистентен (mission/kpi/acceptance/depends_on/provides/files заполнены и согласованы), что заявленные `tech_stack` не противоречат расширениям файлов в `files.md`"
     },
     "b.db": {
       "short": "Atlas storage слой: единый источник правды для графа продукта (`graph.json`), блоков (`blocks/<id>/*.md`), очереди ingestion (`ingestion_queue.jsonl`), журналов transitions/decisions/checks. Цель — предоставить детерминированный API для чте"
@@ -2290,7 +2299,7 @@
     }
   ],
   "_meta": {
-    "generated_at": "2026-06-19T18:23:16.529Z",
+    "generated_at": "2026-06-19T18:31:56.794Z",
     "atlas_root": "atlas",
     "client_id": null,
     "block_count": 18,
