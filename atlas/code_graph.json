@@ -274,7 +274,7 @@
           "external": true,
           "from": "electron",
           "kind": "static",
-          "line": 20,
+          "line": 26,
           "resolved_to": null,
           "specifiers": [
             {
@@ -311,7 +311,7 @@
           "external": true,
           "from": "node:path",
           "kind": "static",
-          "line": 21,
+          "line": 27,
           "resolved_to": null,
           "specifiers": [
             {
@@ -324,7 +324,7 @@
           "external": true,
           "from": "node:fs",
           "kind": "static",
-          "line": 22,
+          "line": 28,
           "resolved_to": null,
           "specifiers": [
             {
@@ -337,7 +337,7 @@
           "external": true,
           "from": "node:os",
           "kind": "static",
-          "line": 23,
+          "line": 29,
           "resolved_to": null,
           "specifiers": [
             {
@@ -350,7 +350,7 @@
           "external": true,
           "from": "node:net",
           "kind": "static",
-          "line": 24,
+          "line": 30,
           "resolved_to": null,
           "specifiers": [
             {
@@ -363,7 +363,7 @@
           "external": true,
           "from": "node:http",
           "kind": "static",
-          "line": 25,
+          "line": 31,
           "resolved_to": null,
           "specifiers": [
             {
@@ -376,7 +376,7 @@
           "external": true,
           "from": "node:url",
           "kind": "static",
-          "line": 26,
+          "line": 32,
           "resolved_to": null,
           "specifiers": [
             {
@@ -384,6 +384,14 @@
               "name": "fileURLToPath"
             }
           ]
+        },
+        {
+          "external": true,
+          "from": "electron-updater",
+          "kind": "dynamic",
+          "line": 336,
+          "resolved_to": null,
+          "specifiers": []
         }
       ],
       "owning_block": "b.desktop"
@@ -395,7 +403,7 @@
           "external": true,
           "from": "electron",
           "kind": "static",
-          "line": 9,
+          "line": 15,
           "resolved_to": null,
           "specifiers": [
             {

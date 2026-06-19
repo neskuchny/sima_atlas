@@ -8,3 +8,8 @@
 2026-06-19T19:00:52.201Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=0
 2026-06-19T19:01:17.645Z	kpi	pass	7/7 acceptance assertions green; selftest 7/7 green; structural validators all pass
 2026-06-19T19:01:44.711Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=0
+2026-06-19T19:33:08.470Z	feature	pass	PR4 done — native menu (File/Run/View/Help + hotkeys ⌘⇧V/G/R) + electron-updater (lazy import, packaged-only)
+2026-06-19T19:33:08.472Z	kpi	pass	KPI-4 (5 ops via menu) + KPI-5 (auto-update wired) achieved; selftest 10/10
+2026-06-19T19:33:08.663Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=0
+2026-06-19T19:33:39.159Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=0
+2026-06-19T19:34:23.153Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=0

@@ -102,9 +102,42 @@ for (const f of MUST_EXIST) check(`g1: ${f} exists`, exists(f));
     'A7: README must link/refer to desktop installer for discoverability');
 }
 
+// ── Group 8 (PR4 T10): native application menu present
+{
+  const src = read('extensions/desktop/main.mjs');
+  check('g8: Menu.buildFromTemplate or Menu.setApplicationMenu present',
+    /Menu\.buildFromTemplate|Menu\.setApplicationMenu/.test(src),
+    'PR4 T10: native menu is the whole point of «no terminal needed»');
+  check('g8: menu defines File submenu', /label:\s*['"]File['"]/.test(src));
+  check('g8: menu defines Run submenu (Verify/Generate/V-1)', /label:\s*['"]Run['"]/.test(src));
+  check('g8: at least one hotkey accelerator', /accelerator:\s*['"]CmdOrCtrl/.test(src));
+  check('g8: each menu action audited via /atlas/checks/append', /\/atlas\/checks\/append/.test(src),
+    'PR4 T10 + T8: desktop actions must land in the same checks.log as CLI');
+}
+
+// ── Group 9 (PR4 T11): electron-updater wired up
+{
+  const src = read('extensions/desktop/main.mjs');
+  check('g9: dynamic import of electron-updater', /import\s*\(\s*['"]electron-updater['"]\s*\)/.test(src),
+    'PR4 T11: lazy-import so dev tree runs without it installed; packaged tree has it');
+  check('g9: autoUpdater handle held', /autoUpdater\s*=/.test(src));
+  check('g9: checkForUpdates entry point', /checkForUpdates\(\)/.test(src));
+  check('g9: skipped in dev (app.isPackaged guard)', /isPackaged/.test(src),
+    'no-op in dev — there is no installed app to update');
+}
+
+// ── Group 10: electron-updater is a real (not dev) dependency in package.json
+{
+  const pkg = readJson('extensions/desktop/package.json');
+  check('g10: electron-updater listed under dependencies (runtime, not devDep)',
+    !!pkg.dependencies?.['electron-updater'],
+    'electron-updater is needed in the packaged tree, so it must be a runtime dep');
+  // electron and electron-builder stay as devDeps (build-time only).
+}
+
 if (failures.length) {
   console.error('desktop_structure.selftest: FAIL');
   failures.forEach((f) => console.error(' ✗', f));
   process.exit(1);
 }
-console.log('desktop_structure.selftest: OK (7 test groups, all assertions green)');
+console.log('desktop_structure.selftest: OK (10 test groups, all assertions green)');

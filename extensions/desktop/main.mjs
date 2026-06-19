@@ -1,11 +1,17 @@
-// R-7.99 (b.desktop PR1) — Electron main process for Sima Atlas Desktop.
+// R-7.99 (b.desktop PR1 + PR4) — Electron main process for Sima Atlas Desktop.
 //
-// Bootstraps the existing browser app inside a native window:
+// PR1 — Bootstraps the existing browser app inside a native window:
 //   1. spawns scripts/atlas_api_server.mjs via Electron's utilityProcess
 //      (bundled Node — no system Node required, KPI-2);
 //   2. starts a tiny static server for frontend/ on a dynamic port;
 //   3. opens BrowserWindow once both ports respond on /;
 //   4. on quit, kills the API + static processes cleanly.
+//
+// PR4 — Native menu (Verify All / Generate Bundle / V-1 Loop hotkeys) +
+// electron-updater integration (checks GitHub Releases, prompts on update,
+// installs on next restart). Each menu action also POSTs to the
+// /atlas/checks/append endpoint added in T8 — desktop usage gets the same
+// audit-trail on disk as CLI usage, no parallel log to maintain.
 //
 // Why utilityProcess: Electron 21+ provides a Node-only subprocess that
 // shares the bundled Node binary. The packaged .dmg/.exe/.AppImage thus
@@ -15,7 +21,7 @@
 // Security baseline (Electron post-12 / Chromium):
 //   - nodeIntegration: false in renderer;
 //   - contextIsolation: true;
-//   - preload exposes only three IPC channels via contextBridge.
+//   - preload exposes only a small audited surface via contextBridge.
 
 import { app, BrowserWindow, ipcMain, Menu, shell, dialog, utilityProcess } from 'electron';
 import path from 'node:path';
@@ -167,15 +173,198 @@ ipcMain.handle('desktop:reveal-in-finder', async (_e, p) => {
 });
 
 ipcMain.handle('desktop:trigger-v1', async () => {
-  // T10 (PR4) — placeholder: in MVP, fire the same CLI the operator would.
-  // Returns immediately; the v1 loop logs to atlas/autonomous_runs/.
-  utilityProcess.fork(
-    path.join(REPO_ROOT, 'scripts', 'agent_loop_daemon.mjs'),
+  runScriptInBackground('scripts/agent_loop_daemon.mjs',
     ['--max-iterations', '4', '--max-cost-usd', '1.5', '--json'],
-    { env: { ...process.env, ATLAS_AGENT: 'print-only' }, stdio: 'pipe' }
-  );
+    { auditBlock: 'b.desktop' });
   return { ok: true, note: 'V-1 dry-run launched (print-only). Monitor atlas/autonomous_runs/.' };
 });
+
+// PR4 — single IPC dispatcher for renderer-side menu mirroring. The script
+// names are a closed whitelist — the renderer cannot point us at arbitrary
+// scripts under scripts/.
+const RUN_SCRIPTS = {
+  'verify-all':      { rel: 'scripts/verify_all_acceptance.mjs', args: [] },
+  'generate-bundle': { rel: 'scripts/generate_wiki.mjs',         args: [] },
+  'v1-dry-run':      { rel: 'scripts/agent_loop_daemon.mjs',     args: ['--dry-run', '--max-iterations', '4'] },
+  'token-economics': { rel: 'scripts/token_economics.mjs',       args: ['--days', '30'] },
+};
+ipcMain.handle('desktop:run-script', async (_e, name) => {
+  const spec = RUN_SCRIPTS[name];
+  if (!spec) return { ok: false, error: `unknown script: ${name}` };
+  runScriptInBackground(spec.rel, spec.args, { auditBlock: 'b.desktop', auditKind: `desktop-ipc-${name}` });
+  return { ok: true, note: `${name} launched in background; result will land in atlas/blocks/b.desktop/checks.log` };
+});
+
+ipcMain.handle('desktop:check-for-updates', async () => {
+  triggerUpdateCheck(true);
+  return { ok: true };
+});
+
+// ── PR4 T10: run a node script via utilityProcess and POST a checks.log
+// entry through the API server so desktop-triggered actions land in the
+// same audit-trail as CLI actions (T8 unified endpoint).
+async function postCheck(blockId, kind, result, note) {
+  if (!apiPort) return;
+  const body = JSON.stringify({ block_id: blockId, kind, result, note });
+  await new Promise((resolve) => {
+    const req = http.request({
+      host: '127.0.0.1', port: apiPort, path: '/atlas/checks/append', method: 'POST',
+      headers: { 'content-type': 'application/json', 'content-length': Buffer.byteLength(body) },
+      timeout: 2000,
+    }, (res) => { res.resume(); resolve(); });
+    req.on('error', () => resolve());
+    req.on('timeout', () => { req.destroy(); resolve(); });
+    req.write(body); req.end();
+  });
+}
+
+function runScriptInBackground(relScript, args, { auditBlock, auditKind } = {}) {
+  const child = utilityProcess.fork(
+    path.join(REPO_ROOT, relScript), args, { env: process.env, stdio: 'pipe' }
+  );
+  const buffer = [];
+  child.stdout?.on('data', (d) => buffer.push(String(d)));
+  child.stderr?.on('data', (d) => buffer.push(String(d)));
+  child.on('exit', (code) => {
+    const tail = buffer.join('').split('\n').filter(Boolean).slice(-1)[0] || '';
+    const note = `desktop-menu: ${relScript} exit=${code} · ${tail}`.slice(0, 240);
+    if (auditBlock) postCheck(auditBlock, auditKind || 'desktop-menu', code === 0 ? 'pass' : 'fail', note);
+  });
+  return child;
+}
+
+// ── PR4 T10: native application menu. Each accelerator is the same on Mac
+// (Cmd) and Win/Linux (Ctrl) thanks to Electron's «CmdOrCtrl» token.
+function buildMenu() {
+  const isMac = process.platform === 'darwin';
+  const template = [
+    ...(isMac ? [{
+      label: app.name,
+      submenu: [
+        { role: 'about' },
+        { type: 'separator' },
+        { role: 'services' }, { type: 'separator' },
+        { role: 'hide' }, { role: 'hideOthers' }, { role: 'unhide' },
+        { type: 'separator' }, { role: 'quit' },
+      ],
+    }] : []),
+    {
+      label: 'File',
+      submenu: [
+        {
+          label: 'Open Project Folder…',
+          accelerator: 'CmdOrCtrl+O',
+          click: async () => {
+            const dir = await dialog.showOpenDialog(mainWindow, {
+              title: 'Open Sima project (atlas/ folder)',
+              defaultPath: PROJECTS_DIR,
+              properties: ['openDirectory'],
+            });
+            if (!dir.canceled && dir.filePaths[0]) {
+              shell.showItemInFolder(dir.filePaths[0]);
+            }
+          },
+        },
+        { label: 'Reveal Atlas in Finder', click: () => shell.showItemInFolder(path.join(REPO_ROOT, 'atlas')) },
+        { type: 'separator' },
+        isMac ? { role: 'close' } : { role: 'quit' },
+      ],
+    },
+    {
+      label: 'Run',
+      submenu: [
+        {
+          label: 'Verify All Blocks',
+          accelerator: 'CmdOrCtrl+Shift+V',
+          click: () => runScriptInBackground('scripts/verify_all_acceptance.mjs', [], { auditBlock: 'b.desktop' }),
+        },
+        {
+          label: 'Generate Wiki + TZ + Roadmap',
+          accelerator: 'CmdOrCtrl+Shift+G',
+          click: () => {
+            runScriptInBackground('scripts/generate_wiki.mjs', [], { auditBlock: 'b.desktop' });
+            runScriptInBackground('scripts/generate_tz_from_atlas.mjs', [], { auditBlock: 'b.desktop' });
+            runScriptInBackground('scripts/rebuild_atlas_roadmap.mjs', [], { auditBlock: 'b.desktop' });
+          },
+        },
+        {
+          label: 'V-1 Autonomous Loop (dry-run)',
+          accelerator: 'CmdOrCtrl+Shift+R',
+          click: () => runScriptInBackground('scripts/agent_loop_daemon.mjs',
+            ['--dry-run', '--max-iterations', '4', '--max-cost-usd', '1.5'],
+            { auditBlock: 'b.desktop' }),
+        },
+        { type: 'separator' },
+        {
+          label: 'Token Economics (30 days)',
+          click: () => runScriptInBackground('scripts/token_economics.mjs', ['--days', '30'], { auditBlock: 'b.desktop' }),
+        },
+      ],
+    },
+    {
+      label: 'View',
+      submenu: [
+        { role: 'reload', accelerator: 'CmdOrCtrl+R' },
+        { role: 'forceReload', accelerator: 'CmdOrCtrl+Shift+F5' },
+        { role: 'toggleDevTools' },
+        { type: 'separator' },
+        { role: 'resetZoom' }, { role: 'zoomIn' }, { role: 'zoomOut' },
+      ],
+    },
+    {
+      label: 'Help',
+      submenu: [
+        { label: 'Documentation', click: () => shell.openExternal('https://github.com/neskuchny/sima_atlas/blob/main/README.md') },
+        { label: 'Kanon Protocol Manifesto', click: () => shell.openExternal('https://github.com/neskuchny/sima_atlas/blob/main/kanon-protocol-manifesto-v2.1-ru.md') },
+        { label: 'Block Contract (b.desktop)', click: () => shell.openExternal('https://github.com/neskuchny/sima_atlas/blob/main/atlas/blocks/b.desktop/mission.md') },
+        { type: 'separator' },
+        { label: 'Check for Updates…', click: () => triggerUpdateCheck(true) },
+      ],
+    },
+  ];
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+}
+
+// ── PR4 T11: electron-updater integration. Lazy-imported so the dev tree
+// runs without electron-updater installed; in packaged builds the dep is
+// present via extensions/desktop/package.json.
+let autoUpdater = null;
+async function setupAutoUpdater() {
+  if (process.env.SIMA_DESKTOP_DISABLE_AUTOUPDATE === '1') return;
+  if (!app.isPackaged) return; // dev mode: skip — there's no installed app to update
+  try {
+    const mod = await import('electron-updater');
+    autoUpdater = mod.autoUpdater;
+    autoUpdater.autoDownload = true;
+    autoUpdater.autoInstallOnAppQuit = true;
+    autoUpdater.on('update-available', (info) => {
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        dialog.showMessageBox(mainWindow, {
+          type: 'info', title: 'Sima Atlas — update available',
+          message: `Version ${info.version} is available.`,
+          detail: 'It will download in the background and install on next restart.',
+        });
+      }
+    });
+    autoUpdater.on('error', (e) => process.stderr.write(`[updater] ${e?.message || e}\n`));
+    setTimeout(() => triggerUpdateCheck(false), 5 * 60 * 1000); // first check 5 min after launch
+  } catch (e) {
+    process.stderr.write(`[updater] not available (likely dev): ${e?.message || e}\n`);
+  }
+}
+function triggerUpdateCheck(showWhenNone) {
+  if (!autoUpdater) {
+    if (showWhenNone && mainWindow) {
+      dialog.showMessageBox(mainWindow, { type: 'info', title: 'Sima Atlas', message: 'Auto-updater is disabled in this build.' });
+    }
+    return;
+  }
+  autoUpdater.checkForUpdates().catch((e) => {
+    if (showWhenNone && mainWindow) {
+      dialog.showMessageBox(mainWindow, { type: 'warning', title: 'Update check failed', message: String(e?.message || e) });
+    }
+  });
+}
 
 // ── lifecycle
 app.whenReady().then(async () => {
@@ -191,7 +380,9 @@ app.whenReady().then(async () => {
       waitForPort(apiPort, '/atlas/state', 10_000),
       waitForPort(uiPort, '/atlas_design/index.html', 5_000),
     ]);
+    buildMenu();
     createWindow();
+    await setupAutoUpdater();
   } catch (e) {
     dialog.showErrorBox('Sima Atlas — startup failed', String(e?.message || e));
     app.quit();

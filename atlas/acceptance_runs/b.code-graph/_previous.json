@@ -45,7 +45,7 @@
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 0
+      "duration_ms": 1
     },
     {
       "id": "A3",
@@ -111,7 +111,7 @@
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 1
+      "duration_ms": 0
     },
     {
       "id": "A6",
@@ -133,7 +133,7 @@
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 0
+      "duration_ms": 1
     },
     {
       "id": "A7",
@@ -166,5 +166,5 @@
   "verdict": "inconclusive",
   "inconclusive_if_declared": 1,
   "duration_ms": 2,
-  "checked_at": "2026-06-19T19:00:49.243Z"
+  "checked_at": "2026-06-19T19:33:35.725Z"
 }

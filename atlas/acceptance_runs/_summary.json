@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-19T19:01:35.992Z",
+  "generated_at": "2026-06-19T19:34:14.231Z",
   "blocks": [
     {
       "block_id": "b.ui-control",
@@ -9,7 +9,7 @@
         "fail": 0,
         "skipped": 3
       },
-      "duration_ms": 57,
+      "duration_ms": 58,
       "sample_failures": []
     },
     {
@@ -20,7 +20,7 @@
         "fail": 0,
         "skipped": 1
       },
-      "duration_ms": 205,
+      "duration_ms": 202,
       "sample_failures": []
     },
     {
@@ -31,7 +31,7 @@
         "fail": 0,
         "skipped": 1
       },
-      "duration_ms": 102,
+      "duration_ms": 101,
       "sample_failures": []
     },
     {
@@ -42,7 +42,7 @@
         "fail": 0,
         "skipped": 1
       },
-      "duration_ms": 2243,
+      "duration_ms": 2288,
       "sample_failures": []
     },
     {
@@ -53,7 +53,7 @@
         "fail": 0,
         "skipped": 2
       },
-      "duration_ms": 56,
+      "duration_ms": 53,
       "sample_failures": []
     },
     {
@@ -75,7 +75,7 @@
         "fail": 0,
         "skipped": 1
       },
-      "duration_ms": 766,
+      "duration_ms": 668,
       "sample_failures": []
     },
     {
@@ -86,7 +86,7 @@
         "fail": 0,
         "skipped": 1
       },
-      "duration_ms": 930,
+      "duration_ms": 957,
       "sample_failures": []
     },
     {
@@ -97,7 +97,7 @@
         "fail": 0,
         "skipped": 0
       },
-      "duration_ms": 543,
+      "duration_ms": 672,
       "sample_failures": []
     },
     {
@@ -108,7 +108,7 @@
         "fail": 0,
         "skipped": 7
       },
-      "duration_ms": 1,
+      "duration_ms": 2,
       "sample_failures": []
     },
     {
@@ -130,7 +130,7 @@
         "fail": 0,
         "skipped": 1
       },
-      "duration_ms": 602,
+      "duration_ms": 649,
       "sample_failures": []
     },
     {
@@ -174,7 +174,7 @@
         "fail": 0,
         "skipped": 6
       },
-      "duration_ms": 2,
+      "duration_ms": 3,
       "sample_failures": []
     },
     {

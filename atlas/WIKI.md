@@ -1,6 +1,6 @@
 # Sima Atlas Wiki
 
-_Auto-generated: 2026-06-19T19:01:45.067Z_
+_Auto-generated: 2026-06-19T19:34:23.497Z_
 
 ## Граф продукта
 
@@ -2366,8 +2366,8 @@ do/don't notes live in `narrative.md`._
 
 # b.desktop — files
 
-- extensions/desktop/main.mjs [alive] (PR1 — main process)
-- extensions/desktop/preload.mjs [alive] (PR1 — context bridge)
+- extensions/desktop/main.mjs [alive] (PR1 — main process; PR4 — native menu + electron-updater + checks.log audit dispatcher)
+- extensions/desktop/preload.mjs [alive] (PR1 — context bridge; PR4 — menu-mirror IPC + update controls)
 - extensions/desktop/package.json [alive] (PR1 — own deps + electron-builder config)
 - extensions/desktop/README.md [alive] (PR1 — operator docs)
 - tests/desktop_structure.selftest.mjs [alive] (PR2 — structural validator)
@@ -2702,6 +2702,10 @@ evidence_spec:
 - 2026-06-19T19:01:17.873Z: smoke e2e queued insight
 - 2026-06-19T19:01:41.662Z: smoke e2e queued insight
 - 2026-06-19T19:01:44.906Z: smoke e2e queued insight
+- 2026-06-19T19:33:35.955Z: smoke e2e queued insight
+- 2026-06-19T19:33:39.351Z: smoke e2e queued insight
+- 2026-06-19T19:34:20.016Z: smoke e2e queued insight
+- 2026-06-19T19:34:23.343Z: smoke e2e queued insight
 
 #### Files
 

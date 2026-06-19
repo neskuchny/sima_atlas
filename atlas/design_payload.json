@@ -425,7 +425,7 @@
       },
       "progress": {
         "tasks": {
-          "done": 0,
+          "done": 2,
           "total": 15
         },
         "kpi": {
@@ -2186,8 +2186,8 @@
       },
       {
         "id": "T10",
-        "title": "`Menu.setApplicationMenu` с File / Run / Window / Help; хоткеи",
-        "status": "todo",
+        "title": "`Menu.setApplicationMenu` с File / Run / View / Help (+ App",
+        "status": "done",
         "priority": "P2",
         "agent": null,
         "why": "",
@@ -2195,8 +2195,8 @@
       },
       {
         "id": "T11",
-        "title": "`electron-updater` поверх GitHub Releases. На старте проверка",
-        "status": "todo",
+        "title": "`electron-updater` поверх GitHub Releases — lazy-import (dev",
+        "status": "done",
         "priority": "P2",
         "agent": null,
         "why": "",
@@ -2493,7 +2493,7 @@
     }
   ],
   "_meta": {
-    "generated_at": "2026-06-19T19:01:31.032Z",
+    "generated_at": "2026-06-19T19:34:09.142Z",
     "atlas_root": "atlas",
     "client_id": null,
     "block_count": 19,

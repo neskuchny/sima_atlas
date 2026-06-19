@@ -32,15 +32,25 @@
 - [ ] T9: README.md репо — секция «Install as desktop app» со ссылками на
   релизные артефакты.
 
-## PR4 (future) — нативное меню + auto-update
+## PR4 — нативное меню + auto-update (R-7.99, DONE)
 
-- [ ] T10: `Menu.setApplicationMenu` с File / Run / Window / Help; хоткеи
-  для V-1, Verify All, Generate Bundle. Каждое действие пишет в checks.log
-  той же командой, что и CLI.
-- [ ] T11: `electron-updater` поверх GitHub Releases. На старте проверка
-  обновлений; диалог «Update available — install on next restart?».
+- [x] T10: `Menu.setApplicationMenu` с File / Run / View / Help (+ App
+  submenu на macOS), хоткеи `⌘+Shift+V/G/R` для Verify All / Generate
+  Bundle / V-1 Loop. Каждое menu-действие запускает соответствующий скрипт
+  через `utilityProcess.fork` и POST'ит результат в `/atlas/checks/append`
+  на `b.desktop` — десктоп-сессии оседают в том же checks.log, что и
+  CLI-сессии. (Селфтест g8: 5 ассерций, все зелёные.)
+- [x] T11: `electron-updater` поверх GitHub Releases — lazy-import (dev
+  tree работает без зависимости), активен только в `app.isPackaged`, на
+  старте через 5 минут запрашивает GitHub Releases; при наличии
+  обновления — нативный диалог «Version X.Y.Z available, will install on
+  next restart». Меню → Help → «Check for Updates…» дёргает руками.
+  Управляется через `SIMA_DESKTOP_DISABLE_AUTOUPDATE=1` для CI. (Селфтест
+  g9: 4 ассерции, все зелёные. g10: electron-updater в `dependencies`,
+  не devDep — runtime-нужен в packaged-tree.)
 - [ ] T12: Project picker UI — список папок из `~/SimaProjects/` с
-  возможностью создать новую и сразу инициализировать `atlas/`.
+  возможностью создать новую и сразу инициализировать `atlas/`. (Renderer-
+  side, отдельный PR с фронтенд-правками в `frontend/atlas_design/`.)
 
 ## PR5 (future) — подпись и нотаризация
 
