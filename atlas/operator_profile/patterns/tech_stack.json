@@ -54,16 +54,6 @@
       ]
     },
     {
-      "name": "drizzle-orm",
-      "uses": 3,
-      "satisfaction": "unknown",
-      "evidence": [
-        "b.core-sync",
-        "b.todo-api",
-        "b.todo-db"
-      ]
-    },
-    {
       "name": "esm",
       "uses": 2,
       "satisfaction": "unknown",
@@ -73,57 +63,34 @@
       ]
     },
     {
-      "name": "typescript",
+      "name": "markdown",
       "uses": 2,
       "satisfaction": "unknown",
       "evidence": [
         "b.core-sync",
-        "b.todo-api"
+        "b.db"
       ]
     },
     {
-      "name": "fastify",
+      "name": "json",
       "uses": 2,
       "satisfaction": "unknown",
       "evidence": [
         "b.core-sync",
-        "b.todo-api"
+        "b.db"
       ]
     },
     {
-      "name": "zod",
-      "uses": 1,
+      "name": "drizzle-orm",
+      "uses": 2,
       "satisfaction": "unknown",
       "evidence": [
-        "b.core-sync"
+        "b.todo-api",
+        "b.todo-db"
       ]
     },
     {
-      "name": "sqlite",
-      "uses": 1,
-      "satisfaction": "unknown",
-      "evidence": [
-        "b.core-sync"
-      ]
-    },
-    {
-      "name": "session-cookies",
-      "uses": 1,
-      "satisfaction": "unknown",
-      "evidence": [
-        "b.core-sync"
-      ]
-    },
-    {
-      "name": "pino",
-      "uses": 1,
-      "satisfaction": "unknown",
-      "evidence": [
-        "b.core-sync"
-      ]
-    },
-    {
-      "name": "vitest",
+      "name": "vanilla-js",
       "uses": 1,
       "satisfaction": "unknown",
       "evidence": [
@@ -139,19 +106,19 @@
       ]
     },
     {
-      "name": "json",
+      "name": "fastify",
       "uses": 1,
       "satisfaction": "unknown",
       "evidence": [
-        "b.db"
+        "b.todo-api"
       ]
     },
     {
-      "name": "markdown",
+      "name": "typescript",
       "uses": 1,
       "satisfaction": "unknown",
       "evidence": [
-        "b.db"
+        "b.todo-api"
       ]
     },
     {

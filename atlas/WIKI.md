@@ -1,6 +1,6 @@
 # Sima Atlas Wiki
 
-_Auto-generated: 2026-06-19T18:32:10.527Z_
+_Auto-generated: 2026-06-19T18:44:44.907Z_
 
 ## Граф продукта
 
@@ -240,7 +240,7 @@ _Sources: [mission](blocks/b.ui-control/mission.md) · [kpi](blocks/b.ui-control
 - **status**: `done` — syncCheck only validates file presence, not mission/KPI semantics
 - **mvp**: yes
 - **depends_on**: `b.db`, `b.code-graph`
-- **tech_stack**: `nodejs`, `esm`, `typescript`, `fastify`, `zod`, `drizzle-orm`, `sqlite`, `session-cookies`, `pino`, `vitest`
+- **tech_stack**: `nodejs`, `esm`, `vanilla-js`, `markdown`, `json`
 - **files**: 8 (`atlas/blocks/b.core-sync/files.md`)
 
 # b.core-sync — mission
@@ -297,10 +297,17 @@ logic
 3. **Семантический sync (T7, PR3)** — LLM судит код ↔ миссия поверх
    детерминистической карты. Зависит от `b.llm-gateway: llm_call_structured`.
    Запускается только когда `code_graph` зелёный.
-4. **Унификация источника правды checks.log (T8)** — `frontend/atlas_sync.js`
-   перестаёт быть «теневым» источником: всё, что он сейчас пишет в
-   `localStorage`, уходит через `b.db: file_registry` в реальный `checks.log`
-   на диске. Закрывает методологическое нарушение Rule 1.
+4. **Унификация источника правды `checks.log` (T8, DONE)** — после R-7.99
+   `frontend/atlas_sync.js` `logCheck` пишет в **оба** места одновременно:
+   немедленно в `localStorage` (для мгновенной UI-реакции и offline-режима)
+   и через `POST /atlas/checks/append` в реальный `atlas/blocks/<id>/checks.log`
+   на диске. Канонический источник правды — **файл на диске**;
+   `localStorage` — write-through кэш, его роль ограничена быстрым рендером
+   и устойчивостью к временной потере связи. Расхождение невозможно: каждая
+   запись идёт в оба источника одновременно, и при следующем чтении с
+   диска localStorage обновляется через `loadAtlas`. Закрывает
+   методологическое нарушение Rule 1: канонические checks теперь живут на
+   файловой системе там, где их видят CLI-валидаторы и git.
 
 ## Out of scope
 - Генерация документации (это `b.docs`).
@@ -390,7 +397,8 @@ evidence_spec:
 
 # b.core-sync — files
 
-- frontend/atlas_sync.js [alive] (client-side syncCheck + transitions)
+- frontend/atlas_sync.js [alive] (client-side syncCheck + transitions; T8: logCheck now POSTs /atlas/checks/append → checks.log on disk)
+- tests/checks_append_endpoint.selftest.mjs [alive] (T8 — selftest for the unified-checks-log endpoint)
 - scripts/validate_block_contracts.mjs [alive]
 - scripts/validate_dependency_contracts.mjs [alive]
 - scripts/validate_acceptance_assertions.mjs [alive]
@@ -2434,6 +2442,10 @@ evidence_spec:
 - 2026-06-19T18:23:29.803Z: smoke e2e queued insight
 - 2026-06-19T18:32:07.121Z: smoke e2e queued insight
 - 2026-06-19T18:32:10.364Z: smoke e2e queued insight
+- 2026-06-19T18:40:39.501Z: smoke e2e queued insight
+- 2026-06-19T18:40:42.630Z: smoke e2e queued insight
+- 2026-06-19T18:44:41.547Z: smoke e2e queued insight
+- 2026-06-19T18:44:44.751Z: smoke e2e queued insight
 
 #### Files
 

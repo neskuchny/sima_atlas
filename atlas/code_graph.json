@@ -66,7 +66,8 @@
         "scripts/validate_ingestion_quality.mjs",
         "scripts/validate_no_template_placeholders.mjs",
         "scripts/validate_parity_matrix.mjs",
-        "scripts/validate_stack_mismatch.mjs"
+        "scripts/validate_stack_mismatch.mjs",
+        "tests/checks_append_endpoint.selftest.mjs"
       ]
     },
     "b.db": {
@@ -836,7 +837,7 @@
           "external": false,
           "from": "./sima_fill_from_chat.mjs",
           "kind": "dynamic",
-          "line": 1353,
+          "line": 1380,
           "resolved_to": "scripts/sima_fill_from_chat.mjs",
           "specifiers": []
         },
@@ -844,7 +845,7 @@
           "external": false,
           "from": "./sima_watch_chats.mjs",
           "kind": "dynamic",
-          "line": 1369,
+          "line": 1396,
           "resolved_to": "scripts/sima_watch_chats.mjs",
           "specifiers": []
         },
@@ -865,7 +866,7 @@
           "external": false,
           "from": "./screenshot_block.mjs",
           "kind": "dynamic",
-          "line": 1479,
+          "line": 1506,
           "resolved_to": "scripts/screenshot_block.mjs",
           "specifiers": []
         },
@@ -951,7 +952,7 @@
           "external": false,
           "from": "./scripts/regenerate_user_docs_drift.mjs",
           "kind": "dynamic",
-          "line": 742,
+          "line": 769,
           "resolved_to": null,
           "specifiers": []
         },
@@ -959,7 +960,7 @@
           "external": false,
           "from": "./scripts/regenerate_user_docs_drift.mjs",
           "kind": "dynamic",
-          "line": 753,
+          "line": 780,
           "resolved_to": null,
           "specifiers": []
         },
@@ -978,14 +979,6 @@
         },
         {
           "external": false,
-          "from": "./architecture_decisions_api.mjs",
-          "kind": "dynamic",
-          "line": 888,
-          "resolved_to": "scripts/architecture_decisions_api.mjs",
-          "specifiers": []
-        },
-        {
-          "external": false,
           "from": "./atlas_artifacts_api.mjs",
           "kind": "static",
           "line": 9,
@@ -996,6 +989,14 @@
               "name": "artifactsApi"
             }
           ]
+        },
+        {
+          "external": false,
+          "from": "./architecture_decisions_api.mjs",
+          "kind": "dynamic",
+          "line": 915,
+          "resolved_to": "scripts/architecture_decisions_api.mjs",
+          "specifiers": []
         }
       ],
       "owning_block": "b.agent-orchestrator"
@@ -4449,6 +4450,90 @@
         }
       ],
       "owning_block": "b.smoke-sandbox"
+    },
+    "tests/checks_append_endpoint.selftest.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 10,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:os",
+          "kind": "static",
+          "line": 11,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 12,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:http",
+          "kind": "static",
+          "line": 13,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "http"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:child_process",
+          "kind": "static",
+          "line": 14,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "spawn"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 15,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.core-sync"
     },
     "tests/code_graph_extractor.selftest.mjs": {
       "exports": [

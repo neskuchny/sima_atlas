@@ -97,14 +97,9 @@
       "tech_stack": [
         "nodejs",
         "esm",
-        "typescript",
-        "fastify",
-        "zod",
-        "drizzle-orm",
-        "sqlite",
-        "session-cookies",
-        "pino",
-        "vitest"
+        "vanilla-js",
+        "markdown",
+        "json"
       ],
       "files": [
         "frontend/atlas_sync.js",

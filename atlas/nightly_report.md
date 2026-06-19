@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-06-19T18:31:51.494Z_
+_Generated: 2026-06-19T18:44:25.431Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -18,11 +18,13 @@ _Generated: 2026-06-19T18:31:51.494Z_
   - output: build_code_graph --check: code_graph.json up-to-date
 - ✅ code_graph_drift: ok
 - ✅ code_graph_extractor_selftest: ok
-  - output: deterministic — sha256(e0abd7bfa78a…) matches across runs
+  - output: deterministic — sha256(f97ad80e3d5c…) matches across runs
 - ✅ code_graph_validator_selftest: ok
   - output: code_graph_validator.selftest: OK (6 test groups, all assertions green)
+- ✅ checks_append_endpoint_selftest: ok
+  - output: checks_append_endpoint.selftest: OK (6 test groups, all assertions green)
 - ✅ files_registry: ok
-  - output: Files registry validation: OK (alive=192, archived=4, dead=0)
+  - output: Files registry validation: OK (alive=193, archived=4, dead=0)
 - ✅ housekeeping_sweep: ok
   - output: housekeeping_sweeper: 1 proposal(s) — see atlas/cleanup_proposals.md
 - ✅ projects_contracts: ok
@@ -44,7 +46,7 @@ _Generated: 2026-06-19T18:31:51.494Z_
 - ✅ operator_profile_selftest: ok
   - output: operator_profile.selftest: OK (7 test groups, all assertions green)
 - ✅ aggregate_operator_profile: ok
-  - output: operator_profile: live (done=7, invocations=9, traces=3604, proposals=48)
+  - output: operator_profile: live (done=7, invocations=9, traces=4004, proposals=52)
 - ✅ operator_profile_lessons_smoke: ok
   - output: operator_profile_lessons.smoke: OK (6 test groups, all assertions green)
 - ✅ operator_profile_inject_smoke: ok
@@ -156,4 +158,4 @@ _Generated: 2026-06-19T18:31:51.494Z_
 - ✅ intelligence_health: ok
   - output: Intelligence health: 0.9444 (17/18)
 
-Summary: PASS (77/77)
+Summary: PASS (78/78)

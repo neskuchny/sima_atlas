@@ -15,7 +15,7 @@
 </style>
 </head><body>
 <h1>Sima Atlas Wiki</h1>
-<p><em>Auto-generated: 2026-06-19T18:32:10.527Z</em></p>
+<p><em>Auto-generated: 2026-06-19T18:44:44.907Z</em></p>
 <h2>Граф продукта</h2>
 <div class="mermaid">flowchart TB
   classDef done    fill:#dcfce7,stroke:#16a34a,color:#15803d;
@@ -238,7 +238,7 @@ evidence_spec:
 <li><strong>status</strong>: <code>done</code> — syncCheck only validates file presence, not mission/KPI semantics</li>
 <li><strong>mvp</strong>: yes</li>
 <li><strong>depends_on</strong>: <code>b.db</code>, <code>b.code-graph</code></li>
-<li><strong>tech_stack</strong>: <code>nodejs</code>, <code>esm</code>, <code>typescript</code>, <code>fastify</code>, <code>zod</code>, <code>drizzle-orm</code>, <code>sqlite</code>, <code>session-cookies</code>, <code>pino</code>, <code>vitest</code></li>
+<li><strong>tech_stack</strong>: <code>nodejs</code>, <code>esm</code>, <code>vanilla-js</code>, <code>markdown</code>, <code>json</code></li>
 <li><strong>files</strong>: 8 (<code>atlas/blocks/b.core-sync/files.md</code>)</li>
 </ul>
 <h1>b.core-sync — mission</h1>
@@ -290,10 +290,17 @@ evidence_spec:
 <p>3. <strong>Семантический sync (T7, PR3)</strong> — LLM судит код ↔ миссия поверх</p>
 <p>   детерминистической карты. Зависит от <code>b.llm-gateway: llm<em>call</em>structured</code>.</p>
 <p>   Запускается только когда <code>code_graph</code> зелёный.</p>
-<p>4. <strong>Унификация источника правды checks.log (T8)</strong> — <code>frontend/atlas_sync.js</code></p>
-<p>   перестаёт быть «теневым» источником: всё, что он сейчас пишет в</p>
-<p>   <code>localStorage</code>, уходит через <code>b.db: file_registry</code> в реальный <code>checks.log</code></p>
-<p>   на диске. Закрывает методологическое нарушение Rule 1.</p>
+<p>4. <strong>Унификация источника правды <code>checks.log</code> (T8, DONE)</strong> — после R-7.99</p>
+<p>   <code>frontend/atlas_sync.js</code> <code>logCheck</code> пишет в <strong>оба</strong> места одновременно:</p>
+<p>   немедленно в <code>localStorage</code> (для мгновенной UI-реакции и offline-режима)</p>
+<p>   и через <code>POST /atlas/checks/append</code> в реальный <code>atlas/blocks/&lt;id&gt;/checks.log</code></p>
+<p>   на диске. Канонический источник правды — <strong>файл на диске</strong>;</p>
+<p>   <code>localStorage</code> — write-through кэш, его роль ограничена быстрым рендером</p>
+<p>   и устойчивостью к временной потере связи. Расхождение невозможно: каждая</p>
+<p>   запись идёт в оба источника одновременно, и при следующем чтении с</p>
+<p>   диска localStorage обновляется через <code>loadAtlas</code>. Закрывает</p>
+<p>   методологическое нарушение Rule 1: канонические checks теперь живут на</p>
+<p>   файловой системе там, где их видят CLI-валидаторы и git.</p>
 <h2>Out of scope</h2>
 <ul>
 <li>Генерация документации (это <code>b.docs</code>).</li>
@@ -376,7 +383,8 @@ evidence_spec:
 <h4>Files</h4>
 <h1>b.core-sync — files</h1>
 <ul>
-<li>frontend/atlas_sync.js [alive] (client-side syncCheck + transitions)</li>
+<li>frontend/atlas_sync.js [alive] (client-side syncCheck + transitions; T8: logCheck now POSTs /atlas/checks/append → checks.log on disk)</li>
+<li>tests/checks<em>append</em>endpoint.selftest.mjs [alive] (T8 — selftest for the unified-checks-log endpoint)</li>
 <li>scripts/validate<em>block</em>contracts.mjs [alive]</li>
 <li>scripts/validate<em>dependency</em>contracts.mjs [alive]</li>
 <li>scripts/validate<em>acceptance</em>assertions.mjs [alive]</li>
@@ -2239,6 +2247,10 @@ evidence_spec:
 <li>2026-06-19T18:23:29.803Z: smoke e2e queued insight</li>
 <li>2026-06-19T18:32:07.121Z: smoke e2e queued insight</li>
 <li>2026-06-19T18:32:10.364Z: smoke e2e queued insight</li>
+<li>2026-06-19T18:40:39.501Z: smoke e2e queued insight</li>
+<li>2026-06-19T18:40:42.630Z: smoke e2e queued insight</li>
+<li>2026-06-19T18:44:41.547Z: smoke e2e queued insight</li>
+<li>2026-06-19T18:44:44.751Z: smoke e2e queued insight</li>
 </ul>
 <h4>Files</h4>
 <h1>b.smoke-sandbox — files</h1>

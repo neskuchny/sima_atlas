@@ -93,7 +93,7 @@
       },
       "progress": {
         "tasks": {
-          "done": 3,
+          "done": 4,
           "total": 8
         },
         "kpi": {
@@ -104,14 +104,9 @@
       "tech_stack": [
         "nodejs",
         "esm",
-        "typescript",
-        "fastify",
-        "zod",
-        "drizzle-orm",
-        "sqlite",
-        "session-cookies",
-        "pino",
-        "vitest"
+        "vanilla-js",
+        "markdown",
+        "json"
       ],
       "x": 1040,
       "y": 320
@@ -944,8 +939,8 @@
       },
       {
         "id": "T8",
-        "title": "Унификация источника правды `checks.log`: `frontend/atlas_sync.js` сейчас пишет проверки в `localStorage`, а Rule 1 требует фиксации в `checks.log` на диске. Через `b.db: file_registry` соединить два ",
-        "status": "todo",
+        "title": "Унификация источника правды `checks.log`: `frontend/atlas_sync.js` `logCheck` теперь параллельно с `localStorage` POST'ит в новый эндпоинт `POST /atlas/checks/append` (R-7.99), который дописывает TSV-",
+        "status": "done",
         "priority": "P2",
         "agent": null,
         "why": "",
@@ -2299,7 +2294,7 @@
     }
   ],
   "_meta": {
-    "generated_at": "2026-06-19T18:31:56.794Z",
+    "generated_at": "2026-06-19T18:44:31.120Z",
     "atlas_root": "atlas",
     "client_id": null,
     "block_count": 18,

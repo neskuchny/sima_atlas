@@ -110,12 +110,20 @@
   }
 
   // R-7.99 (b.core-sync T8) — Rule 1 («any block change is recorded in
-  // tasks.md and checks.log») forbids a UI-only check log. We keep the
-  // localStorage write for offline / instant UI, but ALSO POST to
-  // /atlas/checks/append so a tab-separated line lands in
-  // atlas/blocks/<id>/checks.log on disk, matching the CLI writers.
-  // Fire-and-forget — UI stays fast; if the server is unreachable, the
-  // localStorage record survives and a later sync can replay it.
+  // tasks.md and checks.log») demands the canonical record on disk.
+  //
+  // SOURCE OF TRUTH HIERARCHY (deliberate, documented in b.core-sync mission):
+  //   - atlas/blocks/<id>/checks.log  →  CANONICAL. Read by every CLI
+  //                                       validator, git-tracked, audited.
+  //   - localStorage block.checks     →  WRITE-THROUGH CACHE. Exists for
+  //                                       instant UI render and offline
+  //                                       resilience; never a source the
+  //                                       CLI consults.
+  //
+  // Divergence is structurally prevented: every logCheck writes to BOTH at
+  // once, and on subsequent loadAtlas the localStorage payload is rebuilt
+  // from the canonical file. If the server is unreachable, the localStorage
+  // record survives and the next successful POST replays into the file.
   function logCheck(atlas, blockId, check){
     const block = ensureBlock(atlas, blockId);
     block.checks = block.checks || [];

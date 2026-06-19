@@ -1,17 +1,17 @@
 {
   "contractValidation": {
-    "checkedAt": "2026-06-19T18:32:07.882Z",
+    "checkedAt": "2026-06-19T18:44:42.290Z",
     "total": 18,
     "broken": 0,
     "details": []
   },
   "stackMismatch": {
-    "checkedAt": "2026-06-09T19:55:39.466Z",
+    "checkedAt": "2026-06-19T18:44:03.952Z",
     "driftCount": 0,
     "details": []
   },
   "codeGraphDrift": {
-    "checkedAt": "2026-06-19T18:31:51.996Z",
+    "checkedAt": "2026-06-19T18:44:25.908Z",
     "driftCount": 20,
     "details": [
       {
@@ -207,7 +207,8 @@
           "scripts/validate_ingestion_quality.mjs",
           "scripts/validate_no_template_placeholders.mjs",
           "scripts/validate_parity_matrix.mjs",
-          "scripts/validate_stack_mismatch.mjs"
+          "scripts/validate_stack_mismatch.mjs",
+          "tests/checks_append_endpoint.selftest.mjs"
         ],
         "exported_names_in_block": [],
         "hint": "«contract_validation» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.core-sync/provides.md."

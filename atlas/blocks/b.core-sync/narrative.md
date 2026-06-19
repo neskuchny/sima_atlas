@@ -96,3 +96,43 @@ Two previous runs failed semantic verify because: (1) no `atlas/sync_report.json
 - Ensure Comprehensive `sync_report.json` Contribution: Verify that *all* `validate_*.mjs` scripts consistently write their findings (drift/broken items with file/line references) into the structured `atlas/sync_report.json`.
 - Implement Semantic Sync (PR3/T7): Integrate LLM functionality to compare `mission.md` with `checks.log` and `tasks.md`, fulfilling KPI-3 and acceptance criterion A4.
 - Address Frontend Tech Stack Inconsistency: Either refactor `frontend/atlas_sync.js` to use React or update the `tech_stack` contract to reflect its plain JavaScript implementation.
+
+## 2026-06-19T18:41:22.965Z · semantic verify · fail
+
+### Contract-as-Arbiter judgment
+- The `b.core-sync` block provides a foundational set of structural contract validations, fulfilling parts of its mission. However, it critically fails to deliver on its full contract due to significant methodological and functional inconsistencies, including a split source of truth for checks, unfulfilled `b.db` and `b.code-graph` dependencies, and an incomplete stack synchronization mechanism. The stated acceptance criteria for stack sync contradict the actual KPI status, indicating a lack of genuine functionality.
+
+### To genuinely satisfy the contract
+- Unify Check Logging (T8): Modify `frontend/atlas_sync.js` to *exclusively* write all block checks to `checks.log` files on the filesystem, adhering to Rule 1, and remove `localStorage` as a source of truth for checks.
+- Align `b.db` Dependencies: Refactor `frontend/atlas_sync.js` and `validate_*.mjs` scripts to genuinely depend on `b.db`'s `atlas_state_store` and `file_registry` capabilities, rather than directly accessing `localStorage` or the filesystem. Alternatively, update the `depends_on` contract to accurately reflect the current direct filesystem/localStorage usage.
+- Integrate `b.code-graph` Dependency: Implement the consumption of `b.code-graph: code_graph` within `b.core-sync` to reference its results in the aggregated `sync_report.json`, as stated in the mission.
+- Address KPI-2 (Stack Sync) and A3: Develop and integrate a robust mechanism to check `tech_stack` against actual file types/imports in `files.md`, ensuring `files.md` is populated across blocks for effective validation, and resolve the contradiction between KPI-2 and A3.
+- Ensure Comprehensive `sync_report.json` Contribution: Verify that *all* `validate_*.mjs` scripts consistently write their findings (drift/broken items with file/line references) into the structured `atlas/sync_report.json`.
+
+## 2026-06-19T18:43:11.225Z · semantic verify · fail
+
+### Contract-as-Arbiter judgment
+- The `b.core-sync` block partially fulfills its mission by performing some structural contract validations. However, it critically fails due to significant methodological and functional inconsistencies, including a split and unreliable source of truth for checks, unfulfilled `b.db` and `b.code-graph` dependencies, and an incomplete and inconsistently reported stack synchronization mechanism. The block's implementation deviates from its declared `tech_stack` and fails to aggregate all findings into the `sync_report.json` as promised.
+
+### To genuinely satisfy the contract
+- Unify Check Logging (T8): Modify `frontend/atlas_sync.js`'s `loadAtlas` function to *always* rebuild `localStorage`'s `block.checks` from the canonical `atlas/blocks/<id>/checks.log` file on disk, ensuring `localStorage` is a true write-through cache and not a divergent source of truth.
+- Align `b.db` Dependencies: Refactor `frontend/atlas_sync.js` and `scripts/validate_*.mjs` to genuinely depend on `b.db`'s `atlas_state_store` and `file_registry` capabilities, rather than directly accessing `localStorage` or the filesystem for these purposes. Alternatively, update the `depends_on` contract to accurately reflect the current direct filesystem/localStorage usage.
+- Integrate `b.code-graph` Dependency: Implement the consumption of `b.code-graph: code_graph` within `b.core-sync` (e.g., in a new validator script or by modifying existing ones) to reference its results in the aggregated `sync_report.json`, as stated in the mission.
+- Ensure Comprehensive `sync_report.json` Contribution: Modify `scripts/validate_dependency_contracts.mjs` and `scripts/validate_stack_mismatch.mjs` (and any other relevant validators) to consistently write their findings (drift/broken items with file/line references) into the structured `atlas/sync_report.json`, mirroring `validate_block_contracts.mjs`.
+- Address KPI-2 (Stack Sync) and A3: Fully implement and integrate `scripts/validate_stack_mismatch.mjs` to robustly check `tech_stack` against actual file types/imports in `files.md`. Ensure `files.md` is populated across blocks for effective validation, and resolve the contradiction between KPI-2's '✗' and A3's 'x'.
+- Implement Semantic Sync (PR3/T7): Integrate LLM functionality to compare `mission.md` with `checks.log` and `tasks.md`, fulfilling KPI-3 and acceptance criterion A4. (This is a delegated task, but listed as a 'to pass' for the overall contract).
+- Align Frontend Tech Stack: Either refactor `frontend/atlas_sync.js` to use React (as declared in `tech_stack`) or update the `tech_stack` contract to accurately reflect its plain JavaScript implementation.
+
+## 2026-06-19T18:44:43.245Z · semantic verify · fail
+
+### Contract-as-Arbiter judgment
+- The `b.core-sync` block partially fulfills its mission by performing some structural contract validations. However, it critically fails due to significant methodological and functional inconsistencies, including a split and unreliable source of truth for checks, unfulfilled `b.db` and `b.code-graph` dependencies, and an incomplete and inconsistently reported stack synchronization mechanism. The block's implementation deviates from its declared `tech_stack` and fails to aggregate all findings into the `sync_report.json` as promised.
+
+### To genuinely satisfy the contract
+- Unify Check Logging (T8): Modify `frontend/atlas_sync.js`'s `loadAtlas` function to *always* rebuild `localStorage`'s `block.checks` from the canonical `atlas/blocks/<id>/checks.log` file on disk, ensuring `localStorage` is a true write-through cache and not a divergent source of truth. Ensure `logCheck` robustly handles server unavailability by queuing writes for later replay.
+- Align `b.db` Dependencies: Refactor `frontend/atlas_sync.js` and `scripts/validate_*.mjs` to genuinely depend on `b.db`'s `atlas_state_store` and `file_registry` capabilities, rather than directly accessing `localStorage` or the filesystem for these purposes. This might involve updating `b.db` to provide these capabilities in a consumable way.
+- Integrate `b.code-graph` Dependency: Implement the consumption of `b.code-graph: code_graph` within `b.core-sync` (e.g., in a new validator script or by modifying existing ones) to reference its results in the aggregated `sync_report.json`, as stated in the mission.
+- Ensure Comprehensive `sync_report.json` Contribution: Modify `scripts/validate_dependency_contracts.mjs` and `scripts/validate_stack_mismatch.mjs` (and any other relevant validators) to consistently write their findings (drift/broken items with file/line references) into the structured `atlas/sync_report.json`, mirroring `validate_block_contracts.mjs`.
+- Address KPI-2 (Stack Sync) and A3: Fully implement and integrate `scripts/validate_stack_mismatch.mjs` to robustly check `tech_stack` against actual file types/imports in `files.md`. Ensure `files.md` is populated across blocks for effective validation, and resolve the contradiction between KPI-2's '✗' and A3's 'x'.
+- Align Frontend Tech Stack: Either refactor `frontend/atlas_sync.js` to use React (as declared in `tech_stack`) or update the `tech_stack` contract to accurately reflect its plain JavaScript implementation.
+- Implement Semantic Sync (PR3/T7): Integrate LLM functionality to compare `mission.md` with `checks.log` and `tasks.md`, fulfilling KPI-3 and acceptance criterion A4. (This is a delegated task, but listed as a 'to pass' for the overall contract).

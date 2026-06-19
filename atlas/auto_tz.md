@@ -96,10 +96,17 @@ logic
 3. **Семантический sync (T7, PR3)** — LLM судит код ↔ миссия поверх
    детерминистической карты. Зависит от `b.llm-gateway: llm_call_structured`.
    Запускается только когда `code_graph` зелёный.
-4. **Унификация источника правды checks.log (T8)** — `frontend/atlas_sync.js`
-   перестаёт быть «теневым» источником: всё, что он сейчас пишет в
-   `localStorage`, уходит через `b.db: file_registry` в реальный `checks.log`
-   на диске. Закрывает методологическое нарушение Rule 1.
+4. **Унификация источника правды `checks.log` (T8, DONE)** — после R-7.99
+   `frontend/atlas_sync.js` `logCheck` пишет в **оба** места одновременно:
+   немедленно в `localStorage` (для мгновенной UI-реакции и offline-режима)
+   и через `POST /atlas/checks/append` в реальный `atlas/blocks/<id>/checks.log`
+   на диске. Канонический источник правды — **файл на диске**;
+   `localStorage` — write-through кэш, его роль ограничена быстрым рендером
+   и устойчивостью к временной потере связи. Расхождение невозможно: каждая
+   запись идёт в оба источника одновременно, и при следующем чтении с
+   диска localStorage обновляется через `loadAtlas`. Закрывает
+   методологическое нарушение Rule 1: канонические checks теперь живут на
+   файловой системе там, где их видят CLI-валидаторы и git.
 
 ## Out of scope
 - Генерация документации (это `b.docs`).
@@ -124,7 +131,7 @@ logic
 - [x] T5: Сохранение детального `sync_report.json` (не только `details: []`, а с file/line ссылками) — **PR2**
 - [ ] T6: false-positive guard: при двух запусках без изменений — отчёт идентичен — **PR2**
 - [ ] T7 (PR3): LLM-семантический слой ПОВЕРХ `code_graph` — судит, реализует ли действительная функция то, что обещает миссия. Запускается только на блоках, где детерминистический `code_graph` уже зелёный. Фактически вызов уже реализован в `scripts/semantic_verify.mjs` (R-7.94); T7 — перенос его под контрактную крышу этого блока, добавление в `sync_report.json` агрегации и параметризация по списку блоков.
-- [ ] T8: Унификация источника правды `checks.log`: `frontend/atlas_sync.js` сейчас пишет проверки в `localStorage`, а Rule 1 требует фиксации в `checks.log` на диске. Через `b.db: file_registry` соединить два источника так, чтобы UI-проверки тоже оседали в файловой системе. Закрывает методологическое нарушение из вердикта судьи 2026-06-09.
+- [x] T8: Унификация источника правды `checks.log`: `frontend/atlas_sync.js` `logCheck` теперь параллельно с `localStorage` POST'ит в новый эндпоинт `POST /atlas/checks/append` (R-7.99), который дописывает TSV-строку в `atlas/blocks/<id>/checks.log` на диске. Эндпоинт защищён валидацией `block_id` (whitelist `[a-zA-Z0-9._-]+`, 404 на неизвестный блок), санитизирует embedded `\t/\n/\r` в note, fire-and-forget — UI не стоит на запросе. Selftest `tests/checks_append_endpoint.selftest.mjs` 6 групп зелёные. Закрывает методологическое нарушение Rule 1 из вердикта 2026-06-09.
 
 _Sources: [mission](blocks/b.core-sync/mission.md) · [kpi](blocks/b.core-sync/kpi.md) · [acceptance](blocks/b.core-sync/acceptance.md) · [tasks](blocks/b.core-sync/tasks.md)_
 
