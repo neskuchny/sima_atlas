@@ -73,9 +73,10 @@ logic
 - [ ] T1: Расширить модель блока в `graph.json` полями `layer/type/mvp/subschema_id/files` (схема v2) — **PR2**
 - [ ] T2: Контракт `depends_on: [{block_id, capability}]` (структурный объект, не строка) — **PR2**
 - [x] T3: Stack-mismatch detector: сопоставлять `tech_stack` блока с расширениями файлов в `files.md` — **PR2**
-- [ ] T4: Семантический gate через `b.llm-gateway.callLLM`: validate `mission ↔ files contents` → drift_reason — **PR3**
+- [x] T4: Реальная карта imports/exports + детектор `undeclared_code_dependency` — **делегировано в `b.code-graph`** (R-7.99). `b.core-sync` потребляет `code_graph` capability через `depends_on`. Прежний план «LLM-gate через `callLLM` для mission ↔ files» отделён в PR3 ниже как чисто-семантический слой поверх детерминистической базы.
 - [x] T5: Сохранение детального `sync_report.json` (не только `details: []`, а с file/line ссылками) — **PR2**
 - [ ] T6: false-positive guard: при двух запусках без изменений — отчёт идентичен — **PR2**
+- [ ] T7 (PR3): LLM-семантический слой ПОВЕРХ `code_graph` — судит, реализует ли действительная функция то, что обещает миссия. Запускается только на блоках, где детерминистический `code_graph` уже зелёный.
 
 _Sources: [mission](blocks/b.core-sync/mission.md) · [kpi](blocks/b.core-sync/kpi.md) · [acceptance](blocks/b.core-sync/acceptance.md) · [tasks](blocks/b.core-sync/tasks.md)_
 
@@ -888,6 +889,142 @@ PR-3 закрыт. T5.5 b.acceptance-verifier-loop (Playwright smoke screenshots
 PR-4 закрыт. tests/user_docs_drift.selftest.mjs 5 групп зелёный (bare repo seed; idempotent re-run; hash drift unlocked → refreshed; hash drift locked → proposal + dedup; list/read/lock helpers). b.user-docs-generator закрыт целиком — все 4 PR'а (1 introspection / 2 LLM writer / 3 screenshots / 4 auto-regen+UI).
 
 _Sources: [mission](blocks/b.user-docs-generator/mission.md) · [kpi](blocks/b.user-docs-generator/kpi.md) · [acceptance](blocks/b.user-docs-generator/acceptance.md) · [tasks](blocks/b.user-docs-generator/tasks.md)_
+
+## b.code-graph (idea)
+
+# b.code-graph — mission
+
+Sima Atlas сейчас знает граф продукта на уровне **контрактов** (`depends_on.md`,
+`provides.md`) и на уровне **файлов** (`files.md`). Между ними дыра: что на самом
+деле импортируется внутри файлов одного блока из файлов другого — никто не
+проверяет. Контракт говорит «A зависит от B по capability X», код может
+импортировать что угодно. Это и есть «рассинхрон», который семантический судья
+прямо потребовал у `b.core-sync` как PR4 — детерминистическую карту реальных
+связей в коде.
+
+`b.code-graph` — этот недостающий слой. На каждый alive-файл (источник: `files.md`
+блоков) собирается deterministic-карта: какие модули он импортирует, какие
+символы экспортирует. Файлы группируются по своему владельцу-блоку. Из этого
+строится граф блок→блок «по коду»: блок A импортирует символы из блока B
+тогда и только тогда, когда у A есть файл, импортирующий из файла B.
+
+Результат сохраняется в `atlas/code_graph.json` — отдельный артефакт-источник
+истины для нижних проверок:
+
+- `b.core-sync` сверяет код-граф с контрактным: «файл блока A импортирует
+  файл блока B, но `depends_on` у A не содержит B» → drift с `reason:
+  undeclared_code_dependency` и ссылкой на конкретный `from-файл:номер-строки`.
+- симметрично — «блок declares `provides: X`, но ни в одном из его файлов нет
+  экспортируемого символа с именем `X` или соответствующей capability» → drift
+  с `reason: provided_capability_not_exported`.
+
+## Layer
+data
+
+## Out of scope (что блок НЕ делает)
+
+- Не семантический анализ кода (это `b.core-sync` PR3, через `b.llm-gateway`).
+  Код-граф — структурный, на уровне `import`/`export`-инструкций.
+- Не понимает значение функций, только их сигнатуры и where-imported-from.
+- Не индексирует HTML/CSS — только исполняемые модули.
+- Не пытается транзитивно резолвить пакеты из `node_modules` — внешние
+  зависимости фиксируются как `external` без раскрытия. Граф — про связи
+  ВНУТРИ репозитория.
+- Не заменяет `import-graph dead-code detector` (`scripts/import_graph_dead_code.mjs`)
+  — наоборот, в перспективе тот может им питаться, перестав пересканировать
+  файловую систему с нуля.
+
+## Реализация
+
+- `scripts/build_code_graph.mjs` — CLI и library, пишет `atlas/code_graph.json`.
+- `scripts/validate_code_graph_vs_contracts.mjs` — детектор drift'ов,
+  результаты в `atlas/sync_report.json` под ключом `codeGraphDrift`.
+- Pluggable backend по языку: первая версия = pure-Node ES-module extractor
+  (без нативных зависимостей), покрывает 100% нашего стека (.mjs/.js/.jsx).
+  Tree-sitter добавится отдельным блоком, когда репозиторий перестанет быть
+  моноязычным (Python/Rust/Go).
+
+# b.code-graph — KPI
+
+- **KPI-1 (покрытие)**: `code_graph.json` содержит запись для **каждого** alive-файла
+  из `files.md` любого блока с поддерживаемым расширением (`.mjs`, `.js`, `.jsx`).
+  Проверка: число записей в `files` равно числу `[alive]`-файлов с этим расширением
+  в реальном репозитории.
+
+- **KPI-2 (детерминизм)**: два последовательных запуска `build_code_graph.mjs`
+  без изменений на диске дают побайтово идентичный `atlas/code_graph.json`
+  (ключи отсортированы, пути нормализованы к POSIX).
+
+- **KPI-3 (бесстрастность к external deps)**: записи `imports` корректно различают
+  относительные пути (`from: "../foo.mjs"`) и пакетные (`from: "node:fs"`,
+  `from: "react"`); пакеты помечаются `external: true` и не пытаются
+  резолвиться к файлу.
+
+- **KPI-4 (детектор undeclared_code_dependency)**: при синтетическом случае
+  «блок A импортирует из файла блока B, у A в depends_on нет B» —
+  `validate_code_graph_vs_contracts.mjs` возвращает exit 1 с записью drift
+  `{ kind: "undeclared_code_dependency", block: "A", imports_from_block: "B",
+  file: "...", line: N }`.
+
+- **KPI-5 (детектор provided_capability_not_exported)**: при синтетическом случае
+  «провайдит capability `mcp_tools`, ни один файл блока не экспортирует ни функции
+  с именем `mcp_tools`, ни массива с таким идентификатором» — валидатор
+  возвращает запись drift `{ kind: "provided_capability_not_exported",
+  block: "...", capability: "...", scanned_files: [...] }`.
+
+- **KPI-6 (ноль false-positive на текущем дереве)**: на чистом репозитории
+  (`HEAD`) `validate_code_graph_vs_contracts.mjs --silent` выходит с кодом 0.
+  Если что-то фиксируется как drift — это реальный долг контракта, не баг
+  парсера.
+
+- **KPI-7 (бюджет времени)**: полный пересборка `code_graph.json` на нашем
+  текущем дереве (~190 alive-файлов) укладывается в < 5 секунд на типичном
+  ноутбуке без warm-up'а. Кеша на этом этапе нет — это бюджет «холодного»
+  старта.
+
+# b.code-graph — tasks
+
+## PR1 — MVP экстрактор + артефакт
+
+- [ ] T1: `scripts/build_code_graph.mjs` — обходит alive-файлы из всех
+  `files.md`, парсит .mjs/.js/.jsx, пишет `atlas/code_graph.json` с тремя
+  верхнеуровневыми ключами: `files`, `by_block`, `edges`. Ключи отсортированы,
+  пути POSIX-нормализованы (KPI-1, KPI-2).
+- [ ] T2: Pure-Node ES-module extractor — статичные `import`, динамический
+  `import()`, named/default/re-export, без зависимостей. Внешние пакеты
+  помечаются `external: true`, относительные резолвятся к реальным файлам
+  (KPI-3).
+- [ ] T3: `tests/code_graph_extractor.selftest.mjs` — синтетика на каждый
+  шейп импорта/экспорта + детерминизм через sha256 двух подряд прогонов.
+
+## PR2 — валидатор + интеграция в sync_report
+
+- [ ] T4: `scripts/validate_code_graph_vs_contracts.mjs` — два детектора
+  (`undeclared_code_dependency`, `provided_capability_not_exported`). На
+  чистом дереве exit 0, на drift'е exit 1 с человекочитаемым отчётом.
+- [ ] T5: Эмиссия результата в `atlas/sync_report.json` — слияние, не
+  замена (ключи `contractValidation` и `stackMismatch` сохраняются).
+- [ ] T6: `tests/code_graph_validator.selftest.mjs` — два positive case'а
+  на синтетическом мини-атласе и один negative (контракт согласован
+  с кодом → нет drift'ов).
+
+## PR3 — связь с b.core-sync и nightly
+
+- [ ] T7: Регистрация `code_graph_build` и `code_graph_validate` как двух
+  отдельных шагов в `nightly_consolidation.mjs`.
+- [ ] T8: `b.core-sync` обновлён: в `depends_on.md` добавлен `b.code-graph:
+  code_graph`; в `tasks.md` T4 (real code sync) помечен как делегируемый
+  в этот блок.
+- [ ] T9: документация: одна секция в `docs/architecture.md` про
+  «два слоя графа — контрактный и кодовый», как они взаимодействуют.
+
+## PR4 (опц., будущее) — tree-sitter backend
+
+- [ ] T10: При появлении не-JS файлов в `files.md` — pluggable backend
+  для tree-sitter (Python/Rust/Go). MVP-API одинаков, разные парсеры
+  диспатчатся по расширению. Не делать до фактической необходимости.
+
+_Sources: [mission](blocks/b.code-graph/mission.md) · [kpi](blocks/b.code-graph/kpi.md) · [acceptance](blocks/b.code-graph/acceptance.md) · [tasks](blocks/b.code-graph/tasks.md)_
 
 ## b.smoke-sandbox (idea)
 

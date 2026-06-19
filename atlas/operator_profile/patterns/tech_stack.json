@@ -44,6 +44,16 @@
   ],
   "backend": [
     {
+      "name": "nodejs",
+      "uses": 3,
+      "satisfaction": "unknown",
+      "evidence": [
+        "b.core-sync",
+        "b.code-graph",
+        "b.todo-api"
+      ]
+    },
+    {
       "name": "drizzle-orm",
       "uses": 3,
       "satisfaction": "unknown",
@@ -54,12 +64,12 @@
       ]
     },
     {
-      "name": "nodejs",
+      "name": "esm",
       "uses": 2,
       "satisfaction": "unknown",
       "evidence": [
         "b.core-sync",
-        "b.todo-api"
+        "b.code-graph"
       ]
     },
     {
@@ -78,14 +88,6 @@
       "evidence": [
         "b.core-sync",
         "b.todo-api"
-      ]
-    },
-    {
-      "name": "esm",
-      "uses": 1,
-      "satisfaction": "unknown",
-      "evidence": [
-        "b.core-sync"
       ]
     },
     {

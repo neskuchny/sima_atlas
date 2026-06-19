@@ -1,6 +1,6 @@
 {
   "operator_id": "default",
-  "updated_at": "2026-06-09T20:18:40.362Z",
+  "updated_at": "2026-06-19T18:23:12.904Z",
   "_status": "live",
   "_min_data": {
     "done_transitions": 7,
@@ -86,6 +86,16 @@
     ],
     "backend": [
       {
+        "name": "nodejs",
+        "uses": 3,
+        "satisfaction": "unknown",
+        "evidence": [
+          "b.core-sync",
+          "b.code-graph",
+          "b.todo-api"
+        ]
+      },
+      {
         "name": "drizzle-orm",
         "uses": 3,
         "satisfaction": "unknown",
@@ -96,12 +106,12 @@
         ]
       },
       {
-        "name": "nodejs",
+        "name": "esm",
         "uses": 2,
         "satisfaction": "unknown",
         "evidence": [
           "b.core-sync",
-          "b.todo-api"
+          "b.code-graph"
         ]
       },
       {
@@ -120,14 +130,6 @@
         "evidence": [
           "b.core-sync",
           "b.todo-api"
-        ]
-      },
-      {
-        "name": "esm",
-        "uses": 1,
-        "satisfaction": "unknown",
-        "evidence": [
-          "b.core-sync"
         ]
       },
       {
@@ -323,11 +325,11 @@
   },
   "llm_provider_stats": {
     "mock": {
-      "count": 2939,
+      "count": 3330,
       "fallback_to_mock_count": 79,
       "total_cost_usd": 0,
-      "schema_ok_count": 2939,
-      "fallback_rate": 0.03,
+      "schema_ok_count": 3330,
+      "fallback_rate": 0.02,
       "schema_ok_rate": 1,
       "avg_cost_usd": 0
     },
@@ -351,18 +353,18 @@
     }
   },
   "proposals_stats": {
-    "total": 42,
+    "total": 46,
     "accept_rate": 0,
     "reject_rate": 0,
-    "pending": 42
+    "pending": 46
   },
   "decisions_stats": {
-    "total": 292,
-    "blocks_with_decisions": 4
+    "total": 304,
+    "blocks_with_decisions": 5
   },
   "patterns_stats": {
-    "with_patterns": 3,
-    "total": 18
+    "with_patterns": 4,
+    "total": 19
   },
   "failures": [
     {
@@ -598,7 +600,7 @@
   "_preview": {
     "total_done": 7,
     "total_invocations": 9,
-    "total_traces": 3011,
-    "total_proposals": 42
+    "total_traces": 3402,
+    "total_proposals": 46
   }
 }

@@ -1,7 +1,7 @@
 {
   "contractValidation": {
-    "checkedAt": "2026-06-09T20:18:56.697Z",
-    "total": 17,
+    "checkedAt": "2026-06-19T18:23:27.425Z",
+    "total": 18,
     "broken": 0,
     "details": []
   },
@@ -9,5 +9,539 @@
     "checkedAt": "2026-06-09T19:55:39.466Z",
     "driftCount": 0,
     "details": []
+  },
+  "codeGraphDrift": {
+    "checkedAt": "2026-06-19T18:23:11.691Z",
+    "driftCount": 20,
+    "details": [
+      {
+        "kind": "provided_capability_not_exported",
+        "severity": "warning",
+        "block": "b.acceptance-verifier-loop",
+        "capability": "acceptance_gate_decision",
+        "scanned_files": [
+          "scripts/collect_evidence.mjs",
+          "scripts/judge_assertion.mjs",
+          "scripts/parse_acceptance.mjs",
+          "scripts/verify_all_acceptance.mjs",
+          "scripts/verify_block_acceptance.mjs",
+          "scripts/verify_done_blocks_still_green.mjs",
+          "tests/acceptance_verifier.e2e.smoke.mjs",
+          "tests/evidence_collectors.selftest.mjs",
+          "tests/llm_judge.smoke.mjs",
+          "tests/parse_acceptance.selftest.mjs"
+        ],
+        "exported_names_in_block": [
+          "JUDGE_SCHEMA",
+          "collectEvidence",
+          "judgeAssertion",
+          "judgeAssertionCli",
+          "parseAcceptance",
+          "parseAcceptanceText",
+          "verifyAllAcceptance",
+          "verifyAndPersist",
+          "verifyBlock",
+          "verifyDoneBlocksStillGreen"
+        ],
+        "hint": "«acceptance_gate_decision» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.acceptance-verifier-loop/provides.md."
+      },
+      {
+        "kind": "provided_capability_not_exported",
+        "severity": "warning",
+        "block": "b.acceptance-verifier-loop",
+        "capability": "acceptance_run_report",
+        "scanned_files": [
+          "scripts/collect_evidence.mjs",
+          "scripts/judge_assertion.mjs",
+          "scripts/parse_acceptance.mjs",
+          "scripts/verify_all_acceptance.mjs",
+          "scripts/verify_block_acceptance.mjs",
+          "scripts/verify_done_blocks_still_green.mjs",
+          "tests/acceptance_verifier.e2e.smoke.mjs",
+          "tests/evidence_collectors.selftest.mjs",
+          "tests/llm_judge.smoke.mjs",
+          "tests/parse_acceptance.selftest.mjs"
+        ],
+        "exported_names_in_block": [
+          "JUDGE_SCHEMA",
+          "collectEvidence",
+          "judgeAssertion",
+          "judgeAssertionCli",
+          "parseAcceptance",
+          "parseAcceptanceText",
+          "verifyAllAcceptance",
+          "verifyAndPersist",
+          "verifyBlock",
+          "verifyDoneBlocksStillGreen"
+        ],
+        "hint": "«acceptance_run_report» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.acceptance-verifier-loop/provides.md."
+      },
+      {
+        "kind": "provided_capability_not_exported",
+        "severity": "warning",
+        "block": "b.acceptance-verifier-loop",
+        "capability": "assertion_parser",
+        "scanned_files": [
+          "scripts/collect_evidence.mjs",
+          "scripts/judge_assertion.mjs",
+          "scripts/parse_acceptance.mjs",
+          "scripts/verify_all_acceptance.mjs",
+          "scripts/verify_block_acceptance.mjs",
+          "scripts/verify_done_blocks_still_green.mjs",
+          "tests/acceptance_verifier.e2e.smoke.mjs",
+          "tests/evidence_collectors.selftest.mjs",
+          "tests/llm_judge.smoke.mjs",
+          "tests/parse_acceptance.selftest.mjs"
+        ],
+        "exported_names_in_block": [
+          "JUDGE_SCHEMA",
+          "collectEvidence",
+          "judgeAssertion",
+          "judgeAssertionCli",
+          "parseAcceptance",
+          "parseAcceptanceText",
+          "verifyAllAcceptance",
+          "verifyAndPersist",
+          "verifyBlock",
+          "verifyDoneBlocksStillGreen"
+        ],
+        "hint": "«assertion_parser» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.acceptance-verifier-loop/provides.md."
+      },
+      {
+        "kind": "provided_capability_not_exported",
+        "severity": "warning",
+        "block": "b.acceptance-verifier-loop",
+        "capability": "evidence_collector_runtime",
+        "scanned_files": [
+          "scripts/collect_evidence.mjs",
+          "scripts/judge_assertion.mjs",
+          "scripts/parse_acceptance.mjs",
+          "scripts/verify_all_acceptance.mjs",
+          "scripts/verify_block_acceptance.mjs",
+          "scripts/verify_done_blocks_still_green.mjs",
+          "tests/acceptance_verifier.e2e.smoke.mjs",
+          "tests/evidence_collectors.selftest.mjs",
+          "tests/llm_judge.smoke.mjs",
+          "tests/parse_acceptance.selftest.mjs"
+        ],
+        "exported_names_in_block": [
+          "JUDGE_SCHEMA",
+          "collectEvidence",
+          "judgeAssertion",
+          "judgeAssertionCli",
+          "parseAcceptance",
+          "parseAcceptanceText",
+          "verifyAllAcceptance",
+          "verifyAndPersist",
+          "verifyBlock",
+          "verifyDoneBlocksStillGreen"
+        ],
+        "hint": "«evidence_collector_runtime» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.acceptance-verifier-loop/provides.md."
+      },
+      {
+        "kind": "provided_capability_not_exported",
+        "severity": "warning",
+        "block": "b.agent-orchestrator",
+        "capability": "pipeline_execution",
+        "scanned_files": [
+          "scripts/agent_workspace.mjs",
+          "scripts/analyze_conversation_to_atlas.mjs",
+          "scripts/atlas_api_server.mjs",
+          "scripts/auto_sync_iteration.mjs",
+          "scripts/build_context_pack.mjs",
+          "scripts/finalize_cursor_iteration.mjs",
+          "scripts/generate_agent_contracts.mjs",
+          "scripts/generate_cursor_hooks.mjs",
+          "scripts/guard_against_drift.mjs",
+          "scripts/inject_context_pack.mjs",
+          "scripts/mcp_atlas_server.mjs",
+          "scripts/observe_file_edit.mjs",
+          "scripts/pipeline_step.mjs",
+          "scripts/run_block_implementation.mjs",
+          "scripts/run_block_process.mjs",
+          "scripts/run_state.mjs",
+          "scripts/simulate_conversation_branches.mjs",
+          "scripts/sync_context_packs.mjs",
+          "scripts/validate_cursor_hooks.mjs",
+          "tests/agent_parity_real.smoke.mjs",
+          "tests/agent_workspace.selftest.mjs",
+          "tests/cursor_hooks_actions.test.mjs",
+          "tests/run_state.selftest.mjs"
+        ],
+        "exported_names_in_block": [
+          "ACTIVE_STATES",
+          "ALLOWED_TRANSITIONS",
+          "TERMINAL_STATES",
+          "cancelRun",
+          "captureDiff",
+          "cleanupWorkspace",
+          "createWorkspace",
+          "detectStalledRuns",
+          "getRun",
+          "listRuns",
+          "listWorkspaces",
+          "startRun",
+          "transitionRunState",
+          "writeDiffProposal",
+          "x"
+        ],
+        "hint": "«pipeline_execution» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.agent-orchestrator/provides.md."
+      },
+      {
+        "kind": "provided_capability_not_exported",
+        "severity": "warning",
+        "block": "b.core-sync",
+        "capability": "contract_validation",
+        "scanned_files": [
+          "frontend/atlas_sync.js",
+          "scripts/audit_production_readiness.mjs",
+          "scripts/calc_intelligence_health.mjs",
+          "scripts/validate_acceptance_assertions.mjs",
+          "scripts/validate_agent_parity.mjs",
+          "scripts/validate_block_contracts.mjs",
+          "scripts/validate_bootstrap_projection.mjs",
+          "scripts/validate_bootstrap_regeneration.mjs",
+          "scripts/validate_dependency_contracts.mjs",
+          "scripts/validate_files_registry.mjs",
+          "scripts/validate_ingestion_contracts.mjs",
+          "scripts/validate_ingestion_quality.mjs",
+          "scripts/validate_no_template_placeholders.mjs",
+          "scripts/validate_parity_matrix.mjs",
+          "scripts/validate_stack_mismatch.mjs"
+        ],
+        "exported_names_in_block": [],
+        "hint": "«contract_validation» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.core-sync/provides.md."
+      },
+      {
+        "kind": "provided_capability_not_exported",
+        "severity": "warning",
+        "block": "b.db",
+        "capability": "atlas_state_store",
+        "scanned_files": [
+          "scripts/advance_block_state.mjs",
+          "scripts/apply_ingestion_queue.mjs",
+          "scripts/dedup_block_memory.mjs",
+          "scripts/enqueue_ingestion_item.mjs",
+          "scripts/hook_ingest_recent_chat.mjs",
+          "scripts/ingest_chat_batches.mjs",
+          "scripts/ingest_chat_distillate.mjs",
+          "scripts/log_transition.mjs",
+          "scripts/manage_block.mjs"
+        ],
+        "exported_names_in_block": [],
+        "hint": "«atlas_state_store» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.db/provides.md."
+      },
+      {
+        "kind": "provided_capability_not_exported",
+        "severity": "warning",
+        "block": "b.db",
+        "capability": "file_registry",
+        "scanned_files": [
+          "scripts/advance_block_state.mjs",
+          "scripts/apply_ingestion_queue.mjs",
+          "scripts/dedup_block_memory.mjs",
+          "scripts/enqueue_ingestion_item.mjs",
+          "scripts/hook_ingest_recent_chat.mjs",
+          "scripts/ingest_chat_batches.mjs",
+          "scripts/ingest_chat_distillate.mjs",
+          "scripts/log_transition.mjs",
+          "scripts/manage_block.mjs"
+        ],
+        "exported_names_in_block": [],
+        "hint": "«file_registry» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.db/provides.md."
+      },
+      {
+        "kind": "provided_capability_not_exported",
+        "severity": "warning",
+        "block": "b.docs",
+        "capability": "tz_bundle",
+        "scanned_files": [
+          "scripts/generate_atlas_bootstrap_js.mjs",
+          "scripts/generate_tz_from_atlas.mjs",
+          "scripts/generate_wiki.mjs",
+          "scripts/rebuild_atlas_roadmap.mjs",
+          "scripts/render_wiki_html.mjs"
+        ],
+        "exported_names_in_block": [],
+        "hint": "«tz_bundle» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.docs/provides.md."
+      },
+      {
+        "kind": "provided_capability_not_exported",
+        "severity": "warning",
+        "block": "b.docs",
+        "capability": "wiki_bundle",
+        "scanned_files": [
+          "scripts/generate_atlas_bootstrap_js.mjs",
+          "scripts/generate_tz_from_atlas.mjs",
+          "scripts/generate_wiki.mjs",
+          "scripts/rebuild_atlas_roadmap.mjs",
+          "scripts/render_wiki_html.mjs"
+        ],
+        "exported_names_in_block": [],
+        "hint": "«wiki_bundle» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.docs/provides.md."
+      },
+      {
+        "kind": "provided_capability_not_exported",
+        "severity": "warning",
+        "block": "b.llm-gateway",
+        "capability": "llm_call_structured",
+        "scanned_files": [
+          "scripts/accept_proposal.mjs",
+          "scripts/list_proposals.mjs",
+          "scripts/llm_check.mjs",
+          "scripts/llm_gateway.mjs",
+          "scripts/reject_proposal.mjs",
+          "scripts/seed_llm_mocks.mjs",
+          "tests/llm_extraction.eval.mjs",
+          "tests/llm_gateway.selftest.mjs",
+          "tests/proposals_flow.smoke.mjs"
+        ],
+        "exported_names_in_block": [
+          "BLOCK_SCHEMA",
+          "callLLM",
+          "extractBlockSchema",
+          "mockHashForPrompt"
+        ],
+        "hint": "«llm_call_structured» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.llm-gateway/provides.md."
+      },
+      {
+        "kind": "provided_capability_not_exported",
+        "severity": "warning",
+        "block": "b.llm-gateway",
+        "capability": "llm_extract_block_schema",
+        "scanned_files": [
+          "scripts/accept_proposal.mjs",
+          "scripts/list_proposals.mjs",
+          "scripts/llm_check.mjs",
+          "scripts/llm_gateway.mjs",
+          "scripts/reject_proposal.mjs",
+          "scripts/seed_llm_mocks.mjs",
+          "tests/llm_extraction.eval.mjs",
+          "tests/llm_gateway.selftest.mjs",
+          "tests/proposals_flow.smoke.mjs"
+        ],
+        "exported_names_in_block": [
+          "BLOCK_SCHEMA",
+          "callLLM",
+          "extractBlockSchema",
+          "mockHashForPrompt"
+        ],
+        "hint": "«llm_extract_block_schema» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.llm-gateway/provides.md."
+      },
+      {
+        "kind": "provided_capability_not_exported",
+        "severity": "warning",
+        "block": "b.llm-gateway",
+        "capability": "llm_summarize_distillate",
+        "scanned_files": [
+          "scripts/accept_proposal.mjs",
+          "scripts/list_proposals.mjs",
+          "scripts/llm_check.mjs",
+          "scripts/llm_gateway.mjs",
+          "scripts/reject_proposal.mjs",
+          "scripts/seed_llm_mocks.mjs",
+          "tests/llm_extraction.eval.mjs",
+          "tests/llm_gateway.selftest.mjs",
+          "tests/proposals_flow.smoke.mjs"
+        ],
+        "exported_names_in_block": [
+          "BLOCK_SCHEMA",
+          "callLLM",
+          "extractBlockSchema",
+          "mockHashForPrompt"
+        ],
+        "hint": "«llm_summarize_distillate» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.llm-gateway/provides.md."
+      },
+      {
+        "kind": "provided_capability_not_exported",
+        "severity": "warning",
+        "block": "b.llm-gateway",
+        "capability": "llm_validate_drift",
+        "scanned_files": [
+          "scripts/accept_proposal.mjs",
+          "scripts/list_proposals.mjs",
+          "scripts/llm_check.mjs",
+          "scripts/llm_gateway.mjs",
+          "scripts/reject_proposal.mjs",
+          "scripts/seed_llm_mocks.mjs",
+          "tests/llm_extraction.eval.mjs",
+          "tests/llm_gateway.selftest.mjs",
+          "tests/proposals_flow.smoke.mjs"
+        ],
+        "exported_names_in_block": [
+          "BLOCK_SCHEMA",
+          "callLLM",
+          "extractBlockSchema",
+          "mockHashForPrompt"
+        ],
+        "hint": "«llm_validate_drift» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.llm-gateway/provides.md."
+      },
+      {
+        "kind": "provided_capability_not_exported",
+        "severity": "warning",
+        "block": "b.smoke-sandbox",
+        "capability": "e2e_test_target",
+        "scanned_files": [
+          "scripts/mcp_smoke_e2e.mjs",
+          "tests/atlas_sync.selftest.mjs"
+        ],
+        "exported_names_in_block": [],
+        "hint": "«e2e_test_target» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.smoke-sandbox/provides.md."
+      },
+      {
+        "kind": "provided_capability_not_exported",
+        "severity": "warning",
+        "block": "b.ui-control",
+        "capability": "visual_control_panel",
+        "scanned_files": [
+          "frontend/atlas_bootstrap.js",
+          "frontend/atlas_design/data_loader.js",
+          "frontend/atlas_design/data_static.js",
+          "frontend/atlas_design/graph.jsx",
+          "frontend/atlas_design/i18n.js",
+          "frontend/atlas_design/panels.jsx",
+          "frontend/atlas_design/tweaks-panel.jsx",
+          "frontend/atlas_design/views.jsx"
+        ],
+        "exported_names_in_block": [],
+        "hint": "«visual_control_panel» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.ui-control/provides.md."
+      },
+      {
+        "kind": "provided_capability_not_exported",
+        "severity": "warning",
+        "block": "b.user-docs-generator",
+        "capability": "block_ui_introspection",
+        "scanned_files": [
+          "scripts/check_user_docs_locked.mjs",
+          "scripts/generate_user_docs.mjs",
+          "scripts/introspect_block_ui.mjs",
+          "scripts/regenerate_user_docs_drift.mjs",
+          "scripts/take_screenshots.mjs",
+          "tests/fixtures/jsx/synthetic_panel.jsx",
+          "tests/introspect_block_ui.selftest.mjs",
+          "tests/screenshots_integration.selftest.mjs",
+          "tests/user_docs.smoke.mjs",
+          "tests/user_docs_drift.selftest.mjs"
+        ],
+        "exported_names_in_block": [
+          "USER_TUTORIAL_SCHEMA",
+          "activeBlockIdsFromGraph",
+          "cleanupOrphanScreenshots",
+          "detectPlaywright",
+          "expectedScreenshots",
+          "generateUserDocs",
+          "introspectBlock",
+          "listUserDocs",
+          "lockUserDocs",
+          "readUserDocs",
+          "runDriftCheck",
+          "slugifyRoute",
+          "tryCapture"
+        ],
+        "hint": "«block_ui_introspection» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.user-docs-generator/provides.md."
+      },
+      {
+        "kind": "provided_capability_not_exported",
+        "severity": "warning",
+        "block": "b.user-docs-generator",
+        "capability": "end_user_docs_set",
+        "scanned_files": [
+          "scripts/check_user_docs_locked.mjs",
+          "scripts/generate_user_docs.mjs",
+          "scripts/introspect_block_ui.mjs",
+          "scripts/regenerate_user_docs_drift.mjs",
+          "scripts/take_screenshots.mjs",
+          "tests/fixtures/jsx/synthetic_panel.jsx",
+          "tests/introspect_block_ui.selftest.mjs",
+          "tests/screenshots_integration.selftest.mjs",
+          "tests/user_docs.smoke.mjs",
+          "tests/user_docs_drift.selftest.mjs"
+        ],
+        "exported_names_in_block": [
+          "USER_TUTORIAL_SCHEMA",
+          "activeBlockIdsFromGraph",
+          "cleanupOrphanScreenshots",
+          "detectPlaywright",
+          "expectedScreenshots",
+          "generateUserDocs",
+          "introspectBlock",
+          "listUserDocs",
+          "lockUserDocs",
+          "readUserDocs",
+          "runDriftCheck",
+          "slugifyRoute",
+          "tryCapture"
+        ],
+        "hint": "«end_user_docs_set» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.user-docs-generator/provides.md."
+      },
+      {
+        "kind": "provided_capability_not_exported",
+        "severity": "warning",
+        "block": "b.user-docs-generator",
+        "capability": "tutorial_renderer",
+        "scanned_files": [
+          "scripts/check_user_docs_locked.mjs",
+          "scripts/generate_user_docs.mjs",
+          "scripts/introspect_block_ui.mjs",
+          "scripts/regenerate_user_docs_drift.mjs",
+          "scripts/take_screenshots.mjs",
+          "tests/fixtures/jsx/synthetic_panel.jsx",
+          "tests/introspect_block_ui.selftest.mjs",
+          "tests/screenshots_integration.selftest.mjs",
+          "tests/user_docs.smoke.mjs",
+          "tests/user_docs_drift.selftest.mjs"
+        ],
+        "exported_names_in_block": [
+          "USER_TUTORIAL_SCHEMA",
+          "activeBlockIdsFromGraph",
+          "cleanupOrphanScreenshots",
+          "detectPlaywright",
+          "expectedScreenshots",
+          "generateUserDocs",
+          "introspectBlock",
+          "listUserDocs",
+          "lockUserDocs",
+          "readUserDocs",
+          "runDriftCheck",
+          "slugifyRoute",
+          "tryCapture"
+        ],
+        "hint": "«tutorial_renderer» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.user-docs-generator/provides.md."
+      },
+      {
+        "kind": "provided_capability_not_exported",
+        "severity": "warning",
+        "block": "b.user-docs-generator",
+        "capability": "user_docs_meta",
+        "scanned_files": [
+          "scripts/check_user_docs_locked.mjs",
+          "scripts/generate_user_docs.mjs",
+          "scripts/introspect_block_ui.mjs",
+          "scripts/regenerate_user_docs_drift.mjs",
+          "scripts/take_screenshots.mjs",
+          "tests/fixtures/jsx/synthetic_panel.jsx",
+          "tests/introspect_block_ui.selftest.mjs",
+          "tests/screenshots_integration.selftest.mjs",
+          "tests/user_docs.smoke.mjs",
+          "tests/user_docs_drift.selftest.mjs"
+        ],
+        "exported_names_in_block": [
+          "USER_TUTORIAL_SCHEMA",
+          "activeBlockIdsFromGraph",
+          "cleanupOrphanScreenshots",
+          "detectPlaywright",
+          "expectedScreenshots",
+          "generateUserDocs",
+          "introspectBlock",
+          "listUserDocs",
+          "lockUserDocs",
+          "readUserDocs",
+          "runDriftCheck",
+          "slugifyRoute",
+          "tryCapture"
+        ],
+        "hint": "«user_docs_meta» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.user-docs-generator/provides.md."
+      }
+    ]
   }
 }

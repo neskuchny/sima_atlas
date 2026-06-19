@@ -114,7 +114,11 @@ function runSync(){
     const deps = parseDepends(readText(path.join(dir,'depends_on.md'))).filter(x=>x!=='none');
     for (const d of deps){
       const [dep,cap] = d.split(':').map(x=>x.trim());
-      const prov = parseDepends(readText(path.join(blockDir(dep),'provides.md'))).filter(x=>x!=='none');
+      // R-7.99 — capability is the first identifier-shaped token, parens
+      // are operator commentary. Aligned with validate_dependency_contracts.
+      const prov = parseDepends(readText(path.join(blockDir(dep),'provides.md')))
+        .filter(x=>x!=='none')
+        .map(s => s.split(/[\s(]/, 1)[0].trim());
       if (!prov.includes(cap)){ res.dependencies=false; res.errors.push(`${b.id}: ${dep} !provides ${cap}`); }
     }
     if (['review','done'].includes(b.status)){

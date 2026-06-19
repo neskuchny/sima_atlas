@@ -1,6 +1,6 @@
 # Roadmap (auto-generated, PR2 topo-sort)
 
-_Generated: 2026-06-09T20:18:59.772Z_
+_Generated: 2026-06-19T18:23:30.110Z_
 
 Приоритет внутри уровня: 🔴 broken → 🟣 drift → 🟠 wip → 🔵 review → 🟡 idea → 🟢 done.
 Каждый следующий уровень зависит от предыдущих — реализовывать сверху вниз.
@@ -32,24 +32,29 @@ _Generated: 2026-06-09T20:18:59.772Z_
 
 ### Level 1 — требует Level 0
 
-- 🟢 **b.core-sync** (done) — Sync Engine · _logic_ · deps: `b.db`
-  - syncCheck only validates file presence, not mission/KPI semantics
+- 🟡 **b.code-graph** (idea) — Code Graph · _data_ · deps: `b.db`
+  - New block scoped — extracts deterministic imports/exports map from alive files; consumed by b.core-sync PR4. R-7.99.
 
 ### Level 2 — требует Level 1
 
-- 🔵 **b.agent-orchestrator** (review) — Agent Orchestrator · _ai_ · deps: `b.db`, `b.core-sync`, `b.llm-gateway`
-  - Phase I: verifier FAIL on A5 (cursor_live.headless.smoke) — needs a live cursor-agent CLI, not installed in this env. Env-blocked, not code-blocked. A1-A4+A7 pass.
-- 🟢 **b.docs** (done) — Docs Builder · _content_ · deps: `b.db`, `b.core-sync`
-  - Generators run but feed on template missions; needs layer-aware wiki and mermaid (PR2)
+- 🟢 **b.core-sync** (done) — Sync Engine · _logic_ · deps: `b.db`, `b.code-graph`
+  - syncCheck only validates file presence, not mission/KPI semantics
 
 ### Level 3 — требует Level 2
 
+- 🟢 **b.docs** (done) — Docs Builder · _content_ · deps: `b.db`, `b.core-sync`
+  - Generators run but feed on template missions; needs layer-aware wiki and mermaid (PR2)
+
+### Level 4 — требует Level 3
+
 - 🟠 **b.ui-control** (wip) — UI Control Plane · _front_ · deps: `b.core-sync`, `b.agent-orchestrator`
   - HTML loses references to components.jsx/sidecol.jsx/canvas_tools.jsx — UI does not boot in production; multi-layer rendering depends on PR2 (this PR)
-- 🟢 **b.acceptance-verifier-loop** (done) — Acceptance Verifier Loop · _testing_ · deps: `b.db`, `b.core-sync`, `b.agent-orchestrator`, `b.llm-gateway`
-  - cascade: parent b.core-sync edit at 2026-06-09T19:50:57 broke acceptance
+- 🔵 **b.agent-orchestrator** (review) — Agent Orchestrator · _ai_ · deps: `b.db`, `b.core-sync`, `b.llm-gateway`, `b.operator-profile-learner`
+  - Phase I: verifier FAIL on A5 (cursor_live.headless.smoke) — needs a live cursor-agent CLI, not installed in this env. Env-blocked, not code-blocked. A1-A4+A7 pass.
 - 🟢 **b.operator-profile-learner** (done) — Operator Profile Learner · _ai_ · deps: `b.db`, `b.core-sync`, `b.agent-orchestrator`, `b.llm-gateway`, `b.docs`
   - Phase I: verifier FAIL on A6 — profile-compliance UI badge (complianceWithProfile) was lost in the R-7.30 single-file→atlas_design refactor and not reimplemented. Genuine feature gap, honestly not done.
+- 🟢 **b.acceptance-verifier-loop** (done) — Acceptance Verifier Loop · _testing_ · deps: `b.db`, `b.core-sync`, `b.agent-orchestrator`, `b.llm-gateway`
+  - cascade: parent b.core-sync edit at 2026-06-09T19:50:57 broke acceptance
 - 🟢 **b.user-docs-generator** (done) — End-User Docs Generator · _content_ · deps: `b.db`, `b.docs`, `b.agent-orchestrator`, `b.llm-gateway`
   - Phase I: verifier FAIL on A1 (introspect_block_ui.selftest) — coupled to deleted frontend/proposals_panel.jsx. Test fixture needs repointing to a current JSX file.
 
@@ -78,6 +83,7 @@ _Generated: 2026-06-09T20:18:59.772Z_
 ### Данные / хранилище (`data`)
 
 - 🟡 **b.db** — Atlas Database _(idea)_
+- 🟡 **b.code-graph** — Code Graph _(idea)_
 - 🟡 **b.product-warehouse** — Warehouse _(idea)_
 
 ### Контент / документация (`content`)

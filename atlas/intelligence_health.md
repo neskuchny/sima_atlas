@@ -1,8 +1,11 @@
 # Intelligence Health
 
-_Generated: 2026-06-09T20:18:59.965Z_
+_Generated: 2026-06-19T18:23:30.271Z_
 
-- total_blocks: 17
+- total_blocks: 18
 - synchronized_blocks: 17
-- intelligence_health: 1
+- intelligence_health: 0.9444
 
+## Unsynchronized blocks
+
+- **b.agent-orchestrator** (review): depends/provides mismatch: b.operator-profile-learner:personal_templates

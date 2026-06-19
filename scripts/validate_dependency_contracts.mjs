@@ -12,7 +12,18 @@ function readLines(p) {
 
 function parseProvides(blockId) {
   const lines = readLines(path.join(atlasRoot, 'blocks', blockId, 'provides.md'));
-  return new Set(lines.filter(l => l.startsWith('- ')).map(l => l.slice(2).trim()).filter(v => v !== 'none'));
+  // R-7.99 — capability is the FIRST identifier-like token. Inline
+  // parenthetical annotations («personal_templates (для …)») are
+  // operator-facing commentary, not part of the contract key. depends_on
+  // referencing `personal_templates` matches.
+  return new Set(
+    lines
+      .filter((l) => l.startsWith('- '))
+      .map((l) => l.slice(2).trim())
+      .filter((v) => v !== 'none')
+      .map((v) => v.split(/[\s(]/, 1)[0].trim())
+      .filter(Boolean)
+  );
 }
 
 function parseDepends(blockId) {

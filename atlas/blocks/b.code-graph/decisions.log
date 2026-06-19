@@ -1,0 +1,6 @@
+2026-06-09T20:30:00Z | mvp_extractor=pure_node_no_deps | tree-sitter not justified for moonoglot JS codebase; pluggable backend reserved for PR4 when non-JS files appear in files.md
+2026-06-09T20:30:00Z | output_format=json | consumers are programmatic (b.core-sync PR4, optional UI); markdown rendering is wiki's job, not ours
+2026-06-09T20:30:00Z | deterministic_by_default | sorted keys + POSIX paths + sha256-checked selftest; non-negotiable for KPI-2
+2026-06-09T20:30:00Z | external_deps_blackbox | imports from node_modules / npm packages stay as {external:true,resolved_to:null}; we do not walk node_modules
+2026-06-09T20:30:00Z | sync_report_emission=merge_only | validator updates atlas/sync_report.json by merging codeGraphDrift key; preserves agent's earlier contractValidation + stackMismatch keys
+2026-06-09T20:30:00Z | inconclusive_if_no_git | a missing .git directory makes path normalisation impossible; declared in acceptance.md per Kanon spec §2.4

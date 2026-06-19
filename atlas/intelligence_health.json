@@ -1,7 +1,15 @@
 {
-  "generated_at": "2026-06-09T20:18:59.965Z",
-  "total_blocks": 17,
+  "generated_at": "2026-06-19T18:23:30.271Z",
+  "total_blocks": 18,
   "synchronized_blocks": 17,
-  "intelligence_health": 1,
-  "unsynchronized": []
+  "intelligence_health": 0.9444,
+  "unsynchronized": [
+    {
+      "block_id": "b.agent-orchestrator",
+      "status": "review",
+      "issues": [
+        "depends/provides mismatch: b.operator-profile-learner:personal_templates"
+      ]
+    }
+  ]
 }

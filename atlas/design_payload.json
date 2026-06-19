@@ -93,8 +93,8 @@
       },
       "progress": {
         "tasks": {
-          "done": 2,
-          "total": 6
+          "done": 3,
+          "total": 7
         },
         "kpi": {
           "checked": 0,
@@ -166,11 +166,10 @@
       "size": "lg",
       "parent_block_id": null,
       "contract": {
-        "score": 0.6,
-        "filled": 3,
+        "score": 0.8,
+        "filled": 4,
         "total": 5,
         "missing": [
-          "depends_on.md",
           "provides.md"
         ]
       },
@@ -227,7 +226,7 @@
         "esm",
         "markdown"
       ],
-      "x": 400,
+      "x": 720,
       "y": 100
     },
     {
@@ -370,7 +369,44 @@
         "markdown",
         "playwright"
       ],
-      "x": 720,
+      "x": 1040,
+      "y": 100
+    },
+    {
+      "id": "b.code-graph",
+      "_raw_updated_at": null,
+      "title": "Code Graph",
+      "tag": "code-graph",
+      "layer": "backend",
+      "status": "todo",
+      "priority": 3,
+      "checked": false,
+      "size": "md",
+      "parent_block_id": null,
+      "contract": {
+        "score": 0.6,
+        "filled": 3,
+        "total": 5,
+        "missing": [
+          "depends_on.md",
+          "provides.md"
+        ]
+      },
+      "progress": {
+        "tasks": {
+          "done": 0,
+          "total": 10
+        },
+        "kpi": {
+          "checked": 1,
+          "total": 29
+        }
+      },
+      "tech_stack": [
+        "nodejs",
+        "esm"
+      ],
+      "x": 400,
       "y": 100
     },
     {
@@ -601,6 +637,13 @@
       "biz": "Зависит от b.db."
     },
     {
+      "from": "b.core-sync",
+      "to": "b.code-graph",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.code-graph."
+    },
+    {
       "from": "b.agent-orchestrator",
       "to": "b.db",
       "kind": "data",
@@ -620,6 +663,13 @@
       "kind": "data",
       "label": "depends_on",
       "biz": "Зависит от b.llm-gateway."
+    },
+    {
+      "from": "b.agent-orchestrator",
+      "to": "b.operator-profile-learner",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.operator-profile-learner."
     },
     {
       "from": "b.docs",
@@ -725,6 +775,13 @@
       "kind": "data",
       "label": "depends_on",
       "biz": "Зависит от b.llm-gateway."
+    },
+    {
+      "from": "b.code-graph",
+      "to": "b.db",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.db."
     },
     {
       "from": "b.product-auth",
@@ -851,8 +908,8 @@
       },
       {
         "id": "T4",
-        "title": "Семантический gate через `b.llm-gateway.callLLM`: validate `mission ↔ files contents` → drift_reason — PR3",
-        "status": "todo",
+        "title": "Реальная карта imports/exports + детектор `undeclared_code_dependency` — делегировано в `b.code-graph` (R-7.99). `b.core-sync` потребляет `code_graph` capability через `depends_on`. Прежний план «LLM-",
+        "status": "done",
         "priority": "P2",
         "agent": null,
         "why": "",
@@ -870,6 +927,15 @@
       {
         "id": "T6",
         "title": "false-positive guard: при двух запусках без изменений — отчёт идентичен — PR2",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T7",
+        "title": "(PR3): LLM-семантический слой ПОВЕРХ `code_graph` — судит, реализует ли действительная функция то, что обещает миссия. Запускается только на блоках, где детерминистический `code_graph` уже зелёный.",
         "status": "todo",
         "priority": "P2",
         "agent": null,
@@ -1881,6 +1947,98 @@
         "accept": ""
       }
     ],
+    "b.code-graph": [
+      {
+        "id": "T1",
+        "title": "`scripts/build_code_graph.mjs` — обходит alive-файлы из всех",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T2",
+        "title": "Pure-Node ES-module extractor — статичные `import`, динамический",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T3",
+        "title": "`tests/code_graph_extractor.selftest.mjs` — синтетика на каждый",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T4",
+        "title": "`scripts/validate_code_graph_vs_contracts.mjs` — два детектора",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T5",
+        "title": "Эмиссия результата в `atlas/sync_report.json` — слияние, не",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T6",
+        "title": "`tests/code_graph_validator.selftest.mjs` — два positive case'а",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T7",
+        "title": "Регистрация `code_graph_build` и `code_graph_validate` как двух",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T8",
+        "title": "`b.core-sync` обновлён: в `depends_on.md` добавлен `b.code-graph:",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T9",
+        "title": "документация: одна секция в `docs/architecture.md` про",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T10",
+        "title": "При появлении не-JS файлов в `files.md` — pluggable backend",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      }
+    ],
     "b.product-auth": [
       {
         "id": "T1",
@@ -1986,6 +2144,9 @@
     },
     "b.user-docs-generator": {
       "short": "Атлас сам пишет UI и backend каждого пользовательского блока — следовательно, **знает** где какая кнопка, какой endpoint, какой happy path. Этот блок берёт это знание и для **каждого user-facing блока** генерирует обучающую страницу для **к"
+    },
+    "b.code-graph": {
+      "short": "Sima Atlas сейчас знает граф продукта на уровне **контрактов** (`depends_on.md`, `provides.md`) и на уровне **файлов** (`files.md`). Между ними дыра: что на самом деле импортируется внутри файлов одного блока из файлов другого — никто не пр"
     },
     "b.smoke-sandbox": {
       "short": "Целевой блок для всех e2e/smoke-тестов Атласа. Реальный код продукта на него не ссылается. MCP smoke-сценарии (`scripts/mcp_smoke_e2e.mjs`, future smoke harnesses) пишут сюда mission/tasks/ingestion-queue, чтобы не повреждать содержание реа"
@@ -2129,10 +2290,10 @@
     }
   ],
   "_meta": {
-    "generated_at": "2026-06-09T20:18:44.541Z",
+    "generated_at": "2026-06-19T18:23:16.529Z",
     "atlas_root": "atlas",
     "client_id": null,
-    "block_count": 17,
-    "edge_count": 25
+    "block_count": 18,
+    "edge_count": 28
   }
 }

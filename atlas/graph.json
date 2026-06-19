@@ -91,7 +91,8 @@
       "mvp": true,
       "subschema_id": null,
       "depends_on": [
-        "b.db"
+        "b.db",
+        "b.code-graph"
       ],
       "tech_stack": [
         "nodejs",
@@ -157,7 +158,8 @@
       "depends_on": [
         "b.db",
         "b.core-sync",
-        "b.llm-gateway"
+        "b.llm-gateway",
+        "b.operator-profile-learner"
       ],
       "tech_stack": [
         "nodejs",
@@ -361,6 +363,30 @@
         "tests/user_docs_drift.selftest.mjs"
       ],
       "updated_at": "2026-06-05T22:11:29.247Z"
+    },
+    {
+      "id": "b.code-graph",
+      "title": "Code Graph",
+      "status": "idea",
+      "status_reason": "New block scoped — extracts deterministic imports/exports map from alive files; consumed by b.core-sync PR4. R-7.99.",
+      "layer": "data",
+      "type": "module",
+      "mvp": false,
+      "subschema_id": null,
+      "depends_on": [
+        "b.db"
+      ],
+      "tech_stack": [
+        "nodejs",
+        "esm"
+      ],
+      "files": [
+        "scripts/build_code_graph.mjs",
+        "scripts/validate_code_graph_vs_contracts.mjs",
+        "tests/code_graph_extractor.selftest.mjs",
+        "tests/code_graph_validator.selftest.mjs",
+        "atlas/code_graph.json"
+      ]
     },
     {
       "id": "b.smoke-sandbox",

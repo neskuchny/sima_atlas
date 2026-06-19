@@ -1,6 +1,6 @@
 # Sima Atlas Wiki
 
-_Auto-generated: 2026-06-09T20:18:59.595Z_
+_Auto-generated: 2026-06-19T18:23:29.954Z_
 
 ## Граф продукта
 
@@ -31,6 +31,7 @@ flowchart TB
   end
   subgraph data["Данные / хранилище"]
     b_db["Atlas Database<br/><small>idea</small>"]:::idea
+    b_code_graph["Code Graph<br/><small>idea</small>"]:::idea
     b_product_warehouse["Warehouse<br/><small>idea</small>"]:::idea
   end
   subgraph content["Контент / документация"]
@@ -44,9 +45,11 @@ flowchart TB
   b_ui_control --> b_core_sync
   b_ui_control --> b_agent_orchestrator
   b_core_sync --> b_db
+  b_core_sync --> b_code_graph
   b_agent_orchestrator --> b_db
   b_agent_orchestrator --> b_core_sync
   b_agent_orchestrator --> b_llm_gateway
+  b_agent_orchestrator --> b_operator_profile_learner
   b_docs --> b_db
   b_docs --> b_core_sync
   b_operator_profile_learner --> b_db
@@ -62,6 +65,7 @@ flowchart TB
   b_user_docs_generator --> b_docs
   b_user_docs_generator --> b_agent_orchestrator
   b_user_docs_generator --> b_llm_gateway
+  b_code_graph --> b_db
   b_product_auth --> b_product_dashboard_session_check
   b_product_auth --> b_product_ingest_api_key_check
   b_product_ingest --> b_product_warehouse_events_stream
@@ -105,6 +109,8 @@ flowchart TB
 
 - 🟡 **b.db** — Atlas Database _(idea)_
   - reason: Storage is markdown + localStorage; no real DB layer yet
+- 🟡 **b.code-graph** — Code Graph _(idea)_
+  - reason: New block scoped — extracts deterministic imports/exports map from alive files; consumed by b.core-sync PR4. R-7.99.
 - 🟡 **b.product-warehouse** — Warehouse _(idea)_
   - reason: Created via design UI at 2026-05-05T20:57:52.230Z
 
@@ -233,7 +239,7 @@ _Sources: [mission](blocks/b.ui-control/mission.md) · [kpi](blocks/b.ui-control
 - **type**: module
 - **status**: `done` — syncCheck only validates file presence, not mission/KPI semantics
 - **mvp**: yes
-- **depends_on**: `b.db`
+- **depends_on**: `b.db`, `b.code-graph`
 - **tech_stack**: `nodejs`, `esm`, `typescript`, `fastify`, `zod`, `drizzle-orm`, `sqlite`, `session-cookies`, `pino`, `vitest`
 - **files**: 8 (`atlas/blocks/b.core-sync/files.md`)
 
@@ -316,6 +322,7 @@ evidence_spec:
 
 - b.db: atlas_state_store
 - b.db: file_registry
+- b.code-graph: code_graph
 
 #### Patterns
 
@@ -486,7 +493,7 @@ _Sources: [mission](blocks/b.db/mission.md) · [kpi](blocks/b.db/kpi.md) · [acc
 - **type**: module
 - **status**: `review` — Phase I: verifier FAIL on A5 (cursor_live.headless.smoke) — needs a live cursor-agent CLI, not installed in this env. Env-blocked, not code-blocked. A1-A4+A7 pass.
 - **mvp**: yes
-- **depends_on**: `b.db`, `b.core-sync`, `b.llm-gateway`
+- **depends_on**: `b.db`, `b.core-sync`, `b.llm-gateway`, `b.operator-profile-learner`
 - **tech_stack**: `nodejs`, `esm`, `mcp`
 - **files**: 19 (`atlas/blocks/b.agent-orchestrator/files.md`)
 
@@ -598,6 +605,8 @@ evidence_spec:
 
 - b.db: atlas_state_store
 - b.core-sync: sync_report
+- b.llm-gateway: llm_extract_block_schema
+- b.operator-profile-learner: personal_templates
 
 #### Files
 
@@ -1835,6 +1844,234 @@ _Sources: [mission](blocks/b.user-docs-generator/mission.md) · [kpi](blocks/b.u
 
 ---
 
+### 🟡 b.code-graph — Code Graph
+
+- **layer**: `data`
+- **type**: module
+- **status**: `idea` — New block scoped — extracts deterministic imports/exports map from alive files; consumed by b.core-sync PR4. R-7.99.
+- **mvp**: no
+- **depends_on**: `b.db`
+- **tech_stack**: `nodejs`, `esm`
+- **files**: 5 (`atlas/blocks/b.code-graph/files.md`)
+
+# b.code-graph — mission
+
+Sima Atlas сейчас знает граф продукта на уровне **контрактов** (`depends_on.md`,
+`provides.md`) и на уровне **файлов** (`files.md`). Между ними дыра: что на самом
+деле импортируется внутри файлов одного блока из файлов другого — никто не
+проверяет. Контракт говорит «A зависит от B по capability X», код может
+импортировать что угодно. Это и есть «рассинхрон», который семантический судья
+прямо потребовал у `b.core-sync` как PR4 — детерминистическую карту реальных
+связей в коде.
+
+`b.code-graph` — этот недостающий слой. На каждый alive-файл (источник: `files.md`
+блоков) собирается deterministic-карта: какие модули он импортирует, какие
+символы экспортирует. Файлы группируются по своему владельцу-блоку. Из этого
+строится граф блок→блок «по коду»: блок A импортирует символы из блока B
+тогда и только тогда, когда у A есть файл, импортирующий из файла B.
+
+Результат сохраняется в `atlas/code_graph.json` — отдельный артефакт-источник
+истины для нижних проверок:
+
+- `b.core-sync` сверяет код-граф с контрактным: «файл блока A импортирует
+  файл блока B, но `depends_on` у A не содержит B» → drift с `reason:
+  undeclared_code_dependency` и ссылкой на конкретный `from-файл:номер-строки`.
+- симметрично — «блок declares `provides: X`, но ни в одном из его файлов нет
+  экспортируемого символа с именем `X` или соответствующей capability» → drift
+  с `reason: provided_capability_not_exported`.
+
+## Layer
+data
+
+## Out of scope (что блок НЕ делает)
+
+- Не семантический анализ кода (это `b.core-sync` PR3, через `b.llm-gateway`).
+  Код-граф — структурный, на уровне `import`/`export`-инструкций.
+- Не понимает значение функций, только их сигнатуры и where-imported-from.
+- Не индексирует HTML/CSS — только исполняемые модули.
+- Не пытается транзитивно резолвить пакеты из `node_modules` — внешние
+  зависимости фиксируются как `external` без раскрытия. Граф — про связи
+  ВНУТРИ репозитория.
+- Не заменяет `import-graph dead-code detector` (`scripts/import_graph_dead_code.mjs`)
+  — наоборот, в перспективе тот может им питаться, перестав пересканировать
+  файловую систему с нуля.
+
+## Реализация
+
+- `scripts/build_code_graph.mjs` — CLI и library, пишет `atlas/code_graph.json`.
+- `scripts/validate_code_graph_vs_contracts.mjs` — детектор drift'ов,
+  результаты в `atlas/sync_report.json` под ключом `codeGraphDrift`.
+- Pluggable backend по языку: первая версия = pure-Node ES-module extractor
+  (без нативных зависимостей), покрывает 100% нашего стека (.mjs/.js/.jsx).
+  Tree-sitter добавится отдельным блоком, когда репозиторий перестанет быть
+  моноязычным (Python/Rust/Go).
+
+#### KPI
+
+# b.code-graph — KPI
+
+- **KPI-1 (покрытие)**: `code_graph.json` содержит запись для **каждого** alive-файла
+  из `files.md` любого блока с поддерживаемым расширением (`.mjs`, `.js`, `.jsx`).
+  Проверка: число записей в `files` равно числу `[alive]`-файлов с этим расширением
+  в реальном репозитории.
+
+- **KPI-2 (детерминизм)**: два последовательных запуска `build_code_graph.mjs`
+  без изменений на диске дают побайтово идентичный `atlas/code_graph.json`
+  (ключи отсортированы, пути нормализованы к POSIX).
+
+- **KPI-3 (бесстрастность к external deps)**: записи `imports` корректно различают
+  относительные пути (`from: "../foo.mjs"`) и пакетные (`from: "node:fs"`,
+  `from: "react"`); пакеты помечаются `external: true` и не пытаются
+  резолвиться к файлу.
+
+- **KPI-4 (детектор undeclared_code_dependency)**: при синтетическом случае
+  «блок A импортирует из файла блока B, у A в depends_on нет B» —
+  `validate_code_graph_vs_contracts.mjs` возвращает exit 1 с записью drift
+  `{ kind: "undeclared_code_dependency", block: "A", imports_from_block: "B",
+  file: "...", line: N }`.
+
+- **KPI-5 (детектор provided_capability_not_exported)**: при синтетическом случае
+  «провайдит capability `mcp_tools`, ни один файл блока не экспортирует ни функции
+  с именем `mcp_tools`, ни массива с таким идентификатором» — валидатор
+  возвращает запись drift `{ kind: "provided_capability_not_exported",
+  block: "...", capability: "...", scanned_files: [...] }`.
+
+- **KPI-6 (ноль false-positive на текущем дереве)**: на чистом репозитории
+  (`HEAD`) `validate_code_graph_vs_contracts.mjs --silent` выходит с кодом 0.
+  Если что-то фиксируется как drift — это реальный долг контракта, не баг
+  парсера.
+
+- **KPI-7 (бюджет времени)**: полный пересборка `code_graph.json` на нашем
+  текущем дереве (~190 alive-файлов) укладывается в < 5 секунд на типичном
+  ноутбуке без warm-up'а. Кеша на этом этапе нет — это бюджет «холодного»
+  старта.
+
+#### Acceptance
+
+# b.code-graph — acceptance
+
+Acceptance gate для перехода `idea → wip → review → done`. Каждая ассерция
+имеет детерминистический evidence_kind — судья-LLM здесь не нужен,
+структурные проверки самодостаточны.
+
+- [ ] **A1.** `node scripts/build_code_graph.mjs` собирает `atlas/code_graph.json`;
+  файл валидный JSON со строго отсортированными ключами на верхнем уровне.
+```yaml
+evidence_kind: exit_code
+evidence_spec:
+  cmd: node scripts/build_code_graph.mjs && node -e "JSON.parse(require('fs').readFileSync('atlas/code_graph.json','utf8'))"
+  expect_in_stdout: ""
+```
+
+- [ ] **A2.** Selftest парсера ES-модулей зелёный: статичные `import`,
+  динамический `import()`, named/default/re-export — все распознаются;
+  внешние пакеты помечаются `external: true`.
+```yaml
+evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/code_graph_extractor.selftest.mjs
+  expect_in_stdout: "OK"
+```
+
+- [ ] **A3.** Selftest валидатора зелёный: на синтетическом мини-атласе
+  показывает `undeclared_code_dependency` и `provided_capability_not_exported`,
+  и НЕ показывает drift'ов когда контракт совпадает с кодом.
+```yaml
+evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/code_graph_validator.selftest.mjs
+  expect_in_stdout: "OK"
+```
+
+- [ ] **A4.** `atlas/code_graph.json` содержит ключ `by_block` со всеми
+  не-archived блоками графа, у каждого — массив `files` (возможно пустой,
+  если у блока нет alive-файлов c поддерживаемым расширением).
+```yaml
+evidence_kind: log_grep
+evidence_spec:
+  file: atlas/code_graph.json
+  pattern: "\"by_block\""
+```
+
+- [ ] **A5.** На чистом репозитории (HEAD) `validate_code_graph_vs_contracts.mjs`
+  выходит с кодом 0 — нет ложных drift'ов из-за бага парсера.
+```yaml
+evidence_kind: exit_code
+evidence_spec:
+  cmd: node scripts/validate_code_graph_vs_contracts.mjs
+  expect_in_stdout: "OK"
+```
+
+- [ ] **A6.** Результаты валидатора попадают в `atlas/sync_report.json` под
+  ключом `codeGraphDrift` (не заменяя существующие ключи `contractValidation` и
+  `stackMismatch`).
+```yaml
+evidence_kind: log_grep
+evidence_spec:
+  file: atlas/sync_report.json
+  pattern: "\"codeGraphDrift\""
+```
+
+- [ ] **A7.** Детерминизм: два запуска `build_code_graph.mjs` подряд без
+  изменений в дереве дают идентичный байтовый вывод (проверяется через
+  sha256 артефакта в selftest парсера).
+```yaml
+evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/code_graph_extractor.selftest.mjs
+  expect_in_stdout: "deterministic"
+```
+
+## inconclusive_if
+
+- репозиторий не является git-репозиторием (например, при первом git clone
+  без `.git`) — валидатор не сможет нормализовать пути относительно корня.
+```yaml
+evidence_kind: exit_code
+evidence_spec:
+  cmd: test -d .git
+```
+
+## Не считается acceptance
+
+- Семантический анализ значения функций — это домен `b.core-sync` PR3 + `b.llm-gateway`.
+- Поддержка не-JS языков (Python, Rust, Go) — отдельный backend, отдельный блок.
+
+#### Provides
+
+# b.code-graph — provides
+
+- code_graph
+- code_graph_validator
+
+#### Depends on
+
+# b.code-graph — depends_on
+
+- b.db: file_registry
+
+#### Patterns
+
+# b.code-graph — patterns
+
+_This file is populated by the chat-distillate ingestion pipeline (entries are
+paired with `chat-distillate` rows in `decisions.log`). Design rationale and
+do/don't notes live in `narrative.md`._
+
+#### Files
+
+# b.code-graph — files
+
+- scripts/build_code_graph.mjs [alive] (PR1 — экстрактор + CLI)
+- scripts/validate_code_graph_vs_contracts.mjs [alive] (PR2 — детектор drift'ов)
+- tests/code_graph_extractor.selftest.mjs [alive]
+- tests/code_graph_validator.selftest.mjs [alive]
+- atlas/code_graph.json [alive] (auto-generated артефакт)
+
+_Sources: [mission](blocks/b.code-graph/mission.md) · [kpi](blocks/b.code-graph/kpi.md) · [acceptance](blocks/b.code-graph/acceptance.md) · [depends_on](blocks/b.code-graph/depends_on.md) · [provides](blocks/b.code-graph/provides.md) · [patterns](blocks/b.code-graph/patterns.md) · [files](blocks/b.code-graph/files.md)_
+
+---
+
 ### 🟡 b.smoke-sandbox — Smoke Sandbox (test target)
 
 - **layer**: `testing`
@@ -2142,6 +2379,12 @@ evidence_spec:
 - 2026-06-09T19:56:29.097Z: smoke e2e queued insight
 - 2026-06-09T20:18:55.921Z: smoke e2e queued insight
 - 2026-06-09T20:18:59.424Z: smoke e2e queued insight
+- 2026-06-19T18:21:16.514Z: smoke e2e queued insight
+- 2026-06-19T18:21:19.285Z: smoke e2e queued insight
+- 2026-06-19T18:22:14.364Z: smoke e2e queued insight
+- 2026-06-19T18:23:10.729Z: smoke e2e queued insight
+- 2026-06-19T18:23:26.733Z: smoke e2e queued insight
+- 2026-06-19T18:23:29.803Z: smoke e2e queued insight
 
 #### Files
 

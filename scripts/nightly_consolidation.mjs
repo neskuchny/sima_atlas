@@ -20,6 +20,10 @@ const checks = [
   ['block_contracts', 'node scripts/validate_block_contracts.mjs'],
   ['no_template_placeholders', 'node scripts/validate_no_template_placeholders.mjs'],
   ['article_status_projection', 'node scripts/sync_article_status.mjs --check'],
+  ['code_graph_build', 'node scripts/build_code_graph.mjs --check'],
+  ['code_graph_drift', 'node scripts/validate_code_graph_vs_contracts.mjs --silent'],
+  ['code_graph_extractor_selftest', 'node tests/code_graph_extractor.selftest.mjs'],
+  ['code_graph_validator_selftest', 'node tests/code_graph_validator.selftest.mjs'],
   ['files_registry', 'node scripts/validate_files_registry.mjs'],
   // R-7.88 (S-12 MVP) — sweeper writes atlas/cleanup_proposals.{md,json}.
   // Proposes only — never applies. Operator reviews + decides via
