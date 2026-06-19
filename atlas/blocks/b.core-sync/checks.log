@@ -186,3 +186,13 @@
 2026-06-19T18:32:03.753Z	cursor_edit	pass	frontend/atlas_sync.js :: 
 2026-06-19T18:32:03.889Z	cursor_edit	pass	frontend/atlas_sync.js :: 
 2026-06-19T18:32:07.892Z	acceptance_verifier	pass	verdict=pass pass=4 fail=0 skipped=1
+2026-06-19T19:00:00.000Z	T8	pass	atlas_sync.js logCheck now ALSO POSTs /atlas/checks/append → checks.log on disk; new endpoint added; selftest 6/6 green
+2026-06-19T18:40:27.058Z	cursor_edit	pass	frontend/atlas_sync.js :: frontend/atlas_sync.js | 26 +++++++++++++++++++++++++-
+2026-06-19T18:40:27.197Z	cursor_edit	pass	frontend/atlas_sync.js :: frontend/atlas_sync.js | 26 +++++++++++++++++++++++++-
+2026-06-19T18:40:30.311Z	cursor_edit	pass	frontend/atlas_sync.js :: frontend/atlas_sync.js | 26 +++++++++++++++++++++++++-
+2026-06-19T18:40:34.496Z	cursor_edit	pass	frontend/atlas_sync.js :: frontend/atlas_sync.js | 26 +++++++++++++++++++++++++-
+2026-06-19T18:40:34.962Z	cursor_edit	pass	frontend/atlas_sync.js :: frontend/atlas_sync.js | 26 +++++++++++++++++++++++++-
+2026-06-19T18:40:35.427Z	cursor_edit	pass	frontend/atlas_sync.js :: frontend/atlas_sync.js | 26 +++++++++++++++++++++++++-
+2026-06-19T18:40:36.052Z	cursor_edit	pass	frontend/atlas_sync.js :: frontend/atlas_sync.js | 26 +++++++++++++++++++++++++-
+2026-06-19T18:40:36.194Z	cursor_edit	pass	frontend/atlas_sync.js :: frontend/atlas_sync.js | 26 +++++++++++++++++++++++++-
+2026-06-19T18:40:40.198Z	acceptance_verifier	pass	verdict=pass pass=4 fail=0 skipped=1

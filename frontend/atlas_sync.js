@@ -109,10 +109,34 @@
     return atlas.blocks[blockId];
   }
 
+  // R-7.99 (b.core-sync T8) — Rule 1 («any block change is recorded in
+  // tasks.md and checks.log») forbids a UI-only check log. We keep the
+  // localStorage write for offline / instant UI, but ALSO POST to
+  // /atlas/checks/append so a tab-separated line lands in
+  // atlas/blocks/<id>/checks.log on disk, matching the CLI writers.
+  // Fire-and-forget — UI stays fast; if the server is unreachable, the
+  // localStorage record survives and a later sync can replay it.
   function logCheck(atlas, blockId, check){
     const block = ensureBlock(atlas, blockId);
     block.checks = block.checks || [];
-    block.checks.push({ at: nowIso(), ...check });
+    const entry = { at: nowIso(), ...check };
+    block.checks.push(entry);
+    try {
+      const api = (typeof window !== 'undefined' && window.__SIMA_API_BASE) || '';
+      if (typeof fetch !== 'undefined') {
+        fetch((api || '') + '/atlas/checks/append', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            block_id: blockId,
+            kind: entry.kind || 'ui',
+            result: entry.result || 'pass',
+            note: entry.note || entry.source || '',
+          }),
+          keepalive: true,
+        }).catch(() => {}); // swallow — UI must not stall on the check log
+      }
+    } catch {}
     return atlas;
   }
 

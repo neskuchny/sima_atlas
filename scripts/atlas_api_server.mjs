@@ -15,7 +15,11 @@ import { aggregateTokenEconomics } from './token_economics.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(__filename), '..');
-const ATLAS = path.join(ROOT, 'atlas');
+// R-7.99 — honour ATLAS_ROOT for the server's own reads/writes (previously
+// only the spawn helpers forwarded it to child processes). Without this,
+// tests pointing the server at a synthetic atlas saw the server still
+// hitting the real one. Default to repo-local atlas/ when unset.
+const ATLAS = process.env.ATLAS_ROOT || path.join(ROOT, 'atlas');
 
 const port = Number(process.env.ATLAS_API_PORT || 8787);
 
@@ -638,6 +642,29 @@ const server = http.createServer((req, res) => {
     let body = {};
     try { body = raw ? JSON.parse(raw) : {}; } catch { return json(res, 400, { ok: false, error: 'invalid json' }); }
     try {
+      // R-7.99 (b.core-sync T8) — unify the UI's check log with the
+      // filesystem one. atlas_sync.js used to write block.checks to
+      // localStorage only; that split the source of truth and violated
+      // Rule 1 («Любое изменение блока фиксируется в его tasks.md и
+      // checks.log»). The frontend now also POSTs here, and the line is
+      // appended to atlas/blocks/<id>/checks.log on disk in the same TSV
+      // format every other writer uses (ISO timestamp \t kind \t result \t note).
+      if (req.url === '/atlas/checks/append') {
+        const blockId = String(body.block_id || '').trim();
+        const kind = String(body.kind || '').trim();
+        const result = String(body.result || '').trim();
+        const note = String(body.note || '').trim().replace(/[\r\n\t]+/g, ' ');
+        if (!blockId || !/^[a-zA-Z0-9._-]+$/.test(blockId)) return json(res, 400, { ok: false, error: 'block_id required (alphanumeric + . _ -)' });
+        if (!kind) return json(res, 400, { ok: false, error: 'kind required' });
+        if (!result) return json(res, 400, { ok: false, error: 'result required' });
+        const blockDir = path.join(ATLAS, 'blocks', blockId);
+        if (!fs.existsSync(blockDir)) return json(res, 404, { ok: false, error: `block not found: ${blockId}` });
+        const line = `${new Date().toISOString()}\t${kind}\t${result}\t${note}\n`;
+        try { fs.appendFileSync(path.join(blockDir, 'checks.log'), line, 'utf8'); }
+        catch (e) { return json(res, 500, { ok: false, error: `append failed: ${e.message}` }); }
+        return json(res, 200, { ok: true, block_id: blockId, line: line.trimEnd() });
+      }
+
       if (req.url === '/finalize') {
         const blockId = String(body.block_id || 'b.docs');
         const transcriptPath = String(body.transcript_path || '');

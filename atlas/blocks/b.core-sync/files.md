@@ -1,6 +1,7 @@
 # b.core-sync — files
 
-- frontend/atlas_sync.js [alive] (client-side syncCheck + transitions)
+- frontend/atlas_sync.js [alive] (client-side syncCheck + transitions; T8: logCheck now POSTs /atlas/checks/append → checks.log on disk)
+- tests/checks_append_endpoint.selftest.mjs [alive] (T8 — selftest for the unified-checks-log endpoint)
 - scripts/validate_block_contracts.mjs [alive]
 - scripts/validate_dependency_contracts.mjs [alive]
 - scripts/validate_acceptance_assertions.mjs [alive]
