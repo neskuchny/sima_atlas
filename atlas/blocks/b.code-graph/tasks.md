@@ -39,3 +39,7 @@
 - [ ] T10: При появлении не-JS файлов в `files.md` — pluggable backend
   для tree-sitter (Python/Rust/Go). MVP-API одинаков, разные парсеры
   диспатчатся по расширению. Не делать до фактической необходимости.
+
+## PR3 — known flake (R-7.99 follow-up)
+
+- [ ] T11: Investigate `code_graph_extractor.selftest` Group 9 (determinism via sha256) intermittently failing in nightly while passing on isolation. Suspect: subprocess spawn race with concurrent filesystem writes from other nightly validators touching block files. Hypothesis test: serialize G9 differently or run on a frozen tmp copy of atlas/blocks/.

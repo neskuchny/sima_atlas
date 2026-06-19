@@ -15,14 +15,14 @@
         "min_count": 1
       },
       "verdict": "pass",
-      "evidence": "glob extensions/desktop/main.mjs → 1 files (min=1); newest 2min ago",
+      "evidence": "glob extensions/desktop/main.mjs → 1 files (min=1); newest 4min ago",
       "reasoning": "1 files match (≥1)",
       "raw": {
         "pattern": "extensions/desktop/main.mjs",
         "count": 1,
         "min_count": 1,
         "max_age_min": null,
-        "newest_minutes_ago": 2,
+        "newest_minutes_ago": 4,
         "sample": [
           "/home/user/sima_atlas/extensions/desktop/main.mjs"
         ]
@@ -41,17 +41,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/desktop_structure.selftest.mjs → exit 0 (47ms); first line: \"desktop_structure.selftest: OK (10 test groups, all assertions green)\"",
+      "evidence": "node tests/desktop_structure.selftest.mjs → exit 0 (58ms); first line: \"desktop_structure.selftest: OK (13 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/desktop_structure.selftest.mjs",
         "exit_code": 0,
-        "stdout": "desktop_structure.selftest: OK (10 test groups, all assertions green)\n",
+        "stdout": "desktop_structure.selftest: OK (13 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 47,
+        "duration_ms": 58,
         "timed_out": false
       },
-      "duration_ms": 47
+      "duration_ms": 58
     },
     {
       "id": "A3",
@@ -76,7 +76,7 @@
           "    \"desktop:dev\": \"cd extensions/desktop && npm install && npm start\","
         ]
       },
-      "duration_ms": 0
+      "duration_ms": 1
     },
     {
       "id": "A4",
@@ -90,13 +90,13 @@
         "pattern": "utilityProcess"
       },
       "verdict": "pass",
-      "evidence": "grep /utilityProcess/ extensions/desktop/main.mjs → 8 matches; first: \"//   1. spawns scripts/atlas_api_server.mjs via Electron's utilityProcess\"",
-      "reasoning": "8 matching lines found",
+      "evidence": "grep /utilityProcess/ extensions/desktop/main.mjs → 9 matches; first: \"//   1. spawns scripts/atlas_api_server.mjs via Electron's utilityProcess\"",
+      "reasoning": "9 matching lines found",
       "raw": {
         "file": "/home/user/sima_atlas/extensions/desktop/main.mjs",
         "pattern": "utilityProcess",
         "since_time": null,
-        "match_count": 8,
+        "match_count": 9,
         "sample": [
           "//   1. spawns scripts/atlas_api_server.mjs via Electron's utilityProcess",
           "// Why utilityProcess: Electron 21+ provides a Node-only subprocess that",
@@ -189,6 +189,6 @@
   },
   "verdict": "pass",
   "inconclusive_if_declared": 1,
-  "duration_ms": 47,
-  "checked_at": "2026-06-19T19:34:19.828Z"
+  "duration_ms": 59,
+  "checked_at": "2026-06-19T21:20:08.855Z"
 }

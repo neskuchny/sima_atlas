@@ -32,6 +32,10 @@
 <script type="text/babel" src="graph.jsx?v=r7-94"></script>
 <script type="text/babel" src="panels.jsx?v=r7-94"></script>
 <script type="text/babel" src="views.jsx?v=r7-94"></script>
+<!-- R-7.99 (b.desktop T12) — Project Picker. Only active inside the
+     Electron shell (window.sima exposed by extensions/desktop/preload.mjs);
+     silently no-ops in a plain browser. -->
+<script type="text/babel" src="project_picker.jsx?v=r7-99"></script>
 <script type="text/babel">
 const { useState, useEffect, useRef, useMemo, useCallback } = React;
 
@@ -103,6 +107,14 @@ function App() {
   const [sysDocsOpen, setSysDocsOpen] = useState(false);
   const [proposalsOpen, setProposalsOpen] = useState(false);
   const [templatesOpen, setTemplatesOpen] = useState(false);
+  // R-7.99 (b.desktop T12) — Project Picker modal. Opened by File → Open
+  // Project menu in the Electron shell. In a plain browser the subscriber
+  // returns a no-op unsubscribe and this stays closed forever.
+  const [projectPickerOpen, setProjectPickerOpen] = useState(false);
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.SIMA_PROJECT_PICKER) return undefined;
+    return window.SIMA_PROJECT_PICKER.subscribe(setProjectPickerOpen);
+  }, []);
   const [subagentsOpen, setSubagentsOpen] = useState(false);
   const [syncReportOpen, setSyncReportOpen] = useState(false);
   const [productReviewOpen, setProductReviewOpen] = useState(false);
@@ -1487,6 +1499,12 @@ function App() {
       )}
 
       {/* COMPOSER MODAL — multi-source intake → artifact + Sima synthesis */}
+      {projectPickerOpen && window.SIMA_PROJECT_PICKER && (
+        <window.SIMA_PROJECT_PICKER.ProjectPickerModal
+          onClose={() => setProjectPickerOpen(false)}
+          onSwitched={(p) => pushLog({ agent: 'SIMA Desktop', kind: 'ok', msg: `Switched to project «${p.name}» — reloading…` })}
+        />
+      )}
       {composerOpen && (
         <div className="composer-modal" onClick={() => setComposerOpen(false)}>
           <div className="composer-modal-inner" onClick={e => e.stopPropagation()}>

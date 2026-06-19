@@ -135,9 +135,52 @@ for (const f of MUST_EXIST) check(`g1: ${f} exists`, exists(f));
   // electron and electron-builder stay as devDeps (build-time only).
 }
 
+// ── Group 11 (PR4 T12): project picker IPC surface in main.mjs
+{
+  const src = read('extensions/desktop/main.mjs');
+  check('g11: desktop:list-projects handler',   /ipcMain\.handle\(['"]desktop:list-projects['"]/.test(src));
+  check('g11: desktop:create-project handler',  /ipcMain\.handle\(['"]desktop:create-project['"]/.test(src));
+  check('g11: desktop:open-project handler',    /ipcMain\.handle\(['"]desktop:open-project['"]/.test(src));
+  check('g11: project name validator (whitelist regex)',
+    /isSafeProjectName/.test(src) && /\^\[a-zA-Z0-9/.test(src),
+    'T12: project name MUST be validated against a tight whitelist — path-traversal safety');
+  check('g11: open-project enforces sandbox (bundled OR SimaProjects/)',
+    /withinProjects|PROJECTS_DIR/.test(src),
+    'T12: open-project must refuse arbitrary filesystem paths');
+  check('g11: File menu opens picker via webContents.send', /sima:open-project-picker/.test(src));
+}
+
+// ── Group 12 (PR4 T12): preload exposes project picker bridge
+{
+  const src = read('extensions/desktop/preload.mjs');
+  check('g12: listProjects exposed',  /listProjects:/.test(src));
+  check('g12: createProject exposed', /createProject:/.test(src));
+  check('g12: openProject exposed',   /openProject:/.test(src));
+  check('g12: onOpenProjectPicker subscription bridge',
+    /onOpenProjectPicker/.test(src) && /removeListener/.test(src),
+    'T12: must expose a subscribe + unsubscribe pair so React effects can clean up');
+}
+
+// ── Group 13 (PR4 T12): renderer-side modal exists + wired into index.html
+{
+  check('g13: project_picker.jsx exists', exists('frontend/atlas_design/project_picker.jsx'));
+  if (exists('frontend/atlas_design/project_picker.jsx')) {
+    const src = read('frontend/atlas_design/project_picker.jsx');
+    check('g13: exports ProjectPickerModal globally',
+      /SIMA_PROJECT_PICKER/.test(src) && /ProjectPickerModal/.test(src));
+    check('g13: subscribe helper present', /function subscribe|subscribe:/.test(src));
+    check('g13: calls window.sima APIs (Electron-only)',
+      /sima\.listProjects|sima\.openProject|sima\.createProject/.test(src),
+      'T12 modal must use the Electron preload bridge; silently no-ops in a plain browser');
+  }
+  const html = read('frontend/atlas_design/index.html');
+  check('g13: index.html loads project_picker.jsx', /project_picker\.jsx/.test(html));
+  check('g13: App mounts ProjectPickerModal', /SIMA_PROJECT_PICKER\.ProjectPickerModal/.test(html));
+}
+
 if (failures.length) {
   console.error('desktop_structure.selftest: FAIL');
   failures.forEach((f) => console.error(' ✗', f));
   process.exit(1);
 }
-console.log('desktop_structure.selftest: OK (10 test groups, all assertions green)');
+console.log('desktop_structure.selftest: OK (13 test groups, all assertions green)');

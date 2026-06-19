@@ -42,6 +42,7 @@ let uiPort = 0;
 let apiProc = null;       // utilityProcess for atlas_api_server.mjs
 let uiServer = null;      // tiny http.Server for static frontend
 let mainWindow = null;
+let currentAtlasRoot = null;  // PR4 T12: which atlas/ dir the API server points at right now
 
 // ── pick a free port in a sensible range so we don't collide with
 // the operator's `npm run dev` if it's already running.
@@ -85,6 +86,7 @@ function waitForPort(port, pathToHit, timeoutMs) {
 function startApiServer(atlasPath) {
   // ELECTRON_RUN_AS_NODE is implicit for utilityProcess.fork — it always
   // runs in a Node-only context using the bundled binary.
+  currentAtlasRoot = atlasPath;
   apiProc = utilityProcess.fork(
     path.join(REPO_ROOT, 'scripts', 'atlas_api_server.mjs'),
     [],
@@ -200,6 +202,89 @@ ipcMain.handle('desktop:check-for-updates', async () => {
   return { ok: true };
 });
 
+// ── PR4 T12: project picker — list / create / open. Projects live under
+// ~/SimaProjects/<name>/atlas/ (one atlas per project). Open swaps the
+// running API server's ATLAS_ROOT and reloads the renderer.
+function isSafeProjectName(name) {
+  return typeof name === 'string' && /^[a-zA-Z0-9._-]{1,40}$/.test(name);
+}
+
+ipcMain.handle('desktop:list-projects', async () => {
+  fs.mkdirSync(PROJECTS_DIR, { recursive: true });
+  const out = [];
+  // The repo's bundled atlas/ — the «demo» project, always first.
+  out.push({
+    name: 'demo (bundled)',
+    path: path.join(REPO_ROOT, 'atlas'),
+    bundled: true,
+    current: currentAtlasRoot === path.join(REPO_ROOT, 'atlas'),
+  });
+  for (const name of fs.readdirSync(PROJECTS_DIR)) {
+    if (!isSafeProjectName(name)) continue;
+    const dir = path.join(PROJECTS_DIR, name);
+    if (!fs.statSync(dir).isDirectory()) continue;
+    const atlasPath = path.join(dir, 'atlas');
+    if (!fs.existsSync(path.join(atlasPath, 'graph.json'))) continue;
+    out.push({
+      name,
+      path: atlasPath,
+      bundled: false,
+      current: currentAtlasRoot === atlasPath,
+    });
+  }
+  return { ok: true, projects: out };
+});
+
+ipcMain.handle('desktop:create-project', async (_e, name) => {
+  if (!isSafeProjectName(name)) return { ok: false, error: 'project name must be 1-40 chars: a-z A-Z 0-9 . _ -' };
+  fs.mkdirSync(PROJECTS_DIR, { recursive: true });
+  const dir = path.join(PROJECTS_DIR, name);
+  if (fs.existsSync(dir)) return { ok: false, error: `project «${name}» already exists` };
+  const atlasPath = path.join(dir, 'atlas');
+  fs.mkdirSync(path.join(atlasPath, 'blocks'), { recursive: true });
+  fs.mkdirSync(path.join(atlasPath, 'operator_profile'), { recursive: true });
+  // Minimal seed: empty graph.json + the project-level architecture lock.
+  fs.writeFileSync(path.join(atlasPath, 'graph.json'), JSON.stringify({
+    layers: [
+      { id: 'user', name: 'Пользователь / JTBD', order: 0 },
+      { id: 'front', name: 'Фронтенд', order: 1 },
+      { id: 'logic', name: 'Логика / бэкенд', order: 2 },
+      { id: 'ai', name: 'ИИ / агенты', order: 3 },
+      { id: 'data', name: 'Данные / хранилище', order: 4 },
+    ],
+    blocks: [],
+  }, null, 2) + '\n');
+  fs.writeFileSync(path.join(atlasPath, 'architecture_decisions.md'),
+    `# Architecture Decisions — ${name}\n\nAppend-only project-level lock-in. Each entry auto-injected into every agent prompt.\n`);
+  return { ok: true, project: { name, path: atlasPath } };
+});
+
+ipcMain.handle('desktop:open-project', async (_e, atlasPath) => {
+  if (typeof atlasPath !== 'string' || !atlasPath) return { ok: false, error: 'atlasPath required' };
+  // Allow either the bundled atlas or any path under ~/SimaProjects/.
+  const bundled = path.join(REPO_ROOT, 'atlas');
+  const withinProjects = atlasPath.startsWith(PROJECTS_DIR + path.sep);
+  if (atlasPath !== bundled && !withinProjects) return { ok: false, error: 'atlasPath must be the bundled atlas or live under ~/SimaProjects/' };
+  if (!fs.existsSync(path.join(atlasPath, 'graph.json'))) return { ok: false, error: `no graph.json at ${atlasPath}` };
+
+  // Restart the API server pointing at the new atlas root, then reload the
+  // window. utilityProcess.fork is fire-and-forget; we kill the old one and
+  // spawn fresh.
+  if (apiProc) { try { apiProc.kill(); } catch {} apiProc = null; }
+  currentAtlasRoot = atlasPath;
+  startApiServer(atlasPath);
+  try {
+    await waitForPort(apiPort, '/atlas/state', 10_000);
+  } catch (e) {
+    return { ok: false, error: `restarted API did not respond: ${e.message}` };
+  }
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.loadURL(`http://127.0.0.1:${uiPort}/atlas_design/?client=example&api=${apiPort}`);
+  }
+  postCheck('b.desktop', 'project-switch', 'pass', `switched ATLAS_ROOT to ${atlasPath}`);
+  return { ok: true, atlasPath };
+});
+
 // ── PR4 T10: run a node script via utilityProcess and POST a checks.log
 // entry through the API server so desktop-triggered actions land in the
 // same audit-trail as CLI actions (T8 unified endpoint).
@@ -252,8 +337,21 @@ function buildMenu() {
       label: 'File',
       submenu: [
         {
-          label: 'Open Project Folder…',
+          // T12 — open the in-app project picker modal in the renderer.
+          // The modal lists ~/SimaProjects/ entries + the bundled atlas,
+          // lets the operator create a new project, and switches
+          // ATLAS_ROOT on selection.
+          label: 'Open Project…',
           accelerator: 'CmdOrCtrl+O',
+          click: () => {
+            if (mainWindow && !mainWindow.isDestroyed()) {
+              mainWindow.webContents.send('sima:open-project-picker');
+            }
+          },
+        },
+        {
+          label: 'Open Project Folder (native dialog)…',
+          accelerator: 'CmdOrCtrl+Shift+O',
           click: async () => {
             const dir = await dialog.showOpenDialog(mainWindow, {
               title: 'Open Sima project (atlas/ folder)',

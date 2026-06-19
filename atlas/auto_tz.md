@@ -1249,9 +1249,18 @@ runtime, который оборачивает наш фронт, не моди�
   Управляется через `SIMA_DESKTOP_DISABLE_AUTOUPDATE=1` для CI. (Селфтест
   g9: 4 ассерции, все зелёные. g10: electron-updater в `dependencies`,
   не devDep — runtime-нужен в packaged-tree.)
-- [ ] T12: Project picker UI — список папок из `~/SimaProjects/` с
-  возможностью создать новую и сразу инициализировать `atlas/`. (Renderer-
-  side, отдельный PR с фронтенд-правками в `frontend/atlas_design/`.)
+- [x] T12: Project picker UI — `frontend/atlas_design/project_picker.jsx` —
+  модал со списком проектов под `~/SimaProjects/<name>/atlas/` + bundled-
+  атлас репо. Кнопка `+ create & open` создаёт новый проект (валидация
+  имени: `^[a-zA-Z0-9._-]{1,40}$`, защита от path traversal), seed-минимум
+  (graph.json с layers + architecture_decisions.md), сразу переключает
+  ATLAS_ROOT и перезагружает окно. Меню File → Open Project (⌘O) дёргает
+  модал через `webContents.send('sima:open-project-picker')`; preload
+  пробрасывает subscribe/unsubscribe пару — React effects корректно
+  чистят слушатели. Селфтест-группы 11+12+13 проверяют IPC-поверхность,
+  preload-bridge, наличие компонента и его подключение в index.html.
+  Открытие свежесозданного проекта — за один клик: create flow ставит
+  modal на open сразу после create.
 
 ## PR5 (future) — подпись и нотаризация
 

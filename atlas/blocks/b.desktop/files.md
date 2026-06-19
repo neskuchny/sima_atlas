@@ -1,7 +1,8 @@
 # b.desktop — files
 
-- extensions/desktop/main.mjs [alive] (PR1 — main process; PR4 — native menu + electron-updater + checks.log audit dispatcher)
-- extensions/desktop/preload.mjs [alive] (PR1 — context bridge; PR4 — menu-mirror IPC + update controls)
+- extensions/desktop/main.mjs [alive] (PR1 — main process; PR4 — native menu + electron-updater + checks.log audit dispatcher + T12 project picker IPC)
+- extensions/desktop/preload.mjs [alive] (PR1 — context bridge; PR4 — menu-mirror IPC + update controls + T12 project APIs)
+- frontend/atlas_design/project_picker.jsx [alive] (T12 — Project Picker modal, renderer-side)
 - extensions/desktop/package.json [alive] (PR1 — own deps + electron-builder config)
 - extensions/desktop/README.md [alive] (PR1 — operator docs)
 - tests/desktop_structure.selftest.mjs [alive] (PR2 — structural validator)

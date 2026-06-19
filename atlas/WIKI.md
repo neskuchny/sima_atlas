@@ -1,6 +1,6 @@
 # Sima Atlas Wiki
 
-_Auto-generated: 2026-06-19T19:34:23.497Z_
+_Auto-generated: 2026-06-19T21:20:12.843Z_
 
 ## Граф продукта
 
@@ -2366,8 +2366,9 @@ do/don't notes live in `narrative.md`._
 
 # b.desktop — files
 
-- extensions/desktop/main.mjs [alive] (PR1 — main process; PR4 — native menu + electron-updater + checks.log audit dispatcher)
-- extensions/desktop/preload.mjs [alive] (PR1 — context bridge; PR4 — menu-mirror IPC + update controls)
+- extensions/desktop/main.mjs [alive] (PR1 — main process; PR4 — native menu + electron-updater + checks.log audit dispatcher + T12 project picker IPC)
+- extensions/desktop/preload.mjs [alive] (PR1 — context bridge; PR4 — menu-mirror IPC + update controls + T12 project APIs)
+- frontend/atlas_design/project_picker.jsx [alive] (T12 — Project Picker modal, renderer-side)
 - extensions/desktop/package.json [alive] (PR1 — own deps + electron-builder config)
 - extensions/desktop/README.md [alive] (PR1 — operator docs)
 - tests/desktop_structure.selftest.mjs [alive] (PR2 — structural validator)
@@ -2706,6 +2707,10 @@ evidence_spec:
 - 2026-06-19T19:33:39.351Z: smoke e2e queued insight
 - 2026-06-19T19:34:20.016Z: smoke e2e queued insight
 - 2026-06-19T19:34:23.343Z: smoke e2e queued insight
+- 2026-06-19T21:18:57.780Z: smoke e2e queued insight
+- 2026-06-19T21:19:01.312Z: smoke e2e queued insight
+- 2026-06-19T21:20:09.057Z: smoke e2e queued insight
+- 2026-06-19T21:20:12.676Z: smoke e2e queued insight
 
 #### Files
 

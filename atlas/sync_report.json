@@ -1,6 +1,6 @@
 {
   "contractValidation": {
-    "checkedAt": "2026-06-19T19:34:20.758Z",
+    "checkedAt": "2026-06-19T21:20:09.844Z",
     "total": 19,
     "broken": 0,
     "details": []
@@ -11,7 +11,7 @@
     "details": []
   },
   "codeGraphDrift": {
-    "checkedAt": "2026-06-19T19:34:03.563Z",
+    "checkedAt": "2026-06-19T21:19:50.976Z",
     "driftCount": 22,
     "details": [
       {
@@ -259,6 +259,7 @@
         "scanned_files": [
           "extensions/desktop/main.mjs",
           "extensions/desktop/preload.mjs",
+          "frontend/atlas_design/project_picker.jsx",
           "tests/desktop_structure.selftest.mjs"
         ],
         "exported_names_in_block": [],
@@ -272,6 +273,7 @@
         "scanned_files": [
           "extensions/desktop/main.mjs",
           "extensions/desktop/preload.mjs",
+          "frontend/atlas_design/project_picker.jsx",
           "tests/desktop_structure.selftest.mjs"
         ],
         "exported_names_in_block": [],
@@ -285,6 +287,7 @@
         "scanned_files": [
           "extensions/desktop/main.mjs",
           "extensions/desktop/preload.mjs",
+          "frontend/atlas_design/project_picker.jsx",
           "tests/desktop_structure.selftest.mjs"
         ],
         "exported_names_in_block": [],

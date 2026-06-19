@@ -23,7 +23,7 @@
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 1
+      "duration_ms": 2
     },
     {
       "id": "A2",
@@ -126,5 +126,5 @@
   },
   "verdict": "pass",
   "duration_ms": 61,
-  "checked_at": "2026-06-19T19:33:30.089Z"
+  "checked_at": "2026-06-19T21:18:51.550Z"
 }

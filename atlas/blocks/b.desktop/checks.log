@@ -13,3 +13,7 @@
 2026-06-19T19:33:08.663Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=0
 2026-06-19T19:33:39.159Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=0
 2026-06-19T19:34:23.153Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=0
+2026-06-19T21:18:36.386Z	feature	pass	T12 done — Project picker modal (list + create + open) with sandboxed name validation; selftest 13/13 green
+2026-06-19T21:18:36.565Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=0
+2026-06-19T21:19:01.114Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=0
+2026-06-19T21:20:12.473Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=0

@@ -31,4 +31,21 @@ contextBridge.exposeInMainWorld('sima', {
 
   // PR4 — auto-update controls.
   checkForUpdates: () => ipcRenderer.invoke('desktop:check-for-updates'),
+
+  // PR4 T12 — project picker. List / create / open projects living under
+  // ~/SimaProjects/. Open swaps the API server's ATLAS_ROOT and reloads
+  // the renderer (which is us — main does the loadURL).
+  listProjects:   ()                  => ipcRenderer.invoke('desktop:list-projects'),
+  createProject:  (name)              => ipcRenderer.invoke('desktop:create-project', name),
+  openProject:    (atlasPath)         => ipcRenderer.invoke('desktop:open-project', atlasPath),
+
+  // PR4 T12 — main pushes a «show project picker» event when the user
+  // clicks File → Open Project. The renderer mounts <ProjectPickerModal />
+  // in response. Returns an unsubscribe function so React effects can
+  // clean up.
+  onOpenProjectPicker: (cb) => {
+    const handler = () => cb();
+    ipcRenderer.on('sima:open-project-picker', handler);
+    return () => ipcRenderer.removeListener('sima:open-project-picker', handler);
+  },
 });

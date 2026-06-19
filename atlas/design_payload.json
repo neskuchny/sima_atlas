@@ -425,7 +425,7 @@
       },
       "progress": {
         "tasks": {
-          "done": 2,
+          "done": 3,
           "total": 15
         },
         "kpi": {
@@ -2204,8 +2204,8 @@
       },
       {
         "id": "T12",
-        "title": "Project picker UI — список папок из `~/SimaProjects/` с",
-        "status": "todo",
+        "title": "Project picker UI — `frontend/atlas_design/project_picker.jsx` —",
+        "status": "done",
         "priority": "P2",
         "agent": null,
         "why": "",
@@ -2493,7 +2493,7 @@
     }
   ],
   "_meta": {
-    "generated_at": "2026-06-19T19:34:09.142Z",
+    "generated_at": "2026-06-19T21:19:56.959Z",
     "atlas_root": "atlas",
     "client_id": null,
     "block_count": 19,

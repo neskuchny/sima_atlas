@@ -87,6 +87,7 @@
       "files": [
         "extensions/desktop/main.mjs",
         "extensions/desktop/preload.mjs",
+        "frontend/atlas_design/project_picker.jsx",
         "tests/desktop_structure.selftest.mjs"
       ]
     },
@@ -389,7 +390,7 @@
           "external": true,
           "from": "electron-updater",
           "kind": "dynamic",
-          "line": 336,
+          "line": 434,
           "resolved_to": null,
           "specifiers": []
         }
@@ -448,6 +449,11 @@
       "exports": [],
       "imports": [],
       "owning_block": "b.ui-control"
+    },
+    "frontend/atlas_design/project_picker.jsx": {
+      "exports": [],
+      "imports": [],
+      "owning_block": "b.desktop"
     },
     "frontend/atlas_design/tweaks-panel.jsx": {
       "exports": [],
