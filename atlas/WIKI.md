@@ -1,6 +1,6 @@
 # Sima Atlas Wiki
 
-_Auto-generated: 2026-06-20T11:43:36.720Z_
+_Auto-generated: 2026-06-20T12:40:11.973Z_
 
 ## Граф продукта
 
@@ -2380,6 +2380,9 @@ do/don't notes live in `narrative.md`._
 
 # b.desktop — files
 
+- extensions/desktop/assets/icon.png [alive] (release-prep — 1024×1024 brand icon, used by macOS DMG + Linux AppImage/deb)
+- extensions/desktop/assets/icon-512.png [alive] (release-prep — Linux fallback)
+- extensions/desktop/assets/icon.ico [alive] (release-prep — multi-resolution Windows icon)
 - extensions/desktop/main.mjs [alive] (PR1 — main process; PR4 — native menu + electron-updater + checks.log audit dispatcher + T12 project picker IPC)
 - extensions/desktop/preload.mjs [alive] (PR1 — context bridge; PR4 — menu-mirror IPC + update controls + T12 project APIs)
 - frontend/atlas_design/project_picker.jsx [alive] (T12 — Project Picker modal, renderer-side)
@@ -5996,6 +5999,18 @@ _no summary_
 - 2026-06-20T11:43:32.924Z: smoke e2e distillate
 - 2026-06-20T11:43:36.387Z: smoke e2e queued insight
 - 2026-06-20T11:43:36.432Z: smoke e2e distillate
+- 2026-06-20T12:37:56.289Z: smoke e2e queued insight
+- 2026-06-20T12:37:56.337Z: smoke e2e distillate
+- 2026-06-20T12:37:59.975Z: smoke e2e queued insight
+- 2026-06-20T12:38:00.022Z: smoke e2e distillate
+- 2026-06-20T12:38:37.328Z: smoke e2e queued insight
+- 2026-06-20T12:38:37.374Z: smoke e2e distillate
+- 2026-06-20T12:38:41.095Z: smoke e2e queued insight
+- 2026-06-20T12:38:41.139Z: smoke e2e distillate
+- 2026-06-20T12:40:07.792Z: smoke e2e queued insight
+- 2026-06-20T12:40:07.836Z: smoke e2e distillate
+- 2026-06-20T12:40:11.617Z: smoke e2e queued insight
+- 2026-06-20T12:40:11.664Z: smoke e2e distillate
 
 #### Files
 

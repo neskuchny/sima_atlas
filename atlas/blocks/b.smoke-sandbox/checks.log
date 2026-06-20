@@ -4776,3 +4776,27 @@
 2026-06-20T11:43:36.297Z  smoke  pass  nightly smoke e2e
 2026-06-20T11:43:36.387Z	ingestion	pass	queue applied
 2026-06-20T11:43:36.432Z	ingestion	pass	distillate saved
+2026-06-20T12:37:56.195Z  sync  pass  update_block
+2026-06-20T12:37:56.196Z  smoke  pass  nightly smoke e2e
+2026-06-20T12:37:56.289Z	ingestion	pass	queue applied
+2026-06-20T12:37:56.337Z	ingestion	pass	distillate saved
+2026-06-20T12:37:59.882Z  sync  pass  update_block
+2026-06-20T12:37:59.883Z  smoke  pass  nightly smoke e2e
+2026-06-20T12:37:59.975Z	ingestion	pass	queue applied
+2026-06-20T12:38:00.022Z	ingestion	pass	distillate saved
+2026-06-20T12:38:37.233Z  sync  pass  update_block
+2026-06-20T12:38:37.234Z  smoke  pass  nightly smoke e2e
+2026-06-20T12:38:37.328Z	ingestion	pass	queue applied
+2026-06-20T12:38:37.374Z	ingestion	pass	distillate saved
+2026-06-20T12:38:41.006Z  sync  pass  update_block
+2026-06-20T12:38:41.006Z  smoke  pass  nightly smoke e2e
+2026-06-20T12:38:41.095Z	ingestion	pass	queue applied
+2026-06-20T12:38:41.139Z	ingestion	pass	distillate saved
+2026-06-20T12:40:07.684Z  sync  pass  update_block
+2026-06-20T12:40:07.684Z  smoke  pass  nightly smoke e2e
+2026-06-20T12:40:07.792Z	ingestion	pass	queue applied
+2026-06-20T12:40:07.836Z	ingestion	pass	distillate saved
+2026-06-20T12:40:11.513Z  sync  pass  update_block
+2026-06-20T12:40:11.514Z  smoke  pass  nightly smoke e2e
+2026-06-20T12:40:11.617Z	ingestion	pass	queue applied
+2026-06-20T12:40:11.664Z	ingestion	pass	distillate saved
