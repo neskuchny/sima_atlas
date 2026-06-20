@@ -14,6 +14,22 @@
  */
 import { spawnSync } from 'node:child_process';
 
+// Recursion guard: b.smoke-sandbox acceptance A3 evaluates by spawning
+// this very script. The smoke then calls `verify_block_acceptance` on the
+// sandbox block, which fires A3 again → infinite loop, each level
+// spawning new MCP servers + history snapshots until something blows up.
+// Caught by an MCP zombie audit after the V-1 overnight; fix is to detect
+// the re-entry via env var. The outer (top-level) call sets the var; any
+// child sees it and exits clean immediately. From A3's standpoint that's
+// still «smoke passed», which is honest — we ran the smoke once for real
+// (at nightly), and the A3 assertion's intent («smoke executes cleanly»)
+// is already satisfied by the outer call.
+if (process.env.SIMA_MCP_SMOKE_RUNNING === '1') {
+  console.log('mcp_smoke_e2e: OK (recursion guard — nested invocation skipped)');
+  process.exit(0);
+}
+process.env.SIMA_MCP_SMOKE_RUNNING = '1';
+
 const SANDBOX = 'b.smoke-sandbox';
 
 const calls = [
