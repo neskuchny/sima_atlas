@@ -1,6 +1,6 @@
 {
   "name": "sima-atlas",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": false,
   "description": "Contract-first visual control plane between developers and AI coding agents (Claude Code / Cursor / Codex). Blocks live as directories with mission.md / kpi.md / acceptance.md; agents read contracts via MCP, write code, report to checks.log; Sima verifies each run against acceptance.",
   "license": "MIT",

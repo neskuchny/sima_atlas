@@ -6,11 +6,16 @@ Sima Atlas сейчас в early-stage (`0.x`), API может меняться 
 
 ---
 
-## [Unreleased] — R-7.98 → R-7.99 — *the system passes its own protocol*
+## [0.4.0] — 2026-06-20 — *the system passes its own protocol, then ships as an app*
 
-> The Kanon-compliance audit found the reference implementation violating
-> its own spec in 5 places, the article drifting from the graph, and the
-> semantic map covering 1 block of 17. All closed.
+> v0.3.0 closed the autonomous loop. v0.4.0 makes the system **honest with
+> itself**: it passes its own canon-compliance spec, the article becomes a
+> projection of the graph, every done block gets a live semantic verdict,
+> Sima becomes a downloadable program with its own block contract, and a
+> new data-layer block (b.code-graph) reads real imports/exports and
+> catches drift the contract validator could not see. The V-1 autonomous
+> loop ran end-to-end overnight on a real Claude agent — three honest
+> stalls, zero false promotions, the canon doing what it promised.
 
 **Kanon spec compliance — Level 3 claimed (R-7.98)**
 - §3.2: `llm_judge` can no longer be the sole basis for a block-level pass —
@@ -48,11 +53,139 @@ Sima Atlas сейчас в early-stage (`0.x`), API может меняться 
   `/atlas/operator-profile/hints` + ProposalsPanel badges + i18n EN/RU).
 - Two selftests asserted «the real operator profile is warming_up» — the
   real profile honestly flipped to `live`; both hermetic now.
-- Nightly: 73/73 PASS (new validator: `article_status_projection`).
 
-**V-1 operator controls (R-7.99)**
+**V-1 operator controls + live-run bugfixes (R-7.99)**
 - `--only b.x,b.y` — targeted runs («доделай вот этот блок сейчас»).
 - `ATLAS_AGENT_TIMEOUT_MS` — the 240s agent timeout is env-tunable.
+- Caught by the first real-agent run (print-only had masked them):
+  `runCli` was passing prompt via `input` while `stdio[0]='ignore'`, so
+  the prompt was silently discarded and `claude --print` exited in 0.6s
+  with «Input must be provided»; the semantic gate parsed stdout (which
+  the gateway pollutes with a provider banner), `JSON.parse` threw, the
+  catch yielded `inconclusive`, and a block fail-on-all-five-dimensions
+  got promoted to «done (remediated)». Both fixed: stdio honours `input`;
+  source of truth is the persisted `semantic_review.json`, never stdout;
+  remediation requires a live verdict actually clearing the red.
+- `desync` finally has a lifecycle exit (`desync → done` when re-verify
+  is green, `desync → wip` when genuinely broken). Cascade could put
+  blocks INTO desync but nothing could take them out.
+- Green-guard now deterministic by default (mock collectors); opt back in
+  with `ATLAS_GREEN_GUARD_LIVE=1`. Selftests with internal live-LLM calls
+  were randomly timing out and flagging 8/0-green blocks as 5/3 red.
+- A crashed llm-judge now returns `skipped`/inconclusive (not `fail`) per
+  spec §3.1 — minted-from-thin-air regressions are gone.
+
+**b.code-graph — new data-layer block (R-7.99)**
+- `scripts/build_code_graph.mjs` — pure-Node ES-module extractor (no
+  native deps). Per-file imports + exports, grouped by owning block,
+  cross-block edges, written deterministically to `atlas/code_graph.json`
+  (sorted keys, POSIX paths, sha256-stable across runs). ~200 ms on the
+  current tree (109 files, 6 cross-block edges).
+- `scripts/validate_code_graph_vs_contracts.mjs` — two detectors:
+  `undeclared_code_dependency` (severity: error, a file imports from a
+  block its block's `depends_on` doesn't list) and
+  `provided_capability_not_exported` (severity: warning by default,
+  `--strict-provides` escalates).
+- Tree-sitter explicitly deferred: a 100 MB native binding for a
+  monoglot JS codebase violates lightweight-by-default; pluggable backend
+  reserved for when non-JS files actually appear in `files.md`.
+- Already caught a real drift on landing:
+  `b.agent-orchestrator/scripts/analyze_conversation_to_atlas.mjs`
+  imports from `b.llm-gateway` and `b.operator-profile-learner` without
+  declaring those deps; contract fixed (code wins per Kanon I).
+- Two selftests (15 groups total), wired into nightly. The validator
+  found the strict-match bug in `validate_dependency_contracts` and
+  `mcp_atlas_server.runSync` — both fixed (capability = first
+  identifier-shaped token; parenthetical annotation is operator commentary).
+
+**b.desktop — installable program (R-7.99, layer: ext)**
+- Sima Atlas as a downloadable `.dmg` / `.exe` / `.AppImage` instead of a
+  terminal session. Block walked full lifecycle in one session: contract
+  by Kanon spec → implementation → 13-group selftest → CI → `idea→done`
+  through the gates.
+- `extensions/desktop/main.mjs`: spawns `atlas_api_server.mjs` via
+  Electron's `utilityProcess.fork` (bundled Node — no system-Node
+  prerequisite, KPI-2); inline static server for `frontend/`; native menu
+  with hotkeys for Verify All (⌘⇧V), Generate Bundle (⌘⇧G), V-1 dry-run
+  (⌘⇧R), Token Economics; every menu action POSTs to `/atlas/checks/append`
+  so desktop sessions land in the same audit-trail as CLI sessions.
+  `electron-updater` lazy-imported, active only in `app.isPackaged`,
+  5-minute startup grace before checking GitHub Releases.
+- `extensions/desktop/preload.mjs`: `contextBridge.exposeInMainWorld`
+  exposes only `window.sima.{openProjectPicker, revealInFinder, triggerV1,
+  verifyAll, generateBundle, v1DryRun, tokenEconomics, checkForUpdates,
+  listProjects, createProject, openProject, onOpenProjectPicker}`.
+  `contextIsolation: true`, `nodeIntegration: false` — Electron post-12
+  security baseline.
+- `frontend/atlas_design/project_picker.jsx`: Project Picker modal —
+  list of `~/SimaProjects/<name>/atlas/` entries plus the bundled atlas,
+  create-new form with name whitelist `^[a-zA-Z0-9._-]{1,40}$`,
+  one-click open swaps `ATLAS_ROOT` and reloads the renderer.
+- `.github/workflows/desktop-build.yml`: builds `dmg`, `exe+portable`,
+  `AppImage+deb` on `v*.*.*` tag push; attaches unsigned artefacts to the
+  matching GitHub Release. Signing (Apple Developer ID + Windows
+  code-signing cert) explicitly an operator task, not blocked on code.
+
+**R-7.97 — multi-source chat ingestion (Cursor + Codex auto-watch)**
+- `sima_watch_chats` now harvests three sources behind one interface:
+  `claude` (`~/.claude/projects/*.jsonl`), `codex` (`~/.codex/sessions/*.jsonl`
+  + history; handles 3 line shapes incl. older streaming `input_text`/
+  `output_text` chunks auto-merged), `cursor` (`state.vscdb` via
+  `sqlite3 -readonly`, covers both new composer chats and the legacy
+  `ItemTable` schema; skipped gracefully if `sqlite3` CLI absent).
+- New `--source claude,codex` CLI flag (CSV-friendly). MCP `sima_watch_chats`
+  exposes the same.
+- Latent UTF-8 cursor bug fixed: harvest now advances in byte-space, not
+  UTF-16 code-units, so Cyrillic / emoji no longer caused duplicate
+  harvests. Affects `claude.mjs` + `codex.mjs`.
+- Two new selftests; nightly went 70 → 72/72 PASS just from this.
+
+**First live V-1 overnight run (R-7.99, real Claude agent)**
+- `node scripts/agent_loop_daemon.mjs --agent claude --max-iterations 4
+  --max-cost-usd 5` produced 3 honest stalls and zero false promotions —
+  exactly what the canon promises.
+- Real engineering work preserved on disk: `atomicWriteFileSync`,
+  `validateGraphSchema`, `saveBlockHistory` and migration runner added
+  to `mcp_atlas_server.mjs` (b.db mission T1+T2+T3 closed in
+  implementation); new validators `get_block_history.mjs`,
+  `migrate_v1_v2.mjs`, `validate_code_graph_sync.mjs`;
+  `validate_dependency_contracts` now writes findings into
+  `atlas/sync_report.json` under `dependencyValidation`;
+  b.core-sync tasks.md honestly inventoried (T1/T6 [x] with proof,
+  T2 DEFERRED with rationale).
+- The semantic judge rejected all three iterations with detailed reasons:
+  b.db code lives in `b.agent-orchestrator`'s territory; b.smoke-sandbox
+  smoke timed out; b.core-sync still has 5 of 5 dimensions failing — the
+  judge reads the now-precise mission and finds more specific mismatches.
+- This is the canon's «contract is arbiter» rule in action: tighter
+  contract → finer-grained complaints; partial progress survives;
+  next V-1 run continues from richer narratives.
+
+**Nightly: 79/79 PASS** (was 70 at start of session, +9 new validators:
+`code_graph_build`, `code_graph_drift`, `code_graph_extractor_selftest`,
+`code_graph_validator_selftest`, `checks_append_endpoint_selftest`,
+`desktop_structure_selftest`, `codex_source_selftest`,
+`cursor_source_selftest`, `article_status_projection`).
+
+### Verification
+
+```bash
+node scripts/nightly_consolidation.mjs                 # 79/79 PASS
+node scripts/agent_loop_daemon.mjs --dry-run           # V-1 plans, runs nothing
+node scripts/build_code_graph.mjs                      # ~200 ms, 109 files
+node scripts/validate_code_graph_vs_contracts.mjs      # 0 errors, N warnings
+node tests/desktop_structure.selftest.mjs              # 13 groups OK
+node scripts/sima_watch_chats.mjs --once --source codex --json
+npm run desktop:dev                                    # opens native window
+```
+
+### How to install the desktop app (operator step)
+
+1. Bump version + commit: `npm version 0.4.0`.
+2. Tag + push: `git tag v0.4.0 && git push origin v0.4.0`.
+3. CI builds installers for macOS / Windows / Linux and attaches them to
+   the release. (Unsigned — users click through Gatekeeper / SmartScreen
+   once.) Signing in PR5 is gated on operator certificates.
 
 ---
 

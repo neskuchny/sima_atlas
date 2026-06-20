@@ -45,7 +45,7 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "a5b54444b51d9571",
+        "prompt_hash": "fe1216412c126266",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
@@ -71,10 +71,10 @@
         "exit_code": null,
         "stdout": "",
         "stderr": "",
-        "duration_ms": 30028,
+        "duration_ms": 30034,
         "timed_out": true
       },
-      "duration_ms": 30028
+      "duration_ms": 30034
     }
   ],
   "counts": {
@@ -83,6 +83,6 @@
     "skipped": 1
   },
   "verdict": "fail",
-  "duration_ms": 30029,
-  "checked_at": "2026-06-20T08:35:07.148Z"
+  "duration_ms": 30036,
+  "checked_at": "2026-06-20T08:40:04.379Z"
 }

@@ -1,6 +1,6 @@
 {
   "name": "sima-atlas-desktop",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "description": "Electron-based installable desktop app for Sima Atlas — see atlas/blocks/b.desktop/ for the contract.",
   "main": "main.mjs",

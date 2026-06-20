@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-06-20T08:39:10.182Z_
+_Generated: 2026-06-20T11:14:19.335Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -48,7 +48,7 @@ _Generated: 2026-06-20T08:39:10.182Z_
 - ✅ operator_profile_selftest: ok
   - output: operator_profile.selftest: OK (7 test groups, all assertions green)
 - ✅ aggregate_operator_profile: ok
-  - output: operator_profile: live (done=8, invocations=12, traces=7071, proposals=70)
+  - output: operator_profile: live (done=8, invocations=12, traces=7603, proposals=72)
 - ✅ operator_profile_lessons_smoke: ok
   - output: operator_profile_lessons.smoke: OK (6 test groups, all assertions green)
 - ✅ operator_profile_inject_smoke: ok
@@ -152,7 +152,7 @@ _Generated: 2026-06-20T08:39:10.182Z_
 - ✅ rebuild_roadmap: ok
   - output: Rebuilt /home/user/sima_atlas/atlas/roadmap.md
 - ✅ verify_all_acceptance: ok
-  - output: verify_all_acceptance: 10 pass / 1 fail / 8 inconclusive (assertions: 53 pass / 1 fail / 52 skipped)
+  - output: verify_all_acceptance: 11 pass / 0 fail / 8 inconclusive (assertions: 54 pass / 0 fail / 52 skipped)
 - ✅ verify_done_blocks_still_green: ok
   - output: verify_done_blocks_still_green: checked=5 green=5 regressions=0 inconclusive=0
 - ✅ mcp_smoke_e2e: ok

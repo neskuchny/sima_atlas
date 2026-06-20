@@ -15,14 +15,14 @@
         "min_count": 1
       },
       "verdict": "pass",
-      "evidence": "glob extensions/desktop/main.mjs → 1 files (min=1); newest 684min ago",
+      "evidence": "glob extensions/desktop/main.mjs → 1 files (min=1); newest 839min ago",
       "reasoning": "1 files match (≥1)",
       "raw": {
         "pattern": "extensions/desktop/main.mjs",
         "count": 1,
         "min_count": 1,
         "max_age_min": null,
-        "newest_minutes_ago": 684,
+        "newest_minutes_ago": 839,
         "sample": [
           "/home/user/sima_atlas/extensions/desktop/main.mjs"
         ]
@@ -41,17 +41,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/desktop_structure.selftest.mjs → exit 0 (89ms); first line: \"desktop_structure.selftest: OK (13 test groups, all assertions green)\"",
+      "evidence": "node tests/desktop_structure.selftest.mjs → exit 0 (57ms); first line: \"desktop_structure.selftest: OK (13 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/desktop_structure.selftest.mjs",
         "exit_code": 0,
         "stdout": "desktop_structure.selftest: OK (13 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 89,
+        "duration_ms": 57,
         "timed_out": false
       },
-      "duration_ms": 89
+      "duration_ms": 57
     },
     {
       "id": "A3",
@@ -76,7 +76,7 @@
           "    \"desktop:dev\": \"cd extensions/desktop && npm install && npm start\","
         ]
       },
-      "duration_ms": 0
+      "duration_ms": 1
     },
     {
       "id": "A4",
@@ -103,7 +103,7 @@
           "import { app, BrowserWindow, ipcMain, Menu, shell, dialog, utilityProcess } from 'electron';"
         ]
       },
-      "duration_ms": 1
+      "duration_ms": 0
     },
     {
       "id": "A5",
@@ -154,7 +154,7 @@
           "          - os: macos-latest"
         ]
       },
-      "duration_ms": 3
+      "duration_ms": 0
     },
     {
       "id": "A7",
@@ -189,6 +189,6 @@
   },
   "verdict": "pass",
   "inconclusive_if_declared": 1,
-  "duration_ms": 93,
-  "checked_at": "2026-06-20T08:40:08.311Z"
+  "duration_ms": 58,
+  "checked_at": "2026-06-20T11:14:47.688Z"
 }

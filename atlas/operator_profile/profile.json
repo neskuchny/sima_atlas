@@ -1,6 +1,6 @@
 {
   "operator_id": "default",
-  "updated_at": "2026-06-20T08:39:13.331Z",
+  "updated_at": "2026-06-20T11:14:25.923Z",
   "_status": "live",
   "_min_data": {
     "done_transitions": 8,
@@ -312,41 +312,41 @@
   },
   "llm_provider_stats": {
     "mock": {
-      "count": 6952,
-      "fallback_to_mock_count": 546,
+      "count": 7458,
+      "fallback_to_mock_count": 584,
       "total_cost_usd": 0,
-      "schema_ok_count": 6952,
+      "schema_ok_count": 7458,
       "fallback_rate": 0.08,
       "schema_ok_rate": 1,
       "avg_cost_usd": 0
     },
     "claude_cli": {
-      "count": 53,
+      "count": 78,
       "fallback_to_mock_count": 0,
       "total_cost_usd": 0,
-      "schema_ok_count": 53,
+      "schema_ok_count": 78,
       "fallback_rate": 0,
       "schema_ok_rate": 1,
       "avg_cost_usd": 0
     },
     "google": {
-      "count": 66,
+      "count": 67,
       "fallback_to_mock_count": 0,
-      "total_cost_usd": 0.0317567,
-      "schema_ok_count": 66,
+      "total_cost_usd": 0.0319989,
+      "schema_ok_count": 67,
       "fallback_rate": 0,
       "schema_ok_rate": 1,
-      "avg_cost_usd": 0.000481
+      "avg_cost_usd": 0.000478
     }
   },
   "proposals_stats": {
-    "total": 70,
+    "total": 72,
     "accept_rate": 0,
     "reject_rate": 0,
-    "pending": 70
+    "pending": 72
   },
   "decisions_stats": {
-    "total": 2833,
+    "total": 3510,
     "blocks_with_decisions": 7
   },
   "patterns_stats": {
@@ -689,7 +689,7 @@
   "_preview": {
     "total_done": 8,
     "total_invocations": 12,
-    "total_traces": 7071,
-    "total_proposals": 70
+    "total_traces": 7603,
+    "total_proposals": 72
   }
 }

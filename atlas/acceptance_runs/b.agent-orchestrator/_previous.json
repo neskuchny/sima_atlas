@@ -15,17 +15,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_cursor_hooks.mjs → exit 0 (55ms); first line: \"cursor hooks validation: OK (4 events, 4 commands)\"",
+      "evidence": "node scripts/validate_cursor_hooks.mjs → exit 0 (64ms); first line: \"cursor hooks validation: OK (4 events, 4 commands)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_cursor_hooks.mjs",
         "exit_code": 0,
         "stdout": "cursor hooks validation: OK (4 events, 4 commands)\n",
         "stderr": "",
-        "duration_ms": 55,
+        "duration_ms": 64,
         "timed_out": false
       },
-      "duration_ms": 55
+      "duration_ms": 64
     },
     {
       "id": "A2",
@@ -39,17 +39,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (586ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
+      "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (819ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/cursor_hooks_actions.test.mjs",
         "exit_code": 0,
         "stdout": "cursor_hooks_actions.test: OK (9 cases)\n",
         "stderr": "",
-        "duration_ms": 586,
+        "duration_ms": 819,
         "timed_out": false
       },
-      "duration_ms": 586
+      "duration_ms": 819
     },
     {
       "id": "A3",
@@ -63,17 +63,17 @@
         "expect_in_stdout": "9 cases"
       },
       "verdict": "pass",
-      "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (608ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
+      "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (656ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
       "reasoning": "shell exit code 0 and stdout matches /9 cases/",
       "raw": {
         "cmd": "node tests/cursor_hooks_actions.test.mjs",
         "exit_code": 0,
         "stdout": "cursor_hooks_actions.test: OK (9 cases)\n",
         "stderr": "",
-        "duration_ms": 608,
+        "duration_ms": 656,
         "timed_out": false
       },
-      "duration_ms": 608
+      "duration_ms": 656
     },
     {
       "id": "A4",
@@ -87,17 +87,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (613ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
+      "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (670ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/cursor_hooks_actions.test.mjs",
         "exit_code": 0,
         "stdout": "cursor_hooks_actions.test: OK (9 cases)\n",
         "stderr": "",
-        "duration_ms": 613,
+        "duration_ms": 670,
         "timed_out": false
       },
-      "duration_ms": 613
+      "duration_ms": 670
     },
     {
       "id": "A5",
@@ -111,17 +111,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/cursor_live.headless.smoke.mjs → exit 0 (933ms); first line: \"cursor_live.headless.smoke: OK (5 phases — hooks valid, drift guard fires, file-edit logged, context pack emitted, detailed suite green)\"",
+      "evidence": "node tests/cursor_live.headless.smoke.mjs → exit 0 (1159ms); first line: \"cursor_live.headless.smoke: OK (5 phases — hooks valid, drift guard fires, file-edit logged, context pack emitted, detailed suite green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/cursor_live.headless.smoke.mjs",
         "exit_code": 0,
         "stdout": "cursor_live.headless.smoke: OK (5 phases — hooks valid, drift guard fires, file-edit logged, context pack emitted, detailed suite green)\n",
         "stderr": "",
-        "duration_ms": 933,
+        "duration_ms": 1159,
         "timed_out": false
       },
-      "duration_ms": 933
+      "duration_ms": 1159
     },
     {
       "id": "A6",
@@ -157,17 +157,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_agent_parity.mjs → exit 0 (52ms); first line: \"Agent parity validation: OK\"",
+      "evidence": "node scripts/validate_agent_parity.mjs → exit 0 (80ms); first line: \"Agent parity validation: OK\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_agent_parity.mjs",
         "exit_code": 0,
         "stdout": "Agent parity validation: OK\n",
         "stderr": "",
-        "duration_ms": 52,
+        "duration_ms": 80,
         "timed_out": false
       },
-      "duration_ms": 52
+      "duration_ms": 80
     }
   ],
   "counts": {
@@ -176,6 +176,6 @@
     "skipped": 1
   },
   "verdict": "pass",
-  "duration_ms": 2849,
-  "checked_at": "2026-06-20T08:34:33.477Z"
+  "duration_ms": 3449,
+  "checked_at": "2026-06-20T08:39:30.371Z"
 }
