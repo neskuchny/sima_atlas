@@ -56,7 +56,7 @@ human and LLM). У нас уже есть ссылка на эту работу 
 > Hi Simon — admirer of your LLM CLI and the «AI-assisted programming» series.
 >
 > I built a contract-first canvas for AI-coding agents and the thing that's
-> most relevant to your work is the **5-provider LLM cascade** — `claude_cli`
+> most relevant to your work is the **6-provider LLM cascade** — `claude_cli`
 > (zero marginal cost via Claude Pro subscription), `anthropic`, `google`,
 > `ollama`, `mock`. Cascade falls through transparently; selftest at
 > `tests/llm_gateway.selftest.mjs` enforces graceful degradation

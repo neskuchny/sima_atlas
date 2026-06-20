@@ -184,7 +184,7 @@ This is what makes 50-block AI-built products possible. Without it, you cap at ~
 
 The full picture:
 - **~70 MCP tools** for any agent that speaks MCP. Claude Code is the reference; Cursor / Codex / Continue / Zed / Windsurf / Antigravity configs are documented in `docs/integrations.md`.
-- **5-provider LLM cascade**: `claude_cli` ($0 marginal — uses your Claude.ai subscription via the bundled CLI), `anthropic`, `google`, `ollama` (local Llama/Qwen/DeepSeek), `mock` (offline CI).
+- **6-provider LLM cascade**: `claude_cli` ($0 marginal — uses your Claude.ai subscription via the bundled CLI), `anthropic`, `google`, `ollama` (local Llama/Qwen/DeepSeek), `mock` (offline CI).
 - **Multi-source chat ingestion**: `sima_watch_chats` reads `~/.claude/projects/`, `~/.codex/sessions/`, and Cursor's `state.vscdb` (via `sqlite3 -readonly`). Turn any transcript into block proposals.
 - **Token economics aggregator** with both `cost_usd_actual` (what was charged) and `cost_usd_equivalent` (stable shadow-bill against Haiku 4.5 list price) — so you can compare a Claude subscription run against an Anthropic API run on the same axis.
 - **Cascade verify** on every edit — transitively re-verifies the reverse-dep closure; broken dependents auto-marked `status: desync` inline on the canvas.

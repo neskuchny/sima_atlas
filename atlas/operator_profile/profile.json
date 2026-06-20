@@ -1,11 +1,11 @@
 {
   "operator_id": "default",
-  "updated_at": "2026-06-20T17:34:11.045Z",
+  "updated_at": "2026-06-20T19:35:01.017Z",
   "_status": "live",
   "_min_data": {
     "done_transitions": 8,
     "done_required": 5,
-    "invocations": 12,
+    "invocations": 13,
     "invocations_required": 10
   },
   "work_style": {
@@ -38,6 +38,14 @@
         "b.core-sync",
         "b.db",
         "b.smoke-sandbox"
+      ],
+      "best_for": []
+    },
+    "gemini": {
+      "count": 1,
+      "success_rate": 1,
+      "blocks_touched": [
+        "b.desktop"
       ],
       "best_for": []
     }
@@ -312,19 +320,19 @@
   },
   "llm_provider_stats": {
     "mock": {
-      "count": 8428,
-      "fallback_to_mock_count": 584,
+      "count": 8831,
+      "fallback_to_mock_count": 590,
       "total_cost_usd": 0,
-      "schema_ok_count": 8428,
+      "schema_ok_count": 8831,
       "fallback_rate": 0.07,
       "schema_ok_rate": 1,
       "avg_cost_usd": 0
     },
     "claude_cli": {
-      "count": 78,
+      "count": 80,
       "fallback_to_mock_count": 0,
       "total_cost_usd": 0,
-      "schema_ok_count": 78,
+      "schema_ok_count": 80,
       "fallback_rate": 0,
       "schema_ok_rate": 1,
       "avg_cost_usd": 0
@@ -337,16 +345,25 @@
       "fallback_rate": 0,
       "schema_ok_rate": 1,
       "avg_cost_usd": 0.000478
+    },
+    "openai": {
+      "count": 2,
+      "fallback_to_mock_count": 0,
+      "total_cost_usd": 0.00002985,
+      "schema_ok_count": 2,
+      "fallback_rate": 0,
+      "schema_ok_rate": 1,
+      "avg_cost_usd": 0.000015
     }
   },
   "proposals_stats": {
-    "total": 82,
+    "total": 86,
     "accept_rate": 0,
     "reject_rate": 0,
-    "pending": 82
+    "pending": 86
   },
   "decisions_stats": {
-    "total": 3530,
+    "total": 3538,
     "blocks_with_decisions": 7
   },
   "patterns_stats": {
@@ -685,11 +702,11 @@
       "note": "verdict=fail pass=5 fail=3 skipped=0 fails=[A2:node tests/user_docs.smoke.mjs → exit null; timed out after ; A3:node tests/screenshots_integration.selftest.mjs → exit null;]"
     }
   ],
-  "invocations_total": 12,
+  "invocations_total": 13,
   "_preview": {
     "total_done": 8,
-    "total_invocations": 12,
-    "total_traces": 8573,
-    "total_proposals": 82
+    "total_invocations": 13,
+    "total_traces": 8980,
+    "total_proposals": 86
   }
 }

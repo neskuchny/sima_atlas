@@ -148,6 +148,20 @@ const PROVIDERS = {
     pricePerMTokenIn: 0,        // user's subscription — zero from Sima's POV
     pricePerMTokenOut: 0,
   },
+  // R-8.00 — OpenAI / GPT-4o-mini as a first-class provider. Same shape as
+  // anthropic / google: API key, structured output via `response_format`,
+  // standard chat-completions endpoint. We call it `openai` (semantically
+  // correct — this is the OpenAI Chat Completions API) rather than `codex`,
+  // because Codex CLI is a wrapper around this same endpoint and naming
+  // the provider after the wrapper would mislead. Defaults to gpt-4o-mini
+  // ($0.15/$0.60 per Mtok) — closest cost-tier to Haiku/Flash for fair
+  // cascade economics; override via LLM_OPENAI_MODEL.
+  openai: {
+    available: () => !!process.env.OPENAI_API_KEY,
+    defaultModel: process.env.LLM_OPENAI_MODEL || 'gpt-4o-mini',
+    pricePerMTokenIn: 0.15,
+    pricePerMTokenOut: 0.60,
+  },
   mock: {
     available: () => true,
     defaultModel: 'mock-1',
@@ -182,11 +196,14 @@ function pickProvider(requested) {
   // It only enters the order if explicitly requested via LLM_PREFER_OLLAMA=1
   // (jumps to head) or via LLM_DEFAULT_PROVIDER=ollama (handled below).
   const preferOllama = process.env.LLM_PREFER_OLLAMA === '1';
+  // R-8.00 — openai joins the cascade right after google (similar API-key
+  // semantics, similar cost tier). Operator who wants OpenAI first can
+  // either set LLM_DEFAULT_PROVIDER=openai or unset OTHER keys.
   const order = preferOllama
-    ? ['ollama', 'claude_cli', 'anthropic', 'google', 'mock']
+    ? ['ollama', 'claude_cli', 'anthropic', 'google', 'openai', 'mock']
     : preferCli
-      ? ['claude_cli', 'anthropic', 'google', 'mock']
-      : ['anthropic', 'google', 'claude_cli', 'mock'];
+      ? ['claude_cli', 'anthropic', 'google', 'openai', 'mock']
+      : ['anthropic', 'google', 'openai', 'claude_cli', 'mock'];
   const dfltRaw = process.env.LLM_DEFAULT_PROVIDER;
   const dflt = typeof dfltRaw === 'string' ? dfltRaw.trim() : dfltRaw;
   if (dflt) {
@@ -464,6 +481,94 @@ async function callGoogle({ model, system, prompt, schema, max_tokens, temperatu
 // for free-form text we drop format. Ollama exposes prompt_eval_count
 // and eval_count as token counters — we surface them as input/output
 // tokens. Pricing is 0/0 (local compute).
+// ────────────────────────────────────────────────────────── openai provider
+// R-8.00 — OpenAI Chat Completions. Structured output via JSON Schema
+// (`response_format: { type: 'json_schema', strict: true, ... }`),
+// available on gpt-4o family and newer. For models that pre-date strict
+// JSON Schema we fall back to `response_format: { type: 'json_object' }`
+// which guarantees valid JSON but not schema conformance.
+async function callOpenAI({ model, system, prompt, schema, max_tokens, temperature }) {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) throw new Error('OPENAI_API_KEY not set');
+
+  const messages = [];
+  if (system) messages.push({ role: 'system', content: system });
+  messages.push({ role: 'user', content: prompt });
+
+  const body = {
+    model,
+    messages,
+    temperature: typeof temperature === 'number' ? temperature : 0.0,
+    max_tokens: max_tokens || 2048,
+  };
+
+  if (schema) {
+    // gpt-4o / gpt-4o-mini support strict JSON Schema; older models fall
+    // back to json_object (valid JSON, no schema). The «strict: true» flag
+    // forces additionalProperties:false everywhere — most callers' schemas
+    // already comply (we author them tightly) but if not, the API returns
+    // 400 and the cascade falls to the next provider.
+    const strictCapable = /^gpt-4o|^gpt-4\.1|^o1|^o3/.test(model || '');
+    if (strictCapable) {
+      // OpenAI's strict mode requires `additionalProperties: false` on every
+      // object level — auto-inject so caller schemas don't need to know.
+      const harden = (s) => {
+        if (!s || typeof s !== 'object') return s;
+        if (s.type === 'object') {
+          const out = { ...s, additionalProperties: false };
+          if (out.properties) {
+            out.properties = Object.fromEntries(
+              Object.entries(out.properties).map(([k, v]) => [k, harden(v)])
+            );
+          }
+          // strict mode also requires `required` to list every property
+          if (out.properties && !out.required) out.required = Object.keys(out.properties);
+          return out;
+        }
+        if (s.type === 'array' && s.items) return { ...s, items: harden(s.items) };
+        return s;
+      };
+      body.response_format = {
+        type: 'json_schema',
+        json_schema: { name: 'response', strict: true, schema: harden(schema) },
+      };
+    } else {
+      body.response_format = { type: 'json_object' };
+    }
+  }
+
+  const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'authorization': `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const txt = await res.text().catch(() => '');
+    const err = new Error(`openai ${res.status}: ${txt.slice(0, 400)}`);
+    err.status = res.status;
+    throw err;
+  }
+  const data = await res.json();
+  const usage = {
+    input_tokens: data.usage?.prompt_tokens || 0,
+    output_tokens: data.usage?.completion_tokens || 0,
+  };
+  const text = data.choices?.[0]?.message?.content || '';
+  if (!schema) return { value: text, usage };
+  // Strip code fences (some models still wrap JSON in ```json…``` despite
+  // response_format) before parsing.
+  let body2 = text.trim();
+  const fence = body2.match(/^```(?:json)?\s*\n([\s\S]*?)\n```\s*$/);
+  if (fence) body2 = fence[1].trim();
+  let parsed;
+  try { parsed = JSON.parse(body2); }
+  catch (e) { throw new Error(`openai returned non-JSON despite response_format: ${text.slice(0, 200)}`); }
+  return { value: parsed, usage };
+}
+
 async function callOllama({ model, system, prompt, schema, max_tokens, temperature }) {
   const base = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
   // For schema mode, hint the model + ask Ollama to constrain output to JSON.
@@ -733,6 +838,7 @@ export async function callLLM(opts = {}) {
     try {
       if (provider === 'anthropic') ({ value, usage } = await callAnthropic({ model, system, prompt, schema, max_tokens, temperature }));
       else if (provider === 'google') ({ value, usage } = await callGoogle({ model, system, prompt, schema, max_tokens, temperature }));
+      else if (provider === 'openai') ({ value, usage } = await callOpenAI({ model, system, prompt, schema, max_tokens, temperature }));
       else if (provider === 'claude_cli') ({ value, usage } = await callClaudeCli({ system, prompt, schema, max_tokens, temperature }));
       else if (provider === 'ollama') ({ value, usage } = await callOllama({ model, system, prompt, schema, max_tokens, temperature }));
       else value = await callMock({ schema, promptHash: hashPrompt(['v1', provider, model, system || '', prompt, schema || null]), prompt });

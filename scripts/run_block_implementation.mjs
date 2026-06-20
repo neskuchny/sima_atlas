@@ -264,7 +264,11 @@ function fsm(state, meta) {
   catch (e) { console.warn(`fsm: ${state} transition failed: ${e.message}`); }
 }
 
-if (agent === 'print-only' || (agent === 'claude' && !which('claude')) || (agent === 'codex' && !which('codex')) || (agent === 'cursor' && !which('cursor-agent'))) {
+if (agent === 'print-only'
+    || (agent === 'claude' && !which('claude'))
+    || (agent === 'codex' && !which('codex'))
+    || (agent === 'cursor' && !which('cursor-agent'))
+    || (agent === 'gemini' && !which('gemini'))) {
   // R-7.32 — добавил cursor-agent в fallback. Раньше при отсутствии
   // cursor-agent CLI оркестратор крашился `spawnSync ENOENT` exit 5.
   // Graceful fallback: print the prompt for the user to paste anywhere.
@@ -306,6 +310,16 @@ if (agent === 'claude') {
 } else if (agent === 'cursor') {
   cmd = 'cursor-agent';
   args = ['--print', ...extraFlags];
+} else if (agent === 'gemini') {
+  // R-8.00 — @google/gemini-cli backend. Mirrors the claude pattern:
+  // prompt arrives via stdin (input opt), agent edits files in `--include`
+  // dirs, exits when done. `--yolo` is gemini's «accept all edits without
+  // asking» flag (the equivalent of claude's --permission-mode acceptEdits).
+  // First-launch verification is on the operator — gemini CLI flag
+  // conventions are still moving; if the operator finds a flag wrong, the
+  // narrative.md trace will say so.
+  cmd = 'gemini';
+  args = ['--yolo', '--include', blockDirRel, '--include', atlasDirRel, ...extraFlags];
 } else {
   console.error(`run_block_implementation: unknown ATLAS_AGENT=${agent}`);
   process.exit(4);

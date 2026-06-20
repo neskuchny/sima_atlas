@@ -69,7 +69,7 @@ const has = (flag) => args.includes(flag);
 
 const DRY_RUN = has('--dry-run');
 const JSON_OUT = has('--json');
-const AGENT = arg('--agent', 'print-only');               // print-only | claude | cursor | codex
+const AGENT = arg('--agent', 'print-only');               // print-only | claude | cursor | codex | gemini
 // R-7.99 — operator-targeted run: `--only b.x,b.y` restricts the queue to
 // the named blocks (eligibility rules still apply — a block that isn't
 // runnable/semantic-red is still skipped). The «доделай вот этот блок

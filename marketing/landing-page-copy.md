@@ -120,7 +120,7 @@ agent_loop_daemon [claude]: 3 block(s) — 0 advanced · 3 stalled
 ### Bulleted list (короткие, каждый с верифицируемой ссылкой)
 
 - **~70 MCP tools** — Claude Code is reference; Cursor / Codex / Continue / Zed / Windsurf docs included. → `docs/integrations.md`
-- **5-provider LLM cascade** — `claude_cli` (free with your Pro/Max subscription), `anthropic`, `google`, `ollama` (local Llama/Qwen/DeepSeek), `mock` (CI). → `scripts/llm_gateway.mjs`
+- **6-provider LLM cascade** — `claude_cli` (free with your Pro/Max subscription), `anthropic`, `google`, `openai` (gpt-4o-mini), `ollama` (local Llama/Qwen/DeepSeek), `mock` (CI). → `scripts/llm_gateway.mjs`
 - **Multi-source chat ingestion** — `~/.claude/projects/`, `~/.codex/sessions/`, Cursor's `state.vscdb`. Turn any transcript into block proposals. → `scripts/sima_watch_chats.mjs`
 - **Token economics** — actual cost + stable shadow-bill against Haiku 4.5 list price. Compare a subscription run against an API run on the same axis. → `scripts/token_economics.mjs`
 - **Cascade verify on every edit** — transitive reverse-dep closure, broken dependents marked `status: desync` inline. → `scripts/cascade_verify.mjs`

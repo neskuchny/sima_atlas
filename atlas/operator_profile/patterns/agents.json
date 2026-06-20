@@ -16,5 +16,13 @@
       "b.smoke-sandbox"
     ],
     "best_for": []
+  },
+  "gemini": {
+    "count": 1,
+    "success_rate": 1,
+    "blocks_touched": [
+      "b.desktop"
+    ],
+    "best_for": []
   }
 }

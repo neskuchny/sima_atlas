@@ -2376,22 +2376,22 @@
       "exports": [
         {
           "kind": "named",
-          "line": 327,
+          "line": 344,
           "name": "mockHashForPrompt"
         },
         {
           "kind": "named",
-          "line": 680,
+          "line": 785,
           "name": "callLLM"
         },
         {
           "kind": "named",
-          "line": 823,
+          "line": 929,
           "name": "BLOCK_SCHEMA"
         },
         {
           "kind": "named",
-          "line": 837,
+          "line": 943,
           "name": "extractBlockSchema"
         }
       ],
@@ -3263,7 +3263,7 @@
           "external": false,
           "from": "./distill_run_log.mjs",
           "kind": "dynamic",
-          "line": 460,
+          "line": 474,
           "resolved_to": "scripts/distill_run_log.mjs",
           "specifiers": []
         },
@@ -3271,7 +3271,7 @@
           "external": false,
           "from": "./reflect_after_run.mjs",
           "kind": "dynamic",
-          "line": 469,
+          "line": 483,
           "resolved_to": "scripts/reflect_after_run.mjs",
           "specifiers": []
         },
@@ -3279,7 +3279,7 @@
           "external": false,
           "from": "./summarize_block_code.mjs",
           "kind": "dynamic",
-          "line": 479,
+          "line": 493,
           "resolved_to": "scripts/summarize_block_code.mjs",
           "specifiers": []
         },
@@ -3287,7 +3287,7 @@
           "external": false,
           "from": "./cleanup_block_memory.mjs",
           "kind": "dynamic",
-          "line": 489,
+          "line": 503,
           "resolved_to": "scripts/cleanup_block_memory.mjs",
           "specifiers": []
         }

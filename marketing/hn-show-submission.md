@@ -50,8 +50,10 @@ What's there today (v0.4.0):
 - ~70 MCP tools for any agent that speaks MCP (Claude Code is the
   reference; Cursor + Codex + Continue + Zed + Windsurf integrations
   documented).
-- 5-provider LLM cascade: claude_cli (uses your Claude Pro/Max
-  subscription, $0 marginal), anthropic, google, ollama (local), mock.
+- 6-provider LLM cascade: claude_cli (uses your Claude Pro/Max
+  subscription, $0 marginal), anthropic, google, openai (gpt-4o-mini at
+  $0.15/$0.60 per Mtok, also what powers Codex CLI when configured against
+  OpenAI), ollama (local), mock.
 - Multi-source chat ingestion: ~/.claude/projects/, ~/.codex/sessions/,
   Cursor's state.vscdb. Turn any transcript into block proposals.
 - Token economics aggregator with both actual cost and a stable shadow-

@@ -82,7 +82,7 @@ recently passed its own Level 3 audit.
 What's there today (v0.4.0):
 - ~70 MCP tools (Claude Code is reference; Cursor/Codex/Continue/Zed
   configs documented)
-- 5-provider LLM cascade including claude_cli (free with your Pro/Max
+- 6-provider LLM cascade including claude_cli (free with your Pro/Max
   subscription) and ollama (local Llama/Qwen/DeepSeek)
 - Downloadable desktop installer for Mac/Win/Linux (no terminal, no
   npm install)
@@ -122,7 +122,7 @@ deterministic verifier checks each acceptance assertion.
 
 Why this might be interesting for this subreddit:
 
-The LLM gateway is a 5-provider cascade. The relevant ones for us:
+The LLM gateway is a 6-provider cascade. The relevant ones for us:
 
 1. **ollama** — opt-in via `LLM_PREFER_OLLAMA=1` env var. Defaults to
    `qwen2.5-coder:7b`, configurable via `LLM_OLLAMA_MODEL`. The whole

@@ -1,6 +1,6 @@
 # Sima Atlas Wiki
 
-_Auto-generated: 2026-06-20T17:34:30.777Z_
+_Auto-generated: 2026-06-20T19:35:22.310Z_
 
 ## Граф продукта
 
@@ -963,6 +963,7 @@ evidence_spec:
 - llm_extract_block_schema
 - llm_validate_drift
 - llm_summarize_distillate
+- openai_provider (R-8.00 — OpenAI Chat Completions, gpt-4o-mini default, strict JSON schema; powers Codex CLI when configured against OpenAI)
 
 #### Depends on
 
@@ -6015,6 +6016,14 @@ _no summary_
 - 2026-06-20T17:34:27.039Z: smoke e2e distillate
 - 2026-06-20T17:34:30.398Z: smoke e2e queued insight
 - 2026-06-20T17:34:30.441Z: smoke e2e distillate
+- 2026-06-20T19:34:03.169Z: smoke e2e queued insight
+- 2026-06-20T19:34:03.214Z: smoke e2e distillate
+- 2026-06-20T19:34:06.818Z: smoke e2e queued insight
+- 2026-06-20T19:34:06.870Z: smoke e2e distillate
+- 2026-06-20T19:35:18.102Z: smoke e2e queued insight
+- 2026-06-20T19:35:18.148Z: smoke e2e distillate
+- 2026-06-20T19:35:21.924Z: smoke e2e queued insight
+- 2026-06-20T19:35:21.973Z: smoke e2e distillate
 
 #### Files
 
