@@ -15,17 +15,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/introspect_block_ui.selftest.mjs → exit 0 (100ms); first line: \"introspect_block_ui.selftest: OK (7 test groups, all assertions green)\"",
+      "evidence": "node tests/introspect_block_ui.selftest.mjs → exit 0 (117ms); first line: \"introspect_block_ui.selftest: OK (7 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/introspect_block_ui.selftest.mjs",
         "exit_code": 0,
         "stdout": "introspect_block_ui.selftest: OK (7 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 100,
+        "duration_ms": 117,
         "timed_out": false
       },
-      "duration_ms": 100
+      "duration_ms": 117
     },
     {
       "id": "A2",
@@ -39,17 +39,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/user_docs.smoke.mjs → exit 0 (105ms); first line: \"user_docs.smoke: OK (5 test groups, all assertions green)\"",
+      "evidence": "node tests/user_docs.smoke.mjs → exit 0 (119ms); first line: \"user_docs.smoke: OK (5 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/user_docs.smoke.mjs",
         "exit_code": 0,
         "stdout": "user_docs.smoke: OK (5 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 105,
+        "duration_ms": 119,
         "timed_out": false
       },
-      "duration_ms": 105
+      "duration_ms": 119
     },
     {
       "id": "A3",
@@ -63,17 +63,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/screenshots_integration.selftest.mjs → exit 0 (81ms); first line: \"screenshots_integration.selftest: OK (7 test groups, all assertions green)\"",
+      "evidence": "node tests/screenshots_integration.selftest.mjs → exit 0 (90ms); first line: \"screenshots_integration.selftest: OK (7 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/screenshots_integration.selftest.mjs",
         "exit_code": 0,
         "stdout": "screenshots_integration.selftest: OK (7 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 81,
+        "duration_ms": 90,
         "timed_out": false
       },
-      "duration_ms": 81
+      "duration_ms": 90
     },
     {
       "id": "A4",
@@ -87,17 +87,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/user_docs_drift.selftest.mjs → exit 0 (390ms); first line: \"user_docs_drift.selftest: OK (5 test groups, all assertions green)\"",
+      "evidence": "node tests/user_docs_drift.selftest.mjs → exit 0 (444ms); first line: \"user_docs_drift.selftest: OK (5 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/user_docs_drift.selftest.mjs",
         "exit_code": 0,
         "stdout": "user_docs_drift.selftest: OK (5 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 390,
+        "duration_ms": 444,
         "timed_out": false
       },
-      "duration_ms": 390
+      "duration_ms": 444
     },
     {
       "id": "A5",
@@ -122,7 +122,7 @@
           "  // ─── Group 2: idempotent re-run"
         ]
       },
-      "duration_ms": 1
+      "duration_ms": 0
     },
     {
       "id": "A6",
@@ -149,7 +149,7 @@
           "function detectJargon(tutorial) {"
         ]
       },
-      "duration_ms": 0
+      "duration_ms": 1
     },
     {
       "id": "A7",
@@ -211,6 +211,6 @@
     "skipped": 0
   },
   "verdict": "pass",
-  "duration_ms": 678,
-  "checked_at": "2026-06-19T21:20:12.419Z"
+  "duration_ms": 771,
+  "checked_at": "2026-06-20T08:16:28.320Z"
 }

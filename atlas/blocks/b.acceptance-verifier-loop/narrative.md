@@ -48,3 +48,31 @@
    - Adapt this block's code to match the new b.core-sync contract, OR
    - Revert the breaking change in b.core-sync (operator decision)
 3. Re-run `verify_block_acceptance b.acceptance-verifier-loop` to clear the desync status
+
+## 2026-06-20T08:04:50.537Z · cascade break detected
+
+### What failed and why
+- Parent block `b.db` was edited at 2026-06-20T08:04:50.
+- Acceptance on this block (`b.acceptance-verifier-loop`) failed when re-verified.
+- Likely cause: b.db's public contract (provides) changed in a way that violates this block's expectations (depends_on).
+
+### Recommended action
+1. Open b.db → check what changed in its files
+2. Either:
+   - Adapt this block's code to match the new b.db contract, OR
+   - Revert the breaking change in b.db (operator decision)
+3. Re-run `verify_block_acceptance b.acceptance-verifier-loop` to clear the desync status
+
+## 2026-06-20T08:06:27.162Z · cascade break detected
+
+### What failed and why
+- Parent block `b.db` was edited at 2026-06-20T08:06:27.
+- Acceptance on this block (`b.acceptance-verifier-loop`) failed when re-verified.
+- Likely cause: b.db's public contract (provides) changed in a way that violates this block's expectations (depends_on).
+
+### Recommended action
+1. Open b.db → check what changed in its files
+2. Either:
+   - Adapt this block's code to match the new b.db contract, OR
+   - Revert the breaking change in b.db (operator decision)
+3. Re-run `verify_block_acceptance b.acceptance-verifier-loop` to clear the desync status

@@ -1,95 +1,5 @@
 # decisions
 
-2026-05-02T08:48:38.676Z	chat-distillate	smoke e2e queued insight
-2026-05-02T08:49:10.654Z	chat-distillate	smoke e2e queued insight
-2026-05-02T09:25:46.679Z	chat-distillate	smoke e2e queued insight
-2026-05-02T10:00:14.861Z	chat-distillate	smoke e2e queued insight
-2026-05-02T10:01:02.165Z	chat-distillate	smoke e2e queued insight
-2026-05-02T10:01:09.348Z	chat-distillate	smoke e2e queued insight
-2026-05-02T11:06:56.442Z	chat-distillate	smoke e2e queued insight
-2026-05-02T11:07:32.253Z	chat-distillate	smoke e2e queued insight
-2026-05-02T11:09:57.121Z	chat-distillate	smoke e2e queued insight
-2026-05-02T11:34:27.948Z	chat-distillate	smoke e2e queued insight
-2026-05-02T12:16:05.861Z	chat-distillate	smoke e2e queued insight
-2026-05-02T12:37:33.402Z	chat-distillate	smoke e2e queued insight
-2026-05-02T12:43:06.469Z	chat-distillate	smoke e2e queued insight
-2026-05-02T13:03:19.103Z	chat-distillate	smoke e2e queued insight
-2026-05-02T14:37:44.047Z	chat-distillate	smoke e2e queued insight
-2026-05-02T16:50:43.340Z	chat-distillate	smoke e2e queued insight
-2026-05-02T17:23:01.754Z	chat-distillate	smoke e2e queued insight
-2026-05-02T17:39:57.575Z	chat-distillate	smoke e2e queued insight
-2026-05-02T17:44:27.797Z	chat-distillate	smoke e2e queued insight
-2026-05-02T18:15:21.134Z	chat-distillate	smoke e2e queued insight
-2026-05-02T18:23:09.530Z	chat-distillate	smoke e2e queued insight
-2026-05-02T18:28:25.313Z	chat-distillate	smoke e2e queued insight
-2026-05-02T23:15:35.363Z	chat-distillate	smoke e2e queued insight
-2026-05-02T23:24:33.013Z	chat-distillate	smoke e2e queued insight
-2026-05-02T23:33:50.812Z	chat-distillate	smoke e2e queued insight
-2026-05-02T23:34:47.268Z	chat-distillate	smoke e2e queued insight
-2026-05-02T23:34:53.997Z	chat-distillate	smoke e2e queued insight
-2026-05-03T04:31:48.176Z	chat-distillate	smoke e2e queued insight
-2026-05-03T04:32:07.002Z	chat-distillate	smoke e2e queued insight
-2026-05-03T04:39:05.017Z	chat-distillate	smoke e2e queued insight
-2026-05-03T06:08:23.750Z	chat-distillate	smoke e2e queued insight
-2026-05-03T12:36:17.737Z	chat-distillate	smoke e2e queued insight
-2026-05-03T13:41:49.570Z	chat-distillate	smoke e2e queued insight
-2026-05-03T13:51:53.384Z	chat-distillate	smoke e2e queued insight
-2026-05-03T14:09:21.391Z	chat-distillate	smoke e2e queued insight
-2026-05-03T14:18:57.151Z	chat-distillate	smoke e2e queued insight
-2026-05-03T17:07:49.217Z	chat-distillate	smoke e2e queued insight
-2026-05-03T17:08:19.099Z	chat-distillate	smoke e2e queued insight
-2026-05-03T17:08:42.373Z	chat-distillate	smoke e2e queued insight
-2026-05-03T17:37:07.280Z	chat-distillate	smoke e2e queued insight
-2026-05-03T17:45:09.354Z	chat-distillate	smoke e2e queued insight
-2026-05-03T17:46:06.289Z	chat-distillate	smoke e2e queued insight
-2026-05-03T19:29:53.021Z	chat-distillate	smoke e2e queued insight
-2026-05-03T21:49:52.318Z	chat-distillate	smoke e2e queued insight
-2026-05-04T08:30:49.404Z	chat-distillate	smoke e2e queued insight
-2026-05-04T10:53:33.352Z	chat-distillate	smoke e2e queued insight
-2026-05-04T11:05:54.065Z	chat-distillate	smoke e2e queued insight
-2026-05-04T12:15:09.345Z	chat-distillate	smoke e2e queued insight
-2026-05-04T12:15:26.493Z	chat-distillate	smoke e2e queued insight
-2026-05-04T12:15:41.550Z	chat-distillate	smoke e2e queued insight
-2026-05-04T12:15:46.111Z	chat-distillate	smoke e2e queued insight
-2026-05-04T15:47:11.451Z	chat-distillate	smoke e2e queued insight
-2026-05-04T15:47:26.040Z	chat-distillate	smoke e2e queued insight
-2026-05-04T15:47:30.000Z	chat-distillate	smoke e2e queued insight
-2026-05-04T15:58:23.803Z	chat-distillate	smoke e2e queued insight
-2026-05-04T15:58:27.862Z	chat-distillate	smoke e2e queued insight
-2026-05-04T16:00:23.871Z	chat-distillate	smoke e2e queued insight
-2026-05-04T16:00:27.819Z	chat-distillate	smoke e2e queued insight
-2026-05-04T16:04:34.800Z	chat-distillate	smoke e2e queued insight
-2026-05-04T16:04:39.002Z	chat-distillate	smoke e2e queued insight
-2026-05-04T16:04:48.304Z	chat-distillate	smoke e2e queued insight
-2026-05-04T16:05:32.052Z	chat-distillate	smoke e2e queued insight
-2026-05-04T16:07:36.203Z	chat-distillate	smoke e2e queued insight
-2026-05-04T16:07:36.597Z	chat-distillate	smoke e2e queued insight
-2026-05-04T16:07:45.636Z	chat-distillate	smoke e2e queued insight
-2026-05-04T16:08:29.322Z	chat-distillate	smoke e2e queued insight
-2026-05-04T16:09:08.962Z	chat-distillate	smoke e2e queued insight
-2026-05-04T16:09:55.045Z	chat-distillate	smoke e2e queued insight
-2026-05-04T16:10:43.816Z	chat-distillate	smoke e2e queued insight
-2026-05-04T16:11:06.309Z	chat-distillate	smoke e2e queued insight
-2026-05-04T16:11:27.411Z	chat-distillate	smoke e2e queued insight
-2026-05-04T16:12:34.595Z	chat-distillate	smoke e2e queued insight
-2026-05-04T16:12:35.034Z	chat-distillate	smoke e2e queued insight
-2026-05-04T16:12:44.180Z	chat-distillate	smoke e2e queued insight
-2026-05-04T16:13:27.869Z	chat-distillate	smoke e2e queued insight
-2026-05-04T16:57:59.166Z	chat-distillate	smoke e2e queued insight
-2026-05-04T16:57:59.608Z	chat-distillate	smoke e2e queued insight
-2026-05-04T17:00:05.246Z	chat-distillate	smoke e2e queued insight
-2026-05-04T17:00:05.691Z	chat-distillate	smoke e2e queued insight
-2026-05-04T17:00:15.045Z	chat-distillate	smoke e2e queued insight
-2026-05-04T17:00:58.783Z	chat-distillate	smoke e2e queued insight
-2026-05-04T18:40:41.749Z	chat-distillate	smoke e2e queued insight
-2026-05-04T18:40:42.185Z	chat-distillate	smoke e2e queued insight
-2026-05-04T18:40:51.391Z	chat-distillate	smoke e2e queued insight
-2026-05-04T18:41:35.266Z	chat-distillate	smoke e2e queued insight
-2026-05-04T19:27:41.512Z	chat-distillate	smoke e2e queued insight
-2026-05-04T19:27:41.927Z	chat-distillate	smoke e2e queued insight
-2026-05-04T19:27:50.802Z	chat-distillate	smoke e2e queued insight
-2026-05-04T19:28:34.509Z	chat-distillate	smoke e2e queued insight
-2026-05-04T20:43:26.449Z	chat-distillate	smoke e2e queued insight
 2026-05-04T20:43:26.952Z	chat-distillate	smoke e2e queued insight
 2026-05-04T20:43:36.320Z	chat-distillate	smoke e2e queued insight
 2026-05-04T20:44:20.184Z	chat-distillate	smoke e2e queued insight
@@ -266,3 +176,1049 @@
 2026-06-19T21:19:01.312Z	chat-distillate	smoke e2e queued insight
 2026-06-19T21:20:09.057Z	chat-distillate	smoke e2e queued insight
 2026-06-19T21:20:12.676Z	chat-distillate	smoke e2e queued insight
+2026-06-20T00:00:00.000Z | mcp_smoke_e2e.mjs expanded from 6 to 32 MCP tool calls | KPI-3 требует ≥21 инструментов; 4-фазный порядок (reads→sandbox-writes→bundle-gen→verify) обеспечивает изоляцию и идемпотентность
+2026-06-20T00:00:00.000Z | introspect_block_ui исключён из smoke-теста | block не имеет JSX/HTML файлов, инструмент вернул бы ошибку
+2026-06-20T00:00:00.000Z | maxBuffer=32MB добавлен в spawnSync | generate_wiki/generate_full_bundle могут вернуть >1MB ответ
+2026-06-20T08:15:18.745Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:15:18.796Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:15:22.592Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:15:22.647Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:15:26.152Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:15:26.206Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:15:30.020Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:15:30.073Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:15:33.896Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:15:33.951Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:15:37.662Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:15:37.722Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:15:41.805Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:15:41.863Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:15:45.665Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:15:45.718Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:15:50.040Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:15:50.102Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:15:51.677Z	reflect_after_run	b.smoke-sandbox__2026-06-20T08-08-21-208Z	Failed	Failed run; see patterns.md#b.smoke-sandbox__2026-06-20T08-08-21-208Z
+2026-06-20T08:15:53.938Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:15:53.993Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:15:57.059Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:15:57.107Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:15:57.708Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:15:57.768Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:15:59.261Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:15:59.318Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:01.269Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:01.337Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:03.462Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:03.526Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:03.637Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:03.693Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:06.082Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:06.142Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:07.336Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:07.387Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:08.122Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:08.176Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:10.523Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:10.584Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:11.239Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:11.295Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:12.603Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:12.654Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:14.815Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:14.864Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:15.252Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:15.307Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:16.978Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:17.025Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:19.129Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:19.200Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:19.377Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:19.442Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:21.274Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:21.326Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:23.122Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:23.174Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:23.550Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:23.602Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:25.650Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:25.706Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:27.084Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:27.138Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:27.824Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:27.877Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:29.928Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:29.984Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:31.181Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:31.239Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:32.303Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:32.352Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:34.271Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:34.328Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:35.151Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:35.204Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:36.170Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:36.225Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:38.143Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:38.202Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:38.759Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:38.810Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:40.084Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:40.130Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:42.029Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:42.086Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:42.447Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:42.498Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:44.057Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:44.108Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:46.035Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:46.097Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:46.190Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:46.239Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:48.066Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:48.122Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:50.022Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:50.023Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:50.080Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:50.099Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:51.912Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:51.958Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:53.901Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:53.952Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:54.252Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:54.305Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:55.993Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:56.044Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:57.698Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:57.751Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:57.818Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:16:57.873Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:16:59.964Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:00.016Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:01.277Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:01.325Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:02.158Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:02.220Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:04.266Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:04.318Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:04.959Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:05.016Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:06.351Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:06.408Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:08.528Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:08.586Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:08.723Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:08.779Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:10.542Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:10.595Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:12.219Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:12.272Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:12.412Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:12.462Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:14.284Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:14.331Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:15.631Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:15.690Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:16.145Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:16.195Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:17.936Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:17.983Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:19.112Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:19.160Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:19.861Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:19.907Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:21.688Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:21.738Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:22.782Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:22.830Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:23.674Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:23.723Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:25.557Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:25.608Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:26.302Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:26.380Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:27.600Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:27.649Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:29.432Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:29.481Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:29.848Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:29.897Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:31.388Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:31.450Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:33.228Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:33.273Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:33.357Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:33.409Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:35.242Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:35.297Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:36.880Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:37.035Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:37.389Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:37.443Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:39.474Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:39.534Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:40.818Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:40.865Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:41.351Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:41.405Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:43.208Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:43.254Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:44.112Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:44.161Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:45.102Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:45.157Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:47.104Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:47.160Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:47.725Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:47.781Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:49.035Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:49.089Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:50.995Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:51.054Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:51.251Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:51.299Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:52.907Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:52.963Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:54.809Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:54.860Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:54.874Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:54.924Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:56.763Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:56.822Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:58.303Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:58.357Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:17:58.678Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:17:58.741Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:00.545Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:00.595Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:02.367Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:02.413Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:02.969Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:03.024Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:04.150Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:04.203Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:06.046Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:06.100Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:06.449Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:06.500Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:07.896Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:07.943Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:09.872Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:09.923Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:09.949Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:10.000Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:11.864Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:11.925Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:13.538Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:13.608Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:14.185Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:14.244Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:16.644Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:16.716Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:17.620Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:17.692Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:18.910Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:18.981Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:20.977Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:21.029Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:21.224Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:21.281Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:23.000Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:23.049Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:25.019Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:25.019Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:25.020Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:25.020Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:25.070Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:25.075Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:26.927Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:26.977Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:28.672Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:28.724Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:28.853Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:28.912Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:30.892Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:30.952Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:32.114Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:32.171Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:32.846Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:32.899Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:34.706Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:34.757Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:35.658Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:35.715Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:36.715Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:36.770Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:38.764Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:38.828Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:39.296Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:39.371Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:40.830Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:40.877Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:42.695Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:42.749Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:42.762Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:42.812Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:44.692Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:44.740Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:46.334Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:46.389Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:46.660Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:46.711Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:48.549Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:48.607Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:50.669Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:50.726Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:51.687Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:51.746Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:52.798Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:52.861Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:54.885Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:54.954Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:55.414Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:55.468Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:56.958Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:57.013Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:59.082Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:59.139Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:18:59.295Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:18:59.361Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:01.147Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:01.204Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:02.903Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:02.958Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:03.111Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:03.169Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:05.142Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:05.197Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:06.603Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:06.653Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:07.148Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:07.204Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:09.120Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:09.173Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:10.327Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:10.376Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:11.006Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:11.058Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:13.048Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:13.100Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:13.897Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:13.952Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:15.079Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:15.130Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:17.051Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:17.108Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:17.576Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:17.627Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:19.066Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:19.117Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:20.983Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:20.984Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:21.031Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:21.034Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:22.894Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:22.951Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:24.695Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:24.745Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:24.919Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:24.968Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:26.833Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:26.899Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:28.219Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:28.269Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:28.867Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:28.920Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:31.097Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:31.155Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:31.936Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:31.991Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:33.172Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:33.229Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:35.213Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:35.261Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:35.714Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:35.765Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:37.186Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:37.236Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:39.105Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:39.160Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:39.370Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:39.421Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:41.008Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:41.059Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:42.876Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:42.876Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:42.927Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:42.928Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:44.765Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:44.819Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:46.202Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:46.251Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:46.741Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:46.792Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:48.675Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:48.732Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:49.808Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:49.859Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:50.651Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:50.709Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:52.658Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:52.720Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:53.277Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:53.330Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:54.602Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:54.654Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:56.611Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:56.662Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:56.860Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:56.911Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:19:58.481Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:19:58.531Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:00.533Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:00.533Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:00.595Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:00.600Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:02.551Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:02.602Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:04.481Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:04.547Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:04.617Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:04.673Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:06.662Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:06.715Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:08.378Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:08.430Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:08.694Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:08.754Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:10.659Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:10.715Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:11.949Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:12.005Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:12.648Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:12.701Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:14.637Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:14.689Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:15.652Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:15.723Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:16.656Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:16.725Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:18.634Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:18.687Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:19.321Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:19.376Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:20.681Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:20.733Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:22.703Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:22.751Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:23.800Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:23.858Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:24.692Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:24.746Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:26.719Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:26.781Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:27.586Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:27.638Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:28.785Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:28.843Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:31.044Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:31.106Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:31.437Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:31.503Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:33.225Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:33.288Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:35.218Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:35.281Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:35.421Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:35.481Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:37.581Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:37.643Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:39.182Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:39.245Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:39.841Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:39.901Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:41.959Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:42.022Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:43.445Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:43.500Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:44.183Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:44.249Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:46.843Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:46.910Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:48.041Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:48.101Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:49.180Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:49.248Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:51.471Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:51.544Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:52.009Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:52.079Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:53.772Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:53.830Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:55.732Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:55.784Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:55.852Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:55.906Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:57.706Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:57.757Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:59.390Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:59.443Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:20:59.628Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:20:59.679Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:01.551Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:01.603Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:02.936Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:02.982Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:03.512Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:03.559Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:05.434Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:05.479Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:06.327Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:06.380Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:07.273Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:07.325Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:09.231Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:09.296Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:09.968Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:10.022Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:11.241Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:11.295Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:13.349Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:13.412Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:13.904Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:13.956Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:15.368Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:15.427Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:17.399Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:17.453Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:17.523Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:17.582Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:19.563Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:19.624Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:21.356Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:21.410Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:21.694Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:21.752Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:23.919Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:23.976Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:25.382Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:25.434Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:25.894Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:25.948Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:27.945Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:28.001Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:29.085Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:29.139Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:29.851Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:29.902Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:31.768Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:31.821Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:32.766Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:32.814Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:33.664Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:33.710Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:35.509Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:35.563Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:36.170Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:36.229Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:37.544Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:37.604Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:39.523Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:39.592Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:39.685Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:39.733Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:41.517Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:41.570Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:43.117Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:43.162Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:43.468Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:43.522Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:45.455Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:45.513Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:46.638Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:46.691Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:47.449Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:47.504Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:49.430Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:49.477Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:50.248Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:50.309Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:51.312Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:51.365Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:53.232Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:53.282Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:54.016Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:54.077Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:55.185Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:55.234Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:57.243Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:57.311Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:57.952Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:58.005Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:21:59.248Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:21:59.318Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:01.234Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:01.299Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:01.691Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:01.741Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:03.215Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:03.264Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:05.145Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:05.198Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:05.308Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:05.364Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:07.353Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:07.416Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:09.513Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:09.513Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:09.569Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:09.629Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:11.648Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:11.707Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:13.470Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:13.542Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:14.094Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:14.167Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:16.130Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:16.199Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:17.233Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:17.288Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:18.136Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:18.210Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:20.270Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:20.316Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:20.906Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:20.966Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:22.248Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:22.300Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:24.327Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:24.376Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:24.589Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:24.638Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:26.129Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:26.179Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:27.901Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:27.948Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:27.975Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:28.025Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:29.786Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:29.833Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:31.473Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:31.525Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:31.661Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:31.712Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:33.580Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:33.629Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:35.143Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:35.202Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:35.535Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:35.590Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:37.515Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:37.569Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:38.796Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:38.851Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:39.607Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:39.675Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:41.754Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:41.810Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:42.689Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:42.744Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:43.696Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:43.748Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:45.586Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:45.636Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:46.188Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:46.242Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:47.455Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:47.504Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:49.277Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:49.333Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:49.738Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:49.793Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:51.193Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:51.239Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:53.102Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:53.185Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:53.389Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:53.446Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:55.145Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:55.198Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:57.153Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:57.154Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:57.205Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:57.226Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:22:59.179Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:22:59.242Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:00.783Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:00.836Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:01.124Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:01.174Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:03.063Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:03.113Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:04.308Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:04.372Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:05.006Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:05.062Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:07.002Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:07.053Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:07.891Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:07.938Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:09.029Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:09.106Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:11.244Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:11.302Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:11.751Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:11.807Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:13.147Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:13.202Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:15.040Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:15.094Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:15.288Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:15.343Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:16.997Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:17.046Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:18.945Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:18.997Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:20.199Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:20.253Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:20.840Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:20.891Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:22.873Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:22.928Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:24.024Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:24.076Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:24.868Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:24.915Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:26.976Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:27.027Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:27.686Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:27.742Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:29.157Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:29.211Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:31.366Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:31.427Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:31.601Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:31.657Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:33.525Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:33.586Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:35.274Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:35.327Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:35.575Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:35.626Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:37.600Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:37.677Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:38.845Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:38.891Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:39.635Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:39.683Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:41.490Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:41.546Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:42.448Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:42.500Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:43.453Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:43.507Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:45.687Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:45.744Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:46.103Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:46.166Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:47.621Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:47.672Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:49.475Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:49.527Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:50.732Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:50.788Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:51.371Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:51.423Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:53.280Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:53.329Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:54.198Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:54.246Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:55.159Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:55.213Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:57.115Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:57.172Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:57.703Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:57.751Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:23:58.962Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:23:59.010Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:00.898Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:00.954Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:01.111Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:01.160Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:02.897Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:02.951Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:04.623Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:04.671Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:04.797Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:04.841Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:06.762Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:06.817Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:08.240Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:08.297Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:08.704Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:08.758Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:10.557Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:10.604Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:11.922Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:11.978Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:12.446Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:12.500Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:14.372Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:14.424Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:15.801Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:15.860Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:16.331Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:16.386Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:18.155Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:18.209Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:19.327Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:19.383Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:20.077Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:20.132Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:22.030Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:22.090Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:22.981Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:23.041Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:24.227Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:24.281Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:26.289Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:26.343Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:27.432Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:27.484Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:28.295Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:28.344Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:30.214Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:30.266Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:31.214Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:31.261Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:32.134Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:32.182Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:34.014Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:34.074Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:34.825Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:34.879Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:35.938Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:35.990Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:37.935Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:37.996Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:38.391Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:38.454Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:39.933Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:39.983Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:41.846Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:41.896Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:42.003Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:42.054Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:43.775Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:43.829Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:46.128Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:46.178Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:46.697Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:46.747Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:47.956Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:48.006Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:49.877Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:49.927Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:50.144Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:50.193Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:51.808Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:51.860Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:53.713Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:53.765Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:53.881Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:53.932Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:55.816Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:55.867Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:57.289Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:57.346Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:57.764Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:57.817Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:24:59.686Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:24:59.754Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:01.099Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:01.145Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:01.565Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:01.619Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:03.502Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:03.555Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:04.721Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:04.775Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:05.401Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:05.449Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:07.347Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:07.396Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:08.185Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:08.243Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:09.162Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:09.218Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:11.036Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:11.091Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:11.706Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:11.754Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:12.908Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:12.955Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:14.897Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:14.959Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:15.702Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:15.757Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:16.927Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:16.978Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:19.037Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:19.099Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:19.386Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:19.452Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:21.190Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:21.241Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:23.161Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:23.162Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:23.213Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:23.269Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:25.302Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:25.355Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:26.846Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:26.911Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:27.495Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:27.558Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:29.599Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:29.652Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:30.588Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:30.645Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:31.511Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:31.578Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:33.592Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:33.644Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:34.212Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:34.268Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:35.562Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:35.617Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:37.581Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:37.643Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:37.880Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:37.941Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:39.725Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:39.776Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:41.480Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:41.537Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:41.643Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:41.691Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:43.674Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:43.724Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:45.240Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:45.294Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:45.721Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:45.792Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:47.768Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:47.827Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:49.078Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:49.128Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:49.841Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:49.894Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:51.707Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:51.760Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:53.718Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:53.770Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:54.537Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:54.591Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:55.845Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:55.896Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:57.826Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:57.882Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:58.320Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:58.378Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:25:59.804Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:25:59.858Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:01.573Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:01.623Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:01.678Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:01.725Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:03.493Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:03.539Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:05.145Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:05.198Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:05.351Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:05.408Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:07.440Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:07.497Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:08.800Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:08.849Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:09.441Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:09.493Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:11.525Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:11.585Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:12.552Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:12.609Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:13.623Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:13.676Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:15.656Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:15.707Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:16.270Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:16.329Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:17.626Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:17.675Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:19.625Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:19.678Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:20.042Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:20.091Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:21.663Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:21.725Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:23.594Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:23.595Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:23.651Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:23.693Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:25.472Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:25.528Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:27.510Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:27.510Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:27.565Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:27.607Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:29.661Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:29.718Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:31.168Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:31.221Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:31.821Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:31.881Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:33.938Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:33.986Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:34.809Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:34.857Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:35.885Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:35.933Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:37.826Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:37.882Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:38.398Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:38.450Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:39.766Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:39.834Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:41.720Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:41.776Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:41.901Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:41.955Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:43.692Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:43.745Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:45.447Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:45.498Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:45.607Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:45.659Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:47.521Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:47.577Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:49.090Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:49.144Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:49.610Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:49.657Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:51.486Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:51.537Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:52.893Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:52.943Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:53.674Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:53.731Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:55.745Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:55.808Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:56.661Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:56.710Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:57.706Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:57.753Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:26:59.758Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:26:59.810Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:27:00.401Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:27:00.454Z	chat-distillate	smoke e2e distillate
+2026-06-20T08:27:01.691Z	chat-distillate	smoke e2e queued insight
+2026-06-20T08:27:01.745Z	chat-distillate	smoke e2e distillate

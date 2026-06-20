@@ -39,24 +39,72 @@ function parseDepends(blockId) {
 }
 
 const errors = [];
+const reportDetails = [];
+let totalDepsChecked = 0;
+
 for (const b of graph.blocks || []) {
   const deps = parseDepends(b.id);
+  const blockIssues = [];
   for (const d of deps) {
+    totalDepsChecked++;
     if (!d.dep || !d.cap) {
+      const issue = {
+        type: 'invalid_depends_entry',
+        message: `invalid depends entry`,
+        file: `atlas/blocks/${b.id}/depends_on.md`,
+        line: 1,
+      };
       errors.push(`${b.id}: invalid depends entry`);
+      blockIssues.push(issue);
       continue;
     }
     const depBlock = (graph.blocks || []).find(x => x.id === d.dep);
     if (!depBlock) {
+      const issue = {
+        type: 'missing_dep_block',
+        message: `dependency block not found: ${d.dep}`,
+        file: `atlas/blocks/${b.id}/depends_on.md`,
+        line: 1,
+      };
       errors.push(`${b.id}: dependency block not found: ${d.dep}`);
+      blockIssues.push(issue);
       continue;
     }
     const provides = parseProvides(d.dep);
     if (!provides.has(d.cap)) {
+      const issue = {
+        type: 'missing_capability',
+        message: `${d.dep} does not provide '${d.cap}'`,
+        file: `atlas/blocks/${b.id}/depends_on.md`,
+        line: 1,
+      };
       errors.push(`${b.id}: ${d.dep} does not provide '${d.cap}'`);
+      blockIssues.push(issue);
     }
   }
+  if (blockIssues.length) {
+    reportDetails.push({
+      blockId: b.id,
+      status: 'broken',
+      reason: 'missing_capability',
+      issues: blockIssues,
+    });
+  }
 }
+
+// Merge findings into atlas/sync_report.json (named-section merge — R-7.99)
+const reportPath = path.join(atlasRoot, 'sync_report.json');
+let report = {};
+if (fs.existsSync(reportPath)) {
+  try { report = JSON.parse(fs.readFileSync(reportPath, 'utf8')); } catch { report = {}; }
+}
+report.dependencyValidation = {
+  checkedAt: new Date().toISOString(),
+  totalDepsChecked,
+  broken: reportDetails.length,
+  details: reportDetails,
+};
+fs.writeFileSync(reportPath, JSON.stringify(report, null, 2) + '\n');
 
 if (errors.length) {
   console.error('Dependency contract validation failed:');

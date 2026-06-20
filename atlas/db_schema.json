@@ -1,10 +1,56 @@
 {
-  "version": 1,
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$comment": "Atlas graph.json schema — used by validateGraphSchema() in mcp_atlas_server.mjs to gate writes.",
+  "version": 2,
+  "title": "Atlas Graph Schema",
+  "type": "object",
+  "required": ["version", "blocks"],
+  "properties": {
+    "version": { "type": "number", "minimum": 1 },
+    "_note": { "type": "string" },
+    "layers": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/layer" }
+    },
+    "blocks": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/block" }
+    }
+  },
+  "definitions": {
+    "block": {
+      "type": "object",
+      "required": ["id", "title", "status"],
+      "properties": {
+        "id":          { "type": "string", "minLength": 1 },
+        "title":       { "type": "string", "minLength": 1 },
+        "status":      { "type": "string", "enum": ["idea", "wip", "review", "done", "drift", "broken", "desync"] },
+        "depends_on":  { "type": "array", "items": { "type": "string" } },
+        "provides":    { "type": "array", "items": { "type": "string" } },
+        "layer":       { "type": "string" },
+        "type":        { "type": "string" },
+        "mvp":         { "type": "boolean" },
+        "user_facing": { "type": "boolean" },
+        "subschema_id":{ "type": "string" },
+        "files":       { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "layer": {
+      "type": "object",
+      "required": ["id", "name", "order"],
+      "properties": {
+        "id":    { "type": "string" },
+        "name":  { "type": "string" },
+        "order": { "type": "number" }
+      }
+    }
+  },
   "entities": {
+    "_comment": "Legacy entity descriptors kept for backward compatibility with older tooling.",
     "block": {
       "id": "string",
       "title": "string",
-      "status": "idea|wip|drift|broken|done",
+      "status": "idea|wip|review|done|drift|broken|desync",
       "depends_on": "string[]",
       "provides": "string[]"
     },

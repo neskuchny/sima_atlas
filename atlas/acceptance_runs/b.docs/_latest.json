@@ -15,17 +15,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_no_template_placeholders.mjs → exit 0 (60ms); first line: \"Template-placeholder validation: OK (19 blocks scanned)\"",
+      "evidence": "node scripts/validate_no_template_placeholders.mjs → exit 0 (67ms); first line: \"Template-placeholder validation: OK (19 blocks scanned)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_no_template_placeholders.mjs",
         "exit_code": 0,
         "stdout": "Template-placeholder validation: OK (19 blocks scanned)\n",
         "stderr": "Template-placeholder validation warnings:\n ⚠ b.smoke-sandbox: tasks.md is suspiciously short (28 chars)\n",
-        "duration_ms": 60,
+        "duration_ms": 67,
         "timed_out": false
       },
-      "duration_ms": 60
+      "duration_ms": 67
     },
     {
       "id": "A2",
@@ -68,7 +68,7 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "4a7a5b26240d7cf2",
+        "prompt_hash": "c2af81070b539985",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
@@ -116,12 +116,12 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "b8aeb1ff0ed6bf57",
+        "prompt_hash": "8ab45655bf133717",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 0
+      "duration_ms": 1
     }
   ],
   "counts": {
@@ -130,6 +130,6 @@
     "skipped": 2
   },
   "verdict": "pass",
-  "duration_ms": 65,
-  "checked_at": "2026-06-19T21:20:09.921Z"
+  "duration_ms": 73,
+  "checked_at": "2026-06-20T08:16:26.634Z"
 }

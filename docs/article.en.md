@@ -698,7 +698,7 @@ _Statuses are honest, from `graph.json` at generation time: `idea` means «contr
 | `b.docs` | done | WIKI.md, wiki.html, auto_tz.md, roadmap.md auto-generation (template-gated) |
 | `b.llm-gateway` | review | provider cascade (claude_cli/anthropic/google/ollama/mock), trace, schema-retry |
 | `b.operator-profile-learner` | done | archetype, lessons, dont_use, always_use, profile-compliance badges |
-| `b.acceptance-verifier-loop` | done | parsing acceptance.md, 5 evidence kinds + inconclusive_if, llm-judge fallback |
+| `b.acceptance-verifier-loop` | desync | parsing acceptance.md, 5 evidence kinds + inconclusive_if, llm-judge fallback |
 | `b.user-docs-generator` | done | end-user tutorials from JSX introspection |
 | `b.smoke-sandbox` | idea | end-to-end smoke test for regression |
 <!-- BLOCK-STATUS:END -->

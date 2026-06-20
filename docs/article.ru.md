@@ -692,7 +692,7 @@ _Статусы — честные, из `graph.json` на момент гене
 | `b.docs` | done | WIKI.md, wiki.html, auto_tz.md, roadmap.md auto-generation (гейт против шаблонов) |
 | `b.llm-gateway` | review | каскад провайдеров (claude_cli/anthropic/google/ollama/mock), trace, schema-retry |
 | `b.operator-profile-learner` | done | archetype, lessons, dont_use, always_use, бейджи соответствия профилю |
-| `b.acceptance-verifier-loop` | done | парсинг acceptance.md, 5 типов evidence + inconclusive_if, llm-judge fallback |
+| `b.acceptance-verifier-loop` | desync | парсинг acceptance.md, 5 типов evidence + inconclusive_if, llm-judge fallback |
 | `b.user-docs-generator` | done | пользовательские туториалы из JSX-интроспекции |
 | `b.smoke-sandbox` | idea | end-to-end smoke test для регрессии |
 <!-- BLOCK-STATUS:END -->

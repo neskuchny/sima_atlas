@@ -23,7 +23,7 @@
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 1
+      "duration_ms": 1832
     },
     {
       "id": "A2",
@@ -45,7 +45,7 @@
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 0
+      "duration_ms": 1615
     },
     {
       "id": "A3",
@@ -67,7 +67,7 @@
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 0
+      "duration_ms": 1779
     },
     {
       "id": "A4",
@@ -89,7 +89,7 @@
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 0
+      "duration_ms": 1602
     },
     {
       "id": "A5",
@@ -111,7 +111,7 @@
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 0
+      "duration_ms": 1517
     },
     {
       "id": "A6",
@@ -133,7 +133,7 @@
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 1
+      "duration_ms": 1605
     },
     {
       "id": "A7",
@@ -155,7 +155,7 @@
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 0
+      "duration_ms": 1664
     }
   ],
   "counts": {
@@ -165,6 +165,6 @@
   },
   "verdict": "inconclusive",
   "inconclusive_if_declared": 1,
-  "duration_ms": 2,
-  "checked_at": "2026-06-19T21:18:57.533Z"
+  "duration_ms": 11617,
+  "checked_at": "2026-06-20T08:06:14.294Z"
 }

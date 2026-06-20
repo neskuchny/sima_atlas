@@ -18,12 +18,12 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "5ae5eccf0229564b",
+        "prompt_hash": "22d58fe6c9ef235e",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 2
+      "duration_ms": 1637
     },
     {
       "id": "A2",
@@ -40,12 +40,12 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "3c599ddb7dd0b2c1",
+        "prompt_hash": "ae7d677756c59f85",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 0
+      "duration_ms": 1627
     },
     {
       "id": "A3",
@@ -62,12 +62,12 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "55a52aa686b5fc88",
+        "prompt_hash": "7eed4d372375f963",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 1
+      "duration_ms": 1761
     },
     {
       "id": "A4",
@@ -81,17 +81,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (57ms); first line: \"Block contract validation: OK\"",
+      "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (72ms); first line: \"Block contract validation: OK\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_block_contracts.mjs",
         "exit_code": 0,
         "stdout": "Block contract validation: OK\n",
         "stderr": "",
-        "duration_ms": 57,
+        "duration_ms": 72,
         "timed_out": false
       },
-      "duration_ms": 57
+      "duration_ms": 72
     },
     {
       "id": "A5",
@@ -125,6 +125,6 @@
     "skipped": 3
   },
   "verdict": "pass",
-  "duration_ms": 62,
-  "checked_at": "2026-06-19T21:20:02.561Z"
+  "duration_ms": 5098,
+  "checked_at": "2026-06-20T08:07:53.529Z"
 }

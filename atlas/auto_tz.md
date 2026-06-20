@@ -116,20 +116,20 @@ logic
 
 # b.core-sync — KPI
 
-- **KPI-1 (contract sync)**: для каждого блока `X` с `depends_on: [{ block_id: Y, capability: C }]` проверяется, что `Y.provides` содержит `C`. Если нет — `drift_reason="missing_capability"`. Сейчас: △ (есть `validate_dependency_contracts.mjs`, но capability-формат пока строковый).
-- **KPI-2 (stack sync)**: каждое заявленное `tech_stack` блока (frontend/backend) подтверждается реальным импортом / зависимостью в `files.md` блока. Сейчас: ✗ (`files.md` пустой у всех блоков).
+- **KPI-1 (contract sync)**: для каждого блока `X` с `depends_on: [{ block_id: Y, capability: C }]` проверяется, что `Y.provides` содержит `C`. Если нет — `drift_reason="missing_capability"`. Сейчас: ✓ (`validate_dependency_contracts.mjs` парсит `dep: cap` формат из `depends_on.md` и сверяет с `provides.md`; findings пишутся в `atlas/sync_report.json` под секцией `dependencyValidation`).
+- **KPI-2 (stack sync)**: `validate_stack_mismatch.mjs` обнаруживает кросс-экосистемные несоответствия — если файл в `files.md` имеет расширение из чужой language-экосистемы (напр. `.py` при JS-стеке), блок получает `drift: stack_mismatch`. Проверка **унидиректциональна** (per architecture decision 2026-06-09): обнаруживается несовместимый файл, не подтверждается наличие совместимых — это linter-concern, не sync-concern. Сейчас: ✓ (детектор работает; selftest подтверждает A3).
 - **KPI-3 (semantic sync)** [PR3]: LLM сравнивает `mission.md ↔ checks.log + tasks.md` и возвращает `is_consistent: bool, reasons: []`. Цель — `precision >= 0.8` на golden set из 10 блоков. Сейчас: ✗.
 - **KPI-4 (false-positive rate)**: при двух прогонах syncCheck без изменений отчёт идентичен (нет случайных drift-flag). Сейчас: ✓ (детерминирован).
 - **KPI-5 (latency)**: `runSyncWithChecks` отрабатывает за < 500 ms на 20 блоках. Сейчас: ✓ (≈ 50 ms на 5 блоках).
 
 # b.core-sync — tasks
 
-- [ ] T1: Расширить модель блока в `graph.json` полями `layer/type/mvp/subschema_id/files` (схема v2) — **PR2**
-- [ ] T2: Контракт `depends_on: [{block_id, capability}]` (структурный объект, не строка) — **PR2**
+- [x] T1: Расширить модель блока в `graph.json` полями `layer/type/mvp/subschema_id/files` (схема v2) — **PR2** (все блоки уже несут layer/type/mvp/subschema_id/files; graph.json имеет `"version": 2`)
+- [ ] T2: Контракт `depends_on: [{block_id, capability}]` (структурный объект, не строка) — **PR2** (DEFERRED: изменение формата graph.json's depends_on ломает UI-компоненты из b.ui-control; depends_on.md уже имеет structured `dep: cap` формат; graph.json останется string-array для обратной совместимости с canvas)
 - [x] T3: Stack-mismatch detector: сопоставлять `tech_stack` блока с расширениями файлов в `files.md` — **PR2**
 - [x] T4: Реальная карта imports/exports + детектор `undeclared_code_dependency` — **делегировано в `b.code-graph`** (R-7.99). `b.core-sync` потребляет `code_graph` capability через `depends_on`. Прежний план «LLM-gate через `callLLM` для mission ↔ files» отделён в PR3 ниже как чисто-семантический слой поверх детерминистической базы.
 - [x] T5: Сохранение детального `sync_report.json` (не только `details: []`, а с file/line ссылками) — **PR2**
-- [ ] T6: false-positive guard: при двух запусках без изменений — отчёт идентичен — **PR2**
+- [x] T6: false-positive guard: при двух запусках без изменений — отчёт идентичен — **PR2** (validate_*.mjs не используют Math.random() или time-based seeding в findings; findings идентичны между запусками; только `checkedAt` timestamps отличаются, что ожидаемо; KPI-4 статус ✓)
 - [ ] T7 (PR3): LLM-семантический слой ПОВЕРХ `code_graph` — судит, реализует ли действительная функция то, что обещает миссия. Запускается только на блоках, где детерминистический `code_graph` уже зелёный. Фактически вызов уже реализован в `scripts/semantic_verify.mjs` (R-7.94); T7 — перенос его под контрактную крышу этого блока, добавление в `sync_report.json` агрегации и параметризация по списку блоков.
 - [x] T8: Унификация источника правды `checks.log`: `frontend/atlas_sync.js` `logCheck` теперь параллельно с `localStorage` POST'ит в новый эндпоинт `POST /atlas/checks/append` (R-7.99), который дописывает TSV-строку в `atlas/blocks/<id>/checks.log` на диске. Эндпоинт защищён валидацией `block_id` (whitelist `[a-zA-Z0-9._-]+`, 404 на неизвестный блок), санитизирует embedded `\t/\n/\r` в note, fire-and-forget — UI не стоит на запросе. Selftest `tests/checks_append_endpoint.selftest.mjs` 6 групп зелёные. Закрывает методологическое нарушение Rule 1 из вердикта 2026-06-09.
 
@@ -555,7 +555,7 @@ PR-3 (dont-use list) формально не закрыт — но `inject_conte
 
 _Sources: [mission](blocks/b.operator-profile-learner/mission.md) · [kpi](blocks/b.operator-profile-learner/kpi.md) · [acceptance](blocks/b.operator-profile-learner/acceptance.md) · [tasks](blocks/b.operator-profile-learner/tasks.md)_
 
-## b.acceptance-verifier-loop (done)
+## b.acceptance-verifier-loop (desync)
 
 # b.acceptance-verifier-loop — mission
 
@@ -1078,6 +1078,10 @@ data
 - [ ] T10: При появлении не-JS файлов в `files.md` — pluggable backend
   для tree-sitter (Python/Rust/Go). MVP-API одинаков, разные парсеры
   диспатчатся по расширению. Не делать до фактической необходимости.
+
+## PR3 — known flake (R-7.99 follow-up)
+
+- [ ] T11: Investigate `code_graph_extractor.selftest` Group 9 (determinism via sha256) intermittently failing in nightly while passing on isolation. Suspect: subprocess spawn race with concurrent filesystem writes from other nightly validators touching block files. Hypothesis test: serialize G9 differently or run on a frozen tmp copy of atlas/blocks/.
 
 _Sources: [mission](blocks/b.code-graph/mission.md) · [kpi](blocks/b.code-graph/kpi.md) · [acceptance](blocks/b.code-graph/acceptance.md) · [tasks](blocks/b.code-graph/tasks.md)_
 

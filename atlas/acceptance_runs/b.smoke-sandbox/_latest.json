@@ -15,7 +15,7 @@
         "pattern": "b.smoke-sandbox"
       },
       "verdict": "pass",
-      "evidence": "grep /b.smoke-sandbox/ scripts/mcp_smoke_e2e.mjs → 3 matches; first: \"  { jsonrpc:'2.0', id:2, method:'tools/call', params:{ name:'update_block', arguments:{ block_id:'b.smoke-sandbox', tasks:['nightly smoke e2e task'] } } },\"",
+      "evidence": "grep /b.smoke-sandbox/ scripts/mcp_smoke_e2e.mjs → 3 matches; first: \" * All writes target b.smoke-sandbox only (KPI-2 isolation).\"",
       "reasoning": "3 matching lines found",
       "raw": {
         "file": "/home/user/sima_atlas/scripts/mcp_smoke_e2e.mjs",
@@ -23,9 +23,9 @@
         "since_time": null,
         "match_count": 3,
         "sample": [
-          "  { jsonrpc:'2.0', id:2, method:'tools/call', params:{ name:'update_block', arguments:{ block_id:'b.smoke-sandbox', tasks:['nightly smoke e2e task'] } } },",
-          "  { jsonrpc:'2.0', id:3, method:'tools/call', params:{ name:'enqueue_ingestion', arguments:{ block_id:'b.smoke-sandbox', note:'smoke e2e queued insight', apply_to_rules:false } } },",
-          "  { jsonrpc:'2.0', id:5, method:'tools/call', params:{ name:'build_context_pack', arguments:{ block_id:'b.smoke-sandbox' } } },"
+          " * All writes target b.smoke-sandbox only (KPI-2 isolation).",
+          " *   Phase 2 — sandbox-only writes (b.smoke-sandbox contract files only)",
+          "const SANDBOX = 'b.smoke-sandbox';"
         ]
       },
       "duration_ms": 0
@@ -45,12 +45,12 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "2dd12565d41522d7",
+        "prompt_hash": "1adc0eec2a8ecd99",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 0
+      "duration_ms": 2
     },
     {
       "id": "A3",
@@ -63,26 +63,26 @@
         "cmd": "node scripts/mcp_smoke_e2e.mjs",
         "expect_in_stdout": "OK"
       },
-      "verdict": "pass",
-      "evidence": "node scripts/mcp_smoke_e2e.mjs → exit 0 (697ms); first line: \"mcp_smoke_e2e: OK\"",
-      "reasoning": "shell exit code 0 and stdout matches /OK/",
+      "verdict": "fail",
+      "evidence": "node scripts/mcp_smoke_e2e.mjs → exit null; timed out after 30000ms; stderr: \"\"",
+      "reasoning": "shell exit null; timed out after 30000ms",
       "raw": {
         "cmd": "node scripts/mcp_smoke_e2e.mjs",
-        "exit_code": 0,
-        "stdout": "mcp_smoke_e2e: OK\n",
+        "exit_code": null,
+        "stdout": "",
         "stderr": "",
-        "duration_ms": 697,
-        "timed_out": false
+        "duration_ms": 30034,
+        "timed_out": true
       },
-      "duration_ms": 697
+      "duration_ms": 30034
     }
   ],
   "counts": {
-    "pass": 2,
-    "fail": 0,
+    "pass": 1,
+    "fail": 1,
     "skipped": 1
   },
-  "verdict": "pass",
-  "duration_ms": 697,
-  "checked_at": "2026-06-19T21:20:09.553Z"
+  "verdict": "fail",
+  "duration_ms": 30038,
+  "checked_at": "2026-06-20T08:16:25.888Z"
 }

@@ -10,6 +10,51 @@ const atlasRoot = path.join(root, 'atlas');
 function readJson(p){ return JSON.parse(fs.readFileSync(p,'utf8')); }
 function readText(p){ return fs.existsSync(p) ? fs.readFileSync(p,'utf8') : ''; }
 
+function atomicWriteFileSync(filePath, data, encoding = 'utf8') {
+  const tmpPath = filePath + '.tmp';
+  fs.writeFileSync(tmpPath, data, encoding);
+  fs.renameSync(tmpPath, filePath);
+}
+
+function validateGraphSchema(graph) {
+  const schemaPath = path.join(atlasRoot, 'db_schema.json');
+  if (!fs.existsSync(schemaPath)) return;
+  const validStatuses = ['idea', 'wip', 'review', 'done', 'drift', 'broken', 'desync'];
+  const errs = [];
+  if (typeof graph.version !== 'number') errs.push('"version" must be a number');
+  if (!Array.isArray(graph.blocks)) {
+    errs.push('"blocks" must be an array');
+  } else {
+    for (const b of graph.blocks) {
+      if (!b.id || typeof b.id !== 'string') errs.push('a block is missing "id" (string required)');
+      if (typeof b.title !== 'string') errs.push(`block ${b.id || '?'}: "title" must be a string`);
+      if (b.status && !validStatuses.includes(b.status)) {
+        errs.push(`block ${b.id || '?'}: invalid status "${b.status}"; valid: ${validStatuses.join(', ')}`);
+      }
+    }
+  }
+  if (errs.length) {
+    throw new Error(`graph.json schema violation (db_schema.json):\n${errs.map(e => '  - ' + e).join('\n')}`);
+  }
+}
+
+function writeGraphJson(gpath, graph) {
+  validateGraphSchema(graph);
+  atomicWriteFileSync(gpath, JSON.stringify(graph, null, 2) + '\n');
+}
+
+function saveBlockHistory(blockId) {
+  const dir = blockDir(blockId);
+  if (!fs.existsSync(dir)) return;
+  const histDir = path.join(dir, 'history');
+  fs.mkdirSync(histDir, { recursive: true });
+  const ts = new Date().toISOString().replace(/[:.]/g, '-');
+  const mission = readText(path.join(dir, 'mission.md'));
+  const kpi = readText(path.join(dir, 'kpi.md'));
+  const content = `# snapshot ${ts}\n\n## mission.md\n\n${mission}\n## kpi.md\n\n${kpi}\n`;
+  atomicWriteFileSync(path.join(histDir, `${ts}.md`), content);
+}
+
 function blockDir(blockId){ return path.join(atlasRoot, 'blocks', blockId); }
 
 function toolList(){
@@ -92,6 +137,8 @@ function toolList(){
     { name:'detect_stalled_runs', description:'PR-7 (b.agent-orchestrator): scan active runs and flip those whose last_event_at exceeds max_idle_ms to Stalled.', inputSchema:{ type:'object', properties:{ max_idle_ms:{type:'number'} } } },
     { name:'list_workspaces', description:'PR-8 (b.agent-orchestrator): list active agent workspaces under ~/.atlas_workspaces/ (or ATLAS_WORKSPACES_ROOT).', inputSchema:{ type:'object', properties:{} } },
     { name:'cleanup_workspace', description:'PR-8 (b.agent-orchestrator): remove a sandboxed agent workspace. Refuses paths outside WORKSPACES_ROOT or without .atlas_workspace.json marker.', inputSchema:{ type:'object', properties:{ workspace_path:{type:'string'}, force:{type:'boolean'} }, required:['workspace_path'] } },
+    { name:'get_block_history', description:'b.db T4: list history snapshots for a block stored in blocks/<id>/history/. Returns {block_id, count, entries:[{filename, content}]}.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'} }, required:['block_id'] } },
+    { name:'list_blocks_by_layer', description:'b.db T4: filter atlas graph blocks by layer id. Returns {layer, count, blocks:[...]} from graph.json.', inputSchema:{ type:'object', properties:{ layer:{type:'string'} }, required:['layer'] } },
 
   ];
 }
@@ -137,7 +184,7 @@ function ensureBlock(blockId, title=''){
   let b = (g.blocks||[]).find(x=>x.id===blockId);
   if (!b){ b={id:blockId,title:title||blockId,status:'idea',depends_on:[]}; g.blocks.push(b); }
   if (title) b.title = title;
-  fs.writeFileSync(gpath, JSON.stringify(g, null, 2)+'\n','utf8');
+  writeGraphJson(gpath, g);
   const dir = blockDir(blockId); fs.mkdirSync(dir,{recursive:true});
   const tpl = {
     'mission.md': `# ${blockId} — mission\n\n${title||blockId}: цель блока.\n`,
@@ -148,12 +195,12 @@ function ensureBlock(blockId, title=''){
     'depends_on.md': `# ${blockId} — depends_on\n\n- none\n`,
     'provides.md': `# ${blockId} — provides\n\n- none\n`,
   };
-  for (const [f,t] of Object.entries(tpl)){ const p=path.join(dir,f); if(!fs.existsSync(p)) fs.writeFileSync(p,t,'utf8'); }
+  for (const [f,t] of Object.entries(tpl)){ const p=path.join(dir,f); if(!fs.existsSync(p)) atomicWriteFileSync(p,t); }
 }
 
 function setMission(blockId, mission){
   ensureBlock(blockId);
-  fs.writeFileSync(path.join(blockDir(blockId),'mission.md'), `# ${blockId} — mission\n\n${mission}\n`, 'utf8');
+  atomicWriteFileSync(path.join(blockDir(blockId),'mission.md'), `# ${blockId} — mission\n\n${mission}\n`);
 }
 
 function generateWiki(){
@@ -171,7 +218,7 @@ function transitionBlock(blockId, to){
   const b = (g.blocks||[]).find(x=>x.id===blockId);
   if (!b) throw new Error(`block not found: ${blockId}`);
   b.status = to;
-  fs.writeFileSync(gpath, JSON.stringify(g, null, 2)+'\n','utf8');
+  writeGraphJson(gpath, g);
 }
 
 function appendCheck(blockId, kind, result, note=''){
@@ -189,7 +236,7 @@ function upsertFilesMd(blockId, filePath, status, reason=''){
   const lines = cur.split(/\r?\n/).filter(Boolean).filter(l => !l.startsWith(`- ${filePath} [`));
   if (lines[lines.length-1] === '- none') lines.pop();
   lines.push(`- ${filePath} [${status}]${reason?` (${reason})`:''}`);
-  fs.writeFileSync(p, lines.join('\n')+'\n','utf8');
+  atomicWriteFileSync(p, lines.join('\n')+'\n');
 }
 
 function markFileDead(blockId, filePath, reason=''){
@@ -204,25 +251,26 @@ function markFileDead(blockId, filePath, reason=''){
 function setListFile(blockId, fileName, header, entries){
   ensureBlock(blockId);
   const body = entries.length ? entries.map(e=>`- ${e}`).join('\n') : '- none';
-  fs.writeFileSync(path.join(blockDir(blockId),fileName), `# ${blockId} — ${header}\n\n${body}\n`, 'utf8');
+  atomicWriteFileSync(path.join(blockDir(blockId),fileName), `# ${blockId} — ${header}\n\n${body}\n`);
 }
 
 function setTasks(blockId, tasks){
   ensureBlock(blockId);
   const body = tasks.map(t=>`- [ ] ${t}`).join('\n');
-  fs.writeFileSync(path.join(blockDir(blockId),'tasks.md'), `# ${blockId} — tasks\n\n${body}\n`, 'utf8');
+  atomicWriteFileSync(path.join(blockDir(blockId),'tasks.md'), `# ${blockId} — tasks\n\n${body}\n`);
 }
 
 
 function updateBlock(args){
   const blockId = args.block_id;
   ensureBlock(blockId, args.title || '');
+  saveBlockHistory(blockId);
   if (args.title){
     const gpath = path.join(atlasRoot,'graph.json');
     const g = readJson(gpath);
     const b = (g.blocks||[]).find(x=>x.id===blockId);
     if (b) b.title = args.title;
-    fs.writeFileSync(gpath, JSON.stringify(g, null, 2)+'\n','utf8');
+    writeGraphJson(gpath, g);
   }
   if (args.status) transitionBlock(blockId, args.status);
   if (Array.isArray(args.depends)) setListFile(blockId, 'depends_on.md', 'depends_on', args.depends);
@@ -872,6 +920,24 @@ rl.on('line', (line) => {
         return respond(id, { content:[{ type:'text', text: JSON.stringify(out, null, 2) }] });
       }
 
+      if (name === 'get_block_history') {
+        const bid = String(args.block_id || '');
+        if (!bid) return respondErr(id, 'get_block_history: block_id required');
+        const histDir = path.join(atlasRoot, 'blocks', bid, 'history');
+        if (!fs.existsSync(histDir)) {
+          return respond(id, { content:[{ type:'text', text: JSON.stringify({ block_id: bid, count: 0, entries: [], note: 'no history yet — run update_block twice to populate' }) }] });
+        }
+        const files = fs.readdirSync(histDir).filter(f => f.endsWith('.md')).sort();
+        const entries = files.map(f => ({ filename: f, content: readText(path.join(histDir, f)) }));
+        return respond(id, { content:[{ type:'text', text: JSON.stringify({ block_id: bid, count: entries.length, entries }, null, 2) }] });
+      }
+      if (name === 'list_blocks_by_layer') {
+        const layer = String(args.layer || '');
+        if (!layer) return respondErr(id, 'list_blocks_by_layer: layer required');
+        const g = readJson(path.join(atlasRoot, 'graph.json'));
+        const matched = (g.blocks || []).filter(b => b.layer === layer);
+        return respond(id, { content:[{ type:'text', text: JSON.stringify({ layer, count: matched.length, blocks: matched }, null, 2) }] });
+      }
       return respondErr(id, `unknown tool: ${name}`);
     }
     return respondErr(id, `unknown method: ${method}`);
