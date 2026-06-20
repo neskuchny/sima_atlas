@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-06-19T21:19:50.431Z_
+_Generated: 2026-06-20T08:39:10.182Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -18,7 +18,7 @@ _Generated: 2026-06-19T21:19:50.431Z_
   - output: build_code_graph --check: code_graph.json up-to-date
 - ✅ code_graph_drift: ok
 - ✅ code_graph_extractor_selftest: ok
-  - output: deterministic — sha256(5fc149e0966b…) matches across runs
+  - output: deterministic — sha256(dbab4351431f…) matches across runs
 - ✅ code_graph_validator_selftest: ok
   - output: code_graph_validator.selftest: OK (6 test groups, all assertions green)
 - ✅ checks_append_endpoint_selftest: ok
@@ -26,7 +26,7 @@ _Generated: 2026-06-19T21:19:50.431Z_
 - ✅ desktop_structure_selftest: ok
   - output: desktop_structure.selftest: OK (13 test groups, all assertions green)
 - ✅ files_registry: ok
-  - output: Files registry validation: OK (alive=200, archived=4, dead=0)
+  - output: Files registry validation: OK (alive=201, archived=4, dead=0)
 - ✅ housekeeping_sweep: ok
   - output: housekeeping_sweeper: 1 proposal(s) — see atlas/cleanup_proposals.md
 - ✅ projects_contracts: ok
@@ -48,7 +48,7 @@ _Generated: 2026-06-19T21:19:50.431Z_
 - ✅ operator_profile_selftest: ok
   - output: operator_profile.selftest: OK (7 test groups, all assertions green)
 - ✅ aggregate_operator_profile: ok
-  - output: operator_profile: live (done=8, invocations=9, traces=5213, proposals=64)
+  - output: operator_profile: live (done=8, invocations=12, traces=7071, proposals=70)
 - ✅ operator_profile_lessons_smoke: ok
   - output: operator_profile_lessons.smoke: OK (6 test groups, all assertions green)
 - ✅ operator_profile_inject_smoke: ok
@@ -152,11 +152,11 @@ _Generated: 2026-06-19T21:19:50.431Z_
 - ✅ rebuild_roadmap: ok
   - output: Rebuilt /home/user/sima_atlas/atlas/roadmap.md
 - ✅ verify_all_acceptance: ok
-  - output: verify_all_acceptance: 11 pass / 0 fail / 8 inconclusive (assertions: 54 pass / 0 fail / 52 skipped)
+  - output: verify_all_acceptance: 10 pass / 1 fail / 8 inconclusive (assertions: 53 pass / 1 fail / 52 skipped)
 - ✅ verify_done_blocks_still_green: ok
-  - output: verify_done_blocks_still_green: checked=6 green=6 regressions=0 inconclusive=0
+  - output: verify_done_blocks_still_green: checked=5 green=5 regressions=0 inconclusive=0
 - ✅ mcp_smoke_e2e: ok
-  - output: mcp_smoke_e2e: OK
+  - output: mcp_smoke_e2e: OK (32 tools exercised)
 - ✅ intelligence_health: ok
   - output: Intelligence health: 0.9474 (18/19)
 

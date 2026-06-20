@@ -8,10 +8,12 @@
     "best_for": []
   },
   "claude": {
-    "count": 4,
-    "success_rate": 0.25,
+    "count": 7,
+    "success_rate": 0.57,
     "blocks_touched": [
-      "b.core-sync"
+      "b.core-sync",
+      "b.db",
+      "b.smoke-sandbox"
     ],
     "best_for": []
   }

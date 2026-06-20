@@ -5,9 +5,9 @@
   "rollback_rate": 0,
   "median_time_idea_to_done_h": 0.0000275,
   "common_failure_modes": {
-    "acceptance_verifier": 22,
-    "semantic_verify": 14,
-    "cascade_check": 2,
+    "acceptance_verifier": 28,
+    "semantic_verify": 16,
+    "cascade_check": 6,
     "drift_guard": 2,
     "agent_invocation": 3
   }

@@ -45,12 +45,12 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "a58dbcabaaadbb57",
+        "prompt_hash": "a5b54444b51d9571",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 1996
+      "duration_ms": 0
     },
     {
       "id": "A3",
@@ -71,10 +71,10 @@
         "exit_code": null,
         "stdout": "",
         "stderr": "",
-        "duration_ms": 30033,
+        "duration_ms": 30028,
         "timed_out": true
       },
-      "duration_ms": 30033
+      "duration_ms": 30028
     }
   ],
   "counts": {
@@ -83,6 +83,6 @@
     "skipped": 1
   },
   "verdict": "fail",
-  "duration_ms": 32031,
-  "checked_at": "2026-06-20T08:15:47.277Z"
+  "duration_ms": 30029,
+  "checked_at": "2026-06-20T08:35:07.148Z"
 }

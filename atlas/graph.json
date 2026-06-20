@@ -290,7 +290,7 @@
       "id": "b.acceptance-verifier-loop",
       "title": "Acceptance Verifier Loop",
       "status": "desync",
-      "status_reason": "cascade: parent b.db edit at 2026-06-20T08:06:27 broke acceptance",
+      "status_reason": "cascade: parent b.core-sync edit at 2026-06-20T08:31:02 broke acceptance",
       "layer": "testing",
       "type": "module",
       "mvp": false,
@@ -320,7 +320,7 @@
         "scripts/verify_done_blocks_still_green.mjs",
         "tests/acceptance_verifier.e2e.smoke.mjs"
       ],
-      "updated_at": "2026-06-20T08:06:27.162Z"
+      "updated_at": "2026-06-20T08:31:02.542Z"
     },
     {
       "id": "b.user-docs-generator",

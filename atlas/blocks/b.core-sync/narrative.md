@@ -159,3 +159,23 @@ Two previous runs failed semantic verify because: (1) no `atlas/sync_report.json
 - KPI-2 redefined as unidirectional — aligns with 2026-06-09 architecture decision; was incorrectly marked ✗ when the check was actually working.
 - validate_code_graph_sync.mjs added to files.md as new alive file owned by b.core-sync.
 - T2 is documented as deferred (not removed) — risk of breaking UI outweighs benefit of graph.json schema change.
+
+## 2026-06-20T08:32:50.152Z · semantic verify · fail
+
+### Contract-as-Arbiter judgment
+- The b.core-sync block critically fails to satisfy its contract. While it implements several structural validation checks and aggregates some findings into sync_report.json, it suffers from fundamental methodological and functional inconsistencies. Key failures include a broken mechanism for unifying the checks.log source of truth, a declared tech_stack (React) that contradicts its plain JavaScript implementation, and a complete bypass of its declared b.db dependencies. Additionally, not all structural validation findings are aggregated into the sync_report.json as promised.
+
+### To genuinely satisfy the contract
+- Unify Check Logging (T8): Modify frontend/atlas_sync.js's loadAtlas function to *always* rebuild localStorage's block.checks from the canonical atlas/blocks/<id>/checks.log file on disk. Ensure logCheck robustly handles server unavailability by queuing writes for later replay, as described in the mission.
+- Align b.db Dependencies: Refactor frontend/atlas_sync.js and scripts/validate_*.mjs to genuinely depend on b.db's atlas_state_store and file_registry capabilities, rather than directly accessing localStorage or the filesystem for these purposes. This requires b.db to provide these capabilities in a consumable way.
+- Ensure Comprehensive sync_report.json Contribution: Modify all structural validators (e.g., scripts/validate_no_template_placeholders.mjs, scripts/validate_stack_mismatch.mjs) to consistently write their findings (drift/broken items with file/line references) into the structured atlas/sync_report.json, mirroring validate_block_contracts.mjs.
+- Align Frontend Tech Stack: Either refactor frontend/atlas_sync.js to use React (as declared in tech_stack) or update the tech_stack contract to accurately reflect its plain JavaScript implementation.
+- Implement Semantic Sync (PR3/T7): Integrate LLM functionality to compare mission.md with checks.log and tasks.md, fulfilling KPI-3 and acceptance criterion A4. (This is a delegated task, but its absence means the block's full contract is not met).
+
+## 2026-06-20T08:32:50.166Z · autonomous loop · stalled
+
+### What failed and why
+- semantic verify FAILED — implementation does not match the block's meaning/methodology
+
+### Recommended action
+- Operator review: this block needs a human look (verifier/cascade not green under the autonomous loop).

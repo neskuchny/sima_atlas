@@ -15,17 +15,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/atlas_sync.selftest.mjs → exit 0 (172ms); first line: \"atlas_sync.selftest: OK\"",
+      "evidence": "node tests/atlas_sync.selftest.mjs → exit 0 (211ms); first line: \"atlas_sync.selftest: OK\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/atlas_sync.selftest.mjs",
         "exit_code": 0,
         "stdout": "atlas_sync.selftest: OK\n",
         "stderr": "",
-        "duration_ms": 172,
+        "duration_ms": 211,
         "timed_out": false
       },
-      "duration_ms": 172
+      "duration_ms": 211
     },
     {
       "id": "A2",
@@ -39,17 +39,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_dependency_contracts.mjs → exit 0 (126ms); first line: \"Dependency contract validation: OK\"",
+      "evidence": "node scripts/validate_dependency_contracts.mjs → exit 0 (139ms); first line: \"Dependency contract validation: OK\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_dependency_contracts.mjs",
         "exit_code": 0,
         "stdout": "Dependency contract validation: OK\n",
         "stderr": "",
-        "duration_ms": 126,
+        "duration_ms": 139,
         "timed_out": false
       },
-      "duration_ms": 126
+      "duration_ms": 139
     },
     {
       "id": "A3",
@@ -63,17 +63,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/atlas_sync.selftest.mjs → exit 0 (82ms); first line: \"atlas_sync.selftest: OK\"",
+      "evidence": "node tests/atlas_sync.selftest.mjs → exit 0 (196ms); first line: \"atlas_sync.selftest: OK\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/atlas_sync.selftest.mjs",
         "exit_code": 0,
         "stdout": "atlas_sync.selftest: OK\n",
         "stderr": "",
-        "duration_ms": 82,
+        "duration_ms": 196,
         "timed_out": false
       },
-      "duration_ms": 82
+      "duration_ms": 196
     },
     {
       "id": "A4",
@@ -90,12 +90,12 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "ec65dd2cdb03b760",
+        "prompt_hash": "3ed2278b46d2f164",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 2
+      "duration_ms": 13
     },
     {
       "id": "A5",
@@ -109,17 +109,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (83ms); first line: \"Block contract validation: OK\"",
+      "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (131ms); first line: \"Block contract validation: OK\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_block_contracts.mjs",
         "exit_code": 0,
         "stdout": "Block contract validation: OK\n",
         "stderr": "",
-        "duration_ms": 83,
+        "duration_ms": 131,
         "timed_out": false
       },
-      "duration_ms": 83
+      "duration_ms": 131
     }
   ],
   "counts": {
@@ -128,6 +128,6 @@
     "skipped": 1
   },
   "verdict": "pass",
-  "duration_ms": 467,
-  "checked_at": "2026-06-20T08:16:26.560Z"
+  "duration_ms": 691,
+  "checked_at": "2026-06-20T08:40:05.361Z"
 }

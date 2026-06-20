@@ -1,6 +1,6 @@
 {
   "contractValidation": {
-    "checkedAt": "2026-06-20T08:16:26.548Z",
+    "checkedAt": "2026-06-20T08:40:05.343Z",
     "total": 19,
     "broken": 0,
     "details": []
@@ -11,7 +11,7 @@
     "details": []
   },
   "codeGraphDrift": {
-    "checkedAt": "2026-06-19T21:19:50.976Z",
+    "checkedAt": "2026-06-20T08:39:10.894Z",
     "driftCount": 22,
     "details": [
       {
@@ -201,6 +201,7 @@
           "scripts/validate_block_contracts.mjs",
           "scripts/validate_bootstrap_projection.mjs",
           "scripts/validate_bootstrap_regeneration.mjs",
+          "scripts/validate_code_graph_sync.mjs",
           "scripts/validate_dependency_contracts.mjs",
           "scripts/validate_files_registry.mjs",
           "scripts/validate_ingestion_contracts.mjs",
@@ -568,5 +569,11 @@
         "hint": "«user_docs_meta» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.user-docs-generator/provides.md."
       }
     ]
+  },
+  "dependencyValidation": {
+    "checkedAt": "2026-06-20T08:40:04.988Z",
+    "totalDepsChecked": 33,
+    "broken": 0,
+    "details": []
   }
 }

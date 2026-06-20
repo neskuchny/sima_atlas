@@ -39,3 +39,4 @@
 2026-06-20T00:00:00.000Z | KPI-2 redefined as unidirectional mismatch detection | per arch decision 2026-06-09 stack check is unidirectional; KPI-2 updated from "confirms stack by files.md imports" to "detects cross-ecosystem mismatches" aligning KPI-2 with A3
 2026-06-20T00:00:00.000Z | validate_dependency_contracts.mjs now writes to sync_report.json | missing piece — all other validators (validate_block_contracts, validate_stack_mismatch) already wrote to sync_report.json; now dependencyValidation section added
 2026-06-20T00:00:00.000Z | validate_code_graph_sync.mjs created | formalizes b.core-sync's consumption of b.code-graph: code_graph; reads atlas/code_graph.json and writes codeGraphSummary to sync_report.json
+2026-06-20T08:30:57.935Z	reflect_after_run	b.core-sync__2026-06-20T08-16-28-760Z	Succeeded	Succeeded run; see patterns.md#b.core-sync__2026-06-20T08-16-28-760Z

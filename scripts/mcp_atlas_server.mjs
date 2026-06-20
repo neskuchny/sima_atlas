@@ -19,7 +19,10 @@ function atomicWriteFileSync(filePath, data, encoding = 'utf8') {
 function validateGraphSchema(graph) {
   const schemaPath = path.join(atlasRoot, 'db_schema.json');
   if (!fs.existsSync(schemaPath)) return;
-  const validStatuses = ['idea', 'wip', 'review', 'done', 'drift', 'broken', 'desync'];
+  // R-7.99 V-1 overnight fix: `archived` was missing from the enum the
+  // V-1 agent added — b.block-1 / b.block-2 are legitimately archived and
+  // any update_block call against them threw schema-violation. Restored.
+  const validStatuses = ['idea', 'wip', 'review', 'done', 'drift', 'broken', 'desync', 'archived'];
   const errs = [];
   if (typeof graph.version !== 'number') errs.push('"version" must be a number');
   if (!Array.isArray(graph.blocks)) {

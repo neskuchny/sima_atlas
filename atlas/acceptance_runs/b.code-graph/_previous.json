@@ -18,12 +18,12 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "7bff2006f7d63614",
+        "prompt_hash": "510b92d4b0d4f783",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 1832
+      "duration_ms": 1
     },
     {
       "id": "A2",
@@ -40,12 +40,12 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "60ff965f256bc654",
+        "prompt_hash": "216b7a55102e4878",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 1615
+      "duration_ms": 0
     },
     {
       "id": "A3",
@@ -62,12 +62,12 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "df882aa0b8c5a23f",
+        "prompt_hash": "ede36cf790f2f4c7",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 1779
+      "duration_ms": 0
     },
     {
       "id": "A4",
@@ -84,12 +84,12 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "b7317939b6e90dfe",
+        "prompt_hash": "db0d9b43e4231637",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 1602
+      "duration_ms": 1
     },
     {
       "id": "A5",
@@ -106,12 +106,12 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "ed8ac7967597c7aa",
+        "prompt_hash": "1d45785d96b8fb32",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 1517
+      "duration_ms": 0
     },
     {
       "id": "A6",
@@ -128,12 +128,12 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "414093c9db5f2bef",
+        "prompt_hash": "0e5dbd01e825306a",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 1605
+      "duration_ms": 0
     },
     {
       "id": "A7",
@@ -150,12 +150,12 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "867e03cca5e4f62e",
+        "prompt_hash": "1698e6d8823ce507",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 1664
+      "duration_ms": 0
     }
   ],
   "counts": {
@@ -165,6 +165,6 @@
   },
   "verdict": "inconclusive",
   "inconclusive_if_declared": 1,
-  "duration_ms": 11617,
-  "checked_at": "2026-06-20T08:06:14.294Z"
+  "duration_ms": 3,
+  "checked_at": "2026-06-20T08:34:37.059Z"
 }

@@ -1,6 +1,6 @@
 # Roadmap (auto-generated, PR2 topo-sort)
 
-_Generated: 2026-06-20T08:27:02.323Z_
+_Generated: 2026-06-20T08:41:07.978Z_
 
 Приоритет внутри уровня: 🔴 broken → 🟣 drift → 🟠 wip → 🔵 review → 🟡 idea → 🟢 done.
 Каждый следующий уровень зависит от предыдущих — реализовывать сверху вниз.
@@ -54,7 +54,7 @@ _Generated: 2026-06-20T08:27:02.323Z_
 - 🟢 **b.operator-profile-learner** (done) — Operator Profile Learner · _ai_ · deps: `b.db`, `b.core-sync`, `b.agent-orchestrator`, `b.llm-gateway`, `b.docs`
   - Phase I: verifier FAIL on A6 — profile-compliance UI badge (complianceWithProfile) was lost in the R-7.30 single-file→atlas_design refactor and not reimplemented. Genuine feature gap, honestly not done.
 - ⚪ **b.acceptance-verifier-loop** (desync) — Acceptance Verifier Loop · _testing_ · deps: `b.db`, `b.core-sync`, `b.agent-orchestrator`, `b.llm-gateway`
-  - cascade: parent b.db edit at 2026-06-20T08:06:27 broke acceptance
+  - cascade: parent b.core-sync edit at 2026-06-20T08:31:02 broke acceptance
 - 🟢 **b.user-docs-generator** (done) — End-User Docs Generator · _content_ · deps: `b.db`, `b.docs`, `b.agent-orchestrator`, `b.llm-gateway`
   - Phase I: verifier FAIL on A1 (introspect_block_ui.selftest) — coupled to deleted frontend/proposals_panel.jsx. Test fixture needs repointing to a current JSX file.
 - 🟢 **b.desktop** (done) — Desktop App · _ext_ · deps: `b.db`, `b.ui-control`, `b.agent-orchestrator`

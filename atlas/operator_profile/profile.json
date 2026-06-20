@@ -1,11 +1,11 @@
 {
   "operator_id": "default",
-  "updated_at": "2026-06-19T21:19:52.840Z",
+  "updated_at": "2026-06-20T08:39:13.331Z",
   "_status": "live",
   "_min_data": {
     "done_transitions": 8,
     "done_required": 5,
-    "invocations": 9,
+    "invocations": 12,
     "invocations_required": 10
   },
   "work_style": {
@@ -15,9 +15,9 @@
     "rollback_rate": 0,
     "median_time_idea_to_done_h": 0.0000275,
     "common_failure_modes": {
-      "acceptance_verifier": 22,
-      "semantic_verify": 14,
-      "cascade_check": 2,
+      "acceptance_verifier": 28,
+      "semantic_verify": 16,
+      "cascade_check": 6,
       "drift_guard": 2,
       "agent_invocation": 3
     }
@@ -32,10 +32,12 @@
       "best_for": []
     },
     "claude": {
-      "count": 4,
-      "success_rate": 0.25,
+      "count": 7,
+      "success_rate": 0.57,
       "blocks_touched": [
-        "b.core-sync"
+        "b.core-sync",
+        "b.db",
+        "b.smoke-sandbox"
       ],
       "best_for": []
     }
@@ -310,45 +312,45 @@
   },
   "llm_provider_stats": {
     "mock": {
-      "count": 5136,
-      "fallback_to_mock_count": 79,
+      "count": 6952,
+      "fallback_to_mock_count": 546,
       "total_cost_usd": 0,
-      "schema_ok_count": 5136,
-      "fallback_rate": 0.02,
+      "schema_ok_count": 6952,
+      "fallback_rate": 0.08,
       "schema_ok_rate": 1,
       "avg_cost_usd": 0
     },
     "claude_cli": {
-      "count": 46,
+      "count": 53,
       "fallback_to_mock_count": 0,
       "total_cost_usd": 0,
-      "schema_ok_count": 46,
+      "schema_ok_count": 53,
       "fallback_rate": 0,
       "schema_ok_rate": 1,
       "avg_cost_usd": 0
     },
     "google": {
-      "count": 31,
+      "count": 66,
       "fallback_to_mock_count": 0,
-      "total_cost_usd": 0.0246598,
-      "schema_ok_count": 31,
+      "total_cost_usd": 0.0317567,
+      "schema_ok_count": 66,
       "fallback_rate": 0,
       "schema_ok_rate": 1,
-      "avg_cost_usd": 0.000795
+      "avg_cost_usd": 0.000481
     }
   },
   "proposals_stats": {
-    "total": 64,
+    "total": 70,
     "accept_rate": 0,
     "reject_rate": 0,
-    "pending": 64
+    "pending": 70
   },
   "decisions_stats": {
-    "total": 330,
-    "blocks_with_decisions": 6
+    "total": 2833,
+    "blocks_with_decisions": 7
   },
   "patterns_stats": {
-    "with_patterns": 5,
+    "with_patterns": 6,
     "total": 20
   },
   "failures": [
@@ -393,6 +395,54 @@
       "ts": "2026-06-09T20:15:33.665Z",
       "kind": "acceptance_verifier",
       "note": "verdict=fail pass=5 fail=2 skipped=1 fails=[A2:node tests/evidence_collectors.selftest.mjs → exit null; tim; A3:node tests/llm_judge.smoke.mjs → exit null; timed out after ]"
+    },
+    {
+      "block_id": "b.acceptance-verifier-loop",
+      "ts": "2026-06-20T08:05:16.356Z",
+      "kind": "acceptance_verifier",
+      "note": "verdict=fail pass=6 fail=1 skipped=1 fails=[A3:node tests/llm_judge.smoke.mjs → exit 1; stderr: \"[llm-gatew]"
+    },
+    {
+      "block_id": "b.acceptance-verifier-loop",
+      "ts": "2026-06-20T08:04:50.537Z",
+      "kind": "cascade_check",
+      "note": "broken by parent b.db edit — verifier failed; status auto-set to desync"
+    },
+    {
+      "block_id": "b.acceptance-verifier-loop",
+      "ts": "2026-06-20T08:06:51.721Z",
+      "kind": "acceptance_verifier",
+      "note": "verdict=fail pass=6 fail=1 skipped=1 fails=[A3:node tests/llm_judge.smoke.mjs → exit 1; stderr: \"[llm-gatew]"
+    },
+    {
+      "block_id": "b.acceptance-verifier-loop",
+      "ts": "2026-06-20T08:06:27.162Z",
+      "kind": "cascade_check",
+      "note": "broken by parent b.db edit — verifier failed; status auto-set to desync"
+    },
+    {
+      "block_id": "b.acceptance-verifier-loop",
+      "ts": "2026-06-20T08:30:08.421Z",
+      "kind": "acceptance_verifier",
+      "note": "verdict=fail pass=6 fail=1 skipped=1 fails=[A3:node tests/llm_judge.smoke.mjs → exit 1; stderr: \"[llm-gatew]"
+    },
+    {
+      "block_id": "b.acceptance-verifier-loop",
+      "ts": "2026-06-20T08:29:39.423Z",
+      "kind": "cascade_check",
+      "note": "broken by parent b.core-sync edit — verifier failed; status auto-set to desync"
+    },
+    {
+      "block_id": "b.acceptance-verifier-loop",
+      "ts": "2026-06-20T08:31:30.151Z",
+      "kind": "acceptance_verifier",
+      "note": "verdict=fail pass=6 fail=1 skipped=1 fails=[A3:node tests/llm_judge.smoke.mjs → exit 1; stderr: \"[llm-gatew]"
+    },
+    {
+      "block_id": "b.acceptance-verifier-loop",
+      "ts": "2026-06-20T08:31:02.542Z",
+      "kind": "cascade_check",
+      "note": "broken by parent b.core-sync edit — verifier failed; status auto-set to desync"
     },
     {
       "block_id": "b.agent-orchestrator",
@@ -497,6 +547,18 @@
       "note": "mission_fulfilled=fail conditions_met=fail methodology_followed=fail works_as_described=fail connections_consistent=fail"
     },
     {
+      "block_id": "b.core-sync",
+      "ts": "2026-06-20T08:32:50.152Z",
+      "kind": "semantic_verify",
+      "note": "mission_fulfilled=fail conditions_met=fail methodology_followed=fail works_as_described=fail connections_consistent=fail"
+    },
+    {
+      "block_id": "b.db",
+      "ts": "2026-06-20T08:08:20.748Z",
+      "kind": "semantic_verify",
+      "note": "mission_fulfilled=fail conditions_met=fail methodology_followed=fail works_as_described=fail connections_consistent=pass"
+    },
+    {
       "block_id": "b.docs",
       "ts": "2026-06-05T22:03:02.631Z",
       "kind": "acceptance_verifier",
@@ -575,6 +637,18 @@
       "note": "verdict=fail pass=6 fail=1 skipped=1 fails=[A4:node tests/operator_profile_lessons.smoke.mjs → exit null; t]"
     },
     {
+      "block_id": "b.smoke-sandbox",
+      "ts": "2026-06-20T08:15:47.277Z",
+      "kind": "acceptance_verifier",
+      "note": "verdict=fail pass=1 fail=1 skipped=1 fails=[A3:node scripts/mcp_smoke_e2e.mjs → exit null; timed out after ]"
+    },
+    {
+      "block_id": "b.smoke-sandbox",
+      "ts": "2026-06-20T08:16:25.888Z",
+      "kind": "acceptance_verifier",
+      "note": "verdict=fail pass=1 fail=1 skipped=1 fails=[A3:node scripts/mcp_smoke_e2e.mjs → exit null; timed out after ]"
+    },
+    {
       "block_id": "b.ui-control",
       "ts": "2026-06-09T18:08:00.693Z",
       "kind": "semantic_verify",
@@ -611,11 +685,11 @@
       "note": "verdict=fail pass=5 fail=3 skipped=0 fails=[A2:node tests/user_docs.smoke.mjs → exit null; timed out after ; A3:node tests/screenshots_integration.selftest.mjs → exit null;]"
     }
   ],
-  "invocations_total": 9,
+  "invocations_total": 12,
   "_preview": {
     "total_done": 8,
-    "total_invocations": 9,
-    "total_traces": 5213,
-    "total_proposals": 64
+    "total_invocations": 12,
+    "total_traces": 7071,
+    "total_proposals": 70
   }
 }

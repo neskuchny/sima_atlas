@@ -60,6 +60,7 @@
         "scripts/validate_block_contracts.mjs",
         "scripts/validate_bootstrap_projection.mjs",
         "scripts/validate_bootstrap_regeneration.mjs",
+        "scripts/validate_code_graph_sync.mjs",
         "scripts/validate_dependency_contracts.mjs",
         "scripts/validate_files_registry.mjs",
         "scripts/validate_ingestion_contracts.mjs",
@@ -2707,7 +2708,7 @@
           "external": true,
           "from": "node:child_process",
           "kind": "static",
-          "line": 2,
+          "line": 15,
           "resolved_to": null,
           "specifiers": [
             {
@@ -3833,6 +3834,38 @@
             {
               "kind": "named",
               "name": "execFileSync"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.core-sync"
+    },
+    "scripts/validate_code_graph_sync.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 6,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 7,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
             }
           ]
         }

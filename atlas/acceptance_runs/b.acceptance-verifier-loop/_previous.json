@@ -15,17 +15,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/parse_acceptance.selftest.mjs → exit 0 (61ms); first line: \"parse_acceptance.selftest: OK (9 test groups, all assertions green)\"",
+      "evidence": "node tests/parse_acceptance.selftest.mjs → exit 0 (60ms); first line: \"parse_acceptance.selftest: OK (9 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/parse_acceptance.selftest.mjs",
         "exit_code": 0,
         "stdout": "parse_acceptance.selftest: OK (9 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 61,
+        "duration_ms": 60,
         "timed_out": false
       },
-      "duration_ms": 61
+      "duration_ms": 60
     },
     {
       "id": "A2",
@@ -39,17 +39,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/evidence_collectors.selftest.mjs → exit 0 (1876ms); first line: \"[llm-gateway] using provider=google (explicit LLM_DEFAULT_PROVIDER)\"",
+      "evidence": "node tests/evidence_collectors.selftest.mjs → exit 0 (207ms); first line: \"evidence_collectors.selftest: OK (13 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/evidence_collectors.selftest.mjs",
         "exit_code": 0,
-        "stdout": "[llm-gateway] using provider=google (explicit LLM_DEFAULT_PROVIDER)\nevidence_collectors.selftest: OK (13 test groups, all assertions green)\n",
+        "stdout": "evidence_collectors.selftest: OK (13 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 1876,
+        "duration_ms": 207,
         "timed_out": false
       },
-      "duration_ms": 1876
+      "duration_ms": 207
     },
     {
       "id": "A3",
@@ -62,18 +62,18 @@
         "cmd": "node tests/llm_judge.smoke.mjs",
         "expect_in_stdout": "OK"
       },
-      "verdict": "fail",
-      "evidence": "node tests/llm_judge.smoke.mjs → exit 1; stderr: \"[llm-gateway] google failed (google did not return JSON: {\"verdict\": \"inconclusive\", \"reasoning\":); trying next in cascade [mock]\"",
-      "reasoning": "shell exit 1",
+      "verdict": "pass",
+      "evidence": "node tests/llm_judge.smoke.mjs → exit 0 (74ms); first line: \"llm_judge.smoke: OK (4 test groups, all assertions green)\"",
+      "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/llm_judge.smoke.mjs",
-        "exit_code": 1,
-        "stdout": "[llm-gateway] using provider=google (explicit LLM_DEFAULT_PROVIDER)\n[llm-gateway] using provider=google (explicit LLM_DEFAULT_PROVIDER)\n[llm-gateway] using provider=google (explicit LLM_DEFAULT_PROVIDER)\n[llm-gateway] using provider=google (explicit LLM_DEFAULT_PROVIDER)\n",
-        "stderr": "[llm-gateway] google failed (google did not return JSON: {\"verdict\": \"inconclusive\", \"reasoning\":); trying next in cascade [mock]\nllm_judge.smoke: FAIL\n ✗ group1:reasoning explains mock unavailable — reasoning=The provided text mentions 'test fixtures' in a general sense but does not offer any specific information to confirm or deny the existence of a fixture for the given assertion.\n ✗ group1:cost = 0\n ✗ group1:provider = mock\n ✗ group4:cost_usd 0 on mock\n",
-        "duration_ms": 7089,
+        "exit_code": 0,
+        "stdout": "llm_judge.smoke: OK (4 test groups, all assertions green)\n",
+        "stderr": "",
+        "duration_ms": 74,
         "timed_out": false
       },
-      "duration_ms": 7089
+      "duration_ms": 74
     },
     {
       "id": "A4",
@@ -87,17 +87,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/acceptance_verifier.e2e.smoke.mjs → exit 0 (466ms); first line: \"acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\"",
+      "evidence": "node tests/acceptance_verifier.e2e.smoke.mjs → exit 0 (387ms); first line: \"acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/acceptance_verifier.e2e.smoke.mjs",
         "exit_code": 0,
         "stdout": "acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\n",
         "stderr": "",
-        "duration_ms": 466,
+        "duration_ms": 387,
         "timed_out": false
       },
-      "duration_ms": 466
+      "duration_ms": 387
     },
     {
       "id": "A5",
@@ -123,7 +123,7 @@
           "function AcceptanceSection({ moduleId, onClaudeAdvice, moduleObj }) {"
         ]
       },
-      "duration_ms": 3
+      "duration_ms": 1
     },
     {
       "id": "A6",
@@ -137,17 +137,17 @@
         "expect_in_stdout": "5 phases"
       },
       "verdict": "pass",
-      "evidence": "node tests/acceptance_verifier.e2e.smoke.mjs → exit 0 (456ms); first line: \"acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\"",
+      "evidence": "node tests/acceptance_verifier.e2e.smoke.mjs → exit 0 (405ms); first line: \"acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\"",
       "reasoning": "shell exit code 0 and stdout matches /5 phases/",
       "raw": {
         "cmd": "node tests/acceptance_verifier.e2e.smoke.mjs",
         "exit_code": 0,
         "stdout": "acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\n",
         "stderr": "",
-        "duration_ms": 456,
+        "duration_ms": 405,
         "timed_out": false
       },
-      "duration_ms": 456
+      "duration_ms": 405
     },
     {
       "id": "A7",
@@ -177,7 +177,7 @@
           "/home/user/sima_atlas/atlas/acceptance_runs/b.product-ingest/_latest.json"
         ]
       },
-      "duration_ms": 11
+      "duration_ms": 3
     },
     {
       "id": "A8",
@@ -194,20 +194,20 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "974acebe80760001",
+        "prompt_hash": "09aa79ae174a70bc",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 1795
+      "duration_ms": 0
     }
   ],
   "counts": {
-    "pass": 6,
-    "fail": 1,
+    "pass": 7,
+    "fail": 0,
     "skipped": 1
   },
-  "verdict": "fail",
-  "duration_ms": 11759,
-  "checked_at": "2026-06-20T08:05:16.356Z"
+  "verdict": "pass",
+  "duration_ms": 1137,
+  "checked_at": "2026-06-20T08:34:36.272Z"
 }

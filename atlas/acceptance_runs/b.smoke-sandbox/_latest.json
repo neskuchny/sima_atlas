@@ -45,12 +45,12 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "1adc0eec2a8ecd99",
+        "prompt_hash": "fe1216412c126266",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 2
+      "duration_ms": 0
     },
     {
       "id": "A3",
@@ -83,6 +83,6 @@
     "skipped": 1
   },
   "verdict": "fail",
-  "duration_ms": 30038,
-  "checked_at": "2026-06-20T08:16:25.888Z"
+  "duration_ms": 30036,
+  "checked_at": "2026-06-20T08:40:04.379Z"
 }

@@ -93,7 +93,7 @@
       },
       "progress": {
         "tasks": {
-          "done": 4,
+          "done": 6,
           "total": 8
         },
         "kpi": {
@@ -298,13 +298,13 @@
     },
     {
       "id": "b.acceptance-verifier-loop",
-      "_raw_updated_at": "2026-06-09T19:50:57.102Z",
+      "_raw_updated_at": "2026-06-20T08:31:02.542Z",
       "title": "Acceptance Verifier Loop",
       "tag": "acceptance-verifier-loop",
       "layer": "tests",
-      "status": "done",
+      "status": "todo",
       "priority": 3,
-      "checked": true,
+      "checked": false,
       "size": "lg",
       "parent_block_id": null,
       "contract": {
@@ -390,7 +390,7 @@
       "progress": {
         "tasks": {
           "done": 0,
-          "total": 10
+          "total": 11
         },
         "kpi": {
           "checked": 1,
@@ -935,8 +935,8 @@
     "b.core-sync": [
       {
         "id": "T1",
-        "title": "Расширить модель блока в `graph.json` полями `layer/type/mvp/subschema_id/files` (схема v2) — PR2",
-        "status": "todo",
+        "title": "Расширить модель блока в `graph.json` полями `layer/type/mvp/subschema_id/files` (схема v2) — PR2 (все блоки уже несут layer/type/mvp/subschema_id/files; graph.json имеет `\"version\": 2`)",
+        "status": "done",
         "priority": "P2",
         "agent": null,
         "why": "",
@@ -944,7 +944,7 @@
       },
       {
         "id": "T2",
-        "title": "Контракт `depends_on: [{block_id, capability}]` (структурный объект, не строка) — PR2",
+        "title": "Контракт `depends_on: [{block_id, capability}]` (структурный объект, не строка) — PR2 (DEFERRED: изменение формата graph.json's depends_on ломает UI-компоненты из b.ui-control; depends_on.md уже имеет",
         "status": "todo",
         "priority": "P2",
         "agent": null,
@@ -980,8 +980,8 @@
       },
       {
         "id": "T6",
-        "title": "false-positive guard: при двух запусках без изменений — отчёт идентичен — PR2",
-        "status": "todo",
+        "title": "false-positive guard: при двух запусках без изменений — отчёт идентичен — PR2 (validate_*.mjs не используют Math.random() или time-based seeding в findings; findings идентичны между запусками; только ",
+        "status": "done",
         "priority": "P2",
         "agent": null,
         "why": "",
@@ -2100,6 +2100,15 @@
         "agent": null,
         "why": "",
         "accept": ""
+      },
+      {
+        "id": "T11",
+        "title": "Investigate `code_graph_extractor.selftest` Group 9 (determinism via sha256) intermittently failing in nightly while passing on isolation. Suspect: subprocess spawn race with concurrent filesystem wri",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
       }
     ],
     "b.desktop": [
@@ -2493,7 +2502,7 @@
     }
   ],
   "_meta": {
-    "generated_at": "2026-06-19T21:19:56.959Z",
+    "generated_at": "2026-06-20T08:39:19.021Z",
     "atlas_root": "atlas",
     "client_id": null,
     "block_count": 19,

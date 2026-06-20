@@ -46,3 +46,7 @@
 2026-06-20T08:04:50.537Z	cascade_check	fail	broken by parent b.db edit — verifier failed; status auto-set to desync
 2026-06-20T08:06:51.721Z	acceptance_verifier	fail	verdict=fail pass=6 fail=1 skipped=1 fails=[A3:node tests/llm_judge.smoke.mjs → exit 1; stderr: "[llm-gatew]
 2026-06-20T08:06:27.162Z	cascade_check	fail	broken by parent b.db edit — verifier failed; status auto-set to desync
+2026-06-20T08:30:08.421Z	acceptance_verifier	fail	verdict=fail pass=6 fail=1 skipped=1 fails=[A3:node tests/llm_judge.smoke.mjs → exit 1; stderr: "[llm-gatew]
+2026-06-20T08:29:39.423Z	cascade_check	fail	broken by parent b.core-sync edit — verifier failed; status auto-set to desync
+2026-06-20T08:31:30.151Z	acceptance_verifier	fail	verdict=fail pass=6 fail=1 skipped=1 fails=[A3:node tests/llm_judge.smoke.mjs → exit 1; stderr: "[llm-gatew]
+2026-06-20T08:31:02.542Z	cascade_check	fail	broken by parent b.core-sync edit — verifier failed; status auto-set to desync

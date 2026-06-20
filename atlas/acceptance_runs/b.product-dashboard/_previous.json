@@ -111,7 +111,7 @@
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 1
+      "duration_ms": 0
     },
     {
       "id": "A12",
@@ -133,7 +133,7 @@
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 0
+      "duration_ms": 3
     }
   ],
   "counts": {
@@ -142,6 +142,6 @@
     "skipped": 6
   },
   "verdict": "inconclusive",
-  "duration_ms": 1,
-  "checked_at": "2026-06-19T21:18:58.318Z"
+  "duration_ms": 4,
+  "checked_at": "2026-06-20T08:35:07.168Z"
 }
