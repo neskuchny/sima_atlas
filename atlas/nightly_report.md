@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-06-20T12:39:48.876Z_
+_Generated: 2026-06-20T17:34:02.869Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -48,7 +48,7 @@ _Generated: 2026-06-20T12:39:48.876Z_
 - ✅ operator_profile_selftest: ok
   - output: operator_profile.selftest: OK (7 test groups, all assertions green)
 - ✅ aggregate_operator_profile: ok
-  - output: operator_profile: live (done=8, invocations=12, traces=8379, proposals=80)
+  - output: operator_profile: live (done=8, invocations=12, traces=8573, proposals=82)
 - ✅ operator_profile_lessons_smoke: ok
   - output: operator_profile_lessons.smoke: OK (6 test groups, all assertions green)
 - ✅ operator_profile_inject_smoke: ok

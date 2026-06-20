@@ -15,14 +15,14 @@
         "min_count": 1
       },
       "verdict": "pass",
-      "evidence": "glob extensions/desktop/main.mjs → 1 files (min=1); newest 924min ago",
+      "evidence": "glob extensions/desktop/main.mjs → 1 files (min=1); newest 1219min ago",
       "reasoning": "1 files match (≥1)",
       "raw": {
         "pattern": "extensions/desktop/main.mjs",
         "count": 1,
         "min_count": 1,
         "max_age_min": null,
-        "newest_minutes_ago": 924,
+        "newest_minutes_ago": 1219,
         "sample": [
           "/home/user/sima_atlas/extensions/desktop/main.mjs"
         ]
@@ -41,17 +41,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/desktop_structure.selftest.mjs → exit 0 (79ms); first line: \"desktop_structure.selftest: OK (14 test groups, all assertions green)\"",
+      "evidence": "node tests/desktop_structure.selftest.mjs → exit 0 (51ms); first line: \"desktop_structure.selftest: OK (14 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/desktop_structure.selftest.mjs",
         "exit_code": 0,
         "stdout": "desktop_structure.selftest: OK (14 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 79,
+        "duration_ms": 51,
         "timed_out": false
       },
-      "duration_ms": 79
+      "duration_ms": 51
     },
     {
       "id": "A3",
@@ -189,6 +189,6 @@
   },
   "verdict": "pass",
   "inconclusive_if_declared": 1,
-  "duration_ms": 79,
-  "checked_at": "2026-06-20T12:40:10.450Z"
+  "duration_ms": 51,
+  "checked_at": "2026-06-20T17:34:29.330Z"
 }

@@ -23,7 +23,7 @@
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 0
+      "duration_ms": 1
     },
     {
       "id": "A2",
@@ -45,7 +45,7 @@
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 1
+      "duration_ms": 0
     },
     {
       "id": "A3",
@@ -166,5 +166,5 @@
   "verdict": "inconclusive",
   "inconclusive_if_declared": 1,
   "duration_ms": 2,
-  "checked_at": "2026-06-20T12:40:06.599Z"
+  "checked_at": "2026-06-20T17:34:25.890Z"
 }
