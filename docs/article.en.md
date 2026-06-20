@@ -767,6 +767,11 @@ This is a living roadmap — adjusted after each phase. Markers: ✅ done, 🟡 
 - **W-2** ⬜ — batch mode: an agency-style operator manages 10 projects in parallel, each with its own `atlas/` under one dashboard.
 - **W-3** ⬜ — community archetypes: shared operator profiles (vibe-coding novice / mid-stage startup / enterprise) as a starting point for cross-product memory. Closes the cold-start of the operator's first project. See Appendix B.6.
 
+**Desktop / packaging (R-7.99 → v0.4.0):**
+- **D-1** ✅ R-7.99 — Sima Atlas as a downloadable program: `b.desktop` block with Electron wrapper, native menu (File / Run / View / Help + hotkeys ⌘⇧V/G/R), `electron-updater` auto-update, Project Picker modal for switching between `~/SimaProjects/<name>/atlas/` instances. CI workflow `.github/workflows/desktop-build.yml` builds `.dmg` (macOS arm64+x64), `.exe` installer + portable (Windows), `.AppImage` + `.deb` (Linux) on every `v*.*.*` tag push and attaches them to the GitHub Release.
+- **D-2** ⬜ — signing + notarization for code distribution: **Apple Developer ID** ($99/year) for macOS notarization removes the Gatekeeper «cannot be opened because the developer cannot be verified» warning; **Windows EV Code Signing Certificate** (~$300/year) removes the SmartScreen warning. One-line config flip in `desktop-build.yml` once secrets land in repo settings. Block contract `b.desktop` carries this as **PR5** (T13/T14/T15) — operator task gated on certificates, not blocked on code.
+- **D-3** ⬜ — Sima Atlas on the App Store / Microsoft Store distribution channels (requires D-2 first; some additional metadata + screenshots; Apple takes 30%, Microsoft 0% for free apps).
+
 **Parallel development inside Tessent:**
 - **X-Core** 🟡 — `Sima Core`: runtime stack of memory, principles, and episodes for AI agents; developed inside our main product Tessent. May become open-source in the future (see Part 7.3).
 

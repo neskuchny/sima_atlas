@@ -761,6 +761,11 @@ _Статусы — честные, из `graph.json` на момент гене
 - **W-2** ⬜ — пакетный режим: клиент-агентство берёт 10 проектов параллельно, каждый со своим atlas/ под одним dashboard'ом.
 - **W-3** ⬜ — community archetypes: shared профили оператора (новичок-вайб-кодер / mid-стартап / enterprise) как стартовая точка для cross-product memory. Закрывает «холодный старт» первого проекта оператора. См. Приложение B.6.
 
+**Desktop / packaging (R-7.99 → v0.4.0):**
+- **D-1** ✅ R-7.99 — Sima Atlas как скачиваемая программа: блок `b.desktop` с Electron-обёрткой, нативным меню (File / Run / View / Help + хоткеи ⌘⇧V/G/R), auto-update через `electron-updater`, Project Picker modal для переключения между `~/SimaProjects/<name>/atlas/`. CI workflow `.github/workflows/desktop-build.yml` собирает `.dmg` (macOS arm64+x64), `.exe` installer + portable (Windows), `.AppImage` + `.deb` (Linux) на каждый `v*.*.*` тег и прикрепляет к GitHub Release.
+- **D-2** ⬜ — подпись + нотаризация для коммерческой дистрибуции: **Apple Developer ID** ($99/год) для macOS-нотаризации убирает «cannot be opened because the developer cannot be verified»; **Windows EV Code Signing Certificate** (~$300/год) убирает SmartScreen-warning. Один конфиг-флип в `desktop-build.yml` после того как секреты попадают в repo settings. Контракт `b.desktop` несёт это как **PR5** (T13/T14/T15) — операторская задача, заблокирована сертификатами, не кодом.
+- **D-3** ⬜ — Sima Atlas в App Store / Microsoft Store (требует D-2; плюс метаданные + скриншоты; Apple берёт 30%, Microsoft 0% для бесплатных приложений).
+
 **Параллельная разработка внутри Tessent:**
 - **X-Core** 🟡 — `Sima Core`: runtime-стек памяти, принципов и эпизодов для AI-агентов; разрабатывается внутри нашего основного продукта Tessent. Может стать opensource в будущем (см. Часть 7.3).
 
