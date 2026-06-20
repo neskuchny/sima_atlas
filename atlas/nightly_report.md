@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-06-20T11:14:19.335Z_
+_Generated: 2026-06-20T11:43:11.075Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -24,7 +24,7 @@ _Generated: 2026-06-20T11:14:19.335Z_
 - ✅ checks_append_endpoint_selftest: ok
   - output: checks_append_endpoint.selftest: OK (6 test groups, all assertions green)
 - ✅ desktop_structure_selftest: ok
-  - output: desktop_structure.selftest: OK (13 test groups, all assertions green)
+  - output: desktop_structure.selftest: OK (14 test groups, all assertions green)
 - ✅ files_registry: ok
   - output: Files registry validation: OK (alive=201, archived=4, dead=0)
 - ✅ housekeeping_sweep: ok
@@ -48,7 +48,7 @@ _Generated: 2026-06-20T11:14:19.335Z_
 - ✅ operator_profile_selftest: ok
   - output: operator_profile.selftest: OK (7 test groups, all assertions green)
 - ✅ aggregate_operator_profile: ok
-  - output: operator_profile: live (done=8, invocations=12, traces=7603, proposals=72)
+  - output: operator_profile: live (done=8, invocations=12, traces=7797, proposals=74)
 - ✅ operator_profile_lessons_smoke: ok
   - output: operator_profile_lessons.smoke: OK (6 test groups, all assertions green)
 - ✅ operator_profile_inject_smoke: ok

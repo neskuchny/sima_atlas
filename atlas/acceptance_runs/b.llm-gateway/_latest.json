@@ -15,17 +15,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/llm_gateway.selftest.mjs → exit 0 (84ms); first line: \"llm_gateway.selftest: OK (5 cases)\"",
+      "evidence": "node tests/llm_gateway.selftest.mjs → exit 0 (77ms); first line: \"llm_gateway.selftest: OK (5 cases)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/llm_gateway.selftest.mjs",
         "exit_code": 0,
         "stdout": "llm_gateway.selftest: OK (5 cases)\n",
         "stderr": "",
-        "duration_ms": 84,
+        "duration_ms": 77,
         "timed_out": false
       },
-      "duration_ms": 84
+      "duration_ms": 77
     },
     {
       "id": "A2",
@@ -39,17 +39,17 @@
         "expect_in_stdout": "simulate_conversation_branches: OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/simulate_conversation_branches.mjs → exit 0 (360ms); first line: \"PASS: created b.realtime-ingestion in graph.json\"",
+      "evidence": "node scripts/simulate_conversation_branches.mjs → exit 0 (317ms); first line: \"PASS: created b.realtime-ingestion in graph.json\"",
       "reasoning": "shell exit code 0 and stdout matches /simulate_conversation_branches: OK/",
       "raw": {
         "cmd": "node scripts/simulate_conversation_branches.mjs",
         "exit_code": 0,
         "stdout": "PASS: created b.realtime-ingestion in graph.json\nPASS: b.realtime-ingestion has layer=logic (LLM classification)\nPASS: b.realtime-ingestion folder seeded with mission.md\nPASS: b.core-sync mission preserved (LLM proposal is not auto-applied)\nPASS: b.core-sync status NOT silently changed by extraction\nPASS: b.agent-orchestrator/checks.log has new llm_extraction lines\nsimulate_conversation_branches: OK (state restored)\n",
         "stderr": "",
-        "duration_ms": 360,
+        "duration_ms": 317,
         "timed_out": false
       },
-      "duration_ms": 360
+      "duration_ms": 317
     },
     {
       "id": "A3",
@@ -71,7 +71,7 @@
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 0
+      "duration_ms": 1
     },
     {
       "id": "A4",
@@ -85,11 +85,11 @@
         "min_count": 1
       },
       "verdict": "pass",
-      "evidence": "glob atlas/llm_traces/*.json → 7683 files (min=1); newest 0min ago",
-      "reasoning": "7683 files match (≥1)",
+      "evidence": "glob atlas/llm_traces/*.json → 7877 files (min=1); newest 0min ago",
+      "reasoning": "7877 files match (≥1)",
       "raw": {
         "pattern": "atlas/llm_traces/*.json",
-        "count": 7683,
+        "count": 7877,
         "min_count": 1,
         "max_age_min": null,
         "newest_minutes_ago": 0,
@@ -101,7 +101,7 @@
           "/home/user/sima_atlas/atlas/llm_traces/2026-06-05T22-34-51-853Z__claude_cli__7be007595bbeffcb.json"
         ]
       },
-      "duration_ms": 98
+      "duration_ms": 89
     },
     {
       "id": "A5",
@@ -115,17 +115,17 @@
         "expect_in_stdout": "overall avg="
       },
       "verdict": "pass",
-      "evidence": "node tests/llm_extraction.eval.mjs → exit 0 (87ms); first line: \"llm_extraction.eval — overall avg=1.000 (cases=30/30)\"",
+      "evidence": "node tests/llm_extraction.eval.mjs → exit 0 (74ms); first line: \"llm_extraction.eval — overall avg=1.000 (cases=30/30)\"",
       "reasoning": "shell exit code 0 and stdout matches /overall avg=/",
       "raw": {
         "cmd": "node tests/llm_extraction.eval.mjs",
         "exit_code": 0,
-        "stdout": "llm_extraction.eval — overall avg=1.000 (cases=30/30)\n  A_single_block               1.00\n  B_multi_block                1.00\n  C_no_block                   1.00\n  D_layer_classification       1.00\n  E_dependency                 1.00\n  F_confidence                 1.00\n  best_prior=1.000 (regression tolerance 0.05)\n  snapshot=atlas/eval_history/2026-06-20T11-14-40-773Z.json\n\nllm_extraction.eval: OK — overall 1.00 on 30 cases (target 0.70)\n",
+        "stdout": "llm_extraction.eval — overall avg=1.000 (cases=30/30)\n  A_single_block               1.00\n  B_multi_block                1.00\n  C_no_block                   1.00\n  D_layer_classification       1.00\n  E_dependency                 1.00\n  F_confidence                 1.00\n  best_prior=1.000 (regression tolerance 0.05)\n  snapshot=atlas/eval_history/2026-06-20T11-43-29-291Z.json\n\nllm_extraction.eval: OK — overall 1.00 on 30 cases (target 0.70)\n",
         "stderr": "",
-        "duration_ms": 87,
+        "duration_ms": 74,
         "timed_out": false
       },
-      "duration_ms": 87
+      "duration_ms": 74
     }
   ],
   "counts": {
@@ -134,6 +134,6 @@
     "skipped": 1
   },
   "verdict": "pass",
-  "duration_ms": 630,
-  "checked_at": "2026-06-20T11:14:40.782Z"
+  "duration_ms": 558,
+  "checked_at": "2026-06-20T11:43:29.300Z"
 }

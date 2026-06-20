@@ -2976,7 +2976,7 @@ window.SIMA_BOOTSTRAP = {
     }
   },
   "acceptanceSummary": {
-    "generated_at": "2026-06-20T08:39:26.386Z",
+    "generated_at": "2026-06-20T11:14:36.895Z",
     "blocks": [
       {
         "block_id": "b.ui-control",
@@ -2986,7 +2986,7 @@ window.SIMA_BOOTSTRAP = {
           "fail": 0,
           "skipped": 3
         },
-        "duration_ms": 68,
+        "duration_ms": 70,
         "sample_failures": []
       },
       {
@@ -2997,7 +2997,7 @@ window.SIMA_BOOTSTRAP = {
           "fail": 0,
           "skipped": 1
         },
-        "duration_ms": 260,
+        "duration_ms": 222,
         "sample_failures": []
       },
       {
@@ -3008,7 +3008,7 @@ window.SIMA_BOOTSTRAP = {
           "fail": 0,
           "skipped": 1
         },
-        "duration_ms": 203,
+        "duration_ms": 123,
         "sample_failures": []
       },
       {
@@ -3019,7 +3019,7 @@ window.SIMA_BOOTSTRAP = {
           "fail": 0,
           "skipped": 1
         },
-        "duration_ms": 3449,
+        "duration_ms": 2761,
         "sample_failures": []
       },
       {
@@ -3030,7 +3030,7 @@ window.SIMA_BOOTSTRAP = {
           "fail": 0,
           "skipped": 2
         },
-        "duration_ms": 70,
+        "duration_ms": 66,
         "sample_failures": []
       },
       {
@@ -3041,7 +3041,7 @@ window.SIMA_BOOTSTRAP = {
           "fail": 0,
           "skipped": 1
         },
-        "duration_ms": 763,
+        "duration_ms": 630,
         "sample_failures": []
       },
       {
@@ -3052,7 +3052,7 @@ window.SIMA_BOOTSTRAP = {
           "fail": 0,
           "skipped": 1
         },
-        "duration_ms": 970,
+        "duration_ms": 754,
         "sample_failures": []
       },
       {
@@ -3063,7 +3063,7 @@ window.SIMA_BOOTSTRAP = {
           "fail": 0,
           "skipped": 1
         },
-        "duration_ms": 1259,
+        "duration_ms": 1161,
         "sample_failures": []
       },
       {
@@ -3074,7 +3074,7 @@ window.SIMA_BOOTSTRAP = {
           "fail": 0,
           "skipped": 0
         },
-        "duration_ms": 825,
+        "duration_ms": 872,
         "sample_failures": []
       },
       {
@@ -3096,25 +3096,19 @@ window.SIMA_BOOTSTRAP = {
           "fail": 0,
           "skipped": 0
         },
-        "duration_ms": 77,
+        "duration_ms": 55,
         "sample_failures": []
       },
       {
         "block_id": "b.smoke-sandbox",
-        "verdict": "fail",
+        "verdict": "pass",
         "counts": {
-          "pass": 1,
-          "fail": 1,
+          "pass": 2,
+          "fail": 0,
           "skipped": 1
         },
-        "duration_ms": 30036,
-        "sample_failures": [
-          {
-            "id": "A3",
-            "evidence": "node scripts/mcp_smoke_e2e.mjs → exit null; timed out after 30000ms; stderr: \"\"",
-            "reasoning": "shell exit null; timed out after 30000ms"
-          }
-        ]
+        "duration_ms": 2197,
+        "sample_failures": []
       },
       {
         "block_id": "b.product-auth",
@@ -3146,7 +3140,7 @@ window.SIMA_BOOTSTRAP = {
           "fail": 0,
           "skipped": 6
         },
-        "duration_ms": 10,
+        "duration_ms": 1,
         "sample_failures": []
       },
       {
@@ -3168,7 +3162,7 @@ window.SIMA_BOOTSTRAP = {
           "fail": 0,
           "skipped": 6
         },
-        "duration_ms": 7,
+        "duration_ms": 1,
         "sample_failures": []
       },
       {
@@ -3179,7 +3173,7 @@ window.SIMA_BOOTSTRAP = {
           "fail": 0,
           "skipped": 6
         },
-        "duration_ms": 1,
+        "duration_ms": 2,
         "sample_failures": []
       },
       {
@@ -3190,16 +3184,16 @@ window.SIMA_BOOTSTRAP = {
           "fail": 0,
           "skipped": 1
         },
-        "duration_ms": 1,
+        "duration_ms": 0,
         "sample_failures": []
       }
     ],
     "totals": {
-      "pass": 53,
-      "fail": 1,
+      "pass": 54,
+      "fail": 0,
       "skipped": 52,
-      "blocks_pass": 10,
-      "blocks_fail": 1,
+      "blocks_pass": 11,
+      "blocks_fail": 0,
       "blocks_inconclusive": 8
     }
   },
@@ -3211,7 +3205,7 @@ window.SIMA_BOOTSTRAP = {
         "fail": 0,
         "skipped": 1
       },
-      "checked_at": "2026-06-20T08:39:33.437Z",
+      "checked_at": "2026-06-20T11:14:42.701Z",
       "assertions": [
         {
           "id": "A1",
@@ -3220,7 +3214,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/parse_acceptance.selftest.mjs → exit 0 (69ms); first line: \"parse_acceptance.selftest: OK (9 test groups, all assertions green)\"",
+          "evidence": "node tests/parse_acceptance.selftest.mjs → exit 0 (67ms); first line: \"parse_acceptance.selftest: OK (9 test groups, all assertions green)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -3230,7 +3224,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/evidence_collectors.selftest.mjs → exit 0 (221ms); first line: \"evidence_collectors.selftest: OK (13 test groups, all assertions green)\"",
+          "evidence": "node tests/evidence_collectors.selftest.mjs → exit 0 (179ms); first line: \"evidence_collectors.selftest: OK (13 test groups, all assertions green)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -3240,7 +3234,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/llm_judge.smoke.mjs → exit 0 (104ms); first line: \"llm_judge.smoke: OK (4 test groups, all assertions green)\"",
+          "evidence": "node tests/llm_judge.smoke.mjs → exit 0 (66ms); first line: \"llm_judge.smoke: OK (4 test groups, all assertions green)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -3250,7 +3244,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/acceptance_verifier.e2e.smoke.mjs → exit 0 (429ms); first line: \"acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\"",
+          "evidence": "node tests/acceptance_verifier.e2e.smoke.mjs → exit 0 (408ms); first line: \"acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -3270,7 +3264,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/acceptance_verifier.e2e.smoke.mjs → exit 0 (433ms); first line: \"acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\"",
+          "evidence": "node tests/acceptance_verifier.e2e.smoke.mjs → exit 0 (437ms); first line: \"acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\"",
           "reasoning": "shell exit code 0 and stdout matches /5 phases/"
         },
         {
@@ -3302,7 +3296,7 @@ window.SIMA_BOOTSTRAP = {
         "fail": 0,
         "skipped": 1
       },
-      "checked_at": "2026-06-20T08:39:30.371Z",
+      "checked_at": "2026-06-20T11:14:40.081Z",
       "assertions": [
         {
           "id": "A1",
@@ -3311,7 +3305,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "exit_code",
-          "evidence": "node scripts/validate_cursor_hooks.mjs → exit 0 (64ms); first line: \"cursor hooks validation: OK (4 events, 4 commands)\"",
+          "evidence": "node scripts/validate_cursor_hooks.mjs → exit 0 (52ms); first line: \"cursor hooks validation: OK (4 events, 4 commands)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -3321,7 +3315,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (819ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
+          "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (572ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -3331,7 +3325,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (656ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
+          "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (589ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
           "reasoning": "shell exit code 0 and stdout matches /9 cases/"
         },
         {
@@ -3341,7 +3335,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (670ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
+          "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (554ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -3351,7 +3345,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": false,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/cursor_live.headless.smoke.mjs → exit 0 (1159ms); first line: \"cursor_live.headless.smoke: OK (5 phases — hooks valid, drift guard fires, file-edit logged, context pack emitted, detailed suite green)\"",
+          "evidence": "node tests/cursor_live.headless.smoke.mjs → exit 0 (937ms); first line: \"cursor_live.headless.smoke: OK (5 phases — hooks valid, drift guard fires, file-edit logged, context pack emitted, detailed suite green)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -3371,7 +3365,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": false,
           "verdict": "pass",
           "evidence_kind": "exit_code",
-          "evidence": "node scripts/validate_agent_parity.mjs → exit 0 (80ms); first line: \"Agent parity validation: OK\"",
+          "evidence": "node scripts/validate_agent_parity.mjs → exit 0 (56ms); first line: \"Agent parity validation: OK\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         }
       ]
@@ -3383,7 +3377,7 @@ window.SIMA_BOOTSTRAP = {
         "fail": 0,
         "skipped": 6
       },
-      "checked_at": "2026-06-20T08:40:04.414Z",
+      "checked_at": "2026-06-20T11:14:45.848Z",
       "assertions": [
         {
           "id": "A1",
@@ -3454,7 +3448,7 @@ window.SIMA_BOOTSTRAP = {
         "fail": 0,
         "skipped": 1
       },
-      "checked_at": "2026-06-20T08:40:04.416Z",
+      "checked_at": "2026-06-20T11:14:45.850Z",
       "assertions": [
         {
           "id": "A1",
@@ -3475,7 +3469,7 @@ window.SIMA_BOOTSTRAP = {
         "fail": 0,
         "skipped": 7
       },
-      "checked_at": "2026-06-20T08:39:34.265Z",
+      "checked_at": "2026-06-20T11:14:43.578Z",
       "assertions": [
         {
           "id": "A1",
@@ -3556,7 +3550,7 @@ window.SIMA_BOOTSTRAP = {
         "fail": 0,
         "skipped": 1
       },
-      "checked_at": "2026-06-20T08:40:05.361Z",
+      "checked_at": "2026-06-20T11:14:46.160Z",
       "assertions": [
         {
           "id": "A1",
@@ -3565,7 +3559,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/atlas_sync.selftest.mjs → exit 0 (211ms); first line: \"atlas_sync.selftest: OK\"",
+          "evidence": "node tests/atlas_sync.selftest.mjs → exit 0 (53ms); first line: \"atlas_sync.selftest: OK\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -3575,7 +3569,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "exit_code",
-          "evidence": "node scripts/validate_dependency_contracts.mjs → exit 0 (139ms); first line: \"Dependency contract validation: OK\"",
+          "evidence": "node scripts/validate_dependency_contracts.mjs → exit 0 (59ms); first line: \"Dependency contract validation: OK\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -3585,7 +3579,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/atlas_sync.selftest.mjs → exit 0 (196ms); first line: \"atlas_sync.selftest: OK\"",
+          "evidence": "node tests/atlas_sync.selftest.mjs → exit 0 (53ms); first line: \"atlas_sync.selftest: OK\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -3605,7 +3599,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "exit_code",
-          "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (131ms); first line: \"Block contract validation: OK\"",
+          "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (56ms); first line: \"Block contract validation: OK\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         }
       ]
@@ -3617,7 +3611,7 @@ window.SIMA_BOOTSTRAP = {
         "fail": 0,
         "skipped": 1
       },
-      "checked_at": "2026-06-20T08:39:26.920Z",
+      "checked_at": "2026-06-20T11:14:37.317Z",
       "assertions": [
         {
           "id": "A1",
@@ -3626,7 +3620,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": false,
           "verdict": "pass",
           "evidence_kind": "exit_code",
-          "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (72ms); first line: \"Block contract validation: OK\"",
+          "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (61ms); first line: \"Block contract validation: OK\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -3646,7 +3640,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": false,
           "verdict": "pass",
           "evidence_kind": "fs_glob",
-          "evidence": "glob atlas/db_schema.json → 1 files (min=1); newest 39min ago",
+          "evidence": "glob atlas/db_schema.json → 1 files (min=1); newest 194min ago",
           "reasoning": "1 files match (≥1)"
         },
         {
@@ -3666,7 +3660,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": false,
           "verdict": "pass",
           "evidence_kind": "exit_code",
-          "evidence": "node scripts/validate_files_registry.mjs → exit 0 (130ms); first line: \"Files registry validation: OK (alive=201, archived=4, dead=0)\"",
+          "evidence": "node scripts/validate_files_registry.mjs → exit 0 (61ms); first line: \"Files registry validation: OK (alive=201, archived=4, dead=0)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         }
       ]
@@ -3678,7 +3672,7 @@ window.SIMA_BOOTSTRAP = {
         "fail": 0,
         "skipped": 0
       },
-      "checked_at": "2026-06-20T08:40:08.311Z",
+      "checked_at": "2026-06-20T11:14:47.688Z",
       "assertions": [
         {
           "id": "A1",
@@ -3687,7 +3681,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "fs_glob",
-          "evidence": "glob extensions/desktop/main.mjs → 1 files (min=1); newest 684min ago",
+          "evidence": "glob extensions/desktop/main.mjs → 1 files (min=1); newest 839min ago",
           "reasoning": "1 files match (≥1)"
         },
         {
@@ -3697,7 +3691,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/desktop_structure.selftest.mjs → exit 0 (89ms); first line: \"desktop_structure.selftest: OK (13 test groups, all assertions green)\"",
+          "evidence": "node tests/desktop_structure.selftest.mjs → exit 0 (57ms); first line: \"desktop_structure.selftest: OK (13 test groups, all assertions green)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -3759,7 +3753,7 @@ window.SIMA_BOOTSTRAP = {
         "fail": 0,
         "skipped": 2
       },
-      "checked_at": "2026-06-20T08:40:05.480Z",
+      "checked_at": "2026-06-20T11:14:46.223Z",
       "assertions": [
         {
           "id": "A1",
@@ -3768,7 +3762,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "exit_code",
-          "evidence": "node scripts/validate_no_template_placeholders.mjs → exit 0 (94ms); first line: \"Template-placeholder validation: OK (19 blocks scanned)\"",
+          "evidence": "node scripts/validate_no_template_placeholders.mjs → exit 0 (56ms); first line: \"Template-placeholder validation: OK (19 blocks scanned)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -3820,7 +3814,7 @@ window.SIMA_BOOTSTRAP = {
         "fail": 0,
         "skipped": 1
       },
-      "checked_at": "2026-06-20T08:39:31.206Z",
+      "checked_at": "2026-06-20T11:14:40.782Z",
       "assertions": [
         {
           "id": "A1",
@@ -3829,7 +3823,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/llm_gateway.selftest.mjs → exit 0 (95ms); first line: \"llm_gateway.selftest: OK (5 cases)\"",
+          "evidence": "node tests/llm_gateway.selftest.mjs → exit 0 (84ms); first line: \"llm_gateway.selftest: OK (5 cases)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -3839,7 +3833,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node scripts/simulate_conversation_branches.mjs → exit 0 (441ms); first line: \"PASS: created b.realtime-ingestion in graph.json\"",
+          "evidence": "node scripts/simulate_conversation_branches.mjs → exit 0 (360ms); first line: \"PASS: created b.realtime-ingestion in graph.json\"",
           "reasoning": "shell exit code 0 and stdout matches /simulate_conversation_branches: OK/"
         },
         {
@@ -3859,8 +3853,8 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "fs_glob",
-          "evidence": "glob atlas/llm_traces/*.json → 7175 files (min=1); newest 0min ago",
-          "reasoning": "7175 files match (≥1)"
+          "evidence": "glob atlas/llm_traces/*.json → 7683 files (min=1); newest 0min ago",
+          "reasoning": "7683 files match (≥1)"
         },
         {
           "id": "A5",
@@ -3869,7 +3863,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/llm_extraction.eval.mjs → exit 0 (84ms); first line: \"llm_extraction.eval — overall avg=1.000 (cases=30/30)\"",
+          "evidence": "node tests/llm_extraction.eval.mjs → exit 0 (87ms); first line: \"llm_extraction.eval — overall avg=1.000 (cases=30/30)\"",
           "reasoning": "shell exit code 0 and stdout matches /overall avg=/"
         }
       ]
@@ -3881,7 +3875,7 @@ window.SIMA_BOOTSTRAP = {
         "fail": 0,
         "skipped": 1
       },
-      "checked_at": "2026-06-20T08:40:06.981Z",
+      "checked_at": "2026-06-20T11:14:46.964Z",
       "assertions": [
         {
           "id": "A1",
@@ -3890,7 +3884,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": false,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/operator_profile.selftest.mjs → exit 0 (141ms); first line: \"operator_profile.selftest: OK (7 test groups, all assertions green)\"",
+          "evidence": "node tests/operator_profile.selftest.mjs → exit 0 (67ms); first line: \"operator_profile.selftest: OK (7 test groups, all assertions green)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -3900,7 +3894,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": false,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/pick_template.selftest.mjs → exit 0 (103ms); first line: \"pick_template.selftest: OK (8 test groups, all assertions green)\"",
+          "evidence": "node tests/pick_template.selftest.mjs → exit 0 (57ms); first line: \"pick_template.selftest: OK (8 test groups, all assertions green)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -3910,7 +3904,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": false,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/dont_use_management.selftest.mjs → exit 0 (585ms); first line: \"dont_use_management.selftest: OK (7 test groups, all assertions green)\"",
+          "evidence": "node tests/dont_use_management.selftest.mjs → exit 0 (277ms); first line: \"dont_use_management.selftest: OK (7 test groups, all assertions green)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -3920,7 +3914,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": false,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/operator_profile_lessons.smoke.mjs → exit 0 (102ms); first line: \"operator_profile_lessons.smoke: OK (6 test groups, all assertions green)\"",
+          "evidence": "node tests/operator_profile_lessons.smoke.mjs → exit 0 (75ms); first line: \"operator_profile_lessons.smoke: OK (6 test groups, all assertions green)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -3930,7 +3924,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": false,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/operator_profile_inject.smoke.mjs → exit 0 (566ms); first line: \"operator_profile_inject.smoke: OK (4 test groups, all assertions green)\"",
+          "evidence": "node tests/operator_profile_inject.smoke.mjs → exit 0 (262ms); first line: \"operator_profile_inject.smoke: OK (4 test groups, all assertions green)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -3972,7 +3966,7 @@ window.SIMA_BOOTSTRAP = {
         "fail": 0,
         "skipped": 2
       },
-      "checked_at": "2026-06-20T08:40:04.388Z",
+      "checked_at": "2026-06-20T11:14:45.834Z",
       "assertions": [
         {
           "id": "A1",
@@ -4003,7 +3997,7 @@ window.SIMA_BOOTSTRAP = {
         "fail": 0,
         "skipped": 6
       },
-      "checked_at": "2026-06-20T08:40:04.413Z",
+      "checked_at": "2026-06-20T11:14:45.844Z",
       "assertions": [
         {
           "id": "A1",
@@ -4074,7 +4068,7 @@ window.SIMA_BOOTSTRAP = {
         "fail": 0,
         "skipped": 6
       },
-      "checked_at": "2026-06-20T08:40:04.405Z",
+      "checked_at": "2026-06-20T11:14:45.842Z",
       "assertions": [
         {
           "id": "A7",
@@ -4145,7 +4139,7 @@ window.SIMA_BOOTSTRAP = {
         "fail": 0,
         "skipped": 6
       },
-      "checked_at": "2026-06-20T08:40:04.389Z",
+      "checked_at": "2026-06-20T11:14:45.836Z",
       "assertions": [
         {
           "id": "A1",
@@ -4216,7 +4210,7 @@ window.SIMA_BOOTSTRAP = {
         "fail": 0,
         "skipped": 6
       },
-      "checked_at": "2026-06-20T08:40:04.399Z",
+      "checked_at": "2026-06-20T11:14:45.839Z",
       "assertions": [
         {
           "id": "A1",
@@ -4281,13 +4275,13 @@ window.SIMA_BOOTSTRAP = {
       ]
     },
     "b.smoke-sandbox": {
-      "verdict": "fail",
+      "verdict": "pass",
       "counts": {
-        "pass": 1,
-        "fail": 1,
+        "pass": 2,
+        "fail": 0,
         "skipped": 1
       },
-      "checked_at": "2026-06-20T08:40:04.379Z",
+      "checked_at": "2026-06-20T11:14:45.831Z",
       "assertions": [
         {
           "id": "A1",
@@ -4296,8 +4290,8 @@ window.SIMA_BOOTSTRAP = {
           "checked": false,
           "verdict": "pass",
           "evidence_kind": "log_grep",
-          "evidence": "grep /b.smoke-sandbox/ scripts/mcp_smoke_e2e.mjs → 3 matches; first: \" * All writes target b.smoke-sandbox only (KPI-2 isolation).\"",
-          "reasoning": "3 matching lines found"
+          "evidence": "grep /b.smoke-sandbox/ scripts/mcp_smoke_e2e.mjs → 4 matches; first: \" * All writes target b.smoke-sandbox only (KPI-2 isolation).\"",
+          "reasoning": "4 matching lines found"
         },
         {
           "id": "A2",
@@ -4314,10 +4308,10 @@ window.SIMA_BOOTSTRAP = {
           "label": null,
           "text": "Между двумя последовательными `mcp_smoke_e2e.mjs` прогонами `git diff` в других блоках пуст.",
           "checked": false,
-          "verdict": "fail",
+          "verdict": "pass",
           "evidence_kind": "exit_code",
-          "evidence": "node scripts/mcp_smoke_e2e.mjs → exit null; timed out after 30000ms; stderr: \"\"",
-          "reasoning": "shell exit null; timed out after 30000ms"
+          "evidence": "node scripts/mcp_smoke_e2e.mjs → exit 0 (2194ms); first line: \"mcp_smoke_e2e: OK (32 tools exercised)\"",
+          "reasoning": "shell exit code 0 and stdout matches /OK/"
         }
       ]
     },
@@ -4328,7 +4322,7 @@ window.SIMA_BOOTSTRAP = {
         "fail": 0,
         "skipped": 3
       },
-      "checked_at": "2026-06-20T08:39:26.456Z",
+      "checked_at": "2026-06-20T11:14:36.967Z",
       "assertions": [
         {
           "id": "A1",
@@ -4389,7 +4383,7 @@ window.SIMA_BOOTSTRAP = {
         "fail": 0,
         "skipped": 0
       },
-      "checked_at": "2026-06-20T08:40:08.216Z",
+      "checked_at": "2026-06-20T11:14:47.629Z",
       "assertions": [
         {
           "id": "A1",
@@ -4398,7 +4392,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/introspect_block_ui.selftest.mjs → exit 0 (175ms); first line: \"introspect_block_ui.selftest: OK (7 test groups, all assertions green)\"",
+          "evidence": "node tests/introspect_block_ui.selftest.mjs → exit 0 (100ms); first line: \"introspect_block_ui.selftest: OK (7 test groups, all assertions green)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -4408,7 +4402,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/user_docs.smoke.mjs → exit 0 (171ms); first line: \"user_docs.smoke: OK (5 test groups, all assertions green)\"",
+          "evidence": "node tests/user_docs.smoke.mjs → exit 0 (105ms); first line: \"user_docs.smoke: OK (5 test groups, all assertions green)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -4418,7 +4412,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/screenshots_integration.selftest.mjs → exit 0 (167ms); first line: \"screenshots_integration.selftest: OK (7 test groups, all assertions green)\"",
+          "evidence": "node tests/screenshots_integration.selftest.mjs → exit 0 (76ms); first line: \"screenshots_integration.selftest: OK (7 test groups, all assertions green)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -4428,7 +4422,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/user_docs_drift.selftest.mjs → exit 0 (720ms); first line: \"user_docs_drift.selftest: OK (5 test groups, all assertions green)\"",
+          "evidence": "node tests/user_docs_drift.selftest.mjs → exit 0 (382ms); first line: \"user_docs_drift.selftest: OK (5 test groups, all assertions green)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -4476,7 +4470,7 @@ window.SIMA_BOOTSTRAP = {
   },
   "operatorProfile": {
     "operator_id": "default",
-    "updated_at": "2026-06-20T11:14:25.923Z",
+    "updated_at": "2026-06-20T11:43:16.151Z",
     "_status": "live",
     "_min_data": {
       "done_transitions": 8,
@@ -4788,10 +4782,10 @@ window.SIMA_BOOTSTRAP = {
     },
     "llm_provider_stats": {
       "mock": {
-        "count": 7458,
+        "count": 7652,
         "fallback_to_mock_count": 584,
         "total_cost_usd": 0,
-        "schema_ok_count": 7458,
+        "schema_ok_count": 7652,
         "fallback_rate": 0.08,
         "schema_ok_rate": 1,
         "avg_cost_usd": 0
@@ -4816,13 +4810,13 @@ window.SIMA_BOOTSTRAP = {
       }
     },
     "proposals_stats": {
-      "total": 72,
+      "total": 74,
       "accept_rate": 0,
       "reject_rate": 0,
-      "pending": 72
+      "pending": 74
     },
     "decisions_stats": {
-      "total": 3510,
+      "total": 3514,
       "blocks_with_decisions": 7
     },
     "patterns_stats": {
@@ -5165,8 +5159,8 @@ window.SIMA_BOOTSTRAP = {
     "_preview": {
       "total_done": 8,
       "total_invocations": 12,
-      "total_traces": 7603,
-      "total_proposals": 72
+      "total_traces": 7797,
+      "total_proposals": 74
     }
   },
   "operatorLessons": [],

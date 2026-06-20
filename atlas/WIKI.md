@@ -1,6 +1,6 @@
 # Sima Atlas Wiki
 
-_Auto-generated: 2026-06-20T11:14:49.224Z_
+_Auto-generated: 2026-06-20T11:43:36.720Z_
 
 ## Граф продукта
 
@@ -5992,6 +5992,10 @@ _no summary_
 - 2026-06-20T11:14:45.040Z: smoke e2e distillate
 - 2026-06-20T11:14:48.830Z: smoke e2e queued insight
 - 2026-06-20T11:14:48.895Z: smoke e2e distillate
+- 2026-06-20T11:43:32.882Z: smoke e2e queued insight
+- 2026-06-20T11:43:32.924Z: smoke e2e distillate
+- 2026-06-20T11:43:36.387Z: smoke e2e queued insight
+- 2026-06-20T11:43:36.432Z: smoke e2e distillate
 
 #### Files
 

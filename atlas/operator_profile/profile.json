@@ -1,6 +1,6 @@
 {
   "operator_id": "default",
-  "updated_at": "2026-06-20T11:14:25.923Z",
+  "updated_at": "2026-06-20T11:43:16.151Z",
   "_status": "live",
   "_min_data": {
     "done_transitions": 8,
@@ -312,10 +312,10 @@
   },
   "llm_provider_stats": {
     "mock": {
-      "count": 7458,
+      "count": 7652,
       "fallback_to_mock_count": 584,
       "total_cost_usd": 0,
-      "schema_ok_count": 7458,
+      "schema_ok_count": 7652,
       "fallback_rate": 0.08,
       "schema_ok_rate": 1,
       "avg_cost_usd": 0
@@ -340,13 +340,13 @@
     }
   },
   "proposals_stats": {
-    "total": 72,
+    "total": 74,
     "accept_rate": 0,
     "reject_rate": 0,
-    "pending": 72
+    "pending": 74
   },
   "decisions_stats": {
-    "total": 3510,
+    "total": 3514,
     "blocks_with_decisions": 7
   },
   "patterns_stats": {
@@ -689,7 +689,7 @@
   "_preview": {
     "total_done": 8,
     "total_invocations": 12,
-    "total_traces": 7603,
-    "total_proposals": 72
+    "total_traces": 7797,
+    "total_proposals": 74
   }
 }

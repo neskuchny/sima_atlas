@@ -161,6 +161,26 @@ for (const f of MUST_EXIST) check(`g1: ${f} exists`, exists(f));
     'T12: must expose a subscribe + unsubscribe pair so React effects can clean up');
 }
 
+// ── Group 14 (release-prep): proper-sized OS-specific icons exist.
+// electron-builder is strict about formats — macOS needs ≥1024×1024 square
+// PNG (or ICNS), Windows wants a multi-resolution .ico, Linux takes any PNG.
+// Without these, the first CI tag-push will fail or ship a stretched/blurry
+// app icon.
+{
+  check('g14: icon.png (mac + linux) exists',  exists('extensions/desktop/assets/icon.png'));
+  check('g14: icon.ico (windows) exists',      exists('extensions/desktop/assets/icon.ico'));
+  const pkg = readJson('extensions/desktop/package.json');
+  check('g14: mac.icon points at assets/icon.png',
+    pkg.build?.mac?.icon === 'assets/icon.png',
+    `mac.icon=${pkg.build?.mac?.icon}`);
+  check('g14: win.icon points at assets/icon.ico',
+    pkg.build?.win?.icon === 'assets/icon.ico',
+    `win.icon=${pkg.build?.win?.icon}`);
+  check('g14: linux.icon points at assets/icon.png',
+    pkg.build?.linux?.icon === 'assets/icon.png',
+    `linux.icon=${pkg.build?.linux?.icon}`);
+}
+
 // ── Group 13 (PR4 T12): renderer-side modal exists + wired into index.html
 {
   check('g13: project_picker.jsx exists', exists('frontend/atlas_design/project_picker.jsx'));
@@ -183,4 +203,4 @@ if (failures.length) {
   failures.forEach((f) => console.error(' ✗', f));
   process.exit(1);
 }
-console.log('desktop_structure.selftest: OK (13 test groups, all assertions green)');
+console.log('desktop_structure.selftest: OK (14 test groups, all assertions green)');
