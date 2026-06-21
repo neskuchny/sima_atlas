@@ -108,7 +108,7 @@
         "markdown",
         "json"
       ],
-      "x": 1040,
+      "x": 1360,
       "y": 320
     },
     {
@@ -293,7 +293,7 @@
         "esm",
         "json"
       ],
-      "x": 720,
+      "x": 1040,
       "y": 320
     },
     {
@@ -441,6 +441,43 @@
       ],
       "x": 720,
       "y": 100
+    },
+    {
+      "id": "b.diff-review",
+      "_raw_updated_at": null,
+      "title": "Diff Review Arbiter",
+      "tag": "diff-review",
+      "layer": "logic",
+      "status": "done",
+      "priority": 3,
+      "checked": true,
+      "size": "md",
+      "parent_block_id": null,
+      "contract": {
+        "score": 0.6,
+        "filled": 3,
+        "total": 5,
+        "missing": [
+          "depends_on.md",
+          "provides.md"
+        ]
+      },
+      "progress": {
+        "tasks": {
+          "done": 0,
+          "total": 8
+        },
+        "kpi": {
+          "checked": 0,
+          "total": 25
+        }
+      },
+      "tech_stack": [
+        "nodejs",
+        "esm"
+      ],
+      "x": 720,
+      "y": 320
     },
     {
       "id": "b.smoke-sandbox",
@@ -832,6 +869,20 @@
     },
     {
       "from": "b.desktop",
+      "to": "b.agent-orchestrator",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.agent-orchestrator."
+    },
+    {
+      "from": "b.diff-review",
+      "to": "b.llm-gateway",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.llm-gateway."
+    },
+    {
+      "from": "b.diff-review",
       "to": "b.agent-orchestrator",
       "kind": "data",
       "label": "depends_on",
@@ -2248,6 +2299,80 @@
         "accept": ""
       }
     ],
+    "b.diff-review": [
+      {
+        "id": "T1",
+        "title": "`scripts/review_diff.mjs` — CLI + `export async function reviewDiff({ diff_text, block_id, context })`. Источники diff'а: `--since <ref>`, `--workspace <path>`, `--block <id>`, stdin. LLM-judge через ",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T2",
+        "title": "`tests/review_diff.selftest.mjs` — mock-режим: пустой diff→inconclusive; diff с явным eval/regex → mock возвращает structured; blocking→fail / warning→pass агрегация; budget-усечение сохраняет полный ",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T3",
+        "title": "Вшить `reviewDiff` в `agent_loop_daemon.mjs` как четвёртый гейт после verifier-pass. Hard `fail` (≥1 blocking) блокирует promote; `inconclusive` не блокирует. Находки в `entry.diff_review_findings`.",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T4",
+        "title": "Регистрация `review_diff.selftest` в `nightly_consolidation.mjs`.",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T5",
+        "title": "`b.acceptance-verifier-loop` или V-1-отчёт показывает diff-review-вердикт рядом с семантическим (визибилити в утреннем отчёте).",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T6",
+        "title": "Кеш по diff-hash — не пере-ревьюить идентичный diff дважды (экономия токенов в повторных прогонах).",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T7",
+        "title": "Per-category severity-override через operator_profile (например, оператор может понизить `perf_regex` до warning для прототипа).",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T8",
+        "title": "Ревью diff'ов внешних репо (для codebase-harness когда Sima строит продукт в новом репозитории).",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      }
+    ],
     "b.product-auth": [
       {
         "id": "T1",
@@ -2360,6 +2485,9 @@
     "b.desktop": {
       "short": "Сегодня запуск Sima Atlas начинается с терминала: `git clone`, `npm install`, `npm run dev`, разбор сообщений, переход в браузер. Для операторов, которые строят продукты, а не админят, это барьер. Канваса — главного когнитивного интерфейса "
     },
+    "b.diff-review": {
+      "short": "В пайплайне V-1 у блока есть три арбитра. Детерминистический верификатор отвечает «прошёл ли acceptance». Cascade + green-guard отвечают «не сломал ли соседей». Семантический судья (`b.acceptance-verifier-loop` → `semantic_verify.mjs`) отве"
+    },
     "b.smoke-sandbox": {
       "short": "Целевой блок для всех e2e/smoke-тестов Атласа. Реальный код продукта на него не ссылается. MCP smoke-сценарии (`scripts/mcp_smoke_e2e.mjs`, future smoke harnesses) пишут сюда mission/tasks/ingestion-queue, чтобы не повреждать содержание реа"
     },
@@ -2388,27 +2516,6 @@
   "submodules": {},
   "lanes": [],
   "history": [
-    {
-      "ts": "22:11",
-      "module": "docs",
-      "agent": "sima-core",
-      "kind": "info",
-      "msg": "b.docs: wip → review"
-    },
-    {
-      "ts": "22:11",
-      "module": "docs",
-      "agent": "sima-core",
-      "kind": "ok",
-      "msg": "b.docs: review → done"
-    },
-    {
-      "ts": "18:06",
-      "module": "user-docs-generator",
-      "agent": "sima-core",
-      "kind": "info",
-      "msg": "b.user-docs-generator: idea → wip"
-    },
     {
       "ts": "18:06",
       "module": "user-docs-generator",
@@ -2471,6 +2578,27 @@
       "agent": "sima-core",
       "kind": "ok",
       "msg": "b.desktop: review → done"
+    },
+    {
+      "ts": "22:37",
+      "module": "diff-review",
+      "agent": "sima-core",
+      "kind": "info",
+      "msg": "b.diff-review: idea → wip"
+    },
+    {
+      "ts": "22:37",
+      "module": "diff-review",
+      "agent": "sima-core",
+      "kind": "info",
+      "msg": "b.diff-review: wip → review"
+    },
+    {
+      "ts": "22:37",
+      "module": "diff-review",
+      "agent": "sima-core",
+      "kind": "ok",
+      "msg": "b.diff-review: review → done"
     }
   ],
   "lessons": [],
@@ -2502,10 +2630,10 @@
     }
   ],
   "_meta": {
-    "generated_at": "2026-06-20T19:35:05.141Z",
+    "generated_at": "2026-06-21T22:37:51.885Z",
     "atlas_root": "atlas",
     "client_id": null,
-    "block_count": 19,
-    "edge_count": 31
+    "block_count": 20,
+    "edge_count": 33
   }
 }

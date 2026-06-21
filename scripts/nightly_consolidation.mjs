@@ -26,6 +26,7 @@ const checks = [
   ['code_graph_validator_selftest', 'node tests/code_graph_validator.selftest.mjs'],
   ['checks_append_endpoint_selftest', 'node tests/checks_append_endpoint.selftest.mjs'],
   ['desktop_structure_selftest', 'node tests/desktop_structure.selftest.mjs'],
+  ['review_diff_selftest', 'node tests/review_diff.selftest.mjs'],
   ['openai_gemini_providers_selftest', 'node tests/openai_gemini_providers.selftest.mjs'],
   ['files_registry', 'node scripts/validate_files_registry.mjs'],
   // R-7.88 (S-12 MVP) — sweeper writes atlas/cleanup_proposals.{md,json}.

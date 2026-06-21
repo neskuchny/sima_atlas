@@ -1,0 +1,164 @@
+{
+  "block_id": "b.diff-review",
+  "source_path": "/home/user/sima_atlas/atlas/blocks/b.diff-review/acceptance.md",
+  "parsed_warnings": [],
+  "assertions": [
+    {
+      "id": "A1",
+      "label": null,
+      "text": "`scripts/review_diff.mjs` существует и на пустом diff'е (нечего ревьюить) детерминистически выходит с `inconclusive` — независимо от наличия LLM-ключа.",
+      "checked": true,
+      "line": 5,
+      "evidence_kind": "exit_code",
+      "evidence_spec": {
+        "cmd": "printf '' | node scripts/review_diff.mjs --block b.nonexistent-empty --json",
+        "expect_in_stdout": "inconclusive"
+      },
+      "verdict": "pass",
+      "evidence": "printf '' | node scripts/review_diff.mjs --block b.nonexistent-empty --json → exit 0 (97ms); first line: \"{\"",
+      "reasoning": "shell exit code 0 and stdout matches /inconclusive/",
+      "raw": {
+        "cmd": "printf '' | node scripts/review_diff.mjs --block b.nonexistent-empty --json",
+        "exit_code": 0,
+        "stdout": "{\n  \"ok\": true,\n  \"verdict\": \"inconclusive\",\n  \"summary\": \"empty diff — nothing to review\",\n  \"findings\": [],\n  \"mock\": false,\n  \"reason\": \"empty_diff\",\n  \"checked_at\": \"2026-06-21T22:38:10.725Z\",\n  \"source_note\": \"no diff proposal for block\"\n}\n",
+        "stderr": "",
+        "duration_ms": 97,
+        "timed_out": false
+      },
+      "duration_ms": 97
+    },
+    {
+      "id": "A2",
+      "label": null,
+      "text": "Selftest `tests/review_diff.selftest.mjs` зелёный: tri-state честность, blocking→fail / warning→pass, пустой diff→inconclusive, budget-усечение с полным списком файлов.",
+      "checked": true,
+      "line": 13,
+      "evidence_kind": "selftest_run",
+      "evidence_spec": {
+        "cmd": "node tests/review_diff.selftest.mjs",
+        "expect_in_stdout": "OK"
+      },
+      "verdict": "pass",
+      "evidence": "node tests/review_diff.selftest.mjs → exit 0 (81ms); first line: \"review_diff.selftest: OK (7 test groups, all assertions green)\"",
+      "reasoning": "shell exit code 0 and stdout matches /OK/",
+      "raw": {
+        "cmd": "node tests/review_diff.selftest.mjs",
+        "exit_code": 0,
+        "stdout": "review_diff.selftest: OK (7 test groups, all assertions green)\n",
+        "stderr": "",
+        "duration_ms": 81,
+        "timed_out": false
+      },
+      "duration_ms": 81
+    },
+    {
+      "id": "A3",
+      "label": null,
+      "text": "`review_diff.mjs` экспортирует `reviewDiff({ diff_text, block_id })` как library-функцию (для вызова из V-1 без subprocess).",
+      "checked": true,
+      "line": 21,
+      "evidence_kind": "log_grep",
+      "evidence_spec": {
+        "file": "scripts/review_diff.mjs",
+        "pattern": "export async function reviewDiff"
+      },
+      "verdict": "pass",
+      "evidence": "grep /export async function reviewDiff/ scripts/review_diff.mjs → 1 matches; first: \"export async function reviewDiff({ diff_text, block_id, changed_files, context } = {}) {\"",
+      "reasoning": "1 matching lines found",
+      "raw": {
+        "file": "/home/user/sima_atlas/scripts/review_diff.mjs",
+        "pattern": "export async function reviewDiff",
+        "since_time": null,
+        "match_count": 1,
+        "sample": [
+          "export async function reviewDiff({ diff_text, block_id, changed_files, context } = {}) {"
+        ]
+      },
+      "duration_ms": 1
+    },
+    {
+      "id": "A4",
+      "label": null,
+      "text": "Schema-enum вердикта упорядочен `inconclusive` первым — гарантия безопасного mock-fallback (no false pass).",
+      "checked": true,
+      "line": 29,
+      "evidence_kind": "log_grep",
+      "evidence_spec": {
+        "file": "scripts/review_diff.mjs",
+        "pattern": "VERDICT_ENUM.*'inconclusive', 'pass', 'fail'"
+      },
+      "verdict": "pass",
+      "evidence": "grep /VERDICT_ENUM.*'inconclusive', 'pass', 'fail'/ scripts/review_diff.mjs → 1 matches; first: \"const VERDICT_ENUM = ['inconclusive', 'pass', 'fail'];\"",
+      "reasoning": "1 matching lines found",
+      "raw": {
+        "file": "/home/user/sima_atlas/scripts/review_diff.mjs",
+        "pattern": "VERDICT_ENUM.*'inconclusive', 'pass', 'fail'",
+        "since_time": null,
+        "match_count": 1,
+        "sample": [
+          "const VERDICT_ENUM = ['inconclusive', 'pass', 'fail'];"
+        ]
+      },
+      "duration_ms": 0
+    },
+    {
+      "id": "A5",
+      "label": null,
+      "text": "`agent_loop_daemon.mjs` вызывает diff-review как гейт (после verifier, рядом с семантическим).",
+      "checked": true,
+      "line": 37,
+      "evidence_kind": "log_grep",
+      "evidence_spec": {
+        "file": "scripts/agent_loop_daemon.mjs",
+        "pattern": "review_diff"
+      },
+      "verdict": "pass",
+      "evidence": "grep /review_diff/ scripts/agent_loop_daemon.mjs → 1 matches; first: \"        const drArgs = ['scripts/review_diff.mjs', '--since', 'HEAD', '--block', block.id, '--json'];\"",
+      "reasoning": "1 matching lines found",
+      "raw": {
+        "file": "/home/user/sima_atlas/scripts/agent_loop_daemon.mjs",
+        "pattern": "review_diff",
+        "since_time": null,
+        "match_count": 1,
+        "sample": [
+          "        const drArgs = ['scripts/review_diff.mjs', '--since', 'HEAD', '--block', block.id, '--json'];"
+        ]
+      },
+      "duration_ms": 0
+    },
+    {
+      "id": "A6",
+      "label": null,
+      "text": "`diff_review_selftest` зарегистрирован в nightly.",
+      "checked": true,
+      "line": 45,
+      "evidence_kind": "log_grep",
+      "evidence_spec": {
+        "file": "scripts/nightly_consolidation.mjs",
+        "pattern": "review_diff.selftest"
+      },
+      "verdict": "pass",
+      "evidence": "grep /review_diff.selftest/ scripts/nightly_consolidation.mjs → 1 matches; first: \"  ['review_diff_selftest', 'node tests/review_diff.selftest.mjs'],\"",
+      "reasoning": "1 matching lines found",
+      "raw": {
+        "file": "/home/user/sima_atlas/scripts/nightly_consolidation.mjs",
+        "pattern": "review_diff.selftest",
+        "since_time": null,
+        "match_count": 1,
+        "sample": [
+          "  ['review_diff_selftest', 'node tests/review_diff.selftest.mjs'],"
+        ]
+      },
+      "duration_ms": 0
+    }
+  ],
+  "counts": {
+    "pass": 6,
+    "fail": 0,
+    "skipped": 0
+  },
+  "verdict": "pass",
+  "inconclusive_if_declared": 1,
+  "duration_ms": 184,
+  "checked_at": "2026-06-21T22:38:10.835Z"
+}

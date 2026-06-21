@@ -1277,6 +1277,130 @@ runtime, который оборачивает наш фронт, не моди�
 
 _Sources: [mission](blocks/b.desktop/mission.md) · [kpi](blocks/b.desktop/kpi.md) · [acceptance](blocks/b.desktop/acceptance.md) · [tasks](blocks/b.desktop/tasks.md)_
 
+## b.diff-review (done)
+
+# b.diff-review — mission
+
+В пайплайне V-1 у блока есть три арбитра. Детерминистический верификатор
+отвечает «прошёл ли acceptance». Cascade + green-guard отвечают «не сломал
+ли соседей». Семантический судья (`b.acceptance-verifier-loop` →
+`semantic_verify.mjs`) отвечает «соответствует ли реализация **миссии** по
+смыслу». Но **никто не смотрит на сам diff** глазами «нет ли в этом
+конкретном изменении бага, дыры в безопасности, регрессии, патологического
+regex или type-error, который сломает прод».
+
+`b.diff-review` — этот недостающий четвёртый арбитр. Он не судит миссию и не
+гоняет acceptance. Он берёт **только diff** (то, что агент реально изменил)
+и независимым LLM-ревью ищет **BLOCKING-проблемы** — то, что сломает
+production или провалит code review:
+
+- correctness-баг (логика неверна на граничном случае);
+- runtime / environment несовместимость (вызов API, которого нет в нашей
+  версии Node / зависимости);
+- дыра в безопасности (инъекция, path traversal, утечка секрета, отсутствие
+  валидации ввода);
+- регрессия (удалена или сломана работавшая ветка);
+- патологический regex / O(n²) на горячем пути;
+- type-error / неверная сигнатура.
+
+Результат — tri-state вердикт (`pass` / `fail` / `inconclusive`) плюс список
+конкретных находок с файлом и причиной. Это четвёртый гейт V-1: hard BLOCKING
+(`fail`) не даёт promote'ить блок, ровно как семантический mission-fail.
+`inconclusive` (нет API-ключа / mock) **не блокирует** — graceful degradation,
+но surface'ится.
+
+## Layer
+ai
+
+## Чем это НЕ является
+
+- Не семантический судья миссии — тот читает alive-файлы целиком и судит
+  смысл; этот читает **только diff** и судит изменение. Разные слои, оба
+  нужны.
+- Не детерминистический верификатор — тот гоняет acceptance-evidence; этот
+  читает текст изменения. Разные вопросы.
+- Не «Simplify»-стадия (рефактор-после-имплементации) — это в напряжении с
+  каноном Принцип II (контрсила упрощению), сознательно НЕ делаем.
+- Не линтер / не type-checker — те детерминистичны и уже есть как
+  acceptance-evidence; этот ловит то, что не ловит статика (логические
+  баги, semantic-security, regression-of-intent).
+
+## Реализация
+
+- `scripts/review_diff.mjs` — CLI и library. Источники diff'а:
+  `--since <ref>` (working-tree против git-ref, дефолт для in-place V-1),
+  `--workspace <path>` (через `captureDiff` из `agent_workspace.mjs`),
+  `--block <id>` (последний diff-proposal блока), или stdin. LLM-judge
+  через `b.llm-gateway: llm_call_structured`. Результат в
+  `atlas/blocks/<id>/diff_review.json`.
+- Вшит в `scripts/agent_loop_daemon.mjs` как четвёртый гейт после
+  verifier-pass, рядом с семантическим. Hard BLOCKING блокирует promote.
+- Без живого LLM деградирует в `inconclusive`, никогда в ложный `pass`.
+
+## Out of scope
+
+- Авто-фикс найденных проблем (это работа следующей итерации агента, по
+  Ralph — diff-review только судит и пишет вердикт на диск).
+- Ревью diff'ов вне atlas-репо (внешние продукты — это будущий
+  codebase-harness, отдельная задача).
+- Стилевые придирки / форматирование — только BLOCKING + важные nits,
+  не bikeshedding.
+
+# b.diff-review — KPI
+
+- **KPI-1 (tri-state честность)**: при отсутствии `ANTHROPIC_API_KEY` /
+  `GOOGLE_API_KEY` / `OPENAI_API_KEY` / claude_cli и в mock-режиме
+  `review_diff.mjs` возвращает `verdict: inconclusive`, **никогда** `pass`.
+  Schema enum упорядочен `[inconclusive, pass, fail]` — fallback безопасен.
+
+- **KPI-2 (только diff, не весь файл)**: ревьюер получает на вход
+  unified-diff текст, не полные файлы. Находки ссылаются на файлы из diff'а;
+  ни одна находка не должна быть про код, отсутствующий в diff'е.
+
+- **KPI-3 (структурированные находки)**: каждая BLOCKING-находка несёт
+  `{ category, file, severity, why }`, где `category` ∈ {correctness,
+  runtime_env, security, regression, perf_regex, type_error, other},
+  `severity` ∈ {blocking, warning}.
+
+- **KPI-4 (blocking → fail, warning → pass)**: вердикт `fail` тогда и только
+  тогда, когда есть ≥1 находка с `severity: blocking`. Только warnings →
+  `pass` (с surface'ом warnings). Пустой diff → `inconclusive`
+  («нечего ревьюить»).
+
+- **KPI-5 (gate в V-1)**: `agent_loop_daemon.mjs` запускает diff-review
+  после verifier-pass; hard `fail` блокирует promote, `inconclusive` —
+  нет. Поведение симметрично семантическому гейту.
+
+- **KPI-6 (бюджет diff'а)**: при diff'е больше ~24K символов ревьюер
+  получает diff с пометкой об усечении (по числу строк), но всегда видит
+  список изменённых файлов целиком — чтобы не объявить файл «не тронут»,
+  если его кусок вырезан бюджетом.
+
+- **KPI-7 (детерминистическая деградация)**: при пустом diff'е, при
+  отсутствии git, при невалидном `--since` ref — выход `inconclusive` с
+  понятной причиной, без краха.
+
+# b.diff-review — tasks
+
+## PR1 — ядро + selftest
+
+- [ ] T1: `scripts/review_diff.mjs` — CLI + `export async function reviewDiff({ diff_text, block_id, context })`. Источники diff'а: `--since <ref>`, `--workspace <path>`, `--block <id>`, stdin. LLM-judge через `b.llm-gateway`. Tri-state schema (enum `[inconclusive, pass, fail]`), structured findings, budget-усечение с полным file-inventory. Результат в `atlas/blocks/<id>/diff_review.json`.
+- [ ] T2: `tests/review_diff.selftest.mjs` — mock-режим: пустой diff→inconclusive; diff с явным eval/regex → mock возвращает structured; blocking→fail / warning→pass агрегация; budget-усечение сохраняет полный список файлов; library-функция и CLI оба работают.
+
+## PR2 — интеграция в V-1 + nightly
+
+- [ ] T3: Вшить `reviewDiff` в `agent_loop_daemon.mjs` как четвёртый гейт после verifier-pass. Hard `fail` (≥1 blocking) блокирует promote; `inconclusive` не блокирует. Находки в `entry.diff_review_findings`.
+- [ ] T4: Регистрация `review_diff.selftest` в `nightly_consolidation.mjs`.
+- [ ] T5: `b.acceptance-verifier-loop` или V-1-отчёт показывает diff-review-вердикт рядом с семантическим (визибилити в утреннем отчёте).
+
+## PR3 (future) — расширения
+
+- [ ] T6: Кеш по diff-hash — не пере-ревьюить идентичный diff дважды (экономия токенов в повторных прогонах).
+- [ ] T7: Per-category severity-override через operator_profile (например, оператор может понизить `perf_regex` до warning для прототипа).
+- [ ] T8: Ревью diff'ов внешних репо (для codebase-harness когда Sima строит продукт в новом репозитории).
+
+_Sources: [mission](blocks/b.diff-review/mission.md) · [kpi](blocks/b.diff-review/kpi.md) · [acceptance](blocks/b.diff-review/acceptance.md) · [tasks](blocks/b.diff-review/tasks.md)_
+
 ## b.smoke-sandbox (idea)
 
 # b.smoke-sandbox — mission

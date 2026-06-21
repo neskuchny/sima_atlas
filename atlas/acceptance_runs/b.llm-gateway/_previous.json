@@ -85,11 +85,11 @@
         "min_count": 1
       },
       "verdict": "pass",
-      "evidence": "glob atlas/llm_traces/*.json → 8859 files (min=1); newest 0min ago",
-      "reasoning": "8859 files match (≥1)",
+      "evidence": "glob atlas/llm_traces/*.json → 9060 files (min=1); newest 0min ago",
+      "reasoning": "9060 files match (≥1)",
       "raw": {
         "pattern": "atlas/llm_traces/*.json",
-        "count": 8859,
+        "count": 9060,
         "min_count": 1,
         "max_age_min": null,
         "newest_minutes_ago": 0,
@@ -101,7 +101,7 @@
           "/home/user/sima_atlas/atlas/llm_traces/2026-06-05T22-34-51-853Z__claude_cli__7be007595bbeffcb.json"
         ]
       },
-      "duration_ms": 115
+      "duration_ms": 114
     },
     {
       "id": "A5",
@@ -115,17 +115,17 @@
         "expect_in_stdout": "overall avg="
       },
       "verdict": "pass",
-      "evidence": "node tests/llm_extraction.eval.mjs → exit 0 (84ms); first line: \"llm_extraction.eval — overall avg=1.000 (cases=30/30)\"",
+      "evidence": "node tests/llm_extraction.eval.mjs → exit 0 (76ms); first line: \"llm_extraction.eval — overall avg=1.000 (cases=30/30)\"",
       "reasoning": "shell exit code 0 and stdout matches /overall avg=/",
       "raw": {
         "cmd": "node tests/llm_extraction.eval.mjs",
         "exit_code": 0,
-        "stdout": "llm_extraction.eval — overall avg=1.000 (cases=30/30)\n  A_single_block               1.00\n  B_multi_block                1.00\n  C_no_block                   1.00\n  D_layer_classification       1.00\n  E_dependency                 1.00\n  F_confidence                 1.00\n  best_prior=1.000 (regression tolerance 0.05)\n  snapshot=atlas/eval_history/2026-06-20T19-33-59-444Z.json\n\nllm_extraction.eval: OK — overall 1.00 on 30 cases (target 0.70)\n",
+        "stdout": "llm_extraction.eval — overall avg=1.000 (cases=30/30)\n  A_single_block               1.00\n  B_multi_block                1.00\n  C_no_block                   1.00\n  D_layer_classification       1.00\n  E_dependency                 1.00\n  F_confidence                 1.00\n  best_prior=1.000 (regression tolerance 0.05)\n  snapshot=atlas/eval_history/2026-06-20T19-35-14-335Z.json\n\nllm_extraction.eval: OK — overall 1.00 on 30 cases (target 0.70)\n",
         "stderr": "",
-        "duration_ms": 84,
+        "duration_ms": 76,
         "timed_out": false
       },
-      "duration_ms": 84
+      "duration_ms": 76
     }
   ],
   "counts": {
@@ -134,6 +134,6 @@
     "skipped": 1
   },
   "verdict": "pass",
-  "duration_ms": 622,
-  "checked_at": "2026-06-20T19:33:59.454Z"
+  "duration_ms": 613,
+  "checked_at": "2026-06-20T19:35:14.346Z"
 }

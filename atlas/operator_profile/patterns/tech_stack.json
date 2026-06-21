@@ -151,22 +151,24 @@
   "ai": [
     {
       "name": "nodejs",
-      "uses": 4,
+      "uses": 5,
       "satisfaction": "high",
       "evidence": [
         "b.agent-orchestrator",
         "b.llm-gateway",
         "b.operator-profile-learner",
+        "b.diff-review",
         "b.smart-categorizer"
       ]
     },
     {
       "name": "esm",
-      "uses": 2,
+      "uses": 3,
       "satisfaction": "high",
       "evidence": [
         "b.agent-orchestrator",
-        "b.operator-profile-learner"
+        "b.operator-profile-learner",
+        "b.diff-review"
       ]
     },
     {

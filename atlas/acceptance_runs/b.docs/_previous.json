@@ -15,17 +15,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_no_template_placeholders.mjs → exit 0 (55ms); first line: \"Template-placeholder validation: OK (19 blocks scanned)\"",
+      "evidence": "node scripts/validate_no_template_placeholders.mjs → exit 0 (67ms); first line: \"Template-placeholder validation: OK (20 blocks scanned)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_no_template_placeholders.mjs",
         "exit_code": 0,
-        "stdout": "Template-placeholder validation: OK (19 blocks scanned)\n",
+        "stdout": "Template-placeholder validation: OK (20 blocks scanned)\n",
         "stderr": "Template-placeholder validation warnings:\n ⚠ b.smoke-sandbox: tasks.md is suspiciously short (28 chars)\n",
-        "duration_ms": 55,
+        "duration_ms": 67,
         "timed_out": false
       },
-      "duration_ms": 55
+      "duration_ms": 67
     },
     {
       "id": "A2",
@@ -51,7 +51,7 @@
           "<li>[x] <strong>A2.</strong> В <code>wiki.html</code> присутствует <code>&lt;div class=\"mermaid\"&gt;</code> с актуальным графом по <code>graph.json</code>.</li>"
         ]
       },
-      "duration_ms": 3
+      "duration_ms": 4
     },
     {
       "id": "A3",
@@ -68,7 +68,7 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "db93f7a756cbeed8",
+        "prompt_hash": "a413359d49098adf",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
@@ -99,7 +99,7 @@
           "/home/user/sima_atlas/atlas/auto_tz.md"
         ]
       },
-      "duration_ms": 0
+      "duration_ms": 1
     },
     {
       "id": "A5",
@@ -116,12 +116,12 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "2077c32a34463b27",
+        "prompt_hash": "83ecb21168af5e9f",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 1
+      "duration_ms": 0
     }
   ],
   "counts": {
@@ -130,6 +130,6 @@
     "skipped": 2
   },
   "verdict": "pass",
-  "duration_ms": 60,
-  "checked_at": "2026-06-20T19:35:13.733Z"
+  "duration_ms": 72,
+  "checked_at": "2026-06-21T22:38:02.178Z"
 }

@@ -1,0 +1,5 @@
+2026-06-20T20:00:00Z | fourth_arbiter_distinct_from_semantic | semantic_verify judges mission-match reading whole alive files; diff-review judges the CHANGE reading only the diff. Different questions, both needed. Imported the pattern from loop-engineer-template's ship-change.js Review stage.
+2026-06-20T20:00:00Z | tri_state_enum_inconclusive_first | schema enum [inconclusive, pass, fail] so mock/no-key fallback yields safe inconclusive, never false pass. Mirrors judge_assertion + semantic_verify.
+2026-06-20T20:00:00Z | blocking_only_blocks | verdict=fail iff >=1 finding severity:blocking. warnings surface but pass. empty diff = inconclusive (nothing to review).
+2026-06-20T20:00:00Z | no_simplify_stage | loop-engineer ships a Simplify stage (refactor working code for clarity). Deliberately NOT imported — tension with Kanon Principle II (counter-force to simplification).
+2026-06-20T20:00:00Z | diff_only_not_whole_file | reviewer sees unified diff, not full files; judges what the agent changed, not the file's pre-existing debt (User Story 4).

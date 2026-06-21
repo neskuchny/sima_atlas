@@ -155,7 +155,7 @@
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 1
+      "duration_ms": 0
     }
   ],
   "counts": {
@@ -166,5 +166,5 @@
   "verdict": "inconclusive",
   "inconclusive_if_declared": 1,
   "duration_ms": 2,
-  "checked_at": "2026-06-20T19:34:02.026Z"
+  "checked_at": "2026-06-20T19:35:16.872Z"
 }

@@ -1,6 +1,6 @@
 # Roadmap (auto-generated, PR2 topo-sort)
 
-_Generated: 2026-06-20T19:35:22.486Z_
+_Generated: 2026-06-21T22:38:12.875Z_
 
 Приоритет внутри уровня: 🔴 broken → 🟣 drift → 🟠 wip → 🔵 review → 🟡 idea → 🟢 done.
 Каждый следующий уровень зависит от предыдущих — реализовывать сверху вниз.
@@ -59,6 +59,8 @@ _Generated: 2026-06-20T19:35:22.486Z_
   - Phase I: verifier FAIL on A1 (introspect_block_ui.selftest) — coupled to deleted frontend/proposals_panel.jsx. Test fixture needs repointing to a current JSX file.
 - 🟢 **b.desktop** (done) — Desktop App · _ext_ · deps: `b.db`, `b.ui-control`, `b.agent-orchestrator`
   - Electron-based installable desktop app — wraps the existing browser UI; R-7.99 scoping, PR1 implementation following in this commit.
+- 🟢 **b.diff-review** (done) — Diff Review Arbiter · _ai_ · deps: `b.llm-gateway`, `b.agent-orchestrator`
+  - Fourth V-1 arbiter — independent LLM review of the git diff for BLOCKING problems (correctness/security/regression/perf). Imported from loop-engineer-template. R-8.01.
 
 ## Сводка по слоям
 
@@ -81,6 +83,7 @@ _Generated: 2026-06-20T19:35:22.486Z_
 - 🔵 **b.agent-orchestrator** — Agent Orchestrator _(review)_
 - 🔵 **b.llm-gateway** — LLM Gateway _(review)_
 - 🟢 **b.operator-profile-learner** — Operator Profile Learner _(done)_
+- 🟢 **b.diff-review** — Diff Review Arbiter _(done)_
 
 ### Данные / хранилище (`data`)
 

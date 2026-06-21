@@ -413,6 +413,28 @@
       ]
     },
     {
+      "id": "b.diff-review",
+      "title": "Diff Review Arbiter",
+      "status": "done",
+      "status_reason": "Fourth V-1 arbiter — independent LLM review of the git diff for BLOCKING problems (correctness/security/regression/perf). Imported from loop-engineer-template. R-8.01.",
+      "layer": "ai",
+      "type": "module",
+      "mvp": false,
+      "subschema_id": null,
+      "depends_on": [
+        "b.llm-gateway",
+        "b.agent-orchestrator"
+      ],
+      "tech_stack": [
+        "nodejs",
+        "esm"
+      ],
+      "files": [
+        "scripts/review_diff.mjs",
+        "tests/review_diff.selftest.mjs"
+      ]
+    },
+    {
       "id": "b.smoke-sandbox",
       "title": "Smoke Sandbox (test target)",
       "status": "idea",

@@ -15,7 +15,7 @@
 </style>
 </head><body>
 <h1>Sima Atlas Wiki</h1>
-<p><em>Auto-generated: 2026-06-20T19:35:22.091Z</em></p>
+<p><em>Auto-generated: 2026-06-21T22:38:12.397Z</em></p>
 <h2>Граф продукта</h2>
 <div class="mermaid">flowchart TB
   classDef done    fill:#dcfce7,stroke:#16a34a,color:#15803d;
@@ -40,6 +40,7 @@
     b_agent_orchestrator["Agent Orchestrator&lt;br/&gt;&lt;small&gt;review&lt;/small&gt;"]:::review
     b_llm_gateway["LLM Gateway&lt;br/&gt;&lt;small&gt;review&lt;/small&gt;"]:::review
     b_operator_profile_learner["Operator Profile Learner&lt;br/&gt;&lt;small&gt;done&lt;/small&gt;"]:::done
+    b_diff_review["Diff Review Arbiter&lt;br/&gt;&lt;small&gt;done&lt;/small&gt;"]:::done
   end
   subgraph data["Данные / хранилище"]
     b_db["Atlas Database&lt;br/&gt;&lt;small&gt;idea&lt;/small&gt;"]:::idea
@@ -84,6 +85,8 @@
   b_desktop --&gt; b_db
   b_desktop --&gt; b_ui_control
   b_desktop --&gt; b_agent_orchestrator
+  b_diff_review --&gt; b_llm_gateway
+  b_diff_review --&gt; b_agent_orchestrator
   b_product_auth --&gt; b_product_dashboard_session_check
   b_product_auth --&gt; b_product_ingest_api_key_check
   b_product_ingest --&gt; b_product_warehouse_events_stream
@@ -119,6 +122,8 @@
 <ul><li>reason: Phase I: verifier FAIL on A2 (simulate<em>conversation</em>branches) — test fixture asserts b.core-sync is NOT done, but it legitimately IS done now. Test-state coupling; provider code works. Needs fixture decoupling.</li></ul>
 <li>🟢 <strong>b.operator-profile-learner</strong> — Operator Profile Learner <em>(done)</em></li>
 <ul><li>reason: Phase I: verifier FAIL on A6 — profile-compliance UI badge (complianceWithProfile) was lost in the R-7.30 single-file→atlas_design refactor and not reimplemented. Genuine feature gap, honestly not done.</li></ul>
+<li>🟢 <strong>b.diff-review</strong> — Diff Review Arbiter <em>(done)</em></li>
+<ul><li>reason: Fourth V-1 arbiter — independent LLM review of the git diff for BLOCKING problems (correctness/security/regression/perf). Imported from loop-engineer-template. R-8.01.</li></ul>
 </ul>
 <h3>Данные / хранилище (<code>data</code>)</h3>
 <ul>
@@ -2186,6 +2191,202 @@ evidence_spec:
 <li>.github/workflows/desktop-build.yml [alive] (PR3 — CI three-OS matrix)</li>
 </ul>
 <p><em>Sources: [mission](blocks/b.desktop/mission.md) · [kpi](blocks/b.desktop/kpi.md) · [acceptance](blocks/b.desktop/acceptance.md) · [depends</em>on](blocks/b.desktop/depends<em>on.md) · [provides](blocks/b.desktop/provides.md) · [patterns](blocks/b.desktop/patterns.md) · [files](blocks/b.desktop/files.md)</em></p>
+<hr/>
+<h3>🟢 b.diff-review — Diff Review Arbiter</h3>
+<ul>
+<li><strong>layer</strong>: <code>ai</code></li>
+<li><strong>type</strong>: module</li>
+<li><strong>status</strong>: <code>done</code> — Fourth V-1 arbiter — independent LLM review of the git diff for BLOCKING problems (correctness/security/regression/perf). Imported from loop-engineer-template. R-8.01.</li>
+<li><strong>mvp</strong>: no</li>
+<li><strong>depends_on</strong>: <code>b.llm-gateway</code>, <code>b.agent-orchestrator</code></li>
+<li><strong>tech_stack</strong>: <code>nodejs</code>, <code>esm</code></li>
+<li><strong>files</strong>: 2 (<code>atlas/blocks/b.diff-review/files.md</code>)</li>
+</ul>
+<h1>b.diff-review — mission</h1>
+<p>В пайплайне V-1 у блока есть три арбитра. Детерминистический верификатор</p>
+<p>отвечает «прошёл ли acceptance». Cascade + green-guard отвечают «не сломал</p>
+<p>ли соседей». Семантический судья (<code>b.acceptance-verifier-loop</code> →</p>
+<p><code>semantic_verify.mjs</code>) отвечает «соответствует ли реализация <strong>миссии</strong> по</p>
+<p>смыслу». Но <strong>никто не смотрит на сам diff</strong> глазами «нет ли в этом</p>
+<p>конкретном изменении бага, дыры в безопасности, регрессии, патологического</p>
+<p>regex или type-error, который сломает прод».</p>
+<p><code>b.diff-review</code> — этот недостающий четвёртый арбитр. Он не судит миссию и не</p>
+<p>гоняет acceptance. Он берёт <strong>только diff</strong> (то, что агент реально изменил)</p>
+<p>и независимым LLM-ревью ищет <strong>BLOCKING-проблемы</strong> — то, что сломает</p>
+<p>production или провалит code review:</p>
+<ul>
+<li>correctness-баг (логика неверна на граничном случае);</li>
+<li>runtime / environment несовместимость (вызов API, которого нет в нашей</li>
+<p>  версии Node / зависимости);</p>
+<li>дыра в безопасности (инъекция, path traversal, утечка секрета, отсутствие</li>
+<p>  валидации ввода);</p>
+<li>регрессия (удалена или сломана работавшая ветка);</li>
+<li>патологический regex / O(n²) на горячем пути;</li>
+<li>type-error / неверная сигнатура.</li>
+</ul>
+<p>Результат — tri-state вердикт (<code>pass</code> / <code>fail</code> / <code>inconclusive</code>) плюс список</p>
+<p>конкретных находок с файлом и причиной. Это четвёртый гейт V-1: hard BLOCKING</p>
+<p>(<code>fail</code>) не даёт promote'ить блок, ровно как семантический mission-fail.</p>
+<p><code>inconclusive</code> (нет API-ключа / mock) <strong>не блокирует</strong> — graceful degradation,</p>
+<p>но surface'ится.</p>
+<h2>Layer</h2>
+<p>ai</p>
+<h2>Чем это НЕ является</h2>
+<ul>
+<li>Не семантический судья миссии — тот читает alive-файлы целиком и судит</li>
+<p>  смысл; этот читает <strong>только diff</strong> и судит изменение. Разные слои, оба</p>
+<p>  нужны.</p>
+<li>Не детерминистический верификатор — тот гоняет acceptance-evidence; этот</li>
+<p>  читает текст изменения. Разные вопросы.</p>
+<li>Не «Simplify»-стадия (рефактор-после-имплементации) — это в напряжении с</li>
+<p>  каноном Принцип II (контрсила упрощению), сознательно НЕ делаем.</p>
+<li>Не линтер / не type-checker — те детерминистичны и уже есть как</li>
+<p>  acceptance-evidence; этот ловит то, что не ловит статика (логические</p>
+<p>  баги, semantic-security, regression-of-intent).</p>
+</ul>
+<h2>Реализация</h2>
+<ul>
+<li><code>scripts/review_diff.mjs</code> — CLI и library. Источники diff'а:</li>
+<p>  <code>--since &lt;ref&gt;</code> (working-tree против git-ref, дефолт для in-place V-1),</p>
+<p>  <code>--workspace &lt;path&gt;</code> (через <code>captureDiff</code> из <code>agent_workspace.mjs</code>),</p>
+<p>  <code>--block &lt;id&gt;</code> (последний diff-proposal блока), или stdin. LLM-judge</p>
+<p>  через <code>b.llm-gateway: llm<em>call</em>structured</code>. Результат в</p>
+<p>  <code>atlas/blocks/&lt;id&gt;/diff_review.json</code>.</p>
+<li>Вшит в <code>scripts/agent<em>loop</em>daemon.mjs</code> как четвёртый гейт после</li>
+<p>  verifier-pass, рядом с семантическим. Hard BLOCKING блокирует promote.</p>
+<li>Без живого LLM деградирует в <code>inconclusive</code>, никогда в ложный <code>pass</code>.</li>
+</ul>
+<h2>Out of scope</h2>
+<ul>
+<li>Авто-фикс найденных проблем (это работа следующей итерации агента, по</li>
+<p>  Ralph — diff-review только судит и пишет вердикт на диск).</p>
+<li>Ревью diff'ов вне atlas-репо (внешние продукты — это будущий</li>
+<p>  codebase-harness, отдельная задача).</p>
+<li>Стилевые придирки / форматирование — только BLOCKING + важные nits,</li>
+<p>  не bikeshedding.</p>
+</ul>
+<h4>KPI</h4>
+<h1>b.diff-review — KPI</h1>
+<ul>
+<li><strong>KPI-1 (tri-state честность)</strong>: при отсутствии <code>ANTHROPIC<em>API</em>KEY</code> /</li>
+<p>  <code>GOOGLE<em>API</em>KEY</code> / <code>OPENAI<em>API</em>KEY</code> / claude_cli и в mock-режиме</p>
+<p>  <code>review_diff.mjs</code> возвращает <code>verdict: inconclusive</code>, <strong>никогда</strong> <code>pass</code>.</p>
+<p>  Schema enum упорядочен <code>[inconclusive, pass, fail]</code> — fallback безопасен.</p>
+</ul>
+<ul>
+<li><strong>KPI-2 (только diff, не весь файл)</strong>: ревьюер получает на вход</li>
+<p>  unified-diff текст, не полные файлы. Находки ссылаются на файлы из diff'а;</p>
+<p>  ни одна находка не должна быть про код, отсутствующий в diff'е.</p>
+</ul>
+<ul>
+<li><strong>KPI-3 (структурированные находки)</strong>: каждая BLOCKING-находка несёт</li>
+<p>  <code>{ category, file, severity, why }</code>, где <code>category</code> ∈ {correctness,</p>
+<p>  runtime<em>env, security, regression, perf</em>regex, type_error, other},</p>
+<p>  <code>severity</code> ∈ {blocking, warning}.</p>
+</ul>
+<ul>
+<li><strong>KPI-4 (blocking → fail, warning → pass)</strong>: вердикт <code>fail</code> тогда и только</li>
+<p>  тогда, когда есть ≥1 находка с <code>severity: blocking</code>. Только warnings →</p>
+<p>  <code>pass</code> (с surface'ом warnings). Пустой diff → <code>inconclusive</code></p>
+<p>  («нечего ревьюить»).</p>
+</ul>
+<ul>
+<li><strong>KPI-5 (gate в V-1)</strong>: <code>agent<em>loop</em>daemon.mjs</code> запускает diff-review</li>
+<p>  после verifier-pass; hard <code>fail</code> блокирует promote, <code>inconclusive</code> —</p>
+<p>  нет. Поведение симметрично семантическому гейту.</p>
+</ul>
+<ul>
+<li><strong>KPI-6 (бюджет diff'а)</strong>: при diff'е больше ~24K символов ревьюер</li>
+<p>  получает diff с пометкой об усечении (по числу строк), но всегда видит</p>
+<p>  список изменённых файлов целиком — чтобы не объявить файл «не тронут»,</p>
+<p>  если его кусок вырезан бюджетом.</p>
+</ul>
+<ul>
+<li><strong>KPI-7 (детерминистическая деградация)</strong>: при пустом diff'е, при</li>
+<p>  отсутствии git, при невалидном <code>--since</code> ref — выход <code>inconclusive</code> с</p>
+<p>  понятной причиной, без краха.</p>
+</ul>
+<h4>Acceptance</h4>
+<h1>b.diff-review — acceptance</h1>
+<p>Acceptance gate для перехода <code>idea → wip → review → done</code>. Детерминистические проверки + один selftest.</p>
+<ul>
+<li>[x] <strong>A1.</strong> <code>scripts/review_diff.mjs</code> существует и на пустом diff'е (нечего ревьюить) детерминистически выходит с <code>inconclusive</code> — независимо от наличия LLM-ключа.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: exit_code
+evidence_spec:
+  cmd: printf '' | node scripts/review_diff.mjs --block b.nonexistent-empty --json
+  expect_in_stdout: "inconclusive"</code></pre>
+<ul>
+<li>[x] <strong>A2.</strong> Selftest <code>tests/review_diff.selftest.mjs</code> зелёный: tri-state честность, blocking→fail / warning→pass, пустой diff→inconclusive, budget-усечение с полным списком файлов.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/review_diff.selftest.mjs
+  expect_in_stdout: "OK"</code></pre>
+<ul>
+<li>[x] <strong>A3.</strong> <code>review<em>diff.mjs</code> экспортирует <code>reviewDiff({ diff</em>text, block_id })</code> как library-функцию (для вызова из V-1 без subprocess).</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: log_grep
+evidence_spec:
+  file: scripts/review_diff.mjs
+  pattern: "export async function reviewDiff"</code></pre>
+<ul>
+<li>[x] <strong>A4.</strong> Schema-enum вердикта упорядочен <code>inconclusive</code> первым — гарантия безопасного mock-fallback (no false pass).</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: log_grep
+evidence_spec:
+  file: scripts/review_diff.mjs
+  pattern: "VERDICT_ENUM.*'inconclusive', 'pass', 'fail'"</code></pre>
+<ul>
+<li>[x] <strong>A5.</strong> <code>agent<em>loop</em>daemon.mjs</code> вызывает diff-review как гейт (после verifier, рядом с семантическим).</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: log_grep
+evidence_spec:
+  file: scripts/agent_loop_daemon.mjs
+  pattern: "review_diff"</code></pre>
+<ul>
+<li>[x] <strong>A6.</strong> <code>diff<em>review</em>selftest</code> зарегистрирован в nightly.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: log_grep
+evidence_spec:
+  file: scripts/nightly_consolidation.mjs
+  pattern: "review_diff.selftest"</code></pre>
+<h2>inconclusive_if</h2>
+<ul>
+<li>Нет git-репозитория (<code>.git</code> отсутствует) — <code>--since</code> не сможет построить diff.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: exit_code
+evidence_spec:
+  cmd: test -d .git</code></pre>
+<h2>Не считается acceptance</h2>
+<ul>
+<li>Реальное качество находок живого LLM — не детерминистично, проверяется операторски на живых прогонах, не в nightly.</li>
+<li>Авто-фикс найденных проблем — out of scope, это работа следующей итерации агента.</li>
+</ul>
+<h4>Provides</h4>
+<h1>b.diff-review — provides</h1>
+<ul>
+<li>diff<em>review</em>verdict</li>
+<li>blocking<em>problem</em>finder</li>
+</ul>
+<h4>Depends on</h4>
+<h1>b.diff-review — depends_on</h1>
+<ul>
+<li>b.llm-gateway: llm<em>call</em>structured</li>
+<li>b.agent-orchestrator: pipeline_execution</li>
+</ul>
+<h4>Patterns</h4>
+<h1>b.diff-review — patterns</h1>
+<p>_This file is populated by the chat-distillate ingestion pipeline (entries are</p>
+<p>paired with <code>chat-distillate</code> rows in <code>decisions.log</code>). Design rationale and</p>
+<p>do/don't notes live in <code>narrative.md</code>._</p>
+<h4>Files</h4>
+<h1>b.diff-review — files</h1>
+<ul>
+<li>scripts/review_diff.mjs [alive] (PR1 — core LLM diff-reviewer + CLI + library)</li>
+<li>tests/review_diff.selftest.mjs [alive] (PR1 — tri-state + aggregation selftest)</li>
+</ul>
+<p><em>Sources: [mission](blocks/b.diff-review/mission.md) · [kpi](blocks/b.diff-review/kpi.md) · [acceptance](blocks/b.diff-review/acceptance.md) · [depends</em>on](blocks/b.diff-review/depends<em>on.md) · [provides](blocks/b.diff-review/provides.md) · [patterns](blocks/b.diff-review/patterns.md) · [files](blocks/b.diff-review/files.md)</em></p>
 <hr/>
 <h3>🟡 b.smoke-sandbox — Smoke Sandbox (test target)</h3>
 <ul>
@@ -5804,6 +6005,10 @@ evidence_spec:
 <li>2026-06-20T19:35:18.148Z: smoke e2e distillate</li>
 <li>2026-06-20T19:35:21.924Z: smoke e2e queued insight</li>
 <li>2026-06-20T19:35:21.973Z: smoke e2e distillate</li>
+<li>2026-06-21T22:38:07.417Z: smoke e2e queued insight</li>
+<li>2026-06-21T22:38:07.477Z: smoke e2e distillate</li>
+<li>2026-06-21T22:38:12.201Z: smoke e2e queued insight</li>
+<li>2026-06-21T22:38:12.260Z: smoke e2e distillate</li>
 </ul>
 <h4>Files</h4>
 <h1>b.smoke-sandbox — files</h1>

@@ -341,7 +341,37 @@ function iterate() {
       }
     }
 
+    // 5. DIFF-REVIEW gate (R-8.01, b.diff-review — the fourth arbiter).
+    //    The semantic judge asks «does it match the mission?» reading whole
+    //    files; this one asks «is there a bug/security-hole/regression/ReDoS
+    //    in THIS CHANGE?» reading only the diff of the block's owned files.
+    //    A hard BLOCKING fail blocks promotion exactly like a semantic fail;
+    //    `inconclusive` (no live LLM) does NOT block — graceful degradation.
+    let diffReviewFail = false, diffReviewVerdict = 'skipped';
     if (passed && !regressed && !semanticFail) {
+      const owned = ownedAliveFiles(block.id);
+      if (owned.length) {
+        const drArgs = ['scripts/review_diff.mjs', '--since', 'HEAD', '--block', block.id, '--json'];
+        for (const f of owned) { drArgs.push('--files', f); }
+        nodeRun(drArgs, { env: CLIENT ? { ATLAS_ROOT: ATLAS } : {} });
+        // Source of truth is the persisted diff_review.json, not stdout
+        // (same lesson as the semantic gate — the gateway pollutes stdout).
+        let dr = null;
+        try { dr = JSON.parse(fs.readFileSync(path.join(blockDir(block.id), 'diff_review.json'), 'utf8')); } catch {}
+        if (dr && !dr.mock) {
+          diffReviewVerdict = dr.verdict || 'inconclusive';
+          diffReviewFail = dr.verdict === 'fail';
+          if (diffReviewFail) entry.diff_review_findings = (dr.findings || []).filter((f) => f.severity === 'blocking').slice(0, 5);
+        } else {
+          diffReviewVerdict = 'inconclusive';
+        }
+        entry.diff_review = diffReviewVerdict;
+      } else {
+        entry.diff_review = 'no-owned-files';
+      }
+    }
+
+    if (passed && !regressed && !semanticFail && !diffReviewFail) {
       // For a semantic-red done block we just re-judged: if it's now green we
       // DON'T need to advance (it stays `done`) — the verdict update IS the
       // promotion. Otherwise walk one gated step.
@@ -359,7 +389,9 @@ function iterate() {
       entry.action = 'fail';
       entry.reason = !passed ? 'verifier did not pass'
         : regressed ? 'a previously-green done block regressed — not promoting'
-        : entry.reason_hint || 'semantic verify FAILED — implementation does not match the block\'s meaning/methodology';
+        : semanticFail ? (entry.reason_hint || 'semantic verify FAILED — implementation does not match the block\'s meaning/methodology')
+        : diffReviewFail ? 'diff-review FAILED — a BLOCKING problem in the change (security/correctness/regression/ReDoS)'
+        : entry.reason_hint || 'gate failed';
       consecutiveFails += 1;
       // AUTO-ROLLBACK: if this run regressed a previously-green done block,
       // undo the agent's edits to this block's owned files. A failed

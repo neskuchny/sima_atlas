@@ -1,7 +1,7 @@
 {
   "contractValidation": {
-    "checkedAt": "2026-06-20T19:35:19.180Z",
-    "total": 19,
+    "checkedAt": "2026-06-21T22:38:08.730Z",
+    "total": 20,
     "broken": 0,
     "details": []
   },
@@ -11,8 +11,8 @@
     "details": []
   },
   "codeGraphDrift": {
-    "checkedAt": "2026-06-20T19:34:58.738Z",
-    "driftCount": 22,
+    "checkedAt": "2026-06-21T22:37:38.619Z",
+    "driftCount": 24,
     "details": [
       {
         "kind": "provided_capability_not_exported",
@@ -297,6 +297,38 @@
       {
         "kind": "provided_capability_not_exported",
         "severity": "warning",
+        "block": "b.diff-review",
+        "capability": "blocking_problem_finder",
+        "scanned_files": [
+          "scripts/review_diff.mjs",
+          "tests/review_diff.selftest.mjs"
+        ],
+        "exported_names_in_block": [
+          "aggregateVerdict",
+          "normalizeFindings",
+          "reviewDiff"
+        ],
+        "hint": "«blocking_problem_finder» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.diff-review/provides.md."
+      },
+      {
+        "kind": "provided_capability_not_exported",
+        "severity": "warning",
+        "block": "b.diff-review",
+        "capability": "diff_review_verdict",
+        "scanned_files": [
+          "scripts/review_diff.mjs",
+          "tests/review_diff.selftest.mjs"
+        ],
+        "exported_names_in_block": [
+          "aggregateVerdict",
+          "normalizeFindings",
+          "reviewDiff"
+        ],
+        "hint": "«diff_review_verdict» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.diff-review/provides.md."
+      },
+      {
+        "kind": "provided_capability_not_exported",
+        "severity": "warning",
         "block": "b.docs",
         "capability": "tz_bundle",
         "scanned_files": [
@@ -571,8 +603,8 @@
     ]
   },
   "dependencyValidation": {
-    "checkedAt": "2026-06-20T19:35:19.067Z",
-    "totalDepsChecked": 33,
+    "checkedAt": "2026-06-21T22:38:08.598Z",
+    "totalDepsChecked": 35,
     "broken": 0,
     "details": []
   }

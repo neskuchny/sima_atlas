@@ -204,6 +204,18 @@
     "note": "mission_fulfilled=fail conditions_met=fail methodology_followed=fail works_as_described=fail connections_consistent=pass"
   },
   {
+    "block_id": "b.diff-review",
+    "ts": "2026-06-21T22:36:37.793Z",
+    "kind": "acceptance_verifier",
+    "note": "verdict=fail pass=5 fail=1 skipped=0 fails=[A4:invalid regex /enum:\\\\s*\\\\['inconclusive'/]"
+  },
+  {
+    "block_id": "b.diff-review",
+    "ts": "2026-06-21T22:37:06.225Z",
+    "kind": "acceptance_verifier",
+    "note": "verdict=fail pass=5 fail=1 skipped=0 fails=[A4:grep /VERDICT_ENUM = \\\\['inconclusive', 'pass', 'fail'\\\\]/ s]"
+  },
+  {
     "block_id": "b.docs",
     "ts": "2026-06-05T22:03:02.631Z",
     "kind": "acceptance_verifier",

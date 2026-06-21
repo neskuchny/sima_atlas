@@ -92,6 +92,12 @@
         "tests/desktop_structure.selftest.mjs"
       ]
     },
+    "b.diff-review": {
+      "files": [
+        "scripts/review_diff.mjs",
+        "tests/review_diff.selftest.mjs"
+      ]
+    },
     "b.docs": {
       "files": [
         "scripts/generate_atlas_bootstrap_js.mjs",
@@ -218,6 +224,30 @@
       ],
       "from_block": "b.agent-orchestrator",
       "to_block": "b.operator-profile-learner"
+    },
+    {
+      "examples": [
+        {
+          "from_file": "scripts/review_diff.mjs",
+          "kind": "dynamic",
+          "line": 99,
+          "to_file": "scripts/agent_workspace.mjs"
+        }
+      ],
+      "from_block": "b.diff-review",
+      "to_block": "b.agent-orchestrator"
+    },
+    {
+      "examples": [
+        {
+          "from_file": "scripts/review_diff.mjs",
+          "kind": "static",
+          "line": 38,
+          "to_file": "scripts/llm_gateway.mjs"
+        }
+      ],
+      "from_block": "b.diff-review",
+      "to_block": "b.llm-gateway"
     },
     {
       "examples": [
@@ -3158,6 +3188,101 @@
       ],
       "owning_block": "b.docs"
     },
+    "scripts/review_diff.mjs": {
+      "exports": [
+        {
+          "kind": "named",
+          "line": 141,
+          "name": "normalizeFindings"
+        },
+        {
+          "kind": "named",
+          "line": 158,
+          "name": "aggregateVerdict"
+        },
+        {
+          "kind": "named",
+          "line": 168,
+          "name": "reviewDiff"
+        }
+      ],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 34,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 35,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:child_process",
+          "kind": "static",
+          "line": 36,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "spawnSync"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 37,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "./llm_gateway.mjs",
+          "kind": "static",
+          "line": 38,
+          "resolved_to": "scripts/llm_gateway.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "callLLM"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "./agent_workspace.mjs",
+          "kind": "dynamic",
+          "line": 99,
+          "resolved_to": "scripts/agent_workspace.mjs",
+          "specifiers": []
+        }
+      ],
+      "owning_block": "b.diff-review"
+    },
     "scripts/run_block_implementation.mjs": {
       "exports": [],
       "imports": [
@@ -6064,6 +6189,46 @@
         }
       ],
       "owning_block": "b.llm-gateway"
+    },
+    "tests/review_diff.selftest.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:assert",
+          "kind": "static",
+          "line": 14,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "assert"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "../scripts/review_diff.mjs",
+          "kind": "static",
+          "line": 15,
+          "resolved_to": "scripts/review_diff.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "aggregateVerdict"
+            },
+            {
+              "kind": "named",
+              "name": "normalizeFindings"
+            },
+            {
+              "kind": "named",
+              "name": "reviewDiff"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.diff-review"
     },
     "tests/run_state.selftest.mjs": {
       "exports": [],

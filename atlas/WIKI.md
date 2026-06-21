@@ -1,6 +1,6 @@
 # Sima Atlas Wiki
 
-_Auto-generated: 2026-06-20T19:35:22.310Z_
+_Auto-generated: 2026-06-21T22:38:12.650Z_
 
 ## Граф продукта
 
@@ -28,6 +28,7 @@ flowchart TB
     b_agent_orchestrator["Agent Orchestrator<br/><small>review</small>"]:::review
     b_llm_gateway["LLM Gateway<br/><small>review</small>"]:::review
     b_operator_profile_learner["Operator Profile Learner<br/><small>done</small>"]:::done
+    b_diff_review["Diff Review Arbiter<br/><small>done</small>"]:::done
   end
   subgraph data["Данные / хранилище"]
     b_db["Atlas Database<br/><small>idea</small>"]:::idea
@@ -72,6 +73,8 @@ flowchart TB
   b_desktop --> b_db
   b_desktop --> b_ui_control
   b_desktop --> b_agent_orchestrator
+  b_diff_review --> b_llm_gateway
+  b_diff_review --> b_agent_orchestrator
   b_product_auth --> b_product_dashboard_session_check
   b_product_auth --> b_product_ingest_api_key_check
   b_product_ingest --> b_product_warehouse_events_stream
@@ -110,6 +113,8 @@ flowchart TB
   - reason: Phase I: verifier FAIL on A2 (simulate_conversation_branches) — test fixture asserts b.core-sync is NOT done, but it legitimately IS done now. Test-state coupling; provider code works. Needs fixture decoupling.
 - 🟢 **b.operator-profile-learner** — Operator Profile Learner _(done)_
   - reason: Phase I: verifier FAIL on A6 — profile-compliance UI badge (complianceWithProfile) was lost in the R-7.30 single-file→atlas_design refactor and not reimplemented. Genuine feature gap, honestly not done.
+- 🟢 **b.diff-review** — Diff Review Arbiter _(done)_
+  - reason: Fourth V-1 arbiter — independent LLM review of the git diff for BLOCKING problems (correctness/security/regression/perf). Imported from loop-engineer-template. R-8.01.
 
 ### Данные / хранилище (`data`)
 
@@ -2393,6 +2398,220 @@ do/don't notes live in `narrative.md`._
 - .github/workflows/desktop-build.yml [alive] (PR3 — CI three-OS matrix)
 
 _Sources: [mission](blocks/b.desktop/mission.md) · [kpi](blocks/b.desktop/kpi.md) · [acceptance](blocks/b.desktop/acceptance.md) · [depends_on](blocks/b.desktop/depends_on.md) · [provides](blocks/b.desktop/provides.md) · [patterns](blocks/b.desktop/patterns.md) · [files](blocks/b.desktop/files.md)_
+
+---
+
+### 🟢 b.diff-review — Diff Review Arbiter
+
+- **layer**: `ai`
+- **type**: module
+- **status**: `done` — Fourth V-1 arbiter — independent LLM review of the git diff for BLOCKING problems (correctness/security/regression/perf). Imported from loop-engineer-template. R-8.01.
+- **mvp**: no
+- **depends_on**: `b.llm-gateway`, `b.agent-orchestrator`
+- **tech_stack**: `nodejs`, `esm`
+- **files**: 2 (`atlas/blocks/b.diff-review/files.md`)
+
+# b.diff-review — mission
+
+В пайплайне V-1 у блока есть три арбитра. Детерминистический верификатор
+отвечает «прошёл ли acceptance». Cascade + green-guard отвечают «не сломал
+ли соседей». Семантический судья (`b.acceptance-verifier-loop` →
+`semantic_verify.mjs`) отвечает «соответствует ли реализация **миссии** по
+смыслу». Но **никто не смотрит на сам diff** глазами «нет ли в этом
+конкретном изменении бага, дыры в безопасности, регрессии, патологического
+regex или type-error, который сломает прод».
+
+`b.diff-review` — этот недостающий четвёртый арбитр. Он не судит миссию и не
+гоняет acceptance. Он берёт **только diff** (то, что агент реально изменил)
+и независимым LLM-ревью ищет **BLOCKING-проблемы** — то, что сломает
+production или провалит code review:
+
+- correctness-баг (логика неверна на граничном случае);
+- runtime / environment несовместимость (вызов API, которого нет в нашей
+  версии Node / зависимости);
+- дыра в безопасности (инъекция, path traversal, утечка секрета, отсутствие
+  валидации ввода);
+- регрессия (удалена или сломана работавшая ветка);
+- патологический regex / O(n²) на горячем пути;
+- type-error / неверная сигнатура.
+
+Результат — tri-state вердикт (`pass` / `fail` / `inconclusive`) плюс список
+конкретных находок с файлом и причиной. Это четвёртый гейт V-1: hard BLOCKING
+(`fail`) не даёт promote'ить блок, ровно как семантический mission-fail.
+`inconclusive` (нет API-ключа / mock) **не блокирует** — graceful degradation,
+но surface'ится.
+
+## Layer
+ai
+
+## Чем это НЕ является
+
+- Не семантический судья миссии — тот читает alive-файлы целиком и судит
+  смысл; этот читает **только diff** и судит изменение. Разные слои, оба
+  нужны.
+- Не детерминистический верификатор — тот гоняет acceptance-evidence; этот
+  читает текст изменения. Разные вопросы.
+- Не «Simplify»-стадия (рефактор-после-имплементации) — это в напряжении с
+  каноном Принцип II (контрсила упрощению), сознательно НЕ делаем.
+- Не линтер / не type-checker — те детерминистичны и уже есть как
+  acceptance-evidence; этот ловит то, что не ловит статика (логические
+  баги, semantic-security, regression-of-intent).
+
+## Реализация
+
+- `scripts/review_diff.mjs` — CLI и library. Источники diff'а:
+  `--since <ref>` (working-tree против git-ref, дефолт для in-place V-1),
+  `--workspace <path>` (через `captureDiff` из `agent_workspace.mjs`),
+  `--block <id>` (последний diff-proposal блока), или stdin. LLM-judge
+  через `b.llm-gateway: llm_call_structured`. Результат в
+  `atlas/blocks/<id>/diff_review.json`.
+- Вшит в `scripts/agent_loop_daemon.mjs` как четвёртый гейт после
+  verifier-pass, рядом с семантическим. Hard BLOCKING блокирует promote.
+- Без живого LLM деградирует в `inconclusive`, никогда в ложный `pass`.
+
+## Out of scope
+
+- Авто-фикс найденных проблем (это работа следующей итерации агента, по
+  Ralph — diff-review только судит и пишет вердикт на диск).
+- Ревью diff'ов вне atlas-репо (внешние продукты — это будущий
+  codebase-harness, отдельная задача).
+- Стилевые придирки / форматирование — только BLOCKING + важные nits,
+  не bikeshedding.
+
+#### KPI
+
+# b.diff-review — KPI
+
+- **KPI-1 (tri-state честность)**: при отсутствии `ANTHROPIC_API_KEY` /
+  `GOOGLE_API_KEY` / `OPENAI_API_KEY` / claude_cli и в mock-режиме
+  `review_diff.mjs` возвращает `verdict: inconclusive`, **никогда** `pass`.
+  Schema enum упорядочен `[inconclusive, pass, fail]` — fallback безопасен.
+
+- **KPI-2 (только diff, не весь файл)**: ревьюер получает на вход
+  unified-diff текст, не полные файлы. Находки ссылаются на файлы из diff'а;
+  ни одна находка не должна быть про код, отсутствующий в diff'е.
+
+- **KPI-3 (структурированные находки)**: каждая BLOCKING-находка несёт
+  `{ category, file, severity, why }`, где `category` ∈ {correctness,
+  runtime_env, security, regression, perf_regex, type_error, other},
+  `severity` ∈ {blocking, warning}.
+
+- **KPI-4 (blocking → fail, warning → pass)**: вердикт `fail` тогда и только
+  тогда, когда есть ≥1 находка с `severity: blocking`. Только warnings →
+  `pass` (с surface'ом warnings). Пустой diff → `inconclusive`
+  («нечего ревьюить»).
+
+- **KPI-5 (gate в V-1)**: `agent_loop_daemon.mjs` запускает diff-review
+  после verifier-pass; hard `fail` блокирует promote, `inconclusive` —
+  нет. Поведение симметрично семантическому гейту.
+
+- **KPI-6 (бюджет diff'а)**: при diff'е больше ~24K символов ревьюер
+  получает diff с пометкой об усечении (по числу строк), но всегда видит
+  список изменённых файлов целиком — чтобы не объявить файл «не тронут»,
+  если его кусок вырезан бюджетом.
+
+- **KPI-7 (детерминистическая деградация)**: при пустом diff'е, при
+  отсутствии git, при невалидном `--since` ref — выход `inconclusive` с
+  понятной причиной, без краха.
+
+#### Acceptance
+
+# b.diff-review — acceptance
+
+Acceptance gate для перехода `idea → wip → review → done`. Детерминистические проверки + один selftest.
+
+- [x] **A1.** `scripts/review_diff.mjs` существует и на пустом diff'е (нечего ревьюить) детерминистически выходит с `inconclusive` — независимо от наличия LLM-ключа.
+```yaml
+evidence_kind: exit_code
+evidence_spec:
+  cmd: printf '' | node scripts/review_diff.mjs --block b.nonexistent-empty --json
+  expect_in_stdout: "inconclusive"
+```
+
+- [x] **A2.** Selftest `tests/review_diff.selftest.mjs` зелёный: tri-state честность, blocking→fail / warning→pass, пустой diff→inconclusive, budget-усечение с полным списком файлов.
+```yaml
+evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/review_diff.selftest.mjs
+  expect_in_stdout: "OK"
+```
+
+- [x] **A3.** `review_diff.mjs` экспортирует `reviewDiff({ diff_text, block_id })` как library-функцию (для вызова из V-1 без subprocess).
+```yaml
+evidence_kind: log_grep
+evidence_spec:
+  file: scripts/review_diff.mjs
+  pattern: "export async function reviewDiff"
+```
+
+- [x] **A4.** Schema-enum вердикта упорядочен `inconclusive` первым — гарантия безопасного mock-fallback (no false pass).
+```yaml
+evidence_kind: log_grep
+evidence_spec:
+  file: scripts/review_diff.mjs
+  pattern: "VERDICT_ENUM.*'inconclusive', 'pass', 'fail'"
+```
+
+- [x] **A5.** `agent_loop_daemon.mjs` вызывает diff-review как гейт (после verifier, рядом с семантическим).
+```yaml
+evidence_kind: log_grep
+evidence_spec:
+  file: scripts/agent_loop_daemon.mjs
+  pattern: "review_diff"
+```
+
+- [x] **A6.** `diff_review_selftest` зарегистрирован в nightly.
+```yaml
+evidence_kind: log_grep
+evidence_spec:
+  file: scripts/nightly_consolidation.mjs
+  pattern: "review_diff.selftest"
+```
+
+## inconclusive_if
+
+- Нет git-репозитория (`.git` отсутствует) — `--since` не сможет построить diff.
+```yaml
+evidence_kind: exit_code
+evidence_spec:
+  cmd: test -d .git
+```
+
+## Не считается acceptance
+
+- Реальное качество находок живого LLM — не детерминистично, проверяется операторски на живых прогонах, не в nightly.
+- Авто-фикс найденных проблем — out of scope, это работа следующей итерации агента.
+
+#### Provides
+
+# b.diff-review — provides
+
+- diff_review_verdict
+- blocking_problem_finder
+
+#### Depends on
+
+# b.diff-review — depends_on
+
+- b.llm-gateway: llm_call_structured
+- b.agent-orchestrator: pipeline_execution
+
+#### Patterns
+
+# b.diff-review — patterns
+
+_This file is populated by the chat-distillate ingestion pipeline (entries are
+paired with `chat-distillate` rows in `decisions.log`). Design rationale and
+do/don't notes live in `narrative.md`._
+
+#### Files
+
+# b.diff-review — files
+
+- scripts/review_diff.mjs [alive] (PR1 — core LLM diff-reviewer + CLI + library)
+- tests/review_diff.selftest.mjs [alive] (PR1 — tri-state + aggregation selftest)
+
+_Sources: [mission](blocks/b.diff-review/mission.md) · [kpi](blocks/b.diff-review/kpi.md) · [acceptance](blocks/b.diff-review/acceptance.md) · [depends_on](blocks/b.diff-review/depends_on.md) · [provides](blocks/b.diff-review/provides.md) · [patterns](blocks/b.diff-review/patterns.md) · [files](blocks/b.diff-review/files.md)_
 
 ---
 
@@ -6024,6 +6243,10 @@ _no summary_
 - 2026-06-20T19:35:18.148Z: smoke e2e distillate
 - 2026-06-20T19:35:21.924Z: smoke e2e queued insight
 - 2026-06-20T19:35:21.973Z: smoke e2e distillate
+- 2026-06-21T22:38:07.417Z: smoke e2e queued insight
+- 2026-06-21T22:38:07.477Z: smoke e2e distillate
+- 2026-06-21T22:38:12.201Z: smoke e2e queued insight
+- 2026-06-21T22:38:12.260Z: smoke e2e distillate
 
 #### Files
 

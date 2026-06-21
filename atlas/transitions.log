@@ -21,3 +21,6 @@
 2026-06-19T19:00:12.096Z	b.desktop	idea	wip	actor=operator-R7.99	note=PR1+PR2+PR3 shipped: Electron skeleton + selftest + CI workflow; verifier 7/0 pass
 2026-06-19T19:00:12.142Z	b.desktop	wip	review	actor=operator-R7.99	note=PR1+PR2+PR3 shipped: Electron skeleton + selftest + CI workflow; verifier 7/0 pass
 2026-06-19T19:00:12.188Z	b.desktop	review	done	actor=operator-R7.99	note=PR1+PR2+PR3 shipped: Electron skeleton + selftest + CI workflow; verifier 7/0 pass
+2026-06-21T22:37:06.283Z	b.diff-review	idea	wip	actor=operator-R8.01	note=PR1+PR2 shipped: review_diff.mjs + selftest 7/7 + V-1 gate + nightly; live diff-review caught SQL-inj/ReDoS/ReferenceError
+2026-06-21T22:37:06.345Z	b.diff-review	wip	review	actor=operator-R8.01	note=PR1+PR2 shipped: review_diff.mjs + selftest 7/7 + V-1 gate + nightly; live diff-review caught SQL-inj/ReDoS/ReferenceError
+2026-06-21T22:37:06.406Z	b.diff-review	review	done	actor=operator-R8.01	note=PR1+PR2 shipped: review_diff.mjs + selftest 7/7 + V-1 gate + nightly; live diff-review caught SQL-inj/ReDoS/ReferenceError

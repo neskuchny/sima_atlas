@@ -1,0 +1,9 @@
+{
+  "ok": true,
+  "verdict": "inconclusive",
+  "summary": "empty diff — nothing to review",
+  "findings": [],
+  "mock": false,
+  "reason": "empty_diff",
+  "checked_at": "2026-06-21T22:36:00.923Z"
+}
