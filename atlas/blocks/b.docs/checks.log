@@ -113,3 +113,5 @@
 2026-06-20T19:34:04.251Z	acceptance_verifier	pass	verdict=pass pass=3 fail=0 skipped=2
 2026-06-20T19:35:19.266Z	acceptance_verifier	pass	verdict=pass pass=3 fail=0 skipped=2
 2026-06-21T22:38:08.817Z	acceptance_verifier	pass	verdict=pass pass=3 fail=0 skipped=2
+2026-06-21T22:46:51.772Z	agent_invocation	pass	agent=print-only mode=print-only file=atlas/agent_invocations/2026-06-21T22-46-51-769Z__b.docs.txt
+2026-06-21T22:47:31.912Z	acceptance_verifier	pass	verdict=pass pass=3 fail=0 skipped=2

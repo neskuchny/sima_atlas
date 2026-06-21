@@ -1,11 +1,11 @@
 {
   "operator_id": "default",
-  "updated_at": "2026-06-21T22:37:46.897Z",
+  "updated_at": "2026-06-21T22:47:09.747Z",
   "_status": "live",
   "_min_data": {
     "done_transitions": 9,
     "done_required": 5,
-    "invocations": 13,
+    "invocations": 14,
     "invocations_required": 10
   },
   "work_style": {
@@ -322,11 +322,11 @@
   },
   "llm_provider_stats": {
     "mock": {
-      "count": 9031,
-      "fallback_to_mock_count": 591,
+      "count": 9229,
+      "fallback_to_mock_count": 592,
       "total_cost_usd": 0,
-      "schema_ok_count": 9031,
-      "fallback_rate": 0.07,
+      "schema_ok_count": 9229,
+      "fallback_rate": 0.06,
       "schema_ok_rate": 1,
       "avg_cost_usd": 0
     },
@@ -359,13 +359,13 @@
     }
   },
   "proposals_stats": {
-    "total": 88,
+    "total": 90,
     "accept_rate": 0,
     "reject_rate": 0,
-    "pending": 88
+    "pending": 90
   },
   "decisions_stats": {
-    "total": 3547,
+    "total": 3551,
     "blocks_with_decisions": 8
   },
   "patterns_stats": {
@@ -716,11 +716,11 @@
       "note": "verdict=fail pass=5 fail=3 skipped=0 fails=[A2:node tests/user_docs.smoke.mjs → exit null; timed out after ; A3:node tests/screenshots_integration.selftest.mjs → exit null;]"
     }
   ],
-  "invocations_total": 13,
+  "invocations_total": 14,
   "_preview": {
     "total_done": 9,
-    "total_invocations": 13,
-    "total_traces": 9182,
-    "total_proposals": 88
+    "total_invocations": 14,
+    "total_traces": 9380,
+    "total_proposals": 90
   }
 }

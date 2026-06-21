@@ -3388,7 +3388,7 @@
           "external": false,
           "from": "./distill_run_log.mjs",
           "kind": "dynamic",
-          "line": 474,
+          "line": 486,
           "resolved_to": "scripts/distill_run_log.mjs",
           "specifiers": []
         },
@@ -3396,7 +3396,7 @@
           "external": false,
           "from": "./reflect_after_run.mjs",
           "kind": "dynamic",
-          "line": 483,
+          "line": 495,
           "resolved_to": "scripts/reflect_after_run.mjs",
           "specifiers": []
         },
@@ -3404,7 +3404,7 @@
           "external": false,
           "from": "./summarize_block_code.mjs",
           "kind": "dynamic",
-          "line": 493,
+          "line": 505,
           "resolved_to": "scripts/summarize_block_code.mjs",
           "specifiers": []
         },
@@ -3412,7 +3412,7 @@
           "external": false,
           "from": "./cleanup_block_memory.mjs",
           "kind": "dynamic",
-          "line": 503,
+          "line": 515,
           "resolved_to": "scripts/cleanup_block_memory.mjs",
           "specifiers": []
         }

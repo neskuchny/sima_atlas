@@ -34,3 +34,4 @@
 2026-06-20T08:06:34.019Z	acceptance_verifier	pass	verdict=pass pass=6 fail=0 skipped=1
 2026-06-20T08:29:51.263Z	acceptance_verifier	pass	verdict=pass pass=6 fail=0 skipped=1
 2026-06-20T08:31:12.591Z	acceptance_verifier	pass	verdict=pass pass=6 fail=0 skipped=1
+2026-06-21T22:48:06.299Z	feature	pass	R-8.02 contract-bounded sizing steer added to agent prompt (ponytail leverage, Principle-II-safe framing)

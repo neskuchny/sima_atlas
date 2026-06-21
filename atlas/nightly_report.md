@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-06-21T22:37:37.803Z_
+_Generated: 2026-06-21T22:47:05.667Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -18,7 +18,7 @@ _Generated: 2026-06-21T22:37:37.803Z_
   - output: build_code_graph --check: code_graph.json up-to-date
 - ✅ code_graph_drift: ok
 - ✅ code_graph_extractor_selftest: ok
-  - output: deterministic — sha256(9490eb0a6db0…) matches across runs
+  - output: deterministic — sha256(2b568e68d91f…) matches across runs
 - ✅ code_graph_validator_selftest: ok
   - output: code_graph_validator.selftest: OK (6 test groups, all assertions green)
 - ✅ checks_append_endpoint_selftest: ok
@@ -44,7 +44,7 @@ _Generated: 2026-06-21T22:37:37.803Z_
 - ✅ atlas_selftest: ok
   - output: atlas_sync.selftest: OK
 - ✅ bootstrap_layered_smoke: ok
-  - output: atlas_bootstrap smoke: OK (layers=7, blocks=19, links=27)
+  - output: atlas_bootstrap smoke: OK (layers=7, blocks=20, links=29)
 - ✅ llm_gateway_selftest: ok
   - output: llm_gateway.selftest: OK (5 cases)
 - ✅ pick_template_selftest: ok
@@ -52,7 +52,7 @@ _Generated: 2026-06-21T22:37:37.803Z_
 - ✅ operator_profile_selftest: ok
   - output: operator_profile.selftest: OK (7 test groups, all assertions green)
 - ✅ aggregate_operator_profile: ok
-  - output: operator_profile: live (done=9, invocations=13, traces=9182, proposals=88)
+  - output: operator_profile: live (done=9, invocations=14, traces=9380, proposals=90)
 - ✅ operator_profile_lessons_smoke: ok
   - output: operator_profile_lessons.smoke: OK (6 test groups, all assertions green)
 - ✅ operator_profile_inject_smoke: ok

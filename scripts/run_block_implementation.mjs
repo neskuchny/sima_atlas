@@ -152,6 +152,18 @@ const prompt = [
   '## Acceptance criteria',
   acceptance.trim(),
   '',
+  // R-8.02 — contract-bounded sizing steer. Captures Ponytail's pre-generation
+  // leverage (less code → cheaper, faster) WITHOUT adopting its «be lazy»
+  // philosophy, which would violate Kanon Principle II (counter-force to the
+  // simplification gradient). The «right amount of engineering» is defined by
+  // the contract above — not by laziness. This line reinforces Principle II
+  // («don't cut what the contract requires») while trimming gold-plating.
+  '## How much to build (right-size to the contract)',
+  '- Implement EXACTLY what the mission + acceptance above require — no more, no less.',
+  '- Do NOT add abstractions, layers, config options, or dependencies the contract does not demand. The laziest correct change that satisfies acceptance wins.',
+  '- Equally: do NOT cut corners the contract requires. A mock where the mission demands real logic, or a regex where it demands an LLM, FAILS — even if it is shorter. (Kanon Principle II.)',
+  '- Prefer: nothing → stdlib → existing dependency → one line → minimal new code. Reach for a new abstraction only when the contract forces it.',
+  '',
   '## Files you may edit (alive only)',
   filesList.trim(),
   '',

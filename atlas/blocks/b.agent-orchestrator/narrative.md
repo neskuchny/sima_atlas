@@ -24,3 +24,35 @@
 - Verify Live Cursor Flow: Conduct and pass the tests/cursor_live.headless.smoke.mjs test or equivalent live verification in a real Cursor IDE to confirm that beforeShellExecution correctly blocks pip install commands, as per acceptance A5.
 - Address Upstream Cascade Break: Investigate and resolve the 'cascade break detected' issue with b.core-sync, adapting b.agent-orchestrator to the updated b.core-sync contract or reverting the breaking change in b.core-sync to restore connection consistency.
 - Update KPI Descriptions: Review and update the KPI descriptions (KPI-1, KPI-2, KPI-3) to accurately reflect the current implementation, as the code appears to fulfill the intent of these KPIs despite their '✗' status in the contract.
+
+## 2026-06-21T23:00:00Z · R-8.02 — contract-bounded sizing steer in agent prompt
+
+### What I tried
+Studied DietrichGebert/ponytail (a YAGNI-injection plugin that makes agents
+«think like the laziest senior dev»). Its philosophy directly conflicts with
+Kanon Principle II (counter-force to the simplification gradient) — adopting
+it wholesale would make the agent mock-instead-of-implement.
+
+### What worked
+Extracted ONLY the safe, valuable half: Ponytail's real leverage is the
+PRE-generation steer (less code → cheaper, faster), and we can take it
+contract-bounded. Added a «## How much to build (right-size to the contract)»
+section to the agent prompt in run_block_implementation.mjs. Framing is the
+whole trick: «exactly what the mission + acceptance require — no more, no
+less» REINFORCES Principle II (explicitly says «don't cut what the contract
+requires: a mock where the mission demands real logic FAILS») while trimming
+gold-plating.
+
+### What failed and why
+Rejected the obvious move (an `over_engineering` warning category in
+b.diff-review): checked the daemon and confirmed V-1 discards all non-blocking
+findings (agent_loop_daemon filters severity==='blocking'). A warning nobody
+reads in autonomous mode is dead signal. Pre-gen steer captures the value;
+post-gen warning doesn't.
+
+### Decisions made
+- No new block, no warning lens. One 6-line prompt section, framed as
+  calibration-to-contract, not laziness.
+- The biggest takeaway from ponytail wasn't code — it was the axis:
+  under-engineering (Principle II fights it) ↔ over-engineering (this steer
+  trims it), contract in the middle as the calibration point.

@@ -15,17 +15,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/operator_profile.selftest.mjs → exit 0 (83ms); first line: \"operator_profile.selftest: OK (7 test groups, all assertions green)\"",
+      "evidence": "node tests/operator_profile.selftest.mjs → exit 0 (90ms); first line: \"operator_profile.selftest: OK (7 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/operator_profile.selftest.mjs",
         "exit_code": 0,
         "stdout": "operator_profile.selftest: OK (7 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 83,
+        "duration_ms": 90,
         "timed_out": false
       },
-      "duration_ms": 83
+      "duration_ms": 90
     },
     {
       "id": "A2",
@@ -39,17 +39,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/pick_template.selftest.mjs → exit 0 (74ms); first line: \"pick_template.selftest: OK (8 test groups, all assertions green)\"",
+      "evidence": "node tests/pick_template.selftest.mjs → exit 0 (70ms); first line: \"pick_template.selftest: OK (8 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/pick_template.selftest.mjs",
         "exit_code": 0,
         "stdout": "pick_template.selftest: OK (8 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 74,
+        "duration_ms": 70,
         "timed_out": false
       },
-      "duration_ms": 74
+      "duration_ms": 70
     },
     {
       "id": "A3",
@@ -63,17 +63,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/dont_use_management.selftest.mjs → exit 0 (326ms); first line: \"dont_use_management.selftest: OK (7 test groups, all assertions green)\"",
+      "evidence": "node tests/dont_use_management.selftest.mjs → exit 0 (327ms); first line: \"dont_use_management.selftest: OK (7 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/dont_use_management.selftest.mjs",
         "exit_code": 0,
         "stdout": "dont_use_management.selftest: OK (7 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 326,
+        "duration_ms": 327,
         "timed_out": false
       },
-      "duration_ms": 326
+      "duration_ms": 327
     },
     {
       "id": "A4",
@@ -87,17 +87,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/operator_profile_lessons.smoke.mjs → exit 0 (88ms); first line: \"operator_profile_lessons.smoke: OK (6 test groups, all assertions green)\"",
+      "evidence": "node tests/operator_profile_lessons.smoke.mjs → exit 0 (92ms); first line: \"operator_profile_lessons.smoke: OK (6 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/operator_profile_lessons.smoke.mjs",
         "exit_code": 0,
         "stdout": "operator_profile_lessons.smoke: OK (6 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 88,
+        "duration_ms": 92,
         "timed_out": false
       },
-      "duration_ms": 88
+      "duration_ms": 92
     },
     {
       "id": "A5",
@@ -111,17 +111,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/operator_profile_inject.smoke.mjs → exit 0 (299ms); first line: \"operator_profile_inject.smoke: OK (4 test groups, all assertions green)\"",
+      "evidence": "node tests/operator_profile_inject.smoke.mjs → exit 0 (342ms); first line: \"operator_profile_inject.smoke: OK (4 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/operator_profile_inject.smoke.mjs",
         "exit_code": 0,
         "stdout": "operator_profile_inject.smoke: OK (4 test groups, all assertions green)\n<!-- ATLAS CONTEXT PACK — auto-injected by .cursor/hooks.json -->\n<!-- block: b.core-sync -->\n\n## Project\n# Sima Atlas\n\nЦель: единая визуально-документная система, которая устраняет рассинхрон между кодом, агентами и документацией.\n\n## North Star\n- Любой агент работает по одному и тому же block-context.\n- Человек видит статус реализации на схеме без чтения всего кода.\n\n\n## Rules\n# Rules\n\n1. Любое изменение блока фиксируется в его `tasks.md` и `checks.log`.\n2. Перед изменением кода агент читает: `project.md`, `tech_stack.md`, `rules.md`, `blocks/<id>/*`.\n3. Файлы без владельца-блока считаются out-of-scope.\n4. Блок `done` только при выполнении acceptance + KPI, а не только compile/runtime.\n\n\n## Tech stack (forbidden commands enforced via guard_against_drift)\n# Tech Stack (MVP lock)\n\n- Frontend: React (Babel standalone в текущем прототипе)\n- Runtime storage: localStorage (MVP)\n- Atlas storage: Markdown + JSON (`/atlas`)\n- Automation: CLI agents (Cursor/Claude/Codex) через hooks/адаптеры\n- Backend automation: Node.js 18+ (ESM, native fetch)\n- LLM providers: Anthropic API, Google Gemini API (via b.llm-gateway)\n\n## Запреты MVP (machine-readable for guard_against_drift.mjs)\n\n`forbidden_commands` (regex applied to the full command string):\n\n```forbidden\n^pip\\s+install\n^pipx\\s+install\n^poetry\\s+(add|install)\n^conda\\s+install\n^cargo\\s+(add|install)\n^go\\s+install\n^bundle\\s+install\n^gem\\s+install\n^composer\\s+(install|require)\n```\n\n`forbidden_substrings`:\n\n```forbidden_substrings\nyarn add vue\nyarn add @angular\nnpm install vue\nnpm install @angular\nnpm i vue\nnpm i @angular\n```\n\n## Allowed package managers\n\n- `npm` / `npx` (Node.js)\n- `node` / direct script execution\n\n## Прочие правила\n\n- Не смешивать второй фронтенд-фреймворк в активных блоках (см. forbidden_substrings).\n- Не использовать альтернативные «источники правды» вне `/atlas`.\n- Не устанавливать Python/Ruby/Go-зависимости — это репо чисто на Node.js.\n\n\n\n## Operator profile (likely preferences)\n\n- Этот оператор обычно проходит idea→done за ~0h.\n- frontend: оператор предпочитает `react`.\n- backend: оператор предпочитает `nodejs`, `esm`.\n- Чаще всего использует агента `claude` (success-rate 57%).\n\n_Источники профиля: aggregate_operator_profile + analyze_lessons_from_history. Эти подсказки тихие — не диктуй, но учитывай._\n\n## Block: b.core-sync\n\n### mission\n# b.core-sync — mission\n\n`b.core-sync` — **структурный** Sync Engine: проверяет, что граф контрактов\nконсистентен (mission/kpi/acceptance/depends_on/provides/files заполнены и\nсогласованы), что заявленные `tech_stack` не противоречат расширениям файлов\nв `files.md`, и сводит все находки в один отчёт `atlas/sync_report.json`.\nЭто **детерминистический** слой — без LLM, без семантики, без «понимания\nзначения функций». Прогон — миллисекунды, повторяемость — побитовая.\n\n«Рассинхрон» в полном смысле (код vs миссия, реальные импорты vs контракт,\nсемантика реализации vs обещание) **разделён архитектурно** между тремя\nблоками — попытка сделать всё внутри одного блока вырастает в монолит и\nсмешивает дешёвые детерминистические проверки с дорогими LLM-вызовами:\n\n- **код-vs-контракт** (реальные `import`/`export` блока vs его\n  `depends_on`/`provides`) — **делегирован в `b.code-graph`**. Тот блок\n  собирает детерминистическую карту imports/exports в\n  `atlas/code_graph.json` и запускает детекторы\n  `undeclared_code_dependency` + `provided_capability_not_exported`.\n  `b.core-sync` потребляет `code_graph` через `depends_on` и ссылается на\n  его результаты в своём агрегированном `sync_report.json`.\n- **семантический sync** (LLM судит, реализует ли действительная функция\n  то, что обещает миссия) — отдельная задача **T7 (PR3)** н\n\n…(truncated, 2630 chars omitted)…\n\n\n### KPI\n# b.core-sync — KPI\n\n- **KPI-1 (contract sync)**: для каждого блока `X` с `depends_on: [{ block_id: Y, capability: C }]` проверяется, что `Y.provides` содержит `C`. Если нет — `drift_reason=\"missing_capability\"`. Сейчас: ✓ (`validate_dependency_contracts.mjs` парсит `dep: cap` формат из `depends_on.md` и … [truncated]",
         "stderr": "",
-        "duration_ms": 299,
+        "duration_ms": 342,
         "timed_out": false
       },
-      "duration_ms": 299
+      "duration_ms": 342
     },
     {
       "id": "A6",
@@ -164,7 +164,7 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "872b4e0b0265e9f9",
+        "prompt_hash": "a328e6bdb46a6d45",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
@@ -194,7 +194,7 @@
           "export function revokeLesson({ atlas_root, lesson_id }) {"
         ]
       },
-      "duration_ms": 0
+      "duration_ms": 1
     }
   ],
   "counts": {
@@ -203,6 +203,6 @@
     "skipped": 1
   },
   "verdict": "pass",
-  "duration_ms": 872,
-  "checked_at": "2026-06-21T22:38:03.889Z"
+  "duration_ms": 924,
+  "checked_at": "2026-06-21T22:47:26.824Z"
 }
