@@ -1,8 +1,13 @@
 {
   "name": "sima-atlas-desktop",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "private": true,
   "description": "Electron-based installable desktop app for Sima Atlas — see atlas/blocks/b.desktop/ for the contract.",
+  "homepage": "https://github.com/neskuchny/sima_atlas",
+  "author": {
+    "name": "neskuchny",
+    "email": "89947070+neskuchny@users.noreply.github.com"
+  },
   "main": "main.mjs",
   "type": "module",
   "scripts": {
@@ -58,6 +63,7 @@
         { "target": "deb", "arch": ["x64"] }
       ],
       "category": "Development",
+      "maintainer": "neskuchny <89947070+neskuchny@users.noreply.github.com>",
       "icon": "assets/icon.png"
     },
     "publish": {

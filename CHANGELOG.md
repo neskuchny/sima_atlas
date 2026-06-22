@@ -6,6 +6,18 @@ Sima Atlas сейчас в early-stage (`0.x`), API может меняться 
 
 ---
 
+## [0.4.1] — 2026-06-22 — *desktop installer build fix*
+
+Patch release. v0.4.0 tagged successfully but CI failed to produce installer artifacts because `extensions/desktop/package.json` was missing three fields that `electron-builder` requires for `.deb` packaging.
+
+- Add `homepage`, `author { name, email }` to `extensions/desktop/package.json`.
+- Add `linux.maintainer` so the `.deb` target can pass FpmTarget metadata validation.
+- Bump only the desktop package version (0.4.0 → 0.4.1). Root project version unchanged — no source behavior changes, only build metadata.
+
+Net effect: `v0.4.1` tag triggers a green build matrix and produces a downloadable installer per platform on the Release page.
+
+---
+
 ## [0.4.0] — 2026-06-20 — *the system passes its own protocol, then ships as an app*
 
 > v0.3.0 closed the autonomous loop. v0.4.0 makes the system **honest with
