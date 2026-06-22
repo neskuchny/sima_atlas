@@ -421,7 +421,7 @@
           "external": true,
           "from": "electron-updater",
           "kind": "dynamic",
-          "line": 434,
+          "line": 532,
           "resolved_to": null,
           "specifiers": []
         }
