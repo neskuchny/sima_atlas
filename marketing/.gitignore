@@ -1,6 +1,0 @@
-# Marketing assets — videos and screenshots captured at launch time.
-# Keep them out of git history; reference via README links.
-assets/*.mp4
-assets/*.mov
-assets/*.webm
-assets/screenshots/

@@ -331,10 +331,6 @@ A sharper test than «is it for me» is **«have I hit one of these walls?»**:
 
 **Will my agents stop hallucinating?** They'll stop hallucinating about *what to build* — the contract is explicit. Hallucinations *inside* the contract (wrong API name, wrong import path) still happen but the acceptance loop catches them before you commit. Drift detection (S-3 + S-8 next) will catch them at execution time, not after.
 
-## Launch kit (for operators)
-
-If you're cutting a release of this repo or a fork — see [`marketing/`](marketing/) for a complete launch kit: Twitter thread, Show HN draft, Reddit submissions, dev.to long-form, landing-page copy, personal-outreach templates, and a wow-moments checklist of what to capture on the day. Every claim is anchored to a verifiable artifact in the repo so the copy holds up under scrutiny.
-
 ## Contributing
 
 The 6 highest-leverage things you can help with right now:
