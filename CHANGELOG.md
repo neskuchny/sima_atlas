@@ -6,6 +6,24 @@ Sima Atlas сейчас в early-stage (`0.x`), API может меняться 
 
 ---
 
+## [0.4.2] — 2026-06-22 — *desktop installer now actually opens*
+
+v0.4.1 produced downloadable installers for the first time, but launching the installed app on Windows hit «Sima Atlas — startup failed: port 8787/atlas/state did not respond within 10000ms» before the window appeared. Three root causes, all in `extensions/desktop/main.mjs`:
+
+1. **`REPO_ROOT` resolution wrong in packaged mode.** Dev assumed `__dirname` was `<repo>/extensions/desktop/` and walked up two levels to find the repo root. In a packaged build electron-builder collapses the layout so `main.mjs` sits next to `scripts/`, and going up two levels lands *outside* the package. `utilityProcess.fork` then ran a path that didn't exist, exited silently, and main process waited 10 s for a port that would never open.
+2. **Bundled `atlas/` was read-only.** Installer puts the app under `Program Files\` (Windows) or `/Applications/` (macOS); the API server tries to write to `atlas/blocks/*/checks.log`, `atlas/proposals/`, etc. The first endpoint that wrote would EACCES.
+3. **No log capture.** A packaged Electron main process has no console attached, so the API process's stderr — which had the actual import / path error — went to `/dev/null`. The user saw only «startup failed» with no detail.
+
+**Fix:**
+- `detectRepoRoot()` probes a list of candidate directories for `scripts/atlas_api_server.mjs` and picks the first one that contains it. Survives any electron-builder layout change.
+- `ensureWritableAtlas()` copies the bundled `atlas/` to `app.getPath('userData')/atlas/` on first launch (packaged mode only — dev still uses the repo's `atlas/` so CLI tooling keeps seeing the same state). `BUNDLED_ATLAS_PATH` is a single source of truth used by the project picker and the «Reveal Atlas» menu item.
+- Each session opens `<userData>/logs/api.log` and streams the API process's stdout/stderr there *and* keeps the last ~60 lines in memory. If the startup timeout fires, the error dialog now includes the resolved `REPO_ROOT`, the `ATLAS` path, the log file path, and the captured tail — actionable instead of cryptic.
+- API startup window extended from 10 s to 15 s (cold-cache disk reads on Windows can be slow after install).
+
+Net effect: the same installer that hung on launch in v0.4.1 should now boot to the canvas. If something still goes wrong, the error dialog points at a log file we can read.
+
+---
+
 ## [0.4.1] — 2026-06-22 — *desktop installer build fix*
 
 Patch release. v0.4.0 tagged successfully on the CI side but produced zero downloadable artifacts because of two separate failures observed in workflow run 27946470849:

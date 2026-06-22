@@ -1,6 +1,6 @@
 {
   "name": "sima-atlas-desktop",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "private": true,
   "description": "Electron-based installable desktop app for Sima Atlas — see atlas/blocks/b.desktop/ for the contract.",
   "homepage": "https://github.com/neskuchny/sima_atlas",

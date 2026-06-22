@@ -33,9 +33,69 @@ import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const REPO_ROOT = path.resolve(__dirname, '..', '..');
-const FRONTEND_DIR = path.join(REPO_ROOT, 'frontend');
+
+// R-8.03 (v0.4.2): packaged-mode path resolution. In dev `__dirname` is
+// `<repo>/extensions/desktop/`, so going up two levels gives the repo
+// root. In a packaged build, electron-builder may collapse the layout
+// (main.mjs at `resources/app/main.mjs` next to `scripts/`) instead of
+// preserving `extensions/desktop/`. We don't want to assume — probe for
+// the marker file (`scripts/atlas_api_server.mjs`) and pick the first
+// candidate that contains it.
+function detectRepoRoot() {
+  const marker = path.join('scripts', 'atlas_api_server.mjs');
+  const candidates = [
+    path.resolve(__dirname, '..', '..'),                  // dev: extensions/desktop → repo
+    path.resolve(__dirname),                              // packaged collapsed: main.mjs at app/
+    path.resolve(__dirname, '..'),                        // packaged with one-level nesting
+    path.resolve(__dirname, '..', '..', '..', '..'),      // unusual nested layouts
+  ];
+  for (const c of candidates) {
+    if (fs.existsSync(path.join(c, marker))) return c;
+  }
+  return null;
+}
+const REPO_ROOT = detectRepoRoot();
+const FRONTEND_DIR = REPO_ROOT ? path.join(REPO_ROOT, 'frontend') : null;
 const PROJECTS_DIR = path.join(os.homedir(), 'SimaProjects');
+
+// R-8.03 (v0.4.2): writable atlas root. The bundled atlas/ lives inside
+// the installed package, which is read-only on Windows (Program Files)
+// and macOS (read-only DMG mount or quarantined app bundle). Copy it to
+// app.getPath('userData')/atlas on first launch and point the API
+// server at that writable copy. User projects under ~/SimaProjects/
+// already live in the home dir and are fine as-is.
+function ensureWritableAtlas() {
+  if (!REPO_ROOT) return null;
+  const bundledAtlas = path.join(REPO_ROOT, 'atlas');
+  // In dev (`npm run start`), the repo's atlas/ is on a writable disk and
+  // is the same one the CLI / nightly / git tooling reads. Redirecting in
+  // dev would split state across two locations. Only redirect when the
+  // install lives somewhere read-only (Program Files, /Applications, an
+  // AppImage's read-only squashfs).
+  if (!app.isPackaged) return bundledAtlas;
+  const userDataDir = app.getPath('userData');
+  const writableAtlas = path.join(userDataDir, 'atlas');
+  if (!fs.existsSync(writableAtlas)) {
+    try {
+      fs.mkdirSync(writableAtlas, { recursive: true });
+      // Node 16.7+ supports fs.cpSync for recursive copies — Electron 32
+      // bundles Node 20, so it's available.
+      fs.cpSync(bundledAtlas, writableAtlas, { recursive: true });
+    } catch (e) {
+      process.stderr.write(`[bootstrap] failed to seed writable atlas: ${e?.message || e}\n`);
+      // Fall back to bundled (read-only). Reads (incl. /atlas/state) will
+      // still work so the app at least opens; the user will hit EACCES on
+      // the first edit.
+      return bundledAtlas;
+    }
+  }
+  return writableAtlas;
+}
+
+// Bundled atlas path the project picker uses as the «demo» project entry.
+// Resolved once at startup so list/open use the same value as the running
+// API server (whether dev or packaged).
+let BUNDLED_ATLAS_PATH = null;
 
 let apiPort = 0;
 let uiPort = 0;
@@ -83,12 +143,45 @@ function waitForPort(port, pathToHit, timeoutMs) {
   });
 }
 
+// R-8.03 (v0.4.2): capture API process output so we have actual diagnostics
+// when something goes wrong. A packaged Electron app has no console
+// attached, so silent stderr in dev becomes silent stderr in production —
+// useless when the user can only see «startup failed».
+let apiLogPath = null;
+let apiLogStream = null;
+const apiOutputTail = [];   // last ~60 lines in memory for error dialogs
+function appendApiLine(line) {
+  apiOutputTail.push(line);
+  if (apiOutputTail.length > 60) apiOutputTail.shift();
+  if (apiLogStream) {
+    try { apiLogStream.write(line); } catch {}
+  }
+}
+function openApiLog() {
+  if (apiLogStream) return;
+  try {
+    const logsDir = path.join(app.getPath('userData'), 'logs');
+    fs.mkdirSync(logsDir, { recursive: true });
+    apiLogPath = path.join(logsDir, 'api.log');
+    // Truncate each session — keeps the log focused on the current run.
+    apiLogStream = fs.createWriteStream(apiLogPath, { flags: 'w' });
+    apiLogStream.write(`=== api log opened ${new Date().toISOString()} ===\n`);
+    apiLogStream.write(`REPO_ROOT=${REPO_ROOT}\n`);
+    apiLogStream.write(`apiPort=${apiPort}, uiPort=${uiPort}\n\n`);
+  } catch (e) {
+    process.stderr.write(`[bootstrap] could not open api log: ${e?.message || e}\n`);
+  }
+}
+
 function startApiServer(atlasPath) {
   // ELECTRON_RUN_AS_NODE is implicit for utilityProcess.fork — it always
   // runs in a Node-only context using the bundled binary.
   currentAtlasRoot = atlasPath;
+  const scriptPath = path.join(REPO_ROOT, 'scripts', 'atlas_api_server.mjs');
+  appendApiLine(`[bootstrap] forking ${scriptPath}\n`);
+  appendApiLine(`[bootstrap] ATLAS_ROOT=${atlasPath}\n`);
   apiProc = utilityProcess.fork(
-    path.join(REPO_ROOT, 'scripts', 'atlas_api_server.mjs'),
+    scriptPath,
     [],
     {
       env: {
@@ -99,9 +192,10 @@ function startApiServer(atlasPath) {
       stdio: 'pipe',
     }
   );
-  apiProc.stdout?.on('data', (d) => process.stdout.write(`[api] ${d}`));
-  apiProc.stderr?.on('data', (d) => process.stderr.write(`[api] ${d}`));
+  apiProc.stdout?.on('data', (d) => { const s = `[api/out] ${d}`; appendApiLine(s); process.stdout.write(s); });
+  apiProc.stderr?.on('data', (d) => { const s = `[api/err] ${d}`; appendApiLine(s); process.stderr.write(s); });
   apiProc.on('exit', (code) => {
+    appendApiLine(`[api] exited with code ${code}\n`);
     process.stderr.write(`[api] exited with code ${code}\n`);
     if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.webContents.executeJavaScript(`document.body.innerHTML = '<div style="font: 14px system-ui; padding: 40px;"><h2>API server crashed (exit ${code})</h2><p>Check the application log. Restart from File → Restart.</p></div>'`);
@@ -212,12 +306,12 @@ function isSafeProjectName(name) {
 ipcMain.handle('desktop:list-projects', async () => {
   fs.mkdirSync(PROJECTS_DIR, { recursive: true });
   const out = [];
-  // The repo's bundled atlas/ — the «demo» project, always first.
+  // The bundled atlas — the «demo» project, always first.
   out.push({
     name: 'demo (bundled)',
-    path: path.join(REPO_ROOT, 'atlas'),
+    path: BUNDLED_ATLAS_PATH,
     bundled: true,
-    current: currentAtlasRoot === path.join(REPO_ROOT, 'atlas'),
+    current: currentAtlasRoot === BUNDLED_ATLAS_PATH,
   });
   for (const name of fs.readdirSync(PROJECTS_DIR)) {
     if (!isSafeProjectName(name)) continue;
@@ -262,9 +356,8 @@ ipcMain.handle('desktop:create-project', async (_e, name) => {
 ipcMain.handle('desktop:open-project', async (_e, atlasPath) => {
   if (typeof atlasPath !== 'string' || !atlasPath) return { ok: false, error: 'atlasPath required' };
   // Allow either the bundled atlas or any path under ~/SimaProjects/.
-  const bundled = path.join(REPO_ROOT, 'atlas');
   const withinProjects = atlasPath.startsWith(PROJECTS_DIR + path.sep);
-  if (atlasPath !== bundled && !withinProjects) return { ok: false, error: 'atlasPath must be the bundled atlas or live under ~/SimaProjects/' };
+  if (atlasPath !== BUNDLED_ATLAS_PATH && !withinProjects) return { ok: false, error: 'atlasPath must be the bundled atlas or live under ~/SimaProjects/' };
   if (!fs.existsSync(path.join(atlasPath, 'graph.json'))) return { ok: false, error: `no graph.json at ${atlasPath}` };
 
   // Restart the API server pointing at the new atlas root, then reload the
@@ -363,7 +456,7 @@ function buildMenu() {
             }
           },
         },
-        { label: 'Reveal Atlas in Finder', click: () => shell.showItemInFolder(path.join(REPO_ROOT, 'atlas')) },
+        { label: 'Reveal Atlas in Finder', click: () => BUNDLED_ATLAS_PATH && shell.showItemInFolder(BUNDLED_ATLAS_PATH) },
         { type: 'separator' },
         isMac ? { role: 'close' } : { role: 'quit' },
       ],
@@ -467,22 +560,56 @@ function triggerUpdateCheck(showWhenNone) {
 // ── lifecycle
 app.whenReady().then(async () => {
   fs.mkdirSync(PROJECTS_DIR, { recursive: true });
+  // R-8.03 (v0.4.2): open the api log first so any bootstrap diagnostics
+  // (REPO_ROOT detection failure, atlas-seed errors) are captured before
+  // we even fork the API.
+  openApiLog();
+  if (!REPO_ROOT) {
+    const tried = [
+      path.resolve(__dirname, '..', '..'),
+      path.resolve(__dirname),
+      path.resolve(__dirname, '..'),
+      path.resolve(__dirname, '..', '..', '..', '..'),
+    ].join('\n  ');
+    dialog.showErrorBox(
+      'Sima Atlas — cannot locate scripts/',
+      `The packaged installer does not contain scripts/atlas_api_server.mjs in any expected location.\n\nSearched:\n  ${tried}\n\n__dirname: ${__dirname}\n\nThis is a packaging bug — please report it with this dialog text.`
+    );
+    return app.quit();
+  }
+  const writableAtlas = ensureWritableAtlas();
+  BUNDLED_ATLAS_PATH = writableAtlas;
   try {
     apiPort = await pickFreePort(8787);
     uiPort = await pickFreePort(8000);
-    startApiServer(path.join(REPO_ROOT, 'atlas'));
+    startApiServer(writableAtlas);
     await startUiServer();
     // Give the API a generous window — it imports MCP server stuff, scans
     // graph.json, etc.
     await Promise.all([
-      waitForPort(apiPort, '/atlas/state', 10_000),
+      waitForPort(apiPort, '/atlas/state', 15_000),
       waitForPort(uiPort, '/atlas_design/index.html', 5_000),
     ]);
     buildMenu();
     createWindow();
     await setupAutoUpdater();
   } catch (e) {
-    dialog.showErrorBox('Sima Atlas — startup failed', String(e?.message || e));
+    // R-8.03 (v0.4.2): make the failure dialog actually actionable. Include
+    // the last lines of API stderr/stdout we captured and the path to the
+    // full log file the user can attach when reporting.
+    const tail = apiOutputTail.slice(-25).join('').trim();
+    const detail = [
+      `Error: ${e?.message || e}`,
+      '',
+      `REPO_ROOT: ${REPO_ROOT}`,
+      `ATLAS:     ${writableAtlas}`,
+      `Log file:  ${apiLogPath || '(could not open)'}`,
+      '',
+      '--- last API output ---',
+      tail || '(no output captured before timeout)',
+    ].join('\n');
+    dialog.showErrorBox('Sima Atlas — startup failed', detail);
+    if (apiLogStream) try { apiLogStream.end(); } catch {}
     app.quit();
   }
 });
