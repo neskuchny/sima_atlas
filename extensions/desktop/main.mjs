@@ -34,21 +34,26 @@ import { fileURLToPath } from 'node:url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// R-8.03 (v0.4.2): packaged-mode path resolution. In dev `__dirname` is
-// `<repo>/extensions/desktop/`, so going up two levels gives the repo
-// root. In a packaged build, electron-builder may collapse the layout
-// (main.mjs at `resources/app/main.mjs` next to `scripts/`) instead of
-// preserving `extensions/desktop/`. We don't want to assume — probe for
-// the marker file (`scripts/atlas_api_server.mjs`) and pick the first
-// candidate that contains it.
+// R-8.03 (v0.4.2) / R-8.04 (v0.4.3): packaged-mode path resolution. In dev
+// `__dirname` is `<repo>/extensions/desktop/`, so going up two levels gives
+// the repo root. In a packaged build we ship scripts/ + frontend/ + atlas/
+// via electron-builder `extraResources`, which lands them under
+// `process.resourcesPath` (e.g. `…/sima-atlas-desktop/resources/`). The
+// earlier `files: ["../../scripts/**"]` approach silently failed to include
+// out-of-app-dir files, so v0.4.2 booted with no scripts/ at all. We don't
+// assume a layout — probe each candidate for the marker file
+// (`scripts/atlas_api_server.mjs`) and pick the first that contains it.
+let TRIED_ROOTS = [];
 function detectRepoRoot() {
   const marker = path.join('scripts', 'atlas_api_server.mjs');
   const candidates = [
     path.resolve(__dirname, '..', '..'),                  // dev: extensions/desktop → repo
+    process.resourcesPath || null,                        // packaged: extraResources land here
     path.resolve(__dirname),                              // packaged collapsed: main.mjs at app/
     path.resolve(__dirname, '..'),                        // packaged with one-level nesting
     path.resolve(__dirname, '..', '..', '..', '..'),      // unusual nested layouts
-  ];
+  ].filter(Boolean);
+  TRIED_ROOTS = candidates;
   for (const c of candidates) {
     if (fs.existsSync(path.join(c, marker))) return c;
   }
@@ -565,15 +570,10 @@ app.whenReady().then(async () => {
   // we even fork the API.
   openApiLog();
   if (!REPO_ROOT) {
-    const tried = [
-      path.resolve(__dirname, '..', '..'),
-      path.resolve(__dirname),
-      path.resolve(__dirname, '..'),
-      path.resolve(__dirname, '..', '..', '..', '..'),
-    ].join('\n  ');
+    const tried = TRIED_ROOTS.join('\n  ');
     dialog.showErrorBox(
       'Sima Atlas — cannot locate scripts/',
-      `The packaged installer does not contain scripts/atlas_api_server.mjs in any expected location.\n\nSearched:\n  ${tried}\n\n__dirname: ${__dirname}\n\nThis is a packaging bug — please report it with this dialog text.`
+      `The packaged installer does not contain scripts/atlas_api_server.mjs in any expected location.\n\nSearched:\n  ${tried}\n\n__dirname: ${__dirname}\nresourcesPath: ${process.resourcesPath}\n\nThis is a packaging bug — please report it with this dialog text.`
     );
     return app.quit();
   }

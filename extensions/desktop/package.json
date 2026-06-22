@@ -1,6 +1,6 @@
 {
   "name": "sima-atlas-desktop",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "private": true,
   "description": "Electron-based installable desktop app for Sima Atlas — see atlas/blocks/b.desktop/ for the contract.",
   "homepage": "https://github.com/neskuchny/sima_atlas",
@@ -30,14 +30,16 @@
     "files": [
       "main.mjs",
       "preload.mjs",
-      "package.json",
-      "../../scripts/**/*.mjs",
-      "../../scripts/**/*.js",
-      "../../frontend/**/*",
-      "../../atlas/**/*",
-      "!../../atlas/llm_traces/**",
-      "!../../atlas/autonomous_runs/**",
-      "!../../node_modules"
+      "package.json"
+    ],
+    "extraResources": [
+      { "from": "../../scripts", "to": "scripts", "filter": ["**/*.mjs", "**/*.js"] },
+      { "from": "../../frontend", "to": "frontend" },
+      {
+        "from": "../../atlas",
+        "to": "atlas",
+        "filter": ["**/*", "!llm_traces/**", "!autonomous_runs/**"]
+      }
     ],
     "extraMetadata": {
       "main": "main.mjs"

@@ -198,9 +198,50 @@ for (const f of MUST_EXIST) check(`g1: ${f} exists`, exists(f));
   check('g13: App mounts ProjectPickerModal', /SIMA_PROJECT_PICKER\.ProjectPickerModal/.test(html));
 }
 
+// ── Group 15 (R-8.04 / v0.4.3): the packaged app MUST ship scripts/,
+// frontend/, atlas/. v0.4.2 failed at launch because the old
+// `files: ["../../scripts/**"]` glob silently dropped out-of-app-dir
+// files, so the installed app had no API server to fork. The fix routes
+// them through electron-builder `extraResources` (deterministic
+// `process.resourcesPath`). Guard that the payload declarations stay put.
+{
+  const pkg = readJson('extensions/desktop/package.json');
+  const er = pkg.build?.extraResources;
+  check('g15: build.extraResources is an array', Array.isArray(er),
+    'v0.4.2 regression: packaged app must bundle scripts/frontend/atlas as resources');
+  if (Array.isArray(er)) {
+    const tos = er.map((e) => (typeof e === 'string' ? e : e.to || e.from || ''));
+    const froms = er.map((e) => (typeof e === 'object' ? e.from || '' : ''));
+    check('g15: ships scripts/ (from ../../scripts)',
+      froms.some((f) => /(^|\/)scripts$/.test(f)) || tos.some((t) => /scripts/.test(t)),
+      'API server lives in scripts/ — without it the app cannot boot');
+    check('g15: ships frontend/', froms.some((f) => /frontend/.test(f)) || tos.some((t) => /frontend/.test(t)));
+    check('g15: ships atlas/',    froms.some((f) => /atlas/.test(f))    || tos.some((t) => /atlas/.test(t)));
+  }
+  // The `files` array must NOT reuse the broken ../../ out-of-dir globs.
+  const filesArr = pkg.build?.files || [];
+  check('g15: build.files has no ../../ out-of-app-dir globs',
+    !filesArr.some((f) => typeof f === 'string' && f.includes('../../')),
+    'out-of-app-dir files belong in extraResources, not files[] (silent-drop bug)');
+}
+
+// ── Group 16 (R-8.04 / v0.4.3): main.mjs resolves the repo root robustly
+// and seeds a writable atlas — the three things that broke packaged boot.
+{
+  const src = read('extensions/desktop/main.mjs');
+  check('g16: detectRepoRoot probes for marker file', /detectRepoRoot/.test(src) && /atlas_api_server\.mjs/.test(src),
+    'must not hardcode ../../ — probe candidates incl. process.resourcesPath');
+  check('g16: considers process.resourcesPath', /process\.resourcesPath/.test(src),
+    'packaged extraResources land under resourcesPath');
+  check('g16: seeds a writable atlas (userData)', /ensureWritableAtlas/.test(src) && /getPath\(['"]userData['"]\)/.test(src),
+    'bundled atlas is read-only under Program Files / Applications');
+  check('g16: writes an api log for diagnostics', /api\.log/.test(src),
+    'packaged Electron has no console — crashes must hit a log file');
+}
+
 if (failures.length) {
   console.error('desktop_structure.selftest: FAIL');
   failures.forEach((f) => console.error(' ✗', f));
   process.exit(1);
 }
-console.log('desktop_structure.selftest: OK (14 test groups, all assertions green)');
+console.log('desktop_structure.selftest: OK (16 test groups, all assertions green)');

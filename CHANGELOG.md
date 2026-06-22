@@ -6,6 +6,20 @@ Sima Atlas сейчас в early-stage (`0.x`), API может меняться 
 
 ---
 
+## [0.4.3] — 2026-06-22 — *the packaged app actually contains its own backend*
+
+v0.4.2 added diagnostics, and they immediately paid off: the new «cannot locate scripts/» dialog showed the real problem on the user's Windows machine — `__dirname` resolved to `…\sima-atlas-desktop\resources\app`, and **none** of the probed roots contained `scripts/atlas_api_server.mjs`. Reason: the build declared the backend via `files: ["../../scripts/**", "../../frontend/**", "../../atlas/**"]`, but electron-builder's `files` field is for files *inside* the app directory — out-of-app-dir `../../` globs are silently dropped. So every v0.4.x installer shipped with **no backend at all**; the app could never have booted.
+
+**Fix:**
+- Route `scripts/`, `frontend/`, and `atlas/` through electron-builder `extraResources` instead of `files`. These land deterministically under `process.resourcesPath` (e.g. `…\sima-atlas-desktop\resources\scripts\`). The `atlas/` copy still excludes `llm_traces/` and `autonomous_runs/` runtime noise.
+- `detectRepoRoot()` now probes `process.resourcesPath` among its candidates, so packaged mode finds the backend while dev mode still resolves to the repo via `../../`.
+- Verified the only third-party import anywhere in `scripts/` is `@playwright/test` (test-only, not in the API server's chain) — the boot path is pure node builtins + relative imports, so **no `node_modules` needs bundling**.
+- New selftest groups 15 + 16 guard against regression: assert the build ships scripts/frontend/atlas via `extraResources`, that `files[]` contains no `../../` out-of-dir globs, and that `main.mjs` keeps the robust root-probe + writable-atlas + api-log machinery. Nightly now runs 16 desktop test groups.
+
+Net effect: the installer finally contains the program it's supposed to run. Combined with v0.4.2's writable-atlas + logging fixes, launching the installed app should reach the canvas.
+
+---
+
 ## [0.4.2] — 2026-06-22 — *desktop installer now actually opens*
 
 v0.4.1 produced downloadable installers for the first time, but launching the installed app on Windows hit «Sima Atlas — startup failed: port 8787/atlas/state did not respond within 10000ms» before the window appeared. Three root causes, all in `extensions/desktop/main.mjs`:
