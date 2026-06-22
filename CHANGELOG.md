@@ -8,11 +8,20 @@ Sima Atlas сейчас в early-stage (`0.x`), API может меняться 
 
 ## [0.4.1] — 2026-06-22 — *desktop installer build fix*
 
-Patch release. v0.4.0 tagged successfully but CI failed to produce installer artifacts because `extensions/desktop/package.json` was missing three fields that `electron-builder` requires for `.deb` packaging.
+Patch release. v0.4.0 tagged successfully on the CI side but produced zero downloadable artifacts because of two separate failures observed in workflow run 27946470849:
 
-- Add `homepage`, `author { name, email }` to `extensions/desktop/package.json`.
-- Add `linux.maintainer` so the `.deb` target can pass FpmTarget metadata validation.
-- Bump only the desktop package version (0.4.0 → 0.4.1). Root project version unchanged — no source behavior changes, only build metadata.
+**Failure A — Linux .deb metadata (all three runners failed, ubuntu hit it first):**
+- `electron-builder` `FpmTarget` validation required `homepage`, `author.email`, and `linux.maintainer`. None were set in `extensions/desktop/package.json`.
+
+**Failure B — electron-builder tried to auto-publish (visible on macOS/Windows, would have hit linux too once A was fixed):**
+- The `publish: { provider: github, ... }` block triggers electron-builder's GitHub publisher when `GITHUB_REF` is a tag. Without `GH_TOKEN` it dies with «GitHub Personal Access Token is not set». The Windows job actually produced `Sima Atlas Setup 0.4.0.exe` and the portable `.exe` before this error killed the cleanup step — so the artifacts existed but were thrown away.
+- The workflow has its own publish step (`softprops/action-gh-release@v2`), so electron-builder's publisher is redundant and harmful.
+
+**Fix:**
+- Add `homepage`, `author { name, email }` to `extensions/desktop/package.json` (using the public GitHub no-reply email — no personal contact in shipped binaries).
+- Add `linux.maintainer` so `.deb` passes FpmTarget metadata validation.
+- Append `--publish=never` to all four `pack` scripts so electron-builder builds locally and lets the workflow handle the GitHub Release upload.
+- Bump only the desktop package version (0.4.0 → 0.4.1). Root project version unchanged — this is build-config only, no source behavior changes.
 
 Net effect: `v0.4.1` tag triggers a green build matrix and produces a downloadable installer per platform on the Release page.
 
