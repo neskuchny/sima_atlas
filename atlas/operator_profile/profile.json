@@ -1,6 +1,6 @@
 {
   "operator_id": "default",
-  "updated_at": "2026-06-21T22:47:09.747Z",
+  "updated_at": "2026-09-12T22:28:44.713Z",
   "_status": "live",
   "_min_data": {
     "done_transitions": 9,
@@ -19,7 +19,8 @@
       "semantic_verify": 16,
       "cascade_check": 6,
       "drift_guard": 2,
-      "agent_invocation": 3
+      "agent_invocation": 3,
+      "kpi": 1
     }
   },
   "agents_used": {
@@ -321,51 +322,33 @@
     ]
   },
   "llm_provider_stats": {
-    "mock": {
-      "count": 9229,
-      "fallback_to_mock_count": 592,
-      "total_cost_usd": 0,
-      "schema_ok_count": 9229,
-      "fallback_rate": 0.06,
-      "schema_ok_rate": 1,
-      "avg_cost_usd": 0
-    },
     "claude_cli": {
-      "count": 81,
+      "count": 3,
       "fallback_to_mock_count": 0,
       "total_cost_usd": 0,
-      "schema_ok_count": 81,
+      "schema_ok_count": 3,
       "fallback_rate": 0,
       "schema_ok_rate": 1,
       "avg_cost_usd": 0
     },
-    "google": {
-      "count": 68,
-      "fallback_to_mock_count": 0,
-      "total_cost_usd": 0.032185399999999996,
-      "schema_ok_count": 68,
-      "fallback_rate": 0,
+    "mock": {
+      "count": 213,
+      "fallback_to_mock_count": 2,
+      "total_cost_usd": 0,
+      "schema_ok_count": 213,
+      "fallback_rate": 0.01,
       "schema_ok_rate": 1,
-      "avg_cost_usd": 0.000473
-    },
-    "openai": {
-      "count": 2,
-      "fallback_to_mock_count": 0,
-      "total_cost_usd": 0.00002985,
-      "schema_ok_count": 2,
-      "fallback_rate": 0,
-      "schema_ok_rate": 1,
-      "avg_cost_usd": 0.000015
+      "avg_cost_usd": 0
     }
   },
   "proposals_stats": {
-    "total": 90,
+    "total": 2,
     "accept_rate": 0,
     "reject_rate": 0,
-    "pending": 90
+    "pending": 2
   },
   "decisions_stats": {
-    "total": 3551,
+    "total": 3559,
     "blocks_with_decisions": 8
   },
   "patterns_stats": {
@@ -714,13 +697,19 @@
       "ts": "2026-06-09T20:17:03.840Z",
       "kind": "acceptance_verifier",
       "note": "verdict=fail pass=5 fail=3 skipped=0 fails=[A2:node tests/user_docs.smoke.mjs → exit null; timed out after ; A3:node tests/screenshots_integration.selftest.mjs → exit null;]"
+    },
+    {
+      "block_id": "b.user-docs-generator",
+      "ts": "2026-09-12T22:19:06.344Z",
+      "kind": "kpi",
+      "note": "R-8.05 audit: KPI-1 ✗ measured — atlas/docs/end-user/ is empty (0 docs, 0 _meta) while 2 user-facing blocks exist (b.ui-control front/wip, b.product-dashboard front/idea); coverage 0/2. KPI-2..7 not m"
     }
   ],
   "invocations_total": 14,
   "_preview": {
     "total_done": 9,
     "total_invocations": 14,
-    "total_traces": 9380,
-    "total_proposals": 90
+    "total_traces": 216,
+    "total_proposals": 2
   }
 }

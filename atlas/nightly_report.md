@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-06-21T22:47:05.667Z_
+_Generated: 2026-09-12T22:28:41.797Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -18,13 +18,13 @@ _Generated: 2026-06-21T22:47:05.667Z_
   - output: build_code_graph --check: code_graph.json up-to-date
 - ✅ code_graph_drift: ok
 - ✅ code_graph_extractor_selftest: ok
-  - output: deterministic — sha256(2b568e68d91f…) matches across runs
+  - output: deterministic — sha256(ce51108625f0…) matches across runs
 - ✅ code_graph_validator_selftest: ok
   - output: code_graph_validator.selftest: OK (6 test groups, all assertions green)
 - ✅ checks_append_endpoint_selftest: ok
   - output: checks_append_endpoint.selftest: OK (6 test groups, all assertions green)
 - ✅ desktop_structure_selftest: ok
-  - output: desktop_structure.selftest: OK (14 test groups, all assertions green)
+  - output: desktop_structure.selftest: OK (16 test groups, all assertions green)
 - ✅ review_diff_selftest: ok
   - output: review_diff.selftest: OK (7 test groups, all assertions green)
 - ✅ openai_gemini_providers_selftest: ok
@@ -39,8 +39,10 @@ _Generated: 2026-06-21T22:47:05.667Z_
   - output: validate_subschemas: OK (projects=2, subschemas=1, child_blocks=6)
 - ✅ dependency_contracts: ok
   - output: Dependency contract validation: OK
-- ✅ acceptance_assertions: ok
-  - output: Acceptance assertions validation: OK
+- ❌ acceptance_assertions: fail
+  - error: Acceptance assertions validation failed:
+- ✅ lifecycle_gate_selftest: ok
+  - output: lifecycle_gate.selftest: OK (7 groups, all assertions green)
 - ✅ atlas_selftest: ok
   - output: atlas_sync.selftest: OK
 - ✅ bootstrap_layered_smoke: ok
@@ -52,7 +54,7 @@ _Generated: 2026-06-21T22:47:05.667Z_
 - ✅ operator_profile_selftest: ok
   - output: operator_profile.selftest: OK (7 test groups, all assertions green)
 - ✅ aggregate_operator_profile: ok
-  - output: operator_profile: live (done=9, invocations=14, traces=9380, proposals=90)
+  - output: operator_profile: live (done=9, invocations=14, traces=216, proposals=2)
 - ✅ operator_profile_lessons_smoke: ok
   - output: operator_profile_lessons.smoke: OK (6 test groups, all assertions green)
 - ✅ operator_profile_inject_smoke: ok
@@ -104,7 +106,7 @@ _Generated: 2026-06-21T22:47:05.667Z_
 - ✅ codex_source_selftest: ok
   - output: codex_source.selftest: OK (4 passes, 3 line shapes, stream merge, noise filtered, cursor + rotation handled)
 - ✅ cursor_source_selftest: ok
-  - output: cursor_source.selftest: OK (11 unit checks + full sqlite3 end-to-end with seen-set advance)
+  - output: cursor_source.selftest: OK (11 unit checks; sqlite3 CLI not present, end-to-end leg skipped — install sqlite3 to cover)
 - ✅ chat_fill_accept_selftest: ok
   - output: chat_fill_accept.selftest: OK (plan listed, accepted, blocks created, contract files written, re-accept refused)
 - ✅ multi_tenant_block_routing_selftest: ok
@@ -116,7 +118,7 @@ _Generated: 2026-06-21T22:47:05.667Z_
 - ✅ parse_acceptance_selftest: ok
   - output: parse_acceptance.selftest: OK (9 test groups, all assertions green)
 - ✅ evidence_collectors_selftest: ok
-  - output: evidence_collectors.selftest: OK (13 test groups, all assertions green)
+  - output: evidence_collectors.selftest: OK (14 test groups, all assertions green)
 - ✅ llm_judge_smoke: ok
   - output: llm_judge.smoke: OK (4 test groups, all assertions green)
 - ✅ acceptance_verifier_e2e_smoke: ok
@@ -164,4 +166,4 @@ _Generated: 2026-06-21T22:47:05.667Z_
 - ✅ intelligence_health: ok
   - output: Intelligence health: 0.95 (19/20)
 
-Summary: PASS (81/81)
+Summary: FAIL (81/82)

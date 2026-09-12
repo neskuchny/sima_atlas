@@ -199,7 +199,12 @@ const prompt = [
   extraPrompt ? `## Operator note\n${extraPrompt}\n` : '',
   '## How to report progress',
   `Append a line to \`${path.relative(ROOT, blockDir).split(path.sep).join('/')}/checks.log\` with the test/check result.`,
-  'When done, set status to `review` via MCP transition_block.',
+  // R-8.05 — this used to say «When done, set status to `review` via MCP
+  // transition_block.» That instruction put the agent's self-report in charge
+  // of the lifecycle: inside the V-1 loop the agent moved the block before the
+  // verifier ever ran, and the daemon then tried an already-consumed
+  // transition. The verifier decides; the agent reports evidence.
+  'Do NOT change the block status yourself — the acceptance verifier decides and the loop advances the block.',
   '',
   '## How to update memory',
   'After your run, summarize what you did in human language and write it to:',

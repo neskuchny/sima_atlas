@@ -37,6 +37,7 @@ const checks = [
   ['subschemas_contracts', 'node scripts/validate_subschemas.mjs'],
   ['dependency_contracts', 'node scripts/validate_dependency_contracts.mjs'],
   ['acceptance_assertions', 'node scripts/validate_acceptance_assertions.mjs'],
+  ['lifecycle_gate_selftest', 'node tests/lifecycle_gate.selftest.mjs'],
   ['atlas_selftest', 'node tests/atlas_sync.selftest.mjs'],
   ['bootstrap_layered_smoke', 'node tests/atlas_bootstrap.smoke.mjs'],
   ['llm_gateway_selftest', 'node tests/llm_gateway.selftest.mjs'],

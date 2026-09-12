@@ -285,7 +285,7 @@
         },
         "kpi": {
           "checked": 0,
-          "total": 7
+          "total": 12
         }
       },
       "tech_stack": [
@@ -355,7 +355,7 @@
         },
         "kpi": {
           "checked": 0,
-          "total": 7
+          "total": 12
         }
       },
       "tech_stack": [
@@ -2630,7 +2630,7 @@
     }
   ],
   "_meta": {
-    "generated_at": "2026-06-21T22:47:14.723Z",
+    "generated_at": "2026-09-12T22:28:48.768Z",
     "atlas_root": "atlas",
     "client_id": null,
     "block_count": 20,

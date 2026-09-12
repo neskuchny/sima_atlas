@@ -10,7 +10,7 @@ Acceptance gate для перехода `idea → wip → review → done`. Ка
 evidence_kind: exit_code
 evidence_spec:
   cmd: node scripts/build_code_graph.mjs && node -e "JSON.parse(require('fs').readFileSync('atlas/code_graph.json','utf8'))"
-  expect_in_stdout: ""
+  expect_in_stdout: "build_code_graph: wrote"
 ```
 
 - [ ] **A2.** Selftest парсера ES-модулей зелёный: статичные `import`,

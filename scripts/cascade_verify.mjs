@@ -127,19 +127,44 @@ const verifierPath = path.join(ROOT, 'scripts', 'verify_block_acceptance.mjs');
 const broken = [];
 const ts = new Date().toISOString();
 
+// R-8.05 — deterministic by default, mirroring the green guard
+// (verify_done_blocks_still_green). Cascade used to inherit the raw env, so
+// dependents whose acceptance includes a selftest that calls the LLM gateway
+// were re-verified LIVE. A gateway hiccup then read as «parent broke this
+// dependent» and minted a `desync` — which is how b.acceptance-verifier-loop
+// sat desync for months on an A3 llm_judge smoke failure that had nothing to
+// do with its parent. Live re-verification is semantic_verify's lane; opt in
+// here with ATLAS_GREEN_GUARD_LIVE=1.
+const cascadeEnv = { ...process.env, ATLAS_ROOT: atlasRoot };
+if (process.env.ATLAS_GREEN_GUARD_LIVE !== '1') cascadeEnv.ATLAS_FORCE_MOCK_LLM = '1';
+
+// Spec §4.2: a dependent is `desync` when it PREVIOUSLY PASSED and now fails.
+// Without this check cascade marked any red dependent as broken-by-parent,
+// including ones that were already red for unrelated reasons.
+function previousVerdict(depId) {
+  const p = path.join(atlasRoot, 'acceptance_runs', depId, '_latest.json');
+  try { return JSON.parse(fs.readFileSync(p, 'utf8')).verdict || null; }
+  catch { return null; }
+}
+
 for (const dep of dependents) {
   process.stdout.write(`  · ${dep.id} ... `);
+  const before = previousVerdict(dep.id);
   const v = spawnSync('node', [verifierPath, dep.id], {
     cwd: ROOT,
     encoding: 'utf8',
-    env: { ...process.env, ATLAS_ROOT: atlasRoot },
+    env: cascadeEnv,
     timeout: 60_000,
   });
   if (v.status === 0) {
     console.log('✓ still green');
   } else if (v.status === 1) {
-    console.log('✗ FAIL — broken by parent edit');
-    broken.push({ id: dep.id, reason: 'verifier fail' });
+    if (before === 'pass') {
+      console.log('✗ FAIL — was green, broken by parent edit');
+      broken.push({ id: dep.id, reason: 'verifier fail', previous_verdict: before });
+    } else {
+      console.log(`· still-red (previous verdict ${before || 'none'} — not caused by this edit; status left as-is)`);
+    }
   } else if (v.status === 2) {
     console.log('· inconclusive (skipped — no auto-mark for inconclusive)');
   } else {
@@ -159,8 +184,17 @@ for (const b of broken) {
   // 1. Update graph.json status
   const idx = (graph.blocks || []).findIndex(x => x.id === b.id);
   if (idx >= 0) {
+    // R-8.05 — remember where the block came from and when it was marked.
+    // Without these, `desync` was a one-way door: nothing knew what to restore
+    // the block to, so a dependent that went green again stayed labelled
+    // desync indefinitely (and advance_block_state's desync→done could even
+    // promote a block that had never been done).
+    if (graph.blocks[idx].status !== 'desync') {
+      graph.blocks[idx].status_before_desync = graph.blocks[idx].status;
+    }
+    graph.blocks[idx].desync_marked_at = ts;
     graph.blocks[idx].status = 'desync';
-    graph.blocks[idx].status_reason = `cascade: parent ${blockId} edit at ${ts.slice(0, 19)} broke acceptance`;
+    graph.blocks[idx].status_reason = `cascade: parent ${blockId} edit at ${ts.slice(0, 19)} broke acceptance (was ${b.previous_verdict || 'pass'})`;
     graph.blocks[idx].updated_at = ts;
   }
 

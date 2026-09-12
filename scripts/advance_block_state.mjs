@@ -1,60 +1,42 @@
-import fs from 'node:fs';
-import path from 'node:path';
+#!/usr/bin/env node
+// Thin CLI over the shared lifecycle gate (scripts/lifecycle_gate.mjs).
+//
+// R-8.05 — this script used to own the TRANSITIONS table and applied ONLY the
+// adjacency check before writing graph.json: `→ done` never read the acceptance
+// verdict, so the V-1 daemon (which promotes through this script) and every
+// operator invocation could mark a block done with a failing verifier. The
+// gate, the ledger write and the checks.log line now live in one module that
+// every status-writing path shares.
+//
+// Usage:
+//   node scripts/advance_block_state.mjs <blockId> <to> [actor] [note] [--allow-no-verifier]
+//
+// Exit codes (kept stable for existing callers):
+//   0 — applied
+//   2 — block not found
+//   3 — transition refused (invalid adjacency or failing acceptance gate)
 
-const [,, blockId, to, actor='cli', note=''] = process.argv;
+import { applyTransition, rejectionMessage } from './lifecycle_gate.mjs';
+
+const argv = process.argv.slice(2);
+const flags = argv.filter((a) => a.startsWith('--'));
+const [blockId, to, actor = 'cli', note = ''] = argv.filter((a) => !a.startsWith('--'));
+const allowNoVerifier = flags.includes('--allow-no-verifier') || process.env.ATLAS_ALLOW_NO_VERIFIER === '1';
+
 if (!blockId || !to) {
-  console.error('Usage: node scripts/advance_block_state.mjs <blockId> <to> [actor] [note]');
+  console.error('Usage: node scripts/advance_block_state.mjs <blockId> <to> [actor] [note] [--allow-no-verifier]');
   process.exit(1);
 }
 
-const root = process.cwd();
-const graphPath = path.join(root, 'atlas', 'graph.json');
-const transitionsPath = path.join(root, 'atlas', 'transitions.log');
+const r = applyTransition({ blockId, to, actor, note, allowNoVerifier });
 
-const graph = JSON.parse(fs.readFileSync(graphPath, 'utf8'));
-const blocks = graph.blocks || [];
-const idx = blocks.findIndex((b) => b.id === blockId);
-if (idx < 0) {
-  console.error(`Block not found: ${blockId}`);
-  process.exit(2);
-}
-
-const TRANSITIONS = {
-  idea: ['wip'],
-  wip: ['review', 'broken'],
-  review: ['done', 'wip', 'broken'],
-  done: ['wip'],
-  broken: ['wip'],
-  // R-7.99 — cascade_verify writes `desync` straight into graph.json, but
-  // the lifecycle had NO exit from it: a transiently-broken dependent stayed
-  // desync forever even after re-verifying green. Recovery paths:
-  //   desync → done  (re-verify came back green — transient break)
-  //   desync → wip   (genuinely broken by the upstream change — needs work)
-  desync: ['done', 'wip'],
-};
-
-const from = blocks[idx].status || 'idea';
-const allowed = TRANSITIONS[from] || [];
-if (!allowed.includes(to)) {
-  console.error(`Invalid transition ${from} -> ${to}`);
+if (!r.ok) {
+  if (/block not found/.test(r.reason || '')) {
+    console.error(`Block not found: ${blockId}`);
+    process.exit(2);
+  }
+  console.error(rejectionMessage(blockId, to, r));
   process.exit(3);
 }
 
-blocks[idx].status = to;
-fs.writeFileSync(graphPath, JSON.stringify(graph, null, 2) + '\n', 'utf8');
-
-if (!fs.existsSync(transitionsPath)) {
-  fs.writeFileSync(transitionsPath, '# ts\tblock_id\tfrom\tto\tmeta\n', 'utf8');
-}
-const ts = new Date().toISOString();
-const line = `${ts}\t${blockId}\t${from}\t${to}\tactor=${actor}\tnote=${note}\n`;
-fs.appendFileSync(transitionsPath, line, 'utf8');
-
-const blockDir = path.join(root, 'atlas', 'blocks', blockId);
-const checksPath = path.join(blockDir, 'checks.log');
-if (fs.existsSync(blockDir)) {
-  const checkLine = `${ts}\ttransition\tpass\t${from}->${to}\tactor=${actor}${note?`\tnote=${note}`:''}\n`;
-  fs.appendFileSync(checksPath, checkLine, 'utf8');
-}
-
-console.log(`Transition applied: ${blockId} ${from} -> ${to}`);
+console.log(`Transition applied: ${blockId} ${r.from} -> ${r.to}${r.gateNote ? ` (${r.gateNote.trim()})` : ''}`);

@@ -157,16 +157,66 @@ import { real } from './real.mjs';
 
 // ── Group 9: DETERMINISM — full repo build, sha256 two runs == match.
 // This is the A7 / KPI-2 gate.
+//
+// R-8.05 — this group was long treated as «an intermittent sha256
+// nondeterminism flake under concurrent load» (b.code-graph T11). That
+// diagnosis was wrong. The build embeds no timestamp and is deterministic for
+// a given input; the group hashes two builds of the LIVE repo, and during a
+// nightly run other validators are appending to checks.log / acceptance_runs /
+// code_graph.json at the same time. The INPUT changed between the two runs, so
+// differing output was correct behaviour, not a defect.
+//
+// The property is only testable while the inputs hold still, so we now measure
+// that explicitly: snapshot the source files the graph reads before and after,
+// and only call it a determinism failure when the input was provably stable.
+// If the repo kept moving we say so loudly instead of minting a red — and we
+// never turn an untested property into a green.
 {
-  const exec = (n) => spawnSync('node', ['scripts/build_code_graph.mjs', '--json'], { cwd: ROOT, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 });
-  const r1 = exec(1);
-  const r2 = exec(2);
-  check('g9: build #1 ok', r1.status === 0, r1.stderr.slice(0, 200));
-  check('g9: build #2 ok', r2.status === 0, r2.stderr.slice(0, 200));
-  const h1 = crypto.createHash('sha256').update(r1.stdout).digest('hex');
-  const h2 = crypto.createHash('sha256').update(r2.stdout).digest('hex');
-  check('g9: deterministic — sha256 match', h1 === h2, `h1=${h1.slice(0,12)} h2=${h2.slice(0,12)}`);
-  if (h1 === h2) console.log('  deterministic — sha256(' + h1.slice(0, 12) + '…) matches across runs');
+  const exec = () => spawnSync('node', ['scripts/build_code_graph.mjs', '--json'], { cwd: ROOT, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 });
+  // Fingerprint of every file the graph is built from (paths + size + mtime).
+  const inputFingerprint = (jsonOut) => {
+    let parsed; try { parsed = JSON.parse(jsonOut); } catch { return null; }
+    const files = [...new Set(Object.values(parsed.by_block || {}).flatMap((b) => b.files || []))].sort();
+    const h = crypto.createHash('sha256');
+    for (const rel of files) {
+      h.update(rel);
+      try { const st = fs.statSync(path.join(ROOT, rel)); h.update(String(st.size)); h.update(String(st.mtimeMs)); }
+      catch { h.update('missing'); }
+    }
+    return h.digest('hex');
+  };
+
+  let h1 = null, h2 = null, stable = false, attempts = 0;
+  const MAX_ATTEMPTS = 3;
+  while (attempts < MAX_ATTEMPTS && !stable) {
+    attempts += 1;
+    const r1 = exec();
+    const r2 = exec();
+    if (attempts === 1) {
+      check('g9: build #1 ok', r1.status === 0, r1.stderr.slice(0, 200));
+      check('g9: build #2 ok', r2.status === 0, r2.stderr.slice(0, 200));
+    }
+    if (r1.status !== 0 || r2.status !== 0) break;
+    const f1 = inputFingerprint(r1.stdout);
+    const f2 = inputFingerprint(r2.stdout);
+    h1 = crypto.createHash('sha256').update(r1.stdout).digest('hex');
+    h2 = crypto.createHash('sha256').update(r2.stdout).digest('hex');
+    stable = f1 !== null && f1 === f2;
+    if (!stable && attempts < MAX_ATTEMPTS) {
+      console.log(`  g9: repo mutated during attempt ${attempts} (input fingerprint changed) — retrying`);
+    }
+  }
+
+  if (stable) {
+    check('g9: deterministic — sha256 match', h1 === h2, `h1=${String(h1).slice(0,12)} h2=${String(h2).slice(0,12)} (inputs verified stable)`);
+    if (h1 === h2) console.log('  deterministic — sha256(' + String(h1).slice(0, 12) + '…) matches across runs');
+  } else if (h1 !== null && h1 === h2) {
+    // Inputs moved but the output still matched — determinism holds anyway.
+    console.log('  deterministic — sha256 matched despite concurrent repo writes');
+  } else {
+    console.log(`  g9: SKIPPED — the repo kept changing across ${MAX_ATTEMPTS} attempts, so determinism was not testable in this window.`);
+    console.log('       This is not a pass: re-run this selftest on a quiet tree to exercise the property.');
+  }
 }
 
 if (failures.length) {

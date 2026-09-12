@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import readline from 'node:readline';
 import { execSync, execFileSync } from 'node:child_process';
+import { applyTransition, rejectionMessage } from './lifecycle_gate.mjs';
 
 const root = process.cwd();
 const atlasRoot = path.join(root, 'atlas');
@@ -74,7 +75,7 @@ function toolList(){
     { name:'set_block_mission', description:'Update mission.md for block', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, mission:{type:'string'} }, required:['block_id','mission'] } },
     { name:'generate_wiki', description:'Generate atlas WIKI.md', inputSchema:{ type:'object', properties:{} } },
     { name:'generate_tz', description:'Generate ТЗ/auto_tz.md from atlas', inputSchema:{ type:'object', properties:{} } },
-    { name:'transition_block', description:'Change block status in graph', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, to:{type:'string'} }, required:['block_id','to'] } },
+    { name:'transition_block', description:'Change block status in graph. Gated: an invalid adjacency, or → done without a passing acceptance verdict (atlas/acceptance_runs/<id>/_latest.json), is REFUSED and returns the reason. Pass allow_no_verifier:true to override — the override is recorded in transitions.log.', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, to:{type:'string'}, allow_no_verifier:{type:'boolean'} }, required:['block_id','to'] } },
     { name:'log_check', description:'Append check record to block checks.log', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, kind:{type:'string'}, result:{type:'string'}, note:{type:'string'} }, required:['block_id','kind','result'] } },
     { name:'mark_file_dead', description:'Append dead-file mark in block tasks', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, file_path:{type:'string'}, reason:{type:'string'} }, required:['block_id','file_path'] } },
     { name:'set_dependencies', description:'Overwrite depends_on.md entries', inputSchema:{ type:'object', properties:{ block_id:{type:'string'}, entries:{type:'array', items:{type:'string'}} }, required:['block_id','entries'] } },
@@ -215,13 +216,26 @@ function generateWiki(){
 }
 
 
-function transitionBlock(blockId, to){
-  const gpath = path.join(atlasRoot,'graph.json');
-  const g = readJson(gpath);
-  const b = (g.blocks||[]).find(x=>x.id===blockId);
-  if (!b) throw new Error(`block not found: ${blockId}`);
-  b.status = to;
-  writeGraphJson(gpath, g);
+// R-8.05 — this used to be `b.status = to; writeGraphJson(...)`: no state
+// machine, no acceptance verdict, no ledger line. It is the tool agents are
+// pointed at, so the «cannot transition to done until acceptance passes»
+// contract had a hole wide enough to drive the whole lifecycle through. It now
+// delegates to the shared gate, which also writes transitions.log + checks.log.
+function transitionBlock(blockId, to, opts = {}){
+  const r = applyTransition({
+    atlasRoot,
+    blockId,
+    to,
+    actor: opts.actor || 'mcp',
+    note: opts.note || '',
+    allowNoVerifier: opts.allowNoVerifier === true,
+  });
+  if (!r.ok) {
+    const err = new Error(rejectionMessage(blockId, to, r));
+    err.rejected = true;
+    throw err;
+  }
+  return r;
 }
 
 function appendCheck(blockId, kind, result, note=''){
@@ -427,9 +441,16 @@ rl.on('line', (line) => {
         return respond(id, { content:[{ type:'text', text: 'generated ТЗ/auto_tz.md' }] });
       }
       if (name === 'transition_block') {
-        transitionBlock(args.block_id, args.to);
-        appendCheck(args.block_id, 'sync', 'pass', `transition -> ${args.to}`);
-        return respond(id, { content:[{ type:'text', text: `status updated: ${args.block_id} -> ${args.to}` }] });
+        // R-8.05 — a refused transition returns the reason to the caller
+        // instead of silently writing the status. The gate itself appends the
+        // transitions.log + checks.log lines, so no extra appendCheck here.
+        try {
+          const r = transitionBlock(args.block_id, args.to, { actor: 'mcp', allowNoVerifier: args.allow_no_verifier === true });
+          return respond(id, { content:[{ type:'text', text: `status updated: ${args.block_id} ${r.from} -> ${r.to}${r.gateNote ? ` (${r.gateNote.trim()})` : ''}` }] });
+        } catch (e) {
+          if (e.rejected) return respond(id, { content:[{ type:'text', text: e.message }], isError: true });
+          throw e;
+        }
       }
       if (name === 'log_check') {
         appendCheck(args.block_id, args.kind, args.result, args.note || '');

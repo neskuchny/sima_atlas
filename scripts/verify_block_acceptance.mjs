@@ -62,16 +62,68 @@ export async function verifyAndPersist(blockId) {
     .join('; ');
   const note = `verdict=${result.verdict} pass=${result.counts.pass} fail=${result.counts.fail} skipped=${result.counts.skipped}${sampleFails ? ' fails=[' + sampleFails + ']' : ''}`;
   // checks.log uses tab separator: ts\tkind\tresult\tnote
-  // Map verifier verdict → checks.log result column:
-  //   pass         → pass
-  //   fail         → fail
-  //   inconclusive → pass (info-only — not a real failure for older readers
-  //                  that fail-fast on `fail` lines; the verdict in note is
-  //                  authoritative for new code)
-  const checkResult = result.verdict === 'fail' ? 'fail' : 'pass';
+  // R-8.05 — the result column carries the REAL tri-state verdict. It used to
+  // map inconclusive → pass «for older readers that fail-fast on fail lines»,
+  // which is exactly the silent green Kanon V forbids: readers that scan the
+  // column (validate_acceptance_assertions, calc_intelligence_health,
+  // mcp sync_check) and the llm-judge, which is fed checks.log as evidence
+  // context, all saw an unverifiable run as a green one.
+  const checkResult = result.verdict; // pass | fail | inconclusive
   fs.appendFileSync(checksPath, `${result.checked_at}\tacceptance_verifier\t${checkResult}\t${note}\n`, 'utf8');
 
+  // R-8.05 — clear a stale `desync`. cascade_verify marks a broken dependent
+  // desync, and its narrative entry told the operator to «re-run
+  // verify_block_acceptance to clear the desync status» — but nothing here
+  // ever touched graph.json, so the instruction was false and the mark was a
+  // one-way door: b.acceptance-verifier-loop sat desync for months while its
+  // own _latest.json said pass. A green run that is NEWER than the mark now
+  // restores the status the block held before cascade touched it.
+  // Deliberately narrow: only desync → previous status, only on a fresh pass,
+  // never a promotion (a block that was never done cannot become done here).
+  if (result.verdict === 'pass') {
+    try { restoreFromDesyncIfGreen(blockId, result.checked_at); }
+    catch (e) { console.warn(`  warning: desync check failed: ${e.message}`); }
+  }
+
   return result;
+}
+
+function restoreFromDesyncIfGreen(blockId, checkedAt) {
+  const graphPath = path.join(ATLAS, 'graph.json');
+  if (!fs.existsSync(graphPath)) return;
+  const graph = JSON.parse(fs.readFileSync(graphPath, 'utf8'));
+  const idx = (graph.blocks || []).findIndex((b) => b.id === blockId);
+  if (idx < 0) return;
+  const block = graph.blocks[idx];
+  if (block.status !== 'desync') return;
+
+  const markedAt = block.desync_marked_at || block.updated_at || null;
+  if (markedAt && Date.parse(checkedAt) <= Date.parse(markedAt)) return; // run predates the mark
+
+  const target = block.status_before_desync;
+  if (!target) {
+    // Legacy mark (pre-R-8.05) — we do not know what to restore to, so we do
+    // NOT guess. Tell the operator the exact gated command instead.
+    console.log(`  · ${blockId} is desync and now verifies green, but no status_before_desync was recorded.`);
+    console.log(`    Restore explicitly: node scripts/advance_block_state.mjs ${blockId} <wip|done> operator "re-verified green at ${checkedAt}"`);
+    return;
+  }
+
+  const ts = new Date().toISOString();
+  block.status = target;
+  block.status_reason = `desync cleared: re-verified green at ${checkedAt} (was marked ${markedAt || 'unknown'})`;
+  block.updated_at = ts;
+  delete block.status_before_desync;
+  delete block.desync_marked_at;
+  fs.writeFileSync(graphPath, JSON.stringify(graph, null, 2) + '\n', 'utf8');
+
+  const transitionsPath = path.join(ATLAS, 'transitions.log');
+  if (fs.existsSync(transitionsPath)) {
+    fs.appendFileSync(transitionsPath, `${ts}\t${blockId}\tdesync\t${target}\tactor=verifier\tnote=desync cleared — re-verified green at ${checkedAt}\n`, 'utf8');
+  }
+  fs.appendFileSync(path.join(ATLAS, 'blocks', blockId, 'checks.log'),
+    `${ts}\ttransition\tpass\tdesync->${target}\tactor=verifier\tnote=re-verified green\n`, 'utf8');
+  console.log(`  · ${blockId}: desync cleared → ${target} (re-verified green)`);
 }
 
 if (fileURLToPath(import.meta.url) === process.argv[1]) {

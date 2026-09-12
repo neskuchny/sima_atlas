@@ -237,6 +237,40 @@ function advanceTowardDone(id, fromStatus, note) {
   return { moved: r.ok, to: r.ok ? to : fromStatus };
 }
 
+// ── R-8.05 verdict + env helpers ─────────────────────────────────────────────
+
+// The persisted run report is the source of truth for «did the verifier pass».
+// Parsing the verifier's human-readable stdout was how `inconclusive` leaked
+// through as a pass. A missing / unparseable report is NOT a pass.
+function readVerdict(blockId) {
+  const p = path.join(ATLAS, 'acceptance_runs', blockId, '_latest.json');
+  try { return JSON.parse(fs.readFileSync(p, 'utf8')).verdict || null; }
+  catch { return null; }
+}
+
+// One mock-decision for every verification lane in an iteration (block
+// verifier, cascade, green guard). Previously the three disagreed: the block
+// verifier forced mock unless ANTHROPIC_API_KEY was set (ignoring google /
+// openai / claude_cli / ollama), cascade inherited the raw env and so ran
+// live-LLM selftests, and the green guard always forced mock. The same
+// assertion could therefore pass in one lane and mint a `desync` in another.
+const LIVE_PROVIDER_AVAILABLE = Boolean(
+  process.env.ANTHROPIC_API_KEY || process.env.GOOGLE_API_KEY || process.env.OPENAI_API_KEY,
+);
+const verifyEnv = {
+  ATLAS_FORCE_MOCK_LLM: LIVE_PROVIDER_AVAILABLE ? '0' : '1',
+  ...(CLIENT ? { ATLAS_ROOT: ATLAS } : {}),
+};
+
+// How many `done` blocks are red BEFORE we touch anything. Used as the
+// regression baseline so pre-existing red (e.g. a block needing a live agent
+// CLI) is reported but never attributed to this run.
+function countRedDoneBlocks() {
+  const g = nodeRun(['scripts/verify_done_blocks_still_green.mjs'], { env: CLIENT ? { ATLAS_ROOT: ATLAS } : {} });
+  const m = g.stdout.match(/regressions=(\d+)/);
+  return m ? Number(m[1]) : (g.ok ? 0 : null);
+}
+
 // ── the loop ─────────────────────────────────────────────────────────────────
 
 function iterate() {
@@ -246,6 +280,10 @@ function iterate() {
   let iteration = 0;
   let consecutiveFails = 0;
   let stopReason = null;
+  // Baseline measured once, before any agent runs (skipped in dry-run — it
+  // spawns verifiers and dry-run must not execute anything).
+  const baselineRed = DRY_RUN ? null : countRedDoneBlocks();
+  if (baselineRed) console.log(`  (baseline: ${baselineRed} done block(s) already red — will not be attributed to this run)`);
 
   while (iteration < MAX_ITERATIONS) {
     const graph = readGraph();
@@ -278,27 +316,51 @@ function iterate() {
     nodeRun(runArgs, { env: { ATLAS_AGENT: AGENT } });
 
     // 2. quality gate — the verifier decides, not the agent's self-report.
-    const v = nodeRun(['scripts/verify_block_acceptance.mjs', block.id], { env: { ATLAS_FORCE_MOCK_LLM: process.env.ANTHROPIC_API_KEY ? '0' : '1', ...(CLIENT ? { ATLAS_ROOT: ATLAS } : {}) } });
-    const passed = /:\s*pass\b/.test(v.stdout) || /\bpass\b.*fail=0\b/.test(v.stdout);
+    const v = nodeRun(['scripts/verify_block_acceptance.mjs', block.id], { env: verifyEnv });
+    // R-8.05 — this used to be a pair of stdout regexes:
+    //     /:\s*pass\b/.test(out) || /\bpass\b.*fail=0\b/.test(out)
+    // The second one matched the verifier's INCONCLUSIVE line, because
+    // «· b.x: inconclusive (pass=0 fail=0 skipped=7)» contains `pass=0`
+    // followed by `fail=0`. Since neither the semantic nor the diff-review
+    // gate blocks on inconclusive, an unverifiable block was promoted — the
+    // exact «silent green» Kanon V forbids, in the one place that writes
+    // status autonomously. The persisted run report is now the source of
+    // truth, and a parse failure never green-lights (the same rule this file
+    // already applies to the semantic gate).
+    const passed = readVerdict(block.id) === 'pass';
 
     // 3. CI-must-stay-green guards.
-    //    cascade_verify runs for VISIBILITY — it marks any newly-broken
-    //    dependent `desync` so the operator sees it on the canvas. But a
-    //    dependent already sitting in review / needs-a-live-CLI is not THIS
-    //    block's fault, so cascade is NOT a promotion gate (it fails on any
-    //    non-green dependent). The real «did we break something that was
-    //    green» gate is verify_done_blocks_still_green: it re-verifies every
-    //    `done` block and flags a regression only when a previously-green one
-    //    goes red. That is the honest «CI must stay green» check.
-    const cascadeArgs = ['scripts/cascade_verify.mjs', block.id];
-    if (CLIENT) cascadeArgs.push('--client', CLIENT);
-    nodeRun(cascadeArgs); // marks desync for operator visibility; not a gate
+    //    ORDER MATTERS (R-8.05): verify_done_blocks_still_green runs BEFORE
+    //    cascade_verify. cascade rewrites a failing dependent's status to
+    //    `desync`, and the green guard only inspects blocks whose status is
+    //    `done` — so running cascade first HID exactly the regressions the
+    //    guard exists to catch (a done dependent broken by this run was
+    //    relabelled desync and then counted as regressions=0).
+    //    cascade_verify still runs, for VISIBILITY: it marks newly-broken
+    //    dependents so the operator sees them on the canvas. It is not a
+    //    promotion gate (it fails on any non-green dependent, including ones
+    //    that were already red for unrelated reasons).
     const greenGuard = nodeRun(['scripts/verify_done_blocks_still_green.mjs'], { env: CLIENT ? { ATLAS_ROOT: ATLAS } : {} });
     // Parse the explicit count — `regressions=N` — not a substring (the
     // normal output literally contains «regressions=0», which a naive
     // /regress/ match would false-positive on).
     const regM = greenGuard.stdout.match(/regressions=(\d+)/);
-    const regressed = !greenGuard.ok || (regM ? Number(regM[1]) > 0 : false);
+    const afterRed = regM ? Number(regM[1]) : (greenGuard.ok ? 0 : null);
+    // R-8.05 — compare against the pre-run baseline. A done block that was
+    // ALREADY red (e.g. «needs a live cursor-agent CLI») used to make every
+    // iteration report «regressed», rolling back the agent's unrelated work,
+    // writing a false attribution to narrative.md and tripping the circuit
+    // breaker after two iterations.
+    const preExistingRed = baselineRed;
+    const regressed = afterRed === null
+      ? !greenGuard.ok
+      : (preExistingRed === null ? afterRed > 0 : afterRed > preExistingRed);
+    entry.pre_existing_red = preExistingRed;
+    entry.done_blocks_red_after = afterRed;
+
+    const cascadeArgs = ['scripts/cascade_verify.mjs', block.id];
+    if (CLIENT) cascadeArgs.push('--client', CLIENT);
+    nodeRun(cascadeArgs, { env: verifyEnv }); // marks desync for operator visibility; not a gate
 
     // 4. SEMANTIC gate (Kanon «Contract as Arbiter», Counter-Force to
     //    simplification). Deterministic checks passing isn't enough — the

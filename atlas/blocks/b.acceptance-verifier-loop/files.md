@@ -20,6 +20,8 @@
 - atlas/acceptance_runs/_summary.json [alive] (PR-2 migration: aggregate verdicts across all blocks)
 - scripts/verify_done_blocks_still_green.mjs [alive] (PR-4: nightly regression check; writes acceptance_regression proposals, never auto-flips done→broken)
 - tests/acceptance_verifier.e2e.smoke.mjs [alive]
+- scripts/lifecycle_gate.mjs [alive] (R-8.05: the shared, and now only, writer of block status + transitions.log + checks.log. Enforces the adjacency table and the → done acceptance verdict for every path — CLI advance_block_state, MCP transition_block/update_block, HTTP patchBlock. Before this, only log_transition.mjs gated, and it never wrote graph.json, so the contract's «cannot transition to done» held on no path at all.)
+- tests/lifecycle_gate.selftest.mjs [alive] (R-8.05: 7 groups — → done refused without a passing verdict / on fail / on inconclusive; logged override; adjacency; desync cannot invent a done; desync→done needs a green run newer than the mark; checkTransition is pure)
 
 ## UI (PR-5)
 PR-5 touches files owned by other blocks (UI host blocks own JSX; bootstrap

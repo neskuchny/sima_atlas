@@ -75,6 +75,17 @@ function collectExitCode(spec, opts = {}) {
   if (!spec || typeof spec.cmd !== 'string' || !spec.cmd.trim()) {
     return { verdict: 'fail', evidence: 'no cmd in spec', reasoning: 'evidence_spec.cmd is required for exit_code', raw: { spec } };
   }
+  // R-8.05 — an `expect_in_stdout` key present but empty silently disabled the
+  // stdout check, so the assertion degraded to «exit 0» without saying so.
+  // A declared-but-empty expectation is a contract bug, not a weaker check.
+  if ('expect_in_stdout' in spec && !String(spec.expect_in_stdout ?? '').trim()) {
+    return {
+      verdict: 'fail',
+      evidence: 'empty expect_in_stdout',
+      reasoning: 'evidence_spec.expect_in_stdout is present but empty — give a real expected substring, or remove the key to assert on the exit code alone',
+      raw: { spec },
+    };
+  }
   const r = runShellCmd(spec.cmd, opts);
   let verdict = r.exit_code === 0 ? 'pass' : 'fail';
   let extraNote = '';
@@ -151,6 +162,16 @@ function collectFsGlob(spec) {
     return { verdict: 'fail', evidence: 'no pattern in spec', reasoning: 'evidence_spec.pattern is required for fs_glob', raw: { spec } };
   }
   const minCount = Number(spec.min_count ?? 1);
+  // R-8.05 — `min_count: 0` passes on zero matching files, i.e. it proves
+  // nothing. Kanon §3.1: no evidence must never read as pass.
+  if (!Number.isFinite(minCount) || minCount < 1) {
+    return {
+      verdict: 'fail',
+      evidence: `min_count=${spec.min_count}`,
+      reasoning: 'evidence_spec.min_count must be ≥ 1 — a glob that tolerates zero files is not evidence',
+      raw: { spec },
+    };
+  }
   const maxAgeMin = spec.max_age_min !== undefined ? Number(spec.max_age_min) : null;
   const t0 = Date.now();
   const files = simpleGlob(spec.pattern);
@@ -186,6 +207,22 @@ function collectFsGlob(spec) {
 function collectFileDiff(spec, opts = {}) {
   const sinceRef = String(spec?.since_ref || 'HEAD~1');
   const t0 = Date.now();
+  // R-8.05 — with neither must_touch nor must_not_touch this collector asserted
+  // nothing and returned pass for any diff (including an empty one). A
+  // deterministic kind that cannot fail is a silent green, which Kanon V
+  // forbids — and because non-llm_judge kinds carry the block-level verdict,
+  // one such assertion was enough to promote a block.
+  const mustTouchPre = Array.isArray(spec?.must_touch) ? spec.must_touch : [];
+  const mustNotTouchPre = Array.isArray(spec?.must_not_touch) ? spec.must_not_touch : [];
+  if (!mustTouchPre.length && !mustNotTouchPre.length) {
+    return {
+      verdict: 'fail',
+      evidence: 'empty spec: no must_touch / must_not_touch',
+      reasoning: 'file_diff requires a non-empty must_touch or must_not_touch list — otherwise the assertion cannot fail and proves nothing',
+      raw: { spec },
+      duration_ms: Date.now() - t0,
+    };
+  }
   // First check whether we're in a git repo at all (graceful skip otherwise).
   const gitCheck = runShellCmd('git rev-parse --is-inside-work-tree', { cwd: opts.cwd || ROOT, timeout_ms: 5000 });
   if (gitCheck.exit_code !== 0) {
@@ -219,6 +256,11 @@ function collectFileDiff(spec, opts = {}) {
 function collectLogGrep(spec) {
   if (!spec || typeof spec.file !== 'string' || typeof spec.pattern !== 'string') {
     return { verdict: 'fail', evidence: 'spec.file and spec.pattern required', reasoning: 'log_grep requires file + pattern', raw: { spec } };
+  }
+  // R-8.05 — an empty pattern matches every line, so the assertion passes on
+  // any non-empty file regardless of what it contains.
+  if (!spec.pattern.trim()) {
+    return { verdict: 'fail', evidence: 'empty pattern', reasoning: 'evidence_spec.pattern is empty — an empty regex matches every line and proves nothing', raw: { spec } };
   }
   const t0 = Date.now();
   const filePath = path.resolve(ROOT, spec.file);

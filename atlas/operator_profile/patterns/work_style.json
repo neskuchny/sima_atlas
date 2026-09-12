@@ -9,6 +9,7 @@
     "semantic_verify": 16,
     "cascade_check": 6,
     "drift_guard": 2,
-    "agent_invocation": 3
+    "agent_invocation": 3,
+    "kpi": 1
   }
 }

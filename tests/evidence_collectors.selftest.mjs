@@ -258,9 +258,38 @@ evidence_spec:
   fs.rmSync(tmp, { recursive: true, force: true });
 }
 
+// ── Group 14 (R-8.05): a deterministic collector must never pass on an empty
+// spec. Each of these returned `pass` before the fix, and because a
+// non-llm_judge pass carries the BLOCK verdict (collect_evidence: verdict =
+// fail>0 ? fail : deterministicPass ? pass : inconclusive), a single vacuous
+// assertion was enough to promote a block — a silent green in the exact place
+// Kanon V forbids one.
+{
+  const fileDiff = await collectEvidence({ evidence_kind: 'file_diff', evidence_spec: {} });
+  check('g14: file_diff with empty spec → not pass', fileDiff.verdict !== 'pass', `verdict=${fileDiff.verdict}`);
+  check('g14: file_diff empty spec explains itself', /must_touch|must_not_touch/.test(fileDiff.reasoning || ''), fileDiff.reasoning);
+
+  const logGrep = await collectEvidence({ evidence_kind: 'log_grep', evidence_spec: { file: 'README.md', pattern: '' } });
+  check('g14: log_grep with empty pattern → fail', logGrep.verdict === 'fail', `verdict=${logGrep.verdict}`);
+
+  const fsGlobZero = await collectEvidence({ evidence_kind: 'fs_glob', evidence_spec: { pattern: 'scripts/*.mjs', min_count: 0 } });
+  check('g14: fs_glob with min_count 0 → fail', fsGlobZero.verdict === 'fail', `verdict=${fsGlobZero.verdict}`);
+
+  const exitEmptyExpect = await collectEvidence({ evidence_kind: 'exit_code', evidence_spec: { cmd: 'echo hi', expect_in_stdout: '' } });
+  check('g14: exit_code with empty expect_in_stdout → fail', exitEmptyExpect.verdict === 'fail', `verdict=${exitEmptyExpect.verdict}`);
+
+  // Regression guard: the valid forms must still pass.
+  const okGrep = await collectEvidence({ evidence_kind: 'log_grep', evidence_spec: { file: 'README.md', pattern: 'Sima' } });
+  check('g14: valid log_grep still passes', okGrep.verdict === 'pass', `verdict=${okGrep.verdict}`);
+  const okGlob = await collectEvidence({ evidence_kind: 'fs_glob', evidence_spec: { pattern: 'scripts/*.mjs', min_count: 1 } });
+  check('g14: valid fs_glob still passes', okGlob.verdict === 'pass', `verdict=${okGlob.verdict}`);
+  const okExitNoExpect = await collectEvidence({ evidence_kind: 'exit_code', evidence_spec: { cmd: 'echo hi' } });
+  check('g14: exit_code without expect_in_stdout still passes', okExitNoExpect.verdict === 'pass', `verdict=${okExitNoExpect.verdict}`);
+}
+
 if (failures.length) {
   console.error('evidence_collectors.selftest: FAIL');
   failures.forEach((f) => console.error(' ✗', f));
   process.exit(1);
 }
-console.log('evidence_collectors.selftest: OK (13 test groups, all assertions green)');
+console.log('evidence_collectors.selftest: OK (14 test groups, all assertions green)');

@@ -18,6 +18,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { checkTransition } from './lifecycle_gate.mjs';
 import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -160,6 +161,20 @@ export function patchBlock({ atlas_root, block_id, body } = {}) {
       `block "${block_id}" was modified since you read it (mine=${body.if_match_updated_at}, current=${block.updated_at})`,
       { block_id, updated_at: block.updated_at, title: block.title, status: block.status, canvas_x: block.canvas_x, canvas_y: block.canvas_y },
     );
+  }
+
+  // R-8.05 — the UI could PATCH any status, `done` included, with no verdict
+  // check. Drafting stays free (idea/wip/review/broken are the operator's
+  // call per README Appendix B.2 «gates stay soft»), but claiming a block is
+  // DONE is a claim about verified work, so it goes through the shared gate.
+  if (typeof body.status === 'string' && body.status === 'done' && block.status !== 'done') {
+    const check = checkTransition({ atlasRoot: atlas_root, blockId: block_id, to: 'done' });
+    if (!check.ok) {
+      throw new Error(
+        `patchBlock: refused to set "${block_id}" to done — ${check.reason}`
+        + (check.fixHint ? ` | fix: ${check.fixHint}` : ''),
+      );
+    }
   }
 
   const changed = {};

@@ -15,7 +15,7 @@
 </style>
 </head><body>
 <h1>Sima Atlas Wiki</h1>
-<p><em>Auto-generated: 2026-06-21T22:47:35.471Z</em></p>
+<p><em>Auto-generated: 2026-09-12T22:29:05.633Z</em></p>
 <h2>Граф продукта</h2>
 <div class="mermaid">flowchart TB
   classDef done    fill:#dcfce7,stroke:#16a34a,color:#15803d;
@@ -1081,14 +1081,19 @@ evidence_spec:
 </ul>
 <h4>KPI</h4>
 <h1>b.operator-profile-learner — KPI</h1>
+<p>&gt; <strong>Статус замера (R-8.05, аудит самоконтроля).</strong> Файл содержал <code>Сейчас: ✗</code></p>
+<p>&gt; по всем пунктам, включая «✗ (блока нет)» — шаблон, не обновлённый после</p>
+<p>&gt; того, как блок был реализован и переведён в <code>done</code>. Ниже: измеренное</p>
+<p>&gt; помечено ✓/✗ со ссылкой на доказательство, неизмеренное — честно</p>
+<p>&gt; «не измерено» (не ✗, потому что ✗ означало бы «проверено и не выполнено»).</p>
 <ul>
-<li><strong>KPI-1 (signal coverage)</strong>: <code>profile.json</code> агрегирует ≥ 6 из 10 источников из mission.md (checks.log / transitions.log / proposals / agent<em>invocations / llm</em>traces / cursor<em>observations / decisions.log / patterns.md / tech</em>stack.md / cross-ref). Сейчас: ✗ (блока нет).</li>
-<li><strong>KPI-2 (real-time freshness)</strong>: <code>accept<em>proposal</code> / <code>transition</em>block done|broken</code> / <code>agent_invocation</code> мутирует profile.json без LLM-вызова за &lt; 100 ms. Сейчас: ✗.</li>
-<li><strong>KPI-3 (silent under min-data)</strong>: при &lt; 5 transitions <code>done</code> И &lt; 10 <code>agent_invocations</code> модуль молчит — не подмешивает советы в context-pack, не пишет proposals. Сейчас: ✗.</li>
+<li><strong>KPI-1 (signal coverage)</strong>: <code>profile.json</code> агрегирует ≥ 6 из 10 источников из mission.md (checks.log / transitions.log / proposals / agent<em>invocations / llm</em>traces / cursor<em>observations / decisions.log / patterns.md / tech</em>stack.md / cross-ref). Сейчас: ✓ — <code>atlas/operator<em>profile/profile.json</code> содержит 8 агрегатов: <code>work</em>style</code>, <code>agents<em>used</code>, <code>tech</em>stack<em>history</code>, <code>llm</em>provider<em>stats</code>, <code>proposals</em>stats</code>, <code>decisions<em>stats</code>, <code>patterns</em>stats</code>, <code>failures</code> (57) + <code>invocations_total</code> (14).</li>
+<li><strong>KPI-2 (real-time freshness)</strong>: <code>accept<em>proposal</code> / <code>transition</em>block done|broken</code> / <code>agent_invocation</code> мутирует profile.json без LLM-вызова за &lt; 100 ms. Сейчас: не измерено (нет детерминистического замера в nightly).</li>
+<li><strong>KPI-3 (silent under min-data)</strong>: при &lt; 5 transitions <code>done</code> И &lt; 10 <code>agent_invocations</code> модуль молчит — не подмешивает советы в context-pack, не пишет proposals. Сейчас: не измерено (нет детерминистического замера в nightly).</li>
 <li><strong>KPI-4 (advice ROI)</strong>: при <code>accept<em>rate</code> proposal с badge <code>соответствует профилю</code> ≥ accept</em>rate без badge на 20% (на горизонте 30 проколов). Сейчас: n/a.</li>
-<li><strong>KPI-5 (lessons retention)</strong>: после <code>add<em>lesson</code> урок попадает в <code>inject</em>context<em>pack</code> секцию <code>## Operator profile</code> для всех агент-вызовов, пока не <code>revoke</em>lesson</code> или <code>expires_at</code> не наступит. Сейчас: ✗.</li>
-<li><strong>KPI-6 (privacy &amp; reversibility)</strong>: 100% записей в profile имеют <code>evidence: [block<em>id]</code>; любой урок / dont</em>use / always_use можно отозвать одной MCP-tool — вернёт identical context-pack как до записи. Сейчас: ✗.</li>
-<li><strong>KPI-7 (low cost)</strong>: nightly aggregation работает без LLM-вызовов (только rule-based counters). Только <code>recompute<em>operator</em>profile {analyze_failures: true}</code> стоит ≤ $0.05 / запуск через b.llm-gateway. Сейчас: ✗.</li>
+<li><strong>KPI-5 (lessons retention)</strong>: после <code>add<em>lesson</code> урок попадает в <code>inject</em>context<em>pack</code> секцию <code>## Operator profile</code> для всех агент-вызовов, пока не <code>revoke</em>lesson</code> или <code>expires_at</code> не наступит. Сейчас: не измерено (нет детерминистического замера в nightly).</li>
+<li><strong>KPI-6 (privacy &amp; reversibility)</strong>: 100% записей в profile имеют <code>evidence: [block<em>id]</code>; любой урок / dont</em>use / always_use можно отозвать одной MCP-tool — вернёт identical context-pack как до записи. Сейчас: не измерено (нет детерминистического замера в nightly).</li>
+<li><strong>KPI-7 (low cost)</strong>: nightly aggregation работает без LLM-вызовов (только rule-based counters). Только <code>recompute<em>operator</em>profile {analyze<em>failures: true}</code> стоит ≤ $0.05 / запуск через b.llm-gateway. Сейчас: ✓ — в <code>scripts/aggregate</em>operator<em>profile.mjs</code> нет ни одного вхождения <code>llm</em>gateway</code> / <code>callLLM</code>; скрипт зарегистрирован в nightly и выполняется без LLM.</li>
 </ul>
 <h4>Acceptance</h4>
 <h1>b.operator-profile-learner — acceptance</h1>
@@ -1609,14 +1614,19 @@ atlas/projects/&lt;proj&gt;/docs/end-user/AUTOGENERATED.md  ← маркер «�
 </ul>
 <h4>KPI</h4>
 <h1>b.user-docs-generator — KPI</h1>
+<p>&gt; <strong>Статус замера (R-8.05, аудит самоконтроля).</strong> Файл содержал <code>Сейчас: ✗</code></p>
+<p>&gt; по всем пунктам — шаблон, не обновлённый после перевода блока в <code>done</code>.</p>
+<p>&gt; Ниже: измеренное помечено ✓/✗ с доказательством, неизмеренное — честно</p>
+<p>&gt; «не измерено». KPI-1 измерен и <strong>не выполнен</strong>: блок в <code>done</code>, но своего</p>
+<p>&gt; профильного результата не произвёл ни разу.</p>
 <ul>
-<li><strong>KPI-1 (coverage)</strong>: 100% блоков с <code>layer ∈ {user, front}</code> или <code>user<em>facing: true</code> имеют свежий <code>docs/end-user/&lt;block&gt;.md</code> (т.е. hash источников совпадает с hash в <code></em>meta/&lt;block&gt;.json</code>). Сейчас: ✗.</li>
-<li><strong>KPI-2 (idempotent)</strong>: regen без изменений источников даёт diff = пустой (байт-в-байт идентичный файл). Сейчас: ✗.</li>
-<li><strong>KPI-3 (cost cap)</strong>: одна регенерация одного блока ≤ $0.03 (LLM tokens); полный regen всех user-facing блоков среднего проекта (8 блоков) ≤ $0.25. Сейчас: ✗.</li>
-<li><strong>KPI-4 (no jargon)</strong>: 0 случаев технических терминов (<code>module</code>, <code>component</code>, <code>endpoint</code>, <code>prop</code>, <code>state</code>) в финальном markdown — LLM-prompt + post-validation. Сейчас: ✗.</li>
-<li><strong>KPI-5 (drift detection)</strong>: при ручной правке <code>&lt;block&gt;.md</code> без <code>LOCKED: true</code> — pre-commit hook просит подтвердить либо отменить (warn, не fail). Сейчас: ✗.</li>
-<li><strong>KPI-6 (latency)</strong>: один блок ≤ 30 секунд (только LLM, без Playwright); с Playwright ≤ 60 секунд. Сейчас: ✗.</li>
-<li><strong>KPI-7 (graceful degradation)</strong>: если Playwright не настроен — текст всё равно валидный, без <code>[broken image]</code>. Сейчас: ✗.</li>
+<li><strong>KPI-1 (coverage)</strong>: 100% блоков с <code>layer ∈ {user, front}</code> или <code>user<em>facing: true</code> имеют свежий <code>docs/end-user/&lt;block&gt;.md</code> (т.е. hash источников совпадает с hash в <code></em>meta/&lt;block&gt;.json</code>). Сейчас: ✗ (измерено) — <code>atlas/docs/end-user/</code> пуста (0 файлов, <code>_meta/</code> тоже), при двух user-facing блоках в графе: <code>b.ui-control</code> (front, wip) и <code>b.product-dashboard</code> (front, idea). Покрытие 0/2.</li>
+<li><strong>KPI-2 (idempotent)</strong>: regen без изменений источников даёт diff = пустой (байт-в-байт идентичный файл). Сейчас: не измерено (нечего мерить: сгенерированных документов нет).</li>
+<li><strong>KPI-3 (cost cap)</strong>: одна регенерация одного блока ≤ $0.03 (LLM tokens); полный regen всех user-facing блоков среднего проекта (8 блоков) ≤ $0.25. Сейчас: не измерено (нечего мерить: сгенерированных документов нет).</li>
+<li><strong>KPI-4 (no jargon)</strong>: 0 случаев технических терминов (<code>module</code>, <code>component</code>, <code>endpoint</code>, <code>prop</code>, <code>state</code>) в финальном markdown — LLM-prompt + post-validation. Сейчас: не измерено (нечего мерить: сгенерированных документов нет).</li>
+<li><strong>KPI-5 (drift detection)</strong>: при ручной правке <code>&lt;block&gt;.md</code> без <code>LOCKED: true</code> — pre-commit hook просит подтвердить либо отменить (warn, не fail). Сейчас: не измерено (нечего мерить: сгенерированных документов нет).</li>
+<li><strong>KPI-6 (latency)</strong>: один блок ≤ 30 секунд (только LLM, без Playwright); с Playwright ≤ 60 секунд. Сейчас: не измерено (нечего мерить: сгенерированных документов нет).</li>
+<li><strong>KPI-7 (graceful degradation)</strong>: если Playwright не настроен — текст всё равно валидный, без <code>[broken image]</code>. Сейчас: не измерено (нечего мерить: сгенерированных документов нет).</li>
 </ul>
 <h4>Acceptance</h4>
 <h1>b.user-docs-generator — acceptance</h1>
@@ -1875,7 +1885,7 @@ evidence_spec:
 <pre><code class="lang-yaml">evidence_kind: exit_code
 evidence_spec:
   cmd: node scripts/build_code_graph.mjs &amp;&amp; node -e "JSON.parse(require('fs').readFileSync('atlas/code_graph.json','utf8'))"
-  expect_in_stdout: ""</code></pre>
+  expect_in_stdout: "build_code_graph: wrote"</code></pre>
 <ul>
 <li>[ ] <strong>A2.</strong> Selftest парсера ES-модулей зелёный: статичные <code>import</code>,</li>
 <p>  динамический <code>import()</code>, named/default/re-export — все распознаются;</p>
@@ -6013,6 +6023,14 @@ evidence_spec:
 <li>2026-06-21T22:47:30.542Z: smoke e2e distillate</li>
 <li>2026-06-21T22:47:35.260Z: smoke e2e queued insight</li>
 <li>2026-06-21T22:47:35.327Z: smoke e2e distillate</li>
+<li>2026-09-12T22:25:02.480Z: smoke e2e queued insight</li>
+<li>2026-09-12T22:25:02.540Z: smoke e2e distillate</li>
+<li>2026-09-12T22:25:06.180Z: smoke e2e queued insight</li>
+<li>2026-09-12T22:25:06.226Z: smoke e2e distillate</li>
+<li>2026-09-12T22:29:01.516Z: smoke e2e queued insight</li>
+<li>2026-09-12T22:29:01.564Z: smoke e2e distillate</li>
+<li>2026-09-12T22:29:05.470Z: smoke e2e queued insight</li>
+<li>2026-09-12T22:29:05.521Z: smoke e2e distillate</li>
 </ul>
 <h4>Files</h4>
 <h1>b.smoke-sandbox — files</h1>

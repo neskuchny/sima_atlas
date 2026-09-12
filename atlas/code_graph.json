@@ -5,12 +5,14 @@
       "files": [
         "scripts/collect_evidence.mjs",
         "scripts/judge_assertion.mjs",
+        "scripts/lifecycle_gate.mjs",
         "scripts/parse_acceptance.mjs",
         "scripts/verify_all_acceptance.mjs",
         "scripts/verify_block_acceptance.mjs",
         "scripts/verify_done_blocks_still_green.mjs",
         "tests/acceptance_verifier.e2e.smoke.mjs",
         "tests/evidence_collectors.selftest.mjs",
+        "tests/lifecycle_gate.selftest.mjs",
         "tests/llm_judge.smoke.mjs",
         "tests/parse_acceptance.selftest.mjs"
       ]
@@ -204,6 +206,18 @@
     {
       "examples": [
         {
+          "from_file": "scripts/mcp_atlas_server.mjs",
+          "kind": "static",
+          "line": 6,
+          "to_file": "scripts/lifecycle_gate.mjs"
+        }
+      ],
+      "from_block": "b.agent-orchestrator",
+      "to_block": "b.acceptance-verifier-loop"
+    },
+    {
+      "examples": [
+        {
           "from_file": "scripts/analyze_conversation_to_atlas.mjs",
           "kind": "static",
           "line": 21,
@@ -224,6 +238,18 @@
       ],
       "from_block": "b.agent-orchestrator",
       "to_block": "b.operator-profile-learner"
+    },
+    {
+      "examples": [
+        {
+          "from_file": "scripts/advance_block_state.mjs",
+          "kind": "static",
+          "line": 19,
+          "to_file": "scripts/lifecycle_gate.mjs"
+        }
+      ],
+      "from_block": "b.db",
+      "to_block": "b.acceptance-verifier-loop"
     },
     {
       "examples": [
@@ -568,28 +594,19 @@
       "exports": [],
       "imports": [
         {
-          "external": true,
-          "from": "node:fs",
+          "external": false,
+          "from": "./lifecycle_gate.mjs",
           "kind": "static",
-          "line": 1,
-          "resolved_to": null,
+          "line": 19,
+          "resolved_to": "scripts/lifecycle_gate.mjs",
           "specifiers": [
             {
-              "kind": "default",
-              "name": "fs"
-            }
-          ]
-        },
-        {
-          "external": true,
-          "from": "node:path",
-          "kind": "static",
-          "line": 2,
-          "resolved_to": null,
-          "specifiers": [
+              "kind": "named",
+              "name": "applyTransition"
+            },
             {
-              "kind": "default",
-              "name": "path"
+              "kind": "named",
+              "name": "rejectionMessage"
             }
           ]
         }
@@ -1486,12 +1503,12 @@
       "exports": [
         {
           "kind": "named",
-          "line": 294,
+          "line": 336,
           "name": "collectEvidence"
         },
         {
           "kind": "named",
-          "line": 314,
+          "line": 356,
           "name": "verifyBlock"
         }
       ],
@@ -2338,6 +2355,72 @@
       ],
       "owning_block": "b.acceptance-verifier-loop"
     },
+    "scripts/lifecycle_gate.mjs": {
+      "exports": [
+        {
+          "kind": "named",
+          "line": 170,
+          "name": "applyTransition"
+        },
+        {
+          "kind": "named",
+          "line": 206,
+          "name": "rejectionMessage"
+        },
+        {
+          "kind": "named",
+          "line": 49,
+          "name": "TRANSITIONS"
+        },
+        {
+          "kind": "named",
+          "line": 81,
+          "name": "checkTransition"
+        }
+      ],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 42,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 43,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 44,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.acceptance-verifier-loop"
+    },
     "scripts/list_proposals.mjs": {
       "exports": [],
       "imports": [
@@ -2725,6 +2808,23 @@
             {
               "kind": "named",
               "name": "execSync"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "./lifecycle_gate.mjs",
+          "kind": "static",
+          "line": 6,
+          "resolved_to": "scripts/lifecycle_gate.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "applyTransition"
+            },
+            {
+              "kind": "named",
+              "name": "rejectionMessage"
             }
           ]
         }
@@ -3388,7 +3488,7 @@
           "external": false,
           "from": "./distill_run_log.mjs",
           "kind": "dynamic",
-          "line": 486,
+          "line": 491,
           "resolved_to": "scripts/distill_run_log.mjs",
           "specifiers": []
         },
@@ -3396,7 +3496,7 @@
           "external": false,
           "from": "./reflect_after_run.mjs",
           "kind": "dynamic",
-          "line": 495,
+          "line": 500,
           "resolved_to": "scripts/reflect_after_run.mjs",
           "specifiers": []
         },
@@ -3404,7 +3504,7 @@
           "external": false,
           "from": "./summarize_block_code.mjs",
           "kind": "dynamic",
-          "line": 505,
+          "line": 510,
           "resolved_to": "scripts/summarize_block_code.mjs",
           "specifiers": []
         },
@@ -3412,7 +3512,7 @@
           "external": false,
           "from": "./cleanup_block_memory.mjs",
           "kind": "dynamic",
-          "line": 515,
+          "line": 520,
           "resolved_to": "scripts/cleanup_block_memory.mjs",
           "specifiers": []
         }
@@ -3825,7 +3925,7 @@
           "external": true,
           "from": "node:fs",
           "kind": "static",
-          "line": 1,
+          "line": 8,
           "resolved_to": null,
           "specifiers": [
             {
@@ -3838,7 +3938,7 @@
           "external": true,
           "from": "node:path",
           "kind": "static",
-          "line": 2,
+          "line": 9,
           "resolved_to": null,
           "specifiers": [
             {
@@ -5575,6 +5675,72 @@
         }
       ],
       "owning_block": "b.user-docs-generator"
+    },
+    "tests/lifecycle_gate.selftest.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 12,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:os",
+          "kind": "static",
+          "line": 13,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 14,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "../scripts/lifecycle_gate.mjs",
+          "kind": "static",
+          "line": 15,
+          "resolved_to": "scripts/lifecycle_gate.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "applyTransition"
+            },
+            {
+              "kind": "named",
+              "name": "checkTransition"
+            },
+            {
+              "kind": "named",
+              "name": "TRANSITIONS"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.acceptance-verifier-loop"
     },
     "tests/llm_extraction.eval.mjs": {
       "exports": [],

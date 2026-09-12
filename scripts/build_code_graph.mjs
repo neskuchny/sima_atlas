@@ -314,20 +314,31 @@ if (fileURLToPath(import.meta.url) === process.argv[1]) {
   const target = path.join(ATLAS, 'code_graph.json');
 
   if (print) {
+    // R-8.05 — do NOT process.exit() here. Writes to a PIPE are asynchronous
+    // in Node; exiting immediately after the write kills the process before
+    // the buffer drains, so `--json` was silently truncated at the pipe
+    // buffer boundary (measured: 146176 of 151755 bytes — the tail was lost
+    // and the output was not parseable JSON). Every consumer that piped
+    // `--json` received corrupt data, and the determinism selftest
+    // (code_graph_extractor g9) hashed the truncated text — which is what was
+    // long recorded as «intermittent sha256 nondeterminism under concurrent
+    // load» (b.code-graph T11). It was data loss on exit, not nondeterminism.
+    // Setting exitCode and returning lets Node flush stdout, then exit 0.
+    process.exitCode = 0;
     process.stdout.write(text);
-    process.exit(0);
-  }
-  if (check) {
+  } else if (check) {
     const existing = fs.existsSync(target) ? fs.readFileSync(target, 'utf8') : '';
     if (existing.trim() === text.trim()) {
       console.log('build_code_graph --check: code_graph.json up-to-date');
-      process.exit(0);
+      process.exitCode = 0;
+    } else {
+      console.error('build_code_graph --check: code_graph.json would change. Rebuild & commit.');
+      process.exitCode = 1;
     }
-    console.error('build_code_graph --check: code_graph.json would change. Rebuild & commit.');
-    process.exit(1);
+  } else {
+    fs.writeFileSync(target, text, 'utf8');
+    const fileCount = Object.keys(out.files).length;
+    const edgeCount = out.edges.length;
+    console.log(`build_code_graph: wrote atlas/code_graph.json (${fileCount} files, ${edgeCount} cross-block edges)`);
   }
-  fs.writeFileSync(target, text, 'utf8');
-  const fileCount = Object.keys(out.files).length;
-  const edgeCount = out.edges.length;
-  console.log(`build_code_graph: wrote atlas/code_graph.json (${fileCount} files, ${edgeCount} cross-block edges)`);
 }
