@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-09-12T22:28:41.797Z_
+_Generated: 2026-09-13T07:04:33.564Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -11,14 +11,14 @@ _Generated: 2026-09-12T22:28:41.797Z_
 - ✅ block_contracts: ok
   - output: Block contract validation: OK
 - ✅ no_template_placeholders: ok
-  - output: Template-placeholder validation: OK (20 blocks scanned)
+  - output: Template-placeholder validation: OK (21 blocks scanned)
 - ✅ article_status_projection: ok
   - output: docs/article.en.md: up to date
 - ✅ code_graph_build: ok
   - output: build_code_graph --check: code_graph.json up-to-date
 - ✅ code_graph_drift: ok
 - ✅ code_graph_extractor_selftest: ok
-  - output: deterministic — sha256(ce51108625f0…) matches across runs
+  - output: deterministic — sha256(36ba6ba3ce1d…) matches across runs
 - ✅ code_graph_validator_selftest: ok
   - output: code_graph_validator.selftest: OK (6 test groups, all assertions green)
 - ✅ checks_append_endpoint_selftest: ok
@@ -30,7 +30,7 @@ _Generated: 2026-09-12T22:28:41.797Z_
 - ✅ openai_gemini_providers_selftest: ok
   - output: openai_gemini_providers.selftest: OK (5 test groups, all assertions green)
 - ✅ files_registry: ok
-  - output: Files registry validation: OK (alive=206, archived=4, dead=0)
+  - output: Files registry validation: OK (alive=223, archived=4, dead=0)
 - ✅ housekeeping_sweep: ok
   - output: housekeeping_sweeper: 1 proposal(s) — see atlas/cleanup_proposals.md
 - ✅ projects_contracts: ok
@@ -43,10 +43,14 @@ _Generated: 2026-09-12T22:28:41.797Z_
   - error: Acceptance assertions validation failed:
 - ✅ lifecycle_gate_selftest: ok
   - output: lifecycle_gate.selftest: OK (7 groups, all assertions green)
+- ✅ clarify_block_selftest: ok
+  - output: clarify_block.selftest: OK (10 groups, all assertions green)
+- ✅ clarifications: ok
+  - output: validate_clarifications: 0 open marker(s), 0 question(s) answered on record — OK
 - ✅ atlas_selftest: ok
   - output: atlas_sync.selftest: OK
 - ✅ bootstrap_layered_smoke: ok
-  - output: atlas_bootstrap smoke: OK (layers=7, blocks=20, links=29)
+  - output: atlas_bootstrap smoke: OK (layers=7, blocks=21, links=30)
 - ✅ llm_gateway_selftest: ok
   - output: llm_gateway.selftest: OK (5 cases)
 - ✅ pick_template_selftest: ok
@@ -54,7 +58,7 @@ _Generated: 2026-09-12T22:28:41.797Z_
 - ✅ operator_profile_selftest: ok
   - output: operator_profile.selftest: OK (7 test groups, all assertions green)
 - ✅ aggregate_operator_profile: ok
-  - output: operator_profile: live (done=9, invocations=14, traces=216, proposals=2)
+  - output: operator_profile: live (done=10, invocations=14, traces=828, proposals=9)
 - ✅ operator_profile_lessons_smoke: ok
   - output: operator_profile_lessons.smoke: OK (6 test groups, all assertions green)
 - ✅ operator_profile_inject_smoke: ok
@@ -64,9 +68,9 @@ _Generated: 2026-09-12T22:28:41.797Z_
 - ✅ dont_use_management_selftest: ok
   - output: dont_use_management.selftest: OK (7 test groups, all assertions green)
 - ✅ validate_dont_use_compliance: ok
-  - output: validate_dont_use_compliance: banned=0 (none); checked=20; warnings=0
+  - output: validate_dont_use_compliance: banned=0 (none); checked=21; warnings=0
 - ✅ validate_lifecycle_gates: ok
-  - output: validate_lifecycle_gates — 18 blocks, 0 fail, 0 warn
+  - output: validate_lifecycle_gates — 19 blocks, 0 fail, 0 warn
 - ✅ introspect_block_ui_selftest: ok
   - output: introspect_block_ui.selftest: OK (7 test groups, all assertions green)
 - ✅ user_docs_smoke: ok
@@ -116,7 +120,7 @@ _Generated: 2026-09-12T22:28:41.797Z_
 - ✅ playwright_sima_design: ok
   - output: skip: @playwright/test not installed — tests/playwright/sima_design.spec.ts not run here (CI installs it via npm ci)
 - ✅ parse_acceptance_selftest: ok
-  - output: parse_acceptance.selftest: OK (9 test groups, all assertions green)
+  - output: parse_acceptance.selftest: OK (10 test groups, all assertions green)
 - ✅ evidence_collectors_selftest: ok
   - output: evidence_collectors.selftest: OK (14 test groups, all assertions green)
 - ✅ llm_judge_smoke: ok
@@ -138,13 +142,13 @@ _Generated: 2026-09-12T22:28:41.797Z_
 - ✅ list_proposals_index: ok
   - output: [
 - ✅ agent_parity_real: ok
-  - output: agent_parity_real.smoke: OK (20 blocks, MCP pack ≡ disk)
+  - output: agent_parity_real.smoke: OK (21 blocks, MCP pack ≡ disk)
 - ✅ connection_drift: ok
   - output: connection_drift.smoke: OK (broken capability link detected and propagated to archByProject.links)
 - ✅ atlas_live_polling: ok
   - output: atlas_live_polling.smoke: OK (state hash changes on disk mutation; payload returns bootstrap shape)
 - ✅ sync_context_packs: ok
-  - output: Context packs synced: 20
+  - output: Context packs synced: 21
 - ✅ agent_parity: ok
   - output: Agent parity validation: OK
 - ✅ parity_matrix: ok
@@ -154,16 +158,16 @@ _Generated: 2026-09-12T22:28:41.797Z_
 - ✅ render_wiki_html: ok
   - output: Rendered /home/user/sima_atlas/atlas/wiki.html
 - ✅ generate_tz: ok
-  - output: Generated /home/user/sima_atlas/atlas/auto_tz.md (20 specified, 0 skipped as unspecified ideas)
+  - output: Generated /home/user/sima_atlas/atlas/auto_tz.md (21 specified, 0 skipped as unspecified ideas)
 - ✅ rebuild_roadmap: ok
   - output: Rebuilt /home/user/sima_atlas/atlas/roadmap.md
 - ✅ verify_all_acceptance: ok
-  - output: verify_all_acceptance: 12 pass / 0 fail / 8 inconclusive (assertions: 60 pass / 0 fail / 52 skipped)
+  - output: verify_all_acceptance: 14 pass / 0 fail / 7 inconclusive (assertions: 74 pass / 0 fail / 45 skipped)
 - ✅ verify_done_blocks_still_green: ok
-  - output: verify_done_blocks_still_green: checked=6 green=6 regressions=0 inconclusive=0
+  - output: verify_done_blocks_still_green: checked=7 green=7 regressions=0 inconclusive=0
 - ✅ mcp_smoke_e2e: ok
   - output: mcp_smoke_e2e: OK (32 tools exercised)
 - ✅ intelligence_health: ok
-  - output: Intelligence health: 0.95 (19/20)
+  - output: Intelligence health: 0.9524 (20/21)
 
-Summary: FAIL (81/82)
+Summary: FAIL (83/84)

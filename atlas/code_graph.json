@@ -44,6 +44,13 @@
         "tests/run_state.selftest.mjs"
       ]
     },
+    "b.clarify": {
+      "files": [
+        "scripts/clarify_block.mjs",
+        "scripts/validate_clarifications.mjs",
+        "tests/clarify_block.selftest.mjs"
+      ]
+    },
     "b.code-graph": {
       "files": [
         "scripts/build_code_graph.mjs",
@@ -238,6 +245,18 @@
       ],
       "from_block": "b.agent-orchestrator",
       "to_block": "b.operator-profile-learner"
+    },
+    {
+      "examples": [
+        {
+          "from_file": "scripts/clarify_block.mjs",
+          "kind": "static",
+          "line": 52,
+          "to_file": "scripts/llm_gateway.mjs"
+        }
+      ],
+      "from_block": "b.clarify",
+      "to_block": "b.llm-gateway"
     },
     {
       "examples": [
@@ -1498,6 +1517,110 @@
         }
       ],
       "owning_block": "b.user-docs-generator"
+    },
+    "scripts/clarify_block.mjs": {
+      "exports": [
+        {
+          "kind": "named",
+          "line": 162,
+          "name": "findMarkers"
+        },
+        {
+          "kind": "named",
+          "line": 175,
+          "name": "blockMarkers"
+        },
+        {
+          "kind": "named",
+          "line": 285,
+          "name": "clarifyBlock"
+        },
+        {
+          "kind": "named",
+          "line": 358,
+          "name": "normalizeQuestions"
+        },
+        {
+          "kind": "named",
+          "line": 397,
+          "name": "appendAnswers"
+        },
+        {
+          "kind": "named",
+          "line": 420,
+          "name": "resolveMarker"
+        },
+        {
+          "kind": "named",
+          "line": 60,
+          "name": "VERDICT_ENUM"
+        },
+        {
+          "kind": "named",
+          "line": 64,
+          "name": "IMPACT_ENUM"
+        },
+        {
+          "kind": "named",
+          "line": 69,
+          "name": "CATEGORY_ENUM"
+        }
+      ],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 49,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 50,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 51,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "./llm_gateway.mjs",
+          "kind": "static",
+          "line": 52,
+          "resolved_to": "scripts/llm_gateway.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "callLLM"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.clarify"
     },
     "scripts/collect_evidence.mjs": {
       "exports": [
@@ -2912,12 +3035,12 @@
       "exports": [
         {
           "kind": "named",
-          "line": 192,
+          "line": 207,
           "name": "parseAcceptanceText"
         },
         {
           "kind": "named",
-          "line": 253,
+          "line": 268,
           "name": "parseAcceptance"
         }
       ],
@@ -4065,6 +4188,64 @@
       ],
       "owning_block": "b.core-sync"
     },
+    "scripts/validate_clarifications.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 26,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 27,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 28,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "./clarify_block.mjs",
+          "kind": "static",
+          "line": 29,
+          "resolved_to": "scripts/clarify_block.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "blockMarkers"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.clarify"
+    },
     "scripts/validate_code_graph_sync.mjs": {
       "exports": [],
       "imports": [
@@ -4957,6 +5138,80 @@
         }
       ],
       "owning_block": "b.core-sync"
+    },
+    "tests/clarify_block.selftest.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 12,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:os",
+          "kind": "static",
+          "line": 13,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 14,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 15,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:child_process",
+          "kind": "dynamic",
+          "line": 177,
+          "resolved_to": null,
+          "specifiers": []
+        },
+        {
+          "external": false,
+          "from": "../scripts/clarify_block.mjs",
+          "kind": "dynamic",
+          "line": 22,
+          "resolved_to": "scripts/clarify_block.mjs",
+          "specifiers": []
+        }
+      ],
+      "owning_block": "b.clarify"
     },
     "tests/code_graph_extractor.selftest.mjs": {
       "exports": [

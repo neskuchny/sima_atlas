@@ -1,6 +1,6 @@
 # Sima Atlas Wiki
 
-_Auto-generated: 2026-09-12T22:29:05.837Z_
+_Auto-generated: 2026-09-13T07:05:00.118Z_
 
 ## Граф продукта
 
@@ -29,6 +29,7 @@ flowchart TB
     b_llm_gateway["LLM Gateway<br/><small>review</small>"]:::review
     b_operator_profile_learner["Operator Profile Learner<br/><small>done</small>"]:::done
     b_diff_review["Diff Review Arbiter<br/><small>done</small>"]:::done
+    b_clarify["Clarification Arbiter<br/><small>done</small>"]:::done
   end
   subgraph data["Данные / хранилище"]
     b_db["Atlas Database<br/><small>idea</small>"]:::idea
@@ -79,6 +80,7 @@ flowchart TB
   b_product_auth --> b_product_ingest_api_key_check
   b_product_ingest --> b_product_warehouse_events_stream
   b_product_dashboard --> b_product_warehouse_metric_query
+  b_clarify --> b_llm_gateway
 ```
 
 ## Слои
@@ -115,6 +117,8 @@ flowchart TB
   - reason: Phase I: verifier FAIL on A6 — profile-compliance UI badge (complianceWithProfile) was lost in the R-7.30 single-file→atlas_design refactor and not reimplemented. Genuine feature gap, honestly not done.
 - 🟢 **b.diff-review** — Diff Review Arbiter _(done)_
   - reason: Fourth V-1 arbiter — independent LLM review of the git diff for BLOCKING problems (correctness/security/regression/perf). Imported from loop-engineer-template. R-8.01.
+- 🟢 **b.clarify** — Clarification Arbiter _(done)_
+  - reason: R-8.06 — the arbiter UPSTREAM of the contract: asks whether the contract says what the human meant, instead of taking it as an axiom. Questions + uncertainty markers + assumption registry.
 
 ### Данные / хранилище (`data`)
 
@@ -528,7 +532,7 @@ evidence_spec:
 
 # b.db — depends_on
 
-- none
+- b.acceptance-verifier-loop: acceptance_gate_decision
 
 #### Patterns
 
@@ -692,6 +696,7 @@ evidence_spec:
 - b.core-sync: sync_report
 - b.llm-gateway: llm_extract_block_schema
 - b.operator-profile-learner: personal_templates
+- b.acceptance-verifier-loop: acceptance_gate_decision
 
 #### Files
 
@@ -1612,6 +1617,8 @@ evidence_spec:
 - atlas/acceptance_runs/_summary.json [alive] (PR-2 migration: aggregate verdicts across all blocks)
 - scripts/verify_done_blocks_still_green.mjs [alive] (PR-4: nightly regression check; writes acceptance_regression proposals, never auto-flips done→broken)
 - tests/acceptance_verifier.e2e.smoke.mjs [alive]
+- scripts/lifecycle_gate.mjs [alive] (R-8.05: the shared, and now only, writer of block status + transitions.log + checks.log. Enforces the adjacency table and the → done acceptance verdict for every path — CLI advance_block_state, MCP transition_block/update_block, HTTP patchBlock. Before this, only log_transition.mjs gated, and it never wrote graph.json, so the contract's «cannot transition to done» held on no path at all.)
+- tests/lifecycle_gate.selftest.mjs [alive] (R-8.05: 7 groups — → done refused without a passing verdict / on fail / on inconclusive; logged override; adjacency; desync cannot invent a done; desync→done needs a green run newer than the mark; checkTransition is pure)
 
 ## UI (PR-5)
 PR-5 touches files owned by other blocks (UI host blocks own JSX; bootstrap
@@ -6271,6 +6278,18 @@ _no summary_
 - 2026-09-12T22:29:01.564Z: smoke e2e distillate
 - 2026-09-12T22:29:05.470Z: smoke e2e queued insight
 - 2026-09-12T22:29:05.521Z: smoke e2e distillate
+- 2026-09-13T07:02:16.698Z: smoke e2e queued insight
+- 2026-09-13T07:02:16.742Z: smoke e2e distillate
+- 2026-09-13T07:02:21.378Z: smoke e2e queued insight
+- 2026-09-13T07:02:21.421Z: smoke e2e distillate
+- 2026-09-13T07:03:38.591Z: smoke e2e queued insight
+- 2026-09-13T07:03:38.638Z: smoke e2e distillate
+- 2026-09-13T07:03:43.241Z: smoke e2e queued insight
+- 2026-09-13T07:03:43.288Z: smoke e2e distillate
+- 2026-09-13T07:04:55.185Z: smoke e2e queued insight
+- 2026-09-13T07:04:55.230Z: smoke e2e distillate
+- 2026-09-13T07:04:59.754Z: smoke e2e queued insight
+- 2026-09-13T07:04:59.802Z: smoke e2e distillate
 
 #### Files
 
@@ -6663,6 +6682,273 @@ _Sources: [mission](blocks/b.block-1/mission.md) · [kpi](blocks/b.block-1/kpi.m
 - atlas/blocks/b.block-2/mission.md [alive]
 
 _Sources: [mission](blocks/b.block-2/mission.md) · [kpi](blocks/b.block-2/kpi.md) · [acceptance](blocks/b.block-2/acceptance.md) · [depends_on](blocks/b.block-2/depends_on.md) · [provides](blocks/b.block-2/provides.md) · [patterns](blocks/b.block-2/patterns.md) · [files](blocks/b.block-2/files.md)_
+
+---
+
+### 🟢 b.clarify — Clarification Arbiter
+
+- **layer**: `ai`
+- **type**: module
+- **status**: `done` — R-8.06 — the arbiter UPSTREAM of the contract: asks whether the contract says what the human meant, instead of taking it as an axiom. Questions + uncertainty markers + assumption registry.
+- **mvp**: no
+- **depends_on**: `b.llm-gateway`
+- **tech_stack**: `nodejs`, `esm`
+- **files**: 3 (`atlas/blocks/b.clarify/files.md`)
+
+# b.clarify — mission
+
+В Sima Atlas четыре арбитра, и все четыре стоят **справа** от контракта,
+принимая его за аксиому:
+
+| арбитр | вопрос |
+|---|---|
+| детерминистический верификатор | прошла ли приёмка? |
+| cascade + green-guard | не сломали ли соседей? |
+| семантический судья | соответствует ли реализация миссии? |
+| diff-review | нет ли бага в самом изменении? |
+
+Ни один не спрашивает того, что на самом деле волнует оператора:
+**сказано ли в контракте то, что человек имел в виду.**
+
+Аудит R-8.05 показал дыру предметно: в `atlas_synthesis_api.mjs` девять
+функций, и ни одна не возвращает вопрос — все генерируют за человека.
+Механизм `ambiguities` в `sima_fill_from_chat.mjs` ловит только технические
+сбои извлечения («LLM вернул пусто»), а не смысловую неоднозначность.
+В шаблонах контрактов нет маркеров неопределённости. Итог:
+
+```
+замысел человека → [ПУСТО] → контракт → [4 арбитра] → реализация
+```
+
+`b.clarify` — недостающая левая половина. Исходная посылка оператора:
+**ИИ всегда понимает пользователя не так, как тот хотел, — ровно как один
+человек понимает другого чуть иначе.** Расхождение неустранимо; устранима
+только его невидимость. Модель, заполнившая пробел правдоподобной догадкой,
+с канваса неотличима от модели, которая поняла правильно.
+
+Блок делает две вещи и сознательно не делает третью.
+
+**1. Задаёт вопросы, а не пишет контракт.** Читает контракт блока и его
+соседей и возвращает вопросы в формате, рассчитанном на человека, который
+физически не может уследить за всем:
+
+- настоящий вопросительный оборот, заканчивающийся «?», на который можно
+  ответить, прочитав одну строку; ярлык вроде «Матрица приёмки (A3)» —
+  невалиден и отбраковывается кодом, а не просьбой в промпте;
+- `why_it_matters` — ставка в одном предложении, чтобы отвлечение себя
+  оправдывало;
+- 2–5 именованных вариантов, у каждого **последствие**, а не пересказ
+  названия: человек выбирает исход, а не ярлык;
+- рекомендация модели с обоснованием, чтобы «да» был достаточным ответом.
+
+**2. Делает догадки видимыми.** Возвращает `facts_verified` (что уже прочитано
+в репозитории — об этом спрашивать нельзя, лишний вопрос тратит внимание) и
+`assumptions` (что решено самостоятельно, потому что пробел мелкий).
+Записанное допущение — это видимый долг; незаписанное — будущий сюрприз,
+потому что снаружи выглядит как знание.
+
+**3. НЕ правит контракт.** Право записи остаётся у человека. Арбитр, который
+сам себе задал вопрос и сам себе ответил, не синхронизирует смыслы.
+
+## Порог «спрашивать против предположить»
+
+Спрашивать, только если неоднозначность материально меняет **scope**,
+наблюдаемое **поведение**, **совместимость** с соседями или **критерии
+приёмки**. Всё мельче — решить самому и записать в `assumptions`.
+
+## Layer
+ai
+
+## Чем это НЕ является
+
+- Не семантический судья: тот читает реализацию и судит соответствие миссии.
+  Этот читает контракт и ищет расхождение с замыслом. Разные стороны контракта.
+- Не генератор контракта: `fillField`/`expandField` пишут за человека — здесь
+  сознательно обратное.
+- Не диалоговый агент: один прогон возвращает срез, а не ведёт беседу.
+
+#### KPI
+
+# b.clarify — KPI
+
+- **KPI-1 (честная деградация)**: доля прогонов без живого провайдера, давших
+  `clear`, равна нулю. Сейчас: ✓ — вердикт форсится в `inconclusive` при
+  `isMock`, покрыто группой 2 selftest'а.
+- **KPI-2 (вопрос отвечаем с одной строки)**: 100% возвращённых вопросов
+  заканчиваются «?» и имеют ≥2 варианта. Сейчас: ✓ — `normalizeQuestions`
+  отбраковывает остальное кодом, покрыто группами 4–5.
+- **KPI-3 (догадки видимы)**: каждый прогон возвращает `assumptions` отдельно
+  от `questions`. Сейчас: ✓ — обязательное поле схемы.
+- **KPI-4 (маркер не переживает done)**: блоков в статусе `done` с открытым
+  `[NEEDS CLARIFICATION]` — ноль. Сейчас: ✓ — гейт в
+  `validate_clarifications.mjs`, покрыт группой 10.
+- **KPI-5 (стоимость непонимания падает)**: среднее число вопросов на блок
+  снижается от прогона к прогону по мере накопления `clarifications.md`.
+  Сейчас: не измерено — нужен ряд наблюдений, метрика появится после первых
+  живых сессий.
+- **KPI-6 (вопросы попадают в цель)**: доля вопросов, на которые оператор
+  ответил не «не важно». Сейчас: не измерено — требует накопленного лога
+  ответов.
+
+#### Acceptance
+
+# b.clarify — acceptance
+
+Acceptance gate для перехода `idea → wip → review → done`. Детерминистические
+проверки + один selftest. Каждая ассерция проверяет поведение, а не наличие
+файла.
+
+- [x] **A1.** `VERDICT_ENUM` упорядочен `inconclusive` первым — гарантия, что
+  mock/отсутствие ключа даёт безопасный вердикт, а не «всё ясно». «Clear» без
+  живой модели — это тихий зелёный ровно в том месте, которое создано ловить
+  непонимание.
+```yaml
+evidence_kind: log_grep
+evidence_spec:
+  file: scripts/clarify_block.mjs
+  pattern: "VERDICT_ENUM.*'inconclusive', 'clear', 'questions'"
+```
+
+- [x] **A2.** Selftest зелёный: честная деградация, отбраковка ярлыка вместо
+  вопроса, отбраковка вопроса без выбора, сортировка по цене поздней находки,
+  поиск маркеров, append-only лог, снятие маркера без остатка, срабатывание
+  done-гейта.
+```yaml
+evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/clarify_block.selftest.mjs
+  expect_in_stdout: "OK"
+```
+
+- [x] **A3.** На mock-провайдере вердикт детерминистически `inconclusive`, независимо от содержимого контракта. Проверяется по вердикту в выводе, а не по коду возврата: `inconclusive` намеренно выходит с кодом 2, поэтому ассерция на `exit 0` проверяла бы здесь ровно противоположное.
+```yaml
+evidence_kind: exit_code
+evidence_spec:
+  cmd: ATLAS_FORCE_MOCK_LLM=1 node scripts/clarify_block.mjs b.desktop --json | grep -q '"verdict": "inconclusive"'
+```
+
+- [x] **A4.** `clarifyBlock` экспортируется как library-функция — вызов из UI
+  и MCP без subprocess.
+```yaml
+evidence_kind: log_grep
+evidence_spec:
+  file: scripts/clarify_block.mjs
+  pattern: "export async function clarifyBlock"
+```
+
+- [x] **A5.** Валидатор маркеров зарегистрирован в nightly, то есть
+  неразрешённая неопределённость не может пережить ночь незамеченной.
+```yaml
+evidence_kind: log_grep
+evidence_spec:
+  file: scripts/nightly_consolidation.mjs
+  pattern: "validate_clarifications"
+```
+
+- [x] **A6.** Валидатор проходит на текущем атласе (нет `done`-блока с
+  открытым маркером).
+```yaml
+evidence_kind: exit_code
+evidence_spec:
+  cmd: node scripts/validate_clarifications.mjs
+  expect_in_stdout: "open marker"
+```
+
+- [x] **A7.** Selftest зарегистрирован в nightly.
+```yaml
+evidence_kind: log_grep
+evidence_spec:
+  file: scripts/nightly_consolidation.mjs
+  pattern: "clarify_block.selftest"
+```
+
+## inconclusive_if
+
+- Нет живого LLM-провайдера — качество вопросов операторски не проверяемо в
+  nightly (структура проверяется, содержание нет).
+```yaml
+evidence_kind: exit_code
+evidence_spec:
+  cmd: test -n "$ANTHROPIC_API_KEY$GOOGLE_API_KEY$OPENAI_API_KEY"
+```
+
+## Не считается acceptance
+
+- Реальное качество вопросов живой модели — не детерминистично, проверяется
+  операторски на живых прогонах, не в nightly.
+- Автоответ на собственные вопросы — вне scope по замыслу: право записи в
+  контракт остаётся у человека.
+
+#### Provides
+
+# b.clarify — provides
+
+- clarification_questions
+- uncertainty_marker_gate
+- assumption_registry
+
+#### Depends on
+
+# b.clarify — depends_on
+
+- b.llm-gateway: llm_call_structured
+
+#### Patterns
+
+# b.clarify — patterns
+
+## Ярлык — не вопрос
+Самый частый отказ генерируемых вопросов: модель выдаёт заголовок темы
+(«Матрица приёмки (A3)») и называет его вопросом. Оператор не может ответить
+на заголовок. Проверяется кодом: вопрос обязан заканчиваться «?».
+
+## Вариант без последствия — не выбор
+Список вариантов, где описано только название, заставляет человека
+реконструировать последствия самому. Это возвращает ему ровно ту работу, ради
+избавления от которой он и спрашивает. Обязательное поле `implications`.
+
+## Допущение маскируется под знание
+Записанный вопрос виден. Незаписанное допущение выглядит снаружи как факт и
+обнаруживается только на приёмке или позже. Поэтому `assumptions` — отдельное
+обязательное поле, а не примечание.
+
+## Лишний вопрос тратит внимание
+Спрашивать о том, что читается в репозитории, — это трата ресурса, которого у
+оператора нет. `facts_verified` открывает ответ, чтобы было видно: модель
+сначала прочитала, потом спросила.
+
+## Вакуозность приёмки бывает семантической
+`fs_glob min_count: 1` формально валиден и переживает детерминистическую
+проверку R-8.05, но «файл db_schema.json существует» не проверяет «запись
+отвергается при несоответствии схеме». Структурный валидатор такое не ловит —
+ловит арбитр, читающий смысл.
+
+#### Files
+
+# b.clarify — files
+
+## Код
+- scripts/clarify_block.mjs [alive] (R-8.06: протокол вопроса + маркеры неопределённости + append-only Q→A лог + снятие маркера без остатка. Экспортирует clarifyBlock / normalizeQuestions / findMarkers / blockMarkers / appendAnswers / resolveMarker)
+- scripts/validate_clarifications.mjs [alive] (R-8.06: гейт — done-блок не может нести открытый маркер; review → warning; idea/wip → info, чтобы черновик оставался свободным)
+
+## Тесты
+- tests/clarify_block.selftest.mjs [alive] (R-8.06: 10 групп — порядок enum, честная деградация на mock, пустой контракт, отбраковка ярлыка, отбраковка вопроса без выбора, сортировка по impact, поиск маркеров, append-only лог, снятие маркера, срабатывание done-гейта)
+
+## Контракт
+- atlas/blocks/b.clarify/mission.md [alive]
+- atlas/blocks/b.clarify/user_story.md [alive]
+- atlas/blocks/b.clarify/kpi.md [alive]
+- atlas/blocks/b.clarify/acceptance.md [alive]
+- atlas/blocks/b.clarify/tasks.md [alive]
+- atlas/blocks/b.clarify/depends_on.md [alive]
+- atlas/blocks/b.clarify/provides.md [alive]
+- atlas/blocks/b.clarify/files.md [alive]
+- atlas/blocks/b.clarify/narrative.md [alive]
+- atlas/blocks/b.clarify/decisions.log [alive]
+- atlas/blocks/b.clarify/patterns.md [alive]
+- atlas/blocks/b.clarify/checks.log [alive]
+
+_Sources: [mission](blocks/b.clarify/mission.md) · [kpi](blocks/b.clarify/kpi.md) · [acceptance](blocks/b.clarify/acceptance.md) · [depends_on](blocks/b.clarify/depends_on.md) · [provides](blocks/b.clarify/provides.md) · [patterns](blocks/b.clarify/patterns.md) · [files](blocks/b.clarify/files.md)_
 
 ---
 

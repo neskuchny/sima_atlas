@@ -38,6 +38,12 @@ const checks = [
   ['dependency_contracts', 'node scripts/validate_dependency_contracts.mjs'],
   ['acceptance_assertions', 'node scripts/validate_acceptance_assertions.mjs'],
   ['lifecycle_gate_selftest', 'node tests/lifecycle_gate.selftest.mjs'],
+  ['clarify_block_selftest', 'node tests/clarify_block.selftest.mjs'],
+  // R-8.06 (b.clarify) — an unresolved `[NEEDS CLARIFICATION]` marker must not
+  // outlive the night unnoticed. Hard only for `done`: claiming a block is
+  // finished while its own contract says a part is undecided is a dishonest
+  // status. Drafting statuses stay soft by design.
+  ['clarifications', 'node scripts/validate_clarifications.mjs'],
   ['atlas_selftest', 'node tests/atlas_sync.selftest.mjs'],
   ['bootstrap_layered_smoke', 'node tests/atlas_bootstrap.smoke.mjs'],
   ['llm_gateway_selftest', 'node tests/llm_gateway.selftest.mjs'],

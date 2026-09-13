@@ -1,7 +1,7 @@
 {
   "contractValidation": {
-    "checkedAt": "2026-09-12T22:29:02.603Z",
-    "total": 20,
+    "checkedAt": "2026-09-13T07:04:56.641Z",
+    "total": 21,
     "broken": 0,
     "details": []
   },
@@ -11,8 +11,8 @@
     "details": []
   },
   "codeGraphDrift": {
-    "checkedAt": "2026-09-12T22:28:42.351Z",
-    "driftCount": 24,
+    "checkedAt": "2026-09-13T07:04:53.499Z",
+    "driftCount": 27,
     "details": [
       {
         "kind": "provided_capability_not_exported",
@@ -22,22 +22,28 @@
         "scanned_files": [
           "scripts/collect_evidence.mjs",
           "scripts/judge_assertion.mjs",
+          "scripts/lifecycle_gate.mjs",
           "scripts/parse_acceptance.mjs",
           "scripts/verify_all_acceptance.mjs",
           "scripts/verify_block_acceptance.mjs",
           "scripts/verify_done_blocks_still_green.mjs",
           "tests/acceptance_verifier.e2e.smoke.mjs",
           "tests/evidence_collectors.selftest.mjs",
+          "tests/lifecycle_gate.selftest.mjs",
           "tests/llm_judge.smoke.mjs",
           "tests/parse_acceptance.selftest.mjs"
         ],
         "exported_names_in_block": [
           "JUDGE_SCHEMA",
+          "TRANSITIONS",
+          "applyTransition",
+          "checkTransition",
           "collectEvidence",
           "judgeAssertion",
           "judgeAssertionCli",
           "parseAcceptance",
           "parseAcceptanceText",
+          "rejectionMessage",
           "verifyAllAcceptance",
           "verifyAndPersist",
           "verifyBlock",
@@ -53,22 +59,28 @@
         "scanned_files": [
           "scripts/collect_evidence.mjs",
           "scripts/judge_assertion.mjs",
+          "scripts/lifecycle_gate.mjs",
           "scripts/parse_acceptance.mjs",
           "scripts/verify_all_acceptance.mjs",
           "scripts/verify_block_acceptance.mjs",
           "scripts/verify_done_blocks_still_green.mjs",
           "tests/acceptance_verifier.e2e.smoke.mjs",
           "tests/evidence_collectors.selftest.mjs",
+          "tests/lifecycle_gate.selftest.mjs",
           "tests/llm_judge.smoke.mjs",
           "tests/parse_acceptance.selftest.mjs"
         ],
         "exported_names_in_block": [
           "JUDGE_SCHEMA",
+          "TRANSITIONS",
+          "applyTransition",
+          "checkTransition",
           "collectEvidence",
           "judgeAssertion",
           "judgeAssertionCli",
           "parseAcceptance",
           "parseAcceptanceText",
+          "rejectionMessage",
           "verifyAllAcceptance",
           "verifyAndPersist",
           "verifyBlock",
@@ -84,22 +96,28 @@
         "scanned_files": [
           "scripts/collect_evidence.mjs",
           "scripts/judge_assertion.mjs",
+          "scripts/lifecycle_gate.mjs",
           "scripts/parse_acceptance.mjs",
           "scripts/verify_all_acceptance.mjs",
           "scripts/verify_block_acceptance.mjs",
           "scripts/verify_done_blocks_still_green.mjs",
           "tests/acceptance_verifier.e2e.smoke.mjs",
           "tests/evidence_collectors.selftest.mjs",
+          "tests/lifecycle_gate.selftest.mjs",
           "tests/llm_judge.smoke.mjs",
           "tests/parse_acceptance.selftest.mjs"
         ],
         "exported_names_in_block": [
           "JUDGE_SCHEMA",
+          "TRANSITIONS",
+          "applyTransition",
+          "checkTransition",
           "collectEvidence",
           "judgeAssertion",
           "judgeAssertionCli",
           "parseAcceptance",
           "parseAcceptanceText",
+          "rejectionMessage",
           "verifyAllAcceptance",
           "verifyAndPersist",
           "verifyBlock",
@@ -115,22 +133,28 @@
         "scanned_files": [
           "scripts/collect_evidence.mjs",
           "scripts/judge_assertion.mjs",
+          "scripts/lifecycle_gate.mjs",
           "scripts/parse_acceptance.mjs",
           "scripts/verify_all_acceptance.mjs",
           "scripts/verify_block_acceptance.mjs",
           "scripts/verify_done_blocks_still_green.mjs",
           "tests/acceptance_verifier.e2e.smoke.mjs",
           "tests/evidence_collectors.selftest.mjs",
+          "tests/lifecycle_gate.selftest.mjs",
           "tests/llm_judge.smoke.mjs",
           "tests/parse_acceptance.selftest.mjs"
         ],
         "exported_names_in_block": [
           "JUDGE_SCHEMA",
+          "TRANSITIONS",
+          "applyTransition",
+          "checkTransition",
           "collectEvidence",
           "judgeAssertion",
           "judgeAssertionCli",
           "parseAcceptance",
           "parseAcceptanceText",
+          "rejectionMessage",
           "verifyAllAcceptance",
           "verifyAndPersist",
           "verifyBlock",
@@ -186,6 +210,75 @@
           "x"
         ],
         "hint": "«pipeline_execution» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.agent-orchestrator/provides.md."
+      },
+      {
+        "kind": "provided_capability_not_exported",
+        "severity": "warning",
+        "block": "b.clarify",
+        "capability": "assumption_registry",
+        "scanned_files": [
+          "scripts/clarify_block.mjs",
+          "scripts/validate_clarifications.mjs",
+          "tests/clarify_block.selftest.mjs"
+        ],
+        "exported_names_in_block": [
+          "CATEGORY_ENUM",
+          "IMPACT_ENUM",
+          "VERDICT_ENUM",
+          "appendAnswers",
+          "blockMarkers",
+          "clarifyBlock",
+          "findMarkers",
+          "normalizeQuestions",
+          "resolveMarker"
+        ],
+        "hint": "«assumption_registry» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.clarify/provides.md."
+      },
+      {
+        "kind": "provided_capability_not_exported",
+        "severity": "warning",
+        "block": "b.clarify",
+        "capability": "clarification_questions",
+        "scanned_files": [
+          "scripts/clarify_block.mjs",
+          "scripts/validate_clarifications.mjs",
+          "tests/clarify_block.selftest.mjs"
+        ],
+        "exported_names_in_block": [
+          "CATEGORY_ENUM",
+          "IMPACT_ENUM",
+          "VERDICT_ENUM",
+          "appendAnswers",
+          "blockMarkers",
+          "clarifyBlock",
+          "findMarkers",
+          "normalizeQuestions",
+          "resolveMarker"
+        ],
+        "hint": "«clarification_questions» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.clarify/provides.md."
+      },
+      {
+        "kind": "provided_capability_not_exported",
+        "severity": "warning",
+        "block": "b.clarify",
+        "capability": "uncertainty_marker_gate",
+        "scanned_files": [
+          "scripts/clarify_block.mjs",
+          "scripts/validate_clarifications.mjs",
+          "tests/clarify_block.selftest.mjs"
+        ],
+        "exported_names_in_block": [
+          "CATEGORY_ENUM",
+          "IMPACT_ENUM",
+          "VERDICT_ENUM",
+          "appendAnswers",
+          "blockMarkers",
+          "clarifyBlock",
+          "findMarkers",
+          "normalizeQuestions",
+          "resolveMarker"
+        ],
+        "hint": "«uncertainty_marker_gate» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.clarify/provides.md."
       },
       {
         "kind": "provided_capability_not_exported",
@@ -603,8 +696,8 @@
     ]
   },
   "dependencyValidation": {
-    "checkedAt": "2026-09-12T22:29:02.490Z",
-    "totalDepsChecked": 35,
+    "checkedAt": "2026-09-13T07:04:56.533Z",
+    "totalDepsChecked": 38,
     "broken": 0,
     "details": []
   }

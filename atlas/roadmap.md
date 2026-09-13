@@ -1,6 +1,6 @@
 # Roadmap (auto-generated, PR2 topo-sort)
 
-_Generated: 2026-09-12T22:29:06.015Z_
+_Generated: 2026-09-13T07:05:00.295Z_
 
 Приоритет внутри уровня: 🔴 broken → 🟣 drift → 🟠 wip → 🔵 review → 🟡 idea → 🟢 done.
 Каждый следующий уровень зависит от предыдущих — реализовывать сверху вниз.
@@ -34,6 +34,8 @@ _Generated: 2026-09-12T22:29:06.015Z_
 
 - 🟡 **b.code-graph** (idea) — Code Graph · _data_ · deps: `b.db`
   - New block scoped — extracts deterministic imports/exports map from alive files; consumed by b.core-sync PR4. R-7.99.
+- 🟢 **b.clarify** (done) — Clarification Arbiter · _ai_ · deps: `b.llm-gateway`
+  - R-8.06 — the arbiter UPSTREAM of the contract: asks whether the contract says what the human meant, instead of taking it as an axiom. Questions + uncertainty markers + assumption registry.
 
 ### Level 2 — требует Level 1
 
@@ -84,6 +86,7 @@ _Generated: 2026-09-12T22:29:06.015Z_
 - 🔵 **b.llm-gateway** — LLM Gateway _(review)_
 - 🟢 **b.operator-profile-learner** — Operator Profile Learner _(done)_
 - 🟢 **b.diff-review** — Diff Review Arbiter _(done)_
+- 🟢 **b.clarify** — Clarification Arbiter _(done)_
 
 ### Данные / хранилище (`data`)
 

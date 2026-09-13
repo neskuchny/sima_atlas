@@ -1,3 +1,3 @@
 # b.db — depends_on
 
-- none
+- b.acceptance-verifier-loop: acceptance_gate_decision

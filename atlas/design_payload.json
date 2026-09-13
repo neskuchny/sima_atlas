@@ -682,6 +682,43 @@
       "tech_stack": [],
       "x": 1080,
       "y": 200
+    },
+    {
+      "id": "b.clarify",
+      "_raw_updated_at": "2026-09-13T07:01:49.416Z",
+      "title": "Clarification Arbiter",
+      "tag": "clarify",
+      "layer": "logic",
+      "status": "done",
+      "priority": 3,
+      "checked": true,
+      "size": "m",
+      "parent_block_id": null,
+      "contract": {
+        "score": 0.6,
+        "filled": 3,
+        "total": 5,
+        "missing": [
+          "depends_on.md",
+          "provides.md"
+        ]
+      },
+      "progress": {
+        "tasks": {
+          "done": 11,
+          "total": 17
+        },
+        "kpi": {
+          "checked": 0,
+          "total": 18
+        }
+      },
+      "tech_stack": [
+        "nodejs",
+        "esm"
+      ],
+      "x": 40,
+      "y": 140
     }
   ],
   "edges": [
@@ -915,6 +952,13 @@
       "kind": "data",
       "label": "metric_query",
       "biz": "Зависит от capability `metric_query` блока b.product-warehouse."
+    },
+    {
+      "from": "b.clarify",
+      "to": "b.llm-gateway",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.llm-gateway."
     }
   ],
   "tasks": {
@@ -2449,6 +2493,161 @@
         "why": "",
         "accept": ""
       }
+    ],
+    "b.clarify": [
+      {
+        "id": "T1",
+        "title": ". `clarify_block.mjs`: схема с tri-state `[inconclusive, clear, questions]`, inconclusive первым.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T2",
+        "title": ". Порог «спрашивать против предположить» по четырём осям в системном промпте.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T3",
+        "title": ". `normalizeQuestions` отбраковывает ярлык-вместо-вопроса и вопрос без выбора кодом, а не просьбой.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T4",
+        "title": ". Сортировка вопросов по цене поздней находки (scope → security → behaviour → acceptance).",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T5",
+        "title": ". `facts_verified` и `assumptions` как обязательные поля схемы.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T6",
+        "title": ". Форсирование `inconclusive` при mock-провайдере.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T7",
+        "title": ". `findMarkers` / `blockMarkers` — парсинг маркеров неопределённости по файлам контракта. Синтаксис маркера намеренно не приводится здесь дословно: детектор не отличает объявление от цитаты, и пример ",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T8",
+        "title": ". `validate_clarifications.mjs` — done-гейт, review-warning, idea/wip-info.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T9",
+        "title": ". `resolveMarker` — замена маркера ответом без остатка противоречивого текста.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T10",
+        "title": ". `appendAnswers` — append-only Q→A лог с датой сессии.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T11",
+        "title": ". Регистрация валидатора и selftest'а в nightly.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T12",
+        "title": ". Подсветка блока с открытыми маркерами на графе.",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T13",
+        "title": ". Панель вопросов: вариант + последствие, ответ одним кликом.",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T14",
+        "title": ". Вторая полоса здоровья блока — «качество формулировки» отдельно от «состояния приёмки».",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T15",
+        "title": ". Отображение `assumptions` как видимого долга на карточке блока.",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T16",
+        "title": ". KPI-5: ряд «вопросов на блок» по времени из `clarifications.md`.",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T17",
+        "title": ". KPI-6: доля вопросов, получивших содержательный ответ.",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      }
     ]
   },
   "moduleDocs": {
@@ -2511,32 +2710,14 @@
     },
     "b.block-2": {
       "short": "Описание модуля Новый модуль. Заполни через детальную панель или через Claude."
+    },
+    "b.clarify": {
+      "short": "В Sima Atlas четыре арбитра, и все четыре стоят **справа** от контракта, принимая его за аксиому:"
     }
   },
   "submodules": {},
   "lanes": [],
   "history": [
-    {
-      "ts": "18:06",
-      "module": "user-docs-generator",
-      "agent": "sima-core",
-      "kind": "info",
-      "msg": "b.user-docs-generator: wip → review"
-    },
-    {
-      "ts": "18:06",
-      "module": "user-docs-generator",
-      "agent": "sima-core",
-      "kind": "ok",
-      "msg": "b.user-docs-generator: review → done"
-    },
-    {
-      "ts": "18:06",
-      "module": "operator-profile-learner",
-      "agent": "sima-core",
-      "kind": "info",
-      "msg": "b.operator-profile-learner: idea → wip"
-    },
     {
       "ts": "18:06",
       "module": "operator-profile-learner",
@@ -2599,6 +2780,27 @@
       "agent": "sima-core",
       "kind": "ok",
       "msg": "b.diff-review: review → done"
+    },
+    {
+      "ts": "07:01",
+      "module": "clarify",
+      "agent": "sima-core",
+      "kind": "info",
+      "msg": "b.clarify: idea → wip"
+    },
+    {
+      "ts": "07:01",
+      "module": "clarify",
+      "agent": "sima-core",
+      "kind": "info",
+      "msg": "b.clarify: wip → review"
+    },
+    {
+      "ts": "07:01",
+      "module": "clarify",
+      "agent": "sima-core",
+      "kind": "ok",
+      "msg": "b.clarify: review → done"
     }
   ],
   "lessons": [],
@@ -2630,10 +2832,10 @@
     }
   ],
   "_meta": {
-    "generated_at": "2026-09-12T22:28:48.768Z",
+    "generated_at": "2026-09-13T07:04:41.243Z",
     "atlas_root": "atlas",
     "client_id": null,
-    "block_count": 20,
-    "edge_count": 33
+    "block_count": 21,
+    "edge_count": 34
   }
 }

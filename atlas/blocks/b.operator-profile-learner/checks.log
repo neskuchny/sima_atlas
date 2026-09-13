@@ -59,3 +59,6 @@
 2026-09-12T22:19:06.344Z	kpi	pass	R-8.05 audit: KPI-1 ✓ (profile.json aggregates 8 signal groups ≥ 6 required); KPI-7 ✓ (aggregate_operator_profile has zero llm_gateway/callLLM refs); KPI-2/3/5/6 not measured (no deterministic probe in nightly); KPI-4 n/a
 2026-09-12T22:25:04.336Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=1
 2026-09-12T22:29:03.444Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=1
+2026-09-13T07:02:18.963Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=1
+2026-09-13T07:03:40.855Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=1
+2026-09-13T07:04:57.435Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=1

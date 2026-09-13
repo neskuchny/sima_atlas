@@ -1,0 +1,14 @@
+2026-09-13T06:59:29.248Z	sync	pass	create_block (R-8.06 — arbiter upstream of the contract)
+2026-09-13T06:59:44.386Z	acceptance_verifier	pass	verdict=pass pass=1 fail=0 skipped=6
+2026-09-13T06:59:55.992Z	acceptance_verifier	pass	verdict=pass pass=1 fail=0 skipped=6
+2026-09-13T07:01:15.578Z	acceptance_verifier	fail	verdict=fail pass=6 fail=1 skipped=0 fails=[A3:ATLAS_FORCE_MOCK_LLM=1 node scripts/clarify_block.mjs b.desk]
+2026-09-13T07:01:41.617Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=0
+2026-09-13T07:01:49.273Z	kpi	pass	KPI-1..4 ✓ (честная деградация, вопрос-отвечаем-с-одной-строки, догадки видимы, маркер не переживает done) — покрыты selftest 10/10; KPI-5/6 не измерены, нужен ряд живых сессий
+2026-09-13T07:01:49.330Z	transition	pass	idea->wip	actor=operator-R8.06	note=R-8.06: arbiter upstream of the contract; acceptance 7/7, selftest 10/10, validator in nightly
+2026-09-13T07:01:49.372Z	transition	pass	wip->review	actor=operator-R8.06	note=R-8.06: arbiter upstream of the contract; acceptance 7/7, selftest 10/10, validator in nightly
+2026-09-13T07:01:49.416Z	transition	pass	review->done	actor=operator-R8.06	note=R-8.06: arbiter upstream of the contract; acceptance 7/7, selftest 10/10, validator in nightly gate=pass(7/7)
+2026-09-13T07:02:20.288Z	acceptance_verifier	fail	verdict=fail pass=6 fail=1 skipped=0 fails=[A6:node scripts/validate_clarifications.mjs → exit 1; stderr: "]
+2026-09-13T07:02:53.732Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=0
+2026-09-13T07:03:16.717Z	feature	pass	R-8.06 PR1+PR2: протокол вопроса + маркеры неопределённости + done-гейт; попутно найден и закрыт баг молчаливой деградации в parse_acceptance (wrapped assertion → llm_judge → skipped)
+2026-09-13T07:03:42.174Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=0
+2026-09-13T07:04:58.694Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=0

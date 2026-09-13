@@ -1,21 +1,21 @@
 {
   "operator_id": "default",
-  "updated_at": "2026-09-12T22:28:44.713Z",
+  "updated_at": "2026-09-13T07:04:37.086Z",
   "_status": "live",
   "_min_data": {
-    "done_transitions": 9,
+    "done_transitions": 10,
     "done_required": 5,
     "invocations": 14,
     "invocations_required": 10
   },
   "work_style": {
-    "total_done": 9,
+    "total_done": 10,
     "total_broken": 0,
-    "total_wip_started": 7,
+    "total_wip_started": 8,
     "rollback_rate": 0,
-    "median_time_idea_to_done_h": 0.00003138888888888889,
+    "median_time_idea_to_done_h": 0.0000275,
     "common_failure_modes": {
-      "acceptance_verifier": 30,
+      "acceptance_verifier": 32,
       "semantic_verify": 16,
       "cascade_check": 6,
       "drift_guard": 2,
@@ -204,24 +204,26 @@
     "ai": [
       {
         "name": "nodejs",
-        "uses": 5,
+        "uses": 6,
         "satisfaction": "high",
         "evidence": [
           "b.agent-orchestrator",
           "b.llm-gateway",
           "b.operator-profile-learner",
           "b.diff-review",
+          "b.clarify",
           "b.smart-categorizer"
         ]
       },
       {
         "name": "esm",
-        "uses": 3,
+        "uses": 4,
         "satisfaction": "high",
         "evidence": [
           "b.agent-orchestrator",
           "b.operator-profile-learner",
-          "b.diff-review"
+          "b.diff-review",
+          "b.clarify"
         ]
       },
       {
@@ -323,37 +325,37 @@
   },
   "llm_provider_stats": {
     "claude_cli": {
-      "count": 3,
+      "count": 4,
       "fallback_to_mock_count": 0,
       "total_cost_usd": 0,
-      "schema_ok_count": 3,
+      "schema_ok_count": 4,
       "fallback_rate": 0,
       "schema_ok_rate": 1,
       "avg_cost_usd": 0
     },
     "mock": {
-      "count": 213,
-      "fallback_to_mock_count": 2,
+      "count": 824,
+      "fallback_to_mock_count": 5,
       "total_cost_usd": 0,
-      "schema_ok_count": 213,
+      "schema_ok_count": 824,
       "fallback_rate": 0.01,
       "schema_ok_rate": 1,
       "avg_cost_usd": 0
     }
   },
   "proposals_stats": {
-    "total": 2,
+    "total": 9,
     "accept_rate": 0,
     "reject_rate": 0,
-    "pending": 2
+    "pending": 9
   },
   "decisions_stats": {
-    "total": 3559,
-    "blocks_with_decisions": 8
+    "total": 3579,
+    "blocks_with_decisions": 9
   },
   "patterns_stats": {
-    "with_patterns": 7,
-    "total": 21
+    "with_patterns": 8,
+    "total": 22
   },
   "failures": [
     {
@@ -481,6 +483,18 @@
       "ts": "2026-06-09T18:07:34.226Z",
       "kind": "semantic_verify",
       "note": "mission_fulfilled=fail conditions_met=fail methodology_followed=pass works_as_described=fail connections_consistent=fail"
+    },
+    {
+      "block_id": "b.clarify",
+      "ts": "2026-09-13T07:01:15.578Z",
+      "kind": "acceptance_verifier",
+      "note": "verdict=fail pass=6 fail=1 skipped=0 fails=[A3:ATLAS_FORCE_MOCK_LLM=1 node scripts/clarify_block.mjs b.desk]"
+    },
+    {
+      "block_id": "b.clarify",
+      "ts": "2026-09-13T07:02:20.288Z",
+      "kind": "acceptance_verifier",
+      "note": "verdict=fail pass=6 fail=1 skipped=0 fails=[A6:node scripts/validate_clarifications.mjs → exit 1; stderr: \"]"
     },
     {
       "block_id": "b.core-sync",
@@ -707,9 +721,9 @@
   ],
   "invocations_total": 14,
   "_preview": {
-    "total_done": 9,
+    "total_done": 10,
     "total_invocations": 14,
-    "total_traces": 216,
-    "total_proposals": 2
+    "total_traces": 828,
+    "total_proposals": 9
   }
 }

@@ -126,6 +126,18 @@
     "note": "mission_fulfilled=fail conditions_met=fail methodology_followed=pass works_as_described=fail connections_consistent=fail"
   },
   {
+    "block_id": "b.clarify",
+    "ts": "2026-09-13T07:01:15.578Z",
+    "kind": "acceptance_verifier",
+    "note": "verdict=fail pass=6 fail=1 skipped=0 fails=[A3:ATLAS_FORCE_MOCK_LLM=1 node scripts/clarify_block.mjs b.desk]"
+  },
+  {
+    "block_id": "b.clarify",
+    "ts": "2026-09-13T07:02:20.288Z",
+    "kind": "acceptance_verifier",
+    "note": "verdict=fail pass=6 fail=1 skipped=0 fails=[A6:node scripts/validate_clarifications.mjs → exit 1; stderr: \"]"
+  },
+  {
     "block_id": "b.core-sync",
     "ts": "2026-06-09T18:05:53.718Z",
     "kind": "semantic_verify",

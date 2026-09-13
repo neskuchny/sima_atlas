@@ -57,3 +57,6 @@
 2026-09-12T22:19:06.344Z	kpi	fail	R-8.05 audit: KPI-1 ✗ measured — atlas/docs/end-user/ is empty (0 docs, 0 _meta) while 2 user-facing blocks exist (b.ui-control front/wip, b.product-dashboard front/idea); coverage 0/2. KPI-2..7 not measurable until docs exist. Block is status=done with its headline KPI unmet — operator decision required (demote, or rescope KPI-1 to done user-facing blocks)
 2026-09-12T22:25:04.977Z	acceptance_verifier	pass	verdict=pass pass=8 fail=0 skipped=0
 2026-09-12T22:29:04.091Z	acceptance_verifier	pass	verdict=pass pass=8 fail=0 skipped=0
+2026-09-13T07:02:19.659Z	acceptance_verifier	pass	verdict=pass pass=8 fail=0 skipped=0
+2026-09-13T07:03:41.574Z	acceptance_verifier	pass	verdict=pass pass=8 fail=0 skipped=0
+2026-09-13T07:04:58.108Z	acceptance_verifier	pass	verdict=pass pass=8 fail=0 skipped=0

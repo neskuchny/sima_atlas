@@ -126,7 +126,22 @@ function consumeEvidenceYaml(lines, i, ownerId) {
   let evidence_spec = null;
   let consumed = 0;
   let j = i + 1;
-  while (j < lines.length && lines[j].trim() === '') j += 1;
+  // R-8.06 — skip blank lines AND the bullet's own wrapped continuation lines.
+  // Previously only blanks were skipped, so an assertion whose text wrapped
+  // onto a second line lost its evidence block: the lookahead found prose
+  // instead of the fence, silently fell back to `llm_judge`, and under the
+  // nightly's forced mock that assertion became `skipped`. A block could then
+  // report pass=1/skipped=6 while six deterministic checks never ran — the
+  // author sees a green verdict and a wrapped line, with nothing connecting
+  // the two. Markdown allows the wrap; the parser must not punish it.
+  // A continuation line is indented, and is not a fence, a new bullet, or a
+  // section header.
+  const isContinuation = (s) => s !== undefined
+    && /^\s+\S/.test(s)
+    && !/^\s*```/.test(s)
+    && !BULLET_RE.test(s.trim())
+    && !SECTION_HEADER_RE.test(s.trim());
+  while (j < lines.length && (lines[j].trim() === '' || isContinuation(lines[j]))) j += 1;
   if (lines[j] && /^```ya?ml\s*$/i.test(lines[j].trim())) {
     const start = j + 1;
     let end = start;

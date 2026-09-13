@@ -174,9 +174,67 @@ this is not yaml at all just text without colons
     `warnings: ${r.warnings.join(', ')}`);
 }
 
+// ── Group 10 (R-8.06): a wrapped assertion keeps its evidence block.
+// Regression guard for a silent-degradation bug: the lookahead skipped only
+// blank lines, so when an assertion's text wrapped onto a second line the
+// fenced YAML was never found. The assertion fell back to `llm_judge`, and
+// under the nightly's forced mock it became `skipped`. A block could report
+// pass=1 / skipped=6 with six deterministic checks that never ran, and the
+// only visible cause was a line wrap.
+{
+  const wrapped = parseAcceptanceText([
+    '# b.x — acceptance',
+    '',
+    '- [x] **A1.** This assertion text is long enough that a human wrapped it',
+    '  onto a second line, and even onto a third line, as markdown allows.',
+    '```yaml',
+    'evidence_kind: exit_code',
+    'evidence_spec:',
+    '  cmd: echo hi',
+    '  expect_in_stdout: "hi"',
+    '```',
+    '',
+    '- [x] **A2.** Single-line assertion.',
+    '```yaml',
+    'evidence_kind: log_grep',
+    'evidence_spec:',
+    '  file: README.md',
+    '  pattern: "Sima"',
+    '```',
+  ].join('\n'));
+
+  const a1 = wrapped.assertions.find((a) => a.id === 'A1');
+  const a2 = wrapped.assertions.find((a) => a.id === 'A2');
+  check('g10: wrapped assertion keeps its evidence_kind', a1?.evidence_kind === 'exit_code', `kind=${a1?.evidence_kind}`);
+  check('g10: wrapped assertion keeps its spec', !!a1?.evidence_spec?.cmd, JSON.stringify(a1?.evidence_spec));
+  check('g10: wrapped assertion did NOT fall back to llm_judge', a1?.evidence_kind !== 'llm_judge');
+  check('g10: single-line assertion still parses', a2?.evidence_kind === 'log_grep', `kind=${a2?.evidence_kind}`);
+
+  // The continuation-skip must not swallow a following bullet that genuinely
+  // has no evidence block of its own.
+  const noSpec = parseAcceptanceText([
+    '# b.y — acceptance',
+    '',
+    '- [x] **A1.** Wrapped text',
+    '  continues here with no yaml of its own.',
+    '- [x] **A2.** Next assertion.',
+    '```yaml',
+    'evidence_kind: exit_code',
+    'evidence_spec:',
+    '  cmd: echo hi',
+    '```',
+  ].join('\n'));
+  const n1 = noSpec.assertions.find((a) => a.id === 'A1');
+  const n2 = noSpec.assertions.find((a) => a.id === 'A2');
+  check('g10: bullet without yaml does not steal the next bullet\'s spec',
+    n1?.evidence_kind === 'llm_judge', `kind=${n1?.evidence_kind}`);
+  check('g10: the following bullet keeps its own spec',
+    n2?.evidence_kind === 'exit_code', `kind=${n2?.evidence_kind}`);
+}
+
 if (failures.length) {
   console.error('parse_acceptance.selftest: FAIL');
   failures.forEach((f) => console.error(' ✗', f));
   process.exit(1);
 }
-console.log('parse_acceptance.selftest: OK (9 test groups, all assertions green)');
+console.log('parse_acceptance.selftest: OK (10 test groups, all assertions green)');

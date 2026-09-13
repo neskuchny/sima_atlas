@@ -585,6 +585,32 @@
       "canvas_x": 743,
       "canvas_y": 470,
       "canvas_size": "md"
+    },
+    {
+      "id": "b.clarify",
+      "title": "Clarification Arbiter",
+      "status": "done",
+      "status_reason": "R-8.06 — the arbiter UPSTREAM of the contract: asks whether the contract says what the human meant, instead of taking it as an axiom. Questions + uncertainty markers + assumption registry.",
+      "layer": "ai",
+      "type": "module",
+      "mvp": false,
+      "subschema_id": null,
+      "depends_on": [
+        "b.llm-gateway"
+      ],
+      "tech_stack": [
+        "nodejs",
+        "esm"
+      ],
+      "files": [
+        "scripts/clarify_block.mjs",
+        "scripts/validate_clarifications.mjs",
+        "tests/clarify_block.selftest.mjs"
+      ],
+      "canvas_x": 40,
+      "canvas_y": 140,
+      "canvas_size": "m",
+      "updated_at": "2026-09-13T07:01:49.416Z"
     }
   ]
 }

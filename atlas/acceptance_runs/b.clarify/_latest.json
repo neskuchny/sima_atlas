@@ -1,0 +1,187 @@
+{
+  "block_id": "b.clarify",
+  "source_path": "/home/user/sima_atlas/atlas/blocks/b.clarify/acceptance.md",
+  "parsed_warnings": [],
+  "assertions": [
+    {
+      "id": "A1",
+      "label": null,
+      "text": "`VERDICT_ENUM` упорядочен `inconclusive` первым — гарантия, что",
+      "checked": true,
+      "line": 7,
+      "evidence_kind": "log_grep",
+      "evidence_spec": {
+        "file": "scripts/clarify_block.mjs",
+        "pattern": "VERDICT_ENUM.*'inconclusive', 'clear', 'questions'"
+      },
+      "verdict": "pass",
+      "evidence": "grep /VERDICT_ENUM.*'inconclusive', 'clear', 'questions'/ scripts/clarify_block.mjs → 1 matches; first: \"export const VERDICT_ENUM = ['inconclusive', 'clear', 'questions'];\"",
+      "reasoning": "1 matching lines found",
+      "raw": {
+        "file": "/home/user/sima_atlas/scripts/clarify_block.mjs",
+        "pattern": "VERDICT_ENUM.*'inconclusive', 'clear', 'questions'",
+        "since_time": null,
+        "match_count": 1,
+        "sample": [
+          "export const VERDICT_ENUM = ['inconclusive', 'clear', 'questions'];"
+        ]
+      },
+      "duration_ms": 0
+    },
+    {
+      "id": "A2",
+      "label": null,
+      "text": "Selftest зелёный: честная деградация, отбраковка ярлыка вместо",
+      "checked": true,
+      "line": 18,
+      "evidence_kind": "selftest_run",
+      "evidence_spec": {
+        "cmd": "node tests/clarify_block.selftest.mjs",
+        "expect_in_stdout": "OK"
+      },
+      "verdict": "pass",
+      "evidence": "node tests/clarify_block.selftest.mjs → exit 0 (259ms); first line: \"clarify_block.selftest: OK (10 groups, all assertions green)\"",
+      "reasoning": "shell exit code 0 and stdout matches /OK/",
+      "raw": {
+        "cmd": "node tests/clarify_block.selftest.mjs",
+        "exit_code": 0,
+        "stdout": "clarify_block.selftest: OK (10 groups, all assertions green)\n",
+        "stderr": "",
+        "duration_ms": 259,
+        "timed_out": false
+      },
+      "duration_ms": 259
+    },
+    {
+      "id": "A3",
+      "label": null,
+      "text": "На mock-провайдере вердикт детерминистически `inconclusive`, независимо от содержимого контракта. Проверяется по вердикту в выводе, а не по коду возврата: `inconclusive` намеренно выходит с кодом 2, поэтому ассерция на `exit 0` проверяла бы здесь ровно противоположное.",
+      "checked": true,
+      "line": 29,
+      "evidence_kind": "exit_code",
+      "evidence_spec": {
+        "cmd": "ATLAS_FORCE_MOCK_LLM=1 node scripts/clarify_block.mjs b.desktop --json | grep -q '\"verdict\": \"inconclusive\"'"
+      },
+      "verdict": "pass",
+      "evidence": "ATLAS_FORCE_MOCK_LLM=1 node scripts/clarify_block.mjs b.desktop --json | grep -q '\"verdict\": \"inconclusive\"' → exit 0 (67ms); first line: \"\"",
+      "reasoning": "shell exit code 0",
+      "raw": {
+        "cmd": "ATLAS_FORCE_MOCK_LLM=1 node scripts/clarify_block.mjs b.desktop --json | grep -q '\"verdict\": \"inconclusive\"'",
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": "",
+        "duration_ms": 67,
+        "timed_out": false
+      },
+      "duration_ms": 67
+    },
+    {
+      "id": "A4",
+      "label": null,
+      "text": "`clarifyBlock` экспортируется как library-функция — вызов из UI",
+      "checked": true,
+      "line": 36,
+      "evidence_kind": "log_grep",
+      "evidence_spec": {
+        "file": "scripts/clarify_block.mjs",
+        "pattern": "export async function clarifyBlock"
+      },
+      "verdict": "pass",
+      "evidence": "grep /export async function clarifyBlock/ scripts/clarify_block.mjs → 1 matches; first: \"export async function clarifyBlock({ block_id, atlas_root = ATLAS } = {}) {\"",
+      "reasoning": "1 matching lines found",
+      "raw": {
+        "file": "/home/user/sima_atlas/scripts/clarify_block.mjs",
+        "pattern": "export async function clarifyBlock",
+        "since_time": null,
+        "match_count": 1,
+        "sample": [
+          "export async function clarifyBlock({ block_id, atlas_root = ATLAS } = {}) {"
+        ]
+      },
+      "duration_ms": 0
+    },
+    {
+      "id": "A5",
+      "label": null,
+      "text": "Валидатор маркеров зарегистрирован в nightly, то есть",
+      "checked": true,
+      "line": 45,
+      "evidence_kind": "log_grep",
+      "evidence_spec": {
+        "file": "scripts/nightly_consolidation.mjs",
+        "pattern": "validate_clarifications"
+      },
+      "verdict": "pass",
+      "evidence": "grep /validate_clarifications/ scripts/nightly_consolidation.mjs → 1 matches; first: \"  ['clarifications', 'node scripts/validate_clarifications.mjs'],\"",
+      "reasoning": "1 matching lines found",
+      "raw": {
+        "file": "/home/user/sima_atlas/scripts/nightly_consolidation.mjs",
+        "pattern": "validate_clarifications",
+        "since_time": null,
+        "match_count": 1,
+        "sample": [
+          "  ['clarifications', 'node scripts/validate_clarifications.mjs'],"
+        ]
+      },
+      "duration_ms": 0
+    },
+    {
+      "id": "A6",
+      "label": null,
+      "text": "Валидатор проходит на текущем атласе (нет `done`-блока с",
+      "checked": true,
+      "line": 54,
+      "evidence_kind": "exit_code",
+      "evidence_spec": {
+        "cmd": "node scripts/validate_clarifications.mjs",
+        "expect_in_stdout": "open marker"
+      },
+      "verdict": "pass",
+      "evidence": "node scripts/validate_clarifications.mjs → exit 0 (67ms); first line: \"validate_clarifications: 0 open marker(s), 0 question(s) answered on record — OK\"",
+      "reasoning": "shell exit code 0 and stdout matches /open marker/",
+      "raw": {
+        "cmd": "node scripts/validate_clarifications.mjs",
+        "exit_code": 0,
+        "stdout": "validate_clarifications: 0 open marker(s), 0 question(s) answered on record — OK\n",
+        "stderr": "",
+        "duration_ms": 67,
+        "timed_out": false
+      },
+      "duration_ms": 67
+    },
+    {
+      "id": "A7",
+      "label": null,
+      "text": "Selftest зарегистрирован в nightly.",
+      "checked": true,
+      "line": 63,
+      "evidence_kind": "log_grep",
+      "evidence_spec": {
+        "file": "scripts/nightly_consolidation.mjs",
+        "pattern": "clarify_block.selftest"
+      },
+      "verdict": "pass",
+      "evidence": "grep /clarify_block.selftest/ scripts/nightly_consolidation.mjs → 1 matches; first: \"  ['clarify_block_selftest', 'node tests/clarify_block.selftest.mjs'],\"",
+      "reasoning": "1 matching lines found",
+      "raw": {
+        "file": "/home/user/sima_atlas/scripts/nightly_consolidation.mjs",
+        "pattern": "clarify_block.selftest",
+        "since_time": null,
+        "match_count": 1,
+        "sample": [
+          "  ['clarify_block_selftest', 'node tests/clarify_block.selftest.mjs'],"
+        ]
+      },
+      "duration_ms": 0
+    }
+  ],
+  "counts": {
+    "pass": 7,
+    "fail": 0,
+    "skipped": 0
+  },
+  "verdict": "pass",
+  "inconclusive_if_declared": 1,
+  "duration_ms": 397,
+  "checked_at": "2026-09-13T07:04:58.694Z"
+}

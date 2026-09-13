@@ -15,17 +15,17 @@
         "expect_in_stdout": "inconclusive"
       },
       "verdict": "pass",
-      "evidence": "printf '' | node scripts/review_diff.mjs --block b.nonexistent-empty --json → exit 0 (66ms); first line: \"{\"",
+      "evidence": "printf '' | node scripts/review_diff.mjs --block b.nonexistent-empty --json → exit 0 (58ms); first line: \"{\"",
       "reasoning": "shell exit code 0 and stdout matches /inconclusive/",
       "raw": {
         "cmd": "printf '' | node scripts/review_diff.mjs --block b.nonexistent-empty --json",
         "exit_code": 0,
-        "stdout": "{\n  \"ok\": true,\n  \"verdict\": \"inconclusive\",\n  \"summary\": \"empty diff — nothing to review\",\n  \"findings\": [],\n  \"mock\": false,\n  \"reason\": \"empty_diff\",\n  \"checked_at\": \"2026-09-12T22:29:00.373Z\",\n  \"source_note\": \"no diff proposal for block\"\n}\n",
+        "stdout": "{\n  \"ok\": true,\n  \"verdict\": \"inconclusive\",\n  \"summary\": \"empty diff — nothing to review\",\n  \"findings\": [],\n  \"mock\": false,\n  \"reason\": \"empty_diff\",\n  \"checked_at\": \"2026-09-13T07:04:54.066Z\",\n  \"source_note\": \"no diff proposal for block\"\n}\n",
         "stderr": "",
-        "duration_ms": 66,
+        "duration_ms": 58,
         "timed_out": false
       },
-      "duration_ms": 66
+      "duration_ms": 58
     },
     {
       "id": "A2",
@@ -124,7 +124,7 @@
           "        const drArgs = ['scripts/review_diff.mjs', '--since', 'HEAD', '--block', block.id, '--json'];"
         ]
       },
-      "duration_ms": 0
+      "duration_ms": 1
     },
     {
       "id": "A6",
@@ -149,7 +149,7 @@
           "  ['review_diff_selftest', 'node tests/review_diff.selftest.mjs'],"
         ]
       },
-      "duration_ms": 1
+      "duration_ms": 0
     }
   ],
   "counts": {
@@ -159,6 +159,6 @@
   },
   "verdict": "pass",
   "inconclusive_if_declared": 1,
-  "duration_ms": 134,
-  "checked_at": "2026-09-12T22:29:00.445Z"
+  "duration_ms": 127,
+  "checked_at": "2026-09-13T07:04:54.139Z"
 }
