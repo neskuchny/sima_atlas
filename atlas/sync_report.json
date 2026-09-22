@@ -1,6 +1,6 @@
 {
   "contractValidation": {
-    "checkedAt": "2026-09-22T19:58:05.594Z",
+    "checkedAt": "2026-09-22T20:22:02.682Z",
     "total": 21,
     "broken": 0,
     "details": []
@@ -11,7 +11,7 @@
     "details": []
   },
   "codeGraphDrift": {
-    "checkedAt": "2026-09-22T19:58:02.139Z",
+    "checkedAt": "2026-09-22T20:22:11.818Z",
     "driftCount": 32,
     "details": [
       {
@@ -28,21 +28,32 @@
           "scripts/subagent_verifier.mjs",
           "scripts/verify_all_acceptance.mjs",
           "scripts/verify_block_acceptance.mjs",
+          "scripts/verify_cache.mjs",
           "scripts/verify_done_blocks_still_green.mjs",
           "tests/acceptance_verifier.e2e.smoke.mjs",
           "tests/desync_restore.selftest.mjs",
           "tests/evidence_collectors.selftest.mjs",
           "tests/llm_judge.smoke.mjs",
-          "tests/parse_acceptance.selftest.mjs"
+          "tests/parse_acceptance.selftest.mjs",
+          "tests/verify_cache.selftest.mjs"
         ],
         "exported_names_in_block": [
+          "CACHE_FILE",
           "JUDGE_SCHEMA",
+          "STATS_FILE",
+          "cacheEnabled",
+          "cacheStats",
           "collectEvidence",
+          "computeKeyParts",
+          "globForCache",
           "judgeAssertion",
           "judgeAssertionCli",
+          "lookupVerifyCache",
           "parseAcceptance",
           "parseAcceptanceText",
           "runVerifier",
+          "storeVerifyCache",
+          "uncacheableReason",
           "verifyAllAcceptance",
           "verifyAndPersist",
           "verifyBlock",
@@ -64,21 +75,32 @@
           "scripts/subagent_verifier.mjs",
           "scripts/verify_all_acceptance.mjs",
           "scripts/verify_block_acceptance.mjs",
+          "scripts/verify_cache.mjs",
           "scripts/verify_done_blocks_still_green.mjs",
           "tests/acceptance_verifier.e2e.smoke.mjs",
           "tests/desync_restore.selftest.mjs",
           "tests/evidence_collectors.selftest.mjs",
           "tests/llm_judge.smoke.mjs",
-          "tests/parse_acceptance.selftest.mjs"
+          "tests/parse_acceptance.selftest.mjs",
+          "tests/verify_cache.selftest.mjs"
         ],
         "exported_names_in_block": [
+          "CACHE_FILE",
           "JUDGE_SCHEMA",
+          "STATS_FILE",
+          "cacheEnabled",
+          "cacheStats",
           "collectEvidence",
+          "computeKeyParts",
+          "globForCache",
           "judgeAssertion",
           "judgeAssertionCli",
+          "lookupVerifyCache",
           "parseAcceptance",
           "parseAcceptanceText",
           "runVerifier",
+          "storeVerifyCache",
+          "uncacheableReason",
           "verifyAllAcceptance",
           "verifyAndPersist",
           "verifyBlock",
@@ -100,21 +122,32 @@
           "scripts/subagent_verifier.mjs",
           "scripts/verify_all_acceptance.mjs",
           "scripts/verify_block_acceptance.mjs",
+          "scripts/verify_cache.mjs",
           "scripts/verify_done_blocks_still_green.mjs",
           "tests/acceptance_verifier.e2e.smoke.mjs",
           "tests/desync_restore.selftest.mjs",
           "tests/evidence_collectors.selftest.mjs",
           "tests/llm_judge.smoke.mjs",
-          "tests/parse_acceptance.selftest.mjs"
+          "tests/parse_acceptance.selftest.mjs",
+          "tests/verify_cache.selftest.mjs"
         ],
         "exported_names_in_block": [
+          "CACHE_FILE",
           "JUDGE_SCHEMA",
+          "STATS_FILE",
+          "cacheEnabled",
+          "cacheStats",
           "collectEvidence",
+          "computeKeyParts",
+          "globForCache",
           "judgeAssertion",
           "judgeAssertionCli",
+          "lookupVerifyCache",
           "parseAcceptance",
           "parseAcceptanceText",
           "runVerifier",
+          "storeVerifyCache",
+          "uncacheableReason",
           "verifyAllAcceptance",
           "verifyAndPersist",
           "verifyBlock",
@@ -136,21 +169,32 @@
           "scripts/subagent_verifier.mjs",
           "scripts/verify_all_acceptance.mjs",
           "scripts/verify_block_acceptance.mjs",
+          "scripts/verify_cache.mjs",
           "scripts/verify_done_blocks_still_green.mjs",
           "tests/acceptance_verifier.e2e.smoke.mjs",
           "tests/desync_restore.selftest.mjs",
           "tests/evidence_collectors.selftest.mjs",
           "tests/llm_judge.smoke.mjs",
-          "tests/parse_acceptance.selftest.mjs"
+          "tests/parse_acceptance.selftest.mjs",
+          "tests/verify_cache.selftest.mjs"
         ],
         "exported_names_in_block": [
+          "CACHE_FILE",
           "JUDGE_SCHEMA",
+          "STATS_FILE",
+          "cacheEnabled",
+          "cacheStats",
           "collectEvidence",
+          "computeKeyParts",
+          "globForCache",
           "judgeAssertion",
           "judgeAssertionCli",
+          "lookupVerifyCache",
           "parseAcceptance",
           "parseAcceptanceText",
           "runVerifier",
+          "storeVerifyCache",
+          "uncacheableReason",
           "verifyAllAcceptance",
           "verifyAndPersist",
           "verifyBlock",
@@ -748,6 +792,7 @@
           "tests/atlas_files_api.selftest.mjs",
           "tests/atlas_subsystems_api.selftest.mjs",
           "tests/lifecycle_gate.selftest.mjs",
+          "tests/migrate_v1_v2.selftest.mjs",
           "tests/multi_tenant_block_routing.selftest.mjs",
           "tests/validate_lifecycle_gates.selftest.mjs"
         ],
@@ -819,6 +864,7 @@
           "tests/atlas_files_api.selftest.mjs",
           "tests/atlas_subsystems_api.selftest.mjs",
           "tests/lifecycle_gate.selftest.mjs",
+          "tests/migrate_v1_v2.selftest.mjs",
           "tests/multi_tenant_block_routing.selftest.mjs",
           "tests/validate_lifecycle_gates.selftest.mjs"
         ],
@@ -946,7 +992,8 @@
           "scripts/rebuild_atlas_roadmap.mjs",
           "scripts/render_wiki_html.mjs",
           "scripts/subagent_wiki_builder.mjs",
-          "scripts/sync_article_status.mjs"
+          "scripts/sync_article_status.mjs",
+          "tests/docs_generators.selftest.mjs"
         ],
         "exported_names_in_block": [
           "runWikiBuilder"
@@ -966,7 +1013,8 @@
           "scripts/rebuild_atlas_roadmap.mjs",
           "scripts/render_wiki_html.mjs",
           "scripts/subagent_wiki_builder.mjs",
-          "scripts/sync_article_status.mjs"
+          "scripts/sync_article_status.mjs",
+          "tests/docs_generators.selftest.mjs"
         ],
         "exported_names_in_block": [
           "runWikiBuilder"
@@ -1264,7 +1312,7 @@
     ]
   },
   "dependencyValidation": {
-    "checkedAt": "2026-09-22T19:58:05.489Z",
+    "checkedAt": "2026-09-22T20:22:01.821Z",
     "totalDepsChecked": 43,
     "broken": 0,
     "details": []

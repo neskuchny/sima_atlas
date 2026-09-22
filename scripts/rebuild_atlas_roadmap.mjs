@@ -21,7 +21,37 @@ const depsOf = (b) => (b.depends_on || []).map((d) => (typeof d === 'string' ? d
 const inDegree = new Map();
 for (const b of blocks) inDegree.set(b.id, depsOf(b).length);
 
+// Strongly connected components of the still-unplaced blocks (Tarjan).
+function sccsOf(ids) {
+  let index = 0;
+  const idx = new Map(), low = new Map(), onStack = new Set(), stack = [], out = [];
+  const visit = (v) => {
+    idx.set(v, index); low.set(v, index); index += 1;
+    stack.push(v); onStack.add(v);
+    for (const w of depsOf(byId[v]).filter((d) => ids.has(d))) {
+      if (!idx.has(w)) { visit(w); low.set(v, Math.min(low.get(v), low.get(w))); }
+      else if (onStack.has(w)) low.set(v, Math.min(low.get(v), idx.get(w)));
+    }
+    if (low.get(v) === idx.get(v)) {
+      const comp = [];
+      let w;
+      do { w = stack.pop(); onStack.delete(w); comp.push(w); } while (w !== v);
+      out.push(comp);
+    }
+  };
+  for (const v of ids) if (!idx.has(v)) visit(v);
+  return out;
+}
+
+const bySortRank = (a, b) => {
+  const ra = STATUS_RANK[byId[a].status] ?? 99;
+  const rb = STATUS_RANK[byId[b].status] ?? 99;
+  if (ra !== rb) return ra - rb;
+  return a.localeCompare(b);
+};
+
 const levels = [];
+const cycleLevels = new Set();
 const remaining = new Set(blocks.map((b) => b.id));
 let safety = blocks.length + 5;
 while (remaining.size && safety-- > 0) {
@@ -31,17 +61,28 @@ while (remaining.size && safety-- > 0) {
     const stillBlocked = depsOf(b).some((dep) => remaining.has(dep));
     if (!stillBlocked) level.push(id);
   }
-  if (!level.length) break; // cycle protection
-  level.sort((a, b) => {
-    const ra = STATUS_RANK[byId[a].status] ?? 99;
-    const rb = STATUS_RANK[byId[b].status] ?? 99;
-    if (ra !== rb) return ra - rb;
-    return a.localeCompare(b);
-  });
+  if (!level.length) {
+    // R-8.11 — a dependency cycle. This used to dump EVERY remaining block
+    // into one last level in arbitrary order, so blocks that merely depend on
+    // a cycle member could be listed before it (b.ui-control before
+    // b.agent-orchestrator). Now only the cycle itself is placed — the
+    // components waiting on nothing outside themselves — and the topological
+    // order resumes for everything downstream of it.
+    const comps = sccsOf(remaining).filter((comp) => {
+      const inside = new Set(comp);
+      return comp.every((id) => depsOf(byId[id]).every((d) => !remaining.has(d) || inside.has(d)));
+    });
+    if (!comps.length) { levels.push([...remaining].sort(bySortRank)); break; }
+    const cyc = comps.flat().sort(bySortRank);
+    for (const id of cyc) remaining.delete(id);
+    cycleLevels.add(levels.length);
+    levels.push(cyc);
+    continue;
+  }
+  level.sort(bySortRank);
   for (const id of level) remaining.delete(id);
   levels.push(level);
 }
-if (remaining.size) levels.push([...remaining]); // cycle stragglers
 
 // Layer grouping for an at-a-glance view
 const blocksByLayer = {};
@@ -61,7 +102,7 @@ lines.push('');
 lines.push('## Порядок реализации (топосорт)');
 lines.push('');
 levels.forEach((level, i) => {
-  lines.push(`### Level ${i} — ${i === 0 ? 'без зависимостей' : 'требует Level ' + (i - 1)}`);
+  lines.push(`### Level ${i} — ${i === 0 ? 'без зависимостей' : 'требует Level ' + (i - 1)}${cycleLevels.has(i) ? ' · цикл зависимостей: эти блоки зависят друг от друга, порядок внутри не определён' : ''}`);
   lines.push('');
   for (const id of level) {
     const b = byId[id];

@@ -53,3 +53,8 @@ PR-5 закрыт (T5.1-T5.4). T5.5 unblocked (инфраструктура го
 - [ ] S1: Авто-retry loop (max 2) при `auto_retry: true` — экспериментальный режим, по умолчанию off.
 - [ ] S2: Cross-block acceptance suites («все блоки в layer:ai green») — отдельный gate `validate_layer_acceptance.mjs`.
 - [ ] S3: Acceptance-генератор от LLM (наполняет пустой acceptance.md проекта) — но как proposal, не auto-write.
+
+## R-8.11 — KPI-2 и KPI-6 (сделано)
+- [x] Кэш верификатора (`scripts/verify_cache.mjs`): консервативный ключ, выбранный по замеру того, что меняет сам проход; `pass` кэшируется, «не определено» — только под моком, `fail` — никогда; промах называет причину; `--no-cache` / `ATLAS_VERIFY_CACHE=0`; срок 36 ч.
+- [x] `tests/verify_cache.selftest.mjs`: каждая часть ключа сбрасывает кэш сама; мутация (ключ без целей проверок) ловится.
+- [x] KPI-2: пять проверок с судьи на тесты, 73.0%.

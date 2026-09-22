@@ -5,7 +5,7 @@
   "rollback_rate": 0,
   "median_time_idea_to_done_h": 0.00003138888888888889,
   "common_failure_modes": {
-    "acceptance_verifier": 34,
+    "acceptance_verifier": 35,
     "semantic_verify": 16,
     "cascade_check": 6,
     "kpi": 3,

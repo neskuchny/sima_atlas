@@ -53,3 +53,4 @@ PR-6 cross-cutting changes (host blocks own JSX; documented in checks.log + task
 
 These files had no owner in any files.md, so the code-graph check never saw their imports.
 - scripts/seed_operator_profile.mjs [alive]
+- tests/operator_profile_privacy.selftest.mjs [alive] (R-8.11: acceptance A7 — .gitignore, the rules.md privacy rule, a PII scan of every committed profile file, and the scanner's own recall)

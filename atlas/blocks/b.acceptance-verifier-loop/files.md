@@ -48,3 +48,7 @@ These files had no owner in any files.md, so the code-graph check never saw thei
 - scripts/semantic_verify.mjs [alive] (the semantic judge (Contract as Arbiter))
 - scripts/subagent_verifier.mjs [alive]
 - tests/desync_restore.selftest.mjs [alive] (R-8.10: the real verifier on a synthetic atlas — every desync restore is a gated transition; idea / legacy marks are left to the operator)
+- scripts/verify_cache.mjs [alive] (R-8.11, KPI-6: verifier cache — conservative key: code via git, contracts, verdict summary, the block's evidence targets, LLM mode; pass cached, inconclusive only under the mock, fail never; `stats` CLI for hit rate / latency)
+- tests/verify_cache.selftest.mjs [alive] (R-8.11: the real verifier on a synthetic atlas — every key part invalidates on its own, the never-cached rules, TTL, switches, ledger consistency, hit latency)
+- atlas/blocks/b.acceptance-verifier-loop/understanding.md [alive] (R-8.11: the declared frame for the cache work)
+- atlas/blocks/b.acceptance-verifier-loop/frame_reviews.jsonl [alive] (R-8.11: the frame journal for this block — declared / confirmed / corrected)

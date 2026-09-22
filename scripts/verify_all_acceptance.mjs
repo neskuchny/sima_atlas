@@ -16,7 +16,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { verifyBlock } from './collect_evidence.mjs';
+import { verifyBlock, globForCache } from './collect_evidence.mjs';
+import { parseAcceptance } from './parse_acceptance.mjs';
+import { storeVerifyCache } from './verify_cache.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(__filename), '..');
@@ -44,13 +46,23 @@ async function run() {
     const r = await verifyBlock(b.id);
     const blockDir = path.join(RUNS_DIR, b.id);
     fs.mkdirSync(blockDir, { recursive: true });
-    fs.writeFileSync(path.join(blockDir, `${tsSafe}.json`), JSON.stringify(r, null, 2) + '\n', 'utf8');
-    // Phase D-3: snapshot _previous before overwriting _latest.
     const latestPath = path.join(blockDir, '_latest.json');
-    if (fs.existsSync(latestPath)) {
-      fs.copyFileSync(latestPath, path.join(blockDir, '_previous.json'));
+    if (r.cache?.hit) {
+      // R-8.11 — cached pass: no new run; _latest only if it disagrees.
+      summary.totals.cache_hits = (summary.totals.cache_hits || 0) + 1;
+      let latest = null;
+      try { latest = JSON.parse(fs.readFileSync(latestPath, 'utf8')); } catch { /* none */ }
+      if (!latest || latest.verdict !== r.verdict) fs.writeFileSync(latestPath, JSON.stringify(r, null, 2) + '\n', 'utf8');
+    } else {
+      summary.totals.cache_misses = (summary.totals.cache_misses || 0) + 1;
+      fs.writeFileSync(path.join(blockDir, `${tsSafe}.json`), JSON.stringify(r, null, 2) + '\n', 'utf8');
+      // Phase D-3: snapshot _previous before overwriting _latest.
+      if (fs.existsSync(latestPath)) {
+        fs.copyFileSync(latestPath, path.join(blockDir, '_previous.json'));
+      }
+      fs.writeFileSync(latestPath, JSON.stringify(r, null, 2) + '\n', 'utf8');
+      try { storeVerifyCache({ blockId: b.id, atlasRoot: ATLAS, parsed: parseAcceptance(b.id, ATLAS), glob: globForCache, result: r }); } catch { /* future miss */ }
     }
-    fs.writeFileSync(latestPath, JSON.stringify(r, null, 2) + '\n', 'utf8');
 
     summary.blocks.push({
       block_id: b.id,
@@ -75,7 +87,7 @@ async function run() {
 
   // Console summary
   const T = summary.totals;
-  console.log(`verify_all_acceptance: ${T.blocks_pass} pass / ${T.blocks_fail} fail / ${T.blocks_inconclusive} inconclusive (assertions: ${T.pass} pass / ${T.fail} fail / ${T.skipped} skipped)`);
+  console.log(`verify_all_acceptance: ${T.blocks_pass} pass / ${T.blocks_fail} fail / ${T.blocks_inconclusive} inconclusive (assertions: ${T.pass} pass / ${T.fail} fail / ${T.skipped} skipped; cache ${T.cache_hits || 0} hit / ${T.cache_misses || 0} miss)`);
   for (const b of summary.blocks) {
     const symbol = b.verdict === 'pass' ? '✓' : b.verdict === 'fail' ? '✗' : '·';
     console.log(`  ${symbol} ${b.block_id.padEnd(35)} ${b.verdict.padEnd(15)} pass=${b.counts.pass} fail=${b.counts.fail} skipped=${b.counts.skipped}`);

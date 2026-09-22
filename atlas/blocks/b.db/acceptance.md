@@ -21,7 +21,14 @@ evidence_spec:
   pattern: atlas/db_schema.json
   min_count: 1
 ```
-- [ ] **A4.** Migration: запуск `scripts/migrate_v1_v2.mjs` на старом `graph.json` v1 даёт валидный v2 без потерь данных.
+- [x] **A4.** Migration: запуск `scripts/migrate_v1_v2.mjs` на старом `graph.json` v1 даёт валидный v2 без потерь данных.
+  _R-8.11: была на LLM-судье; это факт о файлах, поэтому проверяется детерминированно (v1-граф с нестандартными полями: всё сохранено, v2-поля добавлены, повторный запуск ничего не пишет)_
+```yaml
+evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/migrate_v1_v2.selftest.mjs
+  expect_in_stdout: "OK"
+```
 - [ ] **A5.** Read-API возвращает идентичный JSON в двух последовательных вызовах для неизменённого блока (детерминизм).
 ```yaml
 evidence_kind: exit_code

@@ -24,12 +24,13 @@ evidence_spec:
   pattern: atlas/llm_traces/*.json
   min_count: 1
 ```
-- [x] **A5.** Golden eval из 5 диалогов в `tests/llm_extraction.eval.mjs` — average precision ≥ 0.7 (mock даёт 1.0; live targeting ≥ 0.7). Scenario flow: dialog → extract → safe-upsert → sync.
+- [x] **A5.** Golden eval (30 диалогов, `tests/llm_extraction.eval.mjs`) проходит сквозь весь конвейер: на моке эталон, оценённый сам против себя, даёт ровно 1.00 — это проверка конвейера, качество не измеряется; на живой модели средняя точность ≥ 0.7 и нет регрессии против лучшего живого прогона. Любая из веток падает при нарушении. Scenario flow: dialog → extract → safe-upsert → sync.
+  _R-8.11: раньше ждала строку «overall avg=» и называла мок-1.0 точностью; после R-8.10 оценка под моком честно пишет, что качество не измерено, и проверка сломалась — переписана под то, что проверяется на деле._
 ```yaml
 evidence_kind: selftest_run
 evidence_spec:
   cmd: node tests/llm_extraction.eval.mjs
-  expect_in_stdout: "overall avg="
+  expect_in_stdout: "llm_extraction.eval: (plumbing OK|OK)"
 ```
 
 ## Что считается NOT acceptance

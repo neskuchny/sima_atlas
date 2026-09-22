@@ -336,6 +336,12 @@
     "note": "verdict=fail pass=1 fail=1 skipped=1 fails=[A3:node scripts/mcp_smoke_e2e.mjs → exit null; timed out after ]"
   },
   {
+    "block_id": "b.smoke-sandbox",
+    "ts": "2026-09-22T20:08:33.978Z",
+    "kind": "acceptance_verifier",
+    "note": "verdict=fail pass=2 fail=1 skipped=0 fails=[A2:! grep -lF 'b.smoke-sandbox' atlas/blocks/*/mission.md | gre]"
+  },
+  {
     "block_id": "b.ui-control",
     "ts": "2026-06-09T18:08:00.693Z",
     "kind": "semantic_verify",

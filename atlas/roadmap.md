@@ -1,6 +1,6 @@
 # Roadmap (auto-generated, PR2 topo-sort)
 
-_Generated: 2026-09-22T19:58:08.914Z_
+_Generated: 2026-09-22T20:22:17.990Z_
 
 Приоритет внутри уровня: 🔴 broken → 🟣 drift → 🟠 wip → 🔵 review → 🟡 idea → 🟢 done.
 Каждый следующий уровень зависит от предыдущих — реализовывать сверху вниз.
@@ -47,21 +47,27 @@ _Generated: 2026-09-22T19:58:08.914Z_
 - 🟢 **b.docs** (done) — Docs Builder · _content_ · deps: `b.db`, `b.core-sync`
   - Generators run but feed on template missions; needs layer-aware wiki and mermaid (PR2)
 
-### Level 4 — требует Level 3
+### Level 4 — требует Level 3 · цикл зависимостей: эти блоки зависят друг от друга, порядок внутри не определён
 
-- 🟠 **b.ui-control** (wip) — UI Control Plane · _front_ · deps: `b.core-sync`, `b.agent-orchestrator`, `b.clarify`
-  - HTML loses references to components.jsx/sidecol.jsx/canvas_tools.jsx — UI does not boot in production; multi-layer rendering depends on PR2 (this PR)
 - 🔵 **b.agent-orchestrator** (review) — Agent Orchestrator · _ai_ · deps: `b.db`, `b.core-sync`, `b.llm-gateway`, `b.operator-profile-learner`, `b.clarify`
   - Phase I: verifier FAIL on A5 (cursor_live.headless.smoke) — needs a live cursor-agent CLI, not installed in this env. Env-blocked, not code-blocked. A1-A4+A7 pass.
 - 🟢 **b.operator-profile-learner** (done) — Operator Profile Learner · _ai_ · deps: `b.db`, `b.core-sync`, `b.agent-orchestrator`, `b.llm-gateway`, `b.docs`
   - Phase I: verifier FAIL on A6 — profile-compliance UI badge (complianceWithProfile) was lost in the R-7.30 single-file→atlas_design refactor and not reimplemented. Genuine feature gap, honestly not done.
-- 🟠 **b.acceptance-verifier-loop** (wip) — Acceptance Verifier Loop · _testing_ · deps: `b.db`, `b.core-sync`, `b.agent-orchestrator`, `b.llm-gateway`
+
+### Level 5 — требует Level 4
+
+- 🟠 **b.ui-control** (wip) — UI Control Plane · _front_ · deps: `b.core-sync`, `b.agent-orchestrator`, `b.clarify`
+  - HTML loses references to components.jsx/sidecol.jsx/canvas_tools.jsx — UI does not boot in production; multi-layer rendering depends on PR2 (this PR)
 - 🟠 **b.user-docs-generator** (wip) — End-User Docs Generator · _content_ · deps: `b.db`, `b.docs`, `b.agent-orchestrator`, `b.llm-gateway`
   - R-8.07: демонтирован из done по rules.md #4. Acceptance зелёная (8/8) — машинерия генерации работает и покрыта selftest. KPI-1 (coverage) измерен и провален: atlas/docs/end-user/ пуста при двух user-facing блоках, покрытие 0/2. До done: произвести документы хотя бы для одного user-facing блока ЛИБО переформулировать KPI-1 на done-блоки (решение оператора, см. narrative).
-- 🟢 **b.desktop** (done) — Desktop App · _ext_ · deps: `b.db`, `b.ui-control`, `b.agent-orchestrator`
-  - Electron-based installable desktop app — wraps the existing browser UI; R-7.99 scoping, PR1 implementation following in this commit.
+- 🔵 **b.acceptance-verifier-loop** (review) — Acceptance Verifier Loop · _testing_ · deps: `b.db`, `b.core-sync`, `b.agent-orchestrator`, `b.llm-gateway`
 - 🟢 **b.diff-review** (done) — Diff Review Arbiter · _ai_ · deps: `b.llm-gateway`, `b.agent-orchestrator`
   - Fourth V-1 arbiter — independent LLM review of the git diff for BLOCKING problems (correctness/security/regression/perf). Imported from loop-engineer-template. R-8.01.
+
+### Level 6 — требует Level 5
+
+- 🟢 **b.desktop** (done) — Desktop App · _ext_ · deps: `b.db`, `b.ui-control`, `b.agent-orchestrator`
+  - Electron-based installable desktop app — wraps the existing browser UI; R-7.99 scoping, PR1 implementation following in this commit.
 
 ## Сводка по слоям
 
@@ -104,5 +110,5 @@ _Generated: 2026-09-22T19:58:08.914Z_
 
 ### Тестирование (`testing`)
 
-- 🟠 **b.acceptance-verifier-loop** — Acceptance Verifier Loop _(wip)_
+- 🔵 **b.acceptance-verifier-loop** — Acceptance Verifier Loop _(review)_
 - 🟡 **b.smoke-sandbox** — Smoke Sandbox (test target) _(idea)_

@@ -249,3 +249,11 @@ block's mission).
 every script, test, canvas and desktop file has exactly one live owner, or
 the nightly fails with the fix. It caught itself on its first run — it was
 unowned until listed here.
+
+## 2026-09-22 — R-8.11: a doubled backslash in an evidence spec is an error
+
+The acceptance YAML reader strips quotes but does not unescape, so `\\.`
+reaches grep as a literal backslash — a `! grep` assertion built on it passes
+on anything. validate_acceptance_assertions now rejects a doubled backslash
+inside any ```yaml evidence block (scanned as text: importing the parser from
+b.acceptance-verifier-loop would be a dependency cycle).

@@ -50,6 +50,13 @@ const checks = [
   // R-8.10 (b.acceptance-verifier-loop) — clearing a stale desync goes
   // through the gate, and never restores what the gate would not allow.
   ['desync_restore_selftest', 'node tests/desync_restore.selftest.mjs'],
+  // R-8.11 (b.acceptance-verifier-loop) — KPI-6: the verifier cache never
+  // serves a verdict it should not (every key part invalidates on its own).
+  ['verify_cache_selftest', 'node tests/verify_cache.selftest.mjs'],
+  // R-8.11 — KPI-2: five acceptance assertions moved off the LLM judge.
+  ['docs_generators_selftest', 'node tests/docs_generators.selftest.mjs'],
+  ['migrate_v1_v2_selftest', 'node tests/migrate_v1_v2.selftest.mjs'],
+  ['operator_profile_privacy_selftest', 'node tests/operator_profile_privacy.selftest.mjs'],
   ['clarify_block_selftest', 'node tests/clarify_block.selftest.mjs'],
   // R-8.06 (b.clarify) — an unresolved `[NEEDS CLARIFICATION]` marker must not
   // outlive the night unnoticed. Hard only for `done`: claiming a block is

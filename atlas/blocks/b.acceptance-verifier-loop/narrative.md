@@ -137,3 +137,40 @@ Recorded as a `kpi fail` line and in kpi.md, and the block went
 as b.user-docs-generator in R-8.07. Two ways back to done, operator's call:
 build the cache (KPI-6) and move two llm_judge assertions to deterministic
 evidence (KPI-2), or rescope those KPIs.
+
+## 2026-09-22 — R-8.11: the verifier cache (KPI-6) and KPI-2
+
+**The cache.** A cache that returns «pass» after a real change is the silent
+green this system exists to prevent, so the key was chosen by measuring what
+a verification pass touches (a snapshot of all 1594 repo files before and
+after): the verifier's own outputs, derived artifacts regenerated with fresh
+timestamps by the commands being verified, and the smoke sandbox. Those stay
+out of the key; code (git), contracts, a verdict summary without timestamps,
+the block's explicit evidence targets and the LLM mode are in. Only `pass` —
+and `inconclusive` under the forced mock, where it is deterministic — is
+cached; `fail` never, so a transient timeout cannot stick.
+
+First measurement: 21% hits. The nightly itself rewrote two keyed files every
+run — `frontend/atlas_bootstrap.js` (generated, outside atlas/) and
+`operator_profile/profile.json` (the aggregator's updated_at and trace
+counters). The first is now excluded as derived; the second is hashed with
+numbers and timestamps blanked, because its text is what the privacy scan
+reads. Second measurement over two nightlies with nothing in between: 88.9%
+hits, hit p95 32.5 ms — KPI-6 met. The selftest changes each key part on its
+own and expects a named miss; with the targets part removed it fails.
+
+**KPI-2.** 68.9% → 73.0%: five assertions moved off the LLM judge onto real
+tests, and two of them found real problems the judge had passed —
+`rebuild_atlas_roadmap.mjs` dumped every block downstream of a dependency
+cycle into one level in arbitrary order (b.ui-control before
+b.agent-orchestrator), and `atlas/rules.md` lacked the privacy rule
+b.operator-profile-learner A7 claimed. A8 of this block stays on the judge:
+its text promises a pre-commit hook that does not exist.
+
+**Found on the way.** b.llm-gateway A5 had been failing since R-8.10: it
+expected «overall avg=», which the honest mock-mode eval no longer prints.
+The nightly stayed green because a verify_all fail does not fail it and the
+block is not done. Rewritten to what is checked in each mode. And the
+acceptance YAML reader does not unescape `\\` — my first grep assertion
+passed vacuously because of it; validate_acceptance_assertions now rejects a
+doubled backslash in any evidence block.

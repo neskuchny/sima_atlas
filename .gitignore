@@ -87,3 +87,9 @@ atlas/clients/*/blocks/*/semantic_review.json
 
 # Internal launch / go-to-market material — never in the public repo.
 marketing/
+
+# Verifier cache (R-8.11) — per-machine, rebuilt on demand; stats for KPI-6.
+atlas/acceptance_runs/**/_cache.json
+atlas/acceptance_runs/_cache_stats.jsonl
+atlas/clients/*/acceptance_runs/**/_cache.json
+atlas/clients/*/acceptance_runs/_cache_stats.jsonl

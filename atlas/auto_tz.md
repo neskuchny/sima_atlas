@@ -574,7 +574,7 @@ PR-3 (dont-use list) формально не закрыт — но `inject_conte
 
 _Sources: [mission](blocks/b.operator-profile-learner/mission.md) · [kpi](blocks/b.operator-profile-learner/kpi.md) · [acceptance](blocks/b.operator-profile-learner/acceptance.md) · [tasks](blocks/b.operator-profile-learner/tasks.md)_
 
-## b.acceptance-verifier-loop (wip)
+## b.acceptance-verifier-loop (review)
 
 # b.acceptance-verifier-loop — mission
 
@@ -712,11 +712,11 @@ atlas/blocks/<block_id>/checks.log   ← append: 'acceptance_verifier <pass|fail
 # b.acceptance-verifier-loop — KPI
 
 - **KPI-1 (no false done)**: ни один блок не уходит в `done` если хоть один пункт `acceptance.md` не получил `pass`. Сейчас (2026-09-22): ✓ — `lifecycle_gate.mjs` отказывает в `→ done` без verdict=pass, покрыто `lifecycle_gate.selftest` (группы 1, 5, 8).
-- **KPI-2 (deterministic evidence first)**: ≥ 70% пунктов acceptance в среднем по репо имеют `evidence_kind ∈ {exit_code, fs_glob, file_diff, log_grep}` — без LLM. LLM-judge только как fallback. Сейчас (2026-09-22): ✗ — 84 из 122 = 68.9% (exit_code 17, log_grep 28, selftest_run 33, fs_glob 6; llm_judge 38). До цели не хватает двух детерминированных пунктов.
+- **KPI-2 (deterministic evidence first)**: ≥ 70% пунктов acceptance в среднем по репо имеют `evidence_kind ∈ {exit_code, fs_glob, file_diff, log_grep}` — без LLM. LLM-judge только как fallback. Сейчас (2026-09-22, R-8.11): ✓ — 89 из 122 = 73.0%. Пять проверок сняты с LLM-судьи на настоящие тесты (b.docs A3/A5, b.db A4, b.operator-profile-learner A7, b.smoke-sandbox A2). Считается доля всех пунктов приёмки по репо; `selftest_run` — вариант `exit_code`. Оставшиеся 33 на судье: 26 в демо-блоках продукта без кода, 7 — в реальных блоках, где нужна живая модель или живой UI.
 - **KPI-3 (gate latency)**: для блока с ≤ 8 пунктами acceptance verifier завершается за < 30 секунд (deterministic) или < 60 секунд (с LLM-judge). Сейчас (2026-09-22): ✓ — этот блок, 8 пунктов, 1.1 с на моке.
 - **KPI-4 (retry-prompt usefulness)**: ≥ 50% retry-прогонов с `retry_prompt_hint` приводят к verdict=pass на следующей итерации (на горизонте 20 retry). Сейчас: n/a.
 - **KPI-5 (no spurious rollbacks)**: nightly re-verify done блоков даёт `done → broken` rollback **только** когда есть реальная регрессия (новые коммиты после последнего pass либо изменение acceptance.md). Сейчас: ✗.
-- **KPI-6 (cache hit rate)**: при отсутствии новых коммитов / новых traces / новых checks.log — verifier возвращает кэш за < 50 ms. Hit rate ≥ 80% на nightly. Сейчас (2026-09-22): ✗ — кэша нет вовсе (ни в verify_block_acceptance, ни в collect_evidence).
+- **KPI-6 (cache hit rate)**: при отсутствии новых коммитов / новых traces / новых checks.log — verifier возвращает кэш за < 50 ms. Hit rate ≥ 80% на nightly. Сейчас (2026-09-22, R-8.11): ✓ — `scripts/verify_cache.mjs`. Замер на двух nightly подряд без изменений между ними: 24 попадания из 27 = 88.9%, попадание p50 25.9 мс, p95 32.5 мс. Все 3 промаха законные (у блоков изменился файл, который читают их проверки). Корректность — `tests/verify_cache.selftest.mjs`: каждая часть ключа по отдельности сбрасывает кэш.
 - **KPI-7 (cost cap)**: LLM-judge на один блок ≤ $0.02; полный nightly re-verify всех done блоков ≤ $0.20. Сейчас: ✗.
 
 # b.acceptance-verifier-loop — tasks
@@ -774,6 +774,11 @@ PR-5 закрыт (T5.1-T5.4). T5.5 unblocked (инфраструктура го
 - [ ] S1: Авто-retry loop (max 2) при `auto_retry: true` — экспериментальный режим, по умолчанию off.
 - [ ] S2: Cross-block acceptance suites («все блоки в layer:ai green») — отдельный gate `validate_layer_acceptance.mjs`.
 - [ ] S3: Acceptance-генератор от LLM (наполняет пустой acceptance.md проекта) — но как proposal, не auto-write.
+
+## R-8.11 — KPI-2 и KPI-6 (сделано)
+- [x] Кэш верификатора (`scripts/verify_cache.mjs`): консервативный ключ, выбранный по замеру того, что меняет сам проход; `pass` кэшируется, «не определено» — только под моком, `fail` — никогда; промах называет причину; `--no-cache` / `ATLAS_VERIFY_CACHE=0`; срок 36 ч.
+- [x] `tests/verify_cache.selftest.mjs`: каждая часть ключа сбрасывает кэш сама; мутация (ключ без целей проверок) ловится.
+- [x] KPI-2: пять проверок с судьи на тесты, 73.0%.
 
 _Sources: [mission](blocks/b.acceptance-verifier-loop/mission.md) · [kpi](blocks/b.acceptance-verifier-loop/kpi.md) · [acceptance](blocks/b.acceptance-verifier-loop/acceptance.md) · [tasks](blocks/b.acceptance-verifier-loop/tasks.md)_
 

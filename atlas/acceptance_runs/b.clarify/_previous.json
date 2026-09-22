@@ -26,7 +26,7 @@
           "export const VERDICT_ENUM = ['inconclusive', 'clear', 'questions'];"
         ]
       },
-      "duration_ms": 0
+      "duration_ms": 1
     },
     {
       "id": "A2",
@@ -40,17 +40,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/clarify_block.selftest.mjs → exit 0 (256ms); first line: \"clarify_block.selftest: OK (10 groups, all assertions green)\"",
+      "evidence": "node tests/clarify_block.selftest.mjs → exit 0 (284ms); first line: \"clarify_block.selftest: OK (10 groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/clarify_block.selftest.mjs",
         "exit_code": 0,
         "stdout": "clarify_block.selftest: OK (10 groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 256,
+        "duration_ms": 284,
         "timed_out": false
       },
-      "duration_ms": 256
+      "duration_ms": 284
     },
     {
       "id": "A3",
@@ -63,17 +63,17 @@
         "cmd": "ATLAS_FORCE_MOCK_LLM=1 node scripts/clarify_block.mjs b.desktop --json | grep -q '\"verdict\": \"inconclusive\"'"
       },
       "verdict": "pass",
-      "evidence": "ATLAS_FORCE_MOCK_LLM=1 node scripts/clarify_block.mjs b.desktop --json | grep -q '\"verdict\": \"inconclusive\"' → exit 0 (66ms); first line: \"\"",
+      "evidence": "ATLAS_FORCE_MOCK_LLM=1 node scripts/clarify_block.mjs b.desktop --json | grep -q '\"verdict\": \"inconclusive\"' → exit 0 (67ms); first line: \"\"",
       "reasoning": "shell exit code 0",
       "raw": {
         "cmd": "ATLAS_FORCE_MOCK_LLM=1 node scripts/clarify_block.mjs b.desktop --json | grep -q '\"verdict\": \"inconclusive\"'",
         "exit_code": 0,
         "stdout": "",
         "stderr": "",
-        "duration_ms": 66,
+        "duration_ms": 67,
         "timed_out": false
       },
-      "duration_ms": 66
+      "duration_ms": 67
     },
     {
       "id": "A4",
@@ -98,7 +98,7 @@
           "export async function clarifyBlock({ block_id, atlas_root = ATLAS } = {}) {"
         ]
       },
-      "duration_ms": 0
+      "duration_ms": 1
     },
     {
       "id": "A5",
@@ -137,17 +137,17 @@
         "expect_in_stdout": "open marker"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_clarifications.mjs → exit 0 (81ms); first line: \"validate_clarifications: 0 open marker(s), 0 question(s) answered on record — OK\"",
+      "evidence": "node scripts/validate_clarifications.mjs → exit 0 (69ms); first line: \"validate_clarifications: 0 open marker(s), 0 question(s) answered on record — OK\"",
       "reasoning": "shell exit code 0 and stdout matches /open marker/",
       "raw": {
         "cmd": "node scripts/validate_clarifications.mjs",
         "exit_code": 0,
         "stdout": "validate_clarifications: 0 open marker(s), 0 question(s) answered on record — OK\n",
         "stderr": "",
-        "duration_ms": 81,
+        "duration_ms": 69,
         "timed_out": false
       },
-      "duration_ms": 81
+      "duration_ms": 69
     },
     {
       "id": "A7",
@@ -186,17 +186,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/block_meaning.selftest.mjs → exit 0 (151ms); first line: \"block_meaning.selftest: OK (11 groups, all assertions green)\"",
+      "evidence": "node tests/block_meaning.selftest.mjs → exit 0 (156ms); first line: \"block_meaning.selftest: OK (11 groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/block_meaning.selftest.mjs",
         "exit_code": 0,
         "stdout": "block_meaning.selftest: OK (11 groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 151,
+        "duration_ms": 156,
         "timed_out": false
       },
-      "duration_ms": 151
+      "duration_ms": 156
     },
     {
       "id": "A9",
@@ -235,17 +235,17 @@
         "expect_in_stdout": "not a gate"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_meaning.mjs → exit 0 (69ms); first line: \" · b.clarify (review) — trajectory, understanding: complete, frame: awaiting\"",
+      "evidence": "node scripts/validate_meaning.mjs → exit 0 (71ms); first line: \" · b.acceptance-verifier-loop (wip) — understanding: complete, frame: awaiting\"",
       "reasoning": "shell exit code 0 and stdout matches /not a gate/",
       "raw": {
         "cmd": "node scripts/validate_meaning.mjs",
         "exit_code": 0,
-        "stdout": " · b.clarify (review) — trajectory, understanding: complete, frame: awaiting\n     treating as: Шлюз одобрения перед выполнением — как «план → подтверждение → применение» в инструментах развёртывания: сначала показывается, что будет сделано, и ничего не ме\n ⏸ waiting for your answer on the canvas: b.clarify\nvalidate_meaning: 19 blocks — 1 with a declared trajectory, 1 with a declared understanding, 1 awaiting the operator, frame answers: 0 confirmed / 0 corrected, 0 with warnings (report only, not a gate)\n",
+        "stdout": " · b.acceptance-verifier-loop (wip) — understanding: complete, frame: awaiting\n     treating as: Кэш сборки с консервативным ключом, как у инкрементальных систем сборки: результат проверки блока переиспользуется, только если не изменилось ничего, от чего он\n · b.clarify (review) — trajectory, understanding: complete, frame: awaiting\n     treating as: Шлюз одобрения перед выполнением — как «план → подтверждение → применение» в инструментах развёртывания: сначала показывается, что будет сделано, и ничего не ме\n ⏸ waiting for your answer on the canvas: b.acceptance-verifier-loop, b.clarify\nvalidate_meaning: 19 blocks — 1 with a declared trajectory, 2 with a declared understanding, 2 awaiting the operator, frame answers: 0 confirmed / 0 corrected, 0 with warnings (report only, not a gate)\n",
         "stderr": "",
-        "duration_ms": 69,
+        "duration_ms": 71,
         "timed_out": false
       },
-      "duration_ms": 69
+      "duration_ms": 71
     },
     {
       "id": "A11",
@@ -295,7 +295,7 @@
           "  ['block_meaning_selftest', 'node tests/block_meaning.selftest.mjs'],"
         ]
       },
-      "duration_ms": 1
+      "duration_ms": 0
     },
     {
       "id": "A13",
@@ -308,17 +308,17 @@
         "cmd": "! grep -q recordFrameReview scripts/mcp_atlas_server.mjs"
       },
       "verdict": "pass",
-      "evidence": "! grep -q recordFrameReview scripts/mcp_atlas_server.mjs → exit 0 (4ms); first line: \"\"",
+      "evidence": "! grep -q recordFrameReview scripts/mcp_atlas_server.mjs → exit 0 (5ms); first line: \"\"",
       "reasoning": "shell exit code 0",
       "raw": {
         "cmd": "! grep -q recordFrameReview scripts/mcp_atlas_server.mjs",
         "exit_code": 0,
         "stdout": "",
         "stderr": "",
-        "duration_ms": 4,
+        "duration_ms": 5,
         "timed_out": false
       },
-      "duration_ms": 4
+      "duration_ms": 5
     }
   ],
   "counts": {
@@ -328,6 +328,11 @@
   },
   "verdict": "pass",
   "inconclusive_if_declared": 1,
-  "duration_ms": 630,
-  "checked_at": "2026-09-22T19:55:56.450Z"
+  "duration_ms": 657,
+  "checked_at": "2026-09-22T20:18:28.356Z",
+  "cache": {
+    "hit": false,
+    "reason": "code changed (a commit, or a changed / new file outside atlas/); a contract, graph.json or project rules changed; another block's verdict or kpi result changed",
+    "lookup_ms": 24.389929
+  }
 }

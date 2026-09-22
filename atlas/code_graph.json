@@ -11,12 +11,14 @@
         "scripts/subagent_verifier.mjs",
         "scripts/verify_all_acceptance.mjs",
         "scripts/verify_block_acceptance.mjs",
+        "scripts/verify_cache.mjs",
         "scripts/verify_done_blocks_still_green.mjs",
         "tests/acceptance_verifier.e2e.smoke.mjs",
         "tests/desync_restore.selftest.mjs",
         "tests/evidence_collectors.selftest.mjs",
         "tests/llm_judge.smoke.mjs",
-        "tests/parse_acceptance.selftest.mjs"
+        "tests/parse_acceptance.selftest.mjs",
+        "tests/verify_cache.selftest.mjs"
       ]
     },
     "b.agent-orchestrator": {
@@ -149,6 +151,7 @@
         "tests/atlas_files_api.selftest.mjs",
         "tests/atlas_subsystems_api.selftest.mjs",
         "tests/lifecycle_gate.selftest.mjs",
+        "tests/migrate_v1_v2.selftest.mjs",
         "tests/multi_tenant_block_routing.selftest.mjs",
         "tests/validate_lifecycle_gates.selftest.mjs"
       ]
@@ -176,7 +179,8 @@
         "scripts/rebuild_atlas_roadmap.mjs",
         "scripts/render_wiki_html.mjs",
         "scripts/subagent_wiki_builder.mjs",
-        "scripts/sync_article_status.mjs"
+        "scripts/sync_article_status.mjs",
+        "tests/docs_generators.selftest.mjs"
       ]
     },
     "b.llm-gateway": {
@@ -206,6 +210,7 @@
         "tests/operator_profile.selftest.mjs",
         "tests/operator_profile_inject.smoke.mjs",
         "tests/operator_profile_lessons.smoke.mjs",
+        "tests/operator_profile_privacy.selftest.mjs",
         "tests/pick_template.selftest.mjs"
       ]
     },
@@ -283,7 +288,7 @@
         {
           "from_file": "scripts/verify_block_acceptance.mjs",
           "kind": "static",
-          "line": 29,
+          "line": 35,
           "to_file": "scripts/lifecycle_gate.mjs"
         }
       ],
@@ -3438,13 +3443,18 @@
       "exports": [
         {
           "kind": "named",
-          "line": 336,
+          "line": 337,
           "name": "collectEvidence"
         },
         {
           "kind": "named",
-          "line": 356,
+          "line": 357,
           "name": "verifyBlock"
+        },
+        {
+          "kind": "named",
+          "line": 439,
+          "name": "globForCache"
         }
       ],
       "imports": [
@@ -3523,6 +3533,19 @@
             {
               "kind": "named",
               "name": "judgeAssertion"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "./verify_cache.mjs",
+          "kind": "static",
+          "line": 37,
+          "resolved_to": "scripts/verify_cache.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "lookupVerifyCache"
             }
           ]
         }
@@ -4042,6 +4065,19 @@
             {
               "kind": "named",
               "name": "spawnSync"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 11,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
             }
           ]
         },
@@ -8043,7 +8079,7 @@
       "exports": [
         {
           "kind": "named",
-          "line": 99,
+          "line": 111,
           "name": "verifyAllAcceptance"
         }
       ],
@@ -8096,7 +8132,37 @@
           "specifiers": [
             {
               "kind": "named",
+              "name": "globForCache"
+            },
+            {
+              "kind": "named",
               "name": "verifyBlock"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "./parse_acceptance.mjs",
+          "kind": "static",
+          "line": 20,
+          "resolved_to": "scripts/parse_acceptance.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "parseAcceptance"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "./verify_cache.mjs",
+          "kind": "static",
+          "line": 21,
+          "resolved_to": "scripts/verify_cache.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "storeVerifyCache"
             }
           ]
         }
@@ -8107,7 +8173,7 @@
       "exports": [
         {
           "kind": "named",
-          "line": 35,
+          "line": 41,
           "name": "verifyAndPersist"
         }
       ],
@@ -8116,7 +8182,7 @@
           "external": true,
           "from": "node:fs",
           "kind": "static",
-          "line": 25,
+          "line": 29,
           "resolved_to": null,
           "specifiers": [
             {
@@ -8129,7 +8195,7 @@
           "external": true,
           "from": "node:path",
           "kind": "static",
-          "line": 26,
+          "line": 30,
           "resolved_to": null,
           "specifiers": [
             {
@@ -8142,7 +8208,7 @@
           "external": true,
           "from": "node:url",
           "kind": "static",
-          "line": 27,
+          "line": 31,
           "resolved_to": null,
           "specifiers": [
             {
@@ -8155,9 +8221,13 @@
           "external": false,
           "from": "./collect_evidence.mjs",
           "kind": "static",
-          "line": 28,
+          "line": 32,
           "resolved_to": "scripts/collect_evidence.mjs",
           "specifiers": [
+            {
+              "kind": "named",
+              "name": "globForCache"
+            },
             {
               "kind": "named",
               "name": "verifyBlock"
@@ -8166,9 +8236,35 @@
         },
         {
           "external": false,
+          "from": "./parse_acceptance.mjs",
+          "kind": "static",
+          "line": 33,
+          "resolved_to": "scripts/parse_acceptance.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "parseAcceptance"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "./verify_cache.mjs",
+          "kind": "static",
+          "line": 34,
+          "resolved_to": "scripts/verify_cache.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "storeVerifyCache"
+            }
+          ]
+        },
+        {
+          "external": false,
           "from": "./lifecycle_gate.mjs",
           "kind": "static",
-          "line": 29,
+          "line": 35,
           "resolved_to": "scripts/lifecycle_gate.mjs",
           "specifiers": [
             {
@@ -8178,6 +8274,118 @@
             {
               "kind": "named",
               "name": "rejectionMessage"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.acceptance-verifier-loop"
+    },
+    "scripts/verify_cache.mjs": {
+      "exports": [
+        {
+          "kind": "named",
+          "line": 163,
+          "name": "uncacheableReason"
+        },
+        {
+          "kind": "named",
+          "line": 190,
+          "name": "computeKeyParts"
+        },
+        {
+          "kind": "named",
+          "line": 226,
+          "name": "lookupVerifyCache"
+        },
+        {
+          "kind": "named",
+          "line": 260,
+          "name": "storeVerifyCache"
+        },
+        {
+          "kind": "named",
+          "line": 275,
+          "name": "cacheStats"
+        },
+        {
+          "kind": "named",
+          "line": 56,
+          "name": "CACHE_FILE"
+        },
+        {
+          "kind": "named",
+          "line": 57,
+          "name": "STATS_FILE"
+        },
+        {
+          "kind": "named",
+          "line": 82,
+          "name": "cacheEnabled"
+        }
+      ],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 46,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 47,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:crypto",
+          "kind": "static",
+          "line": 48,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "crypto"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:child_process",
+          "kind": "static",
+          "line": 49,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "execFileSync"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 50,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
             }
           ]
         }
@@ -10264,6 +10472,77 @@
       ],
       "owning_block": "b.acceptance-verifier-loop"
     },
+    "tests/docs_generators.selftest.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 16,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:os",
+          "kind": "static",
+          "line": 17,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 18,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:child_process",
+          "kind": "static",
+          "line": 19,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "spawnSync"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 20,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.docs"
+    },
     "tests/dont_use_management.selftest.mjs": {
       "exports": [],
       "imports": [
@@ -10852,6 +11131,77 @@
       ],
       "owning_block": "b.acceptance-verifier-loop"
     },
+    "tests/migrate_v1_v2.selftest.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 14,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:os",
+          "kind": "static",
+          "line": 15,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 16,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:child_process",
+          "kind": "static",
+          "line": 17,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "spawnSync"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 18,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.db"
+    },
     "tests/multi_tenant_block_routing.selftest.mjs": {
       "exports": [],
       "imports": [
@@ -11229,6 +11579,64 @@
             {
               "kind": "named",
               "name": "mockHashForPrompt"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.operator-profile-learner"
+    },
+    "tests/operator_profile_privacy.selftest.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 12,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 13,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:child_process",
+          "kind": "static",
+          "line": 14,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "execFileSync"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 15,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
             }
           ]
         }
@@ -11968,6 +12376,85 @@
         }
       ],
       "owning_block": "b.db"
+    },
+    "tests/verify_cache.selftest.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": false,
+          "from": "../scripts/verify_cache.mjs",
+          "kind": "dynamic",
+          "line": 149,
+          "resolved_to": "scripts/verify_cache.mjs",
+          "specifiers": []
+        },
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 16,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:os",
+          "kind": "static",
+          "line": 17,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 18,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:child_process",
+          "kind": "static",
+          "line": 19,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "spawnSync"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 20,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.acceptance-verifier-loop"
     }
   },
   "owner_warnings": [],

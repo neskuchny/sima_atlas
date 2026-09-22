@@ -57,30 +57,32 @@
       "id": "A3",
       "label": null,
       "text": "Если блок A `depends_on: [B]`, то в `roadmap.md` B появляется на меньшей позиции, чем A — независимо от статуса.",
-      "checked": false,
+      "checked": true,
       "line": 17,
-      "evidence_kind": "llm_judge",
-      "evidence_spec": null,
-      "verdict": "skipped",
-      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
-      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
-      "raw": {
-        "judge_verdict": "inconclusive",
-        "provider": "mock",
-        "model": "mock-1",
-        "prompt_hash": "3a81f1d7a5831d82",
-        "cost_usd": 0,
-        "cost_capped": false,
-        "evidence_quote": ""
+      "evidence_kind": "selftest_run",
+      "evidence_spec": {
+        "cmd": "node tests/docs_generators.selftest.mjs",
+        "expect_in_stdout": "OK"
       },
-      "duration_ms": 0
+      "verdict": "pass",
+      "evidence": "node tests/docs_generators.selftest.mjs → exit 0 (219ms); first line: \"docs_generators.selftest: OK (3 groups, all assertions green)\"",
+      "reasoning": "shell exit code 0 and stdout matches /OK/",
+      "raw": {
+        "cmd": "node tests/docs_generators.selftest.mjs",
+        "exit_code": 0,
+        "stdout": "docs_generators.selftest: OK (3 groups, all assertions green)\n",
+        "stderr": "",
+        "duration_ms": 219,
+        "timed_out": false
+      },
+      "duration_ms": 219
     },
     {
       "id": "A4",
       "label": null,
       "text": "`auto_tz.md` собран только из non-template mission/kpi и содержит ссылки на исходные `blocks/<id>/*.md`.",
       "checked": true,
-      "line": 18,
+      "line": 25,
       "evidence_kind": "fs_glob",
       "evidence_spec": {
         "pattern": "atlas/auto_tz.md",
@@ -105,31 +107,38 @@
       "id": "A5",
       "label": null,
       "text": "При отсутствии у блока поля `layer` (старый формат) wiki показывает раздел «Без слоя», а не пихает в первый попавшийся.",
-      "checked": false,
-      "line": 25,
-      "evidence_kind": "llm_judge",
-      "evidence_spec": null,
-      "verdict": "skipped",
-      "evidence": "LLM judge → inconclusive via mock/mock-1 ($0)",
-      "reasoning": "LLM judge unavailable: mock provider returned deterministic-empty (no fixture matched, no API key configured)",
-      "raw": {
-        "judge_verdict": "inconclusive",
-        "provider": "mock",
-        "model": "mock-1",
-        "prompt_hash": "1b2198d0a180fbc3",
-        "cost_usd": 0,
-        "cost_capped": false,
-        "evidence_quote": ""
+      "checked": true,
+      "line": 32,
+      "evidence_kind": "selftest_run",
+      "evidence_spec": {
+        "cmd": "node tests/docs_generators.selftest.mjs",
+        "expect_in_stdout": "OK"
       },
-      "duration_ms": 1
+      "verdict": "pass",
+      "evidence": "node tests/docs_generators.selftest.mjs → exit 0 (216ms); first line: \"docs_generators.selftest: OK (3 groups, all assertions green)\"",
+      "reasoning": "shell exit code 0 and stdout matches /OK/",
+      "raw": {
+        "cmd": "node tests/docs_generators.selftest.mjs",
+        "exit_code": 0,
+        "stdout": "docs_generators.selftest: OK (3 groups, all assertions green)\n",
+        "stderr": "",
+        "duration_ms": 216,
+        "timed_out": false
+      },
+      "duration_ms": 216
     }
   ],
   "counts": {
-    "pass": 3,
+    "pass": 5,
     "fail": 0,
-    "skipped": 2
+    "skipped": 0
   },
   "verdict": "pass",
-  "duration_ms": 64,
-  "checked_at": "2026-09-22T19:58:06.292Z"
+  "duration_ms": 497,
+  "checked_at": "2026-09-22T20:22:16.243Z",
+  "cache": {
+    "hit": false,
+    "reason": "a file this block's assertions read changed",
+    "lookup_ms": 29.112615
+  }
 }

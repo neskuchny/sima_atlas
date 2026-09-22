@@ -20,26 +20,54 @@
 //   3 — block_id not found / acceptance.md missing
 //
 // CLI:
-//   node scripts/verify_block_acceptance.mjs <block_id> [--json] [--quiet]
+//   node scripts/verify_block_acceptance.mjs <block_id> [--json] [--quiet] [--no-cache]
+//
+// R-8.11 (KPI-6) — a pass is cached (verify_cache.mjs). On a hit nothing is
+// re-run and no new run is written; the ledgers are only brought in line with
+// the cached pass if they disagree. --no-cache always verifies.
 
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { verifyBlock } from './collect_evidence.mjs';
+import { verifyBlock, globForCache } from './collect_evidence.mjs';
+import { parseAcceptance } from './parse_acceptance.mjs';
+import { storeVerifyCache } from './verify_cache.mjs';
 import { applyTransition, rejectionMessage } from './lifecycle_gate.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(__filename), '..');
 const ATLAS = process.env.ATLAS_ROOT || path.join(ROOT, 'atlas');
 
-export async function verifyAndPersist(blockId) {
+export async function verifyAndPersist(blockId, { cache = true } = {}) {
   const blockDir = path.join(ATLAS, 'blocks', blockId);
   const accPath = path.join(blockDir, 'acceptance.md');
   if (!fs.existsSync(accPath)) {
     return { block_id: blockId, verdict: 'no_acceptance_md', error: `acceptance.md missing: ${accPath}` };
   }
 
-  const result = await verifyBlock(blockId, { atlas_root: ATLAS });
+  const result = await verifyBlock(blockId, { atlas_root: ATLAS, cache });
+
+  // R-8.11 — a cached pass: nothing it depends on changed since it was
+  // verified. No new run is written. The ledgers are only brought in line
+  // with it if something else wrote a different verdict in between (the
+  // gate and the validators read them).
+  if (result.cache?.hit) {
+    const runsDir = path.join(ATLAS, 'acceptance_runs', blockId);
+    const latestPath = path.join(runsDir, '_latest.json');
+    let latest = null;
+    try { latest = JSON.parse(fs.readFileSync(latestPath, 'utf8')); } catch { /* none */ }
+    if (!latest || latest.verdict !== result.verdict) {
+      fs.mkdirSync(runsDir, { recursive: true });
+      fs.writeFileSync(latestPath, JSON.stringify(result, null, 2) + '\n', 'utf8');
+    }
+    const checksPath = path.join(blockDir, 'checks.log');
+    const lines = fs.existsSync(checksPath) ? fs.readFileSync(checksPath, 'utf8').split(/\r?\n/) : [];
+    const lastVerifier = [...lines].reverse().find((l) => l.split('\t')[1] === 'acceptance_verifier');
+    if (!lastVerifier || lastVerifier.split('\t')[2] !== result.verdict) {
+      fs.appendFileSync(checksPath, `${new Date().toISOString()}\tacceptance_verifier\t${result.verdict}\tverdict=${result.verdict} pass=${result.counts.pass} fail=${result.counts.fail} skipped=${result.counts.skipped} cached=verified ${result.checked_at}\n`, 'utf8');
+    }
+    return result;
+  }
 
   // Persist
   const runsDir = path.join(ATLAS, 'acceptance_runs', blockId);
@@ -86,6 +114,12 @@ export async function verifyAndPersist(blockId) {
     catch (e) { console.warn(`  warning: desync check failed: ${e.message}`); }
   }
 
+  // R-8.11 — store the pass AFTER every write above, so the key describes the
+  // state the next lookup will see and our own output never invalidates it.
+  if (cache) {
+    try { storeVerifyCache({ blockId, atlasRoot: ATLAS, parsed: parseAcceptance(blockId, ATLAS), glob: globForCache, result }); }
+    catch { /* a failed store is a future miss, never a wrong hit */ }
+  }
   return result;
 }
 
@@ -138,10 +172,10 @@ if (fileURLToPath(import.meta.url) === process.argv[1]) {
   const json = argv.includes('--json');
   const quiet = argv.includes('--quiet');
   if (!blockId) {
-    console.error('Usage: node scripts/verify_block_acceptance.mjs <block_id> [--json] [--quiet]');
+    console.error('Usage: node scripts/verify_block_acceptance.mjs <block_id> [--json] [--quiet] [--no-cache]');
     process.exit(3);
   }
-  const r = await verifyAndPersist(blockId);
+  const r = await verifyAndPersist(blockId, { cache: !argv.includes('--no-cache') });
   if (r.error) {
     console.error(`verify_block_acceptance: ${blockId}: ${r.error}`);
     process.exit(3);
@@ -151,6 +185,8 @@ if (fileURLToPath(import.meta.url) === process.argv[1]) {
   } else if (!quiet) {
     const tick = r.verdict === 'pass' ? '✓' : r.verdict === 'fail' ? '✗' : '·';
     console.log(`${tick} ${blockId}: ${r.verdict} (pass=${r.counts.pass} fail=${r.counts.fail} skipped=${r.counts.skipped})`);
+    if (r.cache?.hit) console.log(`  · cached: nothing it depends on changed since ${r.cache.verified_at} (lookup ${r.cache.lookup_ms.toFixed(1)} ms; --no-cache to re-run)`);
+    else if (r.cache?.reason) console.log(`  · verified (cache miss: ${r.cache.reason})`);
     for (const a of r.assertions) {
       if (a.verdict === 'fail') console.log(`  ✗ ${a.id} → ${(a.evidence || '').slice(0, 120)}`);
     }

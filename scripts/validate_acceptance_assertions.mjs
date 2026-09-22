@@ -118,6 +118,31 @@ for (const b of graph.blocks || []) {
   }
 }
 
+// R-8.11 — the acceptance YAML reader strips the quotes around a value but
+// does not unescape it, so `"b\\.x"` reaches grep as a literal backslash plus
+// any character — a pattern that never matches, and a `! grep` assertion
+// that passes on anything. Found on the first such assertion written
+// (b.smoke-sandbox A2); none existed before, so any `\\` now is an error.
+// Scans the ```yaml evidence blocks as text: importing the acceptance parser
+// (b.acceptance-verifier-loop) from here would make a dependency cycle.
+const DOUBLE_BACKSLASH = '\\'.repeat(2);
+for (const b of graph.blocks || []) {
+  if (b.status === 'archived') continue;
+  const accPath = path.join(atlasRoot, 'blocks', b.id, 'acceptance.md');
+  if (!fs.existsSync(accPath)) continue;
+  let inYaml = false;
+  let lastId = '?';
+  fs.readFileSync(accPath, 'utf8').split(/\r?\n/).forEach((line, i) => {
+    const id = line.match(/^- \[[ xX]\] \*\*(A\d+)/);
+    if (id) lastId = id[1];
+    if (/^```yaml\s*$/.test(line)) { inYaml = true; return; }
+    if (inYaml && /^```\s*$/.test(line)) { inYaml = false; return; }
+    if (inYaml && line.includes(DOUBLE_BACKSLASH)) {
+      errors.push(`${b.id} ${lastId} (acceptance.md line ${i + 1}): a doubled backslash in an evidence spec — the YAML reader keeps it as two characters (no unescaping), so a regex meant as «backslash-dot» matches a literal backslash instead of a dot. Write a single backslash, or «[.]», or use grep -F`);
+    }
+  });
+}
+
 if (errors.length) {
   console.error('Acceptance assertions validation failed:');
   errors.forEach(e => console.error(' -', e));

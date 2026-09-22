@@ -44,7 +44,14 @@ evidence_spec:
   file: frontend/atlas_design/views.jsx
   pattern: "complianceWithProfile"
 ```
-- [ ] **A7.** Privacy gate: `atlas/operator_profile/` упоминается в `.gitignore` (опц.) с пояснением в `atlas/rules.md`; никакого PII (имена / e-mail / API-ключи) не пишется в profile.json — selftest A1 проверяет regex.
+- [x] **A7.** Privacy gate: `atlas/operator_profile/` упоминается в `.gitignore` (опц.) с пояснением в `atlas/rules.md`; никакого PII (имена / e-mail / API-ключи) не пишется в profile.json — selftest A1 проверяет regex.
+  _R-8.11: была на LLM-судье; это факт о файлах, поэтому проверяется детерминированно (.gitignore, правило в rules.md — его не было, скан PII по всем закоммиченным файлам профиля; имена машинно не проверяются)_
+```yaml
+evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/operator_profile_privacy.selftest.mjs
+  expect_in_stdout: "OK"
+```
 - [ ] **A8.** Reversibility: `revoke_lesson L-001` → context-pack для следующего invoke не содержит этого урока (smoke-тест diff'ом).
 ```yaml
 evidence_kind: log_grep

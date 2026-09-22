@@ -35,3 +35,13 @@ autonomous loop's budget. `accept_proposal.mjs` — this block's Accept/Reject
 inbox — writes blocks through b.db's `atlas_blocks_api`; that file had no
 owner, so the dependency was invisible. It is declared now:
 `b.db: atlas_state_store`, in both depends_on.md and graph.json.
+
+## 2026-09-22 — R-8.11: A5 had been failing since R-8.10
+
+A5 waited for «overall avg=» from the extraction eval. After R-8.10 the eval
+says honestly on the mock that it checked the pipeline and did not measure
+quality, so A5 failed — unnoticed, because a failing block in verify_all does
+not fail the nightly and this block is in review. Rewritten to what is
+checked: on the mock the golden set against itself must be exactly 1.00
+(pipeline), with a live model the average must reach 0.7 without regressing;
+either branch fails when violated.

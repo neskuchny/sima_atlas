@@ -1,6 +1,6 @@
 # Sima Atlas Wiki
 
-_Auto-generated: 2026-09-22T19:58:08.734Z_
+_Auto-generated: 2026-09-22T20:22:17.807Z_
 
 ## Граф продукта
 
@@ -44,7 +44,7 @@ flowchart TB
     b_user_docs_generator["End-User Docs Generator<br/><small>wip</small>"]:::wip
   end
   subgraph testing["Тестирование"]
-    b_acceptance_verifier_loop["Acceptance Verifier Loop<br/><small>wip</small>"]:::wip
+    b_acceptance_verifier_loop["Acceptance Verifier Loop<br/><small>review</small>"]:::review
     b_smoke_sandbox["Smoke Sandbox (test target)<br/><small>idea</small>"]:::idea
   end
   b_ui_control --> b_core_sync
@@ -146,7 +146,7 @@ flowchart TB
 
 ### Тестирование (`testing`)
 
-- 🟠 **b.acceptance-verifier-loop** — Acceptance Verifier Loop _(wip)_
+- 🔵 **b.acceptance-verifier-loop** — Acceptance Verifier Loop _(review)_
 - 🟡 **b.smoke-sandbox** — Smoke Sandbox (test target) _(idea)_
   - reason: Reserved write-target for e2e/smoke scripts so they never touch real product blocks
 
@@ -555,7 +555,14 @@ evidence_spec:
   pattern: atlas/db_schema.json
   min_count: 1
 ```
-- [ ] **A4.** Migration: запуск `scripts/migrate_v1_v2.mjs` на старом `graph.json` v1 даёт валидный v2 без потерь данных.
+- [x] **A4.** Migration: запуск `scripts/migrate_v1_v2.mjs` на старом `graph.json` v1 даёт валидный v2 без потерь данных.
+  _R-8.11: была на LLM-судье; это факт о файлах, поэтому проверяется детерминированно (v1-граф с нестандартными полями: всё сохранено, v2-поля добавлены, повторный запуск ничего не пишет)_
+```yaml
+evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/migrate_v1_v2.selftest.mjs
+  expect_in_stdout: "OK"
+```
 - [ ] **A5.** Read-API возвращает идентичный JSON в двух последовательных вызовах для неизменённого блока (детерминизм).
 ```yaml
 evidence_kind: exit_code
@@ -639,6 +646,7 @@ These files had no owner in any files.md, so the code-graph check never saw thei
 - tests/atlas_subsystems_api.selftest.mjs [alive]
 - tests/multi_tenant_block_routing.selftest.mjs [alive]
 - tests/validate_lifecycle_gates.selftest.mjs [alive]
+- tests/migrate_v1_v2.selftest.mjs [alive] (R-8.11: acceptance A4 — v1 graph with custom fields migrated without loss, v2 fields added without overwriting, idempotent)
 
 _Sources: [mission](blocks/b.db/mission.md) · [kpi](blocks/b.db/kpi.md) · [acceptance](blocks/b.db/acceptance.md) · [depends_on](blocks/b.db/depends_on.md) · [provides](blocks/b.db/provides.md) · [patterns](blocks/b.db/patterns.md) · [files](blocks/b.db/files.md)_
 
@@ -911,7 +919,14 @@ evidence_spec:
   file: atlas/wiki.html
   pattern: "class=\"mermaid\""
 ```
-- [ ] **A3.** Если блок A `depends_on: [B]`, то в `roadmap.md` B появляется на меньшей позиции, чем A — независимо от статуса.
+- [x] **A3.** Если блок A `depends_on: [B]`, то в `roadmap.md` B появляется на меньшей позиции, чем A — независимо от статуса.
+  _R-8.11: была на LLM-судье; это факт о файлах, поэтому проверяется детерминированно (настоящий roadmap.md + синтетический атлас, где статус и зависимости спорят)_
+```yaml
+evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/docs_generators.selftest.mjs
+  expect_in_stdout: "OK"
+```
 - [x] **A4.** `auto_tz.md` собран только из non-template mission/kpi и содержит ссылки на исходные `blocks/<id>/*.md`.
 ```yaml
 evidence_kind: fs_glob
@@ -919,7 +934,14 @@ evidence_spec:
   pattern: atlas/auto_tz.md
   min_count: 1
 ```
-- [ ] **A5.** При отсутствии у блока поля `layer` (старый формат) wiki показывает раздел «Без слоя», а не пихает в первый попавшийся.
+- [x] **A5.** При отсутствии у блока поля `layer` (старый формат) wiki показывает раздел «Без слоя», а не пихает в первый попавшийся.
+  _R-8.11: была на LLM-судье; это факт о файлах, поэтому проверяется детерминированно (синтетический атлас с блоком без слоя)_
+```yaml
+evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/docs_generators.selftest.mjs
+  expect_in_stdout: "OK"
+```
 
 ## Не считается acceptance:
 - наличие файлов `wiki.html`, `auto_tz.md`, `roadmap.md` (это smoke).
@@ -988,6 +1010,7 @@ These files had no owner in any files.md, so the code-graph check never saw thei
 - scripts/subagent_wiki_builder.mjs [alive]
 - scripts/sync_article_status.mjs [alive]
 - scripts/capture_hero_screenshot.mjs [alive] (README hero image)
+- tests/docs_generators.selftest.mjs [alive] (R-8.11: acceptance A3/A5 — the real roadmap.md respects dependencies; a synthetic atlas where status and dependencies disagree; a block without a layer gets «Без слоя»)
 
 _Sources: [mission](blocks/b.docs/mission.md) · [kpi](blocks/b.docs/kpi.md) · [acceptance](blocks/b.docs/acceptance.md) · [depends_on](blocks/b.docs/depends_on.md) · [provides](blocks/b.docs/provides.md) · [patterns](blocks/b.docs/patterns.md) · [files](blocks/b.docs/files.md)_
 
@@ -1072,12 +1095,13 @@ evidence_spec:
   pattern: atlas/llm_traces/*.json
   min_count: 1
 ```
-- [x] **A5.** Golden eval из 5 диалогов в `tests/llm_extraction.eval.mjs` — average precision ≥ 0.7 (mock даёт 1.0; live targeting ≥ 0.7). Scenario flow: dialog → extract → safe-upsert → sync.
+- [x] **A5.** Golden eval (30 диалогов, `tests/llm_extraction.eval.mjs`) проходит сквозь весь конвейер: на моке эталон, оценённый сам против себя, даёт ровно 1.00 — это проверка конвейера, качество не измеряется; на живой модели средняя точность ≥ 0.7 и нет регрессии против лучшего живого прогона. Любая из веток падает при нарушении. Scenario flow: dialog → extract → safe-upsert → sync.
+  _R-8.11: раньше ждала строку «overall avg=» и называла мок-1.0 точностью; после R-8.10 оценка под моком честно пишет, что качество не измерено, и проверка сломалась — переписана под то, что проверяется на деле._
 ```yaml
 evidence_kind: selftest_run
 evidence_spec:
   cmd: node tests/llm_extraction.eval.mjs
-  expect_in_stdout: "overall avg="
+  expect_in_stdout: "llm_extraction.eval: (plumbing OK|OK)"
 ```
 
 ## Что считается NOT acceptance
@@ -1380,7 +1404,14 @@ evidence_spec:
   file: frontend/atlas_design/views.jsx
   pattern: "complianceWithProfile"
 ```
-- [ ] **A7.** Privacy gate: `atlas/operator_profile/` упоминается в `.gitignore` (опц.) с пояснением в `atlas/rules.md`; никакого PII (имена / e-mail / API-ключи) не пишется в profile.json — selftest A1 проверяет regex.
+- [x] **A7.** Privacy gate: `atlas/operator_profile/` упоминается в `.gitignore` (опц.) с пояснением в `atlas/rules.md`; никакого PII (имена / e-mail / API-ключи) не пишется в profile.json — selftest A1 проверяет regex.
+  _R-8.11: была на LLM-судье; это факт о файлах, поэтому проверяется детерминированно (.gitignore, правило в rules.md — его не было, скан PII по всем закоммиченным файлам профиля; имена машинно не проверяются)_
+```yaml
+evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/operator_profile_privacy.selftest.mjs
+  expect_in_stdout: "OK"
+```
 - [ ] **A8.** Reversibility: `revoke_lesson L-001` → context-pack для следующего invoke не содержит этого урока (smoke-тест diff'ом).
 ```yaml
 evidence_kind: log_grep
@@ -1481,16 +1512,17 @@ PR-6 cross-cutting changes (host blocks own JSX; documented in checks.log + task
 
 These files had no owner in any files.md, so the code-graph check never saw their imports.
 - scripts/seed_operator_profile.mjs [alive]
+- tests/operator_profile_privacy.selftest.mjs [alive] (R-8.11: acceptance A7 — .gitignore, the rules.md privacy rule, a PII scan of every committed profile file, and the scanner's own recall)
 
 _Sources: [mission](blocks/b.operator-profile-learner/mission.md) · [kpi](blocks/b.operator-profile-learner/kpi.md) · [acceptance](blocks/b.operator-profile-learner/acceptance.md) · [depends_on](blocks/b.operator-profile-learner/depends_on.md) · [provides](blocks/b.operator-profile-learner/provides.md) · [patterns](blocks/b.operator-profile-learner/patterns.md) · [files](blocks/b.operator-profile-learner/files.md)_
 
 ---
 
-### 🟠 b.acceptance-verifier-loop — Acceptance Verifier Loop
+### 🔵 b.acceptance-verifier-loop — Acceptance Verifier Loop
 
 - **layer**: `testing`
 - **type**: module
-- **status**: `wip`
+- **status**: `review`
 - **mvp**: no
 - **depends_on**: `b.db`, `b.core-sync`, `b.agent-orchestrator`, `b.llm-gateway`
 - **tech_stack**: `nodejs`, `esm`, `json-schema`
@@ -1634,11 +1666,11 @@ atlas/blocks/<block_id>/checks.log   ← append: 'acceptance_verifier <pass|fail
 # b.acceptance-verifier-loop — KPI
 
 - **KPI-1 (no false done)**: ни один блок не уходит в `done` если хоть один пункт `acceptance.md` не получил `pass`. Сейчас (2026-09-22): ✓ — `lifecycle_gate.mjs` отказывает в `→ done` без verdict=pass, покрыто `lifecycle_gate.selftest` (группы 1, 5, 8).
-- **KPI-2 (deterministic evidence first)**: ≥ 70% пунктов acceptance в среднем по репо имеют `evidence_kind ∈ {exit_code, fs_glob, file_diff, log_grep}` — без LLM. LLM-judge только как fallback. Сейчас (2026-09-22): ✗ — 84 из 122 = 68.9% (exit_code 17, log_grep 28, selftest_run 33, fs_glob 6; llm_judge 38). До цели не хватает двух детерминированных пунктов.
+- **KPI-2 (deterministic evidence first)**: ≥ 70% пунктов acceptance в среднем по репо имеют `evidence_kind ∈ {exit_code, fs_glob, file_diff, log_grep}` — без LLM. LLM-judge только как fallback. Сейчас (2026-09-22, R-8.11): ✓ — 89 из 122 = 73.0%. Пять проверок сняты с LLM-судьи на настоящие тесты (b.docs A3/A5, b.db A4, b.operator-profile-learner A7, b.smoke-sandbox A2). Считается доля всех пунктов приёмки по репо; `selftest_run` — вариант `exit_code`. Оставшиеся 33 на судье: 26 в демо-блоках продукта без кода, 7 — в реальных блоках, где нужна живая модель или живой UI.
 - **KPI-3 (gate latency)**: для блока с ≤ 8 пунктами acceptance verifier завершается за < 30 секунд (deterministic) или < 60 секунд (с LLM-judge). Сейчас (2026-09-22): ✓ — этот блок, 8 пунктов, 1.1 с на моке.
 - **KPI-4 (retry-prompt usefulness)**: ≥ 50% retry-прогонов с `retry_prompt_hint` приводят к verdict=pass на следующей итерации (на горизонте 20 retry). Сейчас: n/a.
 - **KPI-5 (no spurious rollbacks)**: nightly re-verify done блоков даёт `done → broken` rollback **только** когда есть реальная регрессия (новые коммиты после последнего pass либо изменение acceptance.md). Сейчас: ✗.
-- **KPI-6 (cache hit rate)**: при отсутствии новых коммитов / новых traces / новых checks.log — verifier возвращает кэш за < 50 ms. Hit rate ≥ 80% на nightly. Сейчас (2026-09-22): ✗ — кэша нет вовсе (ни в verify_block_acceptance, ни в collect_evidence).
+- **KPI-6 (cache hit rate)**: при отсутствии новых коммитов / новых traces / новых checks.log — verifier возвращает кэш за < 50 ms. Hit rate ≥ 80% на nightly. Сейчас (2026-09-22, R-8.11): ✓ — `scripts/verify_cache.mjs`. Замер на двух nightly подряд без изменений между ними: 24 попадания из 27 = 88.9%, попадание p50 25.9 мс, p95 32.5 мс. Все 3 промаха законные (у блоков изменился файл, который читают их проверки). Корректность — `tests/verify_cache.selftest.mjs`: каждая часть ключа по отдельности сбрасывает кэш.
 - **KPI-7 (cost cap)**: LLM-judge на один блок ≤ $0.02; полный nightly re-verify всех done блоков ≤ $0.20. Сейчас: ✗.
 
 #### Acceptance
@@ -1783,6 +1815,9 @@ These files had no owner in any files.md, so the code-graph check never saw thei
 - scripts/semantic_verify.mjs [alive] (the semantic judge (Contract as Arbiter))
 - scripts/subagent_verifier.mjs [alive]
 - tests/desync_restore.selftest.mjs [alive] (R-8.10: the real verifier on a synthetic atlas — every desync restore is a gated transition; idea / legacy marks are left to the operator)
+- scripts/verify_cache.mjs [alive] (R-8.11, KPI-6: verifier cache — conservative key: code via git, contracts, verdict summary, the block's evidence targets, LLM mode; pass cached, inconclusive only under the mock, fail never; `stats` CLI for hit rate / latency)
+- tests/verify_cache.selftest.mjs [alive] (R-8.11: the real verifier on a synthetic atlas — every key part invalidates on its own, the never-cached rules, TTL, switches, ledger consistency, hit latency)
+- atlas/blocks/b.acceptance-verifier-loop/understanding.md [alive] (R-8.11: the declared frame for the cache work)
 
 _Sources: [mission](blocks/b.acceptance-verifier-loop/mission.md) · [kpi](blocks/b.acceptance-verifier-loop/kpi.md) · [acceptance](blocks/b.acceptance-verifier-loop/acceptance.md) · [depends_on](blocks/b.acceptance-verifier-loop/depends_on.md) · [provides](blocks/b.acceptance-verifier-loop/provides.md) · [patterns](blocks/b.acceptance-verifier-loop/patterns.md) · [files](blocks/b.acceptance-verifier-loop/files.md)_
 
@@ -2820,7 +2855,13 @@ evidence_spec:
   file: scripts/mcp_smoke_e2e.mjs
   pattern: "b.smoke-sandbox"
 ```
-- [ ] **A2.** Регулярный grep по содержимому `mission.md` других блоков **не находит** упоминаний b.smoke-sandbox (никакой блок-продукт не должен от него зависеть).
+- [x] **A2.** Регулярный grep по содержимому `mission.md` других блоков **не находит** упоминаний b.smoke-sandbox (никакой блок-продукт не должен от него зависеть).
+  _R-8.11: была на LLM-судье; это факт о файлах, поэтому проверяется детерминированно (grep по mission.md всех остальных блоков)_
+```yaml
+evidence_kind: exit_code
+evidence_spec:
+  cmd: "! grep -lF 'b.smoke-sandbox' atlas/blocks/*/mission.md | grep -vF 'atlas/blocks/b.smoke-sandbox/'"
+```
 - [ ] **A3.** Между двумя последовательными `mcp_smoke_e2e.mjs` прогонами `git diff` в других блоках пуст.
 ```yaml
 evidence_kind: exit_code
@@ -6490,6 +6531,44 @@ _no summary_
 - 2026-09-22T19:58:03.986Z: smoke e2e distillate
 - 2026-09-22T19:58:08.368Z: smoke e2e queued insight
 - 2026-09-22T19:58:08.415Z: smoke e2e distillate
+- 2026-09-22T20:02:32.490Z: smoke e2e queued insight
+- 2026-09-22T20:02:32.537Z: smoke e2e distillate
+- 2026-09-22T20:08:17.010Z: smoke e2e queued insight
+- 2026-09-22T20:08:17.058Z: smoke e2e distillate
+- 2026-09-22T20:08:31.261Z: smoke e2e queued insight
+- 2026-09-22T20:08:31.306Z: smoke e2e distillate
+- 2026-09-22T20:08:33.237Z: smoke e2e queued insight
+- 2026-09-22T20:08:33.286Z: smoke e2e distillate
+- 2026-09-22T20:08:35.146Z: smoke e2e queued insight
+- 2026-09-22T20:08:35.194Z: smoke e2e distillate
+- 2026-09-22T20:15:12.103Z: smoke e2e queued insight
+- 2026-09-22T20:15:12.148Z: smoke e2e distillate
+- 2026-09-22T20:15:15.604Z: smoke e2e queued insight
+- 2026-09-22T20:15:15.651Z: smoke e2e distillate
+- 2026-09-22T20:15:49.725Z: smoke e2e queued insight
+- 2026-09-22T20:15:49.771Z: smoke e2e distillate
+- 2026-09-22T20:15:53.379Z: smoke e2e queued insight
+- 2026-09-22T20:15:53.427Z: smoke e2e distillate
+- 2026-09-22T20:16:40.461Z: smoke e2e queued insight
+- 2026-09-22T20:16:40.509Z: smoke e2e distillate
+- 2026-09-22T20:16:44.186Z: smoke e2e queued insight
+- 2026-09-22T20:16:44.232Z: smoke e2e distillate
+- 2026-09-22T20:18:26.571Z: smoke e2e queued insight
+- 2026-09-22T20:18:26.618Z: smoke e2e distillate
+- 2026-09-22T20:18:30.252Z: smoke e2e queued insight
+- 2026-09-22T20:18:30.295Z: smoke e2e distillate
+- 2026-09-22T20:18:55.005Z: smoke e2e queued insight
+- 2026-09-22T20:18:55.048Z: smoke e2e distillate
+- 2026-09-22T20:19:36.382Z: smoke e2e queued insight
+- 2026-09-22T20:19:36.426Z: smoke e2e distillate
+- 2026-09-22T20:20:01.017Z: smoke e2e queued insight
+- 2026-09-22T20:20:01.062Z: smoke e2e distillate
+- 2026-09-22T20:21:30.214Z: smoke e2e queued insight
+- 2026-09-22T20:21:30.264Z: smoke e2e distillate
+- 2026-09-22T20:22:13.745Z: smoke e2e queued insight
+- 2026-09-22T20:22:13.788Z: smoke e2e distillate
+- 2026-09-22T20:22:17.459Z: smoke e2e queued insight
+- 2026-09-22T20:22:17.504Z: smoke e2e distillate
 
 #### Files
 

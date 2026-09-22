@@ -15,17 +15,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_cursor_hooks.mjs → exit 0 (45ms); first line: \"cursor hooks validation: OK (4 events, 4 commands)\"",
+      "evidence": "node scripts/validate_cursor_hooks.mjs → exit 0 (57ms); first line: \"cursor hooks validation: OK (4 events, 4 commands)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_cursor_hooks.mjs",
         "exit_code": 0,
         "stdout": "cursor hooks validation: OK (4 events, 4 commands)\n",
         "stderr": "",
-        "duration_ms": 45,
+        "duration_ms": 57,
         "timed_out": false
       },
-      "duration_ms": 45
+      "duration_ms": 57
     },
     {
       "id": "A2",
@@ -38,18 +38,18 @@
         "cmd": "node tests/cursor_hooks_actions.test.mjs",
         "expect_in_stdout": "OK"
       },
-      "verdict": "fail",
-      "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 1; stderr: \"cursor_hooks_actions.test: FAIL\"",
-      "reasoning": "shell exit 1",
+      "verdict": "pass",
+      "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (493ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
+      "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/cursor_hooks_actions.test.mjs",
-        "exit_code": 1,
-        "stdout": "",
-        "stderr": "cursor_hooks_actions.test: FAIL\n ✗ observe.known: cursor_edit line appended to b.ui-control\n",
-        "duration_ms": 498,
+        "exit_code": 0,
+        "stdout": "cursor_hooks_actions.test: OK (9 cases)\n",
+        "stderr": "",
+        "duration_ms": 493,
         "timed_out": false
       },
-      "duration_ms": 498
+      "duration_ms": 493
     },
     {
       "id": "A3",
@@ -62,14 +62,14 @@
         "cmd": "node tests/cursor_hooks_actions.test.mjs",
         "expect_in_stdout": "9 cases"
       },
-      "verdict": "fail",
-      "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 1; stderr: \"cursor_hooks_actions.test: FAIL\"",
-      "reasoning": "shell exit 1",
+      "verdict": "pass",
+      "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (491ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
+      "reasoning": "shell exit code 0 and stdout matches /9 cases/",
       "raw": {
         "cmd": "node tests/cursor_hooks_actions.test.mjs",
-        "exit_code": 1,
-        "stdout": "",
-        "stderr": "cursor_hooks_actions.test: FAIL\n ✗ observe.known: cursor_edit line appended to b.ui-control\n",
+        "exit_code": 0,
+        "stdout": "cursor_hooks_actions.test: OK (9 cases)\n",
+        "stderr": "",
         "duration_ms": 491,
         "timed_out": false
       },
@@ -86,18 +86,18 @@
         "cmd": "node tests/cursor_hooks_actions.test.mjs",
         "expect_in_stdout": "OK"
       },
-      "verdict": "fail",
-      "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 1; stderr: \"cursor_hooks_actions.test: FAIL\"",
-      "reasoning": "shell exit 1",
+      "verdict": "pass",
+      "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (502ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
+      "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/cursor_hooks_actions.test.mjs",
-        "exit_code": 1,
-        "stdout": "",
-        "stderr": "cursor_hooks_actions.test: FAIL\n ✗ observe.known: cursor_edit line appended to b.ui-control\n",
-        "duration_ms": 481,
+        "exit_code": 0,
+        "stdout": "cursor_hooks_actions.test: OK (9 cases)\n",
+        "stderr": "",
+        "duration_ms": 502,
         "timed_out": false
       },
-      "duration_ms": 481
+      "duration_ms": 502
     },
     {
       "id": "A5",
@@ -110,18 +110,18 @@
         "cmd": "node tests/cursor_live.headless.smoke.mjs",
         "expect_in_stdout": "OK"
       },
-      "verdict": "fail",
-      "evidence": "node tests/cursor_live.headless.smoke.mjs → exit 1; stderr: \"cursor_live.headless.smoke: FAIL\"",
-      "reasoning": "shell exit 1",
+      "verdict": "pass",
+      "evidence": "node tests/cursor_live.headless.smoke.mjs → exit 0 (784ms); first line: \"cursor_live.headless.smoke: OK (5 phases — hooks valid, drift guard fires, file-edit logged, context pack emitted, detailed suite green)\"",
+      "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/cursor_live.headless.smoke.mjs",
-        "exit_code": 1,
-        "stdout": "",
-        "stderr": "cursor_live.headless.smoke: FAIL\n ✗ phase3:b.ui-control got cursor_edit line OR observe exited 0 — status=0, last line: 2026-09-22T18:25:04.229Z\tacceptance_verifier\tpass\tverdict=pass pass=2 fail=0 skipped=3\n ✗ phase5:detailed action test OK — stderr=cursor_hooks_actions.test: FAIL\n ✗ observe.known: cursor_edit line appended to b.ui-control\n\n",
-        "duration_ms": 802,
+        "exit_code": 0,
+        "stdout": "cursor_live.headless.smoke: OK (5 phases — hooks valid, drift guard fires, file-edit logged, context pack emitted, detailed suite green)\n",
+        "stderr": "",
+        "duration_ms": 784,
         "timed_out": false
       },
-      "duration_ms": 802
+      "duration_ms": 784
     },
     {
       "id": "A6",
@@ -143,7 +143,7 @@
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 0
+      "duration_ms": 1
     },
     {
       "id": "A7",
@@ -157,17 +157,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_agent_parity.mjs → exit 0 (45ms); first line: \"Agent parity validation: OK\"",
+      "evidence": "node scripts/validate_agent_parity.mjs → exit 0 (47ms); first line: \"Agent parity validation: OK\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_agent_parity.mjs",
         "exit_code": 0,
         "stdout": "Agent parity validation: OK\n",
         "stderr": "",
-        "duration_ms": 45,
+        "duration_ms": 47,
         "timed_out": false
       },
-      "duration_ms": 45
+      "duration_ms": 47
     },
     {
       "id": "A8",
@@ -181,17 +181,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/frame_gate_flow.selftest.mjs → exit 0 (1600ms); first line: \"frame_gate_flow.selftest: OK (3 groups, all assertions green)\"",
+      "evidence": "node tests/frame_gate_flow.selftest.mjs → exit 0 (1801ms); first line: \"frame_gate_flow.selftest: OK (3 groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/frame_gate_flow.selftest.mjs",
         "exit_code": 0,
         "stdout": "frame_gate_flow.selftest: OK (3 groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 1600,
+        "duration_ms": 1801,
         "timed_out": false
       },
-      "duration_ms": 1600
+      "duration_ms": 1801
     },
     {
       "id": "A9",
@@ -205,25 +205,30 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/agent_loop_budget.selftest.mjs → exit 0 (55ms); first line: \"agent_loop_budget.selftest: OK (2 groups, all assertions green)\"",
+      "evidence": "node tests/agent_loop_budget.selftest.mjs → exit 0 (54ms); first line: \"agent_loop_budget.selftest: OK (2 groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/agent_loop_budget.selftest.mjs",
         "exit_code": 0,
         "stdout": "agent_loop_budget.selftest: OK (2 groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 55,
+        "duration_ms": 54,
         "timed_out": false
       },
-      "duration_ms": 55
+      "duration_ms": 54
     }
   ],
   "counts": {
-    "pass": 4,
-    "fail": 4,
+    "pass": 8,
+    "fail": 0,
     "skipped": 1
   },
-  "verdict": "fail",
-  "duration_ms": 4017,
-  "checked_at": "2026-09-22T19:55:49.512Z"
+  "verdict": "pass",
+  "duration_ms": 4231,
+  "checked_at": "2026-09-22T20:18:19.582Z",
+  "cache": {
+    "hit": false,
+    "reason": "code changed (a commit, or a changed / new file outside atlas/); a contract, graph.json or project rules changed; another block's verdict or kpi result changed",
+    "lookup_ms": 24.309787
+  }
 }

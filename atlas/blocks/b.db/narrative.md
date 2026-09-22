@@ -34,3 +34,9 @@ by both b.core-sync and b.db. Since R-8.07 the gate here is the one writer of
 the ledger, so both now belong to b.db only. This block also took the block /
 file / artifact / subsystem APIs and the migration scripts that had no owner
 (see b.core-sync's R-8.10 entry for the whole reassignment).
+
+## 2026-09-22 — R-8.11: A4 (migration without data loss) checked, not judged
+
+`tests/migrate_v1_v2.selftest.mjs` migrates a v1 graph with custom top-level
+and block fields: everything survives unchanged, v2 fields are added without
+overwriting values a block already had, and a second run writes nothing.

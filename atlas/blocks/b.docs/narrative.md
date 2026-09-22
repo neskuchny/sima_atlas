@@ -55,3 +55,17 @@ template gate, missing contract sections in wiki, source links in auto_tz, idea-
 
 ### Decisions made
 - Documentation generators must fail loudly on template content rather than render it — Kanon principle VII (docs are projections; projecting templates publishes lies).
+
+## 2026-09-22 — R-8.11: A3/A5 checked as facts; the roadmap cycle bug
+
+A3 (dependencies before dependents in roadmap.md) and A5 (a block without a
+layer gets «Без слоя» in the wiki) were on the LLM judge. As a deterministic
+test (`tests/docs_generators.selftest.mjs`) A3 failed on the real roadmap at
+once: when the topological sort hit the declared cycle
+b.agent-orchestrator ↔ b.operator-profile-learner, `rebuild_atlas_roadmap.mjs`
+dumped every remaining block into one last level in arbitrary order, so
+b.ui-control (which depends on the orchestrator) was listed before it. Now
+only the cycle itself is placed as a level (Tarjan SCC: components waiting on
+nothing outside themselves), labelled as a cycle, and the order resumes for
+everything downstream. `generate_wiki.mjs` finds its template gate next to
+itself instead of under cwd, so it can run on a synthetic atlas.

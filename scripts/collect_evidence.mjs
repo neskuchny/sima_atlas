@@ -34,6 +34,7 @@ import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { parseAcceptance } from './parse_acceptance.mjs';
 import { judgeAssertion } from './judge_assertion.mjs';
+import { lookupVerifyCache } from './verify_cache.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(__filename), '..');
@@ -355,6 +356,17 @@ export async function collectEvidence({ evidence_kind, evidence_spec, cwd, timeo
 // ─────────────────────────────────────────── verifyBlock (parser + collectors)
 export async function verifyBlock(blockId, opts = {}) {
   const parsed = parseAcceptance(blockId, opts.atlas_root);
+  // R-8.11 (KPI-6) — a cached pass when nothing the verdict depends on has
+  // changed (see verify_cache.mjs for what the key covers and why). Callers
+  // store a fresh pass after their own writes (storeVerifyCache). `cache:
+  // false` / ATLAS_VERIFY_CACHE=0 always verify.
+  let cacheMiss = null;
+  if (opts.cache !== false) {
+    const atlasRoot = opts.atlas_root || process.env.ATLAS_ROOT || path.join(ROOT, 'atlas');
+    const c = lookupVerifyCache({ blockId, atlasRoot, parsed, glob: (p) => simpleGlob(p) });
+    if (c.hit) return c.result;
+    cacheMiss = { hit: false, reason: c.reason, lookup_ms: c.lookup_ms };
+  }
   const t0 = Date.now();
   const enriched = [];
   for (const a of parsed.assertions) {
@@ -419,8 +431,12 @@ export async function verifyBlock(blockId, opts = {}) {
     inconclusive_if_declared: incConditions.length || undefined,
     duration_ms: Date.now() - t0,
     checked_at: new Date().toISOString(),
+    cache: cacheMiss || { hit: false, reason: 'cache not consulted (cache: false)' },
   };
 }
+
+/** The glob fs_glob uses — shared with the cache key so both see the same files. */
+export function globForCache(pattern) { return simpleGlob(pattern); }
 
 // ─────────────────────────────────────────── CLI
 if (fileURLToPath(import.meta.url) === process.argv[1]) {

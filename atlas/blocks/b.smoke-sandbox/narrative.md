@@ -55,3 +55,11 @@ verify_block_acceptance, read_acceptance_run
 
 ### Recommended action
 - Operator review: this block needs a human look (verifier/cascade not green under the autonomous loop).
+
+## 2026-09-22 — R-8.11: A2 is a grep, not a judgment
+
+«No other block's mission mentions b.smoke-sandbox» is now an exit_code
+grep over the other missions. The first version used an escaped regex that
+the acceptance YAML reader passed through as a literal double backslash, so
+it could never match and passed vacuously; it now uses fixed-string grep, and
+was checked both ways (a planted mention fails it).

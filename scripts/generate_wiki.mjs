@@ -8,12 +8,17 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 
 const root = process.cwd();
 const atlas = path.join(root, 'atlas');
 
 {
-  const gate = spawnSync('node', ['scripts/validate_no_template_placeholders.mjs'], { cwd: root, encoding: 'utf8' });
+  // R-8.11 — the gate script is found next to this file, not under cwd: the
+  // generator reads the atlas from cwd, so it can now run on any atlas
+  // (a synthetic one in a test), and the gate still checks that same atlas.
+  const gateScript = path.join(path.dirname(fileURLToPath(import.meta.url)), 'validate_no_template_placeholders.mjs');
+  const gate = spawnSync('node', [gateScript], { cwd: root, encoding: 'utf8' });
   if (gate.status !== 0) {
     console.error('generate_wiki: ABORTED — template placeholders found in block contracts (A1 gate):');
     console.error((gate.stdout || '') + (gate.stderr || ''));
