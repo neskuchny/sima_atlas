@@ -1,6 +1,6 @@
 {
   "contractValidation": {
-    "checkedAt": "2026-09-22T17:30:12.014Z",
+    "checkedAt": "2026-09-22T17:41:17.323Z",
     "total": 21,
     "broken": 0,
     "details": []
@@ -11,8 +11,8 @@
     "details": []
   },
   "codeGraphDrift": {
-    "checkedAt": "2026-09-22T17:30:08.230Z",
-    "driftCount": 27,
+    "checkedAt": "2026-09-22T17:41:13.239Z",
+    "driftCount": 29,
     "details": [
       {
         "kind": "provided_capability_not_exported",
@@ -193,20 +193,33 @@
         "block": "b.clarify",
         "capability": "assumption_registry",
         "scanned_files": [
+          "scripts/block_meaning.mjs",
           "scripts/clarify_block.mjs",
           "scripts/validate_clarifications.mjs",
+          "scripts/validate_meaning.mjs",
+          "tests/block_meaning.selftest.mjs",
           "tests/clarify_block.selftest.mjs"
         ],
         "exported_names_in_block": [
           "CATEGORY_ENUM",
           "IMPACT_ENUM",
+          "TRAJECTORY_HEADINGS",
+          "UNDERSTANDING_FILE",
+          "UNDERSTANDING_SECTIONS",
           "VERDICT_ENUM",
           "appendAnswers",
           "blockMarkers",
           "clarifyBlock",
           "findMarkers",
+          "normalizeFrame",
           "normalizeQuestions",
-          "resolveMarker"
+          "parseUnderstanding",
+          "readTrajectory",
+          "readUnderstanding",
+          "resolveMarker",
+          "trajectoryPromptLines",
+          "understandingPromptLines",
+          "understandingStaleness"
         ],
         "hint": "«assumption_registry» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.clarify/provides.md."
       },
@@ -216,20 +229,33 @@
         "block": "b.clarify",
         "capability": "clarification_questions",
         "scanned_files": [
+          "scripts/block_meaning.mjs",
           "scripts/clarify_block.mjs",
           "scripts/validate_clarifications.mjs",
+          "scripts/validate_meaning.mjs",
+          "tests/block_meaning.selftest.mjs",
           "tests/clarify_block.selftest.mjs"
         ],
         "exported_names_in_block": [
           "CATEGORY_ENUM",
           "IMPACT_ENUM",
+          "TRAJECTORY_HEADINGS",
+          "UNDERSTANDING_FILE",
+          "UNDERSTANDING_SECTIONS",
           "VERDICT_ENUM",
           "appendAnswers",
           "blockMarkers",
           "clarifyBlock",
           "findMarkers",
+          "normalizeFrame",
           "normalizeQuestions",
-          "resolveMarker"
+          "parseUnderstanding",
+          "readTrajectory",
+          "readUnderstanding",
+          "resolveMarker",
+          "trajectoryPromptLines",
+          "understandingPromptLines",
+          "understandingStaleness"
         ],
         "hint": "«clarification_questions» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.clarify/provides.md."
       },
@@ -237,22 +263,107 @@
         "kind": "provided_capability_not_exported",
         "severity": "warning",
         "block": "b.clarify",
-        "capability": "uncertainty_marker_gate",
+        "capability": "declared_understanding",
         "scanned_files": [
+          "scripts/block_meaning.mjs",
           "scripts/clarify_block.mjs",
           "scripts/validate_clarifications.mjs",
+          "scripts/validate_meaning.mjs",
+          "tests/block_meaning.selftest.mjs",
           "tests/clarify_block.selftest.mjs"
         ],
         "exported_names_in_block": [
           "CATEGORY_ENUM",
           "IMPACT_ENUM",
+          "TRAJECTORY_HEADINGS",
+          "UNDERSTANDING_FILE",
+          "UNDERSTANDING_SECTIONS",
           "VERDICT_ENUM",
           "appendAnswers",
           "blockMarkers",
           "clarifyBlock",
           "findMarkers",
+          "normalizeFrame",
           "normalizeQuestions",
-          "resolveMarker"
+          "parseUnderstanding",
+          "readTrajectory",
+          "readUnderstanding",
+          "resolveMarker",
+          "trajectoryPromptLines",
+          "understandingPromptLines",
+          "understandingStaleness"
+        ],
+        "hint": "«declared_understanding» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.clarify/provides.md."
+      },
+      {
+        "kind": "provided_capability_not_exported",
+        "severity": "warning",
+        "block": "b.clarify",
+        "capability": "trajectory_reader",
+        "scanned_files": [
+          "scripts/block_meaning.mjs",
+          "scripts/clarify_block.mjs",
+          "scripts/validate_clarifications.mjs",
+          "scripts/validate_meaning.mjs",
+          "tests/block_meaning.selftest.mjs",
+          "tests/clarify_block.selftest.mjs"
+        ],
+        "exported_names_in_block": [
+          "CATEGORY_ENUM",
+          "IMPACT_ENUM",
+          "TRAJECTORY_HEADINGS",
+          "UNDERSTANDING_FILE",
+          "UNDERSTANDING_SECTIONS",
+          "VERDICT_ENUM",
+          "appendAnswers",
+          "blockMarkers",
+          "clarifyBlock",
+          "findMarkers",
+          "normalizeFrame",
+          "normalizeQuestions",
+          "parseUnderstanding",
+          "readTrajectory",
+          "readUnderstanding",
+          "resolveMarker",
+          "trajectoryPromptLines",
+          "understandingPromptLines",
+          "understandingStaleness"
+        ],
+        "hint": "«trajectory_reader» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.clarify/provides.md."
+      },
+      {
+        "kind": "provided_capability_not_exported",
+        "severity": "warning",
+        "block": "b.clarify",
+        "capability": "uncertainty_marker_gate",
+        "scanned_files": [
+          "scripts/block_meaning.mjs",
+          "scripts/clarify_block.mjs",
+          "scripts/validate_clarifications.mjs",
+          "scripts/validate_meaning.mjs",
+          "tests/block_meaning.selftest.mjs",
+          "tests/clarify_block.selftest.mjs"
+        ],
+        "exported_names_in_block": [
+          "CATEGORY_ENUM",
+          "IMPACT_ENUM",
+          "TRAJECTORY_HEADINGS",
+          "UNDERSTANDING_FILE",
+          "UNDERSTANDING_SECTIONS",
+          "VERDICT_ENUM",
+          "appendAnswers",
+          "blockMarkers",
+          "clarifyBlock",
+          "findMarkers",
+          "normalizeFrame",
+          "normalizeQuestions",
+          "parseUnderstanding",
+          "readTrajectory",
+          "readUnderstanding",
+          "resolveMarker",
+          "trajectoryPromptLines",
+          "understandingPromptLines",
+          "understandingStaleness"
         ],
         "hint": "«uncertainty_marker_gate» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.clarify/provides.md."
       },
@@ -691,8 +802,8 @@
     ]
   },
   "dependencyValidation": {
-    "checkedAt": "2026-09-22T17:30:11.886Z",
-    "totalDepsChecked": 36,
+    "checkedAt": "2026-09-22T17:41:17.200Z",
+    "totalDepsChecked": 38,
     "broken": 0,
     "details": []
   }

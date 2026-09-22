@@ -155,7 +155,8 @@
         "b.db",
         "b.core-sync",
         "b.llm-gateway",
-        "b.operator-profile-learner"
+        "b.operator-profile-learner",
+        "b.clarify"
       ],
       "tech_stack": [
         "nodejs",
@@ -591,7 +592,7 @@
       "id": "b.clarify",
       "title": "Clarification Arbiter",
       "status": "done",
-      "status_reason": "R-8.06 — the arbiter UPSTREAM of the contract: asks whether the contract says what the human meant, instead of taking it as an axiom. Questions + uncertainty markers + assumption registry.",
+      "status_reason": "R-8.06 + R-8.08 — meaning transfer in both directions around the contract. Model to human: questions, uncertainty markers, assumption registry. Human to model: the trajectory in mission.md as the rule for choosing between green implementations, and the executing agent declaring its operative frame in understanding.md before code.",
       "layer": "ai",
       "type": "module",
       "mvp": false,
@@ -611,7 +612,7 @@
       "canvas_x": 40,
       "canvas_y": 140,
       "canvas_size": "m",
-      "updated_at": "2026-09-13T07:01:49.416Z"
+      "updated_at": "2026-09-22T17:40:25.037Z"
     }
   ]
 }

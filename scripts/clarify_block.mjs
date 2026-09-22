@@ -143,8 +143,21 @@ const SCHEMA = {
         required: ['assumption', 'because', 'target_file'],
       },
     },
+    // R-8.08 — how the clarifier itself READS this contract: the known kind of
+    // thing it takes the block to be. Shown to the operator first, because a
+    // wrong frame makes every question after it wrong in the same direction.
+    // This is also the only frame available in print-only mode, where no
+    // coding agent runs and no understanding.md gets written.
+    operative_frame: {
+      type: 'object',
+      properties: {
+        treating_as: { type: 'string' },
+        reasoning: { type: 'string' },
+      },
+      required: ['treating_as', 'reasoning'],
+    },
   },
-  required: ['verdict', 'summary', 'facts_verified', 'coverage', 'questions', 'assumptions'],
+  required: ['verdict', 'summary', 'facts_verified', 'coverage', 'questions', 'assumptions', 'operative_frame'],
 };
 
 // Contract files worth reading, in the order a human would read them.
@@ -245,6 +258,18 @@ function buildSystem() {
     '    sentences, so that answering "yes" is enough.',
     '  * `target_file` names the contract file the answer will change.',
     '',
+    'OPERATIVE FRAME — state it before anything else, in `operative_frame`:',
+    '  `treating_as`: the known kind of thing you read this block as, in one sentence («a standard',
+    '  CRUD resource», «a pure function over the graph», «a background job with retries»).',
+    '  `reasoning`: which lines of the contract made you read it that way. The operator checks this',
+    '  first: if the frame is wrong, every question built on it is wrong in the same direction.',
+    '',
+    'TRAJECTORY: the mission may contain a section on where this block is heading («Во что это',
+    'вырастет» / «Trajectory»). If it does, a contract that lets the block be built in a way that',
+    'closes that direction off is worth a question (impact: scope). If there is none and the',
+    'acceptance criteria admit implementations that would diverge in how they can grow, ask where it',
+    'is heading — but only when that divergence is material, not by default.',
+    '',
     'COVERAGE: report every category as clear / partial / missing with a one-line note, including',
     'the ones you did not ask about. Degree of understanding is the measurement, not question count.',
     '',
@@ -291,7 +316,7 @@ export async function clarifyBlock({ block_id, atlas_root = ATLAS } = {}) {
     return {
       block_id, verdict: 'inconclusive', checked_at: checkedAt, mock: false,
       summary: `no block directory at ${dir}`,
-      facts_verified: [], coverage: [], questions: [], assumptions: [],
+      facts_verified: [], coverage: [], questions: [], assumptions: [], operative_frame: null,
     };
   }
 
@@ -302,7 +327,7 @@ export async function clarifyBlock({ block_id, atlas_root = ATLAS } = {}) {
     return {
       block_id, verdict: 'inconclusive', checked_at: checkedAt, mock: false,
       summary: 'contract files are empty — nothing to clarify against',
-      facts_verified: [], coverage: [], questions: [], assumptions: [],
+      facts_verified: [], coverage: [], questions: [], assumptions: [], operative_frame: null,
       markers,
     };
   }
@@ -323,7 +348,7 @@ export async function clarifyBlock({ block_id, atlas_root = ATLAS } = {}) {
     return {
       block_id, verdict: 'inconclusive', checked_at: checkedAt, mock: true,
       summary: `clarifier unavailable: ${String(e.message || e).slice(0, 200)}`,
-      facts_verified: [], coverage: [], questions: [], assumptions: [], markers,
+      facts_verified: [], coverage: [], questions: [], assumptions: [], operative_frame: null, markers,
     };
   }
 
@@ -350,8 +375,17 @@ export async function clarifyBlock({ block_id, atlas_root = ATLAS } = {}) {
     coverage: Array.isArray(value?.coverage) ? value.coverage : [],
     questions,
     assumptions: Array.isArray(value?.assumptions) ? value.assumptions : [],
+    // Under mock there is no reader, so there is no frame — an empty value,
+    // never a plausible-looking one.
+    operative_frame: isMock ? null : normalizeFrame(value?.operative_frame),
     markers,
   };
+}
+
+export function normalizeFrame(f) {
+  const treating_as = String(f?.treating_as || '').trim();
+  if (!treating_as) return null;
+  return { treating_as, reasoning: String(f?.reasoning || '').trim() };
 }
 
 /** Drop malformed questions rather than surfacing a label as if it were a question. */
@@ -436,6 +470,10 @@ function render(r) {
   const tick = r.verdict === 'questions' ? '?' : r.verdict === 'clear' ? '✓' : '·';
   console.log(`clarify ${r.block_id}: ${tick} ${r.verdict.toUpperCase()}${r.mock ? ' (mock / no live clarifier)' : ` (${r.provider})`}`);
   if (r.summary) console.log(`  ${r.summary}`);
+  if (r.operative_frame) {
+    console.log(`\n  reading this block as: ${r.operative_frame.treating_as}`);
+    if (r.operative_frame.reasoning) console.log(`    because: ${r.operative_frame.reasoning}`);
+  }
   if (r.markers?.length) {
     console.log(`\n  unresolved markers in the contract: ${r.markers.length}`);
     for (const m of r.markers) console.log(`    · ${m.file}:${m.line} — ${m.question}`);

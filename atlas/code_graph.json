@@ -44,8 +44,11 @@
     },
     "b.clarify": {
       "files": [
+        "scripts/block_meaning.mjs",
         "scripts/clarify_block.mjs",
         "scripts/validate_clarifications.mjs",
+        "scripts/validate_meaning.mjs",
+        "tests/block_meaning.selftest.mjs",
         "tests/clarify_block.selftest.mjs"
       ]
     },
@@ -211,6 +214,18 @@
       ],
       "from_block": "b.acceptance-verifier-loop",
       "to_block": "b.llm-gateway"
+    },
+    {
+      "examples": [
+        {
+          "from_file": "scripts/run_block_implementation.mjs",
+          "kind": "static",
+          "line": 29,
+          "to_file": "scripts/block_meaning.mjs"
+        }
+      ],
+      "from_block": "b.agent-orchestrator",
+      "to_block": "b.clarify"
     },
     {
       "examples": [
@@ -1313,6 +1328,97 @@
       ],
       "owning_block": "b.agent-orchestrator"
     },
+    "scripts/block_meaning.mjs": {
+      "exports": [
+        {
+          "kind": "named",
+          "line": 100,
+          "name": "trajectoryPromptLines"
+        },
+        {
+          "kind": "named",
+          "line": 124,
+          "name": "UNDERSTANDING_FILE"
+        },
+        {
+          "kind": "named",
+          "line": 127,
+          "name": "UNDERSTANDING_SECTIONS"
+        },
+        {
+          "kind": "named",
+          "line": 156,
+          "name": "understandingPromptLines"
+        },
+        {
+          "kind": "named",
+          "line": 172,
+          "name": "parseUnderstanding"
+        },
+        {
+          "kind": "named",
+          "line": 195,
+          "name": "readUnderstanding"
+        },
+        {
+          "kind": "named",
+          "line": 207,
+          "name": "understandingStaleness"
+        },
+        {
+          "kind": "named",
+          "line": 42,
+          "name": "TRAJECTORY_HEADINGS"
+        },
+        {
+          "kind": "named",
+          "line": 70,
+          "name": "readTrajectory"
+        }
+      ],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 31,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 32,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 33,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.clarify"
+    },
     "scripts/build_code_graph.mjs": {
       "exports": [
         {
@@ -1512,32 +1618,37 @@
       "exports": [
         {
           "kind": "named",
-          "line": 162,
+          "line": 175,
           "name": "findMarkers"
         },
         {
           "kind": "named",
-          "line": 175,
+          "line": 188,
           "name": "blockMarkers"
         },
         {
           "kind": "named",
-          "line": 285,
+          "line": 310,
           "name": "clarifyBlock"
         },
         {
           "kind": "named",
-          "line": 358,
+          "line": 385,
+          "name": "normalizeFrame"
+        },
+        {
+          "kind": "named",
+          "line": 392,
           "name": "normalizeQuestions"
         },
         {
           "kind": "named",
-          "line": 397,
+          "line": 431,
           "name": "appendAnswers"
         },
         {
           "kind": "named",
-          "line": 420,
+          "line": 454,
           "name": "resolveMarker"
         },
         {
@@ -3599,9 +3710,30 @@
         },
         {
           "external": false,
+          "from": "./block_meaning.mjs",
+          "kind": "static",
+          "line": 29,
+          "resolved_to": "scripts/block_meaning.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "readTrajectory"
+            },
+            {
+              "kind": "named",
+              "name": "trajectoryPromptLines"
+            },
+            {
+              "kind": "named",
+              "name": "understandingPromptLines"
+            }
+          ]
+        },
+        {
+          "external": false,
           "from": "./distill_run_log.mjs",
           "kind": "dynamic",
-          "line": 491,
+          "line": 508,
           "resolved_to": "scripts/distill_run_log.mjs",
           "specifiers": []
         },
@@ -3609,7 +3741,7 @@
           "external": false,
           "from": "./reflect_after_run.mjs",
           "kind": "dynamic",
-          "line": 500,
+          "line": 517,
           "resolved_to": "scripts/reflect_after_run.mjs",
           "specifiers": []
         },
@@ -3617,7 +3749,7 @@
           "external": false,
           "from": "./summarize_block_code.mjs",
           "kind": "dynamic",
-          "line": 510,
+          "line": 527,
           "resolved_to": "scripts/summarize_block_code.mjs",
           "specifiers": []
         },
@@ -3625,7 +3757,7 @@
           "external": false,
           "from": "./cleanup_block_memory.mjs",
           "kind": "dynamic",
-          "line": 520,
+          "line": 537,
           "resolved_to": "scripts/cleanup_block_memory.mjs",
           "specifiers": []
         }
@@ -4593,6 +4725,72 @@
       ],
       "owning_block": "b.core-sync"
     },
+    "scripts/validate_meaning.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 35,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 36,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 37,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "./block_meaning.mjs",
+          "kind": "static",
+          "line": 38,
+          "resolved_to": "scripts/block_meaning.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "readTrajectory"
+            },
+            {
+              "kind": "named",
+              "name": "readUnderstanding"
+            },
+            {
+              "kind": "named",
+              "name": "understandingStaleness"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.clarify"
+    },
     "scripts/validate_no_template_placeholders.mjs": {
       "exports": [],
       "imports": [
@@ -5100,6 +5298,93 @@
         }
       ],
       "owning_block": "b.smoke-sandbox"
+    },
+    "tests/block_meaning.selftest.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 13,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:os",
+          "kind": "static",
+          "line": 14,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 15,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:child_process",
+          "kind": "static",
+          "line": 16,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "spawnSync"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 17,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "../scripts/block_meaning.mjs",
+          "kind": "dynamic",
+          "line": 25,
+          "resolved_to": "scripts/block_meaning.mjs",
+          "specifiers": []
+        },
+        {
+          "external": false,
+          "from": "../scripts/clarify_block.mjs",
+          "kind": "dynamic",
+          "line": 26,
+          "resolved_to": "scripts/clarify_block.mjs",
+          "specifiers": []
+        }
+      ],
+      "owning_block": "b.clarify"
     },
     "tests/checks_append_endpoint.selftest.mjs": {
       "exports": [],

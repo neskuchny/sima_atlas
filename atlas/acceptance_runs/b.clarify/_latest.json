@@ -40,17 +40,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/clarify_block.selftest.mjs → exit 0 (323ms); first line: \"clarify_block.selftest: OK (10 groups, all assertions green)\"",
+      "evidence": "node tests/clarify_block.selftest.mjs → exit 0 (294ms); first line: \"clarify_block.selftest: OK (10 groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/clarify_block.selftest.mjs",
         "exit_code": 0,
         "stdout": "clarify_block.selftest: OK (10 groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 323,
+        "duration_ms": 294,
         "timed_out": false
       },
-      "duration_ms": 323
+      "duration_ms": 294
     },
     {
       "id": "A3",
@@ -63,17 +63,17 @@
         "cmd": "ATLAS_FORCE_MOCK_LLM=1 node scripts/clarify_block.mjs b.desktop --json | grep -q '\"verdict\": \"inconclusive\"'"
       },
       "verdict": "pass",
-      "evidence": "ATLAS_FORCE_MOCK_LLM=1 node scripts/clarify_block.mjs b.desktop --json | grep -q '\"verdict\": \"inconclusive\"' → exit 0 (78ms); first line: \"\"",
+      "evidence": "ATLAS_FORCE_MOCK_LLM=1 node scripts/clarify_block.mjs b.desktop --json | grep -q '\"verdict\": \"inconclusive\"' → exit 0 (75ms); first line: \"\"",
       "reasoning": "shell exit code 0",
       "raw": {
         "cmd": "ATLAS_FORCE_MOCK_LLM=1 node scripts/clarify_block.mjs b.desktop --json | grep -q '\"verdict\": \"inconclusive\"'",
         "exit_code": 0,
         "stdout": "",
         "stderr": "",
-        "duration_ms": 78,
+        "duration_ms": 75,
         "timed_out": false
       },
-      "duration_ms": 78
+      "duration_ms": 75
     },
     {
       "id": "A4",
@@ -123,7 +123,7 @@
           "  ['clarifications', 'node scripts/validate_clarifications.mjs'],"
         ]
       },
-      "duration_ms": 0
+      "duration_ms": 1
     },
     {
       "id": "A6",
@@ -137,17 +137,17 @@
         "expect_in_stdout": "open marker"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_clarifications.mjs → exit 0 (90ms); first line: \"validate_clarifications: 0 open marker(s), 0 question(s) answered on record — OK\"",
+      "evidence": "node scripts/validate_clarifications.mjs → exit 0 (77ms); first line: \"validate_clarifications: 0 open marker(s), 0 question(s) answered on record — OK\"",
       "reasoning": "shell exit code 0 and stdout matches /open marker/",
       "raw": {
         "cmd": "node scripts/validate_clarifications.mjs",
         "exit_code": 0,
         "stdout": "validate_clarifications: 0 open marker(s), 0 question(s) answered on record — OK\n",
         "stderr": "",
-        "duration_ms": 90,
+        "duration_ms": 77,
         "timed_out": false
       },
-      "duration_ms": 90
+      "duration_ms": 77
     },
     {
       "id": "A7",
@@ -173,15 +173,138 @@
         ]
       },
       "duration_ms": 0
+    },
+    {
+      "id": "A8",
+      "label": null,
+      "text": "Selftest направления «человек → модель» зелёный: русские заголовки траектории распознаются (регрессия `\\b` после кириллицы), границы секции, пустой заголовок отличается от отсутствия, разбор `understanding.md`, устаревание по mtime, E2E-промпт агента несёт траекторию ровно один раз и Step 0 до «How much to build», mock даёт `operative_frame: null`.",
+      "checked": true,
+      "line": 71,
+      "evidence_kind": "selftest_run",
+      "evidence_spec": {
+        "cmd": "node tests/block_meaning.selftest.mjs",
+        "expect_in_stdout": "OK"
+      },
+      "verdict": "pass",
+      "evidence": "node tests/block_meaning.selftest.mjs → exit 0 (381ms); first line: \"block_meaning.selftest: OK (8 groups, all assertions green)\"",
+      "reasoning": "shell exit code 0 and stdout matches /OK/",
+      "raw": {
+        "cmd": "node tests/block_meaning.selftest.mjs",
+        "exit_code": 0,
+        "stdout": "block_meaning.selftest: OK (8 groups, all assertions green)\n",
+        "stderr": "",
+        "duration_ms": 381,
+        "timed_out": false
+      },
+      "duration_ms": 381
+    },
+    {
+      "id": "A9",
+      "label": null,
+      "text": "Промпт исполняющего агента несёт протокол объявления понимания, построенный библиотекой, а не скопированный текстом; порядок секций в собранном промпте проверяет E2E-группа selftest'а (A8).",
+      "checked": true,
+      "line": 79,
+      "evidence_kind": "log_grep",
+      "evidence_spec": {
+        "file": "scripts/run_block_implementation.mjs",
+        "pattern": "understandingPromptLines[(]blockDirRelForPrompt[)]"
+      },
+      "verdict": "pass",
+      "evidence": "grep /understandingPromptLines[(]blockDirRelForPrompt[)]/ scripts/run_block_implementation.mjs → 1 matches; first: \"  ...understandingPromptLines(blockDirRelForPrompt),\"",
+      "reasoning": "1 matching lines found",
+      "raw": {
+        "file": "/home/user/sima_atlas/scripts/run_block_implementation.mjs",
+        "pattern": "understandingPromptLines[(]blockDirRelForPrompt[)]",
+        "since_time": null,
+        "match_count": 1,
+        "sample": [
+          "  ...understandingPromptLines(blockDirRelForPrompt),"
+        ]
+      },
+      "duration_ms": 1
+    },
+    {
+      "id": "A10",
+      "label": null,
+      "text": "Отчёт о передаче смысла проходит на текущем атласе и честно называет себя отчётом, а не гейтом (выход 0 при любых находках).",
+      "checked": true,
+      "line": 87,
+      "evidence_kind": "exit_code",
+      "evidence_spec": {
+        "cmd": "node scripts/validate_meaning.mjs",
+        "expect_in_stdout": "not a gate"
+      },
+      "verdict": "pass",
+      "evidence": "node scripts/validate_meaning.mjs → exit 0 (78ms); first line: \" · b.clarify (done) — trajectory, understanding: complete\"",
+      "reasoning": "shell exit code 0 and stdout matches /not a gate/",
+      "raw": {
+        "cmd": "node scripts/validate_meaning.mjs",
+        "exit_code": 0,
+        "stdout": " · b.clarify (done) — trajectory, understanding: complete\n     treating as: Two additions to the contract the coding agent receives, plus a small reader library — not a new arbiter. The closest known analogue is a pull-request descripti\nvalidate_meaning: 19 blocks — 1 with a declared trajectory, 1 with a declared understanding, 0 with warnings (report only, not a gate)\n",
+        "stderr": "",
+        "duration_ms": 78,
+        "timed_out": false
+      },
+      "duration_ms": 78
+    },
+    {
+      "id": "A11",
+      "label": null,
+      "text": "Отчёт о передаче смысла зарегистрирован в nightly.",
+      "checked": true,
+      "line": 95,
+      "evidence_kind": "log_grep",
+      "evidence_spec": {
+        "file": "scripts/nightly_consolidation.mjs",
+        "pattern": "'meaning_report', 'node scripts/validate_meaning.mjs'"
+      },
+      "verdict": "pass",
+      "evidence": "grep /'meaning_report', 'node scripts/validate_meaning.mjs'/ scripts/nightly_consolidation.mjs → 1 matches; first: \"  ['meaning_report', 'node scripts/validate_meaning.mjs'],\"",
+      "reasoning": "1 matching lines found",
+      "raw": {
+        "file": "/home/user/sima_atlas/scripts/nightly_consolidation.mjs",
+        "pattern": "'meaning_report', 'node scripts/validate_meaning.mjs'",
+        "since_time": null,
+        "match_count": 1,
+        "sample": [
+          "  ['meaning_report', 'node scripts/validate_meaning.mjs'],"
+        ]
+      },
+      "duration_ms": 1
+    },
+    {
+      "id": "A12",
+      "label": null,
+      "text": "Selftest направления «человек → модель» зарегистрирован в nightly.",
+      "checked": true,
+      "line": 103,
+      "evidence_kind": "log_grep",
+      "evidence_spec": {
+        "file": "scripts/nightly_consolidation.mjs",
+        "pattern": "'block_meaning_selftest', 'node tests/block_meaning.selftest.mjs'"
+      },
+      "verdict": "pass",
+      "evidence": "grep /'block_meaning_selftest', 'node tests/block_meaning.selftest.mjs'/ scripts/nightly_consolidation.mjs → 1 matches; first: \"  ['block_meaning_selftest', 'node tests/block_meaning.selftest.mjs'],\"",
+      "reasoning": "1 matching lines found",
+      "raw": {
+        "file": "/home/user/sima_atlas/scripts/nightly_consolidation.mjs",
+        "pattern": "'block_meaning_selftest', 'node tests/block_meaning.selftest.mjs'",
+        "since_time": null,
+        "match_count": 1,
+        "sample": [
+          "  ['block_meaning_selftest', 'node tests/block_meaning.selftest.mjs'],"
+        ]
+      },
+      "duration_ms": 0
     }
   ],
   "counts": {
-    "pass": 7,
+    "pass": 12,
     "fail": 0,
     "skipped": 0
   },
   "verdict": "pass",
   "inconclusive_if_declared": 1,
-  "duration_ms": 496,
-  "checked_at": "2026-09-22T17:30:14.462Z"
+  "duration_ms": 911,
+  "checked_at": "2026-09-22T17:41:20.172Z"
 }

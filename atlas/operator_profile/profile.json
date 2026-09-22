@@ -1,21 +1,21 @@
 {
   "operator_id": "default",
-  "updated_at": "2026-09-22T17:29:49.015Z",
+  "updated_at": "2026-09-22T17:40:51.902Z",
   "_status": "live",
   "_min_data": {
-    "done_transitions": 11,
+    "done_transitions": 12,
     "done_required": 5,
     "invocations": 14,
     "invocations_required": 10
   },
   "work_style": {
-    "total_done": 11,
+    "total_done": 12,
     "total_broken": 0,
-    "total_wip_started": 10,
+    "total_wip_started": 11,
     "rollback_rate": 0,
     "median_time_idea_to_done_h": 0.00003138888888888889,
     "common_failure_modes": {
-      "acceptance_verifier": 32,
+      "acceptance_verifier": 33,
       "semantic_verify": 16,
       "cascade_check": 6,
       "drift_guard": 2,
@@ -334,23 +334,23 @@
       "avg_cost_usd": 0
     },
     "mock": {
-      "count": 1395,
-      "fallback_to_mock_count": 8,
+      "count": 2152,
+      "fallback_to_mock_count": 12,
       "total_cost_usd": 0,
-      "schema_ok_count": 1395,
+      "schema_ok_count": 2152,
       "fallback_rate": 0.01,
       "schema_ok_rate": 1,
       "avg_cost_usd": 0
     }
   },
   "proposals_stats": {
-    "total": 15,
+    "total": 24,
     "accept_rate": 0,
     "reject_rate": 0,
-    "pending": 15
+    "pending": 24
   },
   "decisions_stats": {
-    "total": 3596,
+    "total": 3620,
     "blocks_with_decisions": 10
   },
   "patterns_stats": {
@@ -569,6 +569,12 @@
       "note": "mission_fulfilled=fail conditions_met=fail methodology_followed=fail works_as_described=fail connections_consistent=fail"
     },
     {
+      "block_id": "b.core-sync",
+      "ts": "2026-09-22T17:38:18.752Z",
+      "kind": "acceptance_verifier",
+      "note": "verdict=fail pass=5 fail=1 skipped=1 fails=[A2:node scripts/validate_dependency_contracts.mjs → exit 1; std]"
+    },
+    {
       "block_id": "b.db",
       "ts": "2026-06-20T08:08:20.748Z",
       "kind": "semantic_verify",
@@ -727,9 +733,9 @@
   ],
   "invocations_total": 14,
   "_preview": {
-    "total_done": 11,
+    "total_done": 12,
     "total_invocations": 14,
-    "total_traces": 1399,
-    "total_proposals": 15
+    "total_traces": 2156,
+    "total_proposals": 24
   }
 }

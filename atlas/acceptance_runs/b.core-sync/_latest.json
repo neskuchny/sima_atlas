@@ -15,17 +15,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/atlas_sync.selftest.mjs → exit 0 (71ms); first line: \"atlas_sync.selftest: OK\"",
+      "evidence": "node tests/atlas_sync.selftest.mjs → exit 0 (61ms); first line: \"atlas_sync.selftest: OK\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/atlas_sync.selftest.mjs",
         "exit_code": 0,
         "stdout": "atlas_sync.selftest: OK\n",
         "stderr": "",
-        "duration_ms": 71,
+        "duration_ms": 61,
         "timed_out": false
       },
-      "duration_ms": 71
+      "duration_ms": 61
     },
     {
       "id": "A2",
@@ -39,17 +39,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_dependency_contracts.mjs → exit 0 (62ms); first line: \"Dependency contract validation: OK\"",
+      "evidence": "node scripts/validate_dependency_contracts.mjs → exit 0 (60ms); first line: \"Dependency contract validation: OK\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_dependency_contracts.mjs",
         "exit_code": 0,
         "stdout": "Dependency contract validation: OK\n",
         "stderr": "",
-        "duration_ms": 62,
+        "duration_ms": 60,
         "timed_out": false
       },
-      "duration_ms": 62
+      "duration_ms": 60
     },
     {
       "id": "A3",
@@ -63,17 +63,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/atlas_sync.selftest.mjs → exit 0 (59ms); first line: \"atlas_sync.selftest: OK\"",
+      "evidence": "node tests/atlas_sync.selftest.mjs → exit 0 (58ms); first line: \"atlas_sync.selftest: OK\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/atlas_sync.selftest.mjs",
         "exit_code": 0,
         "stdout": "atlas_sync.selftest: OK\n",
         "stderr": "",
-        "duration_ms": 59,
+        "duration_ms": 58,
         "timed_out": false
       },
-      "duration_ms": 59
+      "duration_ms": 58
     },
     {
       "id": "A4",
@@ -90,12 +90,12 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "237534c4bb620da1",
+        "prompt_hash": "7fc55dafdb35d3d1",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 3
+      "duration_ms": 2
     },
     {
       "id": "A5",
@@ -109,17 +109,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (64ms); first line: \"Block contract validation: OK\"",
+      "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (58ms); first line: \"Block contract validation: OK\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_block_contracts.mjs",
         "exit_code": 0,
         "stdout": "Block contract validation: OK\n",
         "stderr": "",
-        "duration_ms": 64,
+        "duration_ms": 58,
         "timed_out": false
       },
-      "duration_ms": 64
+      "duration_ms": 58
     },
     {
       "id": "A6",
@@ -133,17 +133,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/dependency_graph.selftest.mjs → exit 0 (758ms); first line: \"dependency_graph.selftest: OK (11 groups, all assertions green)\"",
+      "evidence": "node tests/dependency_graph.selftest.mjs → exit 0 (684ms); first line: \"dependency_graph.selftest: OK (11 groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/dependency_graph.selftest.mjs",
         "exit_code": 0,
         "stdout": "dependency_graph.selftest: OK (11 groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 758,
+        "duration_ms": 684,
         "timed_out": false
       },
-      "duration_ms": 758
+      "duration_ms": 684
     },
     {
       "id": "A7",
@@ -157,17 +157,17 @@
         "expect_in_stdout": "no unjustified cycles"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_dependency_graph.mjs → exit 0 (59ms); first line: \"validate_dependency_graph: OK — 19 blocks, graph.json mirrors depends_on.md, no unjustified cycles, 1 justified cycle exemption(s) in use\"",
+      "evidence": "node scripts/validate_dependency_graph.mjs → exit 0 (58ms); first line: \"validate_dependency_graph: OK — 19 blocks, graph.json mirrors depends_on.md, no unjustified cycles, 1 justified cycle exemption(s) in use\"",
       "reasoning": "shell exit code 0 and stdout matches /no unjustified cycles/",
       "raw": {
         "cmd": "node scripts/validate_dependency_graph.mjs",
         "exit_code": 0,
         "stdout": "validate_dependency_graph: OK — 19 blocks, graph.json mirrors depends_on.md, no unjustified cycles, 1 justified cycle exemption(s) in use\n",
         "stderr": "",
-        "duration_ms": 59,
+        "duration_ms": 58,
         "timed_out": false
       },
-      "duration_ms": 59
+      "duration_ms": 58
     }
   ],
   "counts": {
@@ -176,6 +176,6 @@
     "skipped": 1
   },
   "verdict": "pass",
-  "duration_ms": 1078,
-  "checked_at": "2026-09-22T17:30:12.841Z"
+  "duration_ms": 984,
+  "checked_at": "2026-09-22T17:41:18.076Z"
 }

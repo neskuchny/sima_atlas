@@ -15,17 +15,17 @@
         "expect_in_stdout": "inconclusive"
       },
       "verdict": "pass",
-      "evidence": "printf '' | node scripts/review_diff.mjs --block b.nonexistent-empty --json → exit 0 (68ms); first line: \"{\"",
+      "evidence": "printf '' | node scripts/review_diff.mjs --block b.nonexistent-empty --json → exit 0 (79ms); first line: \"{\"",
       "reasoning": "shell exit code 0 and stdout matches /inconclusive/",
       "raw": {
         "cmd": "printf '' | node scripts/review_diff.mjs --block b.nonexistent-empty --json",
         "exit_code": 0,
-        "stdout": "{\n  \"ok\": true,\n  \"verdict\": \"inconclusive\",\n  \"summary\": \"empty diff — nothing to review\",\n  \"findings\": [],\n  \"mock\": false,\n  \"reason\": \"empty_diff\",\n  \"checked_at\": \"2026-09-22T17:30:08.909Z\",\n  \"source_note\": \"no diff proposal for block\"\n}\n",
+        "stdout": "{\n  \"ok\": true,\n  \"verdict\": \"inconclusive\",\n  \"summary\": \"empty diff — nothing to review\",\n  \"findings\": [],\n  \"mock\": false,\n  \"reason\": \"empty_diff\",\n  \"checked_at\": \"2026-09-22T17:41:13.878Z\",\n  \"source_note\": \"no diff proposal for block\"\n}\n",
         "stderr": "",
-        "duration_ms": 68,
+        "duration_ms": 79,
         "timed_out": false
       },
-      "duration_ms": 68
+      "duration_ms": 79
     },
     {
       "id": "A2",
@@ -39,17 +39,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/review_diff.selftest.mjs → exit 0 (72ms); first line: \"review_diff.selftest: OK (7 test groups, all assertions green)\"",
+      "evidence": "node tests/review_diff.selftest.mjs → exit 0 (74ms); first line: \"review_diff.selftest: OK (7 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/review_diff.selftest.mjs",
         "exit_code": 0,
         "stdout": "review_diff.selftest: OK (7 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 72,
+        "duration_ms": 74,
         "timed_out": false
       },
-      "duration_ms": 72
+      "duration_ms": 74
     },
     {
       "id": "A3",
@@ -99,7 +99,7 @@
           "const VERDICT_ENUM = ['inconclusive', 'pass', 'fail'];"
         ]
       },
-      "duration_ms": 1
+      "duration_ms": 0
     },
     {
       "id": "A5",
@@ -149,7 +149,7 @@
           "  ['review_diff_selftest', 'node tests/review_diff.selftest.mjs'],"
         ]
       },
-      "duration_ms": 0
+      "duration_ms": 1
     }
   ],
   "counts": {
@@ -159,6 +159,6 @@
   },
   "verdict": "pass",
   "inconclusive_if_declared": 1,
-  "duration_ms": 144,
-  "checked_at": "2026-09-22T17:30:08.990Z"
+  "duration_ms": 157,
+  "checked_at": "2026-09-22T17:41:13.961Z"
 }

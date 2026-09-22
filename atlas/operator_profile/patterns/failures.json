@@ -210,6 +210,12 @@
     "note": "mission_fulfilled=fail conditions_met=fail methodology_followed=fail works_as_described=fail connections_consistent=fail"
   },
   {
+    "block_id": "b.core-sync",
+    "ts": "2026-09-22T17:38:18.752Z",
+    "kind": "acceptance_verifier",
+    "note": "verdict=fail pass=5 fail=1 skipped=1 fails=[A2:node scripts/validate_dependency_contracts.mjs → exit 1; std]"
+  },
+  {
     "block_id": "b.db",
     "ts": "2026-06-20T08:08:20.748Z",
     "kind": "semantic_verify",

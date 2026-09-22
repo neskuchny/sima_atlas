@@ -15,3 +15,9 @@
 2026-09-22T15:19:32.195Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=0
 2026-09-22T15:20:22.511Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=0
 2026-09-22T17:30:14.462Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=0
+2026-09-22T17:31:01.793Z	transition	pass	done->wip	actor=operator-R8.08	note=R-8.08: scope extension — trajectory + declared understanding (the model's frame, human->model direction)
+2026-09-22T17:37:43.774Z	acceptance_verifier	pass	verdict=pass pass=12 fail=0 skipped=0
+2026-09-22T17:40:23.818Z	transition	pass	wip->review	actor=operator-R8.08	note=R-8.08: trajectory + declared understanding implemented; acceptance 12/12 deterministic, nightly 88/88
+2026-09-22T17:40:24.978Z	acceptance_verifier	pass	verdict=pass pass=12 fail=0 skipped=0
+2026-09-22T17:40:25.037Z	transition	pass	review->done	actor=operator-R8.08	note=R-8.08: acceptance pass 12/12 via gate; validate_meaning report clean; agent-orchestrator -> clarify edge in both graph copies gate=pass(12/12)
+2026-09-22T17:41:20.172Z	acceptance_verifier	pass	verdict=pass pass=12 fail=0 skipped=0

@@ -685,7 +685,7 @@
     },
     {
       "id": "b.clarify",
-      "_raw_updated_at": "2026-09-13T07:01:49.416Z",
+      "_raw_updated_at": "2026-09-22T17:40:25.037Z",
       "title": "Clarification Arbiter",
       "tag": "clarify",
       "layer": "logic",
@@ -695,22 +695,21 @@
       "size": "m",
       "parent_block_id": null,
       "contract": {
-        "score": 0.6,
-        "filled": 3,
+        "score": 0.8,
+        "filled": 4,
         "total": 5,
         "missing": [
-          "depends_on.md",
-          "provides.md"
+          "depends_on.md"
         ]
       },
       "progress": {
         "tasks": {
-          "done": 11,
-          "total": 17
+          "done": 17,
+          "total": 24
         },
         "kpi": {
           "checked": 0,
-          "total": 18
+          "total": 26
         }
       },
       "tech_stack": [
@@ -777,6 +776,13 @@
       "kind": "data",
       "label": "depends_on",
       "biz": "Зависит от b.operator-profile-learner."
+    },
+    {
+      "from": "b.agent-orchestrator",
+      "to": "b.clarify",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.clarify."
     },
     {
       "from": "b.docs",
@@ -2595,6 +2601,60 @@
         "accept": ""
       },
       {
+        "id": "T18",
+        "title": ". `block_meaning.mjs`: чтение секции траектории из mission.md (русские и английские заголовки), вырезание её из миссии, чтобы промпт не нёс текст дважды.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T19",
+        "title": ". Промпт исполняющего агента: секция траектории как правило выбора между зелёными вариантами, а не как задача на сейчас; при отсутствии — требование записать выбор в допущения.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T20",
+        "title": ". Step 0 в промпте агента: `understanding.md` с фиксированными заголовками до первой строки кода.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T21",
+        "title": ". `clarify_block.mjs`: обязательное поле `operative_frame` — модель называет рамку, в которой читает блок; на mock — `null`, а не выдуманная рамка.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T22",
+        "title": ". `validate_meaning.mjs` — отчёт с условиями повышения до гейта и снятия; регистрация в nightly.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T23",
+        "title": ". Траектория для самого b.clarify. Для остальных блоков — нет: куда движется блок, знает оператор, а выдуманная агентом траектория была бы ровно тем, против чего блок создан.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
         "id": "T12",
         "title": ". Подсветка блока с открытыми маркерами на графе.",
         "status": "todo",
@@ -2624,6 +2684,15 @@
       {
         "id": "T15",
         "title": ". Отображение `assumptions` как видимого долга на карточке блока.",
+        "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T24",
+        "title": ". Строка «Treating this as» на карточке блока — оператор видит рамку агента, не открывая файл.",
         "status": "todo",
         "priority": "P2",
         "agent": null,
@@ -2719,27 +2788,6 @@
   "lanes": [],
   "history": [
     {
-      "ts": "19:00",
-      "module": "desktop",
-      "agent": "sima-core",
-      "kind": "info",
-      "msg": "b.desktop: wip → review"
-    },
-    {
-      "ts": "19:00",
-      "module": "desktop",
-      "agent": "sima-core",
-      "kind": "ok",
-      "msg": "b.desktop: review → done"
-    },
-    {
-      "ts": "22:37",
-      "module": "diff-review",
-      "agent": "sima-core",
-      "kind": "info",
-      "msg": "b.diff-review: idea → wip"
-    },
-    {
       "ts": "22:37",
       "module": "diff-review",
       "agent": "sima-core",
@@ -2801,6 +2849,27 @@
       "agent": "sima-core",
       "kind": "ok",
       "msg": "b.core-sync: review → done"
+    },
+    {
+      "ts": "17:31",
+      "module": "clarify",
+      "agent": "sima-core",
+      "kind": "info",
+      "msg": "b.clarify: done → wip"
+    },
+    {
+      "ts": "17:40",
+      "module": "clarify",
+      "agent": "sima-core",
+      "kind": "info",
+      "msg": "b.clarify: wip → review"
+    },
+    {
+      "ts": "17:40",
+      "module": "clarify",
+      "agent": "sima-core",
+      "kind": "ok",
+      "msg": "b.clarify: review → done"
     }
   ],
   "lessons": [],
@@ -2832,10 +2901,10 @@
     }
   ],
   "_meta": {
-    "generated_at": "2026-09-22T17:29:53.505Z",
+    "generated_at": "2026-09-22T17:40:57.120Z",
     "atlas_root": "atlas",
     "client_id": null,
     "block_count": 21,
-    "edge_count": 34
+    "edge_count": 35
   }
 }

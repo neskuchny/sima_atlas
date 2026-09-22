@@ -26,6 +26,7 @@ import { spawnSync, execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { startRun, transitionRunState } from './run_state.mjs';
 import { createWorkspace, captureDiff, writeDiffProposal, cleanupWorkspace } from './agent_workspace.mjs';
+import { readTrajectory, trajectoryPromptLines, understandingPromptLines } from './block_meaning.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(__filename), '..');
@@ -93,6 +94,11 @@ function tailLines(s, n) {
   return all.slice(-n).join('\n');
 }
 const mission = readSafe(path.join(blockDir, 'mission.md'));
+// R-8.08 (b.clarify) — the trajectory section is pulled out of the mission and
+// rendered on its own, with instructions on how to use it. Leaving it inside
+// the Mission as well would send the same text twice.
+const trajectory = readTrajectory(mission);
+const blockDirRelForPrompt = path.relative(ROOT, blockDir).split(path.sep).join('/');
 const kpi = readSafe(path.join(blockDir, 'kpi.md'));
 const acceptance = readSafe(path.join(blockDir, 'acceptance.md'));
 const tasks = readSafe(path.join(blockDir, 'tasks.md'));
@@ -141,7 +147,7 @@ const prompt = [
   `# Implement block ${blockId}`,
   '',
   '## Mission',
-  mission.trim(),
+  trajectory.missionWithout.trim(),
   '',
   '## Tasks (pick the first unchecked one)',
   tasks.trim(),
@@ -151,6 +157,17 @@ const prompt = [
   '',
   '## Acceptance criteria',
   acceptance.trim(),
+  '',
+  // R-8.08 — where the block is heading. Acceptance cannot tell apart the
+  // several implementations that all satisfy it; the direction can. Absent a
+  // declared trajectory, the agent is told its choice is a guess and must be
+  // recorded, not made silently.
+  ...trajectoryPromptLines(trajectory),
+  '',
+  // R-8.08 — the agent declares its operative frame BEFORE writing code. The
+  // cheapest divergence detector available: a wrong «Treating this as» shows
+  // in one line, while the code built on it would verify green.
+  ...understandingPromptLines(blockDirRelForPrompt),
   '',
   // R-8.02 — contract-bounded sizing steer. Captures Ponytail's pre-generation
   // leverage (less code → cheaper, faster) WITHOUT adopting its «be lazy»

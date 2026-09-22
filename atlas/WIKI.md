@@ -1,6 +1,6 @@
 # Sima Atlas Wiki
 
-_Auto-generated: 2026-09-22T17:30:16.086Z_
+_Auto-generated: 2026-09-22T17:41:21.887Z_
 
 ## Граф продукта
 
@@ -55,6 +55,7 @@ flowchart TB
   b_agent_orchestrator --> b_core_sync
   b_agent_orchestrator --> b_llm_gateway
   b_agent_orchestrator --> b_operator_profile_learner
+  b_agent_orchestrator --> b_clarify
   b_docs --> b_db
   b_docs --> b_core_sync
   b_operator_profile_learner --> b_db
@@ -118,7 +119,7 @@ flowchart TB
 - 🟢 **b.diff-review** — Diff Review Arbiter _(done)_
   - reason: Fourth V-1 arbiter — independent LLM review of the git diff for BLOCKING problems (correctness/security/regression/perf). Imported from loop-engineer-template. R-8.01.
 - 🟢 **b.clarify** — Clarification Arbiter _(done)_
-  - reason: R-8.06 — the arbiter UPSTREAM of the contract: asks whether the contract says what the human meant, instead of taking it as an axiom. Questions + uncertainty markers + assumption registry.
+  - reason: R-8.06 + R-8.08 — meaning transfer in both directions around the contract. Model to human: questions, uncertainty markers, assumption registry. Human to model: the trajectory in mission.md as the rule for choosing between green implementations, and the executing agent declaring its operative frame in understanding.md before code.
 
 ### Данные / хранилище (`data`)
 
@@ -603,7 +604,7 @@ _Sources: [mission](blocks/b.db/mission.md) · [kpi](blocks/b.db/kpi.md) · [acc
 - **type**: module
 - **status**: `review` — Phase I: verifier FAIL on A5 (cursor_live.headless.smoke) — needs a live cursor-agent CLI, not installed in this env. Env-blocked, not code-blocked. A1-A4+A7 pass.
 - **mvp**: yes
-- **depends_on**: `b.db`, `b.core-sync`, `b.llm-gateway`, `b.operator-profile-learner`
+- **depends_on**: `b.db`, `b.core-sync`, `b.llm-gateway`, `b.operator-profile-learner`, `b.clarify`
 - **tech_stack**: `nodejs`, `esm`, `mcp`
 - **files**: 19 (`atlas/blocks/b.agent-orchestrator/files.md`)
 
@@ -717,6 +718,8 @@ evidence_spec:
 - b.core-sync: sync_report
 - b.llm-gateway: llm_extract_block_schema
 - b.operator-profile-learner: personal_templates
+- b.clarify: trajectory_reader
+- b.clarify: declared_understanding
 
 #### Files
 
@@ -6320,6 +6323,22 @@ _no summary_
 - 2026-09-22T17:30:10.301Z: smoke e2e distillate
 - 2026-09-22T17:30:15.695Z: smoke e2e queued insight
 - 2026-09-22T17:30:15.745Z: smoke e2e distillate
+- 2026-09-22T17:38:15.544Z: smoke e2e queued insight
+- 2026-09-22T17:38:15.598Z: smoke e2e distillate
+- 2026-09-22T17:38:21.363Z: smoke e2e queued insight
+- 2026-09-22T17:38:21.425Z: smoke e2e distillate
+- 2026-09-22T17:39:03.650Z: smoke e2e queued insight
+- 2026-09-22T17:39:03.702Z: smoke e2e distillate
+- 2026-09-22T17:39:09.256Z: smoke e2e queued insight
+- 2026-09-22T17:39:09.313Z: smoke e2e distillate
+- 2026-09-22T17:40:11.629Z: smoke e2e queued insight
+- 2026-09-22T17:40:11.684Z: smoke e2e distillate
+- 2026-09-22T17:40:17.536Z: smoke e2e queued insight
+- 2026-09-22T17:40:17.591Z: smoke e2e distillate
+- 2026-09-22T17:41:15.239Z: smoke e2e queued insight
+- 2026-09-22T17:41:15.293Z: smoke e2e distillate
+- 2026-09-22T17:41:21.463Z: smoke e2e queued insight
+- 2026-09-22T17:41:21.515Z: smoke e2e distillate
 
 #### Files
 
@@ -6719,7 +6738,7 @@ _Sources: [mission](blocks/b.block-2/mission.md) · [kpi](blocks/b.block-2/kpi.m
 
 - **layer**: `ai`
 - **type**: module
-- **status**: `done` — R-8.06 — the arbiter UPSTREAM of the contract: asks whether the contract says what the human meant, instead of taking it as an axiom. Questions + uncertainty markers + assumption registry.
+- **status**: `done` — R-8.06 + R-8.08 — meaning transfer in both directions around the contract. Model to human: questions, uncertainty markers, assumption registry. Human to model: the trajectory in mission.md as the rule for choosing between green implementations, and the executing agent declaring its operative frame in understanding.md before code.
 - **mvp**: no
 - **depends_on**: `b.llm-gateway`
 - **tech_stack**: `nodejs`, `esm`
@@ -6786,6 +6805,52 @@ _Sources: [mission](blocks/b.block-2/mission.md) · [kpi](blocks/b.block-2/kpi.m
 наблюдаемое **поведение**, **совместимость** с соседями или **критерии
 приёмки**. Всё мельче — решить самому и записать в `assumptions`.
 
+## Вторая сторона: от человека к модели (R-8.08)
+
+Вопросы закрывают только одно направление: модель показывает человеку, чего
+она не поняла. Обратное — человек передаёт модели то, что в условия не
+укладывается, — было пустым. Два механизма, оба взяты из того, как оператор
+сам передаёт контекст людям:
+
+**Траектория.** Контракт описывал только настоящее: миссию, KPI, приёмку.
+Когда приёмке удовлетворяют несколько реализаций, все они зелёные, и выбор
+между ними агент делал наугад — там, где этого никто не заметит. Будущее
+нельзя записать условиями («я ещё не знаю всех условий»), но можно записать
+направлением, и направления достаточно, чтобы выбрать между зелёными
+вариантами. Секция «Во что это вырастет» в `mission.md` подаётся агенту как
+правило выбора, а не как задача на сейчас. Нет траектории — агент обязан
+записать свой выбор как допущение, а не сделать его молча.
+
+**Объявленное понимание.** До первой строки кода агент пишет
+`understanding.md`: чем он считает блок (рабочая аналогия — «стандартный
+CRUD-ресурс», «фоновая задача с ретраями»), что в scope, что сознательно вне
+его, какой вариант выбран, что допущено без вопроса. Это самый дешёвый
+детектор расхождения: неверная рамка видна одной строкой до работы, а код,
+построенный на ней, честно пройдёт приёмку.
+
+Траекторию пишет оператор. Агент её не выдумывает: куда движется блок —
+знание человека, а сочинённая моделью траектория была бы ровно той
+правдоподобной догадкой, против которой блок создан.
+
+## Во что это вырастет
+
+Сейчас блок работает с одним контрактом за раз и ничего не помнит между
+прогонами, кроме двух файлов: `clarifications.md` (что модель не поняла и как
+человек поправил) и `understanding.md` (чем агент счёл блок до кода). Со
+временем эти файлы по всем блокам становятся корпусом того, **где именно эта
+модель систематически понимает этого оператора не так.** Не общие правила
+«как понимать людей», а конкретная калибровка пары «оператор — модель».
+
+Из корпуса вырастает предупреждение заранее: повторяющийся рассинхрон
+перестаёт задаваться вопросом каждый раз и становится правилом, которое
+подставляется до того, как модель ошибётся. Число вопросов на блок падает —
+это KPI-5.
+
+Следствие для реализации сейчас: всё, что пишется в эти два файла, должно
+оставаться машиночитаемым и привязанным к блоку и дате. Отсюда строка
+«Q → A» с датой сессии и фиксированный набор заголовков в `understanding.md`.
+Не превращать эти файлы в свободную прозу, даже если так читать приятнее.
+
 ## Layer
 ai
 
@@ -6796,6 +6861,10 @@ ai
 - Не генератор контракта: `fillField`/`expandField` пишут за человека — здесь
   сознательно обратное.
 - Не диалоговый агент: один прогон возвращает срез, а не ведёт беседу.
+- Не гейт на рамку агента: отсутствующий или устаревший `understanding.md`
+  попадает в отчёт, а не валит статус. Гейт без доказанной проблемы — та же
+  практика, пережившая свою причину; условие повышения записано в
+  `validate_meaning.mjs`.
 
 #### KPI
 
@@ -6819,6 +6888,14 @@ ai
 - **KPI-6 (вопросы попадают в цель)**: доля вопросов, на которые оператор
   ответил не «не важно». Сейчас: не измерено — требует накопленного лога
   ответов.
+- **KPI-7 (рамка объявлена до кода)**: доля прогонов исполняющего агента,
+  после которых в блоке лежит полный и не устаревший `understanding.md`.
+  Сейчас: не измерено — механизм новый, считается из `validate_meaning.mjs`
+  после первых живых прогонов.
+- **KPI-8 (рамка ловит расхождение)**: число случаев, когда оператор поправил
+  «Treating this as» до того, как код был написан. Сейчас: не измерено.
+  Ноль после месяца живых прогонов — повод не гордиться, а проверить, читает
+  ли кто-нибудь эти файлы.
 
 #### Acceptance
 
@@ -6892,6 +6969,46 @@ evidence_spec:
   pattern: "clarify_block.selftest"
 ```
 
+- [x] **A8.** Selftest направления «человек → модель» зелёный: русские заголовки траектории распознаются (регрессия `\b` после кириллицы), границы секции, пустой заголовок отличается от отсутствия, разбор `understanding.md`, устаревание по mtime, E2E-промпт агента несёт траекторию ровно один раз и Step 0 до «How much to build», mock даёт `operative_frame: null`.
+```yaml
+evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/block_meaning.selftest.mjs
+  expect_in_stdout: "OK"
+```
+
+- [x] **A9.** Промпт исполняющего агента несёт протокол объявления понимания, построенный библиотекой, а не скопированный текстом; порядок секций в собранном промпте проверяет E2E-группа selftest'а (A8).
+```yaml
+evidence_kind: log_grep
+evidence_spec:
+  file: scripts/run_block_implementation.mjs
+  pattern: "understandingPromptLines[(]blockDirRelForPrompt[)]"
+```
+
+- [x] **A10.** Отчёт о передаче смысла проходит на текущем атласе и честно называет себя отчётом, а не гейтом (выход 0 при любых находках).
+```yaml
+evidence_kind: exit_code
+evidence_spec:
+  cmd: node scripts/validate_meaning.mjs
+  expect_in_stdout: "not a gate"
+```
+
+- [x] **A11.** Отчёт о передаче смысла зарегистрирован в nightly.
+```yaml
+evidence_kind: log_grep
+evidence_spec:
+  file: scripts/nightly_consolidation.mjs
+  pattern: "'meaning_report', 'node scripts/validate_meaning.mjs'"
+```
+
+- [x] **A12.** Selftest направления «человек → модель» зарегистрирован в nightly.
+```yaml
+evidence_kind: log_grep
+evidence_spec:
+  file: scripts/nightly_consolidation.mjs
+  pattern: "'block_meaning_selftest', 'node tests/block_meaning.selftest.mjs'"
+```
+
 ## inconclusive_if
 
 - Нет живого LLM-провайдера — качество вопросов операторски не проверяемо в
@@ -6908,6 +7025,10 @@ evidence_spec:
   операторски на живых прогонах, не в nightly.
 - Автоответ на собственные вопросы — вне scope по замыслу: право записи в
   контракт остаётся у человека.
+- Верна ли объявленная агентом рамка («Treating this as») — судит только
+  оператор. Код проверяет, что объявление есть, полно и не устарело; что
+  оно правильное, проверить нечем, и притворяться, что есть чем, — тот же
+  тихий зелёный.
 
 #### Provides
 
@@ -6916,6 +7037,8 @@ evidence_spec:
 - clarification_questions
 - uncertainty_marker_gate
 - assumption_registry
+- trajectory_reader
+- declared_understanding
 
 #### Depends on
 
@@ -6960,9 +7083,12 @@ evidence_spec:
 ## Код
 - scripts/clarify_block.mjs [alive] (R-8.06: протокол вопроса + маркеры неопределённости + append-only Q→A лог + снятие маркера без остатка. Экспортирует clarifyBlock / normalizeQuestions / findMarkers / blockMarkers / appendAnswers / resolveMarker)
 - scripts/validate_clarifications.mjs [alive] (R-8.06: гейт — done-блок не может нести открытый маркер; review → warning; idea/wip → info, чтобы черновик оставался свободным)
+- scripts/block_meaning.mjs [alive] (R-8.08: направление «человек → модель». Экспортирует readTrajectory / trajectoryPromptLines — секция «Во что это вырастет» в mission.md и её подача агенту; understandingPromptLines / parseUnderstanding / readUnderstanding / understandingStaleness — объявление понимания агентом до кода)
+- scripts/validate_meaning.mjs [alive] (R-8.08: отчёт, не гейт — траектория, наличие/полнота/устаревание understanding.md по блокам. Условия повышения до гейта и снятия — в шапке файла)
 
 ## Тесты
 - tests/clarify_block.selftest.mjs [alive] (R-8.06: 10 групп — порядок enum, честная деградация на mock, пустой контракт, отбраковка ярлыка, отбраковка вопроса без выбора, сортировка по impact, поиск маркеров, append-only лог, снятие маркера, срабатывание done-гейта)
+- tests/block_meaning.selftest.mjs [alive] (R-8.08: 8 групп — кириллические заголовки траектории, границы секции, пустой против отсутствующего, строки промпта, разбор understanding.md, устаревание по mtime, E2E-промпт на одноразовом клиенте, operative_frame на mock)
 
 ## Контракт
 - atlas/blocks/b.clarify/mission.md [alive]
@@ -6977,6 +7103,7 @@ evidence_spec:
 - atlas/blocks/b.clarify/decisions.log [alive]
 - atlas/blocks/b.clarify/patterns.md [alive]
 - atlas/blocks/b.clarify/checks.log [alive]
+- atlas/blocks/b.clarify/understanding.md [alive] (R-8.08: объявленная рамка самого блока — написана до кода, как требует собственный протокол)
 
 _Sources: [mission](blocks/b.clarify/mission.md) · [kpi](blocks/b.clarify/kpi.md) · [acceptance](blocks/b.clarify/acceptance.md) · [depends_on](blocks/b.clarify/depends_on.md) · [provides](blocks/b.clarify/provides.md) · [patterns](blocks/b.clarify/patterns.md) · [files](blocks/b.clarify/files.md)_
 

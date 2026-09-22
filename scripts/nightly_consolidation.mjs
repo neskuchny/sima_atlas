@@ -50,6 +50,12 @@ const checks = [
   // finished while its own contract says a part is undecided is a dishonest
   // status. Drafting statuses stay soft by design.
   ['clarifications', 'node scripts/validate_clarifications.mjs'],
+  // R-8.08 (b.clarify) — the human → model direction: trajectory in the
+  // mission, the agent's declared understanding before code. The report never
+  // fails the night (no evidence yet that a missing declaration precedes
+  // rework); its promotion and removal conditions live in its header.
+  ['block_meaning_selftest', 'node tests/block_meaning.selftest.mjs'],
+  ['meaning_report', 'node scripts/validate_meaning.mjs'],
   ['atlas_selftest', 'node tests/atlas_sync.selftest.mjs'],
   ['bootstrap_layered_smoke', 'node tests/atlas_bootstrap.smoke.mjs'],
   ['llm_gateway_selftest', 'node tests/llm_gateway.selftest.mjs'],

@@ -1,6 +1,6 @@
 # Roadmap (auto-generated, PR2 topo-sort)
 
-_Generated: 2026-09-22T17:30:16.277Z_
+_Generated: 2026-09-22T17:41:22.114Z_
 
 Приоритет внутри уровня: 🔴 broken → 🟣 drift → 🟠 wip → 🔵 review → 🟡 idea → 🟢 done.
 Каждый следующий уровень зависит от предыдущих — реализовывать сверху вниз.
@@ -33,7 +33,7 @@ _Generated: 2026-09-22T17:30:16.277Z_
 - 🟡 **b.product-ingest** (idea) — Ingest · _logic_ · deps: `b.product-warehouse`
   - Created via design UI at 2026-05-05T20:57:52.212Z
 - 🟢 **b.clarify** (done) — Clarification Arbiter · _ai_ · deps: `b.llm-gateway`
-  - R-8.06 — the arbiter UPSTREAM of the contract: asks whether the contract says what the human meant, instead of taking it as an axiom. Questions + uncertainty markers + assumption registry.
+  - R-8.06 + R-8.08 — meaning transfer in both directions around the contract. Model to human: questions, uncertainty markers, assumption registry. Human to model: the trajectory in mission.md as the rule for choosing between green implementations, and the executing agent declaring its operative frame in understanding.md before code.
 
 ### Level 2 — требует Level 1
 
@@ -51,7 +51,7 @@ _Generated: 2026-09-22T17:30:16.277Z_
 
 - 🟠 **b.ui-control** (wip) — UI Control Plane · _front_ · deps: `b.core-sync`, `b.agent-orchestrator`
   - HTML loses references to components.jsx/sidecol.jsx/canvas_tools.jsx — UI does not boot in production; multi-layer rendering depends on PR2 (this PR)
-- 🔵 **b.agent-orchestrator** (review) — Agent Orchestrator · _ai_ · deps: `b.db`, `b.core-sync`, `b.llm-gateway`, `b.operator-profile-learner`
+- 🔵 **b.agent-orchestrator** (review) — Agent Orchestrator · _ai_ · deps: `b.db`, `b.core-sync`, `b.llm-gateway`, `b.operator-profile-learner`, `b.clarify`
   - Phase I: verifier FAIL on A5 (cursor_live.headless.smoke) — needs a live cursor-agent CLI, not installed in this env. Env-blocked, not code-blocked. A1-A4+A7 pass.
 - 🟢 **b.operator-profile-learner** (done) — Operator Profile Learner · _ai_ · deps: `b.db`, `b.core-sync`, `b.agent-orchestrator`, `b.llm-gateway`, `b.docs`
   - Phase I: verifier FAIL on A6 — profile-compliance UI badge (complianceWithProfile) was lost in the R-7.30 single-file→atlas_design refactor and not reimplemented. Genuine feature gap, honestly not done.
