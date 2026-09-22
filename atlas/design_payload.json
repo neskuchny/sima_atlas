@@ -73,7 +73,7 @@
     },
     {
       "id": "b.core-sync",
-      "_raw_updated_at": null,
+      "_raw_updated_at": "2026-09-22T17:29:43.694Z",
       "title": "Sync Engine",
       "tag": "core-sync",
       "layer": "logic",
@@ -929,29 +929,29 @@
       "from": "b.product-auth",
       "to": "b.product-dashboard",
       "kind": "data",
-      "label": "session_check",
-      "biz": "Зависит от capability `session_check` блока b.product-dashboard."
+      "label": "depends_on",
+      "biz": "Зависит от b.product-dashboard."
     },
     {
       "from": "b.product-auth",
       "to": "b.product-ingest",
       "kind": "data",
-      "label": "api_key_check",
-      "biz": "Зависит от capability `api_key_check` блока b.product-ingest."
+      "label": "depends_on",
+      "biz": "Зависит от b.product-ingest."
     },
     {
       "from": "b.product-ingest",
       "to": "b.product-warehouse",
       "kind": "data",
-      "label": "events_stream",
-      "biz": "Зависит от capability `events_stream` блока b.product-warehouse."
+      "label": "depends_on",
+      "biz": "Зависит от b.product-warehouse."
     },
     {
       "from": "b.product-dashboard",
       "to": "b.product-warehouse",
       "kind": "data",
-      "label": "metric_query",
-      "biz": "Зависит от capability `metric_query` блока b.product-warehouse."
+      "label": "depends_on",
+      "biz": "Зависит от b.product-warehouse."
     },
     {
       "from": "b.clarify",
@@ -2719,27 +2719,6 @@
   "lanes": [],
   "history": [
     {
-      "ts": "18:06",
-      "module": "operator-profile-learner",
-      "agent": "sima-core",
-      "kind": "ok",
-      "msg": "b.operator-profile-learner: review → done"
-    },
-    {
-      "ts": "20:10",
-      "module": "acceptance-verifier-loop",
-      "agent": "sima-core",
-      "kind": "ok",
-      "msg": "b.acceptance-verifier-loop: desync → done"
-    },
-    {
-      "ts": "19:00",
-      "module": "desktop",
-      "agent": "sima-core",
-      "kind": "info",
-      "msg": "b.desktop: idea → wip"
-    },
-    {
       "ts": "19:00",
       "module": "desktop",
       "agent": "sima-core",
@@ -2801,6 +2780,27 @@
       "agent": "sima-core",
       "kind": "info",
       "msg": "b.user-docs-generator: done → wip"
+    },
+    {
+      "ts": "17:29",
+      "module": "core-sync",
+      "agent": "sima-core",
+      "kind": "info",
+      "msg": "b.core-sync: done → wip"
+    },
+    {
+      "ts": "17:29",
+      "module": "core-sync",
+      "agent": "sima-core",
+      "kind": "info",
+      "msg": "b.core-sync: wip → review"
+    },
+    {
+      "ts": "17:29",
+      "module": "core-sync",
+      "agent": "sima-core",
+      "kind": "ok",
+      "msg": "b.core-sync: review → done"
     }
   ],
   "lessons": [],
@@ -2832,7 +2832,7 @@
     }
   ],
   "_meta": {
-    "generated_at": "2026-09-22T15:20:03.924Z",
+    "generated_at": "2026-09-22T17:29:53.505Z",
     "atlas_root": "atlas",
     "client_id": null,
     "block_count": 21,

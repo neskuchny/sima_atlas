@@ -28,3 +28,6 @@
 2026-09-13T07:01:49.372Z	b.clarify	wip	review	actor=operator-R8.06	note=R-8.06: arbiter upstream of the contract; acceptance 7/7, selftest 10/10, validator in nightly
 2026-09-13T07:01:49.416Z	b.clarify	review	done	actor=operator-R8.06	note=R-8.06: arbiter upstream of the contract; acceptance 7/7, selftest 10/10, validator in nightly gate=pass(7/7)
 2026-09-22T15:18:40.073Z	b.user-docs-generator	done	wip	actor=operator	note=R-8.07: понижен с done по rules.md #4 — acceptance зелёная (8/8), но KPI-1 (coverage) измерен и провален: atlas/docs/end-user/ пуста при двух user-facing блоках (b.ui-control front/wip, b.product-dashboard front/idea), покрытие 0/2. Машинерия работает, профильный результат не произведён ни разу.
+2026-09-22T17:29:05.697Z	b.core-sync	done	wip	actor=operator-R8.07	note=R-8.07: scope extension — dependency-graph parity + cycle validator
+2026-09-22T17:29:43.644Z	b.core-sync	wip	review	actor=operator-R8.07	note=R-8.07: dependency-graph validator (parity+format+cycles), acceptance 6/0/1, selftest 11/11
+2026-09-22T17:29:43.694Z	b.core-sync	review	done	actor=operator-R8.07	note=R-8.07: dependency-graph validator (parity+format+cycles), acceptance 6/0/1, selftest 11/11 gate=pass(6/7)

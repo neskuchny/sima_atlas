@@ -1,0 +1,12 @@
+{
+  "description": "Justified dependency cycles. A cycle listed here is tolerated by validate_dependency_graph.mjs; any other cycle fails nightly. Each entry must say what the cycle is, why it is tolerated, and when the exemption has to go. An entry that no longer matches a live cycle is reported as stale.",
+  "exemptions": [
+    {
+      "blocks": ["b.agent-orchestrator", "b.operator-profile-learner"],
+      "added": "2026-09-22",
+      "what": "b.agent-orchestrator -> b.operator-profile-learner is a real code import: scripts/analyze_conversation_to_atlas.mjs statically imports scripts/pick_template.mjs. The reverse edge (pipeline_execution) is NOT a production code import: aggregate_operator_profile.mjs only READS artifacts the orchestrator writes (atlas/transitions.log, atlas/agent_invocations/). The only code import in that direction is a test, tests/operator_profile_inject.smoke.mjs, checking that profile data lands in the orchestrator's context pack.",
+      "why_tolerated": "depends_on.md does not distinguish «I call your code» from «I read the data you produce», so a producer/consumer pair declared honestly shows up as a cycle. Pre-existing; not introduced by R-8.07. Neither block is currently runnable by the daemon (orchestrator is review, learner is done), so the cycle does not deadlock the loop today.",
+      "removal_condition": "Remove this entry when EITHER tests/operator_profile_inject.smoke.mjs moves to b.agent-orchestrator (it tests injection into the orchestrator's pack) AND the learner's depends_on line for b.agent-orchestrator is reclassified as an artifact read, OR depends_on gains a separate relation for artifact reads so this stops being a dependency edge at all."
+    }
+  ]
+}

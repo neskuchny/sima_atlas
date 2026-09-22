@@ -15,17 +15,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/atlas_sync.selftest.mjs → exit 0 (57ms); first line: \"atlas_sync.selftest: OK\"",
+      "evidence": "node tests/atlas_sync.selftest.mjs → exit 0 (71ms); first line: \"atlas_sync.selftest: OK\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/atlas_sync.selftest.mjs",
         "exit_code": 0,
         "stdout": "atlas_sync.selftest: OK\n",
         "stderr": "",
-        "duration_ms": 57,
+        "duration_ms": 71,
         "timed_out": false
       },
-      "duration_ms": 57
+      "duration_ms": 71
     },
     {
       "id": "A2",
@@ -39,17 +39,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_dependency_contracts.mjs → exit 0 (53ms); first line: \"Dependency contract validation: OK\"",
+      "evidence": "node scripts/validate_dependency_contracts.mjs → exit 0 (62ms); first line: \"Dependency contract validation: OK\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_dependency_contracts.mjs",
         "exit_code": 0,
         "stdout": "Dependency contract validation: OK\n",
         "stderr": "",
-        "duration_ms": 53,
+        "duration_ms": 62,
         "timed_out": false
       },
-      "duration_ms": 53
+      "duration_ms": 62
     },
     {
       "id": "A3",
@@ -63,17 +63,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/atlas_sync.selftest.mjs → exit 0 (62ms); first line: \"atlas_sync.selftest: OK\"",
+      "evidence": "node tests/atlas_sync.selftest.mjs → exit 0 (59ms); first line: \"atlas_sync.selftest: OK\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/atlas_sync.selftest.mjs",
         "exit_code": 0,
         "stdout": "atlas_sync.selftest: OK\n",
         "stderr": "",
-        "duration_ms": 62,
+        "duration_ms": 59,
         "timed_out": false
       },
-      "duration_ms": 62
+      "duration_ms": 59
     },
     {
       "id": "A4",
@@ -90,12 +90,12 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "5fcad81ee6d75a33",
+        "prompt_hash": "237534c4bb620da1",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 4
+      "duration_ms": 3
     },
     {
       "id": "A5",
@@ -109,25 +109,73 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (85ms); first line: \"Block contract validation: OK\"",
+      "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (64ms); first line: \"Block contract validation: OK\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_block_contracts.mjs",
         "exit_code": 0,
         "stdout": "Block contract validation: OK\n",
         "stderr": "",
-        "duration_ms": 85,
+        "duration_ms": 64,
         "timed_out": false
       },
-      "duration_ms": 85
+      "duration_ms": 64
+    },
+    {
+      "id": "A6",
+      "label": null,
+      "text": "Граф зависимостей блоков существует в двух копиях (`depends_on.md` — канон, `graph.json` — зеркало «для скорости»), и их читают разные потребители: каскад читает зеркало, daemon и детектор дрейфа — канон. Валидатор проверяет, что копии совпадают, что в зеркале голые существующие id, и что в графе нет циклов, кроме явно обоснованных. Selftest включает регрессию R-8.06: ребро, добавленное только в канон, обязано дать ошибку паритета и цикл.",
+      "checked": true,
+      "line": 33,
+      "evidence_kind": "selftest_run",
+      "evidence_spec": {
+        "cmd": "node tests/dependency_graph.selftest.mjs",
+        "expect_in_stdout": "OK"
+      },
+      "verdict": "pass",
+      "evidence": "node tests/dependency_graph.selftest.mjs → exit 0 (758ms); first line: \"dependency_graph.selftest: OK (11 groups, all assertions green)\"",
+      "reasoning": "shell exit code 0 and stdout matches /OK/",
+      "raw": {
+        "cmd": "node tests/dependency_graph.selftest.mjs",
+        "exit_code": 0,
+        "stdout": "dependency_graph.selftest: OK (11 groups, all assertions green)\n",
+        "stderr": "",
+        "duration_ms": 758,
+        "timed_out": false
+      },
+      "duration_ms": 758
+    },
+    {
+      "id": "A7",
+      "label": null,
+      "text": "Валидатор проходит на текущем атласе: зеркало совпадает с каноном, необоснованных циклов нет.",
+      "checked": true,
+      "line": 41,
+      "evidence_kind": "exit_code",
+      "evidence_spec": {
+        "cmd": "node scripts/validate_dependency_graph.mjs",
+        "expect_in_stdout": "no unjustified cycles"
+      },
+      "verdict": "pass",
+      "evidence": "node scripts/validate_dependency_graph.mjs → exit 0 (59ms); first line: \"validate_dependency_graph: OK — 19 blocks, graph.json mirrors depends_on.md, no unjustified cycles, 1 justified cycle exemption(s) in use\"",
+      "reasoning": "shell exit code 0 and stdout matches /no unjustified cycles/",
+      "raw": {
+        "cmd": "node scripts/validate_dependency_graph.mjs",
+        "exit_code": 0,
+        "stdout": "validate_dependency_graph: OK — 19 blocks, graph.json mirrors depends_on.md, no unjustified cycles, 1 justified cycle exemption(s) in use\n",
+        "stderr": "",
+        "duration_ms": 59,
+        "timed_out": false
+      },
+      "duration_ms": 59
     }
   ],
   "counts": {
-    "pass": 4,
+    "pass": 6,
     "fail": 0,
     "skipped": 1
   },
   "verdict": "pass",
-  "duration_ms": 262,
-  "checked_at": "2026-09-22T15:20:20.949Z"
+  "duration_ms": 1078,
+  "checked_at": "2026-09-22T17:30:12.841Z"
 }

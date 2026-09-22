@@ -110,7 +110,8 @@
         "scripts/validate_files_registry.mjs",
         "scripts/calc_intelligence_health.mjs",
         "scripts/audit_production_readiness.mjs"
-      ]
+      ],
+      "updated_at": "2026-09-22T17:29:43.694Z"
     },
     {
       "id": "b.db",
@@ -462,8 +463,8 @@
       "mvp": false,
       "subschema_id": null,
       "depends_on": [
-        "b.product-dashboard: session_check",
-        "b.product-ingest: api_key_check"
+        "b.product-dashboard",
+        "b.product-ingest"
       ],
       "tech_stack": [],
       "files": [
@@ -483,7 +484,7 @@
       "mvp": false,
       "subschema_id": null,
       "depends_on": [
-        "b.product-warehouse: events_stream"
+        "b.product-warehouse"
       ],
       "tech_stack": [],
       "files": [
@@ -521,7 +522,7 @@
       "mvp": false,
       "subschema_id": null,
       "depends_on": [
-        "b.product-warehouse: metric_query"
+        "b.product-warehouse"
       ],
       "tech_stack": [],
       "files": [

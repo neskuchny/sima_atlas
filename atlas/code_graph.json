@@ -5,14 +5,12 @@
       "files": [
         "scripts/collect_evidence.mjs",
         "scripts/judge_assertion.mjs",
-        "scripts/lifecycle_gate.mjs",
         "scripts/parse_acceptance.mjs",
         "scripts/verify_all_acceptance.mjs",
         "scripts/verify_block_acceptance.mjs",
         "scripts/verify_done_blocks_still_green.mjs",
         "tests/acceptance_verifier.e2e.smoke.mjs",
         "tests/evidence_collectors.selftest.mjs",
-        "tests/lifecycle_gate.selftest.mjs",
         "tests/llm_judge.smoke.mjs",
         "tests/parse_acceptance.selftest.mjs"
       ]
@@ -71,13 +69,15 @@
         "scripts/validate_bootstrap_regeneration.mjs",
         "scripts/validate_code_graph_sync.mjs",
         "scripts/validate_dependency_contracts.mjs",
+        "scripts/validate_dependency_graph.mjs",
         "scripts/validate_files_registry.mjs",
         "scripts/validate_ingestion_contracts.mjs",
         "scripts/validate_ingestion_quality.mjs",
         "scripts/validate_no_template_placeholders.mjs",
         "scripts/validate_parity_matrix.mjs",
         "scripts/validate_stack_mismatch.mjs",
-        "tests/checks_append_endpoint.selftest.mjs"
+        "tests/checks_append_endpoint.selftest.mjs",
+        "tests/dependency_graph.selftest.mjs"
       ]
     },
     "b.db": {
@@ -89,8 +89,10 @@
         "scripts/hook_ingest_recent_chat.mjs",
         "scripts/ingest_chat_batches.mjs",
         "scripts/ingest_chat_distillate.mjs",
+        "scripts/lifecycle_gate.mjs",
         "scripts/log_transition.mjs",
-        "scripts/manage_block.mjs"
+        "scripts/manage_block.mjs",
+        "tests/lifecycle_gate.selftest.mjs"
       ]
     },
     "b.desktop": {
@@ -220,7 +222,7 @@
         }
       ],
       "from_block": "b.agent-orchestrator",
-      "to_block": "b.acceptance-verifier-loop"
+      "to_block": "b.db"
     },
     {
       "examples": [
@@ -257,18 +259,6 @@
       ],
       "from_block": "b.clarify",
       "to_block": "b.llm-gateway"
-    },
-    {
-      "examples": [
-        {
-          "from_file": "scripts/advance_block_state.mjs",
-          "kind": "static",
-          "line": 19,
-          "to_file": "scripts/lifecycle_gate.mjs"
-        }
-      ],
-      "from_block": "b.db",
-      "to_block": "b.acceptance-verifier-loop"
     },
     {
       "examples": [
@@ -2542,7 +2532,7 @@
           ]
         }
       ],
-      "owning_block": "b.acceptance-verifier-loop"
+      "owning_block": "b.db"
     },
     "scripts/list_proposals.mjs": {
       "exports": [],
@@ -4393,6 +4383,62 @@
       ],
       "owning_block": "b.core-sync"
     },
+    "scripts/validate_dependency_graph.mjs": {
+      "exports": [
+        {
+          "kind": "named",
+          "line": 65,
+          "name": "readDependsMd"
+        },
+        {
+          "kind": "named",
+          "line": 79,
+          "name": "findCycles"
+        }
+      ],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 46,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 47,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 48,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.core-sync"
+    },
     "scripts/validate_dont_use_compliance.mjs": {
       "exports": [],
       "imports": [
@@ -5664,6 +5710,77 @@
       ],
       "owning_block": "b.agent-orchestrator"
     },
+    "tests/dependency_graph.selftest.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 13,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:os",
+          "kind": "static",
+          "line": 14,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 15,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:child_process",
+          "kind": "static",
+          "line": 16,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "spawnSync"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 17,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.core-sync"
+    },
     "tests/desktop_structure.selftest.mjs": {
       "exports": [],
       "imports": [
@@ -5995,7 +6112,7 @@
           ]
         }
       ],
-      "owning_block": "b.acceptance-verifier-loop"
+      "owning_block": "b.db"
     },
     "tests/llm_extraction.eval.mjs": {
       "exports": [],

@@ -36,6 +36,12 @@ const checks = [
   ['projects_contracts', 'node scripts/validate_projects.mjs'],
   ['subschemas_contracts', 'node scripts/validate_subschemas.mjs'],
   ['dependency_contracts', 'node scripts/validate_dependency_contracts.mjs'],
+  // R-8.07 (b.core-sync) — the dependency graph has two copies read by
+  // different consumers (cascade reads graph.json, the daemon and code-graph
+  // drift read depends_on.md). R-8.06 put an edge into one copy only and
+  // created cycles; this stayed green until now. Parity + format + cycles.
+  ['dependency_graph', 'node scripts/validate_dependency_graph.mjs'],
+  ['dependency_graph_selftest', 'node tests/dependency_graph.selftest.mjs'],
   ['acceptance_assertions', 'node scripts/validate_acceptance_assertions.mjs'],
   ['lifecycle_gate_selftest', 'node tests/lifecycle_gate.selftest.mjs'],
   ['clarify_block_selftest', 'node tests/clarify_block.selftest.mjs'],

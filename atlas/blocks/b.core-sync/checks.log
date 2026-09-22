@@ -464,3 +464,17 @@
 2026-09-22T15:20:12.656Z	cursor_edit	pass	frontend/atlas_sync.js :: 
 2026-09-22T15:20:12.818Z	cursor_edit	pass	frontend/atlas_sync.js :: 
 2026-09-22T15:20:20.949Z	acceptance_verifier	pass	verdict=pass pass=4 fail=0 skipped=1
+2026-09-22T17:29:05.697Z	transition	pass	done->wip	actor=operator-R8.07	note=R-8.07: scope extension — dependency-graph parity + cycle validator
+2026-09-22T17:29:33.602Z	kpi	pass	R-8.07: dependency graph parity + cycles now checked; 11/11 selftest groups; mutation test (R-8.06 edge restored) -> 1 parity + 8 cycles, exit 1
+2026-09-22T17:29:34.837Z	acceptance_verifier	pass	verdict=pass pass=6 fail=0 skipped=1
+2026-09-22T17:29:43.644Z	transition	pass	wip->review	actor=operator-R8.07	note=R-8.07: dependency-graph validator (parity+format+cycles), acceptance 6/0/1, selftest 11/11
+2026-09-22T17:29:43.694Z	transition	pass	review->done	actor=operator-R8.07	note=R-8.07: dependency-graph validator (parity+format+cycles), acceptance 6/0/1, selftest 11/11 gate=pass(6/7)
+2026-09-22T17:29:51.025Z	cursor_edit	pass	frontend/atlas_sync.js :: 
+2026-09-22T17:29:51.223Z	cursor_edit	pass	frontend/atlas_sync.js :: 
+2026-09-22T17:29:55.080Z	cursor_edit	pass	frontend/atlas_sync.js :: 
+2026-09-22T17:30:01.136Z	cursor_edit	pass	frontend/atlas_sync.js :: 
+2026-09-22T17:30:01.866Z	cursor_edit	pass	frontend/atlas_sync.js :: 
+2026-09-22T17:30:02.552Z	cursor_edit	pass	frontend/atlas_sync.js :: 
+2026-09-22T17:30:03.274Z	cursor_edit	pass	frontend/atlas_sync.js :: 
+2026-09-22T17:30:03.454Z	cursor_edit	pass	frontend/atlas_sync.js :: 
+2026-09-22T17:30:12.841Z	acceptance_verifier	pass	verdict=pass pass=6 fail=0 skipped=1

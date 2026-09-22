@@ -1,1 +1,2 @@
 2026-06-20T08:06:22.717Z	reflect_after_run	b.db__2026-06-20T07-54-44-916Z	Succeeded	Implement data layer component Implemented a component of the `b.db` block Succeeded, all acceptance tests passed
+2026-09-22T17:29:43.729Z | owns_lifecycle_gate | R-8.07: scripts/lifecycle_gate.mjs moved here from b.acceptance-verifier-loop. It is the extracted core of advance_block_state/log_transition and the single writer of transitions.log, which this block owns by mission. Filing it under the verifier created two dependency cycles.

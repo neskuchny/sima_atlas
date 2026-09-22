@@ -1,6 +1,6 @@
 {
   "contractValidation": {
-    "checkedAt": "2026-09-22T15:20:20.936Z",
+    "checkedAt": "2026-09-22T17:30:12.014Z",
     "total": 21,
     "broken": 0,
     "details": []
@@ -11,7 +11,7 @@
     "details": []
   },
   "codeGraphDrift": {
-    "checkedAt": "2026-09-22T15:20:17.414Z",
+    "checkedAt": "2026-09-22T17:30:08.230Z",
     "driftCount": 27,
     "details": [
       {
@@ -22,28 +22,22 @@
         "scanned_files": [
           "scripts/collect_evidence.mjs",
           "scripts/judge_assertion.mjs",
-          "scripts/lifecycle_gate.mjs",
           "scripts/parse_acceptance.mjs",
           "scripts/verify_all_acceptance.mjs",
           "scripts/verify_block_acceptance.mjs",
           "scripts/verify_done_blocks_still_green.mjs",
           "tests/acceptance_verifier.e2e.smoke.mjs",
           "tests/evidence_collectors.selftest.mjs",
-          "tests/lifecycle_gate.selftest.mjs",
           "tests/llm_judge.smoke.mjs",
           "tests/parse_acceptance.selftest.mjs"
         ],
         "exported_names_in_block": [
           "JUDGE_SCHEMA",
-          "TRANSITIONS",
-          "applyTransition",
-          "checkTransition",
           "collectEvidence",
           "judgeAssertion",
           "judgeAssertionCli",
           "parseAcceptance",
           "parseAcceptanceText",
-          "rejectionMessage",
           "verifyAllAcceptance",
           "verifyAndPersist",
           "verifyBlock",
@@ -59,28 +53,22 @@
         "scanned_files": [
           "scripts/collect_evidence.mjs",
           "scripts/judge_assertion.mjs",
-          "scripts/lifecycle_gate.mjs",
           "scripts/parse_acceptance.mjs",
           "scripts/verify_all_acceptance.mjs",
           "scripts/verify_block_acceptance.mjs",
           "scripts/verify_done_blocks_still_green.mjs",
           "tests/acceptance_verifier.e2e.smoke.mjs",
           "tests/evidence_collectors.selftest.mjs",
-          "tests/lifecycle_gate.selftest.mjs",
           "tests/llm_judge.smoke.mjs",
           "tests/parse_acceptance.selftest.mjs"
         ],
         "exported_names_in_block": [
           "JUDGE_SCHEMA",
-          "TRANSITIONS",
-          "applyTransition",
-          "checkTransition",
           "collectEvidence",
           "judgeAssertion",
           "judgeAssertionCli",
           "parseAcceptance",
           "parseAcceptanceText",
-          "rejectionMessage",
           "verifyAllAcceptance",
           "verifyAndPersist",
           "verifyBlock",
@@ -96,28 +84,22 @@
         "scanned_files": [
           "scripts/collect_evidence.mjs",
           "scripts/judge_assertion.mjs",
-          "scripts/lifecycle_gate.mjs",
           "scripts/parse_acceptance.mjs",
           "scripts/verify_all_acceptance.mjs",
           "scripts/verify_block_acceptance.mjs",
           "scripts/verify_done_blocks_still_green.mjs",
           "tests/acceptance_verifier.e2e.smoke.mjs",
           "tests/evidence_collectors.selftest.mjs",
-          "tests/lifecycle_gate.selftest.mjs",
           "tests/llm_judge.smoke.mjs",
           "tests/parse_acceptance.selftest.mjs"
         ],
         "exported_names_in_block": [
           "JUDGE_SCHEMA",
-          "TRANSITIONS",
-          "applyTransition",
-          "checkTransition",
           "collectEvidence",
           "judgeAssertion",
           "judgeAssertionCli",
           "parseAcceptance",
           "parseAcceptanceText",
-          "rejectionMessage",
           "verifyAllAcceptance",
           "verifyAndPersist",
           "verifyBlock",
@@ -133,28 +115,22 @@
         "scanned_files": [
           "scripts/collect_evidence.mjs",
           "scripts/judge_assertion.mjs",
-          "scripts/lifecycle_gate.mjs",
           "scripts/parse_acceptance.mjs",
           "scripts/verify_all_acceptance.mjs",
           "scripts/verify_block_acceptance.mjs",
           "scripts/verify_done_blocks_still_green.mjs",
           "tests/acceptance_verifier.e2e.smoke.mjs",
           "tests/evidence_collectors.selftest.mjs",
-          "tests/lifecycle_gate.selftest.mjs",
           "tests/llm_judge.smoke.mjs",
           "tests/parse_acceptance.selftest.mjs"
         ],
         "exported_names_in_block": [
           "JUDGE_SCHEMA",
-          "TRANSITIONS",
-          "applyTransition",
-          "checkTransition",
           "collectEvidence",
           "judgeAssertion",
           "judgeAssertionCli",
           "parseAcceptance",
           "parseAcceptanceText",
-          "rejectionMessage",
           "verifyAllAcceptance",
           "verifyAndPersist",
           "verifyBlock",
@@ -296,15 +272,20 @@
           "scripts/validate_bootstrap_regeneration.mjs",
           "scripts/validate_code_graph_sync.mjs",
           "scripts/validate_dependency_contracts.mjs",
+          "scripts/validate_dependency_graph.mjs",
           "scripts/validate_files_registry.mjs",
           "scripts/validate_ingestion_contracts.mjs",
           "scripts/validate_ingestion_quality.mjs",
           "scripts/validate_no_template_placeholders.mjs",
           "scripts/validate_parity_matrix.mjs",
           "scripts/validate_stack_mismatch.mjs",
-          "tests/checks_append_endpoint.selftest.mjs"
+          "tests/checks_append_endpoint.selftest.mjs",
+          "tests/dependency_graph.selftest.mjs"
         ],
-        "exported_names_in_block": [],
+        "exported_names_in_block": [
+          "findCycles",
+          "readDependsMd"
+        ],
         "hint": "«contract_validation» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.core-sync/provides.md."
       },
       {
@@ -320,10 +301,17 @@
           "scripts/hook_ingest_recent_chat.mjs",
           "scripts/ingest_chat_batches.mjs",
           "scripts/ingest_chat_distillate.mjs",
+          "scripts/lifecycle_gate.mjs",
           "scripts/log_transition.mjs",
-          "scripts/manage_block.mjs"
+          "scripts/manage_block.mjs",
+          "tests/lifecycle_gate.selftest.mjs"
         ],
-        "exported_names_in_block": [],
+        "exported_names_in_block": [
+          "TRANSITIONS",
+          "applyTransition",
+          "checkTransition",
+          "rejectionMessage"
+        ],
         "hint": "«atlas_state_store» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.db/provides.md."
       },
       {
@@ -339,10 +327,17 @@
           "scripts/hook_ingest_recent_chat.mjs",
           "scripts/ingest_chat_batches.mjs",
           "scripts/ingest_chat_distillate.mjs",
+          "scripts/lifecycle_gate.mjs",
           "scripts/log_transition.mjs",
-          "scripts/manage_block.mjs"
+          "scripts/manage_block.mjs",
+          "tests/lifecycle_gate.selftest.mjs"
         ],
-        "exported_names_in_block": [],
+        "exported_names_in_block": [
+          "TRANSITIONS",
+          "applyTransition",
+          "checkTransition",
+          "rejectionMessage"
+        ],
         "hint": "«file_registry» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.db/provides.md."
       },
       {
@@ -696,8 +691,8 @@
     ]
   },
   "dependencyValidation": {
-    "checkedAt": "2026-09-22T15:20:20.788Z",
-    "totalDepsChecked": 38,
+    "checkedAt": "2026-09-22T17:30:11.886Z",
+    "totalDepsChecked": 36,
     "broken": 0,
     "details": []
   }

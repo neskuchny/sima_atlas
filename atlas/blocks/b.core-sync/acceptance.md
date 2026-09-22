@@ -30,6 +30,22 @@ evidence_spec:
   expect_in_stdout: "OK"
 ```
 
+- [x] **A6.** Граф зависимостей блоков существует в двух копиях (`depends_on.md` — канон, `graph.json` — зеркало «для скорости»), и их читают разные потребители: каскад читает зеркало, daemon и детектор дрейфа — канон. Валидатор проверяет, что копии совпадают, что в зеркале голые существующие id, и что в графе нет циклов, кроме явно обоснованных. Selftest включает регрессию R-8.06: ребро, добавленное только в канон, обязано дать ошибку паритета и цикл.
+```yaml
+evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/dependency_graph.selftest.mjs
+  expect_in_stdout: "OK"
+```
+
+- [x] **A7.** Валидатор проходит на текущем атласе: зеркало совпадает с каноном, необоснованных циклов нет.
+```yaml
+evidence_kind: exit_code
+evidence_spec:
+  cmd: node scripts/validate_dependency_graph.mjs
+  expect_in_stdout: "no unjustified cycles"
+```
+
 ## Не считается acceptance:
 - наличие `mission.md` (это контрактный gate).
 - факт того, что `runSync` не упал (это smoke).

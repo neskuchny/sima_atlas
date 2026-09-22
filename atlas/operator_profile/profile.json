@@ -1,19 +1,19 @@
 {
   "operator_id": "default",
-  "updated_at": "2026-09-22T15:19:59.500Z",
+  "updated_at": "2026-09-22T17:29:49.015Z",
   "_status": "live",
   "_min_data": {
-    "done_transitions": 10,
+    "done_transitions": 11,
     "done_required": 5,
     "invocations": 14,
     "invocations_required": 10
   },
   "work_style": {
-    "total_done": 10,
+    "total_done": 11,
     "total_broken": 0,
-    "total_wip_started": 9,
+    "total_wip_started": 10,
     "rollback_rate": 0,
-    "median_time_idea_to_done_h": 0.0000275,
+    "median_time_idea_to_done_h": 0.00003138888888888889,
     "common_failure_modes": {
       "acceptance_verifier": 32,
       "semantic_verify": 16,
@@ -120,7 +120,7 @@
       {
         "name": "markdown",
         "uses": 2,
-        "satisfaction": "unknown",
+        "satisfaction": "high",
         "evidence": [
           "b.core-sync",
           "b.db"
@@ -129,7 +129,7 @@
       {
         "name": "json",
         "uses": 2,
-        "satisfaction": "unknown",
+        "satisfaction": "high",
         "evidence": [
           "b.core-sync",
           "b.db"
@@ -147,7 +147,7 @@
       {
         "name": "vanilla-js",
         "uses": 1,
-        "satisfaction": "unknown",
+        "satisfaction": "high",
         "evidence": [
           "b.core-sync"
         ]
@@ -334,24 +334,24 @@
       "avg_cost_usd": 0
     },
     "mock": {
-      "count": 1207,
-      "fallback_to_mock_count": 7,
+      "count": 1395,
+      "fallback_to_mock_count": 8,
       "total_cost_usd": 0,
-      "schema_ok_count": 1207,
+      "schema_ok_count": 1395,
       "fallback_rate": 0.01,
       "schema_ok_rate": 1,
       "avg_cost_usd": 0
     }
   },
   "proposals_stats": {
-    "total": 13,
+    "total": 15,
     "accept_rate": 0,
     "reject_rate": 0,
-    "pending": 13
+    "pending": 15
   },
   "decisions_stats": {
-    "total": 3587,
-    "blocks_with_decisions": 9
+    "total": 3596,
+    "blocks_with_decisions": 10
   },
   "patterns_stats": {
     "with_patterns": 8,
@@ -727,9 +727,9 @@
   ],
   "invocations_total": 14,
   "_preview": {
-    "total_done": 10,
+    "total_done": 11,
     "total_invocations": 14,
-    "total_traces": 1211,
-    "total_proposals": 13
+    "total_traces": 1399,
+    "total_proposals": 15
   }
 }

@@ -1,6 +1,6 @@
 # Sima Atlas Wiki
 
-_Auto-generated: 2026-09-22T15:20:24.145Z_
+_Auto-generated: 2026-09-22T17:30:16.086Z_
 
 ## Граф продукта
 
@@ -76,10 +76,10 @@ flowchart TB
   b_desktop --> b_agent_orchestrator
   b_diff_review --> b_llm_gateway
   b_diff_review --> b_agent_orchestrator
-  b_product_auth --> b_product_dashboard_session_check
-  b_product_auth --> b_product_ingest_api_key_check
-  b_product_ingest --> b_product_warehouse_events_stream
-  b_product_dashboard --> b_product_warehouse_metric_query
+  b_product_auth --> b_product_dashboard
+  b_product_auth --> b_product_ingest
+  b_product_ingest --> b_product_warehouse
+  b_product_dashboard --> b_product_warehouse
   b_clarify --> b_llm_gateway
 ```
 
@@ -379,6 +379,22 @@ evidence_spec:
   expect_in_stdout: "OK"
 ```
 
+- [x] **A6.** Граф зависимостей блоков существует в двух копиях (`depends_on.md` — канон, `graph.json` — зеркало «для скорости»), и их читают разные потребители: каскад читает зеркало, daemon и детектор дрейфа — канон. Валидатор проверяет, что копии совпадают, что в зеркале голые существующие id, и что в графе нет циклов, кроме явно обоснованных. Selftest включает регрессию R-8.06: ребро, добавленное только в канон, обязано дать ошибку паритета и цикл.
+```yaml
+evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/dependency_graph.selftest.mjs
+  expect_in_stdout: "OK"
+```
+
+- [x] **A7.** Валидатор проходит на текущем атласе: зеркало совпадает с каноном, необоснованных циклов нет.
+```yaml
+evidence_kind: exit_code
+evidence_spec:
+  cmd: node scripts/validate_dependency_graph.mjs
+  expect_in_stdout: "no unjustified cycles"
+```
+
 ## Не считается acceptance:
 - наличие `mission.md` (это контрактный gate).
 - факт того, что `runSync` не упал (это smoke).
@@ -441,6 +457,9 @@ _no summary_
 - scripts/audit_production_readiness.mjs [alive]
 - scripts/log_transition.mjs [alive]
 - atlas/transitions.log [alive]
+- scripts/validate_dependency_graph.mjs [alive] (R-8.07: parity graph.json ↔ depends_on.md, bare-id format of the mirror, cycle detection with justified exemptions; every error carries a fix line)
+- tests/dependency_graph.selftest.mjs [alive] (R-8.07: 11 groups, incl. the R-8.06 regression — an edge added to depends_on.md only must fail parity AND report the cycle it creates; an exemption must not cover a larger cycle routed through the exempted pair)
+- atlas/dependency_cycle_exemptions.json [alive] (R-8.07: the only escape hatch for a cycle — what it is, why tolerated, and when the exemption must go; stale entries are reported)
 
 _Sources: [mission](blocks/b.core-sync/mission.md) · [kpi](blocks/b.core-sync/kpi.md) · [acceptance](blocks/b.core-sync/acceptance.md) · [depends_on](blocks/b.core-sync/depends_on.md) · [provides](blocks/b.core-sync/provides.md) · [patterns](blocks/b.core-sync/patterns.md) · [files](blocks/b.core-sync/files.md)_
 
@@ -532,7 +551,7 @@ evidence_spec:
 
 # b.db — depends_on
 
-- b.acceptance-verifier-loop: acceptance_gate_decision
+- none
 
 #### Patterns
 
@@ -565,6 +584,8 @@ do/don't notes live in `narrative.md`._
 - scripts/log_transition.mjs [alive]
 - scripts/manage_block.mjs [alive]
 - scripts/advance_block_state.mjs [alive]
+- scripts/lifecycle_gate.mjs [alive] (R-8.05, owner fixed in R-8.07: the single writer of block status + transitions.log + checks.log. Extracted core of advance_block_state/log_transition, so it belongs to the storage layer that owns the transitions journal. First filed under b.acceptance-verifier-loop, which created two dependency cycles — every status writer had to import «upward» into a block that itself depends on them.)
+- tests/lifecycle_gate.selftest.mjs [alive] (R-8.05: 7 groups — → done refused without a passing verdict / on fail / on inconclusive; logged override; adjacency; desync cannot invent a done; desync→done needs a green run newer than the mark; checkTransition is pure)
 - scripts/dedup_block_memory.mjs [alive]
 - scripts/enqueue_ingestion_item.mjs [alive]
 - scripts/apply_ingestion_queue.mjs [alive]
@@ -696,7 +717,6 @@ evidence_spec:
 - b.core-sync: sync_report
 - b.llm-gateway: llm_extract_block_schema
 - b.operator-profile-learner: personal_templates
-- b.acceptance-verifier-loop: acceptance_gate_decision
 
 #### Files
 
@@ -1617,8 +1637,6 @@ evidence_spec:
 - atlas/acceptance_runs/_summary.json [alive] (PR-2 migration: aggregate verdicts across all blocks)
 - scripts/verify_done_blocks_still_green.mjs [alive] (PR-4: nightly regression check; writes acceptance_regression proposals, never auto-flips done→broken)
 - tests/acceptance_verifier.e2e.smoke.mjs [alive]
-- scripts/lifecycle_gate.mjs [alive] (R-8.05: the shared, and now only, writer of block status + transitions.log + checks.log. Enforces the adjacency table and the → done acceptance verdict for every path — CLI advance_block_state, MCP transition_block/update_block, HTTP patchBlock. Before this, only log_transition.mjs gated, and it never wrote graph.json, so the contract's «cannot transition to done» held on no path at all.)
-- tests/lifecycle_gate.selftest.mjs [alive] (R-8.05: 7 groups — → done refused without a passing verdict / on fail / on inconclusive; logged override; adjacency; desync cannot invent a done; desync→done needs a green run newer than the mark; checkTransition is pure)
 
 ## UI (PR-5)
 PR-5 touches files owned by other blocks (UI host blocks own JSX; bootstrap
@@ -6298,6 +6316,10 @@ _no summary_
 - 2026-09-22T15:20:19.311Z: smoke e2e distillate
 - 2026-09-22T15:20:23.729Z: smoke e2e queued insight
 - 2026-09-22T15:20:23.782Z: smoke e2e distillate
+- 2026-09-22T17:30:10.242Z: smoke e2e queued insight
+- 2026-09-22T17:30:10.301Z: smoke e2e distillate
+- 2026-09-22T17:30:15.695Z: smoke e2e queued insight
+- 2026-09-22T17:30:15.745Z: smoke e2e distillate
 
 #### Files
 
@@ -6316,7 +6338,7 @@ _Sources: [mission](blocks/b.smoke-sandbox/mission.md) · [kpi](blocks/b.smoke-s
 - **type**: module
 - **status**: `idea` — Created via design UI at 2026-05-05T20:57:52.201Z
 - **mvp**: no
-- **depends_on**: `b.product-dashboard: session_check`, `b.product-ingest: api_key_check`
+- **depends_on**: `b.product-dashboard`, `b.product-ingest`
 - **files**: 1 (`atlas/blocks/b.product-auth/files.md`)
 
 # b.product-auth — mission
@@ -6369,7 +6391,7 @@ _Sources: [mission](blocks/b.product-auth/mission.md) · [kpi](blocks/b.product-
 - **type**: module
 - **status**: `idea` — Created via design UI at 2026-05-05T20:57:52.212Z
 - **mvp**: no
-- **depends_on**: `b.product-warehouse: events_stream`
+- **depends_on**: `b.product-warehouse`
 - **files**: 1 (`atlas/blocks/b.product-ingest/files.md`)
 
 # b.product-ingest — mission
@@ -6483,7 +6505,7 @@ _Sources: [mission](blocks/b.product-warehouse/mission.md) · [kpi](blocks/b.pro
 - **type**: module
 - **status**: `idea` — Created via design UI at 2026-05-05T20:57:52.242Z
 - **mvp**: no
-- **depends_on**: `b.product-warehouse: metric_query`
+- **depends_on**: `b.product-warehouse`
 - **files**: 1 (`atlas/blocks/b.product-dashboard/files.md`)
 
 # b.product-dashboard — mission

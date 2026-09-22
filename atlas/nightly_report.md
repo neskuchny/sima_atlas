@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-09-22T15:19:56.193Z_
+_Generated: 2026-09-22T17:29:44.062Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -18,7 +18,7 @@ _Generated: 2026-09-22T15:19:56.193Z_
   - output: build_code_graph --check: code_graph.json up-to-date
 - ✅ code_graph_drift: ok
 - ✅ code_graph_extractor_selftest: ok
-  - output: deterministic — sha256(36ba6ba3ce1d…) matches across runs
+  - output: deterministic — sha256(e6f1e6992115…) matches across runs
 - ✅ code_graph_validator_selftest: ok
   - output: code_graph_validator.selftest: OK (6 test groups, all assertions green)
 - ✅ checks_append_endpoint_selftest: ok
@@ -30,7 +30,7 @@ _Generated: 2026-09-22T15:19:56.193Z_
 - ✅ openai_gemini_providers_selftest: ok
   - output: openai_gemini_providers.selftest: OK (5 test groups, all assertions green)
 - ✅ files_registry: ok
-  - output: Files registry validation: OK (alive=223, archived=4, dead=0)
+  - output: Files registry validation: OK (alive=226, archived=4, dead=0)
 - ✅ housekeeping_sweep: ok
   - output: housekeeping_sweeper: 1 proposal(s) — see atlas/cleanup_proposals.md
 - ✅ projects_contracts: ok
@@ -39,6 +39,10 @@ _Generated: 2026-09-22T15:19:56.193Z_
   - output: validate_subschemas: OK (projects=2, subschemas=1, child_blocks=6)
 - ✅ dependency_contracts: ok
   - output: Dependency contract validation: OK
+- ✅ dependency_graph: ok
+  - output: validate_dependency_graph: OK — 19 blocks, graph.json mirrors depends_on.md, no unjustified cycles, 1 justified cycle exemption(s) in use
+- ✅ dependency_graph_selftest: ok
+  - output: dependency_graph.selftest: OK (11 groups, all assertions green)
 - ✅ acceptance_assertions: ok
   - output: Acceptance assertions validation: OK
 - ✅ lifecycle_gate_selftest: ok
@@ -58,7 +62,7 @@ _Generated: 2026-09-22T15:19:56.193Z_
 - ✅ operator_profile_selftest: ok
   - output: operator_profile.selftest: OK (7 test groups, all assertions green)
 - ✅ aggregate_operator_profile: ok
-  - output: operator_profile: live (done=10, invocations=14, traces=1211, proposals=13)
+  - output: operator_profile: live (done=11, invocations=14, traces=1399, proposals=15)
 - ✅ operator_profile_lessons_smoke: ok
   - output: operator_profile_lessons.smoke: OK (6 test groups, all assertions green)
 - ✅ operator_profile_inject_smoke: ok
@@ -162,7 +166,7 @@ _Generated: 2026-09-22T15:19:56.193Z_
 - ✅ rebuild_roadmap: ok
   - output: Rebuilt /home/user/sima_atlas/atlas/roadmap.md
 - ✅ verify_all_acceptance: ok
-  - output: verify_all_acceptance: 14 pass / 0 fail / 7 inconclusive (assertions: 74 pass / 0 fail / 45 skipped)
+  - output: verify_all_acceptance: 14 pass / 0 fail / 7 inconclusive (assertions: 76 pass / 0 fail / 45 skipped)
 - ✅ verify_done_blocks_still_green: ok
   - output: verify_done_blocks_still_green: checked=6 green=6 regressions=0 inconclusive=0
 - ✅ mcp_smoke_e2e: ok
@@ -170,4 +174,4 @@ _Generated: 2026-09-22T15:19:56.193Z_
 - ✅ intelligence_health: ok
   - output: Intelligence health: 0.9524 (20/21)
 
-Summary: PASS (84/84)
+Summary: PASS (86/86)

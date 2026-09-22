@@ -4,4 +4,3 @@
 - b.core-sync: sync_report
 - b.llm-gateway: llm_extract_block_schema
 - b.operator-profile-learner: personal_templates
-- b.acceptance-verifier-loop: acceptance_gate_decision

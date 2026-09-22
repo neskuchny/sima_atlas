@@ -15,7 +15,7 @@
 </style>
 </head><body>
 <h1>Sima Atlas Wiki</h1>
-<p><em>Auto-generated: 2026-09-22T15:20:23.900Z</em></p>
+<p><em>Auto-generated: 2026-09-22T17:30:15.862Z</em></p>
 <h2>Граф продукта</h2>
 <div class="mermaid">flowchart TB
   classDef done    fill:#dcfce7,stroke:#16a34a,color:#15803d;
@@ -88,10 +88,10 @@
   b_desktop --&gt; b_agent_orchestrator
   b_diff_review --&gt; b_llm_gateway
   b_diff_review --&gt; b_agent_orchestrator
-  b_product_auth --&gt; b_product_dashboard_session_check
-  b_product_auth --&gt; b_product_ingest_api_key_check
-  b_product_ingest --&gt; b_product_warehouse_events_stream
-  b_product_dashboard --&gt; b_product_warehouse_metric_query
+  b_product_auth --&gt; b_product_dashboard
+  b_product_auth --&gt; b_product_ingest
+  b_product_ingest --&gt; b_product_warehouse
+  b_product_dashboard --&gt; b_product_warehouse
   b_clarify --&gt; b_llm_gateway</div>
 <h2>Слои</h2>
 <h3>Фронтенд (<code>front</code>)</h3>
@@ -368,6 +368,20 @@ evidence_spec:
 evidence_spec:
   cmd: node scripts/validate_block_contracts.mjs
   expect_in_stdout: "OK"</code></pre>
+<ul>
+<li>[x] <strong>A6.</strong> Граф зависимостей блоков существует в двух копиях (<code>depends_on.md</code> — канон, <code>graph.json</code> — зеркало «для скорости»), и их читают разные потребители: каскад читает зеркало, daemon и детектор дрейфа — канон. Валидатор проверяет, что копии совпадают, что в зеркале голые существующие id, и что в графе нет циклов, кроме явно обоснованных. Selftest включает регрессию R-8.06: ребро, добавленное только в канон, обязано дать ошибку паритета и цикл.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/dependency_graph.selftest.mjs
+  expect_in_stdout: "OK"</code></pre>
+<ul>
+<li>[x] <strong>A7.</strong> Валидатор проходит на текущем атласе: зеркало совпадает с каноном, необоснованных циклов нет.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: exit_code
+evidence_spec:
+  cmd: node scripts/validate_dependency_graph.mjs
+  expect_in_stdout: "no unjustified cycles"</code></pre>
 <h2>Не считается acceptance:</h2>
 <ul>
 <li>наличие <code>mission.md</code> (это контрактный gate).</li>
@@ -425,6 +439,9 @@ evidence_spec:
 <li>scripts/audit<em>production</em>readiness.mjs [alive]</li>
 <li>scripts/log_transition.mjs [alive]</li>
 <li>atlas/transitions.log [alive]</li>
+<li>scripts/validate<em>dependency</em>graph.mjs [alive] (R-8.07: parity graph.json ↔ depends_on.md, bare-id format of the mirror, cycle detection with justified exemptions; every error carries a fix line)</li>
+<li>tests/dependency<em>graph.selftest.mjs [alive] (R-8.07: 11 groups, incl. the R-8.06 regression — an edge added to depends</em>on.md only must fail parity AND report the cycle it creates; an exemption must not cover a larger cycle routed through the exempted pair)</li>
+<li>atlas/dependency<em>cycle</em>exemptions.json [alive] (R-8.07: the only escape hatch for a cycle — what it is, why tolerated, and when the exemption must go; stale entries are reported)</li>
 </ul>
 <p><em>Sources: [mission](blocks/b.core-sync/mission.md) · [kpi](blocks/b.core-sync/kpi.md) · [acceptance](blocks/b.core-sync/acceptance.md) · [depends</em>on](blocks/b.core-sync/depends<em>on.md) · [provides](blocks/b.core-sync/provides.md) · [patterns](blocks/b.core-sync/patterns.md) · [files](blocks/b.core-sync/files.md)</em></p>
 <hr/>
@@ -505,7 +522,7 @@ evidence_spec:
 <h4>Depends on</h4>
 <h1>b.db — depends_on</h1>
 <ul>
-<li>b.acceptance-verifier-loop: acceptance<em>gate</em>decision</li>
+<li>none</li>
 </ul>
 <h4>Patterns</h4>
 <h1>b.db — patterns</h1>
@@ -534,6 +551,8 @@ evidence_spec:
 <li>scripts/log_transition.mjs [alive]</li>
 <li>scripts/manage_block.mjs [alive]</li>
 <li>scripts/advance<em>block</em>state.mjs [alive]</li>
+<li>scripts/lifecycle<em>gate.mjs [alive] (R-8.05, owner fixed in R-8.07: the single writer of block status + transitions.log + checks.log. Extracted core of advance</em>block<em>state/log</em>transition, so it belongs to the storage layer that owns the transitions journal. First filed under b.acceptance-verifier-loop, which created two dependency cycles — every status writer had to import «upward» into a block that itself depends on them.)</li>
+<li>tests/lifecycle_gate.selftest.mjs [alive] (R-8.05: 7 groups — → done refused without a passing verdict / on fail / on inconclusive; logged override; adjacency; desync cannot invent a done; desync→done needs a green run newer than the mark; checkTransition is pure)</li>
 <li>scripts/dedup<em>block</em>memory.mjs [alive]</li>
 <li>scripts/enqueue<em>ingestion</em>item.mjs [alive]</li>
 <li>scripts/apply<em>ingestion</em>queue.mjs [alive]</li>
@@ -655,7 +674,6 @@ evidence_spec:
 <li>b.core-sync: sync_report</li>
 <li>b.llm-gateway: llm<em>extract</em>block_schema</li>
 <li>b.operator-profile-learner: personal_templates</li>
-<li>b.acceptance-verifier-loop: acceptance<em>gate</em>decision</li>
 </ul>
 <h4>Files</h4>
 <h1>b.agent-orchestrator — files</h1>
@@ -1484,8 +1502,6 @@ evidence_spec:
 <li>atlas/acceptance<em>runs/</em>summary.json [alive] (PR-2 migration: aggregate verdicts across all blocks)</li>
 <li>scripts/verify<em>done</em>blocks<em>still</em>green.mjs [alive] (PR-4: nightly regression check; writes acceptance_regression proposals, never auto-flips done→broken)</li>
 <li>tests/acceptance_verifier.e2e.smoke.mjs [alive]</li>
-<li>scripts/lifecycle<em>gate.mjs [alive] (R-8.05: the shared, and now only, writer of block status + transitions.log + checks.log. Enforces the adjacency table and the → done acceptance verdict for every path — CLI advance</em>block<em>state, MCP transition</em>block/update<em>block, HTTP patchBlock. Before this, only log</em>transition.mjs gated, and it never wrote graph.json, so the contract's «cannot transition to done» held on no path at all.)</li>
-<li>tests/lifecycle_gate.selftest.mjs [alive] (R-8.05: 7 groups — → done refused without a passing verdict / on fail / on inconclusive; logged override; adjacency; desync cannot invent a done; desync→done needs a green run newer than the mark; checkTransition is pure)</li>
 </ul>
 <h2>UI (PR-5)</h2>
 <p>PR-5 touches files owned by other blocks (UI host blocks own JSX; bootstrap</p>
@@ -6058,6 +6074,10 @@ evidence_spec:
 <li>2026-09-22T15:20:19.311Z: smoke e2e distillate</li>
 <li>2026-09-22T15:20:23.729Z: smoke e2e queued insight</li>
 <li>2026-09-22T15:20:23.782Z: smoke e2e distillate</li>
+<li>2026-09-22T17:30:10.242Z: smoke e2e queued insight</li>
+<li>2026-09-22T17:30:10.301Z: smoke e2e distillate</li>
+<li>2026-09-22T17:30:15.695Z: smoke e2e queued insight</li>
+<li>2026-09-22T17:30:15.745Z: smoke e2e distillate</li>
 </ul>
 <h4>Files</h4>
 <h1>b.smoke-sandbox — files</h1>
@@ -6073,7 +6093,7 @@ evidence_spec:
 <li><strong>type</strong>: module</li>
 <li><strong>status</strong>: <code>idea</code> — Created via design UI at 2026-05-05T20:57:52.201Z</li>
 <li><strong>mvp</strong>: no</li>
-<li><strong>depends<em>on</strong>: <code>b.product-dashboard: session</em>check</code>, <code>b.product-ingest: api<em>key</em>check</code></li>
+<li><strong>depends_on</strong>: <code>b.product-dashboard</code>, <code>b.product-ingest</code></li>
 <li><strong>files</strong>: 1 (<code>atlas/blocks/b.product-auth/files.md</code>)</li>
 </ul>
 <h1>b.product-auth — mission</h1>
@@ -6117,7 +6137,7 @@ evidence_spec:
 <li><strong>type</strong>: module</li>
 <li><strong>status</strong>: <code>idea</code> — Created via design UI at 2026-05-05T20:57:52.212Z</li>
 <li><strong>mvp</strong>: no</li>
-<li><strong>depends<em>on</strong>: <code>b.product-warehouse: events</em>stream</code></li>
+<li><strong>depends_on</strong>: <code>b.product-warehouse</code></li>
 <li><strong>files</strong>: 1 (<code>atlas/blocks/b.product-ingest/files.md</code>)</li>
 </ul>
 <h1>b.product-ingest — mission</h1>
@@ -6213,7 +6233,7 @@ evidence_spec:
 <li><strong>type</strong>: module</li>
 <li><strong>status</strong>: <code>idea</code> — Created via design UI at 2026-05-05T20:57:52.242Z</li>
 <li><strong>mvp</strong>: no</li>
-<li><strong>depends<em>on</strong>: <code>b.product-warehouse: metric</em>query</code></li>
+<li><strong>depends_on</strong>: <code>b.product-warehouse</code></li>
 <li><strong>files</strong>: 1 (<code>atlas/blocks/b.product-dashboard/files.md</code>)</li>
 </ul>
 <h1>b.product-dashboard — mission</h1>

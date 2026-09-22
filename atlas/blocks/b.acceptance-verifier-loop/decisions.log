@@ -1,0 +1,1 @@
+2026-09-22T17:29:43.776Z | lifecycle_gate_moved_to_b_db | R-8.07: lifecycle_gate.mjs and its selftest no longer owned here. The gate reads this block's verdict file (acceptance_runs/<id>/_latest.json) as DATA; it does not need to live here, and living here forced every status writer to import upward into a block that depends on them.

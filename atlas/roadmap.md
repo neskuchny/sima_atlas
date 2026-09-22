@@ -1,6 +1,6 @@
 # Roadmap (auto-generated, PR2 topo-sort)
 
-_Generated: 2026-09-22T15:20:24.354Z_
+_Generated: 2026-09-22T17:30:16.277Z_
 
 Приоритет внутри уровня: 🔴 broken → 🟣 drift → 🟠 wip → 🔵 review → 🟡 idea → 🟢 done.
 Каждый следующий уровень зависит от предыдущих — реализовывать сверху вниз.
@@ -13,14 +13,8 @@ _Generated: 2026-09-22T15:20:24.354Z_
   - Phase I: verifier FAIL on A2 (simulate_conversation_branches) — test fixture asserts b.core-sync is NOT done, but it legitimately IS done now. Test-state coupling; provider code works. Needs fixture decoupling.
 - 🟡 **b.db** (idea) — Atlas Database · _data_
   - Storage is markdown + localStorage; no real DB layer yet
-- 🟡 **b.product-auth** (idea) — Auth · _logic_
-  - Created via design UI at 2026-05-05T20:57:52.201Z
 - 🟡 **b.product-billing** (idea) — Billing · _logic_
   - Created via design UI at 2026-05-05T20:57:52.257Z
-- 🟡 **b.product-dashboard** (idea) — Dashboard · _front_
-  - Created via design UI at 2026-05-05T20:57:52.242Z
-- 🟡 **b.product-ingest** (idea) — Ingest · _logic_
-  - Created via design UI at 2026-05-05T20:57:52.212Z
 - 🟡 **b.product-warehouse** (idea) — Warehouse · _data_
   - Created via design UI at 2026-05-05T20:57:52.230Z
 - 🟡 **b.smoke-sandbox** (idea) — Smoke Sandbox (test target) · _testing_
@@ -34,11 +28,17 @@ _Generated: 2026-09-22T15:20:24.354Z_
 
 - 🟡 **b.code-graph** (idea) — Code Graph · _data_ · deps: `b.db`
   - New block scoped — extracts deterministic imports/exports map from alive files; consumed by b.core-sync PR4. R-7.99.
+- 🟡 **b.product-dashboard** (idea) — Dashboard · _front_ · deps: `b.product-warehouse`
+  - Created via design UI at 2026-05-05T20:57:52.242Z
+- 🟡 **b.product-ingest** (idea) — Ingest · _logic_ · deps: `b.product-warehouse`
+  - Created via design UI at 2026-05-05T20:57:52.212Z
 - 🟢 **b.clarify** (done) — Clarification Arbiter · _ai_ · deps: `b.llm-gateway`
   - R-8.06 — the arbiter UPSTREAM of the contract: asks whether the contract says what the human meant, instead of taking it as an axiom. Questions + uncertainty markers + assumption registry.
 
 ### Level 2 — требует Level 1
 
+- 🟡 **b.product-auth** (idea) — Auth · _logic_ · deps: `b.product-dashboard`, `b.product-ingest`
+  - Created via design UI at 2026-05-05T20:57:52.201Z
 - 🟢 **b.core-sync** (done) — Sync Engine · _logic_ · deps: `b.db`, `b.code-graph`
   - syncCheck only validates file presence, not mission/KPI semantics
 

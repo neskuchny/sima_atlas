@@ -67,7 +67,7 @@
     {
       "name": "markdown",
       "uses": 2,
-      "satisfaction": "unknown",
+      "satisfaction": "high",
       "evidence": [
         "b.core-sync",
         "b.db"
@@ -76,7 +76,7 @@
     {
       "name": "json",
       "uses": 2,
-      "satisfaction": "unknown",
+      "satisfaction": "high",
       "evidence": [
         "b.core-sync",
         "b.db"
@@ -94,7 +94,7 @@
     {
       "name": "vanilla-js",
       "uses": 1,
-      "satisfaction": "unknown",
+      "satisfaction": "high",
       "evidence": [
         "b.core-sync"
       ]
