@@ -35,6 +35,13 @@
 //   * circuit breaker: hard-stop after N consecutive failed blocks.
 //   * never promotes a block whose cascade_verify breaks a dependent.
 //   * writes an Autonomous Run report you read in the morning.
+//   * R-8.09 — respects the frame review. A block whose agent has not had its
+//     understanding.md confirmed by the operator gets a declare-only run (or
+//     none, if a declaration is already waiting) and is reported as
+//     «awaiting-frame» — never verified, promoted, or counted as a failure.
+//     Overnight that means: agents declare at night, you confirm in the
+//     morning, code is written the next night. `--frame-review skip` restores
+//     the single-run flow for a fully unattended night (logged per block).
 //
 // Usage:
 //   node scripts/agent_loop_daemon.mjs --dry-run            # plan only, nothing runs
@@ -79,6 +86,11 @@ const MAX_ITERATIONS = Math.max(1, Number(arg('--max-iterations', 5)));
 const MAX_COST_USD = Number(arg('--max-cost-usd', 1.0));   // shadow-bill budget
 const FAIL_LIMIT = Math.max(1, Number(arg('--consecutive-fail-limit', 2)));
 const CLIENT = arg('--client', '');
+const FRAME_REVIEW = String(arg('--frame-review', '')).toLowerCase();   // '' | skip
+if (FRAME_REVIEW && FRAME_REVIEW !== 'skip') {
+  console.error(`agent_loop_daemon: --frame-review accepts only "skip", got "${FRAME_REVIEW}"`);
+  process.exit(1);
+}
 const ATLAS = CLIENT ? path.join(ROOT, 'atlas', 'clients', CLIENT) : path.join(ROOT, 'atlas');
 const GRAPH_PATH = path.join(ATLAS, 'graph.json');
 
@@ -313,7 +325,30 @@ function iterate() {
     const runArgs = ['scripts/run_block_implementation.mjs'];
     if (CLIENT) runArgs.push(`--client=${CLIENT}`);
     runArgs.push(block.id);
-    nodeRun(runArgs, { env: { ATLAS_AGENT: AGENT } });
+    const run = nodeRun(runArgs, { env: { ATLAS_AGENT: AGENT, ...(FRAME_REVIEW ? { ATLAS_FRAME_REVIEW: FRAME_REVIEW } : {}) } });
+
+    // R-8.09 — a run that only declared the frame (or did not start the agent
+    // because a declaration is waiting) wrote no code. Verifying it would
+    // measure the old state and could promote or «fail» the block for work
+    // that was never attempted.
+    const gatePhase = ((run.stdout || '').match(/^frame_gate: phase=(\w+)/m) || [])[1] || null;
+    entry.frame_gate = gatePhase;
+    if (gatePhase === 'declare' || gatePhase === 'awaiting' || gatePhase === 'refused') {
+      if (snapshot) snapshot.discard();
+      if (gatePhase === 'declare' && !run.ok) {
+        entry.action = 'fail';
+        entry.reason = 'declare phase: the agent did not write understanding.md';
+        consecutiveFails += 1;
+      } else {
+        entry.action = 'awaiting-frame';
+        entry.note = gatePhase === 'declare'
+          ? 'agent declared its frame — confirm or correct it on the canvas'
+          : 'frame awaits the operator — agent not started';
+      }
+      entry.cost_equivalent_so_far = Number(costEquivalentSince().toFixed(5));
+      log.push(entry);
+      continue;
+    }
 
     // 2. quality gate — the verifier decides, not the agent's self-report.
     const v = nodeRun(['scripts/verify_block_acceptance.mjs', block.id], { env: verifyEnv });
@@ -490,6 +525,7 @@ function iterate() {
       passed: log.filter((e) => e.action === 'pass').length,
       failed: log.filter((e) => e.action === 'fail').length,
       would_run: log.filter((e) => e.action === 'would-run').length,
+      awaiting_frame: log.filter((e) => e.action === 'awaiting-frame').length,
     } };
 }
 
@@ -505,7 +541,7 @@ function writeReport(result) {
     `_Agent: \`${result.agent}\`${result.dry_run ? ' · **dry-run** (planned, nothing executed)' : ''} · max-iterations ${result.max_iterations} · budget $${result.max_cost_usd.toFixed(2)}${result.client ? ` · client ${result.client}` : ''}_`,
     '',
     `**Stop reason:** ${result.stop_reason}`,
-    `**Summary:** ${result.summary.ran} block(s) touched — ${result.summary.passed} advanced · ${result.summary.failed} stalled${result.summary.would_run ? ` · ${result.summary.would_run} planned` : ''}`,
+    `**Summary:** ${result.summary.ran} block(s) touched — ${result.summary.passed} advanced · ${result.summary.failed} stalled${result.summary.would_run ? ` · ${result.summary.would_run} planned` : ''}${result.summary.awaiting_frame ? ` · ${result.summary.awaiting_frame} waiting for you to confirm the agent's frame (Overview panel)` : ''}`,
     '',
     '| # | block | from | action | result |',
     '|---|---|---|---|---|',
@@ -527,11 +563,11 @@ if (JSON_OUT) {
   process.stdout.write(JSON.stringify({ ...result, report: path.relative(ROOT, reportPath) }, null, 2) + '\n');
 } else {
   const s = result.summary;
-  console.log(`agent_loop_daemon [${result.agent}${result.dry_run ? ' · dry-run' : ''}]: ${s.ran} block(s) — ${s.passed} advanced · ${s.failed} stalled${s.would_run ? ` · ${s.would_run} planned` : ''}`);
+  console.log(`agent_loop_daemon [${result.agent}${result.dry_run ? ' · dry-run' : ''}]: ${s.ran} block(s) — ${s.passed} advanced · ${s.failed} stalled${s.would_run ? ` · ${s.would_run} planned` : ''}${s.awaiting_frame ? ` · ${s.awaiting_frame} awaiting frame confirmation` : ''}`);
   console.log(`  stop: ${result.stop_reason}`);
   console.log(`  report: ${path.relative(ROOT, reportPath)}`);
   for (const e of result.iterations) {
-    const mark = e.action === 'pass' ? '✓' : e.action === 'fail' ? '✗' : '·';
-    console.log(`    ${mark} ${e.block_id} (${e.from_status}) → ${e.advanced_to || e.action}${e.reason ? `: ${e.reason}` : ''}`);
+    const mark = e.action === 'pass' ? '✓' : e.action === 'fail' ? '✗' : e.action === 'awaiting-frame' ? '⏸' : '·';
+    console.log(`    ${mark} ${e.block_id} (${e.from_status}) → ${e.advanced_to || e.action}${e.reason ? `: ${e.reason}` : e.note ? `: ${e.note}` : ''}`);
   }
 }

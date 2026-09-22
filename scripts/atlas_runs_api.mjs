@@ -14,12 +14,16 @@
 //   listRunsByBlock({ block_id, active_only, limit, root }) → [run...]
 //   getRun(run_id, { root }) → run | null
 //   getLatestAcceptance({ block_id, root }) → { assertions, summary } | null
-//   startRunAsync({ block_id, agent, prompt }) → { run_id, pid }
+//   startRunAsync({ block_id, agent, prompt }) → { run_id, pid, frame_gate }
+//     R-8.09: when the agent's declared frame is waiting for the operator, no
+//     child is spawned at all — { started: false, frame_gate } comes back so
+//     the UI can say «confirm the frame first» instead of «run created».
 
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { frameGate } from './block_meaning.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(__filename), '..');
@@ -275,6 +279,14 @@ export function startRunAsync({ block_id, agent, prompt, client_id, profile } = 
   // against the known set so a bad value can't reach the child shell.
   const KNOWN_PROFILES = ['design', 'backend-fix', 'ui-fix', 'acceptance-only'];
   const packProfile = profile && KNOWN_PROFILES.includes(String(profile)) ? String(profile) : null;
+  // R-8.09 — the same gate the child will apply, read from the same root the
+  // child reads (run_block_implementation ignores ATLAS_ROOT without --client).
+  const gate = frameGate(String(block_id), clientRoot(client_id));
+  const frame_gate = { state: gate.state, next: gate.next, reason: gate.reason };
+  if (gate.next === 'wait') {
+    return { ok: true, started: false, block_id, frame_gate };
+  }
+
   const args = ['scripts/run_block_implementation.mjs'];
   if (client_id) args.push(`--client=${String(client_id)}`);
   args.push(String(block_id));
@@ -316,7 +328,7 @@ export function startRunAsync({ block_id, agent, prompt, client_id, profile } = 
   fs.closeSync(out);
   fs.closeSync(err);
 
-  return { ok: true, pid: child.pid, run_id, block_id, agent: agent || null, client_id: client_id || null };
+  return { ok: true, started: true, pid: child.pid, run_id, block_id, agent: agent || null, client_id: client_id || null, frame_gate };
 }
 
 // Tail the captured run log starting at byte offset `since`. Returns the

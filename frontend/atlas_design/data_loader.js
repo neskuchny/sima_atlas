@@ -293,6 +293,15 @@
       const qs = client ? '?client=' + encodeURIComponent(client) : '';
       return await getJson('/atlas/blocks/' + encodeURIComponent(block_id) + '/meaning' + qs);
     },
+    // R-8.09 — the operator's answer to the agent's declared frame.
+    // verdict: 'confirmed' | 'corrected'; start_run: also launch the next
+    // phase (implementation after «right», re-declaration after «wrong»).
+    frameReview: async ({ block_id, verdict, correction, start_run, agent }) =>
+      await postJson('/atlas/frame-review', withClient({ block_id, verdict, correction, start_run: !!start_run, ...(agent ? { agent } : {}) })),
+    // Non-blocking run start, client-scoped. The server applies the frame
+    // gate first: { started: false, frame_gate } when the frame awaits you.
+    startRun: async ({ block_id, agent, profile }) =>
+      await postJson('/runs/start', withClient({ block_id, ...(agent ? { agent } : {}), ...(profile ? { profile } : {}) })),
     clientsList:   async ()                => await getJson('/atlas/clients/list'),
     clientCreate:  async (id)              => await postJson('/atlas/clients/create', { id }),
     // Phase R-7.4 — nuke client state when stale data blocks creating new

@@ -37,3 +37,27 @@ Checked in Chromium against the live API in three states — full declaration
 (b.clarify), stale + incomplete + empty trajectory heading, nothing declared —
 in RU and EN, no console errors. Asset versions bumped to `?v=r8-08` for the
 four changed files so a cached `panels.jsx` does not hide the section.
+
+## 2026-09-22 — R-8.09: the operator answers on the Overview panel
+
+`MeaningSection` now carries the answer, not just the view. Awaiting →
+«✓ Right — write the code» (records the confirmation and starts the
+implementation with the agent that declared), «✎ Not quite» (a textarea; the
+correction is recorded and the agent re-declares with it), and a quiet
+«confirm without starting a run». Corrected, stale, confirmed and
+not-declared states each get one line in words and one action. A start
+button hides after it started a run until the gate state moves on, so one
+click cannot become two runs. The summary is re-read every 5 s, so a new
+declaration shows up with its buttons without re-selecting the block.
+
+Found while wiring it: «Send to agent» posted to `/runs/start` with a raw
+fetch that dropped `?client=`; it now goes through `SIMA_API.meta.startRun`
+and logs what the frame gate did (started phase 1 / not started, waiting
+for you).
+
+Checked in Chromium on a disposable client: all five states, the full
+correct → re-declare and confirm → implement click paths (the runs they
+start were verified server-side: a `__declare` prompt containing the
+correction verbatim, an implement prompt containing the confirmed frame),
+and the live refresh. RU, no console errors. Manual — there is still no
+automated UI test.

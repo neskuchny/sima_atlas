@@ -3,12 +3,12 @@
 - index.html [alive] (PR4.1: repo-root redirect to frontend/index.html)
 - frontend/atlas_sync.js [alive]
 - frontend/atlas_bootstrap.js [alive] (auto-generated)
-- frontend/atlas_design/index.html [alive] (R-7.30 — current canvas entry)
-- frontend/atlas_design/panels.jsx [alive] (DetailPanel + Overview + AcceptanceSection + Implementation Status + Token Spend + R-8.08 MeaningSection: the agent's frame, assumptions, staleness, trajectory)
+- frontend/atlas_design/index.html [alive] (R-7.30 — current canvas entry; R-8.09: «Send to agent» goes through SIMA_API.meta.startRun — client-scoped — and logs what the frame gate did)
+- frontend/atlas_design/panels.jsx [alive] (DetailPanel + Overview + AcceptanceSection + Implementation Status + Token Spend + R-8.08 MeaningSection: the agent's frame, assumptions, staleness, trajectory; R-8.09: the operator's answer — «Right — write the code» / «Not quite» with a correction, gate state in words, 5 s refresh)
 - frontend/atlas_design/views.jsx [alive] (composer, proposals Accept/Reject, modals)
 - frontend/atlas_design/graph.jsx [alive] (canvas graph + edges + drill-down)
 - frontend/atlas_design/tweaks-panel.jsx [alive]
-- frontend/atlas_design/data_loader.js [alive] (live API loader + write-side SIMA_API; R-8.08: meta.blockMeaning)
+- frontend/atlas_design/data_loader.js [alive] (live API loader + write-side SIMA_API; R-8.08: meta.blockMeaning; R-8.09: meta.frameReview, meta.startRun — client-scoped)
 - frontend/atlas_design/data_static.js [alive] (offline fallback demo)
 - frontend/atlas_design/i18n.js [alive] (644-key EN/RU dictionary)
 - frontend/atlas_design/styles.css [alive]

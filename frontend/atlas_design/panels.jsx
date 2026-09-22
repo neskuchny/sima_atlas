@@ -410,8 +410,20 @@ function TokenSpendWidget({ block_id }) {
 // heading (the trajectory section of mission.md) or that nobody said.
 // Data comes pre-parsed from /atlas/blocks/<id>/meaning — the same reader the
 // nightly report uses — so the canvas never parses these files on its own.
-function MeaningSection({ meaning }) {
+//
+// R-8.09 — and the operator answers here. A run is two-phase: the agent
+// declares its frame and stops; «Right — write the code» confirms it and
+// starts the implementation; «Not quite» sends a correction and the agent
+// re-declares with it. The gate state comes from the server (frameGate).
+function MeaningSection({ meaning, onMeaning }) {
   const t = window.__SIMA_T || ((_, fb) => fb);
+  const [mode, setMode] = useState2('idle');      // idle | correcting | busy
+  const [draft, setDraft] = useState2('');
+  const [notice, setNotice] = useState2(null);    // { kind: 'ok' | 'err', text }
+  // The gate state in which this panel already started a run. Its «start»
+  // button is hidden until the state moves on, so one click cannot become two
+  // runs; a new declaration (awaiting) always shows its buttons again.
+  const [startedIn, setStartedIn] = useState2(null);
   const md = (s) => {
     const src = String(s || '');
     if (window.marked?.parse) return { __html: window.marked.parse(src) };
@@ -421,6 +433,7 @@ function MeaningSection({ meaning }) {
   const s = u.sections || {};
   const traj = meaning.trajectory || {};
   const stale = meaning.stale || {};
+  const gate = meaning.gate || {};
   const firstLine = (txt, n = 140) => {
     // The collapsed line is plain text, so markdown marks would show raw.
     const flat = String(txt || '').replace(/`|\*\*/g, '').replace(/\s+/g, ' ').trim();
@@ -429,6 +442,119 @@ function MeaningSection({ meaning }) {
   const gaps = [...(u.missing || []), ...(u.empty || [])];
   const assumedCount = (String(s.assumed || '').match(/^\s*[-*]\s/gm) || []).length;
   const declaredAt = u.declared_at ? u.declared_at.slice(0, 10) : '';
+  const busy = mode === 'busy';
+  const agent = gate.last_declared_agent || 'claude';
+
+  // The operator's answer. On success the fresh summary from the server
+  // replaces ours, so the panel shows the new gate state at once.
+  const answer = async (verdict, startRun) => {
+    setMode('busy'); setNotice(null);
+    const r = await window.SIMA_API?.meta?.frameReview?.({
+      block_id: meaning.block_id, verdict, start_run: startRun,
+      correction: verdict === 'corrected' ? draft : undefined,
+    });
+    if (!r || !r.ok) {
+      setMode(verdict === 'corrected' ? 'correcting' : 'idle');
+      setNotice({ kind: 'err', text: r?.error || t('meaning.review_failed', 'Could not save the answer — is the API running?') });
+      return;
+    }
+    const { ok: _ok, run, ...fresh } = r;
+    if (onMeaning) onMeaning(fresh);
+    setDraft(''); setMode('idle');
+    if (run && run.ok === false) {
+      setNotice({ kind: 'err', text: `${t('meaning.run_failed', 'Answer saved, but the run did not start')}: ${run.error || ''}` });
+    } else if (run && run.started) {
+      setStartedIn(fresh.gate?.state || null);
+      setNotice({ kind: 'ok', text: verdict === 'confirmed'
+        ? t('meaning.run_started_impl', 'Implementation started — follow it in the Runs tab.')
+        : t('meaning.run_started_declare', 'The agent is re-declaring with your correction — the new frame will appear here.') });
+    } else {
+      setNotice({ kind: 'ok', text: verdict === 'confirmed'
+        ? t('meaning.confirmed_saved', 'Confirmed. The next run writes code within this frame.')
+        : t('meaning.corrected_saved', 'Correction saved. The next run re-declares with it.') });
+    }
+  };
+  // Start the next phase without recording an answer (first declaration,
+  // re-declaration after a contract change, or implementation of a frame
+  // confirmed earlier).
+  const startNext = async (okText) => {
+    setMode('busy'); setNotice(null);
+    const r = await window.SIMA_API?.meta?.startRun?.({ block_id: meaning.block_id, agent });
+    setMode('idle');
+    if (r?.ok && r.started) { setStartedIn(gate.state || 'none'); setNotice({ kind: 'ok', text: okText }); }
+    else if (r?.ok) setNotice({ kind: 'err', text: r.frame_gate?.reason || t('meaning.not_started', 'The run was not started.') });
+    else setNotice({ kind: 'err', text: `${t('meaning.run_failed', 'The run did not start')}: ${r?.error || ''}` });
+  };
+  const dateOf = (iso) => (iso ? String(iso).slice(0, 10) : '');
+  const canStart = startedIn !== (gate.state || 'none');
+
+  const reviewBar = (() => {
+    if (!u.exists) return null;
+    if (gate.state === 'awaiting') {
+      return (
+        <div className="meaning-review">
+          <div className="meaning-review-lead">{t('meaning.awaiting', 'The agent is waiting for your answer. No code is written until you confirm this frame.')}</div>
+          {mode !== 'correcting' ? (
+            <div className="meaning-actions">
+              <button className="pill primary" disabled={busy || !s.treating_as} onClick={() => answer('confirmed', true)}>{t('meaning.btn_confirm_run', '✓ Right — write the code')}</button>
+              <button className="pill" disabled={busy} onClick={() => { setMode('correcting'); setNotice(null); }}>{t('meaning.btn_wrong', '✎ Not quite')}</button>
+              <button className="meaning-link" disabled={busy || !s.treating_as} onClick={() => answer('confirmed', false)}>{t('meaning.btn_confirm_only', 'confirm without starting a run')}</button>
+            </div>
+          ) : (
+            <div className="meaning-correct">
+              <textarea
+                value={draft}
+                rows={3}
+                autoFocus
+                onChange={(e) => setDraft(e.target.value)}
+                placeholder={t('meaning.correct_placeholder', 'What is this block actually? E.g. «not a CRUD resource — a job queue with retries; the UI only reads from it».')}
+              />
+              <div className="meaning-actions">
+                <button className="pill primary" disabled={busy || !draft.trim()} onClick={() => answer('corrected', true)}>{t('meaning.btn_send_correction', 'Send — the agent re-declares')}</button>
+                <button className="pill" disabled={busy} onClick={() => setMode('idle')}>{t('meaning.btn_cancel', 'Cancel')}</button>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+    if (gate.state === 'confirmed') {
+      return (
+        <div className="meaning-review meaning-review-ok">
+          <div className="meaning-review-lead">✓ {t('meaning.confirmed_on', 'You confirmed this frame on')} {dateOf(gate.confirmed_at)}. {t('meaning.confirmed_next', 'The next run writes code within it.')}</div>
+          {canStart && <div className="meaning-actions">
+            <button className="pill" disabled={busy} onClick={() => startNext(t('meaning.run_started_impl', 'Implementation started — follow it in the Runs tab.'))}>{t('meaning.btn_implement', '▶ Write the code now')}</button>
+          </div>}
+        </div>
+      );
+    }
+    if (gate.state === 'corrected') {
+      return (
+        <div className="meaning-review">
+          <div className="meaning-review-lead">{t('meaning.corrected_on', 'You corrected this frame')}{gate.last_event?.ts ? ` ${dateOf(gate.last_event.ts)}` : ''}:</div>
+          <div className="meaning-quote">{gate.correction}</div>
+          <div className="meaning-note">{t('meaning.corrected_next', 'The next run makes the agent re-declare with your correction; no code is written in the old frame.')}</div>
+          {canStart && <div className="meaning-actions">
+            <button className="pill" disabled={busy} onClick={() => startNext(t('meaning.run_started_declare', 'The agent is re-declaring with your correction — the new frame will appear here.'))}>{t('meaning.btn_redeclare', '↻ Re-declare now')}</button>
+          </div>}
+        </div>
+      );
+    }
+    if (gate.state === 'stale') {
+      return (
+        <div className="meaning-review">
+          <div className="meaning-review-lead">
+            {t('meaning.stale', 'The contract changed after this was written')}: {(stale.newer || []).join(', ')}.
+            {' '}{t('meaning.stale_next', 'This frame describes the old task, so it cannot be confirmed. The next run makes the agent re-declare first.')}
+          </div>
+          {canStart && <div className="meaning-actions">
+            <button className="pill" disabled={busy} onClick={() => startNext(t('meaning.run_started_redeclare', 'The agent is re-declaring for the current contract — the new frame will appear here.'))}>{t('meaning.btn_redeclare', '↻ Re-declare now')}</button>
+          </div>}
+        </div>
+      );
+    }
+    return null;
+  })();
 
   return (
     <div className="ov-section">
@@ -440,18 +566,13 @@ function MeaningSection({ meaning }) {
       </div>
 
       {u.exists ? (
-        <div className={`meaning-card${stale.stale ? ' meaning-stale' : ''}`}>
+        <div className={`meaning-card${gate.state === 'awaiting' || gate.state === 'stale' ? ' meaning-stale' : ''}`}>
           <div className="meaning-label">{t('meaning.treating_as', 'Treating this as')}</div>
           {s.treating_as
             ? <div className="meaning-frame">{s.treating_as.replace(/\s+/g, ' ').trim()}</div>
             : <div className="meaning-note">{t('meaning.treating_as_empty', 'The agent left this empty — it did not say what it took the block to be.')}</div>}
           <div className="meaning-note">{t('meaning.treating_as_hint', 'Read this line first. If it is the wrong kind of thing, the code built on it is wrong in the same direction — and will still pass acceptance.')}</div>
 
-          {stale.stale && (
-            <div className="meaning-warn">
-              {t('meaning.stale', 'The contract changed after this was written')}: {(stale.newer || []).join(', ')}. {t('meaning.stale_hint', 'The agent may have been working from an older version of the task — re-check this before accepting the work.')}
-            </div>
-          )}
           {gaps.length > 0 && (
             <div className="meaning-warn">{t('meaning.incomplete', 'Incomplete declaration — missing or empty')}: {gaps.join(', ')}</div>
           )}
@@ -473,12 +594,24 @@ function MeaningSection({ meaning }) {
               {s.variant_chosen && (<><div className="meaning-label">{t('meaning.variant_chosen', 'Variant chosen')}</div><div className="meaning-body" dangerouslySetInnerHTML={md(s.variant_chosen)} /></>)}
             </details>
           )}
+
+          {reviewBar}
+          {notice && <div className={`meaning-notice meaning-notice-${notice.kind}`}>{notice.text}</div>}
+          {(gate.confirmations > 0 || gate.corrections > 0) && (
+            <div className="meaning-stats">
+              {t('meaning.stats_confirmed', 'confirmed')} {gate.confirmations || 0} · {t('meaning.stats_corrected', 'corrected')} {gate.corrections || 0}
+            </div>
+          )}
         </div>
       ) : (
         <div className="meaning-card">
           <div className="meaning-note" style={{ marginTop: 0 }}>
-            {t('meaning.absent', 'The agent has not declared how it understood this block yet. The declaration appears after the first agent run: the agent writes understanding.md before any code.')}
+            {t('meaning.absent', 'The agent has not declared how it understood this block yet. On the first run it declares its frame and stops; code is written only after you confirm it.')}
           </div>
+          {canStart && <div className="meaning-actions">
+            <button className="pill" disabled={busy} onClick={() => startNext(t('meaning.run_started_first', 'The agent is declaring its understanding — it will appear here; no code is written yet.'))}>{t('meaning.btn_declare', '▶ Ask the agent to declare')}</button>
+          </div>}
+          {notice && <div className={`meaning-notice meaning-notice-${notice.kind}`}>{notice.text}</div>}
         </div>
       )}
 
@@ -535,6 +668,7 @@ function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSu
     setMeaning(null);
     if (!m.id || !m.id.startsWith('b.')) { setLoaded(true); return; }
     let cancelled = false;
+    let meaningTimer = null;
     const load = async (file) => {
       try {
         const r = await window.SIMA_API?.meta?.blockFile(m.id, file);
@@ -557,6 +691,13 @@ function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSu
       ]);
       if (cancelled) return;
       setMeaning(mean);
+      // R-8.09 — a declaration or a confirmation can land while the panel is
+      // open (the agent runs in the background); re-read the summary so the
+      // operator sees «waiting for your answer» without re-selecting the block.
+      meaningTimer = setInterval(async () => {
+        const next = await loadMeaning();
+        if (!cancelled && next) setMeaning(next);
+      }, 5000);
       const stripHead = (s) => s.replace(/^#[^\n]*\n+/, '').replace(/\n+##\s+Layer[\s\S]*$/i, '').trim();
       setMissionText(stripHead(mission));
       setKpiText(stripHead(kpi));
@@ -569,7 +710,7 @@ function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSu
       try { setSemanticReview(sem ? JSON.parse(sem) : null); } catch { setSemanticReview(null); }
       setLoaded(true);
     })();
-    return () => { cancelled = true; };
+    return () => { cancelled = true; if (meaningTimer) clearInterval(meaningTimer); };
   }, [m.id]);
 
   const isPlaceholder = (s) => !s || /Заполни через детальную панель|добавь конкретную метрику|fill in via the detail panel|first task|none/i.test(s);
@@ -614,7 +755,7 @@ function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSu
       )}
       <LayerPicker block={m} />
 
-      {meaning && <MeaningSection meaning={meaning} />}
+      {meaning && <MeaningSection key={m.id} meaning={meaning} onMeaning={setMeaning} />}
 
       {/* R-7.86 — Implementation Status dashboard. Operator: «можно
           ли в модуле/блоке увидеть что реализовал?» — yes, this panel

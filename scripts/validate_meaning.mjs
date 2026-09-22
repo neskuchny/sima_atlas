@@ -63,6 +63,10 @@ for (const b of graph.blocks || []) {
     understanding: u.exists ? (u.complete ? 'complete' : 'incomplete') : 'absent',
     treating_as: u.exists ? (u.sections?.treating_as || '').replace(/\s+/g, ' ').trim().slice(0, 160) : null,
     stale: s.stale.stale,
+    // R-8.09 — where the block stands between «declared» and «may write code».
+    frame_gate: s.gate.state,
+    corrections: s.gate.corrections,
+    confirmations: s.gate.confirmations,
     warnings: s.warnings,
   });
 }
@@ -70,9 +74,13 @@ for (const b of graph.blocks || []) {
 const withTrajectory = rows.filter((r) => r.trajectory).length;
 const declared = rows.filter((r) => r.understanding !== 'absent').length;
 const warned = rows.filter((r) => r.warnings.length);
+const awaiting = rows.filter((r) => r.frame_gate === 'awaiting');
+const corrections = rows.reduce((n, r) => n + (r.corrections || 0), 0);
+const confirmations = rows.reduce((n, r) => n + (r.confirmations || 0), 0);
 
 if (asJson) {
-  console.log(JSON.stringify({ ok: true, gate: false, blocks: rows.length, with_trajectory: withTrajectory, declared, rows }, null, 2));
+  console.log(JSON.stringify({ ok: true, gate: false, blocks: rows.length, with_trajectory: withTrajectory, declared,
+    awaiting_operator: awaiting.map((r) => r.block_id), confirmations, corrections, rows }, null, 2));
   process.exit(0);
 }
 
@@ -80,7 +88,10 @@ for (const r of rows.filter((x) => x.trajectory || x.understanding !== 'absent')
   const bits = [];
   if (r.trajectory) bits.push('trajectory');
   if (r.understanding !== 'absent') bits.push(`understanding: ${r.understanding}`);
+  if (r.frame_gate && r.frame_gate !== 'none') bits.push(`frame: ${r.frame_gate}`);
   console.log(` · ${r.block_id} (${r.status}) — ${bits.join(', ')}${r.treating_as ? `\n     treating as: ${r.treating_as}` : ''}`);
 }
 for (const r of warned) for (const w of r.warnings) console.warn(` ⚠ ${r.block_id}: ${w}`);
-console.log(`validate_meaning: ${rows.length} blocks — ${withTrajectory} with a declared trajectory, ${declared} with a declared understanding, ${warned.length} with warnings (report only, not a gate)`);
+if (awaiting.length) console.log(` ⏸ waiting for your answer on the canvas: ${awaiting.map((r) => r.block_id).join(', ')}`);
+// KPI-7/8 source: every «right» and «wrong» the operator gave, across blocks.
+console.log(`validate_meaning: ${rows.length} blocks — ${withTrajectory} with a declared trajectory, ${declared} with a declared understanding, ${awaiting.length} awaiting the operator, frame answers: ${confirmations} confirmed / ${corrections} corrected, ${warned.length} with warnings (report only, not a gate)`);

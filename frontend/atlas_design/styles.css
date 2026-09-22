@@ -342,6 +342,28 @@ html, body {
 .meaning-card details { margin-top: 8px; }
 .meaning-card summary { cursor: pointer; font-size: 12px; color: var(--ink-3); }
 .meaning-card details .meaning-label { margin-top: 8px; }
+/* R-8.09 — the operator's answer to the declared frame */
+.meaning-review { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--rule); }
+.meaning-review-lead { font-size: 12.5px; line-height: 1.45; color: var(--ink); font-weight: 500; }
+.meaning-review-ok .meaning-review-lead { color: var(--st-done); }
+.meaning-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; }
+.meaning-link {
+  background: none; border: 0; padding: 0; cursor: pointer;
+  font: inherit; font-size: 11.5px; color: var(--ink-3); text-decoration: underline;
+}
+.meaning-link:hover { color: var(--ink); }
+.meaning-link[disabled] { opacity: 0.5; cursor: default; }
+.meaning-correct { margin-top: 8px; }
+.meaning-correct textarea {
+  width: 100%; box-sizing: border-box; resize: vertical;
+  font: inherit; font-size: 12.5px; line-height: 1.45; color: var(--ink);
+  background: var(--paper); border: 1px solid var(--rule); border-radius: 6px; padding: 8px;
+}
+.meaning-quote { font-size: 12.5px; line-height: 1.45; color: var(--ink-2); margin-top: 6px; padding-left: 8px; border-left: 2px solid var(--ink-4); white-space: pre-wrap; }
+.meaning-notice { font-size: 12px; line-height: 1.45; margin-top: 8px; }
+.meaning-notice-ok { color: var(--st-done); }
+.meaning-notice-err { color: var(--st-fail); }
+.meaning-stats { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-4); margin-top: 10px; letter-spacing: 0.04em; }
 
 /* R-7.90 (S-11) — subsystem progress roll-up */
 .rollup-bar-wrap { display: flex; align-items: center; gap: 10px; margin: 8px 0 6px; }

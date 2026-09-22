@@ -15,17 +15,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_cursor_hooks.mjs → exit 0 (56ms); first line: \"cursor hooks validation: OK (4 events, 4 commands)\"",
+      "evidence": "node scripts/validate_cursor_hooks.mjs → exit 0 (57ms); first line: \"cursor hooks validation: OK (4 events, 4 commands)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_cursor_hooks.mjs",
         "exit_code": 0,
         "stdout": "cursor hooks validation: OK (4 events, 4 commands)\n",
         "stderr": "",
-        "duration_ms": 56,
+        "duration_ms": 57,
         "timed_out": false
       },
-      "duration_ms": 56
+      "duration_ms": 57
     },
     {
       "id": "A2",
@@ -39,17 +39,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (539ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
+      "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (558ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/cursor_hooks_actions.test.mjs",
         "exit_code": 0,
         "stdout": "cursor_hooks_actions.test: OK (9 cases)\n",
         "stderr": "",
-        "duration_ms": 539,
+        "duration_ms": 558,
         "timed_out": false
       },
-      "duration_ms": 539
+      "duration_ms": 558
     },
     {
       "id": "A3",
@@ -63,17 +63,17 @@
         "expect_in_stdout": "9 cases"
       },
       "verdict": "pass",
-      "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (536ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
+      "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (590ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
       "reasoning": "shell exit code 0 and stdout matches /9 cases/",
       "raw": {
         "cmd": "node tests/cursor_hooks_actions.test.mjs",
         "exit_code": 0,
         "stdout": "cursor_hooks_actions.test: OK (9 cases)\n",
         "stderr": "",
-        "duration_ms": 536,
+        "duration_ms": 590,
         "timed_out": false
       },
-      "duration_ms": 536
+      "duration_ms": 590
     },
     {
       "id": "A4",
@@ -87,17 +87,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (538ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
+      "evidence": "node tests/cursor_hooks_actions.test.mjs → exit 0 (627ms); first line: \"cursor_hooks_actions.test: OK (9 cases)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/cursor_hooks_actions.test.mjs",
         "exit_code": 0,
         "stdout": "cursor_hooks_actions.test: OK (9 cases)\n",
         "stderr": "",
-        "duration_ms": 538,
+        "duration_ms": 627,
         "timed_out": false
       },
-      "duration_ms": 538
+      "duration_ms": 627
     },
     {
       "id": "A5",
@@ -111,17 +111,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/cursor_live.headless.smoke.mjs → exit 0 (882ms); first line: \"cursor_live.headless.smoke: OK (5 phases — hooks valid, drift guard fires, file-edit logged, context pack emitted, detailed suite green)\"",
+      "evidence": "node tests/cursor_live.headless.smoke.mjs → exit 0 (954ms); first line: \"cursor_live.headless.smoke: OK (5 phases — hooks valid, drift guard fires, file-edit logged, context pack emitted, detailed suite green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/cursor_live.headless.smoke.mjs",
         "exit_code": 0,
         "stdout": "cursor_live.headless.smoke: OK (5 phases — hooks valid, drift guard fires, file-edit logged, context pack emitted, detailed suite green)\n",
         "stderr": "",
-        "duration_ms": 882,
+        "duration_ms": 954,
         "timed_out": false
       },
-      "duration_ms": 882
+      "duration_ms": 954
     },
     {
       "id": "A6",
@@ -138,12 +138,12 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "8bedb9192b2b1cda",
+        "prompt_hash": "faa3ed996ea068ba",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 3
+      "duration_ms": 1
     },
     {
       "id": "A7",
@@ -157,25 +157,49 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_agent_parity.mjs → exit 0 (53ms); first line: \"Agent parity validation: OK\"",
+      "evidence": "node scripts/validate_agent_parity.mjs → exit 0 (61ms); first line: \"Agent parity validation: OK\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_agent_parity.mjs",
         "exit_code": 0,
         "stdout": "Agent parity validation: OK\n",
         "stderr": "",
-        "duration_ms": 53,
+        "duration_ms": 61,
         "timed_out": false
       },
-      "duration_ms": 53
+      "duration_ms": 61
+    },
+    {
+      "id": "A8",
+      "label": "frame gate, R-8.09",
+      "text": "Прогон двухфазный: без подтверждённой рамки агент только объявляет понимание и останавливается; пока объявление ждёт человека, агент не запускается вовсе (ни из CLI, ни из `/runs/start`); код пишется только в подтверждённой рамке; поправка оператора доходит до агента дословно; автономный цикл не продвигает и не «проваливает» блок после прогона, который только объявил. Проверяется настоящими прогонами на одноразовом клиенте.",
+      "checked": true,
+      "line": 49,
+      "evidence_kind": "selftest_run",
+      "evidence_spec": {
+        "cmd": "node tests/frame_gate_flow.selftest.mjs",
+        "expect_in_stdout": "OK"
+      },
+      "verdict": "fail",
+      "evidence": "node tests/frame_gate_flow.selftest.mjs → exit 1; stderr: \"frame_gate_flow.selftest: FAIL\"",
+      "reasoning": "shell exit 1",
+      "raw": {
+        "cmd": "node tests/frame_gate_flow.selftest.mjs",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "frame_gate_flow.selftest: FAIL\n ✗ f3: no frame yet → the loop runs the declare phase and reports awaiting-frame — {}\n ✗ f3: …not counted as a failure — {\"ran\":0,\"passed\":0,\"failed\":0,\"would_run\":0,\"awaiting_frame\":0}\n ✗ f3: declaration waiting → agent not started, still awaiting-frame — {}\n",
+        "duration_ms": 1733,
+        "timed_out": false
+      },
+      "duration_ms": 1733
     }
   ],
   "counts": {
     "pass": 6,
-    "fail": 0,
+    "fail": 1,
     "skipped": 1
   },
-  "verdict": "pass",
-  "duration_ms": 2610,
-  "checked_at": "2026-09-22T17:56:43.763Z"
+  "verdict": "fail",
+  "duration_ms": 4584,
+  "checked_at": "2026-09-22T18:26:25.132Z"
 }

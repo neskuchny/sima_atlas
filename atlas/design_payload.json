@@ -55,8 +55,8 @@
       },
       "progress": {
         "tasks": {
-          "done": 1,
-          "total": 8
+          "done": 3,
+          "total": 10
         },
         "kpi": {
           "checked": 0,
@@ -684,13 +684,13 @@
     },
     {
       "id": "b.clarify",
-      "_raw_updated_at": "2026-09-22T17:40:25.037Z",
+      "_raw_updated_at": "2026-09-22T18:25:54.515Z",
       "title": "Clarification Arbiter",
       "tag": "clarify",
       "layer": "logic",
-      "status": "done",
-      "priority": 3,
-      "checked": true,
+      "status": "progress",
+      "priority": 2,
+      "checked": false,
       "size": "m",
       "parent_block_id": null,
       "contract": {
@@ -703,12 +703,12 @@
       },
       "progress": {
         "tasks": {
-          "done": 18,
-          "total": 25
+          "done": 25,
+          "total": 32
         },
         "kpi": {
           "checked": 0,
-          "total": 26
+          "total": 29
         }
       },
       "tech_stack": [
@@ -1034,6 +1034,24 @@
       {
         "id": "T8",
         "title": ". Секция «🧭 Как агент понял этот блок» на панели «Обзор», выше Implementation Status: «Агент принял блок за», предупреждения об устаревании и неполноте, «Решено без вопроса», траектория или подсказка",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T9",
+        "title": ". R-8.09: ответ оператора на объявление прямо на «Обзоре» — «✓ Верно — писать код» (подтверждает и запускает реализацию тем же агентом), «✎ Не так» (поле поправки → агент переобъявляет), «подтвердить,",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T10",
+        "title": ". «Отправить агенту» передаёт client (раньше запуск из ?client=… уходил в корневой атлас) и пишет в лог, что сделал шлюз.",
         "status": "done",
         "priority": "P2",
         "agent": null,
@@ -2663,6 +2681,69 @@
         "accept": ""
       },
       {
+        "id": "T26",
+        "title": ". `frameGate`: состояние выводится из журнала `frame_reviews.jsonl` и файлов на каждый вызов — none / awaiting / confirmed / corrected / stale. Подтверждение привязано к тексту объявления и отпечатку ",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T27",
+        "title": ". `run_block_implementation.mjs` двухфазный по умолчанию: фаза объявления (только understanding.md, проверка, что агент ничего больше не тронул), ожидание (агент не запускается), фаза реализации (рамк",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T28",
+        "title": ". Поправка оператора попадает в промпт следующего объявления дословно, вместе с рамкой, которую она поправляет.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T29",
+        "title": ". Объявление на языке миссии (`operatorLanguage`, `ATLAS_OPERATOR_LANG`).",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T30",
+        "title": ". Демон: блок, ждущий человека, — `awaiting-frame`, без верификатора, без продвижения, не провал; `--frame-review skip` для полностью автономной ночи.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T31",
+        "title": ". Панель «Обзор»: «✓ Верно — писать код», «✎ Не так» с полем поправки, «подтвердить, не запуская»; состояния шлюза словами; обновление раз в 5 с.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T32",
+        "title": ". `/runs/start` не запускает агента, пока рамка ждёт ответа, и говорит об этом; кнопка «Отправить агенту» передаёт client.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
         "id": "T12",
         "title": ". Подсветка блока с открытыми маркерами на графе.",
         "status": "todo",
@@ -2805,20 +2886,6 @@
   "lanes": [],
   "history": [
     {
-      "ts": "22:37",
-      "module": "diff-review",
-      "agent": "sima-core",
-      "kind": "info",
-      "msg": "b.diff-review: wip → review"
-    },
-    {
-      "ts": "22:37",
-      "module": "diff-review",
-      "agent": "sima-core",
-      "kind": "ok",
-      "msg": "b.diff-review: review → done"
-    },
-    {
       "ts": "07:01",
       "module": "clarify",
       "agent": "sima-core",
@@ -2887,6 +2954,20 @@
       "agent": "sima-core",
       "kind": "ok",
       "msg": "b.clarify: review → done"
+    },
+    {
+      "ts": "18:07",
+      "module": "clarify",
+      "agent": "sima-core",
+      "kind": "info",
+      "msg": "b.clarify: done → wip"
+    },
+    {
+      "ts": "18:25",
+      "module": "clarify",
+      "agent": "sima-core",
+      "kind": "info",
+      "msg": "b.clarify: wip → review"
     }
   ],
   "lessons": [],
@@ -2918,7 +2999,7 @@
     }
   ],
   "_meta": {
-    "generated_at": "2026-09-22T17:56:59.398Z",
+    "generated_at": "2026-09-22T18:27:31.874Z",
     "atlas_root": "atlas",
     "client_id": null,
     "block_count": 21,

@@ -14,19 +14,41 @@
 //   node scripts/run_block_implementation.mjs <block_id> [-- "<additional prompt>"]
 //   ATLAS_AGENT=claude node scripts/run_block_implementation.mjs b.docs -- "fix mermaid render"
 //
+// R-8.09 — two-phase by default. The agent first declares how it understood
+// the block (understanding.md) and STOPS; code is written only by a later run,
+// after the operator confirmed that frame on the canvas. What a run does is
+// decided by frameGate (scripts/block_meaning.mjs):
+//   no declaration / contract changed / operator corrected → declare phase
+//   declared, not yet answered                            → agent NOT started
+//   confirmed for this text and this contract              → implement phase
+// Every run prints one machine-readable line: `frame_gate: phase=<p> state=<s>`.
+//   --phase=declare        force a (re-)declaration
+//   --phase=implement      refuse (exit 3) unless the frame is confirmed
+//   --frame-review=skip    the pre-R-8.09 single run: declare + code at once,
+//                          the operator sees the frame only after the code.
+//                          Logged to checks.log every time it is used.
+//
 // Env:
-//   ATLAS_AGENT       — 'claude' (default) | 'codex' | 'cursor' | 'print-only'
-//   ATLAS_AGENT_FLAGS — extra flags forwarded to the CLI (e.g. "--model claude-haiku-4-5")
-//   ATLAS_ROOT        — overrides atlas root (set automatically when --client= is passed,
-//                       so run_state, verifier, etc. write under atlas/clients/<id>/)
+//   ATLAS_AGENT        — 'claude' (default) | 'codex' | 'cursor' | 'print-only'
+//   ATLAS_AGENT_FLAGS  — extra flags forwarded to the CLI (e.g. "--model claude-haiku-4-5")
+//   ATLAS_ROOT         — overrides atlas root (set automatically when --client= is passed,
+//                        so run_state, verifier, etc. write under atlas/clients/<id>/)
+//   ATLAS_RUN_PHASE    — same as --phase=
+//   ATLAS_FRAME_REVIEW — same as --frame-review=
+//   ATLAS_OPERATOR_LANG — language of the declaration (default: detected from the mission)
 
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import { spawnSync, execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { startRun, transitionRunState } from './run_state.mjs';
 import { createWorkspace, captureDiff, writeDiffProposal, cleanupWorkspace } from './agent_workspace.mjs';
-import { readTrajectory, trajectoryPromptLines, understandingPromptLines } from './block_meaning.mjs';
+import {
+  readTrajectory, trajectoryPromptLines, understandingPromptLines,
+  frameGate, recordDeclared, readUnderstanding, understandingSha, operatorLanguage,
+  declarePhasePromptLines, implementPhasePromptLines,
+} from './block_meaning.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(__filename), '..');
@@ -52,6 +74,28 @@ const INVOCATIONS_DIR = path.join(ATLAS, 'agent_invocations');
 // once here and they all redirect to the client root automatically.
 if (clientId) process.env.ATLAS_ROOT = ATLAS;
 
+// R-8.09 — phase flags. Taken out of argv (like --client=) so the block id
+// stays argv[0] wherever the caller put them. Only flags before `--` count:
+// what follows `--` is the operator's free-form prompt.
+function takeFlag(prefix) {
+  const end = argv.indexOf('--') >= 0 ? argv.indexOf('--') : argv.length;
+  const i = argv.findIndex((a, k) => k < end && a.startsWith(prefix));
+  if (i < 0) return '';
+  const v = argv[i].slice(prefix.length).trim();
+  argv.splice(i, 1);
+  return v;
+}
+const phaseFlag = (takeFlag('--phase=') || process.env.ATLAS_RUN_PHASE || 'auto').toLowerCase();
+const frameReviewFlag = (takeFlag('--frame-review=') || process.env.ATLAS_FRAME_REVIEW || '').toLowerCase();
+if (!['auto', 'declare', 'implement'].includes(phaseFlag)) {
+  console.error(`run_block_implementation: --phase must be auto|declare|implement, got "${phaseFlag}"`);
+  process.exit(1);
+}
+if (frameReviewFlag && frameReviewFlag !== 'skip') {
+  console.error(`run_block_implementation: --frame-review accepts only "skip", got "${frameReviewFlag}"`);
+  process.exit(1);
+}
+
 const dashDash = argv.indexOf('--');
 const blockId = argv[0];
 const extraPrompt = dashDash >= 0 ? argv.slice(dashDash + 1).join(' ').trim() : '';
@@ -64,6 +108,32 @@ const blockDir = path.join(BLOCKS, blockId);
 if (!fs.existsSync(blockDir)) {
   console.error(`run_block_implementation: block dir not found → ${blockDir}`);
   process.exit(2);
+}
+
+function appendCheck(kind, result, note) {
+  const checks = path.join(blockDir, 'checks.log');
+  fs.appendFileSync(checks, `${new Date().toISOString()}\t${kind}\t${result}\t${String(note).replace(/[\t\r\n]+/g, ' ')}\n`, 'utf8');
+}
+
+// R-8.09 — decide what this run is allowed to do.
+const gate = frameGate(blockId, ATLAS);
+let phase;
+if (frameReviewFlag === 'skip') phase = 'full';
+else if (phaseFlag === 'declare') phase = 'declare';
+else if (phaseFlag === 'implement') phase = gate.state === 'confirmed' ? 'implement' : 'refused';
+else phase = gate.next === 'implement' ? 'implement' : gate.next === 'declare' ? 'declare' : 'awaiting';
+console.log(`frame_gate: phase=${phase} state=${gate.state}`);
+
+if (phase === 'awaiting' || phase === 'refused') {
+  // The agent is not started: the next step belongs to the operator.
+  appendCheck('frame_gate', 'skipped', `${phase === 'refused' ? '--phase=implement refused' : 'agent not started'} — ${gate.reason}`);
+  console.log(`run_block_implementation: ${blockId} — ${gate.reason}.`);
+  console.log('  The agent was not started. Open the block on the canvas (Overview → «How the agent understood this block»)');
+  console.log('  and answer «right» or «wrong»; the next run then writes code or re-declares.');
+  process.exit(phase === 'refused' ? 3 : 0);
+}
+if (phase === 'full') {
+  appendCheck('frame_gate', 'skipped', 'frame review skipped (--frame-review=skip): declare + code in one run, the operator sees the frame after the code');
 }
 
 // 1. Build context-pack (rebuilds atlas/context_packs/<id>.json).
@@ -143,9 +213,13 @@ const alwaysUseTxt = opMem.always_use.length ? fmtList(opMem.always_use) : '';
 const lessonsTxt = opMem.lessons.length ? fmtList(opMem.lessons, 'lesson') : '';
 const hasMemory = (decisions || narrative || codeSummary || checksTail || dontUseTxt || alwaysUseTxt || lessonsTxt);
 
-const prompt = [
-  `# Implement block ${blockId}`,
-  '',
+// R-8.09 — the prompt is assembled from shared parts so the three phases can
+// never drift apart in what they tell the agent about the block itself.
+const operatorLang = operatorLanguage([mission, userStory].join('\n'));
+const understandingNow = readUnderstanding(blockId, ATLAS);
+const blockDirRelSlash = path.relative(ROOT, blockDir).split(path.sep).join('/');
+
+const contractPart = [
   '## Mission',
   trajectory.missionWithout.trim(),
   '',
@@ -162,26 +236,29 @@ const prompt = [
   // several implementations that all satisfy it; the direction can. Absent a
   // declared trajectory, the agent is told its choice is a guess and must be
   // recorded, not made silently.
-  ...trajectoryPromptLines(trajectory),
+  ...trajectoryPromptLines(trajectory, { recordIn: phase === 'implement' ? 'narrative.md' : 'understanding.md' }),
   '',
-  // R-8.08 — the agent declares its operative frame BEFORE writing code. The
-  // cheapest divergence detector available: a wrong «Treating this as» shows
-  // in one line, while the code built on it would verify green.
-  ...understandingPromptLines(blockDirRelForPrompt),
-  '',
-  // R-8.02 — contract-bounded sizing steer. Captures Ponytail's pre-generation
-  // leverage (less code → cheaper, faster) WITHOUT adopting its «be lazy»
-  // philosophy, which would violate Kanon Principle II (counter-force to the
-  // simplification gradient). The «right amount of engineering» is defined by
-  // the contract above — not by laziness. This line reinforces Principle II
-  // («don't cut what the contract requires») while trimming gold-plating.
+];
+
+// R-8.02 — contract-bounded sizing steer. Captures Ponytail's pre-generation
+// leverage (less code → cheaper, faster) WITHOUT adopting its «be lazy»
+// philosophy, which would violate Kanon Principle II (counter-force to the
+// simplification gradient). The «right amount of engineering» is defined by
+// the contract above — not by laziness. This line reinforces Principle II
+// («don't cut what the contract requires») while trimming gold-plating.
+const rightSizePart = [
   '## How much to build (right-size to the contract)',
   '- Implement EXACTLY what the mission + acceptance above require — no more, no less.',
   '- Do NOT add abstractions, layers, config options, or dependencies the contract does not demand. The laziest correct change that satisfies acceptance wins.',
   '- Equally: do NOT cut corners the contract requires. A mock where the mission demands real logic, or a regex where it demands an LLM, FAILS — even if it is shorter. (Kanon Principle II.)',
   '- Prefer: nothing → stdlib → existing dependency → one line → minimal new code. Reach for a new abstraction only when the contract forces it.',
   '',
-  '## Files you may edit (alive only)',
+];
+
+const contextPart = [
+  phase === 'declare'
+    ? '## Files the implementation run may edit (read-only in this run)'
+    : '## Files you may edit (alive only)',
   filesList.trim(),
   '',
   '## Project rules',
@@ -214,8 +291,11 @@ const prompt = [
   userStory ? `### User story (TOP-layer — what the user actually wants)\n${userStory}\n` : '',
   semanticTodo,
   extraPrompt ? `## Operator note\n${extraPrompt}\n` : '',
+];
+
+const reportPart = [
   '## How to report progress',
-  `Append a line to \`${path.relative(ROOT, blockDir).split(path.sep).join('/')}/checks.log\` with the test/check result.`,
+  `Append a line to \`${blockDirRelSlash}/checks.log\` with the test/check result.`,
   // R-8.05 — this used to say «When done, set status to `review` via MCP
   // transition_block.» That instruction put the agent's self-report in charge
   // of the lifecycle: inside the V-1 loop the agent moved the block before the
@@ -225,15 +305,59 @@ const prompt = [
   '',
   '## How to update memory',
   'After your run, summarize what you did in human language and write it to:',
-  `- \`${path.relative(ROOT, blockDir).split(path.sep).join('/')}/narrative.md\` — append a section headed \`## <ISO-timestamp> · <one-line summary>\` with sub-sections \`### What I tried\`, \`### What worked\`, \`### What failed and why\`, \`### Decisions made\`. Write in plain English (or operator's language), not jargon-only — future agents will read this in 2 weeks.`,
-  `- \`${path.relative(ROOT, blockDir).split(path.sep).join('/')}/decisions.log\` — for each architectural choice, append \`<ISO-timestamp> | <decision> | <rationale>\` (one line each). These are append-only; don't rewrite past entries.`,
+  `- \`${blockDirRelSlash}/narrative.md\` — append a section headed \`## <ISO-timestamp> · <one-line summary>\` with sub-sections \`### What I tried\`, \`### What worked\`, \`### What failed and why\`, \`### Decisions made\`. Write in plain English (or operator's language), not jargon-only — future agents will read this in 2 weeks.`,
+  `- \`${blockDirRelSlash}/decisions.log\` — for each architectural choice, append \`<ISO-timestamp> | <decision> | <rationale>\` (one line each). These are append-only; don't rewrite past entries.`,
   '',
-].filter(Boolean).join('\n');
+];
+
+let promptParts;
+if (phase === 'declare') {
+  promptParts = [
+    `# Declare your understanding of block ${blockId} (phase 1 of 2 — no code in this run)`,
+    '',
+    ...contractPart,
+    ...declarePhasePromptLines(blockDirRelForPrompt, {
+      language: operatorLang,
+      correction: gate.state === 'corrected' ? gate.correction : null,
+      previousFrame: gate.state === 'corrected' ? gate.previous_frame : null,
+    }),
+    '',
+    'Use the section below when you write «In scope» and «Out of scope»: it is what the implementation run will be held to.',
+    ...rightSizePart,
+    ...contextPart,
+  ];
+} else if (phase === 'implement') {
+  promptParts = [
+    `# Implement block ${blockId}`,
+    '',
+    ...contractPart,
+    // R-8.09 — the frame the operator confirmed, given as data, not re-asked.
+    ...implementPhasePromptLines(blockDirRelForPrompt, { understandingText: understandingNow.text, confirmedAt: gate.confirmed_at }),
+    '',
+    ...rightSizePart,
+    ...contextPart,
+    ...reportPart,
+  ];
+} else {
+  promptParts = [
+    `# Implement block ${blockId}`,
+    '',
+    ...contractPart,
+    // R-8.08 — declare the frame before code, in the same run (only when the
+    // frame review was explicitly skipped).
+    ...understandingPromptLines(blockDirRelForPrompt, { language: operatorLang }),
+    '',
+    ...rightSizePart,
+    ...contextPart,
+    ...reportPart,
+  ];
+}
+const prompt = promptParts.filter(Boolean).join('\n');
 
 // 3. Persist invocation prompt for audit / Cursor pickup
 fs.mkdirSync(INVOCATIONS_DIR, { recursive: true });
 const ts = new Date().toISOString().replace(/[:.]/g, '-');
-const invocationPath = path.join(INVOCATIONS_DIR, `${ts}__${blockId}.txt`);
+const invocationPath = path.join(INVOCATIONS_DIR, `${ts}__${blockId}${phase === 'declare' ? '__declare' : ''}.txt`);
 fs.writeFileSync(invocationPath, prompt, 'utf8');
 
 // 4. Invoke the agent
@@ -244,11 +368,6 @@ function which(cmd) {
   const looker = spawnSync(process.platform === 'win32' ? 'where' : 'which', [cmd], { encoding: 'utf8' });
   if (looker.status === 0) return looker.stdout.split(/\r?\n/)[0].trim() || null;
   return null;
-}
-
-function appendCheck(kind, result, note) {
-  const checks = path.join(blockDir, 'checks.log');
-  fs.appendFileSync(checks, `${new Date().toISOString()}\t${kind}\t${result}\t${note}\n`, 'utf8');
 }
 
 function runCli(cmd, args, opts) {
@@ -274,7 +393,9 @@ function runCli(cmd, args, opts) {
 // PR-7+8 (b.agent-orchestrator): start FSM + optional workspace BEFORE the
 // agent spawns. Workspace gated on ATLAS_USE_WORKSPACE=1 so existing flows
 // keep working unchanged.
-const useWorkspace = process.env.ATLAS_USE_WORKSPACE === '1';
+// R-8.09 — never in the declare phase: its only output is understanding.md in
+// the real block folder, where the gate and the canvas read it.
+const useWorkspace = process.env.ATLAS_USE_WORKSPACE === '1' && phase !== 'declare';
 let runState = null;
 let workspace = null;
 try {
@@ -316,7 +437,12 @@ if (agent === 'print-only'
   // PR-4: in print-only mode the agent hasn't run yet, so verifier would only
   // measure the pre-existing state. Surface that explicitly without spawning.
   console.log('');
-  console.log(`tip: after pasting & implementing, run \`node scripts/verify_block_acceptance.mjs ${blockId}\` to see acceptance verdict.`);
+  if (phase === 'declare') {
+    console.log(`tip: this is phase 1 — the agent only writes ${blockDirRelSlash}/understanding.md. Then confirm or correct it on the canvas`);
+    console.log('     (Overview → «How the agent understood this block»); the next run writes code only after «right».');
+  } else {
+    console.log(`tip: after pasting & implementing, run \`node scripts/verify_block_acceptance.mjs ${blockId}\` to see acceptance verdict.`);
+  }
   // PR-7: FSM completes immediately in print-only mode — there's no agent
   // run to track further. We mark Succeeded with a clear summary so the UI
   // doesn't show a perpetually-pending run.
@@ -359,7 +485,24 @@ if (agent === 'claude') {
   process.exit(4);
 }
 
-fsm('LaunchingAgent', { note: `${cmd} ${args.join(' ')}` });
+// R-8.09 — what the declare phase is allowed to touch is exactly one file.
+// Snapshot the block's owned files so a phase-1 agent that wrote code anyway
+// is reported, not silently accepted as «just a declaration».
+function ownedFileHashes() {
+  const out = {};
+  for (const line of filesList.split(/\r?\n/)) {
+    const m = line.match(/^\s*-\s+(\S+)\s+\[alive\]/);
+    if (!m) continue;
+    const abs = path.resolve(ROOT, m[1]);
+    if (!abs.startsWith(ROOT + path.sep) || path.basename(abs) === 'understanding.md') continue;
+    try { out[m[1]] = crypto.createHash('sha256').update(fs.readFileSync(abs)).digest('hex'); } catch { out[m[1]] = null; }
+  }
+  return out;
+}
+const ownedBefore = phase === 'declare' ? ownedFileHashes() : null;
+const agentStartedMs = Date.now();
+
+fsm('LaunchingAgent', { note: `${cmd} ${args.join(' ')}${phase === 'declare' ? ' (declare phase)' : ''}` });
 const r = runCli(cmd, args, { input: prompt, cwd: workspace ? workspace.workspace_path : undefined });
 fsm('Running', { note: `${cmd} spawned${workspace ? ' inside workspace' : ''}` });
 if (r.error) {
@@ -385,6 +528,58 @@ console.log(`  prompt:   ${path.relative(ROOT, invocationPath)}`);
 if (workspace) console.log(`  workspace: ${workspace.workspace_path}`);
 console.log(`  output:`);
 console.log(out.split(/\r?\n/).map((l) => '    ' + l).join('\n'));
+
+// R-8.09 — phase 1 ends here. No verifier, no drift scan, no cascade, no
+// reflection: no code was supposed to change. What must be true instead: the
+// agent (re-)wrote understanding.md, and nothing else it owns changed.
+if (phase === 'declare') {
+  const u = readUnderstanding(blockId, ATLAS);
+  const rewrote = u.exists && (!understandingNow.exists
+    || understandingSha(u.text) !== understandingSha(understandingNow.text)
+    || u.mtimeMs >= agentStartedMs - 1000);
+  if (!rewrote) {
+    appendCheck('frame_declared', 'fail', `agent=${agent} did not write understanding.md in the declare phase`);
+    console.log(`  ✗ declare phase: the agent did not write ${blockDirRelSlash}/understanding.md`);
+    fsm('Finishing', { note: 'declare phase: no declaration written' });
+    fsm('Failed', { exit_code: 6, error: 'declare phase produced no understanding.md', phase: 'declare' });
+    process.exit(6);
+  }
+  const ownedAfter = ownedFileHashes();
+  const touched = Object.keys(ownedAfter).filter((f) => ownedAfter[f] !== ownedBefore[f]);
+  if (touched.length) {
+    appendCheck('frame_declared', 'warn', `agent changed files during the declare phase (it was told not to): ${touched.join(', ')}`);
+    console.log(`  ⚠ declare phase: the agent also changed ${touched.join(', ')} — review before confirming`);
+  }
+  recordDeclared({ block_id: blockId, atlas_root: ATLAS, run_id: runState ? runState.run_id : null, agent, language: operatorLang });
+  const frame = String(u.sections.treating_as || '').replace(/\s+/g, ' ').trim();
+  appendCheck('frame_declared', u.complete ? 'pass' : 'warn',
+    `agent=${agent} ${u.complete ? '' : `incomplete (${[...u.missing, ...u.empty].join(', ')}) `}treating_as=${frame.slice(0, 160)}`);
+  console.log('');
+  console.log(`frame_gate: phase=declare done — awaiting operator confirmation`);
+  console.log(`  treating as: ${frame.slice(0, 300) || '(empty)'}`);
+  console.log('  Confirm or correct it on the canvas (Overview → «How the agent understood this block»).');
+  console.log('  Code is written by the next run, and only after «right».');
+  fsm('Finishing', { note: 'declare phase done', summary: `frame declared — awaiting operator: ${frame.slice(0, 160)}`, phase: 'declare' });
+  fsm('Succeeded', { exit_code: 0, summary: `frame declared — awaiting operator confirmation`, phase: 'declare' });
+  process.exit(0);
+}
+
+// R-8.09 — phase 2 builds inside the confirmed frame and must not rewrite it.
+if (phase === 'implement') {
+  const u = readUnderstanding(blockId, ATLAS);
+  if (!u.exists || understandingSha(u.text) !== understandingSha(understandingNow.text)) {
+    appendCheck('frame_gate', 'warn', `agent=${agent} rewrote the confirmed understanding.md during implementation — the confirmation no longer applies; the next run stops for a new one`);
+    console.log('  ⚠ the agent rewrote the confirmed understanding.md — the next run will stop for a new confirmation');
+  }
+}
+// With the review skipped the frame still gets recorded: it anchors staleness
+// to the contract it was written for, and it stays visibly unconfirmed.
+if (phase === 'full') {
+  const u = readUnderstanding(blockId, ATLAS);
+  if (u.exists && (!understandingNow.exists || understandingSha(u.text) !== understandingSha(understandingNow.text))) {
+    try { recordDeclared({ block_id: blockId, atlas_root: ATLAS, run_id: runState ? runState.run_id : null, agent, language: operatorLang }); } catch { /* reporting only */ }
+  }
+}
 
 fsm('Finishing', { note: 'agent exit 0', summary });
 

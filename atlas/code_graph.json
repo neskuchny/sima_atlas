@@ -17,9 +17,11 @@
     },
     "b.agent-orchestrator": {
       "files": [
+        "scripts/agent_loop_daemon.mjs",
         "scripts/agent_workspace.mjs",
         "scripts/analyze_conversation_to_atlas.mjs",
         "scripts/atlas_api_server.mjs",
+        "scripts/atlas_runs_api.mjs",
         "scripts/auto_sync_iteration.mjs",
         "scripts/build_context_pack.mjs",
         "scripts/finalize_cursor_iteration.mjs",
@@ -39,6 +41,7 @@
         "tests/agent_parity_real.smoke.mjs",
         "tests/agent_workspace.selftest.mjs",
         "tests/cursor_hooks_actions.test.mjs",
+        "tests/frame_gate_flow.selftest.mjs",
         "tests/run_state.selftest.mjs"
       ]
     },
@@ -224,9 +227,9 @@
           "to_file": "scripts/block_meaning.mjs"
         },
         {
-          "from_file": "scripts/run_block_implementation.mjs",
+          "from_file": "scripts/atlas_runs_api.mjs",
           "kind": "static",
-          "line": 29,
+          "line": 26,
           "to_file": "scripts/block_meaning.mjs"
         }
       ],
@@ -251,6 +254,12 @@
           "from_file": "scripts/analyze_conversation_to_atlas.mjs",
           "kind": "static",
           "line": 21,
+          "to_file": "scripts/llm_gateway.mjs"
+        },
+        {
+          "from_file": "scripts/atlas_runs_api.mjs",
+          "kind": "dynamic",
+          "line": 419,
           "to_file": "scripts/llm_gateway.mjs"
         }
       ],
@@ -642,6 +651,77 @@
         }
       ],
       "owning_block": "b.db"
+    },
+    "scripts/agent_loop_daemon.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 64,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 65,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:os",
+          "kind": "static",
+          "line": 66,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:child_process",
+          "kind": "static",
+          "line": 67,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "execFileSync"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 68,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.agent-orchestrator"
     },
     "scripts/agent_workspace.mjs": {
       "exports": [
@@ -1093,7 +1173,7 @@
           "external": false,
           "from": "./sima_fill_from_chat.mjs",
           "kind": "dynamic",
-          "line": 1402,
+          "line": 1435,
           "resolved_to": "scripts/sima_fill_from_chat.mjs",
           "specifiers": []
         },
@@ -1101,7 +1181,7 @@
           "external": false,
           "from": "./sima_watch_chats.mjs",
           "kind": "dynamic",
-          "line": 1418,
+          "line": 1451,
           "resolved_to": "scripts/sima_watch_chats.mjs",
           "specifiers": []
         },
@@ -1115,6 +1195,10 @@
             {
               "kind": "named",
               "name": "blockMeaningSummary"
+            },
+            {
+              "kind": "named",
+              "name": "recordFrameReview"
             }
           ]
         },
@@ -1122,7 +1206,7 @@
           "external": false,
           "from": "./screenshot_block.mjs",
           "kind": "dynamic",
-          "line": 1528,
+          "line": 1561,
           "resolved_to": "scripts/screenshot_block.mjs",
           "specifiers": []
         },
@@ -1257,6 +1341,126 @@
       ],
       "owning_block": "b.agent-orchestrator"
     },
+    "scripts/atlas_runs_api.mjs": {
+      "exports": [
+        {
+          "kind": "named",
+          "line": 105,
+          "name": "listRunsByBlock"
+        },
+        {
+          "kind": "named",
+          "line": 193,
+          "name": "getRun"
+        },
+        {
+          "kind": "named",
+          "line": 229,
+          "name": "getLatestAcceptance"
+        },
+        {
+          "kind": "named",
+          "line": 238,
+          "name": "getAcceptanceDiff"
+        },
+        {
+          "kind": "named",
+          "line": 273,
+          "name": "startRunAsync"
+        },
+        {
+          "kind": "named",
+          "line": 338,
+          "name": "readRunLog"
+        },
+        {
+          "kind": "named",
+          "line": 359,
+          "name": "listRunFiles"
+        },
+        {
+          "kind": "named",
+          "line": 418,
+          "name": "callAdvice"
+        }
+      ],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 22,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 23,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:child_process",
+          "kind": "static",
+          "line": 24,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "spawn"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 25,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "./block_meaning.mjs",
+          "kind": "static",
+          "line": 26,
+          "resolved_to": "scripts/block_meaning.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "frameGate"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "./llm_gateway.mjs",
+          "kind": "dynamic",
+          "line": 419,
+          "resolved_to": "scripts/llm_gateway.mjs",
+          "specifiers": []
+        }
+      ],
+      "owning_block": "b.agent-orchestrator"
+    },
     "scripts/audit_production_readiness.mjs": {
       "exports": [],
       "imports": [
@@ -1351,52 +1555,107 @@
       "exports": [
         {
           "kind": "named",
-          "line": 101,
+          "line": 111,
           "name": "trajectoryPromptLines"
         },
         {
           "kind": "named",
-          "line": 125,
+          "line": 140,
           "name": "UNDERSTANDING_FILE"
         },
         {
           "kind": "named",
-          "line": 128,
+          "line": 143,
           "name": "UNDERSTANDING_SECTIONS"
         },
         {
           "kind": "named",
-          "line": 157,
+          "line": 175,
+          "name": "operatorLanguage"
+        },
+        {
+          "kind": "named",
+          "line": 194,
           "name": "understandingPromptLines"
         },
         {
           "kind": "named",
-          "line": 173,
+          "line": 216,
+          "name": "declarePhasePromptLines"
+        },
+        {
+          "kind": "named",
+          "line": 250,
+          "name": "implementPhasePromptLines"
+        },
+        {
+          "kind": "named",
+          "line": 262,
           "name": "parseUnderstanding"
         },
         {
           "kind": "named",
-          "line": 196,
+          "line": 285,
           "name": "readUnderstanding"
         },
         {
           "kind": "named",
-          "line": 208,
+          "line": 299,
           "name": "understandingStaleness"
         },
         {
           "kind": "named",
-          "line": 228,
+          "line": 326,
+          "name": "FRAME_REVIEWS_FILE"
+        },
+        {
+          "kind": "named",
+          "line": 332,
+          "name": "normalizeContractText"
+        },
+        {
+          "kind": "named",
+          "line": 339,
+          "name": "contractFingerprint"
+        },
+        {
+          "kind": "named",
+          "line": 348,
+          "name": "understandingSha"
+        },
+        {
+          "kind": "named",
+          "line": 352,
+          "name": "readFrameReviews"
+        },
+        {
+          "kind": "named",
+          "line": 382,
+          "name": "frameGate"
+        },
+        {
+          "kind": "named",
+          "line": 430,
+          "name": "recordDeclared"
+        },
+        {
+          "kind": "named",
+          "line": 447,
+          "name": "recordFrameReview"
+        },
+        {
+          "kind": "named",
+          "line": 476,
           "name": "blockMeaningSummary"
         },
         {
           "kind": "named",
-          "line": 43,
+          "line": 48,
           "name": "TRAJECTORY_HEADINGS"
         },
         {
           "kind": "named",
-          "line": 71,
+          "line": 76,
           "name": "readTrajectory"
         }
       ],
@@ -1405,7 +1664,7 @@
           "external": true,
           "from": "node:fs",
           "kind": "static",
-          "line": 32,
+          "line": 36,
           "resolved_to": null,
           "specifiers": [
             {
@@ -1418,7 +1677,7 @@
           "external": true,
           "from": "node:path",
           "kind": "static",
-          "line": 33,
+          "line": 37,
           "resolved_to": null,
           "specifiers": [
             {
@@ -1429,9 +1688,22 @@
         },
         {
           "external": true,
+          "from": "node:crypto",
+          "kind": "static",
+          "line": 38,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "crypto"
+            }
+          ]
+        },
+        {
+          "external": true,
           "from": "node:url",
           "kind": "static",
-          "line": 34,
+          "line": 39,
           "resolved_to": null,
           "specifiers": [
             {
@@ -3638,7 +3910,7 @@
           "external": true,
           "from": "node:fs",
           "kind": "static",
-          "line": 23,
+          "line": 40,
           "resolved_to": null,
           "specifiers": [
             {
@@ -3651,7 +3923,7 @@
           "external": true,
           "from": "node:path",
           "kind": "static",
-          "line": 24,
+          "line": 41,
           "resolved_to": null,
           "specifiers": [
             {
@@ -3662,9 +3934,22 @@
         },
         {
           "external": true,
+          "from": "node:crypto",
+          "kind": "static",
+          "line": 42,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "crypto"
+            }
+          ]
+        },
+        {
+          "external": true,
           "from": "node:child_process",
           "kind": "static",
-          "line": 25,
+          "line": 43,
           "resolved_to": null,
           "specifiers": [
             {
@@ -3681,7 +3966,7 @@
           "external": true,
           "from": "node:url",
           "kind": "static",
-          "line": 26,
+          "line": 44,
           "resolved_to": null,
           "specifiers": [
             {
@@ -3694,7 +3979,7 @@
           "external": false,
           "from": "./run_state.mjs",
           "kind": "static",
-          "line": 27,
+          "line": 45,
           "resolved_to": "scripts/run_state.mjs",
           "specifiers": [
             {
@@ -3711,7 +3996,7 @@
           "external": false,
           "from": "./agent_workspace.mjs",
           "kind": "static",
-          "line": 28,
+          "line": 46,
           "resolved_to": "scripts/agent_workspace.mjs",
           "specifiers": [
             {
@@ -3734,30 +4019,9 @@
         },
         {
           "external": false,
-          "from": "./block_meaning.mjs",
-          "kind": "static",
-          "line": 29,
-          "resolved_to": "scripts/block_meaning.mjs",
-          "specifiers": [
-            {
-              "kind": "named",
-              "name": "readTrajectory"
-            },
-            {
-              "kind": "named",
-              "name": "trajectoryPromptLines"
-            },
-            {
-              "kind": "named",
-              "name": "understandingPromptLines"
-            }
-          ]
-        },
-        {
-          "external": false,
           "from": "./distill_run_log.mjs",
           "kind": "dynamic",
-          "line": 508,
+          "line": 703,
           "resolved_to": "scripts/distill_run_log.mjs",
           "specifiers": []
         },
@@ -3765,7 +4029,7 @@
           "external": false,
           "from": "./reflect_after_run.mjs",
           "kind": "dynamic",
-          "line": 517,
+          "line": 712,
           "resolved_to": "scripts/reflect_after_run.mjs",
           "specifiers": []
         },
@@ -3773,7 +4037,7 @@
           "external": false,
           "from": "./summarize_block_code.mjs",
           "kind": "dynamic",
-          "line": 527,
+          "line": 722,
           "resolved_to": "scripts/summarize_block_code.mjs",
           "specifiers": []
         },
@@ -3781,7 +4045,7 @@
           "external": false,
           "from": "./cleanup_block_memory.mjs",
           "kind": "dynamic",
-          "line": 537,
+          "line": 732,
           "resolved_to": "scripts/cleanup_block_memory.mjs",
           "specifiers": []
         }
@@ -5322,7 +5586,7 @@
           "external": true,
           "from": "node:fs",
           "kind": "static",
-          "line": 13,
+          "line": 16,
           "resolved_to": null,
           "specifiers": [
             {
@@ -5335,7 +5599,7 @@
           "external": true,
           "from": "node:os",
           "kind": "static",
-          "line": 14,
+          "line": 17,
           "resolved_to": null,
           "specifiers": [
             {
@@ -5348,7 +5612,7 @@
           "external": true,
           "from": "node:path",
           "kind": "static",
-          "line": 15,
+          "line": 18,
           "resolved_to": null,
           "specifiers": [
             {
@@ -5361,7 +5625,7 @@
           "external": true,
           "from": "node:child_process",
           "kind": "static",
-          "line": 16,
+          "line": 19,
           "resolved_to": null,
           "specifiers": [
             {
@@ -5371,10 +5635,18 @@
           ]
         },
         {
+          "external": false,
+          "from": "../scripts/block_meaning.mjs",
+          "kind": "dynamic",
+          "line": 190,
+          "resolved_to": "scripts/block_meaning.mjs",
+          "specifiers": []
+        },
+        {
           "external": true,
           "from": "node:url",
           "kind": "static",
-          "line": 17,
+          "line": 20,
           "resolved_to": null,
           "specifiers": [
             {
@@ -5387,7 +5659,7 @@
           "external": false,
           "from": "../scripts/block_meaning.mjs",
           "kind": "dynamic",
-          "line": 237,
+          "line": 218,
           "resolved_to": "scripts/block_meaning.mjs",
           "specifiers": []
         },
@@ -5395,7 +5667,15 @@
           "external": false,
           "from": "../scripts/block_meaning.mjs",
           "kind": "dynamic",
-          "line": 25,
+          "line": 279,
+          "resolved_to": "scripts/block_meaning.mjs",
+          "specifiers": []
+        },
+        {
+          "external": false,
+          "from": "../scripts/block_meaning.mjs",
+          "kind": "dynamic",
+          "line": 28,
           "resolved_to": "scripts/block_meaning.mjs",
           "specifiers": []
         },
@@ -5403,24 +5683,8 @@
           "external": false,
           "from": "../scripts/clarify_block.mjs",
           "kind": "dynamic",
-          "line": 26,
+          "line": 29,
           "resolved_to": "scripts/clarify_block.mjs",
-          "specifiers": []
-        },
-        {
-          "external": true,
-          "from": "node:child_process",
-          "kind": "dynamic",
-          "line": 260,
-          "resolved_to": null,
-          "specifiers": []
-        },
-        {
-          "external": true,
-          "from": "node:http",
-          "kind": "dynamic",
-          "line": 261,
-          "resolved_to": null,
           "specifiers": []
         }
       ],
@@ -6301,6 +6565,107 @@
       "exports": [],
       "imports": [],
       "owning_block": "b.user-docs-generator"
+    },
+    "tests/frame_gate_flow.selftest.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 21,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:os",
+          "kind": "static",
+          "line": 22,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 23,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:http",
+          "kind": "static",
+          "line": 24,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "http"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:child_process",
+          "kind": "static",
+          "line": 25,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "spawn"
+            },
+            {
+              "kind": "named",
+              "name": "spawnSync"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 26,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "../scripts/atlas_runs_api.mjs",
+          "kind": "static",
+          "line": 30,
+          "resolved_to": "scripts/atlas_runs_api.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "startRunAsync"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.agent-orchestrator"
     },
     "tests/introspect_block_ui.selftest.mjs": {
       "exports": [],

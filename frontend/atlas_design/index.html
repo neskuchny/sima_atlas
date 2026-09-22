@@ -4,14 +4,14 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Sima Atlas — visual contract-first development for AI agents</title>
-<link rel="stylesheet" href="styles.css?v=r8-08" />
+<link rel="stylesheet" href="styles.css?v=r8-09" />
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 <!-- R-7.28: markdown renderer for contract bodies (mission.md / kpi.md / acceptance.md etc.) -->
 <script src="https://cdn.jsdelivr.net/npm/marked@13.0.3/marked.min.js"></script>
 <!-- R-7.52: i18n must load BEFORE jsx components so window.__SIMA_T is defined when React renders -->
-<script src="i18n.js?v=r8-08"></script>
+<script src="i18n.js?v=r8-09"></script>
 </head>
 <body>
 <div id="root"></div>
@@ -27,10 +27,10 @@
        window.SIMA_API_BASE before this script loads to point at a
        remote backend in production. -->
 <script src="data_static.js?v=r7-94"></script>
-<script src="data_loader.js?v=r8-08"></script>
+<script src="data_loader.js?v=r8-09"></script>
 <script type="text/babel" src="tweaks-panel.jsx?v=r7-94"></script>
 <script type="text/babel" src="graph.jsx?v=r7-94"></script>
-<script type="text/babel" src="panels.jsx?v=r8-08"></script>
+<script type="text/babel" src="panels.jsx?v=r8-09"></script>
 <script type="text/babel" src="views.jsx?v=r7-94"></script>
 <!-- R-7.99 (b.desktop T12) — Project Picker. Only active inside the
      Electron shell (window.sima exposed by extensions/desktop/preload.mjs);
@@ -609,17 +609,25 @@ function App() {
       return;
     }
     try {
-      const base = (window.SIMA_API_BASE || 'http://localhost:8787').replace(/\/$/, '');
-      const r = await fetch(base + '/runs/start', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        // R-7.90 (S-10) — context-pack profile chosen at run-start (optional).
-        body: JSON.stringify({ block_id: mod.id, agent: agentId, ...(profile ? { profile } : {}) }),
-      });
+      // R-8.09 — through SIMA_API so the run is client-scoped (the raw fetch
+      // here used to drop ?client= and start the run on the root atlas), and
+      // so the frame gate's answer reaches the log in words.
+      // R-7.90 (S-10) — context-pack profile chosen at run-start (optional).
+      const j = window.SIMA_API?.meta?.startRun
+        ? await window.SIMA_API.meta.startRun({ block_id: mod.id, agent: agentId, profile })
+        : await (await fetch((window.SIMA_API_BASE || 'http://localhost:8787').replace(/\/$/, '') + '/runs/start', {
+            method: 'POST', headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ block_id: mod.id, agent: agentId, ...(profile ? { profile } : {}) }),
+          })).json();
       if (profile) pushLog({ agent: 'SIMA Core', kind: 'note', msg: `context-pack profile: ${profile}` });
-      const j = await r.json();
-      if (j.ok) {
-        pushLog({ agent, kind: 'ok', msg: `запуск создан (pid=${j.pid}). Вкладка «Запуски» покажет фазы FSM.` });
+      const tt = window.__SIMA_T || ((_, fb) => fb);
+      if (j.ok && j.started === false) {
+        pushLog({ agent, kind: 'note', msg: tt('log.frame_awaiting', 'Not started: the agent\'s declared frame is waiting for your answer — open the block → Overview → «How the agent understood this block».') });
+      } else if (j.ok) {
+        const next = j.frame_gate?.next;
+        pushLog({ agent, kind: 'ok', msg: next === 'declare'
+          ? tt('log.frame_declare', 'Started, phase 1: the agent declares how it understood the block and stops. Confirm or correct it on the Overview — code comes only after «right».')
+          : `${tt('log.run_created', 'Run created')} (pid=${j.pid}). ${tt('log.run_created_hint', 'The Runs tab shows its FSM phases.')}` });
       } else {
         pushLog({ agent, kind: 'fail', msg: `не удалось стартовать: ${j.error}` });
       }

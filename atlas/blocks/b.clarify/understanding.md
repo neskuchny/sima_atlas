@@ -1,75 +1,76 @@
 # b.clarify — understanding
 
-_Declared by the executing agent before writing code for R-8.08. If a contract
-file of this block changes after this file, the declaration may be stale._
+_Объявлено исполняющим агентом до кода для R-8.09. Заголовки английские —
+их читает машина; содержание — на языке миссии._
 
-_Re-read after the contract edits of the same run (the trajectory section and
-«Вторая сторона» were added to mission.md after the first version): the frame
-still holds; the ownership choice below was made during the work and was not
-declared the first time. Overwritten per the protocol, not appended._
+_Перечитано после правок контракта в том же прогоне (acceptance.md, kpi.md):
+рамка держится. Дописаны два решения, принятые по ходу и не объявленные в
+первый раз, — последние пункты «Variant chosen». Эта рамка ждёт вашего
+ответа на панели «Обзор» b.clarify — ровно как любая другая._
 
 ## Treating this as
 
-Two additions to the contract the coding agent receives, plus a small reader
-library — not a new arbiter. The closest known analogue is a pull-request
-description written BEFORE the diff: «here is what I think this is and what I
-am about to do», which a reviewer can reject in one line before any code
-exists. The trajectory is the other half: the reviewer's note on where the
-code is going, so that among several correct diffs the one that can grow is
-chosen.
+Шлюз одобрения перед выполнением — как «план → подтверждение → применение»
+в инструментах развёртывания: сначала показывается, что будет сделано, и
+ничего не меняется, пока человек не скажет «да». Здесь «план» — это
+объявленная рамка агента (`understanding.md`), а «применение» — код.
+Подтверждение — запись в журнале, привязанная к конкретному тексту
+объявления и конкретной версии контракта, а не флаг «блок одобрен
+навсегда».
 
 ## In scope
 
-- Read a trajectory section from `mission.md` (Russian and English headings),
-  render it in the implementation prompt with an instruction on how to use it,
-  and remove it from the Mission section so it is not sent twice.
-- An explicit instruction for the case where no trajectory is declared, so the
-  agent's choice is recorded as an assumption instead of made silently.
-- A «Step 0» prompt section: write `understanding.md` with fixed headings
-  before any code.
-- Parser for `understanding.md` and a staleness check against the contract.
-- `clarify_block` reports the clarifier's own operative frame — this covers
-  print-only mode, where no executor runs and no `understanding.md` appears.
-- A report validator in nightly.
+- Состояние шлюза выводится из файлов, а не хранится отдельно: объявления
+  нет → объявить; объявлено и не рассмотрено → ждать человека;
+  подтверждено для этого текста и этой версии контракта → писать код;
+  поправлено или контракт изменился → объявить заново.
+- `run_block_implementation.mjs` по умолчанию проходит через шлюз: фаза
+  объявления (агент пишет только `understanding.md`), ожидание (агент не
+  запускается вовсе), фаза реализации (агент получает подтверждённую рамку
+  как данность и не переписывает её).
+- Журнал `frame_reviews.jsonl` в папке блока: объявлено / верно / не так +
+  текст поправки. Поправка идёт в промпт следующего объявления.
+- Отпечаток контракта вместо времени изменения файлов для устаревания, когда
+  есть запись в журнале; галочки в acceptance.md на отпечаток не влияют.
+- Панель «Обзор»: кнопки «Верно — писать код» и «Не так» с полем поправки,
+  состояние шлюза словами.
+- Демон автономного цикла: блок, ждущий человека, пропускается и не
+  считается провалом.
+- Язык объявления = язык миссии.
 
 ## Out of scope
 
-- Writing trajectories for existing blocks. Where a block is heading is the
-  operator's knowledge; inventing it would be exactly the silent guess this
-  work exists to prevent. Only b.clarify gets one, because its own narrative
-  and KPI-5 already state it.
-- A hard gate on `understanding.md`. There is no evidence yet that a missing
-  or stale declaration precedes real rework; a gate without a problem-basis is
-  a ritual. The promotion condition is recorded in the validator header.
-- Canvas rendering (b.clarify PR3).
-- Exemplars / the «closer to this than to that» axis. `always_use.json` has
-  existed for months with zero entries; exemplars would likely share its fate.
+- Метка на узле графа (T25) — отдельная задача.
+- Правка контракта по поправке: поправка уточняет рамку агента, а не
+  переписывает миссию; перенести её в миссию — решение человека.
+- Новое состояние в FSM запусков: фаза объявления заканчивается обычным
+  Succeeded с пометкой фазы, чтобы не ломать вкладку «Запуски».
+- Автотест интерфейса в браузере.
 
 ## Variant chosen
 
-- Trajectory is a SECTION of `mission.md`, not a new file. Meaning already
-  lives in the mission; no new required file, no template churn, nothing for
-  `validate_no_template_placeholders` to flag on blocks that have none.
-- `understanding.md` is written by the executing agent — the one whose frame
-  actually drives the code — not produced by a separate LLM call ahead of it.
-- Report, not gate (see Out of scope).
-- `block_meaning.mjs` is owned by b.clarify, not b.agent-orchestrator: it is
-  about meaning transfer, and the clarifier's own report reads it too. The cost
-  is a new edge b.agent-orchestrator → b.clarify, declared in both
-  `depends_on.md` and `graph.json` (the R-8.06 lesson) and checked for cycles.
-
-Against b.clarify's own trajectory (the Q→A log becomes a per-operator
-calibration corpus): `understanding.md` keeps a fixed heading set so that
-declared frames stay machine-comparable across runs. A «Treating this as» that
-the operator had to correct is the same kind of calibration data as a line in
-`clarifications.md`.
+- Шлюз включён по умолчанию для всех точек входа (UI, CLI, MCP, демон), с
+  явным обходом `--frame-review=skip`, который пишется в checks.log. Вариант
+  «шлюз только для кнопки в UI» оставил бы MCP и CLI в старом режиме «код
+  без паузы» — ровно тот путь, которым агенты чаще всего и запускаются.
+- Подтверждение запускает реализацию сразу тем же агентом, что объявлял:
+  одно нажатие вместо двух.
+- Журнал JSONL, а не TSV: в поправке бывают переносы строк и табуляции.
+- Кнопка «Отправить агенту» переведена на `SIMA_API.meta.startRun`: иначе
+  сообщение шлюза до неё не доходило, а запуск из `?client=…` уходил в
+  корневой атлас. Это правка чужого по смыслу места (b.ui-control), но без
+  неё шлюз работал бы только через новую секцию.
+- `agent_loop_daemon.mjs` и `atlas_runs_api.mjs` зарегистрированы за
+  b.agent-orchestrator: оба правятся здесь, а владельца не было. Новых рёбер
+  графа это не даёт — оркестратор уже зависит от b.clarify.
 
 ## Assumed without asking
 
-- Headings in `understanding.md` are English because the prompt is English;
-  the content under them may be in any language.
-- «Stale» means a contract file (`mission.md`, `acceptance.md`, `kpi.md`,
-  `user_story.md`) was modified after `understanding.md`. This is mtime-based,
-  and a fresh git checkout resets mtimes, so staleness is advisory only.
-- `understanding.md` is overwritten on each run, not appended to: it states
-  the current understanding, and history is in git.
+- Демон в автономном режиме тоже останавливается на неподтверждённых
+  рамках. Для блока с уже подтверждённой рамкой он работает как раньше.
+  Если нужен полностью автономный прогон без человека — `--frame-review=skip`
+  явно.
+- Подтверждать неполное объявление можно, если есть «Treating this as»;
+  нельзя подтвердить объявление, сделанное для старой версии контракта.
+- Язык миссии определяется по доле кириллицы; `ATLAS_OPERATOR_LANG`
+  переопределяет.

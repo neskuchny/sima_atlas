@@ -55,6 +55,10 @@ const checks = [
   // fails the night (no evidence yet that a missing declaration precedes
   // rework); its promotion and removal conditions live in its header.
   ['block_meaning_selftest', 'node tests/block_meaning.selftest.mjs'],
+  // R-8.09 (b.agent-orchestrator) — the two-phase run end to end: declare →
+  // wait → confirm → implement, the canvas routes, and the autonomous loop
+  // that must not promote a block after a run that only declared.
+  ['frame_gate_flow_selftest', 'node tests/frame_gate_flow.selftest.mjs'],
   ['meaning_report', 'node scripts/validate_meaning.mjs'],
   ['atlas_selftest', 'node tests/atlas_sync.selftest.mjs'],
   ['bootstrap_layered_smoke', 'node tests/atlas_bootstrap.smoke.mjs'],

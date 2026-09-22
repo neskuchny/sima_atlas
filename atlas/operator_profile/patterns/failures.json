@@ -138,6 +138,12 @@
     "note": "verdict=fail pass=6 fail=1 skipped=0 fails=[A6:node scripts/validate_clarifications.mjs → exit 1; stderr: \"]"
   },
   {
+    "block_id": "b.clarify",
+    "ts": "2026-09-22T18:22:05.354Z",
+    "kind": "acceptance_verifier",
+    "note": "verdict=fail pass=12 fail=1 skipped=0 fails=[A9:grep /understandingPromptLines[(]blockDirRelForPrompt[)]/ sc]"
+  },
+  {
     "block_id": "b.core-sync",
     "ts": "2026-06-09T18:05:53.718Z",
     "kind": "semantic_verify",

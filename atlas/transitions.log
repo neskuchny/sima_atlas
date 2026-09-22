@@ -34,3 +34,5 @@
 2026-09-22T17:31:01.793Z	b.clarify	done	wip	actor=operator-R8.08	note=R-8.08: scope extension — trajectory + declared understanding (the model's frame, human->model direction)
 2026-09-22T17:40:23.818Z	b.clarify	wip	review	actor=operator-R8.08	note=R-8.08: trajectory + declared understanding implemented; acceptance 12/12 deterministic, nightly 88/88
 2026-09-22T17:40:25.037Z	b.clarify	review	done	actor=operator-R8.08	note=R-8.08: acceptance pass 12/12 via gate; validate_meaning report clean; agent-orchestrator -> clarify edge in both graph copies gate=pass(12/12)
+2026-09-22T18:07:30.453Z	b.clarify	done	wip	actor=operator-R8.09	note=R-8.09: scope extension — two-phase run: the agent declares its frame and stops; code only after the operator confirms
+2026-09-22T18:25:54.515Z	b.clarify	wip	review	actor=operator-R8.09	note=R-8.09 implemented: acceptance 13/13, nightly 89/89. Left at review on purpose: the block's own declared frame awaits the operator's answer on the Overview panel (the agent cannot confirm its own frame — A13)

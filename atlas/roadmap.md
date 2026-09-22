@@ -1,6 +1,6 @@
 # Roadmap (auto-generated, PR2 topo-sort)
 
-_Generated: 2026-09-22T17:57:21.258Z_
+_Generated: 2026-09-22T18:27:56.707Z_
 
 Приоритет внутри уровня: 🔴 broken → 🟣 drift → 🟠 wip → 🔵 review → 🟡 idea → 🟢 done.
 Каждый следующий уровень зависит от предыдущих — реализовывать сверху вниз.
@@ -26,14 +26,14 @@ _Generated: 2026-09-22T17:57:21.258Z_
 
 ### Level 1 — требует Level 0
 
+- 🔵 **b.clarify** (review) — Clarification Arbiter · _ai_ · deps: `b.llm-gateway`
+  - R-8.06 + R-8.08 — meaning transfer in both directions around the contract. Model to human: questions, uncertainty markers, assumption registry. Human to model: the trajectory in mission.md as the rule for choosing between green implementations, and the executing agent declaring its operative frame in understanding.md before code.
 - 🟡 **b.code-graph** (idea) — Code Graph · _data_ · deps: `b.db`
   - New block scoped — extracts deterministic imports/exports map from alive files; consumed by b.core-sync PR4. R-7.99.
 - 🟡 **b.product-dashboard** (idea) — Dashboard · _front_ · deps: `b.product-warehouse`
   - Created via design UI at 2026-05-05T20:57:52.242Z
 - 🟡 **b.product-ingest** (idea) — Ingest · _logic_ · deps: `b.product-warehouse`
   - Created via design UI at 2026-05-05T20:57:52.212Z
-- 🟢 **b.clarify** (done) — Clarification Arbiter · _ai_ · deps: `b.llm-gateway`
-  - R-8.06 + R-8.08 — meaning transfer in both directions around the contract. Model to human: questions, uncertainty markers, assumption registry. Human to model: the trajectory in mission.md as the rule for choosing between green implementations, and the executing agent declaring its operative frame in understanding.md before code.
 
 ### Level 2 — требует Level 1
 
@@ -86,7 +86,7 @@ _Generated: 2026-09-22T17:57:21.258Z_
 - 🔵 **b.llm-gateway** — LLM Gateway _(review)_
 - 🟢 **b.operator-profile-learner** — Operator Profile Learner _(done)_
 - 🟢 **b.diff-review** — Diff Review Arbiter _(done)_
-- 🟢 **b.clarify** — Clarification Arbiter _(done)_
+- 🔵 **b.clarify** — Clarification Arbiter _(review)_
 
 ### Данные / хранилище (`data`)
 

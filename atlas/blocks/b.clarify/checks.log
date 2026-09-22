@@ -23,3 +23,8 @@
 2026-09-22T17:41:20.172Z	acceptance_verifier	pass	verdict=pass pass=12 fail=0 skipped=0
 2026-09-22T17:56:41.077Z	acceptance_verifier	pass	verdict=pass pass=12 fail=0 skipped=0
 2026-09-22T17:57:19.638Z	acceptance_verifier	pass	verdict=pass pass=12 fail=0 skipped=0
+2026-09-22T18:07:30.453Z	transition	pass	done->wip	actor=operator-R8.09	note=R-8.09: scope extension — two-phase run: the agent declares its frame and stops; code only after the operator confirms
+2026-09-22T18:22:05.354Z	acceptance_verifier	fail	verdict=fail pass=12 fail=1 skipped=0 fails=[A9:grep /understandingPromptLines[(]blockDirRelForPrompt[)]/ sc]
+2026-09-22T18:22:18.502Z	acceptance_verifier	pass	verdict=pass pass=13 fail=0 skipped=0
+2026-09-22T18:24:57.293Z	acceptance_verifier	pass	verdict=pass pass=13 fail=0 skipped=0
+2026-09-22T18:25:54.515Z	transition	pass	wip->review	actor=operator-R8.09	note=R-8.09 implemented: acceptance 13/13, nightly 89/89. Left at review on purpose: the block's own declared frame awaits the operator's answer on the Overview panel (the agent cannot confirm its own frame — A13)

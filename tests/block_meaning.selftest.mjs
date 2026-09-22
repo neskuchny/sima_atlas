@@ -6,9 +6,12 @@
 // Russian heading («## Во что это вырастет») was silently invisible while the
 // English ones worked. A test written only in English would have passed.
 //
-// Group 7 runs the real run_block_implementation.mjs in print-only mode on a
-// disposable client atlas (the multi-tenant test convention) and inspects the
-// prompt the agent would actually receive.
+// This file tests the library b.clarify owns. How the orchestrator USES the
+// frame gate — the real two-phase run, the HTTP routes, the autonomous loop —
+// is tested in tests/frame_gate_flow.selftest.mjs, owned by
+// b.agent-orchestrator. Those tests used to live here and imported the
+// orchestrator's code: a dependency b.clarify → b.agent-orchestrator, the wrong
+// way round, which the code-graph check caught as a would-be cycle.
 
 import fs from 'node:fs';
 import os from 'node:os';
@@ -137,58 +140,7 @@ const MISSION_RU = [
   fs.rmSync(tmp, { recursive: true, force: true });
 }
 
-// ── Group 7: the real agent prompt, end to end ─────────────────────────────
-{
-  const client = `selftest-meaning-${process.pid}`;
-  const cdir = path.join(ROOT, 'atlas', 'clients', client);
-  const seed = (id, mission) => {
-    const d = path.join(cdir, 'blocks', id);
-    fs.mkdirSync(d, { recursive: true });
-    fs.writeFileSync(path.join(d, 'mission.md'), mission, 'utf8');
-    fs.writeFileSync(path.join(d, 'acceptance.md'), '# a\n\n- [ ] **A1.** thing\n', 'utf8');
-    fs.writeFileSync(path.join(d, 'tasks.md'), '# t\n\n- [ ] T1. do\n', 'utf8');
-    fs.writeFileSync(path.join(d, 'kpi.md'), '# k\n', 'utf8');
-    fs.writeFileSync(path.join(d, 'files.md'), '# f\n', 'utf8');
-    fs.writeFileSync(path.join(d, 'checks.log'), '', 'utf8');
-  };
-  try {
-    fs.mkdirSync(cdir, { recursive: true });
-    fs.writeFileSync(path.join(cdir, 'graph.json'), JSON.stringify({
-      layers: [], blocks: [
-        { id: 'b.with', title: 'with', status: 'wip', layer: 'logic', depends_on: [] },
-        { id: 'b.without', title: 'without', status: 'wip', layer: 'logic', depends_on: [] },
-      ],
-    }, null, 2), 'utf8');
-    seed('b.with', MISSION_RU);
-    seed('b.without', '# b.without — mission\n\nПросто блок.\n');
-
-    const promptFor = (id) => {
-      const r = spawnSync('node', [path.join(ROOT, 'scripts', 'run_block_implementation.mjs'), `--client=${client}`, id],
-        { cwd: ROOT, encoding: 'utf8', env: { ...process.env, ATLAS_AGENT: 'print-only' } });
-      const inv = path.join(cdir, 'agent_invocations');
-      const f = fs.existsSync(inv) ? fs.readdirSync(inv).filter((x) => x.includes(id)).sort().pop() : null;
-      return { status: r.status, text: f ? fs.readFileSync(path.join(inv, f), 'utf8') : '', stderr: r.stderr };
-    };
-
-    const w = promptFor('b.with');
-    check('g7: print-only run succeeds', w.status === 0, `status=${w.status} ${w.stderr.slice(0, 300)}`);
-    check('g7: prompt has the trajectory section', w.text.includes('## Where this is heading (trajectory)'));
-    check('g7: prompt carries the trajectory text', w.text.includes('общим сервисом'));
-    const occurrences = (w.text.match(/общим сервисом/g) || []).length;
-    check('g7: trajectory text sent exactly once, not also inside Mission', occurrences === 1, `occurrences=${occurrences}`);
-    check('g7: prompt has Step 0', w.text.includes('## Step 0 — declare how you understand this block'));
-    check('g7: Step 0 points at this block', w.text.includes(`atlas/clients/${client}/blocks/b.with/understanding.md`));
-    const iStep0 = w.text.indexOf('## Step 0');
-    const iRight = w.text.indexOf('## How much to build');
-    check('g7: Step 0 comes before the build instructions', iStep0 > 0 && iRight > iStep0, `step0=${iStep0} right=${iRight}`);
-
-    const wo = promptFor('b.without');
-    check('g7: block without trajectory still gets the section', wo.text.includes('## Where this is heading (trajectory)'));
-    check('g7: …telling the agent none is declared', wo.text.includes('No trajectory is declared'));
-  } finally {
-    fs.rmSync(cdir, { recursive: true, force: true });
-  }
-}
+// Group 7 (the real two-phase run) moved to tests/frame_gate_flow.selftest.mjs.
 
 // ── Group 8: the clarifier never fabricates a frame ────────────────────────
 {
@@ -209,12 +161,13 @@ const MISSION_RU = [
   fs.rmSync(tmp, { recursive: true, force: true });
 }
 
-// ── Group 9: one reader, three consumers (library, report, canvas API) ─────
+// ── Group 9: one reader for every consumer ─────────────────────────────────
 // T24 puts the agent's frame on the canvas. The canvas must not parse these
 // files itself: two parsers of one meaning drift apart (the R-8.06 lesson with
-// the two graph copies). So the API returns blockMeaningSummary verbatim, the
-// nightly report is built from it too, and this group holds all three to the
-// same answer on one synthetic atlas.
+// the two graph copies). So the nightly report is built from
+// blockMeaningSummary (checked here), and the canvas API returns it verbatim
+// (checked in tests/frame_gate_flow.selftest.mjs, next to the server it
+// belongs to).
 {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'sima-meaning-api-'));
   const atlas = path.join(tmp, 'atlas');
@@ -256,52 +209,89 @@ const MISSION_RU = [
   check('g9: report agrees with the summary on warnings', JSON.stringify(row('b.stale').warnings) === JSON.stringify(ss.warnings));
   check('g9: report agrees on the frame', row('b.full').treating_as === '- treating_as text', row('b.full').treating_as);
 
-  // The canvas reads the same summary through the API.
-  const { spawn } = await import('node:child_process');
-  const http = await import('node:http');
-  const port = 55000 + Math.floor(Math.random() * 4000);
-  const server = spawn('node', ['scripts/atlas_api_server.mjs'], {
-    cwd: ROOT, stdio: 'pipe',
-    env: { ...process.env, ATLAS_ROOT: atlas, ATLAS_API_PORT: String(port), PORT: String(port) },
-  });
-  let serverErr = '';
-  server.stderr.on('data', (d) => { serverErr += String(d); });
-  const get = (url) => new Promise((resolve, reject) => {
-    const r = http.request({ host: '127.0.0.1', port, path: url, method: 'GET', timeout: 3000 }, (res) => {
-      let buf = ''; res.setEncoding('utf8');
-      res.on('data', (c) => { buf += c; });
-      res.on('end', () => { try { resolve(JSON.parse(buf)); } catch { resolve({ raw: buf }); } });
-    });
-    r.on('error', reject);
-    r.end();
-  });
-  const waitUp = async () => {
-    const t0 = Date.now();
-    for (;;) {
-      try { await get('/atlas/state'); return; } catch {
-        if (Date.now() - t0 > 8000) throw new Error(`server did not start: ${serverErr.slice(0, 300)}`);
-        await new Promise((r) => setTimeout(r, 100));
-      }
-    }
-  };
-  try {
-    await waitUp();
-    const a = await get('/atlas/blocks/b.full/meaning');
-    check('g9: API ok', a.ok === true, JSON.stringify(a).slice(0, 200));
-    const { ok: _ok, ...apiBody } = a;
-    check('g9: API returns the summary verbatim — no second parser', JSON.stringify(apiBody) === JSON.stringify(sf));
-    const st = await get('/atlas/blocks/b.stale/meaning');
-    check('g9: API carries the staleness the canvas warns about', st.stale?.stale === true && (st.stale.newer || []).includes('mission.md'));
-    const nf = await get('/atlas/blocks/b.nope/meaning');
-    check('g9: unknown block → not_found, not an empty «all clear»', nf.ok === false && nf.error === 'not_found', JSON.stringify(nf));
-    const bad = await get('/atlas/blocks/b.full/meaning?client=..');
-    check('g9: client path traversal refused', bad.ok === false && bad.error === 'invalid client', JSON.stringify(bad));
-  } catch (e) {
-    check('g9: API reachable', false, String(e.message || e));
-  } finally {
-    server.kill();
-    fs.rmSync(tmp, { recursive: true, force: true });
-  }
+  fs.rmSync(tmp, { recursive: true, force: true });
+}
+
+// ── Group 10: the gate as a state machine (library level) ──────────────────
+{
+  const { frameGate, recordDeclared, recordFrameReview, contractFingerprint, normalizeContractText, FRAME_REVIEWS_FILE } =
+    await import('../scripts/block_meaning.mjs');
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'sima-gate-'));
+  const d = path.join(tmp, 'blocks', 'b.g');
+  fs.mkdirSync(d, { recursive: true });
+  fs.writeFileSync(path.join(d, 'mission.md'), '# m\n\nA block.\n', 'utf8');
+  fs.writeFileSync(path.join(d, 'acceptance.md'), '# a\n\n- [ ] **A1.** x\n', 'utf8');
+  const decl = (frame) => UNDERSTANDING_SECTIONS.map((s) => `## ${s.heading}\n\n${s.key === 'treating_as' ? frame : '- x'}\n`).join('\n');
+  const throws = (fn, re) => { try { fn(); return false; } catch (e) { return re.test(String(e.message)); } };
+
+  check('g10: nothing declared → none/declare', frameGate('b.g', tmp).state === 'none' && frameGate('b.g', tmp).next === 'declare');
+  check('g10: cannot review a declaration that does not exist', throws(() => recordFrameReview({ block_id: 'b.g', atlas_root: tmp, verdict: 'confirmed' }), /not declared/));
+
+  const old = Date.now() / 1000 - 3600;
+  fs.utimesSync(path.join(d, 'mission.md'), old, old);
+  fs.utimesSync(path.join(d, 'acceptance.md'), old, old);
+  fs.writeFileSync(path.join(d, 'understanding.md'), decl('a queue'), 'utf8');
+  let g = frameGate('b.g', tmp);
+  check('g10: declared, no record yet → awaiting/wait (mtime basis)', g.state === 'awaiting' && g.next === 'wait' && g.stale_basis === 'mtime', JSON.stringify(g));
+
+  g = recordDeclared({ block_id: 'b.g', atlas_root: tmp, run_id: 'r1', agent: 'codex' });
+  check('g10: declared by a run → still awaiting, now fingerprint-based', g.state === 'awaiting' && g.stale_basis === 'fingerprint');
+  check('g10: the declaring agent is remembered', g.last_declared_agent === 'codex');
+
+  check('g10: unknown verdict refused', throws(() => recordFrameReview({ block_id: 'b.g', atlas_root: tmp, verdict: 'ok' }), /verdict must be/));
+  check('g10: a correction without text refused', throws(() => recordFrameReview({ block_id: 'b.g', atlas_root: tmp, verdict: 'corrected', correction: '  ' }), /needs text/));
+
+  g = recordFrameReview({ block_id: 'b.g', atlas_root: tmp, verdict: 'confirmed' });
+  check('g10: confirmed → implement', g.state === 'confirmed' && g.next === 'implement' && g.confirmations === 1);
+
+  fs.writeFileSync(path.join(d, 'acceptance.md'), '# a\n\n- [x] **A1.** x  \n', 'utf8');
+  check('g10: checkbox + trailing spaces are not a contract change', frameGate('b.g', tmp).state === 'confirmed');
+  check('g10: normalizeContractText unticks and trims', normalizeContractText('- [X] a  \r\n') === '- [ ] a');
+
+  fs.writeFileSync(path.join(d, 'mission.md'), '# m\n\nA different block.\n', 'utf8');
+  g = frameGate('b.g', tmp);
+  check('g10: mission edited after confirmation → stale/declare, names the file', g.state === 'stale' && g.next === 'declare' && g.changed.includes('mission.md') && /confirmation/.test(g.reason), JSON.stringify(g));
+  check('g10: a stale frame cannot be confirmed', throws(() => recordFrameReview({ block_id: 'b.g', atlas_root: tmp, verdict: 'confirmed' }), /older contract/));
+
+  fs.writeFileSync(path.join(d, 'understanding.md'), decl('a job queue with retries'), 'utf8');
+  recordDeclared({ block_id: 'b.g', atlas_root: tmp, agent: 'claude' });
+  g = recordFrameReview({ block_id: 'b.g', atlas_root: tmp, verdict: 'corrected', correction: 'No — the UI only reads it.' });
+  check('g10: corrected → declare, with the correction and the frame it corrects', g.state === 'corrected' && g.next === 'declare'
+    && g.correction === 'No — the UI only reads it.' && g.previous_frame === 'a job queue with retries' && g.corrections === 1, JSON.stringify(g));
+
+  fs.writeFileSync(path.join(d, 'understanding.md'), decl('a read model over the queue'), 'utf8');
+  recordDeclared({ block_id: 'b.g', atlas_root: tmp, agent: 'claude' });
+  check('g10: re-declared after the correction → awaiting again', frameGate('b.g', tmp).state === 'awaiting');
+
+  fs.appendFileSync(path.join(d, FRAME_REVIEWS_FILE), '{"event":"confirmed", torn\n', 'utf8');
+  check('g10: a torn journal line never counts as a confirmation', frameGate('b.g', tmp).state === 'awaiting');
+
+  fs.writeFileSync(path.join(d, 'understanding.md'), UNDERSTANDING_SECTIONS.map((s) => `## ${s.heading}\n`).join('\n'), 'utf8');
+  check('g10: an empty «Treating this as» cannot be confirmed', throws(() => recordFrameReview({ block_id: 'b.g', atlas_root: tmp, verdict: 'confirmed' }), /no frame to agree to/));
+
+  const f1 = contractFingerprint('b.g', tmp);
+  check('g10: fingerprint lists each contract file', Object.keys(f1.files).join(',') === 'mission.md,acceptance.md,kpi.md,user_story.md' && f1.files['kpi.md'] === null);
+  fs.rmSync(tmp, { recursive: true, force: true });
+}
+
+// ── Group 11: language of the declaration + the phase prompt lines ─────────
+{
+  const { operatorLanguage, declarePhasePromptLines, implementPhasePromptLines } = await import('../scripts/block_meaning.mjs');
+  check('g11: a Russian mission → Russian', operatorLanguage(MISSION_RU, {}) === 'Russian');
+  check('g11: an English mission → English', operatorLanguage('# m\n\nThis block exports reports as CSV files for the finance team.', {}) === 'English');
+  check('g11: too little text → no guess', operatorLanguage('# m\n\nok', {}) === null);
+  check('g11: ATLAS_OPERATOR_LANG overrides detection', operatorLanguage(MISSION_RU, { ATLAS_OPERATOR_LANG: 'Kazakh' }) === 'Kazakh');
+
+  const plain = declarePhasePromptLines('atlas/blocks/b.x', { language: 'Russian' }).join('\n');
+  check('g11: declare lines — no code in this run', /Do NOT write or change any code/.test(plain));
+  check('g11: declare lines — language named', plain.includes('in Russian'));
+  check('g11: declare lines — no correction section when none', !plain.includes('corrected your previous declaration'));
+  const corr = declarePhasePromptLines('atlas/blocks/b.x', { correction: 'line one\nline two', previousFrame: 'a CRUD\n resource' }).join('\n');
+  check('g11: correction quoted line by line', corr.includes('> line one\n> line two'));
+  check('g11: previous frame flattened to one line', corr.includes('You previously treated this block as: a CRUD resource'));
+
+  const impl = implementPhasePromptLines('atlas/blocks/b.x', { understandingText: '# b.x — understanding\n\n## Treating this as\n\na queue\n', confirmedAt: '2026-09-22T10:00:00Z' }).join('\n');
+  check('g11: implement lines — confirmation date, frame without its H1', impl.includes('on 2026-09-22') && impl.includes('## Treating this as') && !impl.includes('# b.x — understanding'));
 }
 
 if (failures.length) {
@@ -309,4 +299,4 @@ if (failures.length) {
   failures.forEach((f) => console.error(' ✗', f));
   process.exit(1);
 }
-console.log('block_meaning.selftest: OK (9 groups, all assertions green)');
+console.log('block_meaning.selftest: OK (10 groups, all assertions green)');

@@ -71,3 +71,38 @@ No new graph edge: this block already depends on b.clarify since R-8.08
 (`run_block_implementation.mjs` imports the same library). Status left at
 `review` — the addition is read-only and does not change what the existing
 acceptance claims; acceptance re-run below.
+
+## 2026-09-22 — R-8.09: two-phase runs
+
+`run_block_implementation.mjs` now asks b.clarify's `frameGate` what it may
+do before building a prompt. No declaration, a changed contract, or an
+operator correction → the declare phase: the agent may write only
+`understanding.md`, the owned files are hashed before and after (a phase-1
+agent that wrote code anyway is reported), and the run ends with
+`frame declared — awaiting operator` — no verifier, drift scan, cascade or
+reflection, since no code was supposed to change. A declaration nobody has
+answered → the agent is not started at all. A confirmed frame → the
+implement phase gets it as data and is told not to rewrite it; if it does,
+checks.log says so and the next run stops for a new confirmation. Every run
+prints `frame_gate: phase=<p> state=<s>` first, which is what the daemon
+parses.
+
+`--frame-review=skip` keeps the old single run for unattended nights; each
+use is written to checks.log. The daemon got `--frame-review skip` too, and
+without it treats declare/awaiting runs as «awaiting-frame». A mutation test
+showed why this mattered: with the parse removed, the daemon promoted a
+block wip → review after a run that only declared.
+
+`atlas_runs_api.startRunAsync` returns `{ started: false, frame_gate }`
+instead of spawning when a frame waits. `POST /atlas/frame-review` records
+the canvas answer (actor «operator (canvas)») and can start the next phase
+with the agent that declared. There is deliberately no MCP tool for it.
+`agent_loop_daemon.mjs` and `atlas_runs_api.mjs` had no owner in any
+files.md; both are registered here now.
+
+Found while testing: the loop's budget guard reads the whole repo's
+cost-equivalent for the last 24 h (`token_economics --days 1`), not what this
+loop spent. On a busy day it stops before the first block («budget — spent
+~$1.19 ≥ cap $1.00» with nothing run). The frame-gate test now lifts the cap
+(print-only spends nothing); the guard itself is unchanged and still counts
+other work against the loop — a separate fix.

@@ -40,17 +40,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/clarify_block.selftest.mjs → exit 0 (268ms); first line: \"clarify_block.selftest: OK (10 groups, all assertions green)\"",
+      "evidence": "node tests/clarify_block.selftest.mjs → exit 0 (337ms); first line: \"clarify_block.selftest: OK (10 groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/clarify_block.selftest.mjs",
         "exit_code": 0,
         "stdout": "clarify_block.selftest: OK (10 groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 268,
+        "duration_ms": 337,
         "timed_out": false
       },
-      "duration_ms": 268
+      "duration_ms": 337
     },
     {
       "id": "A3",
@@ -137,17 +137,17 @@
         "expect_in_stdout": "open marker"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_clarifications.mjs → exit 0 (69ms); first line: \"validate_clarifications: 0 open marker(s), 0 question(s) answered on record — OK\"",
+      "evidence": "node scripts/validate_clarifications.mjs → exit 0 (75ms); first line: \"validate_clarifications: 0 open marker(s), 0 question(s) answered on record — OK\"",
       "reasoning": "shell exit code 0 and stdout matches /open marker/",
       "raw": {
         "cmd": "node scripts/validate_clarifications.mjs",
         "exit_code": 0,
         "stdout": "validate_clarifications: 0 open marker(s), 0 question(s) answered on record — OK\n",
         "stderr": "",
-        "duration_ms": 69,
+        "duration_ms": 75,
         "timed_out": false
       },
-      "duration_ms": 69
+      "duration_ms": 75
     },
     {
       "id": "A7",
@@ -177,7 +177,7 @@
     {
       "id": "A8",
       "label": null,
-      "text": "Selftest направления «человек → модель» зелёный: русские заголовки траектории распознаются (регрессия `\\b` после кириллицы), границы секции, пустой заголовок отличается от отсутствия, разбор `understanding.md`, устаревание по mtime, E2E-промпт агента несёт траекторию ровно один раз и Step 0 до «How much to build», mock даёт `operative_frame: null`, API канваса отдаёт ту же сводку, что и библиотека, дословно (второго парсера нет), отчёт с ней совпадает.",
+      "text": "Selftest библиотеки смысла зелёный: русские заголовки траектории распознаются (регрессия `\\b` после кириллицы), границы секции, пустой заголовок отличается от отсутствия, разбор `understanding.md`, устаревание, mock даёт `operative_frame: null`, ночной отчёт читает ту же сводку, что и библиотека; R-8.09: шлюз как машина состояний (подтверждение привязано к тексту и отпечатку контракта, галочка его не сбрасывает, правка текста сбрасывает, устаревшую рамку подтвердить нельзя, битая строка журнала не считается подтверждением), язык объявления, промпты двух фаз. Как этим шлюзом пользуется оркестратор, проверяет его собственная приёмка (b.agent-orchestrator A8).",
       "checked": true,
       "line": 71,
       "evidence_kind": "selftest_run",
@@ -186,42 +186,42 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/block_meaning.selftest.mjs → exit 0 (555ms); first line: \"block_meaning.selftest: OK (9 groups, all assertions green)\"",
+      "evidence": "node tests/block_meaning.selftest.mjs → exit 0 (172ms); first line: \"block_meaning.selftest: OK (10 groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/block_meaning.selftest.mjs",
         "exit_code": 0,
-        "stdout": "block_meaning.selftest: OK (9 groups, all assertions green)\n",
+        "stdout": "block_meaning.selftest: OK (10 groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 555,
+        "duration_ms": 172,
         "timed_out": false
       },
-      "duration_ms": 555
+      "duration_ms": 172
     },
     {
       "id": "A9",
       "label": null,
-      "text": "Промпт исполняющего агента несёт протокол объявления понимания, построенный библиотекой, а не скопированный текстом; порядок секций в собранном промпте проверяет E2E-группа selftest'а (A8).",
+      "text": "Промпт исполняющего агента несёт протокол объявления, построенный библиотекой, а не скопированный текстом; с R-8.09 основной путь — промпт фазы объявления. Что в каждой фазе агент получает на деле, проверяет сквозная группа selftest'а (A8).",
       "checked": true,
       "line": 79,
       "evidence_kind": "log_grep",
       "evidence_spec": {
         "file": "scripts/run_block_implementation.mjs",
-        "pattern": "understandingPromptLines[(]blockDirRelForPrompt[)]"
+        "pattern": "declarePhasePromptLines[(]blockDirRelForPrompt, [{]"
       },
       "verdict": "pass",
-      "evidence": "grep /understandingPromptLines[(]blockDirRelForPrompt[)]/ scripts/run_block_implementation.mjs → 1 matches; first: \"  ...understandingPromptLines(blockDirRelForPrompt),\"",
+      "evidence": "grep /declarePhasePromptLines[(]blockDirRelForPrompt, [{]/ scripts/run_block_implementation.mjs → 1 matches; first: \"    ...declarePhasePromptLines(blockDirRelForPrompt, {\"",
       "reasoning": "1 matching lines found",
       "raw": {
         "file": "/home/user/sima_atlas/scripts/run_block_implementation.mjs",
-        "pattern": "understandingPromptLines[(]blockDirRelForPrompt[)]",
+        "pattern": "declarePhasePromptLines[(]blockDirRelForPrompt, [{]",
         "since_time": null,
         "match_count": 1,
         "sample": [
-          "  ...understandingPromptLines(blockDirRelForPrompt),"
+          "    ...declarePhasePromptLines(blockDirRelForPrompt, {"
         ]
       },
-      "duration_ms": 0
+      "duration_ms": 1
     },
     {
       "id": "A10",
@@ -235,17 +235,17 @@
         "expect_in_stdout": "not a gate"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_meaning.mjs → exit 0 (59ms); first line: \" · b.clarify (done) — trajectory, understanding: complete\"",
+      "evidence": "node scripts/validate_meaning.mjs → exit 0 (78ms); first line: \" · b.clarify (review) — trajectory, understanding: complete, frame: awaiting\"",
       "reasoning": "shell exit code 0 and stdout matches /not a gate/",
       "raw": {
         "cmd": "node scripts/validate_meaning.mjs",
         "exit_code": 0,
-        "stdout": " · b.clarify (done) — trajectory, understanding: complete\n     treating as: Two additions to the contract the coding agent receives, plus a small reader library — not a new arbiter. The closest known analogue is a pull-request descripti\nvalidate_meaning: 19 blocks — 1 with a declared trajectory, 1 with a declared understanding, 1 with warnings (report only, not a gate)\n",
-        "stderr": " ⚠ b.clarify: understanding.md may be stale: contract changed after the declaration: acceptance.md\n",
-        "duration_ms": 59,
+        "stdout": " · b.clarify (review) — trajectory, understanding: complete, frame: awaiting\n     treating as: Шлюз одобрения перед выполнением — как «план → подтверждение → применение» в инструментах развёртывания: сначала показывается, что будет сделано, и ничего не ме\n ⏸ waiting for your answer on the canvas: b.clarify\nvalidate_meaning: 19 blocks — 1 with a declared trajectory, 1 with a declared understanding, 1 awaiting the operator, frame answers: 0 confirmed / 0 corrected, 0 with warnings (report only, not a gate)\n",
+        "stderr": "",
+        "duration_ms": 78,
         "timed_out": false
       },
-      "duration_ms": 59
+      "duration_ms": 78
     },
     {
       "id": "A11",
@@ -270,7 +270,7 @@
           "  ['meaning_report', 'node scripts/validate_meaning.mjs'],"
         ]
       },
-      "duration_ms": 0
+      "duration_ms": 1
     },
     {
       "id": "A12",
@@ -296,15 +296,38 @@
         ]
       },
       "duration_ms": 0
+    },
+    {
+      "id": "A13",
+      "label": null,
+      "text": "Подтвердить рамку может только человек: у агента нет MCP-инструмента, который пишет ответ на объявление. Арбитр, сам себе ответивший «верно», ничего не синхронизирует.",
+      "checked": true,
+      "line": 111,
+      "evidence_kind": "exit_code",
+      "evidence_spec": {
+        "cmd": "! grep -q recordFrameReview scripts/mcp_atlas_server.mjs"
+      },
+      "verdict": "pass",
+      "evidence": "! grep -q recordFrameReview scripts/mcp_atlas_server.mjs → exit 0 (5ms); first line: \"\"",
+      "reasoning": "shell exit code 0",
+      "raw": {
+        "cmd": "! grep -q recordFrameReview scripts/mcp_atlas_server.mjs",
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": "",
+        "duration_ms": 5,
+        "timed_out": false
+      },
+      "duration_ms": 5
     }
   ],
   "counts": {
-    "pass": 12,
+    "pass": 13,
     "fail": 0,
     "skipped": 0
   },
   "verdict": "pass",
   "inconclusive_if_declared": 1,
-  "duration_ms": 1025,
-  "checked_at": "2026-09-22T17:57:16.526Z"
+  "duration_ms": 742,
+  "checked_at": "2026-09-22T18:26:33.483Z"
 }

@@ -15,7 +15,7 @@
 </style>
 </head><body>
 <h1>Sima Atlas Wiki</h1>
-<p><em>Auto-generated: 2026-09-22T17:57:20.877Z</em></p>
+<p><em>Auto-generated: 2026-09-22T18:27:56.315Z</em></p>
 <h2>Граф продукта</h2>
 <div class="mermaid">flowchart TB
   classDef done    fill:#dcfce7,stroke:#16a34a,color:#15803d;
@@ -41,7 +41,7 @@
     b_llm_gateway["LLM Gateway&lt;br/&gt;&lt;small&gt;review&lt;/small&gt;"]:::review
     b_operator_profile_learner["Operator Profile Learner&lt;br/&gt;&lt;small&gt;done&lt;/small&gt;"]:::done
     b_diff_review["Diff Review Arbiter&lt;br/&gt;&lt;small&gt;done&lt;/small&gt;"]:::done
-    b_clarify["Clarification Arbiter&lt;br/&gt;&lt;small&gt;done&lt;/small&gt;"]:::done
+    b_clarify["Clarification Arbiter&lt;br/&gt;&lt;small&gt;review&lt;/small&gt;"]:::review
   end
   subgraph data["Данные / хранилище"]
     b_db["Atlas Database&lt;br/&gt;&lt;small&gt;idea&lt;/small&gt;"]:::idea
@@ -127,7 +127,7 @@
 <ul><li>reason: Phase I: verifier FAIL on A6 — profile-compliance UI badge (complianceWithProfile) was lost in the R-7.30 single-file→atlas_design refactor and not reimplemented. Genuine feature gap, honestly not done.</li></ul>
 <li>🟢 <strong>b.diff-review</strong> — Diff Review Arbiter <em>(done)</em></li>
 <ul><li>reason: Fourth V-1 arbiter — independent LLM review of the git diff for BLOCKING problems (correctness/security/regression/perf). Imported from loop-engineer-template. R-8.01.</li></ul>
-<li>🟢 <strong>b.clarify</strong> — Clarification Arbiter <em>(done)</em></li>
+<li>🔵 <strong>b.clarify</strong> — Clarification Arbiter <em>(review)</em></li>
 <ul><li>reason: R-8.06 + R-8.08 — meaning transfer in both directions around the contract. Model to human: questions, uncertainty markers, assumption registry. Human to model: the trajectory in mission.md as the rule for choosing between green implementations, and the executing agent declaring its operative frame in understanding.md before code.</li></ul>
 </ul>
 <h3>Данные / хранилище (<code>data</code>)</h3>
@@ -237,12 +237,12 @@ evidence_spec:
 <li>index.html [alive] (PR4.1: repo-root redirect to frontend/index.html)</li>
 <li>frontend/atlas_sync.js [alive]</li>
 <li>frontend/atlas_bootstrap.js [alive] (auto-generated)</li>
-<li>frontend/atlas_design/index.html [alive] (R-7.30 — current canvas entry)</li>
-<li>frontend/atlas_design/panels.jsx [alive] (DetailPanel + Overview + AcceptanceSection + Implementation Status + Token Spend + R-8.08 MeaningSection: the agent's frame, assumptions, staleness, trajectory)</li>
+<li>frontend/atlas<em>design/index.html [alive] (R-7.30 — current canvas entry; R-8.09: «Send to agent» goes through SIMA</em>API.meta.startRun — client-scoped — and logs what the frame gate did)</li>
+<li>frontend/atlas_design/panels.jsx [alive] (DetailPanel + Overview + AcceptanceSection + Implementation Status + Token Spend + R-8.08 MeaningSection: the agent's frame, assumptions, staleness, trajectory; R-8.09: the operator's answer — «Right — write the code» / «Not quite» with a correction, gate state in words, 5 s refresh)</li>
 <li>frontend/atlas_design/views.jsx [alive] (composer, proposals Accept/Reject, modals)</li>
 <li>frontend/atlas_design/graph.jsx [alive] (canvas graph + edges + drill-down)</li>
 <li>frontend/atlas_design/tweaks-panel.jsx [alive]</li>
-<li>frontend/atlas<em>design/data</em>loader.js [alive] (live API loader + write-side SIMA_API; R-8.08: meta.blockMeaning)</li>
+<li>frontend/atlas<em>design/data</em>loader.js [alive] (live API loader + write-side SIMA_API; R-8.08: meta.blockMeaning; R-8.09: meta.frameReview, meta.startRun — client-scoped)</li>
 <li>frontend/atlas<em>design/data</em>static.js [alive] (offline fallback demo)</li>
 <li>frontend/atlas_design/i18n.js [alive] (644-key EN/RU dictionary)</li>
 <li>frontend/atlas_design/styles.css [alive]</li>
@@ -654,6 +654,13 @@ evidence_spec:
 evidence_spec:
   cmd: node scripts/validate_agent_parity.mjs
   expect_in_stdout: "OK"</code></pre>
+<ul>
+<li>[x] <strong>A8 (frame gate, R-8.09).</strong> Прогон двухфазный: без подтверждённой рамки агент только объявляет понимание и останавливается; пока объявление ждёт человека, агент не запускается вовсе (ни из CLI, ни из <code>/runs/start</code>); код пишется только в подтверждённой рамке; поправка оператора доходит до агента дословно; автономный цикл не продвигает и не «проваливает» блок после прогона, который только объявил. Проверяется настоящими прогонами на одноразовом клиенте.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/frame_gate_flow.selftest.mjs
+  expect_in_stdout: "OK"</code></pre>
 <h2>Что считается NOT acceptance</h2>
 <ul>
 <li>Существование файлов <code>.cursor/hooks.json</code> или MCP-сервера.</li>
@@ -684,14 +691,17 @@ evidence_spec:
 <h1>b.agent-orchestrator — files</h1>
 <ul>
 <li>scripts/mcp<em>atlas</em>server.mjs [alive] (21+ tools over JSON-RPC stdio)</li>
-<li>scripts/atlas<em>api</em>server.mjs [alive] (HTTP facade for orchestration; R-8.08: GET /atlas/blocks/&lt;id&gt;/meaning — blockMeaningSummary from b.clarify, served verbatim to the canvas)</li>
+<li>scripts/atlas<em>api</em>server.mjs [alive] (HTTP facade for orchestration; R-8.08: GET /atlas/blocks/&lt;id&gt;/meaning — blockMeaningSummary from b.clarify, served verbatim to the canvas; R-8.09: POST /atlas/frame-review — the operator's «right»/«wrong» from the canvas, optionally starting the next phase)</li>
 <li>scripts/generate<em>cursor</em>hooks.mjs [alive] (PR4: emits valid Cursor format with real action scripts)</li>
 <li>scripts/validate<em>cursor</em>hooks.mjs [alive] (PR4: gate; fails if hooks.json has wrong shape or missing scripts)</li>
 <li>scripts/observe<em>file</em>edit.mjs [alive] (PR4: afterFileEdit action — files.md → block reverse-map)</li>
 <li>scripts/guard<em>against</em>drift.mjs [alive] (PR4: beforeShellExecution action — tech_stack.md guard)</li>
 <li>scripts/inject<em>context</em>pack.mjs [alive] (PR4: beforeSubmitPrompt action — block-scoped context)</li>
 <li>tests/cursor<em>hooks</em>actions.test.mjs [alive] (PR4: 9-case integration test for the three actions)</li>
-<li>scripts/run<em>block</em>implementation.mjs [alive] (PR4.5: build prompt + invoke claude/codex/cursor CLI)</li>
+<li>scripts/run<em>block</em>implementation.mjs [alive] (PR4.5: build prompt + invoke claude/codex/cursor CLI; R-8.09: two-phase by default through the frame gate — declare → operator confirms → implement; --phase=, --frame-review=skip)</li>
+<li>scripts/atlas<em>runs</em>api.mjs [alive] (async run start for the canvas + run/acceptance read helpers; R-8.09: does not spawn while the frame awaits the operator. Was unowned until R-8.09)</li>
+<li>tests/frame<em>gate</em>flow.selftest.mjs [alive] (R-8.09: 3 groups — the real two-phase run through every gate state + startRunAsync, the canvas routes vs the library, the autonomous loop on an unconfirmed frame)</li>
+<li>scripts/agent<em>loop</em>daemon.mjs [alive] (V-1 autonomous loop; R-8.09: blocks awaiting the operator's frame answer are reported as awaiting-frame — not verified, promoted or counted as failures. Was unowned until R-8.09)</li>
 <li>tests/agent<em>parity</em>real.smoke.mjs [alive] (PR4.5: real MCP pack ≡ Claude --add-dir disk parity)</li>
 <li>scripts/generate<em>agent</em>contracts.mjs [alive] (writes AGENTS.md / CLAUDE.md)</li>
 <li>scripts/build<em>context</em>pack.mjs [alive]</li>
@@ -6103,6 +6113,22 @@ evidence_spec:
 <li>2026-09-22T17:57:14.779Z: smoke e2e distillate</li>
 <li>2026-09-22T17:57:20.724Z: smoke e2e queued insight</li>
 <li>2026-09-22T17:57:20.768Z: smoke e2e distillate</li>
+<li>2026-09-22T18:23:08.078Z: smoke e2e queued insight</li>
+<li>2026-09-22T18:23:08.131Z: smoke e2e distillate</li>
+<li>2026-09-22T18:23:15.149Z: smoke e2e queued insight</li>
+<li>2026-09-22T18:23:15.204Z: smoke e2e distillate</li>
+<li>2026-09-22T18:25:42.940Z: smoke e2e queued insight</li>
+<li>2026-09-22T18:25:42.986Z: smoke e2e distillate</li>
+<li>2026-09-22T18:25:47.660Z: smoke e2e queued insight</li>
+<li>2026-09-22T18:25:47.715Z: smoke e2e distillate</li>
+<li>2026-09-22T18:26:31.763Z: smoke e2e queued insight</li>
+<li>2026-09-22T18:26:31.816Z: smoke e2e distillate</li>
+<li>2026-09-22T18:26:36.667Z: smoke e2e queued insight</li>
+<li>2026-09-22T18:26:36.713Z: smoke e2e distillate</li>
+<li>2026-09-22T18:27:51.341Z: smoke e2e queued insight</li>
+<li>2026-09-22T18:27:51.401Z: smoke e2e distillate</li>
+<li>2026-09-22T18:27:56.155Z: smoke e2e queued insight</li>
+<li>2026-09-22T18:27:56.202Z: smoke e2e distillate</li>
 </ul>
 <h4>Files</h4>
 <h1>b.smoke-sandbox — files</h1>
@@ -6431,11 +6457,11 @@ evidence_spec:
 </ul>
 <p><em>Sources: [mission](blocks/b.block-2/mission.md) · [kpi](blocks/b.block-2/kpi.md) · [acceptance](blocks/b.block-2/acceptance.md) · [depends</em>on](blocks/b.block-2/depends<em>on.md) · [provides](blocks/b.block-2/provides.md) · [patterns](blocks/b.block-2/patterns.md) · [files](blocks/b.block-2/files.md)</em></p>
 <hr/>
-<h3>🟢 b.clarify — Clarification Arbiter</h3>
+<h3>🔵 b.clarify — Clarification Arbiter</h3>
 <ul>
 <li><strong>layer</strong>: <code>ai</code></li>
 <li><strong>type</strong>: module</li>
-<li><strong>status</strong>: <code>done</code> — R-8.06 + R-8.08 — meaning transfer in both directions around the contract. Model to human: questions, uncertainty markers, assumption registry. Human to model: the trajectory in mission.md as the rule for choosing between green implementations, and the executing agent declaring its operative frame in understanding.md before code.</li>
+<li><strong>status</strong>: <code>review</code> — R-8.06 + R-8.08 — meaning transfer in both directions around the contract. Model to human: questions, uncertainty markers, assumption registry. Human to model: the trajectory in mission.md as the rule for choosing between green implementations, and the executing agent declaring its operative frame in understanding.md before code.</li>
 <li><strong>mvp</strong>: no</li>
 <li><strong>depends_on</strong>: <code>b.llm-gateway</code></li>
 <li><strong>tech_stack</strong>: <code>nodejs</code>, <code>esm</code></li>
@@ -6510,6 +6536,15 @@ evidence_spec:
 <p>Траекторию пишет оператор. Агент её не выдумывает: куда движется блок —</p>
 <p>знание человека, а сочинённая моделью траектория была бы ровно той</p>
 <p>правдоподобной догадкой, против которой блок создан.</p>
+<p><strong>Пауза между объявлением и кодом (R-8.09).</strong> Объявление ничего не стоит,</p>
+<p>если человек читает его после кода. Поэтому прогон агента двухфазный:</p>
+<p>сначала агент только пишет <code>understanding.md</code> и останавливается; код он</p>
+<p>пишет лишь после «верно» оператора. «Не так» с поправкой возвращает агента</p>
+<p>к объявлению, и поправка попадает в его следующий промпт. Подтверждение</p>
+<p>привязано к тексту объявления и к версии контракта: изменился любой из</p>
+<p>них — рамку надо подтвердить заново. Каждое «верно» и «не так»</p>
+<p>записывается — это и есть корпус «где модель понимает оператора не так».</p>
+<p>Объявление пишется на языке, на котором оператор написал миссию.</p>
 <h2>Во что это вырастет</h2>
 <p>Сейчас блок работает с одним контрактом за раз и ничего не помнит между</p>
 <p>прогонами, кроме двух файлов: <code>clarifications.md</code> (что модель не поняла и как</p>
@@ -6560,12 +6595,15 @@ evidence_spec:
 <li><strong>KPI-6 (вопросы попадают в цель)</strong>: доля вопросов, на которые оператор</li>
 <p>  ответил не «не важно». Сейчас: не измерено — требует накопленного лога</p>
 <p>  ответов.</p>
-<li><strong>KPI-7 (рамка объявлена до кода)</strong>: доля прогонов исполняющего агента,</li>
-<p>  после которых в блоке лежит полный и не устаревший <code>understanding.md</code>.</p>
-<p>  Сейчас: не измерено — механизм новый, считается из <code>validate_meaning.mjs</code></p>
-<p>  после первых живых прогонов.</p>
+<li><strong>KPI-7 (рамка объявлена до кода)</strong>: доля прогонов реализации, которым</li>
+<p>  предшествовало подтверждённое объявление. С R-8.09 это 100% по построению</p>
+<p>  для всех прогонов, кроме явного <code>--frame-review=skip</code>; каждый обход пишется</p>
+<p>  в checks.log (<code>frame_gate skipped</code>), так что число обходов считается.</p>
 <li><strong>KPI-8 (рамка ловит расхождение)</strong>: число случаев, когда оператор поправил</li>
-<p>  «Treating this as» до того, как код был написан. Сейчас: не измерено.</p>
+<p>  «Treating this as» до того, как код был написан. Источник с R-8.09 —</p>
+<p>  события <code>corrected</code> в <code>frame<em>reviews.jsonl</code>; <code>validate</em>meaning.mjs</code></p>
+<p>  печатает сумму по атласу каждую ночь. Сейчас: 0 — ещё ни одного живого</p>
+<p>  ответа.</p>
 <p>  Ноль после месяца живых прогонов — повод не гордиться, а проверить, читает</p>
 <p>  ли кто-нибудь эти файлы.</p>
 </ul>
@@ -6632,19 +6670,19 @@ evidence_spec:
   file: scripts/nightly_consolidation.mjs
   pattern: "clarify_block.selftest"</code></pre>
 <ul>
-<li>[x] <strong>A8.</strong> Selftest направления «человек → модель» зелёный: русские заголовки траектории распознаются (регрессия <code>\b</code> после кириллицы), границы секции, пустой заголовок отличается от отсутствия, разбор <code>understanding.md</code>, устаревание по mtime, E2E-промпт агента несёт траекторию ровно один раз и Step 0 до «How much to build», mock даёт <code>operative_frame: null</code>, API канваса отдаёт ту же сводку, что и библиотека, дословно (второго парсера нет), отчёт с ней совпадает.</li>
+<li>[x] <strong>A8.</strong> Selftest библиотеки смысла зелёный: русские заголовки траектории распознаются (регрессия <code>\b</code> после кириллицы), границы секции, пустой заголовок отличается от отсутствия, разбор <code>understanding.md</code>, устаревание, mock даёт <code>operative_frame: null</code>, ночной отчёт читает ту же сводку, что и библиотека; R-8.09: шлюз как машина состояний (подтверждение привязано к тексту и отпечатку контракта, галочка его не сбрасывает, правка текста сбрасывает, устаревшую рамку подтвердить нельзя, битая строка журнала не считается подтверждением), язык объявления, промпты двух фаз. Как этим шлюзом пользуется оркестратор, проверяет его собственная приёмка (b.agent-orchestrator A8).</li>
 </ul>
 <pre><code class="lang-yaml">evidence_kind: selftest_run
 evidence_spec:
   cmd: node tests/block_meaning.selftest.mjs
   expect_in_stdout: "OK"</code></pre>
 <ul>
-<li>[x] <strong>A9.</strong> Промпт исполняющего агента несёт протокол объявления понимания, построенный библиотекой, а не скопированный текстом; порядок секций в собранном промпте проверяет E2E-группа selftest'а (A8).</li>
+<li>[x] <strong>A9.</strong> Промпт исполняющего агента несёт протокол объявления, построенный библиотекой, а не скопированный текстом; с R-8.09 основной путь — промпт фазы объявления. Что в каждой фазе агент получает на деле, проверяет сквозная группа selftest'а (A8).</li>
 </ul>
 <pre><code class="lang-yaml">evidence_kind: log_grep
 evidence_spec:
   file: scripts/run_block_implementation.mjs
-  pattern: "understandingPromptLines[(]blockDirRelForPrompt[)]"</code></pre>
+  pattern: "declarePhasePromptLines[(]blockDirRelForPrompt, [{]"</code></pre>
 <ul>
 <li>[x] <strong>A10.</strong> Отчёт о передаче смысла проходит на текущем атласе и честно называет себя отчётом, а не гейтом (выход 0 при любых находках).</li>
 </ul>
@@ -6666,6 +6704,12 @@ evidence_spec:
 evidence_spec:
   file: scripts/nightly_consolidation.mjs
   pattern: "'block_meaning_selftest', 'node tests/block_meaning.selftest.mjs'"</code></pre>
+<ul>
+<li>[x] <strong>A13.</strong> Подтвердить рамку может только человек: у агента нет MCP-инструмента, который пишет ответ на объявление. Арбитр, сам себе ответивший «верно», ничего не синхронизирует.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: exit_code
+evidence_spec:
+  cmd: "! grep -q recordFrameReview scripts/mcp_atlas_server.mjs"</code></pre>
 <h2>inconclusive_if</h2>
 <ul>
 <li>Нет живого LLM-провайдера — качество вопросов операторски не проверяемо в</li>
@@ -6693,6 +6737,7 @@ evidence_spec:
 <li>assumption_registry</li>
 <li>trajectory_reader</li>
 <li>declared_understanding</li>
+<li>frame<em>review</em>gate</li>
 </ul>
 <h4>Depends on</h4>
 <h1>b.clarify — depends_on</h1>
@@ -6728,13 +6773,13 @@ evidence_spec:
 <ul>
 <li>scripts/clarify_block.mjs [alive] (R-8.06: протокол вопроса + маркеры неопределённости + append-only Q→A лог + снятие маркера без остатка. Экспортирует clarifyBlock / normalizeQuestions / findMarkers / blockMarkers / appendAnswers / resolveMarker)</li>
 <li>scripts/validate_clarifications.mjs [alive] (R-8.06: гейт — done-блок не может нести открытый маркер; review → warning; idea/wip → info, чтобы черновик оставался свободным)</li>
-<li>scripts/block_meaning.mjs [alive] (R-8.08: направление «человек → модель». Экспортирует readTrajectory / trajectoryPromptLines — секция «Во что это вырастет» в mission.md и её подача агенту; understandingPromptLines / parseUnderstanding / readUnderstanding / understandingStaleness — объявление понимания агентом до кода; blockMeaningSummary — единый читатель для ночного отчёта и канваса)</li>
+<li>scripts/block_meaning.mjs [alive] (R-8.08: направление «человек → модель». Экспортирует readTrajectory / trajectoryPromptLines — секция «Во что это вырастет» в mission.md и её подача агенту; understandingPromptLines / parseUnderstanding / readUnderstanding / understandingStaleness — объявление понимания агентом до кода; blockMeaningSummary — единый читатель для ночного отчёта и канваса; R-8.09: frameGate / recordDeclared / recordFrameReview / contractFingerprint — шлюз «объявил → человек подтвердил → код», declarePhasePromptLines / implementPhasePromptLines / operatorLanguage — промпты двух фаз на языке миссии)</li>
 <li>scripts/validate_meaning.mjs [alive] (R-8.08: отчёт, не гейт — траектория, наличие/полнота/устаревание understanding.md по блокам. Условия повышения до гейта и снятия — в шапке файла)</li>
 </ul>
 <h2>Тесты</h2>
 <ul>
 <li>tests/clarify_block.selftest.mjs [alive] (R-8.06: 10 групп — порядок enum, честная деградация на mock, пустой контракт, отбраковка ярлыка, отбраковка вопроса без выбора, сортировка по impact, поиск маркеров, append-only лог, снятие маркера, срабатывание done-гейта)</li>
-<li>tests/block<em>meaning.selftest.mjs [alive] (R-8.08: 9 групп — кириллические заголовки траектории, границы секции, пустой против отсутствующего, строки промпта, разбор understanding.md, устаревание по mtime, E2E-промпт на одноразовом клиенте, operative</em>frame на mock, один читатель на трёх потребителей: библиотека = отчёт = API канваса)</li>
+<li>tests/block<em>meaning.selftest.mjs [alive] (R-8.08/R-8.09: 10 групп — кириллические заголовки траектории, границы секции, пустой против отсутствующего, строки промпта, разбор understanding.md, устаревание по mtime, operative</em>frame на mock, один читатель для отчёта и библиотеки, шлюз как машина состояний, язык объявления и промпты двух фаз. Сквозные проверки оркестратора — в tests/frame<em>gate</em>flow.selftest.mjs, у b.agent-orchestrator)</li>
 </ul>
 <h2>Контракт</h2>
 <ul>
@@ -6750,7 +6795,8 @@ evidence_spec:
 <li>atlas/blocks/b.clarify/decisions.log [alive]</li>
 <li>atlas/blocks/b.clarify/patterns.md [alive]</li>
 <li>atlas/blocks/b.clarify/checks.log [alive]</li>
-<li>atlas/blocks/b.clarify/understanding.md [alive] (R-8.08: объявленная рамка самого блока — написана до кода, как требует собственный протокол)</li>
+<li>atlas/blocks/b.clarify/understanding.md [alive] (R-8.08/R-8.09: объявленная рамка самого блока — написана до кода, как требует собственный протокол)</li>
+<li>atlas/blocks/b.clarify/frame_reviews.jsonl [alive] (R-8.09: append-only журнал шлюза — объявлено / верно / не так; из него выводится состояние, и он же корпус поправок)</li>
 </ul>
 <p><em>Sources: [mission](blocks/b.clarify/mission.md) · [kpi](blocks/b.clarify/kpi.md) · [acceptance](blocks/b.clarify/acceptance.md) · [depends</em>on](blocks/b.clarify/depends<em>on.md) · [provides](blocks/b.clarify/provides.md) · [patterns](blocks/b.clarify/patterns.md) · [files](blocks/b.clarify/files.md)</em></p>
 <hr/>

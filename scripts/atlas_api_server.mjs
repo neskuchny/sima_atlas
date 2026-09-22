@@ -12,7 +12,7 @@ import * as synthApi from './atlas_synthesis_api.mjs';
 import * as subsApi from './atlas_subsystems_api.mjs';
 import * as filesApi from './atlas_files_api.mjs';
 import { aggregateTokenEconomics } from './token_economics.mjs';
-import { blockMeaningSummary } from './block_meaning.mjs';
+import { blockMeaningSummary, recordFrameReview } from './block_meaning.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(__filename), '..');
@@ -1198,6 +1198,39 @@ const server = http.createServer((req, res) => {
           client_id: body.client_id ? String(body.client_id) : (body._client ? String(body._client) : undefined),
           profile:   body.profile ? String(body.profile) : undefined, // R-7.90 (S-10)
         }));
+      }
+      // R-8.09 (b.clarify) — the operator's answer to the agent's declared
+      // frame: «confirmed» (optionally starting the implementation run right
+      // away, with the agent that declared) or «corrected» with what the block
+      // actually is (optionally starting the re-declaration). Deliberately an
+      // HTTP route for the canvas and NOT an MCP tool: an agent that could
+      // confirm its own frame would make the review meaningless.
+      if (req.url === '/atlas/frame-review') {
+        const SAFE_ID = /^[a-zA-Z0-9_-][a-zA-Z0-9._-]*$/;
+        const blockId = String(body.block_id || '');
+        const clientArg = String(body.client_id || body._client || '');
+        if (!SAFE_ID.test(blockId)) return json(res, 400, { ok: false, error: 'invalid block_id' });
+        if (clientArg && !SAFE_ID.test(clientArg)) return json(res, 400, { ok: false, error: 'invalid client' });
+        const root = clientArg ? path.join(ROOT, 'atlas', 'clients', clientArg) : ATLAS;
+        if (!fs.existsSync(path.join(root, 'blocks', blockId))) return json(res, 404, { ok: false, error: 'not_found' });
+        const verdict = String(body.verdict || '');
+        let run = null;
+        try {
+          recordFrameReview({ block_id: blockId, atlas_root: root, verdict, correction: String(body.correction || ''), actor: 'operator (canvas)' });
+        } catch (e) {
+          return json(res, 200, { ok: false, error: String(e.message || e) });
+        }
+        const meaning = blockMeaningSummary(blockId, root);
+        if (body.start_run) {
+          // Same agent that declared, unless the operator picked another.
+          const agent = String(body.agent || meaning.gate?.last_declared_agent || '') || undefined;
+          try {
+            run = runsApi.startRunAsync({ block_id: blockId, agent, client_id: clientArg || undefined });
+          } catch (e) {
+            run = { ok: false, error: String(e.message || e) };
+          }
+        }
+        return json(res, 200, { ok: true, ...meaning, run });
       }
       // /llm/advice — bridge to b.llm-gateway. Returns ok:true with
       // advice text on success, ok:false with mock fallback if no
