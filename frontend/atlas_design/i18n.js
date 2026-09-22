@@ -102,6 +102,25 @@
       'overview.kpi_empty':       'KPI ещё не заданы. Открой вкладку «Контракт» → kpi.md.',
       'overview.edit_in_contract': 'Редактировать на вкладке «Контракт»',
 
+      // ── R-8.08 (b.clarify T24): how the agent understood the block ──
+      'meaning.title':              '🧭 Как агент понял этот блок',
+      'meaning.not_declared_tag':   'не объявлено',
+      'meaning.treating_as':        'Агент принял блок за',
+      'meaning.treating_as_empty':  'Агент оставил пустым — не сказал, чем считает этот блок.',
+      'meaning.treating_as_hint':   'Читайте эту строку первой. Если агент принял блок не за то, код на этой рамке будет неверен в ту же сторону — и всё равно пройдёт приёмку.',
+      'meaning.stale':              'Контракт изменился после этого объявления',
+      'meaning.stale_hint':         'Агент мог работать по старой версии задачи — перепроверьте рамку, прежде чем принимать работу.',
+      'meaning.incomplete':         'Объявление неполное — нет или пусто',
+      'meaning.assumed':            'Решено без вопроса',
+      'meaning.more':               'Что в scope, что вне его, какой вариант выбран',
+      'meaning.in_scope':           'В scope',
+      'meaning.out_of_scope':       'Вне scope',
+      'meaning.variant_chosen':     'Выбранный вариант',
+      'meaning.absent':             'Агент ещё не объявил, как понял этот блок. Объявление появится после первого прогона агента: он пишет understanding.md до кода.',
+      'meaning.trajectory':         'Куда движется блок',
+      'meaning.trajectory_empty':   'В миссии есть заголовок траектории, но под ним пусто — агент считает, что траектория не задана.',
+      'meaning.trajectory_absent':  'Не задано. Когда приёмке удовлетворяют несколько реализаций, агент выберет сам и запишет выбор как допущение. Чтобы направить выбор, добавьте в mission.md (вкладка «Контракт») секцию «## Во что это вырастет»: два-три предложения о том, во что блок должен вырасти.',
+
       // ── Sync pill labels (R-7.69) ───────────────────────
       'toolbar.sync':             '⟳ Sync',
       'toolbar.sync_title':       'Полный sync-report по всем блокам со структурированным выводом',
@@ -847,6 +866,25 @@
       'overview.provides':        'provides',
       'overview.kpi_empty':       'No KPIs defined yet. Open the «Contract» tab → kpi.md.',
       'overview.edit_in_contract': 'Edit in Contract tab',
+
+      // ── R-8.08 (b.clarify T24): how the agent understood the block ──
+      'meaning.title':              '🧭 How the agent understood this block',
+      'meaning.not_declared_tag':   'not declared',
+      'meaning.treating_as':        'Treating this as',
+      'meaning.treating_as_empty':  'The agent left this empty — it did not say what it took the block to be.',
+      'meaning.treating_as_hint':   'Read this line first. If it is the wrong kind of thing, the code built on it is wrong in the same direction — and will still pass acceptance.',
+      'meaning.stale':              'The contract changed after this was written',
+      'meaning.stale_hint':         'The agent may have been working from an older version of the task — re-check this before accepting the work.',
+      'meaning.incomplete':         'Incomplete declaration — missing or empty',
+      'meaning.assumed':            'Assumed without asking',
+      'meaning.more':               'Scope and the variant chosen',
+      'meaning.in_scope':           'In scope',
+      'meaning.out_of_scope':       'Out of scope',
+      'meaning.variant_chosen':     'Variant chosen',
+      'meaning.absent':             'The agent has not declared how it understood this block yet. The declaration appears after the first agent run: the agent writes understanding.md before any code.',
+      'meaning.trajectory':         'Where this is heading',
+      'meaning.trajectory_empty':   'The mission has a trajectory heading with nothing under it — the agent treats that as no trajectory.',
+      'meaning.trajectory_absent':  'Not declared. When several implementations pass acceptance, the agent picks one itself and records it as an assumption. To steer that choice, add a «## Во что это вырастет» (or «## Trajectory») section to mission.md in the Contract tab: two or three sentences on what this block should grow into.',
 
       // ── Sync pill labels (R-7.69) ───────────────────────
       'toolbar.sync':             '⟳ Sync',

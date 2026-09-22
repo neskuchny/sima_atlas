@@ -324,6 +324,25 @@ html, body {
 .semantic-todo ul { margin: 0; padding-left: 18px; }
 .semantic-todo li { font-size: 12px; color: var(--ink-2); margin: 3px 0; }
 
+/* R-8.08 (b.clarify T24) — how the agent understood the block + trajectory */
+.meaning-card { border: 1px solid var(--rule); border-radius: 8px; background: var(--card); padding: 10px 12px; }
+.meaning-card + .meaning-card { margin-top: 8px; }
+.meaning-card.meaning-stale { border-color: var(--st-progress); }
+.meaning-label {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  color: var(--ink-4); letter-spacing: 0.06em; text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.meaning-frame { font-family: 'Newsreader', serif; font-style: italic; font-size: 15px; line-height: 1.45; color: var(--ink); }
+.meaning-note { font-size: 12px; line-height: 1.45; color: var(--ink-3); margin-top: 6px; }
+.meaning-warn { font-size: 12px; line-height: 1.45; color: var(--ink-2); margin-top: 8px; padding-left: 8px; border-left: 2px solid var(--st-progress); }
+.meaning-body { font-size: 12.5px; line-height: 1.45; color: var(--ink-2); }
+.meaning-body p { margin: 4px 0; }
+.meaning-body ul { margin: 4px 0; padding-left: 18px; }
+.meaning-card details { margin-top: 8px; }
+.meaning-card summary { cursor: pointer; font-size: 12px; color: var(--ink-3); }
+.meaning-card details .meaning-label { margin-top: 8px; }
+
 /* R-7.90 (S-11) — subsystem progress roll-up */
 .rollup-bar-wrap { display: flex; align-items: center; gap: 10px; margin: 8px 0 6px; }
 .rollup-bar {

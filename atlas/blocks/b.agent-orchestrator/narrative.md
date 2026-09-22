@@ -56,3 +56,18 @@ post-gen warning doesn't.
 - The biggest takeaway from ponytail wasn't code — it was the axis:
   under-engineering (Principle II fights it) ↔ over-engineering (this steer
   trims it), contract in the middle as the calibration point.
+
+## 2026-09-22 — R-8.08: the meaning endpoint
+
+`atlas_api_server.mjs` gained `GET /atlas/blocks/<id>/meaning[?client=]`. It
+returns `blockMeaningSummary` from `scripts/block_meaning.mjs` (b.clarify)
+verbatim: the agent's declared frame, the trajectory, staleness, warnings.
+No parsing happens here or in the browser — the nightly report reads the same
+function, and b.clarify's selftest (group 9) asserts the API body equals the
+library's output. `client` is validated against a safe-id pattern (no `..`),
+unknown blocks return `not_found` rather than an empty all-clear.
+
+No new graph edge: this block already depends on b.clarify since R-8.08
+(`run_block_implementation.mjs` imports the same library). Status left at
+`review` — the addition is read-only and does not change what the existing
+acceptance claims; acceptance re-run below.

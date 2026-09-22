@@ -35,7 +35,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { readTrajectory, readUnderstanding, understandingStaleness } from './block_meaning.mjs';
+import { blockMeaningSummary } from './block_meaning.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(__filename), '..');
@@ -52,28 +52,18 @@ const graph = JSON.parse(fs.readFileSync(graphPath, 'utf8'));
 const rows = [];
 for (const b of graph.blocks || []) {
   if (b.status === 'archived') continue;
-  const missionPath = path.join(ATLAS, 'blocks', b.id, 'mission.md');
-  const mission = fs.existsSync(missionPath) ? fs.readFileSync(missionPath, 'utf8') : '';
-  const traj = readTrajectory(mission);
-  const u = readUnderstanding(b.id, ATLAS);
-  const stale = understandingStaleness(b.id, ATLAS);
-
-  const warnings = [];
-  if (traj.empty) warnings.push('trajectory heading present but empty — reads as declared while declaring nothing');
-  if (u.exists && !u.complete) {
-    const gaps = [...(u.missing || []).map((h) => `missing «${h}»`), ...(u.empty || []).map((h) => `empty «${h}»`)];
-    warnings.push(`understanding.md incomplete: ${gaps.join(', ')}`);
-  }
-  if (stale.stale) warnings.push(`understanding.md may be stale: ${stale.reason}`);
-
+  // Same reader as the canvas (via /atlas/blocks/<id>/meaning), so the report
+  // and the UI cannot disagree about one block.
+  const s = blockMeaningSummary(b.id, ATLAS);
+  const u = s.understanding;
   rows.push({
     block_id: b.id,
     status: b.status,
-    trajectory: Boolean(traj.text),
+    trajectory: s.trajectory.declared,
     understanding: u.exists ? (u.complete ? 'complete' : 'incomplete') : 'absent',
     treating_as: u.exists ? (u.sections?.treating_as || '').replace(/\s+/g, ' ').trim().slice(0, 160) : null,
-    stale: stale.stale,
-    warnings,
+    stale: s.stale.stale,
+    warnings: s.warnings,
   });
 }
 

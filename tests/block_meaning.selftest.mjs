@@ -209,9 +209,104 @@ const MISSION_RU = [
   fs.rmSync(tmp, { recursive: true, force: true });
 }
 
+// ── Group 9: one reader, three consumers (library, report, canvas API) ─────
+// T24 puts the agent's frame on the canvas. The canvas must not parse these
+// files itself: two parsers of one meaning drift apart (the R-8.06 lesson with
+// the two graph copies). So the API returns blockMeaningSummary verbatim, the
+// nightly report is built from it too, and this group holds all three to the
+// same answer on one synthetic atlas.
+{
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'sima-meaning-api-'));
+  const atlas = path.join(tmp, 'atlas');
+  const mk = (id, files) => {
+    const d = path.join(atlas, 'blocks', id);
+    fs.mkdirSync(d, { recursive: true });
+    for (const [name, body] of Object.entries(files)) fs.writeFileSync(path.join(d, name), body, 'utf8');
+    return d;
+  };
+  const full = UNDERSTANDING_SECTIONS.map((s) => `## ${s.heading}\n\n- ${s.key} text\n`).join('\n');
+  mk('b.full', { 'mission.md': MISSION_RU, 'understanding.md': `# u\n\n${full}` });
+  const staleDir = mk('b.stale', { 'mission.md': '# m\n\n## Trajectory\n\n', 'understanding.md': '## Treating this as\n\na cache\n' });
+  mk('b.bare', { 'mission.md': '# m\n\nПросто блок.\n' });
+  const old = Date.now() / 1000 - 3600;
+  fs.utimesSync(path.join(staleDir, 'understanding.md'), old, old);
+  fs.writeFileSync(path.join(atlas, 'graph.json'), JSON.stringify({ blocks: [
+    { id: 'b.full', status: 'wip' }, { id: 'b.stale', status: 'wip' }, { id: 'b.bare', status: 'wip' },
+  ] }), 'utf8');
+
+  const { blockMeaningSummary } = await import('../scripts/block_meaning.mjs');
+  const sf = blockMeaningSummary('b.full', atlas);
+  check('g9: summary — trajectory declared', sf.trajectory.declared === true && sf.trajectory.text.includes('общим сервисом'));
+  check('g9: summary — frame extracted', sf.understanding.exists && sf.understanding.complete && sf.understanding.sections.treating_as === '- treating_as text',
+    JSON.stringify(sf.understanding.sections?.treating_as));
+  check('g9: summary — no warnings on a clean block', sf.warnings.length === 0, JSON.stringify(sf.warnings));
+  const ss = blockMeaningSummary('b.stale', atlas);
+  check('g9: summary — empty trajectory heading is not «declared»', ss.trajectory.declared === false && ss.trajectory.empty === true);
+  check('g9: summary — stale + incomplete + empty-heading all warned', ss.stale.stale && ss.warnings.length === 3, JSON.stringify(ss.warnings));
+  const sb = blockMeaningSummary('b.bare', atlas);
+  check('g9: summary — absent declaration, absent trajectory, no warning', !sb.understanding.exists && !sb.trajectory.declared && sb.warnings.length === 0);
+
+  // The report reads the same summary.
+  const rep = spawnSync('node', [path.join(ROOT, 'scripts', 'validate_meaning.mjs'), '--json'],
+    { cwd: ROOT, encoding: 'utf8', env: { ...process.env, ATLAS_ROOT: atlas } });
+  let rows = [];
+  try { rows = JSON.parse(rep.stdout).rows; } catch { /* checked below */ }
+  const row = (id) => rows.find((r) => r.block_id === id) || {};
+  check('g9: report exits 0 even with warnings (a report, not a gate)', rep.status === 0, `status=${rep.status} ${rep.stderr.slice(0, 200)}`);
+  check('g9: report agrees with the summary on warnings', JSON.stringify(row('b.stale').warnings) === JSON.stringify(ss.warnings));
+  check('g9: report agrees on the frame', row('b.full').treating_as === '- treating_as text', row('b.full').treating_as);
+
+  // The canvas reads the same summary through the API.
+  const { spawn } = await import('node:child_process');
+  const http = await import('node:http');
+  const port = 55000 + Math.floor(Math.random() * 4000);
+  const server = spawn('node', ['scripts/atlas_api_server.mjs'], {
+    cwd: ROOT, stdio: 'pipe',
+    env: { ...process.env, ATLAS_ROOT: atlas, ATLAS_API_PORT: String(port), PORT: String(port) },
+  });
+  let serverErr = '';
+  server.stderr.on('data', (d) => { serverErr += String(d); });
+  const get = (url) => new Promise((resolve, reject) => {
+    const r = http.request({ host: '127.0.0.1', port, path: url, method: 'GET', timeout: 3000 }, (res) => {
+      let buf = ''; res.setEncoding('utf8');
+      res.on('data', (c) => { buf += c; });
+      res.on('end', () => { try { resolve(JSON.parse(buf)); } catch { resolve({ raw: buf }); } });
+    });
+    r.on('error', reject);
+    r.end();
+  });
+  const waitUp = async () => {
+    const t0 = Date.now();
+    for (;;) {
+      try { await get('/atlas/state'); return; } catch {
+        if (Date.now() - t0 > 8000) throw new Error(`server did not start: ${serverErr.slice(0, 300)}`);
+        await new Promise((r) => setTimeout(r, 100));
+      }
+    }
+  };
+  try {
+    await waitUp();
+    const a = await get('/atlas/blocks/b.full/meaning');
+    check('g9: API ok', a.ok === true, JSON.stringify(a).slice(0, 200));
+    const { ok: _ok, ...apiBody } = a;
+    check('g9: API returns the summary verbatim — no second parser', JSON.stringify(apiBody) === JSON.stringify(sf));
+    const st = await get('/atlas/blocks/b.stale/meaning');
+    check('g9: API carries the staleness the canvas warns about', st.stale?.stale === true && (st.stale.newer || []).includes('mission.md'));
+    const nf = await get('/atlas/blocks/b.nope/meaning');
+    check('g9: unknown block → not_found, not an empty «all clear»', nf.ok === false && nf.error === 'not_found', JSON.stringify(nf));
+    const bad = await get('/atlas/blocks/b.full/meaning?client=..');
+    check('g9: client path traversal refused', bad.ok === false && bad.error === 'invalid client', JSON.stringify(bad));
+  } catch (e) {
+    check('g9: API reachable', false, String(e.message || e));
+  } finally {
+    server.kill();
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+}
+
 if (failures.length) {
   console.error('block_meaning.selftest: FAIL');
   failures.forEach((f) => console.error(' ✗', f));
   process.exit(1);
 }
-console.log('block_meaning.selftest: OK (8 groups, all assertions green)');
+console.log('block_meaning.selftest: OK (9 groups, all assertions green)');

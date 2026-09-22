@@ -22,3 +22,18 @@
 - Enhance sync visibility (KPI-3, A4): Update the UI to visually highlight drift/broken blocks on the canvas with specific reasons derived from syncReport.details, not just file presence.
 - Establish b.agent-orchestrator connection: Implement the UI logic and API calls to trigger pipeline_execution from b.agent-orchestrator when a user initiates block lifecycle actions (Implement, Review, Done, Rollback, mark-dead).
 - Verify entry point consistency: Either update KPI-1 to reflect frontend/atlas_design/index.html as the primary entry point or ensure frontend/Сима - универсальный конструктор.html is the functional entry point.
+
+## 2026-09-22 — R-8.08: the agent's frame on the Overview panel
+
+New `MeaningSection` at the top of Overview (above Implementation Status):
+the line «Treating this as» from the executing agent's `understanding.md`,
+a warning when the contract changed after it was written, the
+«Assumed without asking» list, scope/variant under a disclosure, and the
+block's trajectory — or, when none is declared, how to add one. Data comes
+from `GET /atlas/blocks/<id>/meaning` (b.agent-orchestrator) via
+`SIMA_API.meta.blockMeaning`; the panel does not parse contract files for it.
+
+Checked in Chromium against the live API in three states — full declaration
+(b.clarify), stale + incomplete + empty trajectory heading, nothing declared —
+in RU and EN, no console errors. Asset versions bumped to `?v=r8-08` for the
+four changed files so a cached `panels.jsx` does not hide the section.

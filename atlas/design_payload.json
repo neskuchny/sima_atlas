@@ -46,18 +46,17 @@
       "size": "lg",
       "parent_block_id": null,
       "contract": {
-        "score": 0.6,
-        "filled": 3,
+        "score": 0.8,
+        "filled": 4,
         "total": 5,
         "missing": [
-          "depends_on.md",
           "provides.md"
         ]
       },
       "progress": {
         "tasks": {
-          "done": 0,
-          "total": 7
+          "done": 1,
+          "total": 8
         },
         "kpi": {
           "checked": 0,
@@ -704,8 +703,8 @@
       },
       "progress": {
         "tasks": {
-          "done": 17,
-          "total": 24
+          "done": 18,
+          "total": 25
         },
         "kpi": {
           "checked": 0,
@@ -1027,6 +1026,15 @@
         "id": "T7",
         "title": "Кнопка «Implement» вызывает `composer.jsx` со сгенерированным context-pack для агента — PR3",
         "status": "todo",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T8",
+        "title": ". Секция «🧭 Как агент понял этот блок» на панели «Обзор», выше Implementation Status: «Агент принял блок за», предупреждения об устаревании и неполноте, «Решено без вопроса», траектория или подсказка",
+        "status": "done",
         "priority": "P2",
         "agent": null,
         "why": "",
@@ -2692,7 +2700,16 @@
       },
       {
         "id": "T24",
-        "title": ". Строка «Treating this as» на карточке блока — оператор видит рамку агента, не открывая файл.",
+        "title": ". Рамка агента на панели «Обзор» блока — оператор видит «Treating this as», допущения, устаревание и траекторию, не открывая файл. Данные разбирает сервер той же функцией, что и ночной отчёт; канвас т",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T25",
+        "title": ". Метка на самом узле графа, когда объявление устарело или неполно — чтобы расхождение было видно без клика. Нужна сводка по всем блокам в потоке состояния канваса.",
         "status": "todo",
         "priority": "P2",
         "agent": null,
@@ -2901,7 +2918,7 @@
     }
   ],
   "_meta": {
-    "generated_at": "2026-09-22T17:40:57.120Z",
+    "generated_at": "2026-09-22T17:56:59.398Z",
     "atlas_root": "atlas",
     "client_id": null,
     "block_count": 21,

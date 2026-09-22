@@ -403,6 +403,104 @@ function TokenSpendWidget({ block_id }) {
   );
 }
 
+// R-8.08 (b.clarify T24) — the line the operator should read first: what the
+// agent took this block to be («Treating this as»), before any of the code.
+// A wrong frame produces code that still verifies green, so this is the one
+// place where the divergence is visible cheaply. Also shows where the block is
+// heading (the trajectory section of mission.md) or that nobody said.
+// Data comes pre-parsed from /atlas/blocks/<id>/meaning — the same reader the
+// nightly report uses — so the canvas never parses these files on its own.
+function MeaningSection({ meaning }) {
+  const t = window.__SIMA_T || ((_, fb) => fb);
+  const md = (s) => {
+    const src = String(s || '');
+    if (window.marked?.parse) return { __html: window.marked.parse(src) };
+    return { __html: `<div style="white-space:pre-wrap">${src.replace(/[<>&]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]))}</div>` };
+  };
+  const u = meaning.understanding || {};
+  const s = u.sections || {};
+  const traj = meaning.trajectory || {};
+  const stale = meaning.stale || {};
+  const firstLine = (txt, n = 140) => {
+    // The collapsed line is plain text, so markdown marks would show raw.
+    const flat = String(txt || '').replace(/`|\*\*/g, '').replace(/\s+/g, ' ').trim();
+    return flat.length > n ? flat.slice(0, n).trimEnd() + '…' : flat;
+  };
+  const gaps = [...(u.missing || []), ...(u.empty || [])];
+  const assumedCount = (String(s.assumed || '').match(/^\s*[-*]\s/gm) || []).length;
+  const declaredAt = u.declared_at ? u.declared_at.slice(0, 10) : '';
+
+  return (
+    <div className="ov-section">
+      <div className="ov-head">
+        <h3>
+          {t('meaning.title', '🧭 How the agent understood this block')}
+          <span className="ov-file">{u.exists ? `understanding.md · ${declaredAt}` : t('meaning.not_declared_tag', 'not declared')}</span>
+        </h3>
+      </div>
+
+      {u.exists ? (
+        <div className={`meaning-card${stale.stale ? ' meaning-stale' : ''}`}>
+          <div className="meaning-label">{t('meaning.treating_as', 'Treating this as')}</div>
+          {s.treating_as
+            ? <div className="meaning-frame">{s.treating_as.replace(/\s+/g, ' ').trim()}</div>
+            : <div className="meaning-note">{t('meaning.treating_as_empty', 'The agent left this empty — it did not say what it took the block to be.')}</div>}
+          <div className="meaning-note">{t('meaning.treating_as_hint', 'Read this line first. If it is the wrong kind of thing, the code built on it is wrong in the same direction — and will still pass acceptance.')}</div>
+
+          {stale.stale && (
+            <div className="meaning-warn">
+              {t('meaning.stale', 'The contract changed after this was written')}: {(stale.newer || []).join(', ')}. {t('meaning.stale_hint', 'The agent may have been working from an older version of the task — re-check this before accepting the work.')}
+            </div>
+          )}
+          {gaps.length > 0 && (
+            <div className="meaning-warn">{t('meaning.incomplete', 'Incomplete declaration — missing or empty')}: {gaps.join(', ')}</div>
+          )}
+
+          {s.assumed && (
+            <>
+              <div className="meaning-label" style={{ marginTop: 10 }}>
+                {t('meaning.assumed', 'Assumed without asking')}{assumedCount > 0 ? ` · ${assumedCount}` : ''}
+              </div>
+              <div className="meaning-body" dangerouslySetInnerHTML={md(s.assumed)} />
+            </>
+          )}
+
+          {(s.in_scope || s.out_of_scope || s.variant_chosen) && (
+            <details>
+              <summary>{t('meaning.more', 'Scope and the variant chosen')}</summary>
+              {s.in_scope && (<><div className="meaning-label">{t('meaning.in_scope', 'In scope')}</div><div className="meaning-body" dangerouslySetInnerHTML={md(s.in_scope)} /></>)}
+              {s.out_of_scope && (<><div className="meaning-label">{t('meaning.out_of_scope', 'Out of scope')}</div><div className="meaning-body" dangerouslySetInnerHTML={md(s.out_of_scope)} /></>)}
+              {s.variant_chosen && (<><div className="meaning-label">{t('meaning.variant_chosen', 'Variant chosen')}</div><div className="meaning-body" dangerouslySetInnerHTML={md(s.variant_chosen)} /></>)}
+            </details>
+          )}
+        </div>
+      ) : (
+        <div className="meaning-card">
+          <div className="meaning-note" style={{ marginTop: 0 }}>
+            {t('meaning.absent', 'The agent has not declared how it understood this block yet. The declaration appears after the first agent run: the agent writes understanding.md before any code.')}
+          </div>
+        </div>
+      )}
+
+      <div className="meaning-card">
+        <div className="meaning-label">{t('meaning.trajectory', 'Where this is heading')}</div>
+        {traj.declared ? (
+          <details>
+            <summary>{firstLine(traj.text)}</summary>
+            <div className="meaning-body" dangerouslySetInnerHTML={md(traj.text)} />
+          </details>
+        ) : traj.empty ? (
+          <div className="meaning-warn" style={{ marginTop: 0 }}>{t('meaning.trajectory_empty', 'The mission has a trajectory heading with nothing under it — the agent treats that as no trajectory.')}</div>
+        ) : (
+          <div className="meaning-note" style={{ marginTop: 0 }}>
+            {t('meaning.trajectory_absent', 'Not declared. When several implementations pass acceptance, the agent picks one itself and records it as an assumption. To steer that choice, add a «## Во что это вырастет» section to mission.md (Contract tab): two or three sentences on what this block should grow into.')}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSubsystem, onOpenTz, onClaudeAdvice, childBlocks, onSelect }) {
   const t = window.__SIMA_T || ((_, fb) => fb);
   // R-7.69 — Overview was reading legacy hardcoded MODULE_DESC for
@@ -429,10 +527,12 @@ function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSu
   const [semanticReview, setSemanticReview] = useState2(null); // R-7.94 Kanon verdict
   const [decisionsText, setDecisionsText] = useState2('');
   const [tasksText, setTasksText] = useState2('');
+  const [meaning, setMeaning] = useState2(null); // R-8.08 — agent's frame + trajectory
   const [loaded, setLoaded] = useState2(false);
 
   useEffect2(() => {
     setLoaded(false);
+    setMeaning(null);
     if (!m.id || !m.id.startsWith('b.')) { setLoaded(true); return; }
     let cancelled = false;
     const load = async (file) => {
@@ -443,13 +543,20 @@ function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSu
       } catch { return ''; }
     };
     (async () => {
-      const [mission, kpi, accept, deps, prov, narr, dec, tk, sem] = await Promise.all([
+      const loadMeaning = async () => {
+        try {
+          const r = await window.SIMA_API?.meta?.blockMeaning?.(m.id);
+          return r?.ok ? r : null;
+        } catch { return null; }
+      };
+      const [mission, kpi, accept, deps, prov, narr, dec, tk, sem, mean] = await Promise.all([
         load('mission.md'), load('kpi.md'), load('acceptance.md'),
         load('depends_on.md'), load('provides.md'),
         load('narrative.md'), load('decisions.log'), load('tasks.md'),
-        load('semantic_review.json'),
+        load('semantic_review.json'), loadMeaning(),
       ]);
       if (cancelled) return;
+      setMeaning(mean);
       const stripHead = (s) => s.replace(/^#[^\n]*\n+/, '').replace(/\n+##\s+Layer[\s\S]*$/i, '').trim();
       setMissionText(stripHead(mission));
       setKpiText(stripHead(kpi));
@@ -506,6 +613,8 @@ function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSu
         </div>
       )}
       <LayerPicker block={m} />
+
+      {meaning && <MeaningSection meaning={meaning} />}
 
       {/* R-7.86 — Implementation Status dashboard. Operator: «можно
           ли в модуле/блоке увидеть что реализовал?» — yes, this panel

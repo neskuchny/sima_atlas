@@ -12,6 +12,7 @@ import * as synthApi from './atlas_synthesis_api.mjs';
 import * as subsApi from './atlas_subsystems_api.mjs';
 import * as filesApi from './atlas_files_api.mjs';
 import { aggregateTokenEconomics } from './token_economics.mjs';
+import { blockMeaningSummary } from './block_meaning.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(__filename), '..');
@@ -502,6 +503,27 @@ const server = http.createServer((req, res) => {
         const p = path.join(root, 'blocks', block_id, name);
         if (!fs.existsSync(p)) return json(res, 200, { ok: false, error: 'not_found' });
         return json(res, 200, { ok: true, block_id, name, content: fs.readFileSync(p, 'utf8'), mtime: fs.statSync(p).mtime.toISOString() });
+      } catch (e) {
+        return json(res, 200, { ok: false, error: String(e.message || e) });
+      }
+    }
+  }
+  // R-8.08 (b.clarify T24) — how the executing agent understood this block
+  // (understanding.md), where the block is heading (the trajectory section of
+  // mission.md), and whether the declaration is stale. Parsed server-side by
+  // the same function the nightly report uses; the canvas only renders.
+  {
+    const m = req.method === 'GET' && req.url.match(/^\/atlas\/blocks\/([a-zA-Z0-9._-]+)\/meaning(?:\?(.*))?$/);
+    if (m) {
+      try {
+        const SAFE_ID = /^[a-zA-Z0-9_-][a-zA-Z0-9._-]*$/;
+        const block_id = m[1];
+        const clientArg = new URLSearchParams(m[2] || '').get('client') || '';
+        if (!SAFE_ID.test(block_id)) return json(res, 200, { ok: false, error: 'invalid block_id' });
+        if (clientArg && !SAFE_ID.test(clientArg)) return json(res, 200, { ok: false, error: 'invalid client' });
+        const root = clientArg ? path.join(ROOT, 'atlas', 'clients', clientArg) : ATLAS;
+        if (!fs.existsSync(path.join(root, 'blocks', block_id))) return json(res, 200, { ok: false, error: 'not_found' });
+        return json(res, 200, { ok: true, ...blockMeaningSummary(block_id, root) });
       } catch (e) {
         return json(res, 200, { ok: false, error: String(e.message || e) });
       }

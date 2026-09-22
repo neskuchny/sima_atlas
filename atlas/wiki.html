@@ -15,7 +15,7 @@
 </style>
 </head><body>
 <h1>Sima Atlas Wiki</h1>
-<p><em>Auto-generated: 2026-09-22T17:41:21.646Z</em></p>
+<p><em>Auto-generated: 2026-09-22T17:57:20.877Z</em></p>
 <h2>Граф продукта</h2>
 <div class="mermaid">flowchart TB
   classDef done    fill:#dcfce7,stroke:#16a34a,color:#15803d;
@@ -229,6 +229,7 @@ evidence_spec:
 <ul>
 <li>b.core-sync: sync_report</li>
 <li>b.agent-orchestrator: pipeline_execution</li>
+<li>b.agent-orchestrator: block<em>meaning</em>api</li>
 </ul>
 <h4>Files</h4>
 <h1>b.ui-control — files</h1>
@@ -237,11 +238,11 @@ evidence_spec:
 <li>frontend/atlas_sync.js [alive]</li>
 <li>frontend/atlas_bootstrap.js [alive] (auto-generated)</li>
 <li>frontend/atlas_design/index.html [alive] (R-7.30 — current canvas entry)</li>
-<li>frontend/atlas_design/panels.jsx [alive] (DetailPanel + Overview + AcceptanceSection + Implementation Status + Token Spend)</li>
+<li>frontend/atlas_design/panels.jsx [alive] (DetailPanel + Overview + AcceptanceSection + Implementation Status + Token Spend + R-8.08 MeaningSection: the agent's frame, assumptions, staleness, trajectory)</li>
 <li>frontend/atlas_design/views.jsx [alive] (composer, proposals Accept/Reject, modals)</li>
 <li>frontend/atlas_design/graph.jsx [alive] (canvas graph + edges + drill-down)</li>
 <li>frontend/atlas_design/tweaks-panel.jsx [alive]</li>
-<li>frontend/atlas<em>design/data</em>loader.js [alive] (live API loader + write-side SIMA_API)</li>
+<li>frontend/atlas<em>design/data</em>loader.js [alive] (live API loader + write-side SIMA_API; R-8.08: meta.blockMeaning)</li>
 <li>frontend/atlas<em>design/data</em>static.js [alive] (offline fallback demo)</li>
 <li>frontend/atlas_design/i18n.js [alive] (644-key EN/RU dictionary)</li>
 <li>frontend/atlas_design/styles.css [alive]</li>
@@ -667,6 +668,7 @@ evidence_spec:
 <h1>b.agent-orchestrator — provides</h1>
 <ul>
 <li>pipeline_execution</li>
+<li>block<em>meaning</em>api</li>
 </ul>
 <h4>Depends on</h4>
 <h1>b.agent-orchestrator — depends_on</h1>
@@ -682,7 +684,7 @@ evidence_spec:
 <h1>b.agent-orchestrator — files</h1>
 <ul>
 <li>scripts/mcp<em>atlas</em>server.mjs [alive] (21+ tools over JSON-RPC stdio)</li>
-<li>scripts/atlas<em>api</em>server.mjs [alive] (HTTP facade for orchestration)</li>
+<li>scripts/atlas<em>api</em>server.mjs [alive] (HTTP facade for orchestration; R-8.08: GET /atlas/blocks/&lt;id&gt;/meaning — blockMeaningSummary from b.clarify, served verbatim to the canvas)</li>
 <li>scripts/generate<em>cursor</em>hooks.mjs [alive] (PR4: emits valid Cursor format with real action scripts)</li>
 <li>scripts/validate<em>cursor</em>hooks.mjs [alive] (PR4: gate; fails if hooks.json has wrong shape or missing scripts)</li>
 <li>scripts/observe<em>file</em>edit.mjs [alive] (PR4: afterFileEdit action — files.md → block reverse-map)</li>
@@ -6097,6 +6099,10 @@ evidence_spec:
 <li>2026-09-22T17:41:15.293Z: smoke e2e distillate</li>
 <li>2026-09-22T17:41:21.463Z: smoke e2e queued insight</li>
 <li>2026-09-22T17:41:21.515Z: smoke e2e distillate</li>
+<li>2026-09-22T17:57:14.734Z: smoke e2e queued insight</li>
+<li>2026-09-22T17:57:14.779Z: smoke e2e distillate</li>
+<li>2026-09-22T17:57:20.724Z: smoke e2e queued insight</li>
+<li>2026-09-22T17:57:20.768Z: smoke e2e distillate</li>
 </ul>
 <h4>Files</h4>
 <h1>b.smoke-sandbox — files</h1>
@@ -6626,7 +6632,7 @@ evidence_spec:
   file: scripts/nightly_consolidation.mjs
   pattern: "clarify_block.selftest"</code></pre>
 <ul>
-<li>[x] <strong>A8.</strong> Selftest направления «человек → модель» зелёный: русские заголовки траектории распознаются (регрессия <code>\b</code> после кириллицы), границы секции, пустой заголовок отличается от отсутствия, разбор <code>understanding.md</code>, устаревание по mtime, E2E-промпт агента несёт траекторию ровно один раз и Step 0 до «How much to build», mock даёт <code>operative_frame: null</code>.</li>
+<li>[x] <strong>A8.</strong> Selftest направления «человек → модель» зелёный: русские заголовки траектории распознаются (регрессия <code>\b</code> после кириллицы), границы секции, пустой заголовок отличается от отсутствия, разбор <code>understanding.md</code>, устаревание по mtime, E2E-промпт агента несёт траекторию ровно один раз и Step 0 до «How much to build», mock даёт <code>operative_frame: null</code>, API канваса отдаёт ту же сводку, что и библиотека, дословно (второго парсера нет), отчёт с ней совпадает.</li>
 </ul>
 <pre><code class="lang-yaml">evidence_kind: selftest_run
 evidence_spec:
@@ -6722,13 +6728,13 @@ evidence_spec:
 <ul>
 <li>scripts/clarify_block.mjs [alive] (R-8.06: протокол вопроса + маркеры неопределённости + append-only Q→A лог + снятие маркера без остатка. Экспортирует clarifyBlock / normalizeQuestions / findMarkers / blockMarkers / appendAnswers / resolveMarker)</li>
 <li>scripts/validate_clarifications.mjs [alive] (R-8.06: гейт — done-блок не может нести открытый маркер; review → warning; idea/wip → info, чтобы черновик оставался свободным)</li>
-<li>scripts/block_meaning.mjs [alive] (R-8.08: направление «человек → модель». Экспортирует readTrajectory / trajectoryPromptLines — секция «Во что это вырастет» в mission.md и её подача агенту; understandingPromptLines / parseUnderstanding / readUnderstanding / understandingStaleness — объявление понимания агентом до кода)</li>
+<li>scripts/block_meaning.mjs [alive] (R-8.08: направление «человек → модель». Экспортирует readTrajectory / trajectoryPromptLines — секция «Во что это вырастет» в mission.md и её подача агенту; understandingPromptLines / parseUnderstanding / readUnderstanding / understandingStaleness — объявление понимания агентом до кода; blockMeaningSummary — единый читатель для ночного отчёта и канваса)</li>
 <li>scripts/validate_meaning.mjs [alive] (R-8.08: отчёт, не гейт — траектория, наличие/полнота/устаревание understanding.md по блокам. Условия повышения до гейта и снятия — в шапке файла)</li>
 </ul>
 <h2>Тесты</h2>
 <ul>
 <li>tests/clarify_block.selftest.mjs [alive] (R-8.06: 10 групп — порядок enum, честная деградация на mock, пустой контракт, отбраковка ярлыка, отбраковка вопроса без выбора, сортировка по impact, поиск маркеров, append-only лог, снятие маркера, срабатывание done-гейта)</li>
-<li>tests/block<em>meaning.selftest.mjs [alive] (R-8.08: 8 групп — кириллические заголовки траектории, границы секции, пустой против отсутствующего, строки промпта, разбор understanding.md, устаревание по mtime, E2E-промпт на одноразовом клиенте, operative</em>frame на mock)</li>
+<li>tests/block<em>meaning.selftest.mjs [alive] (R-8.08: 9 групп — кириллические заголовки траектории, границы секции, пустой против отсутствующего, строки промпта, разбор understanding.md, устаревание по mtime, E2E-промпт на одноразовом клиенте, operative</em>frame на mock, один читатель на трёх потребителей: библиотека = отчёт = API канваса)</li>
 </ul>
 <h2>Контракт</h2>
 <ul>

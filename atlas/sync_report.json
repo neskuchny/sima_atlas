@@ -1,6 +1,6 @@
 {
   "contractValidation": {
-    "checkedAt": "2026-09-22T17:41:17.323Z",
+    "checkedAt": "2026-09-22T17:57:16.817Z",
     "total": 21,
     "broken": 0,
     "details": []
@@ -11,8 +11,8 @@
     "details": []
   },
   "codeGraphDrift": {
-    "checkedAt": "2026-09-22T17:41:13.239Z",
-    "driftCount": 29,
+    "checkedAt": "2026-09-22T17:57:12.995Z",
+    "driftCount": 30,
     "details": [
       {
         "kind": "provided_capability_not_exported",
@@ -142,6 +142,55 @@
         "kind": "provided_capability_not_exported",
         "severity": "warning",
         "block": "b.agent-orchestrator",
+        "capability": "block_meaning_api",
+        "scanned_files": [
+          "scripts/agent_workspace.mjs",
+          "scripts/analyze_conversation_to_atlas.mjs",
+          "scripts/atlas_api_server.mjs",
+          "scripts/auto_sync_iteration.mjs",
+          "scripts/build_context_pack.mjs",
+          "scripts/finalize_cursor_iteration.mjs",
+          "scripts/generate_agent_contracts.mjs",
+          "scripts/generate_cursor_hooks.mjs",
+          "scripts/guard_against_drift.mjs",
+          "scripts/inject_context_pack.mjs",
+          "scripts/mcp_atlas_server.mjs",
+          "scripts/observe_file_edit.mjs",
+          "scripts/pipeline_step.mjs",
+          "scripts/run_block_implementation.mjs",
+          "scripts/run_block_process.mjs",
+          "scripts/run_state.mjs",
+          "scripts/simulate_conversation_branches.mjs",
+          "scripts/sync_context_packs.mjs",
+          "scripts/validate_cursor_hooks.mjs",
+          "tests/agent_parity_real.smoke.mjs",
+          "tests/agent_workspace.selftest.mjs",
+          "tests/cursor_hooks_actions.test.mjs",
+          "tests/run_state.selftest.mjs"
+        ],
+        "exported_names_in_block": [
+          "ACTIVE_STATES",
+          "ALLOWED_TRANSITIONS",
+          "TERMINAL_STATES",
+          "cancelRun",
+          "captureDiff",
+          "cleanupWorkspace",
+          "createWorkspace",
+          "detectStalledRuns",
+          "getRun",
+          "listRuns",
+          "listWorkspaces",
+          "startRun",
+          "transitionRunState",
+          "writeDiffProposal",
+          "x"
+        ],
+        "hint": "«block_meaning_api» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.agent-orchestrator/provides.md."
+      },
+      {
+        "kind": "provided_capability_not_exported",
+        "severity": "warning",
+        "block": "b.agent-orchestrator",
         "capability": "pipeline_execution",
         "scanned_files": [
           "scripts/agent_workspace.mjs",
@@ -209,6 +258,7 @@
           "VERDICT_ENUM",
           "appendAnswers",
           "blockMarkers",
+          "blockMeaningSummary",
           "clarifyBlock",
           "findMarkers",
           "normalizeFrame",
@@ -245,6 +295,7 @@
           "VERDICT_ENUM",
           "appendAnswers",
           "blockMarkers",
+          "blockMeaningSummary",
           "clarifyBlock",
           "findMarkers",
           "normalizeFrame",
@@ -281,6 +332,7 @@
           "VERDICT_ENUM",
           "appendAnswers",
           "blockMarkers",
+          "blockMeaningSummary",
           "clarifyBlock",
           "findMarkers",
           "normalizeFrame",
@@ -317,6 +369,7 @@
           "VERDICT_ENUM",
           "appendAnswers",
           "blockMarkers",
+          "blockMeaningSummary",
           "clarifyBlock",
           "findMarkers",
           "normalizeFrame",
@@ -353,6 +406,7 @@
           "VERDICT_ENUM",
           "appendAnswers",
           "blockMarkers",
+          "blockMeaningSummary",
           "clarifyBlock",
           "findMarkers",
           "normalizeFrame",
@@ -802,8 +856,8 @@
     ]
   },
   "dependencyValidation": {
-    "checkedAt": "2026-09-22T17:41:17.200Z",
-    "totalDepsChecked": 38,
+    "checkedAt": "2026-09-22T17:57:16.706Z",
+    "totalDepsChecked": 39,
     "broken": 0,
     "details": []
   }

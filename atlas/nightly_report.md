@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-09-22T17:40:46.607Z_
+_Generated: 2026-09-22T17:56:49.977Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -18,7 +18,7 @@ _Generated: 2026-09-22T17:40:46.607Z_
   - output: build_code_graph --check: code_graph.json up-to-date
 - ✅ code_graph_drift: ok
 - ✅ code_graph_extractor_selftest: ok
-  - output: deterministic — sha256(606c2d0ad639…) matches across runs
+  - output: deterministic — sha256(47d3e2d695e9…) matches across runs
 - ✅ code_graph_validator_selftest: ok
   - output: code_graph_validator.selftest: OK (6 test groups, all assertions green)
 - ✅ checks_append_endpoint_selftest: ok
@@ -52,7 +52,7 @@ _Generated: 2026-09-22T17:40:46.607Z_
 - ✅ clarifications: ok
   - output: validate_clarifications: 0 open marker(s), 0 question(s) answered on record — OK
 - ✅ block_meaning_selftest: ok
-  - output: block_meaning.selftest: OK (8 groups, all assertions green)
+  - output: block_meaning.selftest: OK (9 groups, all assertions green)
 - ✅ meaning_report: ok
   - output: · b.clarify (done) — trajectory, understanding: complete
 - ✅ atlas_selftest: ok
@@ -66,7 +66,7 @@ _Generated: 2026-09-22T17:40:46.607Z_
 - ✅ operator_profile_selftest: ok
   - output: operator_profile.selftest: OK (7 test groups, all assertions green)
 - ✅ aggregate_operator_profile: ok
-  - output: operator_profile: live (done=12, invocations=14, traces=2156, proposals=24)
+  - output: operator_profile: live (done=12, invocations=14, traces=2354, proposals=26)
 - ✅ operator_profile_lessons_smoke: ok
   - output: operator_profile_lessons.smoke: OK (6 test groups, all assertions green)
 - ✅ operator_profile_inject_smoke: ok

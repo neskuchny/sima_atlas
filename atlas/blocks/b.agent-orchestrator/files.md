@@ -1,7 +1,7 @@
 # b.agent-orchestrator — files
 
 - scripts/mcp_atlas_server.mjs [alive] (21+ tools over JSON-RPC stdio)
-- scripts/atlas_api_server.mjs [alive] (HTTP facade for orchestration)
+- scripts/atlas_api_server.mjs [alive] (HTTP facade for orchestration; R-8.08: GET /atlas/blocks/<id>/meaning — blockMeaningSummary from b.clarify, served verbatim to the canvas)
 - scripts/generate_cursor_hooks.mjs [alive] (PR4: emits valid Cursor format with real action scripts)
 - scripts/validate_cursor_hooks.mjs [alive] (PR4: gate; fails if hooks.json has wrong shape or missing scripts)
 - scripts/observe_file_edit.mjs [alive] (PR4: afterFileEdit action — files.md → block reverse-map)

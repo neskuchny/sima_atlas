@@ -287,6 +287,12 @@
       if (client) qs.set('client', client);
       return await getJson('/atlas/blocks/' + encodeURIComponent(block_id) + '/file?' + qs.toString());
     },
+    // R-8.08 — trajectory + the agent's declared understanding, parsed
+    // server-side by the same reader the nightly report uses.
+    blockMeaning: async (block_id)         => {
+      const qs = client ? '?client=' + encodeURIComponent(client) : '';
+      return await getJson('/atlas/blocks/' + encodeURIComponent(block_id) + '/meaning' + qs);
+    },
     clientsList:   async ()                => await getJson('/atlas/clients/list'),
     clientCreate:  async (id)              => await postJson('/atlas/clients/create', { id }),
     // Phase R-7.4 — nuke client state when stale data blocks creating new

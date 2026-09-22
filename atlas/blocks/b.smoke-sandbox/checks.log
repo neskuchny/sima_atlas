@@ -4936,3 +4936,11 @@
 2026-09-22T17:41:21.356Z  smoke  pass  nightly smoke e2e
 2026-09-22T17:41:21.463Z	ingestion	pass	queue applied
 2026-09-22T17:41:21.515Z	ingestion	pass	distillate saved
+2026-09-22T17:57:14.623Z  sync  pass  update_block
+2026-09-22T17:57:14.624Z  smoke  pass  nightly smoke e2e
+2026-09-22T17:57:14.734Z	ingestion	pass	queue applied
+2026-09-22T17:57:14.779Z	ingestion	pass	distillate saved
+2026-09-22T17:57:20.630Z  sync  pass  update_block
+2026-09-22T17:57:20.631Z  smoke  pass  nightly smoke e2e
+2026-09-22T17:57:20.724Z	ingestion	pass	queue applied
+2026-09-22T17:57:20.768Z	ingestion	pass	distillate saved

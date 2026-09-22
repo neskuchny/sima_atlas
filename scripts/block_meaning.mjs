@@ -26,7 +26,8 @@
 //
 // Library:
 //   import { readTrajectory, trajectoryPromptLines, understandingPromptLines,
-//            parseUnderstanding, readUnderstanding, understandingStaleness } from './block_meaning.mjs';
+//            parseUnderstanding, readUnderstanding, understandingStaleness,
+//            blockMeaningSummary } from './block_meaning.mjs';
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -216,5 +217,48 @@ export function understandingStaleness(blockId, atlasRoot = DEFAULT_ATLAS) {
     stale: newer.length > 0,
     reason: newer.length ? `contract changed after the declaration: ${newer.join(', ')}` : 'up to date',
     newer,
+  };
+}
+
+/**
+ * Everything the operator needs to see about meaning transfer for one block,
+ * in one object. The single reader for both the nightly report and the canvas
+ * (via the API), so the two can never parse the same files differently.
+ */
+export function blockMeaningSummary(blockId, atlasRoot = DEFAULT_ATLAS) {
+  const missionPath = path.join(atlasRoot, 'blocks', blockId, 'mission.md');
+  const mission = fs.existsSync(missionPath) ? fs.readFileSync(missionPath, 'utf8') : '';
+  const traj = readTrajectory(mission);
+  const u = readUnderstanding(blockId, atlasRoot);
+  const stale = understandingStaleness(blockId, atlasRoot);
+
+  const warnings = [];
+  if (traj.empty) warnings.push('trajectory heading present but empty — reads as declared while declaring nothing');
+  if (u.exists && !u.complete) {
+    const gaps = [...(u.missing || []).map((h) => `missing «${h}»`), ...(u.empty || []).map((h) => `empty «${h}»`)];
+    warnings.push(`understanding.md incomplete: ${gaps.join(', ')}`);
+  }
+  if (stale.stale) warnings.push(`understanding.md may be stale: ${stale.reason}`);
+
+  return {
+    block_id: blockId,
+    trajectory: {
+      declared: Boolean(traj.text),
+      empty: traj.empty,
+      heading: traj.heading,
+      text: traj.text,
+    },
+    understanding: u.exists
+      ? {
+        exists: true,
+        complete: u.complete,
+        missing: u.missing,
+        empty: u.empty,
+        sections: u.sections,
+        declared_at: new Date(u.mtimeMs).toISOString(),
+      }
+      : { exists: false },
+    stale: { stale: stale.stale, reason: stale.reason, newer: stale.newer },
+    warnings,
   };
 }

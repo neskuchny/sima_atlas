@@ -218,6 +218,12 @@
     {
       "examples": [
         {
+          "from_file": "scripts/atlas_api_server.mjs",
+          "kind": "static",
+          "line": 15,
+          "to_file": "scripts/block_meaning.mjs"
+        },
+        {
           "from_file": "scripts/run_block_implementation.mjs",
           "kind": "static",
           "line": 29,
@@ -1072,22 +1078,6 @@
         },
         {
           "external": false,
-          "from": "./sima_fill_from_chat.mjs",
-          "kind": "dynamic",
-          "line": 1380,
-          "resolved_to": "scripts/sima_fill_from_chat.mjs",
-          "specifiers": []
-        },
-        {
-          "external": false,
-          "from": "./sima_watch_chats.mjs",
-          "kind": "dynamic",
-          "line": 1396,
-          "resolved_to": "scripts/sima_watch_chats.mjs",
-          "specifiers": []
-        },
-        {
-          "external": false,
           "from": "./token_economics.mjs",
           "kind": "static",
           "line": 14,
@@ -1101,9 +1091,38 @@
         },
         {
           "external": false,
+          "from": "./sima_fill_from_chat.mjs",
+          "kind": "dynamic",
+          "line": 1402,
+          "resolved_to": "scripts/sima_fill_from_chat.mjs",
+          "specifiers": []
+        },
+        {
+          "external": false,
+          "from": "./sima_watch_chats.mjs",
+          "kind": "dynamic",
+          "line": 1418,
+          "resolved_to": "scripts/sima_watch_chats.mjs",
+          "specifiers": []
+        },
+        {
+          "external": false,
+          "from": "./block_meaning.mjs",
+          "kind": "static",
+          "line": 15,
+          "resolved_to": "scripts/block_meaning.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "blockMeaningSummary"
+            }
+          ]
+        },
+        {
+          "external": false,
           "from": "./screenshot_block.mjs",
           "kind": "dynamic",
-          "line": 1506,
+          "line": 1528,
           "resolved_to": "scripts/screenshot_block.mjs",
           "specifiers": []
         },
@@ -1189,15 +1208,7 @@
           "external": false,
           "from": "./scripts/regenerate_user_docs_drift.mjs",
           "kind": "dynamic",
-          "line": 769,
-          "resolved_to": null,
-          "specifiers": []
-        },
-        {
-          "external": false,
-          "from": "./scripts/regenerate_user_docs_drift.mjs",
-          "kind": "dynamic",
-          "line": 780,
+          "line": 791,
           "resolved_to": null,
           "specifiers": []
         },
@@ -1216,6 +1227,14 @@
         },
         {
           "external": false,
+          "from": "./scripts/regenerate_user_docs_drift.mjs",
+          "kind": "dynamic",
+          "line": 802,
+          "resolved_to": null,
+          "specifiers": []
+        },
+        {
+          "external": false,
           "from": "./atlas_artifacts_api.mjs",
           "kind": "static",
           "line": 9,
@@ -1231,7 +1250,7 @@
           "external": false,
           "from": "./architecture_decisions_api.mjs",
           "kind": "dynamic",
-          "line": 915,
+          "line": 937,
           "resolved_to": "scripts/architecture_decisions_api.mjs",
           "specifiers": []
         }
@@ -1332,47 +1351,52 @@
       "exports": [
         {
           "kind": "named",
-          "line": 100,
+          "line": 101,
           "name": "trajectoryPromptLines"
         },
         {
           "kind": "named",
-          "line": 124,
+          "line": 125,
           "name": "UNDERSTANDING_FILE"
         },
         {
           "kind": "named",
-          "line": 127,
+          "line": 128,
           "name": "UNDERSTANDING_SECTIONS"
         },
         {
           "kind": "named",
-          "line": 156,
+          "line": 157,
           "name": "understandingPromptLines"
         },
         {
           "kind": "named",
-          "line": 172,
+          "line": 173,
           "name": "parseUnderstanding"
         },
         {
           "kind": "named",
-          "line": 195,
+          "line": 196,
           "name": "readUnderstanding"
         },
         {
           "kind": "named",
-          "line": 207,
+          "line": 208,
           "name": "understandingStaleness"
         },
         {
           "kind": "named",
-          "line": 42,
+          "line": 228,
+          "name": "blockMeaningSummary"
+        },
+        {
+          "kind": "named",
+          "line": 43,
           "name": "TRAJECTORY_HEADINGS"
         },
         {
           "kind": "named",
-          "line": 70,
+          "line": 71,
           "name": "readTrajectory"
         }
       ],
@@ -1381,7 +1405,7 @@
           "external": true,
           "from": "node:fs",
           "kind": "static",
-          "line": 31,
+          "line": 32,
           "resolved_to": null,
           "specifiers": [
             {
@@ -1394,7 +1418,7 @@
           "external": true,
           "from": "node:path",
           "kind": "static",
-          "line": 32,
+          "line": 33,
           "resolved_to": null,
           "specifiers": [
             {
@@ -1407,7 +1431,7 @@
           "external": true,
           "from": "node:url",
           "kind": "static",
-          "line": 33,
+          "line": 34,
           "resolved_to": null,
           "specifiers": [
             {
@@ -4776,15 +4800,7 @@
           "specifiers": [
             {
               "kind": "named",
-              "name": "readTrajectory"
-            },
-            {
-              "kind": "named",
-              "name": "readUnderstanding"
-            },
-            {
-              "kind": "named",
-              "name": "understandingStaleness"
+              "name": "blockMeaningSummary"
             }
           ]
         }
@@ -5371,6 +5387,14 @@
           "external": false,
           "from": "../scripts/block_meaning.mjs",
           "kind": "dynamic",
+          "line": 237,
+          "resolved_to": "scripts/block_meaning.mjs",
+          "specifiers": []
+        },
+        {
+          "external": false,
+          "from": "../scripts/block_meaning.mjs",
+          "kind": "dynamic",
           "line": 25,
           "resolved_to": "scripts/block_meaning.mjs",
           "specifiers": []
@@ -5381,6 +5405,22 @@
           "kind": "dynamic",
           "line": 26,
           "resolved_to": "scripts/clarify_block.mjs",
+          "specifiers": []
+        },
+        {
+          "external": true,
+          "from": "node:child_process",
+          "kind": "dynamic",
+          "line": 260,
+          "resolved_to": null,
+          "specifiers": []
+        },
+        {
+          "external": true,
+          "from": "node:http",
+          "kind": "dynamic",
+          "line": 261,
+          "resolved_to": null,
           "specifiers": []
         }
       ],

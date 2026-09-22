@@ -40,17 +40,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/clarify_block.selftest.mjs → exit 0 (294ms); first line: \"clarify_block.selftest: OK (10 groups, all assertions green)\"",
+      "evidence": "node tests/clarify_block.selftest.mjs → exit 0 (272ms); first line: \"clarify_block.selftest: OK (10 groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/clarify_block.selftest.mjs",
         "exit_code": 0,
         "stdout": "clarify_block.selftest: OK (10 groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 294,
+        "duration_ms": 272,
         "timed_out": false
       },
-      "duration_ms": 294
+      "duration_ms": 272
     },
     {
       "id": "A3",
@@ -63,17 +63,17 @@
         "cmd": "ATLAS_FORCE_MOCK_LLM=1 node scripts/clarify_block.mjs b.desktop --json | grep -q '\"verdict\": \"inconclusive\"'"
       },
       "verdict": "pass",
-      "evidence": "ATLAS_FORCE_MOCK_LLM=1 node scripts/clarify_block.mjs b.desktop --json | grep -q '\"verdict\": \"inconclusive\"' → exit 0 (75ms); first line: \"\"",
+      "evidence": "ATLAS_FORCE_MOCK_LLM=1 node scripts/clarify_block.mjs b.desktop --json | grep -q '\"verdict\": \"inconclusive\"' → exit 0 (69ms); first line: \"\"",
       "reasoning": "shell exit code 0",
       "raw": {
         "cmd": "ATLAS_FORCE_MOCK_LLM=1 node scripts/clarify_block.mjs b.desktop --json | grep -q '\"verdict\": \"inconclusive\"'",
         "exit_code": 0,
         "stdout": "",
         "stderr": "",
-        "duration_ms": 75,
+        "duration_ms": 69,
         "timed_out": false
       },
-      "duration_ms": 75
+      "duration_ms": 69
     },
     {
       "id": "A4",
@@ -123,7 +123,7 @@
           "  ['clarifications', 'node scripts/validate_clarifications.mjs'],"
         ]
       },
-      "duration_ms": 1
+      "duration_ms": 0
     },
     {
       "id": "A6",
@@ -137,17 +137,17 @@
         "expect_in_stdout": "open marker"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_clarifications.mjs → exit 0 (77ms); first line: \"validate_clarifications: 0 open marker(s), 0 question(s) answered on record — OK\"",
+      "evidence": "node scripts/validate_clarifications.mjs → exit 0 (73ms); first line: \"validate_clarifications: 0 open marker(s), 0 question(s) answered on record — OK\"",
       "reasoning": "shell exit code 0 and stdout matches /open marker/",
       "raw": {
         "cmd": "node scripts/validate_clarifications.mjs",
         "exit_code": 0,
         "stdout": "validate_clarifications: 0 open marker(s), 0 question(s) answered on record — OK\n",
         "stderr": "",
-        "duration_ms": 77,
+        "duration_ms": 73,
         "timed_out": false
       },
-      "duration_ms": 77
+      "duration_ms": 73
     },
     {
       "id": "A7",
@@ -177,7 +177,7 @@
     {
       "id": "A8",
       "label": null,
-      "text": "Selftest направления «человек → модель» зелёный: русские заголовки траектории распознаются (регрессия `\\b` после кириллицы), границы секции, пустой заголовок отличается от отсутствия, разбор `understanding.md`, устаревание по mtime, E2E-промпт агента несёт траекторию ровно один раз и Step 0 до «How much to build», mock даёт `operative_frame: null`.",
+      "text": "Selftest направления «человек → модель» зелёный: русские заголовки траектории распознаются (регрессия `\\b` после кириллицы), границы секции, пустой заголовок отличается от отсутствия, разбор `understanding.md`, устаревание по mtime, E2E-промпт агента несёт траекторию ровно один раз и Step 0 до «How much to build», mock даёт `operative_frame: null`, API канваса отдаёт ту же сводку, что и библиотека, дословно (второго парсера нет), отчёт с ней совпадает.",
       "checked": true,
       "line": 71,
       "evidence_kind": "selftest_run",
@@ -186,17 +186,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/block_meaning.selftest.mjs → exit 0 (381ms); first line: \"block_meaning.selftest: OK (8 groups, all assertions green)\"",
+      "evidence": "node tests/block_meaning.selftest.mjs → exit 0 (672ms); first line: \"block_meaning.selftest: OK (9 groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/block_meaning.selftest.mjs",
         "exit_code": 0,
-        "stdout": "block_meaning.selftest: OK (8 groups, all assertions green)\n",
+        "stdout": "block_meaning.selftest: OK (9 groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 381,
+        "duration_ms": 672,
         "timed_out": false
       },
-      "duration_ms": 381
+      "duration_ms": 672
     },
     {
       "id": "A9",
@@ -221,7 +221,7 @@
           "  ...understandingPromptLines(blockDirRelForPrompt),"
         ]
       },
-      "duration_ms": 1
+      "duration_ms": 0
     },
     {
       "id": "A10",
@@ -235,17 +235,17 @@
         "expect_in_stdout": "not a gate"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_meaning.mjs → exit 0 (78ms); first line: \" · b.clarify (done) — trajectory, understanding: complete\"",
+      "evidence": "node scripts/validate_meaning.mjs → exit 0 (54ms); first line: \" · b.clarify (done) — trajectory, understanding: complete\"",
       "reasoning": "shell exit code 0 and stdout matches /not a gate/",
       "raw": {
         "cmd": "node scripts/validate_meaning.mjs",
         "exit_code": 0,
-        "stdout": " · b.clarify (done) — trajectory, understanding: complete\n     treating as: Two additions to the contract the coding agent receives, plus a small reader library — not a new arbiter. The closest known analogue is a pull-request descripti\nvalidate_meaning: 19 blocks — 1 with a declared trajectory, 1 with a declared understanding, 0 with warnings (report only, not a gate)\n",
-        "stderr": "",
-        "duration_ms": 78,
+        "stdout": " · b.clarify (done) — trajectory, understanding: complete\n     treating as: Two additions to the contract the coding agent receives, plus a small reader library — not a new arbiter. The closest known analogue is a pull-request descripti\nvalidate_meaning: 19 blocks — 1 with a declared trajectory, 1 with a declared understanding, 1 with warnings (report only, not a gate)\n",
+        "stderr": " ⚠ b.clarify: understanding.md may be stale: contract changed after the declaration: acceptance.md\n",
+        "duration_ms": 54,
         "timed_out": false
       },
-      "duration_ms": 78
+      "duration_ms": 54
     },
     {
       "id": "A11",
@@ -270,7 +270,7 @@
           "  ['meaning_report', 'node scripts/validate_meaning.mjs'],"
         ]
       },
-      "duration_ms": 1
+      "duration_ms": 0
     },
     {
       "id": "A12",
@@ -295,7 +295,7 @@
           "  ['block_meaning_selftest', 'node tests/block_meaning.selftest.mjs'],"
         ]
       },
-      "duration_ms": 0
+      "duration_ms": 1
     }
   ],
   "counts": {
@@ -305,6 +305,6 @@
   },
   "verdict": "pass",
   "inconclusive_if_declared": 1,
-  "duration_ms": 911,
-  "checked_at": "2026-09-22T17:41:20.172Z"
+  "duration_ms": 1143,
+  "checked_at": "2026-09-22T17:57:19.638Z"
 }
