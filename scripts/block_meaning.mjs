@@ -37,6 +37,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
+import { lintContract } from './contract_lint.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(__filename), '..');
@@ -450,7 +451,11 @@ export function frameGate(blockId, atlasRoot = DEFAULT_ATLAS) {
     changed = understandingStaleness(blockId, atlasRoot).newer;
   }
   const stale = changed.length > 0;
-  const common = { ...base, understanding_sha: usha, stale, stale_basis: staleBasis, changed, last_event: last };
+  const common = {
+    ...base, understanding_sha: usha, stale, stale_basis: staleBasis, changed, last_event: last,
+    // R-8.12 — which record the contract is compared against (for the delta).
+    anchor: anchor ? { event: anchor.event, ts: anchor.ts, contract_files: anchor.contract_files || {} } : null,
+  };
   if (last && last.event === 'confirmed' && !stale) {
     return { ...common, state: 'confirmed', next: 'implement', confirmed_at: last.ts, reason: 'the operator confirmed this frame for the current contract' };
   }
@@ -468,6 +473,7 @@ export function recordDeclared({ block_id, atlas_root = DEFAULT_ATLAS, run_id = 
   const u = readUnderstanding(block_id, atlas_root);
   if (!u.exists) throw new Error(`recordDeclared: ${block_id} has no ${UNDERSTANDING_FILE}`);
   const contract = contractFingerprint(block_id, atlas_root);
+  snapshotContract(block_id, atlas_root, contract);
   appendFrameReview(block_id, atlas_root, {
     event: 'declared', understanding_sha: understandingSha(u.text),
     contract_hash: contract.hash, contract_files: contract.files,
@@ -497,12 +503,110 @@ export function recordFrameReview({ block_id, atlas_root = DEFAULT_ATLAS, verdic
     if (text.length > 4000) throw new Error('a correction is limited to 4000 characters');
   }
   const contract = contractFingerprint(block_id, atlas_root);
+  snapshotContract(block_id, atlas_root, contract);
   appendFrameReview(block_id, atlas_root, {
     event: verdict, understanding_sha: gate.understanding_sha,
     contract_hash: contract.hash, contract_files: contract.files, actor,
     ...(verdict === 'corrected' ? { correction: text, previous_frame: u.sections.treating_as || null } : {}),
   });
   return frameGate(block_id, atlas_root);
+}
+
+// ── contract delta since the confirmation (R-8.12, after OpenSpec deltas) ───
+// When the frame goes stale the operator used to see «mission.md changed».
+// OpenSpec's point is that a change should be read as a delta of
+// requirements — added / modified / removed — not as a file. So every
+// declaration and every answer snapshots the contract (by content hash, so
+// identical versions are stored once), and the delta is computed per unit of
+// meaning: acceptance assertions by id (A1…), KPIs by number (KPI-1…), the
+// rest by section heading.
+export const SNAPSHOT_DIR = 'frame_snapshots';
+
+function snapshotPath(atlasRoot, blockId, file, hash) {
+  return path.join(atlasRoot, 'blocks', blockId, SNAPSHOT_DIR, `${file}@${hash}`);
+}
+
+/** Store the current contract texts under their fingerprint hashes. */
+export function snapshotContract(blockId, atlasRoot = DEFAULT_ATLAS, contract = contractFingerprint(blockId, atlasRoot)) {
+  for (const f of CONTRACT_FILES) {
+    const h = contract.files[f];
+    if (!h) continue;
+    const dest = snapshotPath(atlasRoot, blockId, f, h);
+    if (fs.existsSync(dest)) continue;
+    fs.mkdirSync(path.dirname(dest), { recursive: true });
+    fs.copyFileSync(path.join(atlasRoot, 'blocks', blockId, f), dest);
+  }
+}
+
+/** Split a contract file into units of meaning: Map<key, text>. */
+export function contractUnits(file, text) {
+  const units = new Map();
+  let key = '(начало)';
+  let buf = [];
+  const flush = () => {
+    const t = buf.join('\n').trim();
+    if (t) units.set(key, units.has(key) ? `${units.get(key)}\n${t}` : t);
+    buf = [];
+  };
+  for (const line of String(text || '').replace(/\r\n/g, '\n').split('\n')) {
+    let k = null;
+    if (file === 'acceptance.md') { const m = line.match(/^- \[[ xX]\] \*\*(A\d+)/); if (m) k = m[1]; }
+    if (file === 'kpi.md') { const m = line.match(/^- \*\*(KPI-\d+)/); if (m) k = m[1]; }
+    if (!k) { const h = line.match(/^#{2,3}\s+(.+?)\s*$/); if (h) k = h[1]; }
+    if (k) { flush(); key = k; }
+    buf.push(line);
+  }
+  flush();
+  return units;
+}
+
+/**
+ * What changed in the contract since the record the frame is anchored to
+ * (the confirmation, or the declaration). Per file: added / removed /
+ * modified units, or { available: false } when that version was never
+ * snapshotted (declarations made before R-8.12, or an mtime-only anchor).
+ */
+export function contractDelta(blockId, atlasRoot = DEFAULT_ATLAS, gate = frameGate(blockId, atlasRoot)) {
+  if (!gate.stale || !gate.anchor) {
+    return { since: null, files: [], available: Boolean(gate.anchor) };
+  }
+  const current = contractFingerprint(blockId, atlasRoot);
+  const files = [];
+  for (const f of CONTRACT_FILES) {
+    const was = gate.anchor.contract_files[f] || null;
+    const now = current.files[f] || null;
+    if (was === now) continue;
+    const snap = was ? snapshotPath(atlasRoot, blockId, f, was) : null;
+    if (was && !fs.existsSync(snap)) { files.push({ file: f, available: false }); continue; }
+    const before = was ? fs.readFileSync(snap, 'utf8') : '';
+    const after = now ? fs.readFileSync(path.join(atlasRoot, 'blocks', blockId, f), 'utf8') : '';
+    const u0 = contractUnits(f, before);
+    const u1 = contractUnits(f, after);
+    const norm = (t) => normalizeContractText(t);
+    const added = [...u1.keys()].filter((k) => !u0.has(k)).map((k) => ({ key: k, text: u1.get(k) }));
+    const removed = [...u0.keys()].filter((k) => !u1.has(k)).map((k) => ({ key: k, text: u0.get(k) }));
+    const modified = [...u1.keys()].filter((k) => u0.has(k) && norm(u0.get(k)) !== norm(u1.get(k)))
+      .map((k) => ({ key: k, before: u0.get(k), after: u1.get(k) }));
+    files.push({ file: f, available: true, added, removed, modified });
+  }
+  return { since: { event: gate.anchor.event, ts: gate.anchor.ts }, files, available: files.every((x) => x.available) };
+}
+
+/** Prompt lines telling a re-declaring agent what changed. */
+export function deltaPromptLines(delta, { maxChars = 600 } = {}) {
+  if (!delta || !delta.files || !delta.files.length) return [];
+  const cut = (t) => { const s = String(t || '').trim(); return s.length > maxChars ? `${s.slice(0, maxChars)}…` : s; };
+  const lines = [
+    `## What changed in the contract since your previous declaration was ${delta.since?.event === 'confirmed' ? 'confirmed by the operator' : 'written'}`,
+    'Re-declare against the contract as it is now; say under «Variant chosen» or «Assumed without asking» how these changes moved your frame.',
+  ];
+  for (const f of delta.files) {
+    if (!f.available) { lines.push(`- ${f.file}: changed (the earlier version was not snapshotted — read the file).`); continue; }
+    for (const a of f.added) lines.push(`- ${f.file} ADDED «${a.key}»:\n${cut(a.text)}`);
+    for (const r of f.removed) lines.push(`- ${f.file} REMOVED «${r.key}» (was):\n${cut(r.text)}`);
+    for (const m of f.modified) lines.push(`- ${f.file} MODIFIED «${m.key}»\n  before:\n${cut(m.before)}\n  now:\n${cut(m.after)}`);
+  }
+  return lines;
 }
 
 /**
@@ -567,6 +671,10 @@ export function blockMeaningSummary(blockId, atlasRoot = DEFAULT_ATLAS) {
         agent: gate.last_event.agent || null, actor: gate.last_event.actor || null,
       } : null,
     },
+    // R-8.12 — what changed in the contract since the frame's anchor (only
+    // when stale), and whether the contract is written so it can be checked.
+    delta: gate.stale ? contractDelta(blockId, atlasRoot, gate) : null,
+    quality: (() => { const q = lintContract(blockId, atlasRoot); return { counts: q.counts, findings: q.findings }; })(),
     warnings,
   };
 }

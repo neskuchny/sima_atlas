@@ -3,12 +3,13 @@
 ## Код
 - scripts/clarify_block.mjs [alive] (R-8.06: протокол вопроса + маркеры неопределённости + append-only Q→A лог + снятие маркера без остатка. Экспортирует clarifyBlock / normalizeQuestions / findMarkers / blockMarkers / appendAnswers / resolveMarker)
 - scripts/validate_clarifications.mjs [alive] (R-8.06: гейт — done-блок не может нести открытый маркер; review → warning; idea/wip → info, чтобы черновик оставался свободным)
-- scripts/block_meaning.mjs [alive] (R-8.08: направление «человек → модель». Экспортирует readTrajectory / trajectoryPromptLines — секция «Во что это вырастет» в mission.md и её подача агенту; understandingPromptLines / parseUnderstanding / readUnderstanding / understandingStaleness — объявление понимания агентом до кода; blockMeaningSummary — единый читатель для ночного отчёта и канваса; R-8.09: frameGate / recordDeclared / recordFrameReview / contractFingerprint — шлюз «объявил → человек подтвердил → код», declarePhasePromptLines / implementPhasePromptLines / operatorLanguage — промпты двух фаз на языке миссии; R-8.10: setTrajectory — запись секции траектории, которую readTrajectory прочитает ровно так же)
+- scripts/block_meaning.mjs [alive] (R-8.08: направление «человек → модель». Экспортирует readTrajectory / trajectoryPromptLines — секция «Во что это вырастет» в mission.md и её подача агенту; understandingPromptLines / parseUnderstanding / readUnderstanding / understandingStaleness — объявление понимания агентом до кода; blockMeaningSummary — единый читатель для ночного отчёта и канваса (R-8.12: плюс delta и quality); R-8.09: frameGate / recordDeclared / recordFrameReview / contractFingerprint — шлюз «объявил → человек подтвердил → код», declarePhasePromptLines / implementPhasePromptLines / operatorLanguage — промпты двух фаз на языке миссии; R-8.10: setTrajectory — запись секции траектории, которую readTrajectory прочитает ровно так же)
+- scripts/contract_lint.mjs [alive] (R-8.12: детерминированная проверка формулировок — размытые слова без меры, KPI без проверки и замера, KPI с «✗» в своём тексте, KPI без номеров; отчёт, не гейт)
 - scripts/validate_meaning.mjs [alive] (R-8.08: отчёт, не гейт — траектория, наличие/полнота/устаревание understanding.md по блокам. Условия повышения до гейта и снятия — в шапке файла)
 
 ## Тесты
 - tests/clarify_block.selftest.mjs [alive] (R-8.06: 10 групп — порядок enum, честная деградация на mock, пустой контракт, отбраковка ярлыка, отбраковка вопроса без выбора, сортировка по impact, поиск маркеров, append-only лог, снятие маркера, срабатывание done-гейта)
-- tests/block_meaning.selftest.mjs [alive] (R-8.08/R-8.10: 11 групп — кириллические заголовки траектории, границы секции, пустой против отсутствующего, строки промпта, разбор understanding.md, устаревание по mtime, operative_frame на mock, один читатель для отчёта и библиотеки, шлюз как машина состояний, язык объявления и промпты двух фаз, запись траектории. Сквозные проверки оркестратора — в tests/frame_gate_flow.selftest.mjs, у b.agent-orchestrator)
+- tests/block_meaning.selftest.mjs [alive] (R-8.08/R-8.12: 13 групп — кириллические заголовки траектории, границы секции, пустой против отсутствующего, строки промпта, разбор understanding.md, устаревание по mtime, operative_frame на mock, один читатель для отчёта и библиотеки, шлюз как машина состояний, язык объявления и промпты двух фаз, запись траектории, снимки и разница контракта по единицам смысла, правила проверки формулировок. Сквозные проверки оркестратора — в tests/frame_gate_flow.selftest.mjs, у b.agent-orchestrator)
 
 ## Контракт
 - atlas/blocks/b.clarify/mission.md [alive]
@@ -25,3 +26,4 @@
 - atlas/blocks/b.clarify/checks.log [alive]
 - atlas/blocks/b.clarify/understanding.md [alive] (R-8.08/R-8.09: объявленная рамка самого блока — написана до кода, как требует собственный протокол)
 - atlas/blocks/b.clarify/frame_reviews.jsonl [alive] (R-8.09: append-only журнал шлюза — объявлено / верно / не так; из него выводится состояние, и он же корпус поправок)
+- atlas/blocks/b.clarify/frame_snapshots/ [alive] (R-8.12: снимки контракта по хэшу содержимого — с чем сравнивать, когда рамка устарела)

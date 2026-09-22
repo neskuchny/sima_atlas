@@ -34,6 +34,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { callLLM } from './llm_gateway.mjs';
+import { appendConvergenceTasks } from './convergence_log.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(__filename), '..');
@@ -256,6 +257,14 @@ const COST_CAP = Number(process.env.SEMANTIC_VERIFY_COST_CAP_USD || 0.05);
         `\n## ${result.checked_at} · semantic verify · ${safe.overall}\n\n### Contract-as-Arbiter judgment\n- ${safe.summary}\n\n### To genuinely satisfy the contract\n${(safe.todo_to_pass || []).map((t) => `- ${t}`).join('\n') || '- (none)'}\n`);
     }
   } catch {}
+  // R-8.12 — a live judge's gaps become append-only tasks (Spec Kit converge).
+  // A mock / no-key run asks for nothing and writes nothing here.
+  if (hasRealVerdict && (safe.todo_to_pass || []).length) {
+    try {
+      const c = appendConvergenceTasks(dir, safe.todo_to_pass, { date: result.checked_at.slice(0, 10), provider: result.provider });
+      result.convergence = c;
+    } catch { /* the narrative entry above still records the list */ }
+  }
 
   if (JSON_OUT) { process.stdout.write(JSON.stringify(result, null, 2) + '\n'); return; }
   const mark = (v) => v === 'pass' ? '✓' : v === 'fail' ? '✗' : '~';

@@ -174,3 +174,14 @@ block is not done. Rewritten to what is checked in each mode. And the
 acceptance YAML reader does not unescape `\\` — my first grep assertion
 passed vacuously because of it; validate_acceptance_assertions now rejects a
 doubled backslash in any evidence block.
+
+## 2026-09-22 — R-8.12: the judge's gaps become tasks (Spec Kit converge)
+
+`semantic_verify.mjs` already wrote its «to genuinely satisfy the contract»
+list into narrative.md as prose, and into semantic_review.json (overwritten
+every run). Now a live verdict's list is also appended to tasks.md under
+«## Convergence (semantic judge, append-only)» as C1, C2 … with the date and
+the judge: on the Tasks tab with a done state, and picked up by the next
+agent run like any unchecked task. Append-only: a todo already listed —
+ticked or not, other case or spacing — is not added again; nothing is ever
+removed. On the mock the judge asks for nothing and nothing is written.

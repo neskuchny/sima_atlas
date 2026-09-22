@@ -174,6 +174,22 @@ test('meaning panel: marker, badge, answer without a run, trajectory', async ({ 
   expect(last.actor).toBe('operator (canvas)');
   expect(fs.existsSync(path.join(CDIR, 'agent_invocations')), 'no agent run was started').toBe(false);
 
+  // R-8.12 — the contract changes after the confirmation: the panel says what
+  // changed, unit by unit (OpenSpec-style delta), not just «acceptance.md».
+  const g2 = await generatedAt(page);
+  const acc = path.join(CDIR, 'blocks', 'b.await', 'acceptance.md');
+  fs.writeFileSync(acc, fs.readFileSync(acc, 'utf8').replace('CSV открывается в Excel', 'CSV открывается в Excel и LibreOffice'));
+  await waitForRemount(page, g2);
+  await expect(section.locator('.meaning-delta')).toContainText('Что изменилось в контракте', { timeout: 10_000 });
+  await expect(section.locator('.delta-modified summary')).toContainText('acceptance.md «A1»');
+  await section.locator('.delta-modified summary').click();
+  await expect(section.locator('.delta-modified')).toContainText('LibreOffice');
+
+  // R-8.12 — the wording section is there (Spec Kit checklist, deterministic).
+  await expect(page.locator('.ov-head h3', { hasText: '📝 Формулировка контракта' })).toHaveCount(1);
+  // …and it is the second health stripe in Implementation Status.
+  await expect(page.locator('.impl-status-row', { hasText: 'Формулировка контракта' })).toHaveCount(1);
+
   // Trajectory on the block that has none.
   await page.click('[data-mid="b.plain"]');
   const plain = page.locator('.ov-section', { has: page.locator('.meaning-card') }).first();

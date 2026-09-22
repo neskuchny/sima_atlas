@@ -5,6 +5,7 @@
       "files": [
         "scripts/cascade_verify.mjs",
         "scripts/collect_evidence.mjs",
+        "scripts/convergence_log.mjs",
         "scripts/judge_assertion.mjs",
         "scripts/parse_acceptance.mjs",
         "scripts/semantic_verify.mjs",
@@ -14,6 +15,7 @@
         "scripts/verify_cache.mjs",
         "scripts/verify_done_blocks_still_green.mjs",
         "tests/acceptance_verifier.e2e.smoke.mjs",
+        "tests/convergence_log.selftest.mjs",
         "tests/desync_restore.selftest.mjs",
         "tests/evidence_collectors.selftest.mjs",
         "tests/llm_judge.smoke.mjs",
@@ -79,6 +81,7 @@
       "files": [
         "scripts/block_meaning.mjs",
         "scripts/clarify_block.mjs",
+        "scripts/contract_lint.mjs",
         "scripts/validate_clarifications.mjs",
         "scripts/validate_meaning.mjs",
         "tests/block_meaning.selftest.mjs",
@@ -2414,117 +2417,142 @@
       "exports": [
         {
           "kind": "named",
-          "line": 113,
+          "line": 114,
           "name": "DEFAULT_TRAJECTORY_HEADING"
         },
         {
           "kind": "named",
-          "line": 114,
+          "line": 115,
           "name": "setTrajectory"
         },
         {
           "kind": "named",
-          "line": 148,
+          "line": 149,
           "name": "trajectoryPromptLines"
         },
         {
           "kind": "named",
-          "line": 177,
+          "line": 178,
           "name": "UNDERSTANDING_FILE"
         },
         {
           "kind": "named",
-          "line": 180,
+          "line": 181,
           "name": "UNDERSTANDING_SECTIONS"
         },
         {
           "kind": "named",
-          "line": 212,
+          "line": 213,
           "name": "operatorLanguage"
         },
         {
           "kind": "named",
-          "line": 231,
+          "line": 232,
           "name": "understandingPromptLines"
         },
         {
           "kind": "named",
-          "line": 253,
+          "line": 254,
           "name": "declarePhasePromptLines"
         },
         {
           "kind": "named",
-          "line": 287,
+          "line": 288,
           "name": "implementPhasePromptLines"
         },
         {
           "kind": "named",
-          "line": 299,
+          "line": 300,
           "name": "parseUnderstanding"
         },
         {
           "kind": "named",
-          "line": 322,
+          "line": 323,
           "name": "readUnderstanding"
         },
         {
           "kind": "named",
-          "line": 336,
+          "line": 337,
           "name": "understandingStaleness"
         },
         {
           "kind": "named",
-          "line": 363,
+          "line": 364,
           "name": "FRAME_REVIEWS_FILE"
         },
         {
           "kind": "named",
-          "line": 369,
+          "line": 370,
           "name": "normalizeContractText"
         },
         {
           "kind": "named",
-          "line": 376,
+          "line": 377,
           "name": "contractFingerprint"
         },
         {
           "kind": "named",
-          "line": 385,
+          "line": 386,
           "name": "understandingSha"
         },
         {
           "kind": "named",
-          "line": 389,
+          "line": 390,
           "name": "readFrameReviews"
         },
         {
           "kind": "named",
-          "line": 419,
+          "line": 420,
           "name": "frameGate"
         },
         {
           "kind": "named",
-          "line": 467,
+          "line": 472,
           "name": "recordDeclared"
         },
         {
           "kind": "named",
-          "line": 48,
+          "line": 49,
           "name": "TRAJECTORY_HEADINGS"
         },
         {
           "kind": "named",
-          "line": 484,
+          "line": 490,
           "name": "recordFrameReview"
         },
         {
           "kind": "named",
-          "line": 513,
+          "line": 523,
+          "name": "SNAPSHOT_DIR"
+        },
+        {
+          "kind": "named",
+          "line": 530,
+          "name": "snapshotContract"
+        },
+        {
+          "kind": "named",
+          "line": 542,
+          "name": "contractUnits"
+        },
+        {
+          "kind": "named",
+          "line": 569,
+          "name": "contractDelta"
+        },
+        {
+          "kind": "named",
+          "line": 596,
+          "name": "deltaPromptLines"
+        },
+        {
+          "kind": "named",
+          "line": 617,
           "name": "blockMeaningSummary"
         },
         {
           "kind": "named",
-          "line": 76,
+          "line": 77,
           "name": "readTrajectory"
         }
       ],
@@ -2578,6 +2606,19 @@
             {
               "kind": "named",
               "name": "fileURLToPath"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "./contract_lint.mjs",
+          "kind": "static",
+          "line": 40,
+          "resolved_to": "scripts/contract_lint.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "lintContract"
             }
           ]
         }
@@ -3546,6 +3587,105 @@
             {
               "kind": "named",
               "name": "lookupVerifyCache"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.acceptance-verifier-loop"
+    },
+    "scripts/contract_lint.mjs": {
+      "exports": [
+        {
+          "kind": "named",
+          "line": 121,
+          "name": "kpiMentions"
+        },
+        {
+          "kind": "named",
+          "line": 140,
+          "name": "lintContract"
+        }
+      ],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 44,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 45,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 46,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.clarify"
+    },
+    "scripts/convergence_log.mjs": {
+      "exports": [
+        {
+          "kind": "named",
+          "line": 24,
+          "name": "CONVERGENCE_HEADING"
+        },
+        {
+          "kind": "named",
+          "line": 31,
+          "name": "appendConvergenceTasks"
+        }
+      ],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 21,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 22,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
             }
           ]
         }
@@ -5890,7 +6030,7 @@
           "external": false,
           "from": "./distill_run_log.mjs",
           "kind": "dynamic",
-          "line": 703,
+          "line": 708,
           "resolved_to": "scripts/distill_run_log.mjs",
           "specifiers": []
         },
@@ -5898,7 +6038,7 @@
           "external": false,
           "from": "./reflect_after_run.mjs",
           "kind": "dynamic",
-          "line": 712,
+          "line": 717,
           "resolved_to": "scripts/reflect_after_run.mjs",
           "specifiers": []
         },
@@ -5906,7 +6046,7 @@
           "external": false,
           "from": "./summarize_block_code.mjs",
           "kind": "dynamic",
-          "line": 722,
+          "line": 727,
           "resolved_to": "scripts/summarize_block_code.mjs",
           "specifiers": []
         },
@@ -5914,7 +6054,7 @@
           "external": false,
           "from": "./cleanup_block_memory.mjs",
           "kind": "dynamic",
-          "line": 732,
+          "line": 737,
           "resolved_to": "scripts/cleanup_block_memory.mjs",
           "specifiers": []
         }
@@ -6393,6 +6533,19 @@
             {
               "kind": "named",
               "name": "callLLM"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "./convergence_log.mjs",
+          "kind": "static",
+          "line": 37,
+          "resolved_to": "scripts/convergence_log.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "appendConvergenceTasks"
             }
           ]
         }
@@ -9265,6 +9418,22 @@
           "line": 299,
           "resolved_to": "scripts/block_meaning.mjs",
           "specifiers": []
+        },
+        {
+          "external": false,
+          "from": "../scripts/block_meaning.mjs",
+          "kind": "dynamic",
+          "line": 320,
+          "resolved_to": "scripts/block_meaning.mjs",
+          "specifiers": []
+        },
+        {
+          "external": false,
+          "from": "../scripts/contract_lint.mjs",
+          "kind": "dynamic",
+          "line": 364,
+          "resolved_to": "scripts/contract_lint.mjs",
+          "specifiers": []
         }
       ],
       "owning_block": "b.clarify"
@@ -10085,6 +10254,68 @@
         }
       ],
       "owning_block": "b.ui-control"
+    },
+    "tests/convergence_log.selftest.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 6,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:os",
+          "kind": "static",
+          "line": 7,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 8,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "../scripts/convergence_log.mjs",
+          "kind": "static",
+          "line": 9,
+          "resolved_to": "scripts/convergence_log.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "appendConvergenceTasks"
+            },
+            {
+              "kind": "named",
+              "name": "CONVERGENCE_HEADING"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.acceptance-verifier-loop"
     },
     "tests/cursor_hooks_actions.test.mjs": {
       "exports": [],

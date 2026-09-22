@@ -93,3 +93,15 @@ with `npm run test:ui`. The existing `playwright.config.js` waited for
 `frontend/index.html`, which no longer exists, so `npm run test:e2e` could
 not start at all; fixed. The older canvas specs still point at pages that
 are gone and fail on their own — left as they are.
+
+## 2026-09-22 — R-8.12: the delta and the wording on Overview
+
+When a confirmed frame goes stale, the review bar now lists what changed in
+the contract since the confirmation — «+ acceptance.md «A4» added»,
+«~ «A1» changed» with was / now, «− «A3» removed» — instead of a file name.
+A new «📝 Contract wording» section lists what b.clarify's contract_lint
+found (vague word without a measure, a KPI nothing checks, a KPI whose own
+text says ✗), and «Contract wording» is the second health row in
+Implementation Status. Both come in the same meaning summary; the canvas does
+not parse contract files. The Playwright spec now changes a confirmed
+block's acceptance and checks the delta on screen (4/4 stable).

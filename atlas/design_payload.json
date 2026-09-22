@@ -55,8 +55,8 @@
       },
       "progress": {
         "tasks": {
-          "done": 9,
-          "total": 16
+          "done": 10,
+          "total": 17
         },
         "kpi": {
           "checked": 0,
@@ -297,7 +297,7 @@
     },
     {
       "id": "b.acceptance-verifier-loop",
-      "_raw_updated_at": "2026-09-22T20:21:41.555Z",
+      "_raw_updated_at": "2026-09-22T20:56:02.826Z",
       "title": "Acceptance Verifier Loop",
       "tag": "acceptance-verifier-loop",
       "layer": "tests",
@@ -323,11 +323,9 @@
         }
       },
       "frame": {
-        "state": "stale",
+        "state": "awaiting",
         "incomplete": false,
-        "changed": [
-          "kpi.md"
-        ]
+        "changed": []
       },
       "tech_stack": [
         "nodejs",
@@ -691,7 +689,7 @@
     },
     {
       "id": "b.clarify",
-      "_raw_updated_at": "2026-09-22T18:25:54.515Z",
+      "_raw_updated_at": "2026-09-22T20:56:02.774Z",
       "title": "Clarification Arbiter",
       "tag": "clarify",
       "layer": "logic",
@@ -710,8 +708,8 @@
       },
       "progress": {
         "tasks": {
-          "done": 27,
-          "total": 33
+          "done": 31,
+          "total": 36
         },
         "kpi": {
           "checked": 0,
@@ -1132,6 +1130,15 @@
       {
         "id": "T16",
         "title": ". Автотест в браузере (`npm run test:ui`); починен `playwright.config.js`.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T17",
+        "title": ". R-8.12: разница контракта с момента подтверждения на «Обзоре» (добавлено / изменено / удалено, было / стало) и секция «Формулировка контракта» + строка в Implementation Status.",
         "status": "done",
         "priority": "P2",
         "agent": null,
@@ -2824,6 +2831,33 @@
         "accept": ""
       },
       {
+        "id": "T34",
+        "title": ". Снимки контракта при объявлении и ответе оператора (по хэшу содержимого) и разница по единицам смысла: A1…, KPI-1…, разделы миссии.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T35",
+        "title": ". Разница на «Обзоре», когда рамка устарела, и в промпте переобъявления.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T36",
+        "title": ". `contract_lint.mjs`: проверка формулировок без LLM; отчёт в nightly; секция «Формулировка контракта» и строка в Implementation Status.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
         "id": "T12",
         "title": ". Подсветка блока с открытыми маркерами на графе.",
         "status": "todo",
@@ -2843,8 +2877,8 @@
       },
       {
         "id": "T14",
-        "title": ". Вторая полоса здоровья блока — «качество формулировки» отдельно от «состояния приёмки».",
-        "status": "todo",
+        "title": ". Вторая полоса здоровья блока — «качество формулировки» отдельно от «состояния приёмки» (R-8.12: строка «Формулировка контракта» + секция на «Обзоре»).",
+        "status": "done",
         "priority": "P2",
         "agent": null,
         "why": "",
@@ -2975,34 +3009,6 @@
   "lanes": [],
   "history": [
     {
-      "ts": "15:18",
-      "module": "user-docs-generator",
-      "agent": "sima-core",
-      "kind": "info",
-      "msg": "b.user-docs-generator: done → wip"
-    },
-    {
-      "ts": "17:29",
-      "module": "core-sync",
-      "agent": "sima-core",
-      "kind": "info",
-      "msg": "b.core-sync: done → wip"
-    },
-    {
-      "ts": "17:29",
-      "module": "core-sync",
-      "agent": "sima-core",
-      "kind": "info",
-      "msg": "b.core-sync: wip → review"
-    },
-    {
-      "ts": "17:29",
-      "module": "core-sync",
-      "agent": "sima-core",
-      "kind": "ok",
-      "msg": "b.core-sync: review → done"
-    },
-    {
       "ts": "17:31",
       "module": "clarify",
       "agent": "sima-core",
@@ -3057,6 +3063,34 @@
       "agent": "sima-core",
       "kind": "info",
       "msg": "b.acceptance-verifier-loop: wip → review"
+    },
+    {
+      "ts": "20:45",
+      "module": "clarify",
+      "agent": "sima-core",
+      "kind": "info",
+      "msg": "b.clarify: review → wip"
+    },
+    {
+      "ts": "20:45",
+      "module": "acceptance-verifier-loop",
+      "agent": "sima-core",
+      "kind": "info",
+      "msg": "b.acceptance-verifier-loop: review → wip"
+    },
+    {
+      "ts": "20:56",
+      "module": "clarify",
+      "agent": "sima-core",
+      "kind": "info",
+      "msg": "b.clarify: wip → review"
+    },
+    {
+      "ts": "20:56",
+      "module": "acceptance-verifier-loop",
+      "agent": "sima-core",
+      "kind": "info",
+      "msg": "b.acceptance-verifier-loop: wip → review"
     }
   ],
   "lessons": [],
@@ -3088,7 +3122,7 @@
     }
   ],
   "_meta": {
-    "generated_at": "2026-09-22T20:21:55.866Z",
+    "generated_at": "2026-09-22T20:56:18.695Z",
     "atlas_root": "atlas",
     "client_id": null,
     "block_count": 21,

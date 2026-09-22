@@ -48,6 +48,7 @@ import {
   readTrajectory, trajectoryPromptLines, understandingPromptLines,
   frameGate, recordDeclared, readUnderstanding, understandingSha, operatorLanguage,
   declarePhasePromptLines, implementPhasePromptLines,
+  contractDelta, deltaPromptLines,
 } from './block_meaning.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -321,6 +322,10 @@ if (phase === 'declare') {
       correction: gate.state === 'corrected' ? gate.correction : null,
       previousFrame: gate.state === 'corrected' ? gate.previous_frame : null,
     }),
+    '',
+    // R-8.12 — the contract changed under a declared frame: say what changed,
+    // unit by unit, instead of «mission.md changed».
+    ...(gate.state === 'stale' ? deltaPromptLines(contractDelta(blockId, ATLAS, gate)) : []),
     '',
     'Use the section below when you write «In scope» and «Out of scope»: it is what the implementation run will be held to.',
     ...rightSizePart,

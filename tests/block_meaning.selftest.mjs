@@ -314,9 +314,106 @@ const MISSION_RU = [
   check('g12: a mission without «## Layer» gets it appended', readTrajectory(setTrajectory('# m\n\nx\n', 'y')).text === 'y');
 }
 
+// ── Group 13: the contract delta since the anchor (R-8.12, OpenSpec deltas) ─
+{
+  const { recordDeclared, recordFrameReview, frameGate, contractDelta, deltaPromptLines, contractUnits, SNAPSHOT_DIR } =
+    await import('../scripts/block_meaning.mjs');
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'sima-delta-'));
+  const d = path.join(tmp, 'blocks', 'b.d');
+  fs.mkdirSync(d, { recursive: true });
+  const w = (f, t) => fs.writeFileSync(path.join(d, f), t, 'utf8');
+  w('mission.md', '# b.d — mission\n\nЭкспорт отчётов.\n\n## Во что это вырастет\n\nОбщий сервис.\n\n## Layer\nlogic\n');
+  w('acceptance.md', '# a\n\n- [ ] **A1.** CSV opens in Excel.\n- [ ] **A2.** Dates are UTC.\n- [ ] **A3.** Old rule.\n');
+  w('kpi.md', '# k\n\n- **KPI-1 (speed)**: export < 2 s.\n- **KPI-2 (size)**: < 10 MB.\n');
+  w('understanding.md', UNDERSTANDING_SECTIONS.map((s) => `## ${s.heading}\n\nx\n`).join('\n'));
+
+  recordDeclared({ block_id: 'b.d', atlas_root: tmp });
+  const snaps = fs.readdirSync(path.join(d, SNAPSHOT_DIR));
+  check('g13: a declaration snapshots the contract files', ['mission.md', 'acceptance.md', 'kpi.md'].every((f) => snaps.some((s) => s.startsWith(`${f}@`))), snaps.join(', '));
+  recordFrameReview({ block_id: 'b.d', atlas_root: tmp, verdict: 'confirmed' });
+  check('g13: an identical version is stored once', fs.readdirSync(path.join(d, SNAPSHOT_DIR)).length === snaps.length);
+  check('g13: no delta while the frame is current', contractDelta('b.d', tmp).files.length === 0);
+
+  w('acceptance.md', '# a\n\n- [x] **A1.** CSV opens in Excel and LibreOffice.\n- [ ] **A2.** Dates are UTC.\n- [ ] **A4.** New rule.\n');
+  w('kpi.md', '# k\n\n- **KPI-1 (speed)**: export < 1 s.\n- **KPI-2 (size)**: < 10 MB.\n');
+  w('mission.md', '# b.d — mission\n\nЭкспорт отчётов.\n\n## Во что это вырастет\n\nОбщий сервис для трёх продуктов.\n\n## Layer\nlogic\n');
+  const g = frameGate('b.d', tmp);
+  const delta = contractDelta('b.d', tmp, g);
+  const of = (f) => delta.files.find((x) => x.file === f) || {};
+  check('g13: stale after the confirmation', g.state === 'stale' && delta.since?.event === 'confirmed', `${g.state} ${JSON.stringify(delta.since)}`);
+  check('g13: acceptance — A4 added, A3 removed, A1 modified, A2 untouched',
+    JSON.stringify(of('acceptance.md').added.map((x) => x.key)) === '["A4"]'
+    && JSON.stringify(of('acceptance.md').removed.map((x) => x.key)) === '["A3"]'
+    && JSON.stringify(of('acceptance.md').modified.map((x) => x.key)) === '["A1"]', JSON.stringify(of('acceptance.md')));
+  check('g13: …the modified unit carries before and after', /Excel\.$/.test(of('acceptance.md').modified[0].before.trim()) && /LibreOffice/.test(of('acceptance.md').modified[0].after));
+  check('g13: kpi — KPI-1 modified only', JSON.stringify(of('kpi.md').modified.map((x) => x.key)) === '["KPI-1"]' && !of('kpi.md').added.length);
+  check('g13: mission — the changed section by its heading', JSON.stringify(of('mission.md').modified.map((x) => x.key)) === '["Во что это вырастет"]', JSON.stringify(of('mission.md').modified.map((x) => x.key)));
+  const lines = deltaPromptLines(delta).join('\n');
+  check('g13: prompt lines name the anchor and each change', /since your previous declaration was confirmed by the operator/.test(lines)
+    && /acceptance\.md ADDED «A4»/.test(lines) && /acceptance\.md REMOVED «A3»/.test(lines) && /kpi\.md MODIFIED «KPI-1»/.test(lines), lines);
+
+  fs.rmSync(path.join(d, SNAPSHOT_DIR), { recursive: true, force: true });
+  const blind = contractDelta('b.d', tmp);
+  check('g13: without the snapshot the delta says so instead of guessing', blind.available === false && blind.files.every((f) => f.available === false), JSON.stringify(blind));
+  check('g13: units split by id, KPI number and heading', [...contractUnits('acceptance.md', '# a\n\n- [ ] **A1.** x\n- [x] **A2.** y\n').keys()].join(',') === '(начало),A1,A2');
+  fs.rmSync(tmp, { recursive: true, force: true });
+}
+
+// ── Group 14: contract wording lint (R-8.12, Spec Kit checklist/analyze) ───
+{
+  const { lintContract, kpiMentions } = await import('../scripts/contract_lint.mjs');
+  const same = (set, arr) => JSON.stringify([...set].sort((a, b) => a - b)) === JSON.stringify(arr);
+  check('g14: KPI mentions — single, range, slash list, short form', same(kpiMentions('KPI-3 ok'), [3]) && same(kpiMentions('KPI-1..4 ✓'), [1, 2, 3, 4])
+    && same(kpiMentions('KPI-4/5/7 n/a'), [4, 5, 7]) && same(kpiMentions('K1-K5 baseline'), [1, 2, 3, 4, 5]) && same(kpiMentions('K8s and 8K'), []));
+
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'sima-lint-'));
+  const mk = (id, files) => { const d = path.join(tmp, 'blocks', id); fs.mkdirSync(d, { recursive: true }); for (const [f, t] of Object.entries(files)) fs.writeFileSync(path.join(d, f), t); };
+  mk('b.l', {
+    'kpi.md': [
+      '# k', '',
+      '- **KPI-1 (speed)**: export takes < 2 s for 10k rows.',
+      '- **KPI-2 (ux)**: the page feels fast and intuitive.',
+      '- **KPI-3 (quality)**: результаты корректны. Сейчас: ✗.',
+      '- **KPI-4 (coverage)**: every run returns assumptions.',
+      '- **KPI-5 (later)**: 0 regressions.',
+      '- **KPI-6 (guard)**: a conflicting shell command is blocked by the hook.',
+      '- **KPI-7 (learning)**: questions per block decrease run to run.',
+    ].join('\n'),
+    'acceptance.md': [
+      '# a', '',
+      '- [ ] **A1.** export is quick (KPI-1).', '```yaml', 'evidence_kind: exit_code', 'evidence_spec:', '  cmd: node --version', '```',
+      '- [ ] **A2.** the UI is user-friendly.',
+      '- [ ] **A3.** the UI loads in under 2 s on the reference laptop.',
+    ].join('\n'),
+    'checks.log': '2026-09-01T00:00:00Z\tkpi\tpass\tKPI-4 ✓ measured; KPI-5 not measured yet\n',
+  });
+  const r = lintContract('b.l', tmp);
+  const has = (rule, key) => r.findings.some((f) => f.rule === rule && (key === undefined || f.key === key));
+  check('g14: a KPI leaning on vague words with no measure is a warning', r.findings.some((f) => f.rule === 'vague' && f.key === 'KPI-2' && f.severity === 'warn'), JSON.stringify(r.findings.filter((f) => f.key === 'KPI-2')));
+  check('g14: a KPI with no explicit threshold is only info (a yes/no property is checkable)', r.findings.some((f) => f.rule === 'kpi_unmeasurable' && f.key === 'KPI-6' && f.severity === 'info') && !has('kpi_unmeasurable', 'KPI-1'));
+  check('g14: a trend is a measure («decreases run to run»)', !has('kpi_unmeasurable', 'KPI-7') && !has('vague', 'KPI-7'));
+  check('g14: a vague word in a judge-only item is flagged, a measured one is not', has('vague', 'A2') && !has('vague', 'A3'));
+  check('g14: deterministic evidence pins a vague item down (not flagged)', !has('vague', 'A1'));
+  check('g14: «every run …» is a measure (quantifier), not vague', !has('kpi_unmeasurable', 'KPI-4'));
+  check('g14: a KPI whose own text says ✗ is flagged', has('kpi_declared_failing', 'KPI-3'));
+  check('g14: KPI coverage — referenced by acceptance or measured counts; neither is flagged',
+    !has('kpi_unchecked', 'KPI-1') && !has('kpi_unchecked', 'KPI-4') && has('kpi_unchecked', 'KPI-2') && has('kpi_unchecked', 'KPI-3'));
+  check('g14: a KPI declared «not measured» is info, not a warning', r.findings.some((f) => f.rule === 'kpi_declared_unmeasured' && f.key === 'KPI-5' && f.severity === 'info'));
+  check('g14: judge-only items are counted as info', r.findings.filter((f) => f.rule === 'judge_only').length === 2 && r.findings.filter((f) => f.rule === 'judge_only').every((f) => f.severity === 'info'));
+
+  mk('b.agg', { 'kpi.md': '# k\n\n- **KPI-1**: < 2 s.\n- **KPI-2**: 0 errors.\n', 'acceptance.md': '# a\n', 'checks.log': '2026-09-01T00:00:00Z\tkpi\tpass\tall green; selftest 7/7\n' });
+  const agg = lintContract('b.agg', tmp);
+  check('g14: kpi lines that never name a KPI → one untraced finding, not a flood', agg.findings.filter((f) => f.rule === 'kpi_untraced').length === 1 && !agg.findings.some((f) => f.rule === 'kpi_unchecked'));
+  mk('b.plain', { 'kpi.md': '# k\n\n- Users are happy.\n- Fast exports.\n', 'acceptance.md': '# a\n' });
+  const pl = lintContract('b.plain', tmp);
+  check('g14: plain-bullet KPIs are found, flagged as unnamed and still checked',
+    pl.findings.some((f) => f.rule === 'kpi_unnamed' && f.count === 2) && pl.findings.some((f) => f.rule === 'vague' && f.key === 'KPI #2'), JSON.stringify(pl.findings));
+  fs.rmSync(tmp, { recursive: true, force: true });
+}
+
 if (failures.length) {
   console.error('block_meaning.selftest: FAIL');
   failures.forEach((f) => console.error(' ✗', f));
   process.exit(1);
 }
-console.log('block_meaning.selftest: OK (11 groups, all assertions green)');
+console.log('block_meaning.selftest: OK (13 groups, all assertions green)');

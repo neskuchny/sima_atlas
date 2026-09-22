@@ -15,17 +15,17 @@
         "expect_in_stdout": "inconclusive"
       },
       "verdict": "pass",
-      "evidence": "printf '' | node scripts/review_diff.mjs --block b.nonexistent-empty --json → exit 0 (56ms); first line: \"{\"",
+      "evidence": "printf '' | node scripts/review_diff.mjs --block b.nonexistent-empty --json → exit 0 (67ms); first line: \"{\"",
       "reasoning": "shell exit code 0 and stdout matches /inconclusive/",
       "raw": {
         "cmd": "printf '' | node scripts/review_diff.mjs --block b.nonexistent-empty --json",
         "exit_code": 0,
-        "stdout": "{\n  \"ok\": true,\n  \"verdict\": \"inconclusive\",\n  \"summary\": \"empty diff — nothing to review\",\n  \"findings\": [],\n  \"mock\": false,\n  \"reason\": \"empty_diff\",\n  \"checked_at\": \"2026-09-22T20:22:12.536Z\",\n  \"source_note\": \"no diff proposal for block\"\n}\n",
+        "stdout": "{\n  \"ok\": true,\n  \"verdict\": \"inconclusive\",\n  \"summary\": \"empty diff — nothing to review\",\n  \"findings\": [],\n  \"mock\": false,\n  \"reason\": \"empty_diff\",\n  \"checked_at\": \"2026-09-22T20:56:37.130Z\",\n  \"source_note\": \"no diff proposal for block\"\n}\n",
         "stderr": "",
-        "duration_ms": 56,
+        "duration_ms": 67,
         "timed_out": false
       },
-      "duration_ms": 56
+      "duration_ms": 67
     },
     {
       "id": "A2",
@@ -39,17 +39,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/review_diff.selftest.mjs → exit 0 (62ms); first line: \"review_diff.selftest: OK (7 test groups, all assertions green)\"",
+      "evidence": "node tests/review_diff.selftest.mjs → exit 0 (74ms); first line: \"review_diff.selftest: OK (7 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/review_diff.selftest.mjs",
         "exit_code": 0,
         "stdout": "review_diff.selftest: OK (7 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 62,
+        "duration_ms": 74,
         "timed_out": false
       },
-      "duration_ms": 62
+      "duration_ms": 74
     },
     {
       "id": "A3",
@@ -74,7 +74,7 @@
           "export async function reviewDiff({ diff_text, block_id, changed_files, context } = {}) {"
         ]
       },
-      "duration_ms": 0
+      "duration_ms": 1
     },
     {
       "id": "A4",
@@ -124,7 +124,7 @@
           "        const drArgs = ['scripts/review_diff.mjs', '--since', 'HEAD', '--block', block.id, '--json'];"
         ]
       },
-      "duration_ms": 2
+      "duration_ms": 0
     },
     {
       "id": "A6",
@@ -159,11 +159,11 @@
   },
   "verdict": "pass",
   "inconclusive_if_declared": 1,
-  "duration_ms": 123,
-  "checked_at": "2026-09-22T20:22:12.606Z",
+  "duration_ms": 145,
+  "checked_at": "2026-09-22T20:56:37.213Z",
   "cache": {
     "hit": false,
-    "reason": "code changed (a commit, or a changed / new file outside atlas/); a contract, graph.json or project rules changed; another block's verdict or kpi result changed",
-    "lookup_ms": 24.522359
+    "reason": "code changed (a commit, or a changed / new file outside atlas/); a contract, graph.json or project rules changed; another block's verdict or kpi result changed; a file this block's assertions read changed",
+    "lookup_ms": 27.799624
   }
 }

@@ -324,7 +324,7 @@
         "scripts/verify_done_blocks_still_green.mjs",
         "tests/acceptance_verifier.e2e.smoke.mjs"
       ],
-      "updated_at": "2026-09-22T20:21:41.555Z"
+      "updated_at": "2026-09-22T20:56:02.826Z"
     },
     {
       "id": "b.user-docs-generator",
@@ -614,7 +614,7 @@
       "canvas_x": 40,
       "canvas_y": 140,
       "canvas_size": "m",
-      "updated_at": "2026-09-22T18:25:54.515Z"
+      "updated_at": "2026-09-22T20:56:02.774Z"
     }
   ]
 }

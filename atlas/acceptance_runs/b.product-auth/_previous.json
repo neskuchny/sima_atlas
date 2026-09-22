@@ -55,10 +55,10 @@
   },
   "verdict": "inconclusive",
   "duration_ms": 1,
-  "checked_at": "2026-09-22T20:18:27.369Z",
+  "checked_at": "2026-09-22T20:22:14.581Z",
   "cache": {
     "hit": false,
     "reason": "code changed (a commit, or a changed / new file outside atlas/); a contract, graph.json or project rules changed; another block's verdict or kpi result changed",
-    "lookup_ms": 24.3306
+    "lookup_ms": 24.41828
   }
 }

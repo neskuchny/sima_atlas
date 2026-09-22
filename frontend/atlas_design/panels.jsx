@@ -483,6 +483,87 @@ function LlmProviderBadge() {
   );
 }
 
+// R-8.12 (after OpenSpec deltas) — what changed in the contract since the
+// frame was confirmed (or declared), unit by unit: acceptance items by id,
+// KPIs by number, mission sections by heading. «mission.md changed» told the
+// operator where to look; this tells them what to read.
+function ContractDelta({ delta }) {
+  const t = window.__SIMA_T || ((_, fb) => fb);
+  if (!delta || !Array.isArray(delta.files) || !delta.files.length) return null;
+  const since = delta.since?.event === 'confirmed'
+    ? t('meaning.delta_since_confirmed', 'since you confirmed')
+    : t('meaning.delta_since_declared', 'since the declaration');
+  // The unit's label (A1, KPI-1) is already in the summary line; show the
+  // wording without the markdown label and bold markers.
+  const clean = (s) => String(s || '').trim()
+    .replace(/^- \[[ xX]\] \*\*A\d+\.?\*\*\.?\s*/, '')
+    .replace(/^- \*\*KPI-\d+[^*]*\*\*:?\s*/, '')
+    .replace(/\*\*/g, '');
+  const pre = (s) => <div className="delta-text">{clean(s)}</div>;
+  return (
+    <div className="meaning-delta">
+      <div className="meaning-label">{t('meaning.delta_title', 'What changed in the contract')} {since}{delta.since?.ts ? ` (${String(delta.since.ts).slice(0, 10)})` : ''}</div>
+      {delta.files.map((f) => !f.available ? (
+        <div key={f.file} className="meaning-note">{f.file}: {t('meaning.delta_unavailable', 'changed — the earlier version was not saved (declared before snapshots existed), open the file')}</div>
+      ) : (
+        <React.Fragment key={f.file}>
+          {f.added.map((a) => (
+            <details key={`a-${a.key}`} className="delta-item delta-added"><summary>+ {f.file} «{a.key}» — {t('meaning.delta_added', 'added')}</summary>{pre(a.text)}</details>
+          ))}
+          {f.modified.map((m) => (
+            <details key={`m-${m.key}`} className="delta-item delta-modified">
+              <summary>~ {f.file} «{m.key}» — {t('meaning.delta_modified', 'changed')}</summary>
+              <div className="delta-caption">{t('meaning.delta_before', 'was')}</div>{pre(m.before)}
+              <div className="delta-caption">{t('meaning.delta_after', 'now')}</div>{pre(m.after)}
+            </details>
+          ))}
+          {f.removed.map((r) => (
+            <details key={`r-${r.key}`} className="delta-item delta-removed"><summary>− {f.file} «{r.key}» — {t('meaning.delta_removed', 'removed')}</summary>{pre(r.text)}</details>
+          ))}
+        </React.Fragment>
+      ))}
+    </div>
+  );
+}
+
+// R-8.12 (after Spec Kit's checklist / analyze) — can the contract be
+// checked as written? Deterministic findings from scripts/contract_lint.mjs,
+// delivered in the same meaning summary. The second health stripe of a block
+// (b.clarify T14): «is the formulation sound», next to «does acceptance pass».
+function ContractQualitySection({ quality }) {
+  const t = window.__SIMA_T || ((_, fb) => fb);
+  if (!quality) return null;
+  const warn = (quality.findings || []).filter((f) => f.severity === 'warn');
+  const judgeOnly = (quality.findings || []).filter((f) => f.rule === 'judge_only').length;
+  const say = (f) => {
+    switch (f.rule) {
+      case 'kpi_unmeasurable': return `${f.key}: ${t('quality.kpi_unmeasurable', 'no number, threshold or quantifier — nothing to compare a result with')}`;
+      case 'vague': return `${f.key}: «${f.term}» ${t('quality.vague', 'with no measure next to it')}`;
+      case 'kpi_unchecked': return `${f.key}: ${t('quality.kpi_unchecked', 'acceptance never mentions it and no KPI measurement names it')}`;
+      case 'kpi_untraced': return t('quality.kpi_untraced', 'KPI measurements record a result but never name a KPI — which ones were measured is not on record');
+      case 'kpi_declared_failing': return `${f.key}: ${t('quality.kpi_declared_failing', 'its own text says it is not met (✗) — fix it or update the note')}`;
+      case 'kpi_unnamed': return `${f.count} ${t('quality.kpi_unnamed', 'KPIs are plain bullets without KPI-N numbers — nothing can refer to them')}`;
+      default: return f.message;
+    }
+  };
+  return (
+    <div className="ov-section">
+      <div className="ov-head">
+        <h3>{t('quality.title', '📝 Contract wording')} <span className="ov-file">{warn.length ? `${warn.length} ${t('quality.to_fix', 'to fix')}` : t('quality.clean', 'checkable as written')}</span></h3>
+      </div>
+      <div className={`meaning-card${warn.length ? ' meaning-stale' : ''}`}>
+        {warn.length ? (
+          <ul className="quality-list">{warn.map((f, i) => <li key={i}><span className="quality-file">{f.file}</span> {say(f)}</li>)}</ul>
+        ) : (
+          <div className="meaning-note" style={{ marginTop: 0 }}>{t('quality.none', 'Every KPI has a measure and is referenced or measured; no vague wording without a measure.')}</div>
+        )}
+        {judgeOnly > 0 && <div className="meaning-note">{judgeOnly} {t('quality.judge_only', 'acceptance item(s) can only be decided by an LLM judge')}</div>}
+        <div className="meaning-note">{t('quality.hint', 'A report, not a gate: these are the places where the contract cannot be checked as written.')}</div>
+      </div>
+    </div>
+  );
+}
+
 // R-8.08 (b.clarify T24) — the line the operator should read first: what the
 // agent took this block to be («Treating this as»), before any of the code.
 // A wrong frame produces code that still verifies green, so this is the one
@@ -650,6 +731,7 @@ function MeaningSection({ meaning, onMeaning }) {
             {t('meaning.stale', 'The contract changed after this was written')}: {(stale.newer || []).join(', ')}.
             {' '}{t('meaning.stale_next', 'This frame describes the old task, so it cannot be confirmed. The next run makes the agent re-declare first.')}
           </div>
+          <ContractDelta delta={meaning.delta} />
           {canStart && <div className="meaning-actions">
             <button className="pill" disabled={busy} onClick={() => startNext(t('meaning.run_started_redeclare', 'The agent is re-declaring for the current contract — the new frame will appear here.'))}>{t('meaning.btn_redeclare', '↻ Re-declare now')}</button>
           </div>}
@@ -884,6 +966,7 @@ function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSu
       <LayerPicker block={m} />
 
       {meaning && <MeaningSection key={m.id} meaning={meaning} onMeaning={setMeaning} />}
+      {meaning && <ContractQualitySection quality={meaning.quality} />}
 
       {/* R-7.86 — Implementation Status dashboard. Operator: «можно
           ли в модуле/блоке увидеть что реализовал?» — yes, this panel
@@ -917,6 +1000,8 @@ function Overview({ m, status, desyncResolved, onSendToAgent, onDrillDown, hasSu
           { label: t('status.decisions', 'Decisions logged'), state: decisionsCount > 0 ? 'good' : 'empty', value: decisionsCount > 0 ? `${decisionsCount} ${t('status.entries', 'entries')}` : t('status.empty', 'empty') },
           { label: t('status.narrative', 'Run history'), state: narrativeRuns > 0 ? 'good' : 'empty', value: narrativeRuns > 0 ? `${narrativeRuns} ${t('status.runs_documented', 'run(s) documented')}` : t('status.no_runs', 'no runs yet') },
           { label: t('status.block_status', 'Block status'), state: m.status === 'done' ? 'good' : (m.status === 'desync' || m.status === 'fail' ? 'bad' : 'warn'), value: m.status },
+          // R-8.12 — the second health stripe: is the contract checkable as written.
+          ...(meaning?.quality ? [{ label: t('status.wording', 'Contract wording'), state: meaning.quality.counts.warn ? 'warn' : 'good', value: meaning.quality.counts.warn ? `${meaning.quality.counts.warn} ${t('quality.to_fix', 'to fix')}` : t('quality.clean', 'checkable as written') }] : []),
         ];
         return (
           <div className="ov-section">

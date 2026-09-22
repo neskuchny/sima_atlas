@@ -41,17 +41,17 @@
         "cmd": "! grep -lF 'b.smoke-sandbox' atlas/blocks/*/mission.md | grep -vF 'atlas/blocks/b.smoke-sandbox/'"
       },
       "verdict": "pass",
-      "evidence": "! grep -lF 'b.smoke-sandbox' atlas/blocks/*/mission.md | grep -vF 'atlas/blocks/b.smoke-sandbox/' → exit 0 (6ms); first line: \"\"",
+      "evidence": "! grep -lF 'b.smoke-sandbox' atlas/blocks/*/mission.md | grep -vF 'atlas/blocks/b.smoke-sandbox/' → exit 0 (5ms); first line: \"\"",
       "reasoning": "shell exit code 0",
       "raw": {
         "cmd": "! grep -lF 'b.smoke-sandbox' atlas/blocks/*/mission.md | grep -vF 'atlas/blocks/b.smoke-sandbox/'",
         "exit_code": 0,
         "stdout": "",
         "stderr": "",
-        "duration_ms": 6,
+        "duration_ms": 5,
         "timed_out": false
       },
-      "duration_ms": 6
+      "duration_ms": 5
     },
     {
       "id": "A3",
@@ -65,17 +65,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/mcp_smoke_e2e.mjs → exit 0 (1943ms); first line: \"mcp_smoke_e2e: OK (32 tools exercised)\"",
+      "evidence": "node scripts/mcp_smoke_e2e.mjs → exit 0 (1866ms); first line: \"mcp_smoke_e2e: OK (32 tools exercised)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/mcp_smoke_e2e.mjs",
         "exit_code": 0,
         "stdout": "mcp_smoke_e2e: OK (32 tools exercised)\n",
         "stderr": "",
-        "duration_ms": 1943,
+        "duration_ms": 1866,
         "timed_out": false
       },
-      "duration_ms": 1943
+      "duration_ms": 1866
     }
   ],
   "counts": {
@@ -84,10 +84,11 @@
     "skipped": 0
   },
   "verdict": "pass",
-  "duration_ms": 1950,
-  "checked_at": "2026-09-22T20:21:31.009Z",
+  "duration_ms": 1871,
+  "checked_at": "2026-09-22T20:22:14.526Z",
   "cache": {
     "hit": false,
-    "reason": "cache not consulted (cache: false)"
+    "reason": "code changed (a commit, or a changed / new file outside atlas/); a contract, graph.json or project rules changed; another block's verdict or kpi result changed",
+    "lookup_ms": 23.876509
   }
 }

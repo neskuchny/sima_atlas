@@ -1,6 +1,6 @@
 # Sima Atlas Wiki
 
-_Auto-generated: 2026-09-22T20:22:17.807Z_
+_Auto-generated: 2026-09-22T20:56:42.905Z_
 
 ## Граф продукта
 
@@ -240,7 +240,7 @@ evidence_spec:
 - index.html [alive] (PR4.1: repo-root redirect to frontend/index.html)
 - frontend/atlas_bootstrap.js [alive] (auto-generated)
 - frontend/atlas_design/index.html [alive] (R-7.30 — current canvas entry; R-8.09: «Send to agent» goes through SIMA_API.meta.startRun — client-scoped — and logs what the frame gate did; R-8.10: the LLM badge in the toolbar, the selected block survives the live-refresh re-mount)
-- frontend/atlas_design/panels.jsx [alive] (DetailPanel + Overview + AcceptanceSection + Implementation Status + Token Spend + R-8.08 MeaningSection: the agent's frame, assumptions, staleness, trajectory; R-8.09: the operator's answer — «Right — write the code» / «Not quite» with a correction, gate state in words, 5 s refresh; R-8.10: LlmProviderBadge, the trajectory editor, useSticky — per-block UI state and the open tab survive the live-refresh re-mount)
+- frontend/atlas_design/panels.jsx [alive] (DetailPanel + Overview + AcceptanceSection + Implementation Status + Token Spend + R-8.08 MeaningSection: the agent's frame, assumptions, staleness, trajectory; R-8.09: the operator's answer — «Right — write the code» / «Not quite» with a correction, gate state in words, 5 s refresh; R-8.10: LlmProviderBadge, the trajectory editor, useSticky — per-block UI state and the open tab survive the live-refresh re-mount; R-8.12: ContractDelta — what changed since the confirmation, unit by unit; ContractQualitySection + the «Contract wording» status row)
 - frontend/atlas_design/views.jsx [alive] (composer, proposals Accept/Reject, modals)
 - frontend/atlas_design/graph.jsx [alive] (canvas graph + edges + drill-down; R-8.10: frame marker on the node)
 - frontend/atlas_design/tweaks-panel.jsx [alive]
@@ -263,7 +263,7 @@ These files had no owner in any files.md, so the code-graph check never saw thei
 - tests/atlas_bootstrap.smoke.mjs [alive]
 - tests/atlas_live_polling.smoke.mjs [alive]
 - tests/connection_drift.smoke.mjs [alive]
-- tests/playwright/meaning_panel.spec.ts [alive] (R-8.10: the meaning panel in Chromium against a live API — LLM badge, node marker, correction draft and notice surviving a live refresh, confirm without a run, trajectory saved to mission.md; `npm run test:ui`)
+- tests/playwright/meaning_panel.spec.ts [alive] (R-8.10/R-8.12: + the contract delta after a change, the wording section; the meaning panel in Chromium against a live API — LLM badge, node marker, correction draft and notice surviving a live refresh, confirm without a run, trajectory saved to mission.md; `npm run test:ui`)
 - playwright.config.js [alive] (R-8.10: webServer waits for atlas_design/index.html — the old frontend/index.html no longer exists, so no spec could start)
 
 _Sources: [mission](blocks/b.ui-control/mission.md) · [kpi](blocks/b.ui-control/kpi.md) · [acceptance](blocks/b.ui-control/acceptance.md) · [depends_on](blocks/b.ui-control/depends_on.md) · [provides](blocks/b.ui-control/provides.md) · [patterns](blocks/b.ui-control/patterns.md) · [files](blocks/b.ui-control/files.md)_
@@ -1730,6 +1730,14 @@ evidence_spec:
 ```
 - [ ] **A8.** Privacy/safety: verifier не пишет в `acceptance.md` блока (read-only по контракту); pre-commit hook предотвращает.
 
+- [x] **A9.** Список «что доделать» живого семантического судьи становится задачами в `tasks.md` только дописыванием: номера продолжаются, повтор (в том числе уже отмеченный) не добавляется, ничего не удаляется, пустой список ничего не пишет.
+```yaml
+evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/convergence_log.selftest.mjs
+  expect_in_stdout: "OK"
+```
+
 ## Что считается NOT acceptance
 - Полная автоматизация retry-loop без явного Accept оператором (нарушает UX-принцип «не auto-применяется к коду»).
 - Замена структурных валидаторов (`validate_block_contracts` и т. д.) — verifier работает поверх них, не вместо.
@@ -1818,6 +1826,10 @@ These files had no owner in any files.md, so the code-graph check never saw thei
 - scripts/verify_cache.mjs [alive] (R-8.11, KPI-6: verifier cache — conservative key: code via git, contracts, verdict summary, the block's evidence targets, LLM mode; pass cached, inconclusive only under the mock, fail never; `stats` CLI for hit rate / latency)
 - tests/verify_cache.selftest.mjs [alive] (R-8.11: the real verifier on a synthetic atlas — every key part invalidates on its own, the never-cached rules, TTL, switches, ledger consistency, hit latency)
 - atlas/blocks/b.acceptance-verifier-loop/understanding.md [alive] (R-8.11: the declared frame for the cache work)
+- atlas/blocks/b.acceptance-verifier-loop/frame_reviews.jsonl [alive] (R-8.11: the frame journal for this block — declared / confirmed / corrected)
+- scripts/convergence_log.mjs [alive] (R-8.12: the live judge's todo becomes append-only tasks in tasks.md — «## Convergence», C1…, deduplicated, never removed)
+- tests/convergence_log.selftest.mjs [alive] (R-8.12: append-only, numbering, no duplicates even when ticked, nothing written for nothing)
+- atlas/blocks/b.acceptance-verifier-loop/frame_snapshots/ [alive] (R-8.12: contract snapshots for the frame delta)
 
 _Sources: [mission](blocks/b.acceptance-verifier-loop/mission.md) · [kpi](blocks/b.acceptance-verifier-loop/kpi.md) · [acceptance](blocks/b.acceptance-verifier-loop/acceptance.md) · [depends_on](blocks/b.acceptance-verifier-loop/depends_on.md) · [provides](blocks/b.acceptance-verifier-loop/provides.md) · [patterns](blocks/b.acceptance-verifier-loop/patterns.md) · [files](blocks/b.acceptance-verifier-loop/files.md)_
 
@@ -6569,6 +6581,10 @@ _no summary_
 - 2026-09-22T20:22:13.788Z: smoke e2e distillate
 - 2026-09-22T20:22:17.459Z: smoke e2e queued insight
 - 2026-09-22T20:22:17.504Z: smoke e2e distillate
+- 2026-09-22T20:56:38.445Z: smoke e2e queued insight
+- 2026-09-22T20:56:38.497Z: smoke e2e distillate
+- 2026-09-22T20:56:42.537Z: smoke e2e queued insight
+- 2026-09-22T20:56:42.585Z: smoke e2e distillate
 
 #### Files
 
@@ -7212,7 +7228,7 @@ evidence_spec:
   pattern: "clarify_block.selftest"
 ```
 
-- [x] **A8.** Selftest библиотеки смысла зелёный: русские заголовки траектории распознаются (регрессия `\b` после кириллицы), границы секции, пустой заголовок отличается от отсутствия, разбор `understanding.md`, устаревание, mock даёт `operative_frame: null`, ночной отчёт читает ту же сводку, что и библиотека; R-8.09: шлюз как машина состояний (подтверждение привязано к тексту и отпечатку контракта, галочка его не сбрасывает, правка текста сбрасывает, устаревшую рамку подтвердить нельзя, битая строка журнала не считается подтверждением), язык объявления, промпты двух фаз. Как этим шлюзом пользуется оркестратор, проверяет его собственная приёмка (b.agent-orchestrator A8).
+- [x] **A8.** Selftest библиотеки смысла зелёный: русские заголовки траектории распознаются (регрессия `\b` после кириллицы), границы секции, пустой заголовок отличается от отсутствия, разбор `understanding.md`, устаревание, mock даёт `operative_frame: null`, ночной отчёт читает ту же сводку, что и библиотека; R-8.09: шлюз как машина состояний (подтверждение привязано к тексту и отпечатку контракта, галочка его не сбрасывает, правка текста сбрасывает, устаревшую рамку подтвердить нельзя, битая строка журнала не считается подтверждением), язык объявления, промпты двух фаз. R-8.12: снимки контракта и разница по единицам смысла (добавлено / изменено / удалено, недоступность без снимка — прямо), правила проверки формулировок (размытое слово без меры, KPI без проверки, «✗» в тексте KPI, KPI без номеров, тренд и квантор — это мера). Как этим шлюзом пользуется оркестратор, проверяет его собственная приёмка (b.agent-orchestrator A8).
 ```yaml
 evidence_kind: selftest_run
 evidence_spec:
@@ -7259,6 +7275,14 @@ evidence_spec:
   cmd: "! grep -q recordFrameReview scripts/mcp_atlas_server.mjs"
 ```
 
+- [x] **A14.** Проверка формулировок контракта работает на всём атласе и честно называет себя отчётом, а не гейтом (выход 0 при любых находках).
+```yaml
+evidence_kind: exit_code
+evidence_spec:
+  cmd: node scripts/contract_lint.mjs
+  expect_in_stdout: "not a gate"
+```
+
 ## inconclusive_if
 
 - Нет живого LLM-провайдера — качество вопросов операторски не проверяемо в
@@ -7290,6 +7314,8 @@ evidence_spec:
 - trajectory_reader
 - declared_understanding
 - frame_review_gate
+- contract_delta
+- contract_quality_lint
 
 #### Depends on
 
@@ -7334,12 +7360,13 @@ evidence_spec:
 ## Код
 - scripts/clarify_block.mjs [alive] (R-8.06: протокол вопроса + маркеры неопределённости + append-only Q→A лог + снятие маркера без остатка. Экспортирует clarifyBlock / normalizeQuestions / findMarkers / blockMarkers / appendAnswers / resolveMarker)
 - scripts/validate_clarifications.mjs [alive] (R-8.06: гейт — done-блок не может нести открытый маркер; review → warning; idea/wip → info, чтобы черновик оставался свободным)
-- scripts/block_meaning.mjs [alive] (R-8.08: направление «человек → модель». Экспортирует readTrajectory / trajectoryPromptLines — секция «Во что это вырастет» в mission.md и её подача агенту; understandingPromptLines / parseUnderstanding / readUnderstanding / understandingStaleness — объявление понимания агентом до кода; blockMeaningSummary — единый читатель для ночного отчёта и канваса; R-8.09: frameGate / recordDeclared / recordFrameReview / contractFingerprint — шлюз «объявил → человек подтвердил → код», declarePhasePromptLines / implementPhasePromptLines / operatorLanguage — промпты двух фаз на языке миссии; R-8.10: setTrajectory — запись секции траектории, которую readTrajectory прочитает ровно так же)
+- scripts/block_meaning.mjs [alive] (R-8.08: направление «человек → модель». Экспортирует readTrajectory / trajectoryPromptLines — секция «Во что это вырастет» в mission.md и её подача агенту; understandingPromptLines / parseUnderstanding / readUnderstanding / understandingStaleness — объявление понимания агентом до кода; blockMeaningSummary — единый читатель для ночного отчёта и канваса (R-8.12: плюс delta и quality); R-8.09: frameGate / recordDeclared / recordFrameReview / contractFingerprint — шлюз «объявил → человек подтвердил → код», declarePhasePromptLines / implementPhasePromptLines / operatorLanguage — промпты двух фаз на языке миссии; R-8.10: setTrajectory — запись секции траектории, которую readTrajectory прочитает ровно так же)
+- scripts/contract_lint.mjs [alive] (R-8.12: детерминированная проверка формулировок — размытые слова без меры, KPI без проверки и замера, KPI с «✗» в своём тексте, KPI без номеров; отчёт, не гейт)
 - scripts/validate_meaning.mjs [alive] (R-8.08: отчёт, не гейт — траектория, наличие/полнота/устаревание understanding.md по блокам. Условия повышения до гейта и снятия — в шапке файла)
 
 ## Тесты
 - tests/clarify_block.selftest.mjs [alive] (R-8.06: 10 групп — порядок enum, честная деградация на mock, пустой контракт, отбраковка ярлыка, отбраковка вопроса без выбора, сортировка по impact, поиск маркеров, append-only лог, снятие маркера, срабатывание done-гейта)
-- tests/block_meaning.selftest.mjs [alive] (R-8.08/R-8.10: 11 групп — кириллические заголовки траектории, границы секции, пустой против отсутствующего, строки промпта, разбор understanding.md, устаревание по mtime, operative_frame на mock, один читатель для отчёта и библиотеки, шлюз как машина состояний, язык объявления и промпты двух фаз, запись траектории. Сквозные проверки оркестратора — в tests/frame_gate_flow.selftest.mjs, у b.agent-orchestrator)
+- tests/block_meaning.selftest.mjs [alive] (R-8.08/R-8.12: 13 групп — кириллические заголовки траектории, границы секции, пустой против отсутствующего, строки промпта, разбор understanding.md, устаревание по mtime, operative_frame на mock, один читатель для отчёта и библиотеки, шлюз как машина состояний, язык объявления и промпты двух фаз, запись траектории, снимки и разница контракта по единицам смысла, правила проверки формулировок. Сквозные проверки оркестратора — в tests/frame_gate_flow.selftest.mjs, у b.agent-orchestrator)
 
 ## Контракт
 - atlas/blocks/b.clarify/mission.md [alive]
@@ -7356,6 +7383,7 @@ evidence_spec:
 - atlas/blocks/b.clarify/checks.log [alive]
 - atlas/blocks/b.clarify/understanding.md [alive] (R-8.08/R-8.09: объявленная рамка самого блока — написана до кода, как требует собственный протокол)
 - atlas/blocks/b.clarify/frame_reviews.jsonl [alive] (R-8.09: append-only журнал шлюза — объявлено / верно / не так; из него выводится состояние, и он же корпус поправок)
+- atlas/blocks/b.clarify/frame_snapshots/ [alive] (R-8.12: снимки контракта по хэшу содержимого — с чем сравнивать, когда рамка устарела)
 
 _Sources: [mission](blocks/b.clarify/mission.md) · [kpi](blocks/b.clarify/kpi.md) · [acceptance](blocks/b.clarify/acceptance.md) · [depends_on](blocks/b.clarify/depends_on.md) · [provides](blocks/b.clarify/provides.md) · [patterns](blocks/b.clarify/patterns.md) · [files](blocks/b.clarify/files.md)_
 

@@ -131,6 +131,9 @@ const MISSION_RU = [
     fs.writeFileSync(accP, '# a\n\n- [ ] **A1.** another thing\n', 'utf8');
     const s5 = run('b.with');
     check('f1: contract changed after confirmation → re-declare', s5.phase === 'declare' && s5.state === 'stale', `${s5.phase}/${s5.state}`);
+    check('f1: …and the re-declare prompt says what changed, unit by unit (R-8.12)',
+      s5.text.includes('What changed in the contract since your previous declaration was confirmed by the operator')
+      && /acceptance\.md MODIFIED «A1»/.test(s5.text) && s5.text.includes('another thing'), s5.text.slice(0, 200));
 
     // 6. a fresh declaration, corrected by the operator → re-declare with it
     fs.writeFileSync(path.join(bdir('b.with'), 'understanding.md'), `# u\n\n${DECL('Фоновая задача с повторами')}`, 'utf8');

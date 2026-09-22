@@ -15,17 +15,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/introspect_block_ui.selftest.mjs → exit 0 (100ms); first line: \"introspect_block_ui.selftest: OK (7 test groups, all assertions green)\"",
+      "evidence": "node tests/introspect_block_ui.selftest.mjs → exit 0 (94ms); first line: \"introspect_block_ui.selftest: OK (7 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/introspect_block_ui.selftest.mjs",
         "exit_code": 0,
         "stdout": "introspect_block_ui.selftest: OK (7 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 100,
+        "duration_ms": 94,
         "timed_out": false
       },
-      "duration_ms": 100
+      "duration_ms": 94
     },
     {
       "id": "A2",
@@ -39,17 +39,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/user_docs.smoke.mjs → exit 0 (107ms); first line: \"user_docs.smoke: OK (5 test groups, all assertions green)\"",
+      "evidence": "node tests/user_docs.smoke.mjs → exit 0 (100ms); first line: \"user_docs.smoke: OK (5 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/user_docs.smoke.mjs",
         "exit_code": 0,
         "stdout": "user_docs.smoke: OK (5 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 107,
+        "duration_ms": 100,
         "timed_out": false
       },
-      "duration_ms": 107
+      "duration_ms": 100
     },
     {
       "id": "A3",
@@ -63,17 +63,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/screenshots_integration.selftest.mjs → exit 0 (76ms); first line: \"screenshots_integration.selftest: OK (7 test groups, all assertions green)\"",
+      "evidence": "node tests/screenshots_integration.selftest.mjs → exit 0 (71ms); first line: \"screenshots_integration.selftest: OK (7 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/screenshots_integration.selftest.mjs",
         "exit_code": 0,
         "stdout": "screenshots_integration.selftest: OK (7 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 76,
+        "duration_ms": 71,
         "timed_out": false
       },
-      "duration_ms": 76
+      "duration_ms": 71
     },
     {
       "id": "A4",
@@ -87,17 +87,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/user_docs_drift.selftest.mjs → exit 0 (418ms); first line: \"user_docs_drift.selftest: OK (5 test groups, all assertions green)\"",
+      "evidence": "node tests/user_docs_drift.selftest.mjs → exit 0 (413ms); first line: \"user_docs_drift.selftest: OK (5 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/user_docs_drift.selftest.mjs",
         "exit_code": 0,
         "stdout": "user_docs_drift.selftest: OK (5 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 418,
+        "duration_ms": 413,
         "timed_out": false
       },
-      "duration_ms": 418
+      "duration_ms": 413
     },
     {
       "id": "A5",
@@ -211,11 +211,11 @@
     "skipped": 0
   },
   "verdict": "pass",
-  "duration_ms": 702,
-  "checked_at": "2026-09-22T20:18:23.671Z",
+  "duration_ms": 679,
+  "checked_at": "2026-09-22T20:22:10.869Z",
   "cache": {
     "hit": false,
     "reason": "code changed (a commit, or a changed / new file outside atlas/); a contract, graph.json or project rules changed; another block's verdict or kpi result changed",
-    "lookup_ms": 23.739417
+    "lookup_ms": 26.263507
   }
 }

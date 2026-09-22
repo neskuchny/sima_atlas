@@ -40,17 +40,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/clarify_block.selftest.mjs → exit 0 (284ms); first line: \"clarify_block.selftest: OK (10 groups, all assertions green)\"",
+      "evidence": "node tests/clarify_block.selftest.mjs → exit 0 (270ms); first line: \"clarify_block.selftest: OK (10 groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/clarify_block.selftest.mjs",
         "exit_code": 0,
         "stdout": "clarify_block.selftest: OK (10 groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 284,
+        "duration_ms": 270,
         "timed_out": false
       },
-      "duration_ms": 284
+      "duration_ms": 270
     },
     {
       "id": "A3",
@@ -63,17 +63,17 @@
         "cmd": "ATLAS_FORCE_MOCK_LLM=1 node scripts/clarify_block.mjs b.desktop --json | grep -q '\"verdict\": \"inconclusive\"'"
       },
       "verdict": "pass",
-      "evidence": "ATLAS_FORCE_MOCK_LLM=1 node scripts/clarify_block.mjs b.desktop --json | grep -q '\"verdict\": \"inconclusive\"' → exit 0 (67ms); first line: \"\"",
+      "evidence": "ATLAS_FORCE_MOCK_LLM=1 node scripts/clarify_block.mjs b.desktop --json | grep -q '\"verdict\": \"inconclusive\"' → exit 0 (66ms); first line: \"\"",
       "reasoning": "shell exit code 0",
       "raw": {
         "cmd": "ATLAS_FORCE_MOCK_LLM=1 node scripts/clarify_block.mjs b.desktop --json | grep -q '\"verdict\": \"inconclusive\"'",
         "exit_code": 0,
         "stdout": "",
         "stderr": "",
-        "duration_ms": 67,
+        "duration_ms": 66,
         "timed_out": false
       },
-      "duration_ms": 67
+      "duration_ms": 66
     },
     {
       "id": "A4",
@@ -98,7 +98,7 @@
           "export async function clarifyBlock({ block_id, atlas_root = ATLAS } = {}) {"
         ]
       },
-      "duration_ms": 1
+      "duration_ms": 0
     },
     {
       "id": "A5",
@@ -137,17 +137,17 @@
         "expect_in_stdout": "open marker"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_clarifications.mjs → exit 0 (69ms); first line: \"validate_clarifications: 0 open marker(s), 0 question(s) answered on record — OK\"",
+      "evidence": "node scripts/validate_clarifications.mjs → exit 0 (74ms); first line: \"validate_clarifications: 0 open marker(s), 0 question(s) answered on record — OK\"",
       "reasoning": "shell exit code 0 and stdout matches /open marker/",
       "raw": {
         "cmd": "node scripts/validate_clarifications.mjs",
         "exit_code": 0,
         "stdout": "validate_clarifications: 0 open marker(s), 0 question(s) answered on record — OK\n",
         "stderr": "",
-        "duration_ms": 69,
+        "duration_ms": 74,
         "timed_out": false
       },
-      "duration_ms": 69
+      "duration_ms": 74
     },
     {
       "id": "A7",
@@ -177,7 +177,7 @@
     {
       "id": "A8",
       "label": null,
-      "text": "Selftest библиотеки смысла зелёный: русские заголовки траектории распознаются (регрессия `\\b` после кириллицы), границы секции, пустой заголовок отличается от отсутствия, разбор `understanding.md`, устаревание, mock даёт `operative_frame: null`, ночной отчёт читает ту же сводку, что и библиотека; R-8.09: шлюз как машина состояний (подтверждение привязано к тексту и отпечатку контракта, галочка его не сбрасывает, правка текста сбрасывает, устаревшую рамку подтвердить нельзя, битая строка журнала не считается подтверждением), язык объявления, промпты двух фаз. Как этим шлюзом пользуется оркестратор, проверяет его собственная приёмка (b.agent-orchestrator A8).",
+      "text": "Selftest библиотеки смысла зелёный: русские заголовки траектории распознаются (регрессия `\\b` после кириллицы), границы секции, пустой заголовок отличается от отсутствия, разбор `understanding.md`, устаревание, mock даёт `operative_frame: null`, ночной отчёт читает ту же сводку, что и библиотека; R-8.09: шлюз как машина состояний (подтверждение привязано к тексту и отпечатку контракта, галочка его не сбрасывает, правка текста сбрасывает, устаревшую рамку подтвердить нельзя, битая строка журнала не считается подтверждением), язык объявления, промпты двух фаз. R-8.12: снимки контракта и разница по единицам смысла (добавлено / изменено / удалено, недоступность без снимка — прямо), правила проверки формулировок (размытое слово без меры, KPI без проверки, «✗» в тексте KPI, KPI без номеров, тренд и квантор — это мера). Как этим шлюзом пользуется оркестратор, проверяет его собственная приёмка (b.agent-orchestrator A8).",
       "checked": true,
       "line": 71,
       "evidence_kind": "selftest_run",
@@ -186,17 +186,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/block_meaning.selftest.mjs → exit 0 (156ms); first line: \"block_meaning.selftest: OK (11 groups, all assertions green)\"",
+      "evidence": "node tests/block_meaning.selftest.mjs → exit 0 (179ms); first line: \"block_meaning.selftest: OK (13 groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/block_meaning.selftest.mjs",
         "exit_code": 0,
-        "stdout": "block_meaning.selftest: OK (11 groups, all assertions green)\n",
+        "stdout": "block_meaning.selftest: OK (13 groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 156,
+        "duration_ms": 179,
         "timed_out": false
       },
-      "duration_ms": 156
+      "duration_ms": 179
     },
     {
       "id": "A9",
@@ -221,7 +221,7 @@
           "    ...declarePhasePromptLines(blockDirRelForPrompt, {"
         ]
       },
-      "duration_ms": 0
+      "duration_ms": 1
     },
     {
       "id": "A10",
@@ -235,17 +235,17 @@
         "expect_in_stdout": "not a gate"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_meaning.mjs → exit 0 (71ms); first line: \" · b.acceptance-verifier-loop (wip) — understanding: complete, frame: awaiting\"",
+      "evidence": "node scripts/validate_meaning.mjs → exit 0 (97ms); first line: \" · b.acceptance-verifier-loop (wip) — understanding: complete, frame: awaiting\"",
       "reasoning": "shell exit code 0 and stdout matches /not a gate/",
       "raw": {
         "cmd": "node scripts/validate_meaning.mjs",
         "exit_code": 0,
-        "stdout": " · b.acceptance-verifier-loop (wip) — understanding: complete, frame: awaiting\n     treating as: Кэш сборки с консервативным ключом, как у инкрементальных систем сборки: результат проверки блока переиспользуется, только если не изменилось ничего, от чего он\n · b.clarify (review) — trajectory, understanding: complete, frame: awaiting\n     treating as: Шлюз одобрения перед выполнением — как «план → подтверждение → применение» в инструментах развёртывания: сначала показывается, что будет сделано, и ничего не ме\n ⏸ waiting for your answer on the canvas: b.acceptance-verifier-loop, b.clarify\nvalidate_meaning: 19 blocks — 1 with a declared trajectory, 2 with a declared understanding, 2 awaiting the operator, frame answers: 0 confirmed / 0 corrected, 0 with warnings (report only, not a gate)\n",
+        "stdout": " · b.acceptance-verifier-loop (wip) — understanding: complete, frame: awaiting\n     treating as: Кэш сборки с консервативным ключом, как у инкрементальных систем сборки: результат проверки блока переиспользуется, только если не изменилось ничего, от чего он\n · b.clarify (wip) — trajectory, understanding: complete, frame: awaiting\n     treating as: Две вещи, которые показывают человеку смысл контракта, а не его файлы: «что изменилось в требованиях с момента, когда вы сказали „верно“» — как просмотр изменен\n ⏸ waiting for your answer on the canvas: b.acceptance-verifier-loop, b.clarify\nvalidate_meaning: 19 blocks — 1 with a declared trajectory, 2 with a declared understanding, 2 awaiting the operator, frame answers: 0 confirmed / 0 corrected, 0 with warnings (report only, not a gate)\n",
         "stderr": "",
-        "duration_ms": 71,
+        "duration_ms": 97,
         "timed_out": false
       },
-      "duration_ms": 71
+      "duration_ms": 97
     },
     {
       "id": "A11",
@@ -308,31 +308,54 @@
         "cmd": "! grep -q recordFrameReview scripts/mcp_atlas_server.mjs"
       },
       "verdict": "pass",
-      "evidence": "! grep -q recordFrameReview scripts/mcp_atlas_server.mjs → exit 0 (5ms); first line: \"\"",
+      "evidence": "! grep -q recordFrameReview scripts/mcp_atlas_server.mjs → exit 0 (4ms); first line: \"\"",
       "reasoning": "shell exit code 0",
       "raw": {
         "cmd": "! grep -q recordFrameReview scripts/mcp_atlas_server.mjs",
         "exit_code": 0,
         "stdout": "",
         "stderr": "",
-        "duration_ms": 5,
+        "duration_ms": 4,
         "timed_out": false
       },
-      "duration_ms": 5
+      "duration_ms": 4
+    },
+    {
+      "id": "A14",
+      "label": null,
+      "text": "Проверка формулировок контракта работает на всём атласе и честно называет себя отчётом, а не гейтом (выход 0 при любых находках).",
+      "checked": true,
+      "line": 118,
+      "evidence_kind": "exit_code",
+      "evidence_spec": {
+        "cmd": "node scripts/contract_lint.mjs",
+        "expect_in_stdout": "not a gate"
+      },
+      "verdict": "pass",
+      "evidence": "node scripts/contract_lint.mjs → exit 0 (76ms); first line: \" · b.ui-control (wip) — 7 to fix\"",
+      "reasoning": "shell exit code 0 and stdout matches /not a gate/",
+      "raw": {
+        "cmd": "node scripts/contract_lint.mjs",
+        "exit_code": 0,
+        "stdout": " · b.ui-control (wip) — 7 to fix\n     kpi.md KPI-1: its own text says it is not met (✗) — fix the KPI or update the note\n     kpi.md KPI-2: its own text says it is not met (✗) — fix the KPI or update the note\n     kpi.md KPI-1: acceptance.md never mentions it and no kpi line names it\n     kpi.md KPI-2: acceptance.md never mentions it and no kpi line names it\n     kpi.md KPI-3: acceptance.md never mentions it and no kpi line names it\n     kpi.md KPI-4: acceptance.md never mentions it and no kpi line names it\n     kpi.md KPI-5: acceptance.md never mentions it and no kpi line names it\n · b.core-sync (done) — 2 to fix\n     kpi.md KPI-3: its own text says it is not met (✗) — fix the KPI or update the note\n     checks.log 1 kpi line(s) record a result but none names a KPI — which of KPI-1, KPI-2, KPI-3, KPI-4, KPI-5 were measured is not on record\n · b.db (idea) — 8 to fix\n     kpi.md KPI-1: its own text says it is not met (✗) — fix the KPI or update the note\n     kpi.md KPI-3: its own text says it is not met (✗) — fix the KPI or update the note\n     kpi.md KPI-5: its own text says it is not met (✗) — fix the KPI or update the note\n     kpi.md KPI-1: acceptance.md never mentions it and no kpi line names it\n     kpi.md KPI-2: acceptance.md never mentions it and no kpi line names it\n     kpi.md KPI-3: acceptance.md never mentions it and no kpi line names it\n     kpi.md KPI-4: acceptance.md never mentions it and no kpi line names it\n     kpi.md KPI-5: acceptance.md never mentions it and no kpi line names it\n · b.agent-orchestrator (review) — 5 to fix\n     kpi.md KPI-1: its own text says it is not met (✗) — fix the KPI or update the note\n     kpi.md KPI-2: its own text says it is not met (✗) — fix the KPI or update the note\n     kpi.md KPI-3: its own text says it is not met (✗) — fix the KPI or update the note\n     kpi.md KPI-2: acceptance.md never mentions it and no kpi line names it\n     kpi.md KPI-4: acceptance.md never mentions it and no kpi line names it\n · b.docs (done) — 5 to fix\n     kpi.md KPI-1: its own text says it is not met (✗) — fix the KPI or update the note\n     kpi.md KPI-2: its own text says it is not met (✗) — fix the KPI or update the note\n     kpi.md KPI-3: its own text says it is not met (✗) — fix the KPI or update the note\n     kpi.md KPI-4: its own text says it is not met (✗) — fix the KPI or update the note\n     checks.log 1 kpi line(s) record a result but none names a KPI — which of KPI-1, KPI-2, KPI-3, KPI-4, KPI-5 were measured is not on record\n · b.llm-gateway (review) — 5 to fix\n     kpi.md KPI-1: its own text says it is not met (✗) — fix the KPI or update the note\n     kpi.md KPI-2: its own text says it is not met (✗) — fix the KPI or update the note\n     kpi.md KPI-3: its own text says it is not met (✗) — fix the KPI or update the note\n     kpi.md KPI-5: its own text says it is not met (✗) — fix the KPI or update the note\n     acceptance.md A3: «понятную» with no measure — the judge has to guess what counts\n · b.acceptance-verifier-loop (wip) — 2 to fix\n     kpi.md KPI-5: its own text says it is not met (✗) — fix the KPI or update the note\n     kpi.md KPI-7: its own text says it is not met (✗) — fix the KPI or update the note\n · b.user-docs-generator (wip) — 1 to fix\n     kpi.md KPI-1: its own text says it is not met (✗) — fix the KPI or update the note\n · b.code-graph (idea) — 8 to fix\n     kpi.md KPI-3: «корректно» with no measure next to it\n     kpi.md KPI-1: acceptance.md never mentions it and no kpi line names it\n     kpi.md KPI-2: acceptance.md never mentions it and no kpi line names it\n     kpi.md KPI-3: acceptance.md never mentions it and no kpi line names it\n     kpi.md KPI-4: acceptance.md never mentions it and no kpi line names it\n     kpi.md KPI-5: acceptance.md never mentions it and no kpi line names it\n     kpi.md KPI-6: acceptance.md never mentions it and no kpi line names it\n     kpi.md KPI-7: acceptance.md never mentions it and no kpi line names it\n · b.desktop (done) — 5 to fix\n     kpi.md KPI-1: acceptance.md never mentions it and no kpi line names it\n     kpi.md KPI-2: acceptance.… [truncated]",
+        "stderr": "",
+        "duration_ms": 76,
+        "timed_out": false
+      },
+      "duration_ms": 76
     }
   ],
   "counts": {
-    "pass": 13,
+    "pass": 14,
     "fail": 0,
     "skipped": 0
   },
   "verdict": "pass",
   "inconclusive_if_declared": 1,
-  "duration_ms": 657,
-  "checked_at": "2026-09-22T20:18:28.356Z",
+  "duration_ms": 772,
+  "checked_at": "2026-09-22T20:55:50.266Z",
   "cache": {
     "hit": false,
-    "reason": "code changed (a commit, or a changed / new file outside atlas/); a contract, graph.json or project rules changed; another block's verdict or kpi result changed",
-    "lookup_ms": 24.389929
+    "reason": "cache not consulted (cache: false)"
   }
 }

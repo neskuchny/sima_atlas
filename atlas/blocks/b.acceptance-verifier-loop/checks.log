@@ -59,3 +59,6 @@
 2026-09-22T20:21:26.000Z	kpi	pass	R-8.11 measured: KPI-1 ✓ gate refuses done without pass; KPI-2 ✓ 89/122 = 73.0% deterministic; KPI-3 ✓ 1.1 s for 8 assertions; KPI-6 ✓ cache hit rate 88.9% over a nightly, hit p95 32.5 ms; KPI-4/5/7 not measurable on the mock
 2026-09-22T20:21:27.274Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=1
 2026-09-22T20:21:41.555Z	transition	pass	wip->review	actor=operator-R8.11	note=KPI-2 ✓ 73.0% deterministic, KPI-6 ✓ cache hit 88.9% / p95 32.5 ms, KPI-1/3 ✓; acceptance 7/0. Left at review: its declared frame (understanding.md) awaits the operator's answer on Overview
+2026-09-22T20:45:14.608Z	transition	pass	review->wip	actor=operator-R8.12	note=R-8.12: scope extension — append-only convergence log of the semantic judge's todo (Spec Kit converge)
+2026-09-22T20:55:51.550Z	acceptance_verifier	pass	verdict=pass pass=8 fail=0 skipped=1
+2026-09-22T20:56:02.826Z	transition	pass	wip->review	actor=operator-R8.12	note=R-8.12: append-only convergence log; acceptance 8/8 (1 judge skipped); frame awaits the operator

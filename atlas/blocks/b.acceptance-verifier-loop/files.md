@@ -52,3 +52,6 @@ These files had no owner in any files.md, so the code-graph check never saw thei
 - tests/verify_cache.selftest.mjs [alive] (R-8.11: the real verifier on a synthetic atlas — every key part invalidates on its own, the never-cached rules, TTL, switches, ledger consistency, hit latency)
 - atlas/blocks/b.acceptance-verifier-loop/understanding.md [alive] (R-8.11: the declared frame for the cache work)
 - atlas/blocks/b.acceptance-verifier-loop/frame_reviews.jsonl [alive] (R-8.11: the frame journal for this block — declared / confirmed / corrected)
+- scripts/convergence_log.mjs [alive] (R-8.12: the live judge's todo becomes append-only tasks in tasks.md — «## Convergence», C1…, deduplicated, never removed)
+- tests/convergence_log.selftest.mjs [alive] (R-8.12: append-only, numbering, no duplicates even when ticked, nothing written for nothing)
+- atlas/blocks/b.acceptance-verifier-loop/frame_snapshots/ [alive] (R-8.12: contract snapshots for the frame delta)

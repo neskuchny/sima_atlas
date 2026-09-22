@@ -75,6 +75,11 @@ const checks = [
   // R-8.10 — the loop's budget counts only what the loop spent.
   ['agent_loop_budget_selftest', 'node tests/agent_loop_budget.selftest.mjs'],
   ['meaning_report', 'node scripts/validate_meaning.mjs'],
+  // R-8.12 (b.clarify) — can each contract be checked as written (Spec Kit's
+  // checklist / analyze, deterministic). Report only; conditions in its header.
+  ['contract_lint', 'node scripts/contract_lint.mjs'],
+  // R-8.12 (b.acceptance-verifier-loop) — judge gaps become append-only tasks.
+  ['convergence_log_selftest', 'node tests/convergence_log.selftest.mjs'],
   ['atlas_selftest', 'node tests/atlas_sync.selftest.mjs'],
   ['bootstrap_layered_smoke', 'node tests/atlas_bootstrap.smoke.mjs'],
   ['llm_gateway_selftest', 'node tests/llm_gateway.selftest.mjs'],

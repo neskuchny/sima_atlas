@@ -342,6 +342,18 @@ html, body {
 .meaning-card details { margin-top: 8px; }
 .meaning-card summary { cursor: pointer; font-size: 12px; color: var(--ink-3); }
 .meaning-card details .meaning-label { margin-top: 8px; }
+/* R-8.12 — contract delta + wording */
+.meaning-delta { margin-top: 10px; }
+.delta-item { margin-top: 6px; border-left: 3px solid var(--rule); padding-left: 8px; }
+.delta-item summary { cursor: pointer; font-size: 12px; color: var(--ink-2); font-family: 'JetBrains Mono', monospace; }
+.delta-added { border-left-color: var(--st-done); }
+.delta-modified { border-left-color: var(--st-progress); }
+.delta-removed { border-left-color: var(--st-fail); }
+.delta-caption { font-size: 10px; color: var(--ink-4); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 6px; }
+.delta-text { font-size: 12px; line-height: 1.45; color: var(--ink-2); white-space: pre-wrap; background: var(--paper); border: 1px solid var(--rule); border-radius: 4px; padding: 6px 8px; margin-top: 3px; max-height: 220px; overflow: auto; }
+.quality-list { margin: 0; padding-left: 18px; }
+.quality-list li { font-size: 12.5px; line-height: 1.45; color: var(--ink-2); margin: 3px 0; }
+.quality-file { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--ink-4); }
 /* R-8.10 — which LLM answers */
 .llm-badge { cursor: help; display: inline-flex; align-items: center; gap: 6px; }
 .llm-badge .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-4); display: inline-block; }
