@@ -1,6 +1,6 @@
 {
   "operator_id": "default",
-  "updated_at": "2026-09-13T07:04:37.086Z",
+  "updated_at": "2026-09-22T15:19:59.500Z",
   "_status": "live",
   "_min_data": {
     "done_transitions": 10,
@@ -11,7 +11,7 @@
   "work_style": {
     "total_done": 10,
     "total_broken": 0,
-    "total_wip_started": 8,
+    "total_wip_started": 9,
     "rollback_rate": 0,
     "median_time_idea_to_done_h": 0.0000275,
     "common_failure_modes": {
@@ -20,7 +20,7 @@
       "cascade_check": 6,
       "drift_guard": 2,
       "agent_invocation": 3,
-      "kpi": 1
+      "kpi": 2
     }
   },
   "agents_used": {
@@ -334,23 +334,23 @@
       "avg_cost_usd": 0
     },
     "mock": {
-      "count": 824,
-      "fallback_to_mock_count": 5,
+      "count": 1207,
+      "fallback_to_mock_count": 7,
       "total_cost_usd": 0,
-      "schema_ok_count": 824,
+      "schema_ok_count": 1207,
       "fallback_rate": 0.01,
       "schema_ok_rate": 1,
       "avg_cost_usd": 0
     }
   },
   "proposals_stats": {
-    "total": 9,
+    "total": 13,
     "accept_rate": 0,
     "reject_rate": 0,
-    "pending": 9
+    "pending": 13
   },
   "decisions_stats": {
-    "total": 3579,
+    "total": 3587,
     "blocks_with_decisions": 9
   },
   "patterns_stats": {
@@ -717,13 +717,19 @@
       "ts": "2026-09-12T22:19:06.344Z",
       "kind": "kpi",
       "note": "R-8.05 audit: KPI-1 ✗ measured — atlas/docs/end-user/ is empty (0 docs, 0 _meta) while 2 user-facing blocks exist (b.ui-control front/wip, b.product-dashboard front/idea); coverage 0/2. KPI-2..7 not m"
+    },
+    {
+      "block_id": "b.user-docs-generator",
+      "ts": "2026-09-22T15:18:59.906Z",
+      "kind": "kpi",
+      "note": "R-8.07: KPI-1 coverage 0/2 подтверждён при понижении — atlas/docs/end-user/ пуста. Блок переведён done->wip; до возврата нужен либо непустой набор документов, либо переформулировка KPI-1 на done-блоки"
     }
   ],
   "invocations_total": 14,
   "_preview": {
     "total_done": 10,
     "total_invocations": 14,
-    "total_traces": 828,
-    "total_proposals": 9
+    "total_traces": 1211,
+    "total_proposals": 13
   }
 }

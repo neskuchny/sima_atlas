@@ -12,3 +12,5 @@
 2026-09-13T07:03:16.717Z	feature	pass	R-8.06 PR1+PR2: протокол вопроса + маркеры неопределённости + done-гейт; попутно найден и закрыт баг молчаливой деградации в parse_acceptance (wrapped assertion → llm_judge → skipped)
 2026-09-13T07:03:42.174Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=0
 2026-09-13T07:04:58.694Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=0
+2026-09-22T15:19:32.195Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=0
+2026-09-22T15:20:22.511Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=0

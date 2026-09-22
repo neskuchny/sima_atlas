@@ -15,17 +15,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_no_template_placeholders.mjs → exit 0 (57ms); first line: \"Template-placeholder validation: OK (21 blocks scanned)\"",
+      "evidence": "node scripts/validate_no_template_placeholders.mjs → exit 0 (75ms); first line: \"Template-placeholder validation: OK (21 blocks scanned)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_no_template_placeholders.mjs",
         "exit_code": 0,
         "stdout": "Template-placeholder validation: OK (21 blocks scanned)\n",
         "stderr": "Template-placeholder validation warnings:\n ⚠ b.smoke-sandbox: tasks.md is suspiciously short (28 chars)\n",
-        "duration_ms": 57,
+        "duration_ms": 75,
         "timed_out": false
       },
-      "duration_ms": 57
+      "duration_ms": 75
     },
     {
       "id": "A2",
@@ -51,7 +51,7 @@
           "<li>[x] <strong>A2.</strong> В <code>wiki.html</code> присутствует <code>&lt;div class=\"mermaid\"&gt;</code> с актуальным графом по <code>graph.json</code>.</li>"
         ]
       },
-      "duration_ms": 5
+      "duration_ms": 3
     },
     {
       "id": "A3",
@@ -68,7 +68,7 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "492347cad0e272b3",
+        "prompt_hash": "40ca0b1a434d7e00",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
@@ -116,12 +116,12 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "9ba393a624965fc8",
+        "prompt_hash": "a97f0e69d9d62208",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 0
+      "duration_ms": 1
     }
   ],
   "counts": {
@@ -130,6 +130,6 @@
     "skipped": 2
   },
   "verdict": "pass",
-  "duration_ms": 64,
-  "checked_at": "2026-09-13T07:04:56.716Z"
+  "duration_ms": 82,
+  "checked_at": "2026-09-22T15:20:21.032Z"
 }

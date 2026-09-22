@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-09-13T07:04:33.564Z_
+_Generated: 2026-09-22T15:19:56.193Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -39,8 +39,8 @@ _Generated: 2026-09-13T07:04:33.564Z_
   - output: validate_subschemas: OK (projects=2, subschemas=1, child_blocks=6)
 - ✅ dependency_contracts: ok
   - output: Dependency contract validation: OK
-- ❌ acceptance_assertions: fail
-  - error: Acceptance assertions validation failed:
+- ✅ acceptance_assertions: ok
+  - output: Acceptance assertions validation: OK
 - ✅ lifecycle_gate_selftest: ok
   - output: lifecycle_gate.selftest: OK (7 groups, all assertions green)
 - ✅ clarify_block_selftest: ok
@@ -58,7 +58,7 @@ _Generated: 2026-09-13T07:04:33.564Z_
 - ✅ operator_profile_selftest: ok
   - output: operator_profile.selftest: OK (7 test groups, all assertions green)
 - ✅ aggregate_operator_profile: ok
-  - output: operator_profile: live (done=10, invocations=14, traces=828, proposals=9)
+  - output: operator_profile: live (done=10, invocations=14, traces=1211, proposals=13)
 - ✅ operator_profile_lessons_smoke: ok
   - output: operator_profile_lessons.smoke: OK (6 test groups, all assertions green)
 - ✅ operator_profile_inject_smoke: ok
@@ -164,10 +164,10 @@ _Generated: 2026-09-13T07:04:33.564Z_
 - ✅ verify_all_acceptance: ok
   - output: verify_all_acceptance: 14 pass / 0 fail / 7 inconclusive (assertions: 74 pass / 0 fail / 45 skipped)
 - ✅ verify_done_blocks_still_green: ok
-  - output: verify_done_blocks_still_green: checked=7 green=7 regressions=0 inconclusive=0
+  - output: verify_done_blocks_still_green: checked=6 green=6 regressions=0 inconclusive=0
 - ✅ mcp_smoke_e2e: ok
   - output: mcp_smoke_e2e: OK (32 tools exercised)
 - ✅ intelligence_health: ok
   - output: Intelligence health: 0.9524 (20/21)
 
-Summary: FAIL (83/84)
+Summary: PASS (84/84)

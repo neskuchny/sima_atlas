@@ -146,7 +146,7 @@
         "json",
         "markdown"
       ],
-      "x": 80,
+      "x": 400,
       "y": 100
     },
     {
@@ -221,7 +221,7 @@
         "esm",
         "markdown"
       ],
-      "x": 1040,
+      "x": 1360,
       "y": 100
     },
     {
@@ -333,13 +333,13 @@
     },
     {
       "id": "b.user-docs-generator",
-      "_raw_updated_at": "2026-06-05T22:11:29.247Z",
+      "_raw_updated_at": "2026-09-22T15:18:59.859Z",
       "title": "End-User Docs Generator",
       "tag": "user-docs-generator",
       "layer": "backend",
-      "status": "done",
-      "priority": 3,
-      "checked": true,
+      "status": "progress",
+      "priority": 2,
+      "checked": false,
       "size": "lg",
       "parent_block_id": null,
       "contract": {
@@ -364,7 +364,7 @@
         "markdown",
         "playwright"
       ],
-      "x": 1360,
+      "x": 80,
       "y": 100
     },
     {
@@ -401,7 +401,7 @@
         "nodejs",
         "esm"
       ],
-      "x": 400,
+      "x": 720,
       "y": 100
     },
     {
@@ -439,7 +439,7 @@
         "esm",
         "electron-builder"
       ],
-      "x": 720,
+      "x": 1040,
       "y": 100
     },
     {
@@ -2722,13 +2722,6 @@
       "ts": "18:06",
       "module": "operator-profile-learner",
       "agent": "sima-core",
-      "kind": "info",
-      "msg": "b.operator-profile-learner: wip → review"
-    },
-    {
-      "ts": "18:06",
-      "module": "operator-profile-learner",
-      "agent": "sima-core",
       "kind": "ok",
       "msg": "b.operator-profile-learner: review → done"
     },
@@ -2801,6 +2794,13 @@
       "agent": "sima-core",
       "kind": "ok",
       "msg": "b.clarify: review → done"
+    },
+    {
+      "ts": "15:18",
+      "module": "user-docs-generator",
+      "agent": "sima-core",
+      "kind": "info",
+      "msg": "b.user-docs-generator: done → wip"
     }
   ],
   "lessons": [],
@@ -2832,7 +2832,7 @@
     }
   ],
   "_meta": {
-    "generated_at": "2026-09-13T07:04:41.243Z",
+    "generated_at": "2026-09-22T15:20:03.924Z",
     "atlas_root": "atlas",
     "client_id": null,
     "block_count": 21,

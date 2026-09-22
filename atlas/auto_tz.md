@@ -764,7 +764,7 @@ PR-5 закрыт (T5.1-T5.4). T5.5 unblocked (инфраструктура го
 
 _Sources: [mission](blocks/b.acceptance-verifier-loop/mission.md) · [kpi](blocks/b.acceptance-verifier-loop/kpi.md) · [acceptance](blocks/b.acceptance-verifier-loop/acceptance.md) · [tasks](blocks/b.acceptance-verifier-loop/tasks.md)_
 
-## b.user-docs-generator (done)
+## b.user-docs-generator (wip)
 
 # b.user-docs-generator — mission
 

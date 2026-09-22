@@ -358,5 +358,11 @@
     "ts": "2026-09-12T22:19:06.344Z",
     "kind": "kpi",
     "note": "R-8.05 audit: KPI-1 ✗ measured — atlas/docs/end-user/ is empty (0 docs, 0 _meta) while 2 user-facing blocks exist (b.ui-control front/wip, b.product-dashboard front/idea); coverage 0/2. KPI-2..7 not m"
+  },
+  {
+    "block_id": "b.user-docs-generator",
+    "ts": "2026-09-22T15:18:59.906Z",
+    "kind": "kpi",
+    "note": "R-8.07: KPI-1 coverage 0/2 подтверждён при понижении — atlas/docs/end-user/ пуста. Блок переведён done->wip; до возврата нужен либо непустой набор документов, либо переформулировка KPI-1 на done-блоки"
   }
 ]

@@ -60,3 +60,5 @@
 2026-09-13T07:02:19.659Z	acceptance_verifier	pass	verdict=pass pass=8 fail=0 skipped=0
 2026-09-13T07:03:41.574Z	acceptance_verifier	pass	verdict=pass pass=8 fail=0 skipped=0
 2026-09-13T07:04:58.108Z	acceptance_verifier	pass	verdict=pass pass=8 fail=0 skipped=0
+2026-09-22T15:18:40.073Z	transition	pass	done->wip	actor=operator	note=R-8.07: понижен с done по rules.md #4 — acceptance зелёная (8/8), но KPI-1 (coverage) измерен и провален: atlas/docs/end-user/ пуста при двух user-facing блоках (b.ui-control front/wip, b.product-dashboard front/idea), покрытие 0/2. Машинерия работает, профильный результат не произведён ни разу.
+2026-09-22T15:18:59.906Z	kpi	fail	R-8.07: KPI-1 coverage 0/2 подтверждён при понижении — atlas/docs/end-user/ пуста. Блок переведён done->wip; до возврата нужен либо непустой набор документов, либо переформулировка KPI-1 на done-блоки

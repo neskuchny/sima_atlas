@@ -1,6 +1,6 @@
 # Sima Atlas Wiki
 
-_Auto-generated: 2026-09-13T07:05:00.118Z_
+_Auto-generated: 2026-09-22T15:20:24.145Z_
 
 ## Граф продукта
 
@@ -41,7 +41,7 @@ flowchart TB
   end
   subgraph content["Контент / документация"]
     b_docs["Docs Builder<br/><small>done</small>"]:::done
-    b_user_docs_generator["End-User Docs Generator<br/><small>done</small>"]:::done
+    b_user_docs_generator["End-User Docs Generator<br/><small>wip</small>"]:::wip
   end
   subgraph testing["Тестирование"]
     b_acceptance_verifier_loop["Acceptance Verifier Loop<br/><small>desync</small>"]:::desync
@@ -138,8 +138,8 @@ flowchart TB
 
 - 🟢 **b.docs** — Docs Builder _(done)_
   - reason: Generators run but feed on template missions; needs layer-aware wiki and mermaid (PR2)
-- 🟢 **b.user-docs-generator** — End-User Docs Generator _(done)_
-  - reason: Phase I: verifier FAIL on A1 (introspect_block_ui.selftest) — coupled to deleted frontend/proposals_panel.jsx. Test fixture needs repointing to a current JSX file.
+- 🟠 **b.user-docs-generator** — End-User Docs Generator _(wip)_
+  - reason: R-8.07: демонтирован из done по rules.md #4. Acceptance зелёная (8/8) — машинерия генерации работает и покрыта selftest. KPI-1 (coverage) измерен и провален: atlas/docs/end-user/ пуста при двух user-facing блоках, покрытие 0/2. До done: произвести документы хотя бы для одного user-facing блока ЛИБО переформулировать KPI-1 на done-блоки (решение оператора, см. narrative).
 
 ### Тестирование (`testing`)
 
@@ -1644,11 +1644,11 @@ _Sources: [mission](blocks/b.acceptance-verifier-loop/mission.md) · [kpi](block
 
 ---
 
-### 🟢 b.user-docs-generator — End-User Docs Generator
+### 🟠 b.user-docs-generator — End-User Docs Generator
 
 - **layer**: `content`
 - **type**: module
-- **status**: `done` — Phase I: verifier FAIL on A1 (introspect_block_ui.selftest) — coupled to deleted frontend/proposals_panel.jsx. Test fixture needs repointing to a current JSX file.
+- **status**: `wip` — R-8.07: демонтирован из done по rules.md #4. Acceptance зелёная (8/8) — машинерия генерации работает и покрыта selftest. KPI-1 (coverage) измерен и провален: atlas/docs/end-user/ пуста при двух user-facing блоках, покрытие 0/2. До done: произвести документы хотя бы для одного user-facing блока ЛИБО переформулировать KPI-1 на done-блоки (решение оператора, см. narrative).
 - **mvp**: no
 - **depends_on**: `b.db`, `b.docs`, `b.agent-orchestrator`, `b.llm-gateway`
 - **tech_stack**: `nodejs`, `esm`, `markdown`, `playwright`
@@ -6290,6 +6290,14 @@ _no summary_
 - 2026-09-13T07:04:55.230Z: smoke e2e distillate
 - 2026-09-13T07:04:59.754Z: smoke e2e queued insight
 - 2026-09-13T07:04:59.802Z: smoke e2e distillate
+- 2026-09-22T15:19:29.105Z: smoke e2e queued insight
+- 2026-09-22T15:19:29.150Z: smoke e2e distillate
+- 2026-09-22T15:19:33.269Z: smoke e2e queued insight
+- 2026-09-22T15:19:33.324Z: smoke e2e distillate
+- 2026-09-22T15:20:19.263Z: smoke e2e queued insight
+- 2026-09-22T15:20:19.311Z: smoke e2e distillate
+- 2026-09-22T15:20:23.729Z: smoke e2e queued insight
+- 2026-09-22T15:20:23.782Z: smoke e2e distillate
 
 #### Files
 

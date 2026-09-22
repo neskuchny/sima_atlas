@@ -1,7 +1,7 @@
 {
   "total_done": 10,
   "total_broken": 0,
-  "total_wip_started": 8,
+  "total_wip_started": 9,
   "rollback_rate": 0,
   "median_time_idea_to_done_h": 0.0000275,
   "common_failure_modes": {
@@ -10,6 +10,6 @@
     "cascade_check": 6,
     "drift_guard": 2,
     "agent_invocation": 3,
-    "kpi": 1
+    "kpi": 2
   }
 }
