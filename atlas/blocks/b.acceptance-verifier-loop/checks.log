@@ -50,3 +50,9 @@
 2026-06-20T08:29:39.423Z	cascade_check	fail	broken by parent b.core-sync edit — verifier failed; status auto-set to desync
 2026-06-20T08:31:30.151Z	acceptance_verifier	fail	verdict=fail pass=6 fail=1 skipped=1 fails=[A3:node tests/llm_judge.smoke.mjs → exit 1; stderr: "[llm-gatew]
 2026-06-20T08:31:02.542Z	cascade_check	fail	broken by parent b.core-sync edit — verifier failed; status auto-set to desync
+2026-09-22T19:43:58.537Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=1
+2026-09-22T19:43:58.585Z	transition	pass	desync->done	actor=operator-R8.10	note=legacy desync cleared: transitions.log shows done before the 2026-06-20 cascade mark (last transition desync->done on 2026-06-09); re-verified green after the mark gate=pass(desync-cleared 7/8)
+2026-09-22T19:55:59.162Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=1
+2026-09-22T19:56:40.838Z	acceptance_verifier	pass	verdict=pass pass=7 fail=0 skipped=1
+2026-09-22T19:56:58.000Z	kpi	fail	R-8.10 measured: KPI-1 ✓ (gate refuses done without pass); KPI-2 ✗ 68.9% deterministic < 70%; KPI-3 ✓ 1.1 s for 8 assertions; KPI-6 ✗ no verifier cache exists; KPI-4/5/7 not measurable on mock
+2026-09-22T19:56:58.408Z	transition	pass	done->wip	actor=operator-R8.10	note=KPI not met, measured: KPI-2 68.9% < 70% deterministic evidence; KPI-6 verifier cache does not exist. Acceptance itself is green 7/0 — the same case as b.user-docs-generator (R-8.07). The restore to done earlier today re-exposed an unverified done; the kpi validator caught it.

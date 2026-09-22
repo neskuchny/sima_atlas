@@ -4,14 +4,14 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Sima Atlas — visual contract-first development for AI agents</title>
-<link rel="stylesheet" href="styles.css?v=r8-09" />
+<link rel="stylesheet" href="styles.css?v=r8-10b" />
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 <!-- R-7.28: markdown renderer for contract bodies (mission.md / kpi.md / acceptance.md etc.) -->
 <script src="https://cdn.jsdelivr.net/npm/marked@13.0.3/marked.min.js"></script>
 <!-- R-7.52: i18n must load BEFORE jsx components so window.__SIMA_T is defined when React renders -->
-<script src="i18n.js?v=r8-09"></script>
+<script src="i18n.js?v=r8-10b"></script>
 </head>
 <body>
 <div id="root"></div>
@@ -27,10 +27,10 @@
        window.SIMA_API_BASE before this script loads to point at a
        remote backend in production. -->
 <script src="data_static.js?v=r7-94"></script>
-<script src="data_loader.js?v=r8-09"></script>
+<script src="data_loader.js?v=r8-10b"></script>
 <script type="text/babel" src="tweaks-panel.jsx?v=r7-94"></script>
-<script type="text/babel" src="graph.jsx?v=r7-94"></script>
-<script type="text/babel" src="panels.jsx?v=r8-09"></script>
+<script type="text/babel" src="graph.jsx?v=r8-10b"></script>
+<script type="text/babel" src="panels.jsx?v=r8-10b"></script>
 <script type="text/babel" src="views.jsx?v=r7-94"></script>
 <!-- R-7.99 (b.desktop T12) — Project Picker. Only active inside the
      Electron shell (window.sima exposed by extensions/desktop/preload.mjs);
@@ -61,7 +61,16 @@ function App() {
     return () => window.removeEventListener('sima-locale-change', fn);
   }, []);
 
-  const [selectedId, setSelectedId] = useState(null);
+  // R-8.10 — the selected block survives the live-refresh re-mount of <App>
+  // (see the mount() at the bottom). As plain useState(null) every change on
+  // disk — an agent writing a file, the nightly — closed the block the
+  // operator was looking at.
+  const [selectedId, setSelectedIdRaw] = useState(() => window.__SIMA_SELECTED_ID || null);
+  const setSelectedId = (next) => setSelectedIdRaw((prev) => {
+    const val = typeof next === 'function' ? next(prev) : next;
+    window.__SIMA_SELECTED_ID = val;
+    return val;
+  });
   const [hoveredId, setHoveredId] = useState(null);
   const [filters, setFilters] = useState(new Set());
   const [scanState, setScanState] = useState('idle'); // idle | scanning | found | resolved
@@ -1140,6 +1149,7 @@ function App() {
           <span className="dot" style={{ background: scanState === 'found' ? 'var(--st-desync)' : 'var(--st-done)' }} />
           {scanState === 'scanning' ? (window.__SIMA_T||((_,fb)=>fb))('toolbar.sync_checking','checking…') : scanState === 'found' ? (window.__SIMA_T||((_,fb)=>fb))('toolbar.sync_drift','⚠ drift') : (window.__SIMA_T||((_,fb)=>fb))('toolbar.sync','⟳ Sync')}
         </button>
+        <LlmProviderBadge />
         <button className="pill" onClick={() => autoArrangeByLayer()} title={(window.__SIMA_T||((_,fb)=>fb))('toolbar.auto_arrange_title','Re-position all visible blocks into rows by layer (backend / logic / frontend / tests)')}>{(window.__SIMA_T||((_,fb)=>fb))('toolbar.auto_arrange','📐 Arrange')}</button>
         <button className="pill" onClick={() => setProductReviewOpen(true)} title={(window.__SIMA_T||((_,fb)=>fb))('toolbar.product_review_title', 'Deep product review — schema-syncer + LLM judge per block (mission vs implementation)')}>{(window.__SIMA_T||((_,fb)=>fb))('toolbar.product_review', '🔍 Product review')}</button>
         <button className="pill" onClick={() => setArchReviewOpen(true)} title={(window.__SIMA_T||((_,fb)=>fb))('toolbar.architecture_title','Architecture review — framework consistency, scale, data flow across the whole graph')}>{(window.__SIMA_T||((_,fb)=>fb))('toolbar.architecture','🏛 Architecture')}</button>

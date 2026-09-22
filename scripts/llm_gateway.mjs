@@ -171,19 +171,45 @@ const PROVIDERS = {
 };
 
 function pickProvider(requested) {
+  return resolveProvider(requested, { log: true }).provider;
+}
+
+// R-8.10 — the provider the NEXT default call would use, and why, without
+// making a call. The canvas shows it as a badge: with the subscription-first
+// cascade below, a machine with the `claude` CLI installed silently answers
+// through the operator's Claude subscription, and «where did this text come
+// from?» had no answer anywhere in the UI.
+export function describeProvider() {
+  const { provider, reason, source } = resolveProvider(undefined, { log: false });
+  const kind = provider === 'mock' ? 'none'
+    : provider === 'claude_cli' ? 'subscription'
+    : provider === 'ollama' ? 'local'
+    : 'api_key';
+  return {
+    provider,
+    model: provider === 'claude_cli' ? 'the model configured in your claude CLI' : (PROVIDERS[provider]?.defaultModel || null),
+    kind,
+    source,           // forced_mock | explicit | cascade
+    reason,
+    mock: provider === 'mock',
+  };
+}
+
+function resolveProvider(requested, { log = true } = {}) {
+  const say = (fn, msg) => { if (log) console[fn](msg); };
   // Phase R-1 escape hatch: nightly / CI pipelines need deterministic
   // mock responses (cheap, fast, idempotent). Setting ATLAS_FORCE_MOCK_LLM=1
   // forces every call onto the mock provider regardless of which paid
   // keys or local CLI are available.
-  if (process.env.ATLAS_FORCE_MOCK_LLM === '1') return 'mock';
-  if (requested && PROVIDERS[requested] && PROVIDERS[requested].available()) return requested;
+  if (process.env.ATLAS_FORCE_MOCK_LLM === '1') return { provider: 'mock', source: 'forced_mock', reason: 'ATLAS_FORCE_MOCK_LLM=1 — every call is forced onto the deterministic mock' };
+  if (requested && PROVIDERS[requested] && PROVIDERS[requested].available()) return { provider: requested, source: 'explicit', reason: `requested by the caller` };
   if (requested && PROVIDERS[requested] && requested !== 'mock') {
     // requested explicitly but no key → fall back to mock with a warning trace
-    console.warn(`[llm-gateway] requested provider "${requested}" has no key; falling back to mock`);
-    return 'mock';
+    say('warn', `[llm-gateway] requested provider "${requested}" has no key; falling back to mock`);
+    return { provider: 'mock', source: 'explicit', reason: `requested provider "${requested}" is not available — fell back to mock` };
   }
   if (requested && !PROVIDERS[requested]) {
-    console.warn(`[llm-gateway] unknown provider "${requested}" (allowed: ${Object.keys(PROVIDERS).join(', ')}); ignoring`);
+    say('warn', `[llm-gateway] unknown provider "${requested}" (allowed: ${Object.keys(PROVIDERS).join(', ')}); ignoring`);
   }
   // Phase R-7: subscription-first cascade. Главный use-case Sima — у
   // оператора есть Claude.ai Pro/Max подписка, и он хочет тратить **её**,
@@ -206,14 +232,17 @@ function pickProvider(requested) {
       : ['anthropic', 'google', 'openai', 'claude_cli', 'mock'];
   const dfltRaw = process.env.LLM_DEFAULT_PROVIDER;
   const dflt = typeof dfltRaw === 'string' ? dfltRaw.trim() : dfltRaw;
+  let explicitNote = '';
   if (dflt) {
     if (!PROVIDERS[dflt]) {
-      console.warn(`[llm-gateway] LLM_DEFAULT_PROVIDER="${dfltRaw}" is not one of ${Object.keys(PROVIDERS).join(', ')}; check your .env (do not put inline comments without a # at column 0).`);
+      say('warn', `[llm-gateway] LLM_DEFAULT_PROVIDER="${dfltRaw}" is not one of ${Object.keys(PROVIDERS).join(', ')}; check your .env (do not put inline comments without a # at column 0).`);
+      explicitNote = ` (LLM_DEFAULT_PROVIDER="${dfltRaw}" is not a known provider — ignored)`;
     } else if (PROVIDERS[dflt].available()) {
-      console.log(`[llm-gateway] using provider=${dflt} (explicit LLM_DEFAULT_PROVIDER)`);
-      return dflt;
+      say('log', `[llm-gateway] using provider=${dflt} (explicit LLM_DEFAULT_PROVIDER)`);
+      return { provider: dflt, source: 'explicit', reason: `LLM_DEFAULT_PROVIDER=${dflt}` };
     } else {
-      console.warn(`[llm-gateway] LLM_DEFAULT_PROVIDER=${dflt} but its API key env var is empty; will fall back according to availability order.`);
+      say('warn', `[llm-gateway] LLM_DEFAULT_PROVIDER=${dflt} but its API key env var is empty; will fall back according to availability order.`);
+      explicitNote = ` (LLM_DEFAULT_PROVIDER=${dflt} is set but not available)`;
     }
   }
   for (const p of order) {
@@ -221,14 +250,15 @@ function pickProvider(requested) {
       const reason = p === 'claude_cli' ? 'subscription via claude CLI' :
                      p === 'anthropic'  ? 'ANTHROPIC_API_KEY' :
                      p === 'google'     ? 'GOOGLE_API_KEY' :
+                     p === 'openai'     ? 'OPENAI_API_KEY' :
                      p === 'ollama'     ? `local Ollama at ${process.env.OLLAMA_BASE_URL || 'http://localhost:11434'}` :
                      p === 'mock'       ? 'no provider available — fallback to deterministic mock' :
                                           'available';
-      console.log(`[llm-gateway] using provider=${p} (${reason})`);
-      return p;
+      say('log', `[llm-gateway] using provider=${p} (${reason})`);
+      return { provider: p, source: 'cascade', reason: reason + explicitNote };
     }
   }
-  return 'mock';
+  return { provider: 'mock', source: 'cascade', reason: 'no provider available — fallback to deterministic mock' + explicitNote };
 }
 
 // ──────────────────────────────────────────────────────────────────── helpers

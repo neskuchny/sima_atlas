@@ -40,3 +40,11 @@ this block's own owned files):
 - atlas/blocks/b.acceptance-verifier-loop/provides.md [alive]
 - atlas/blocks/b.acceptance-verifier-loop/files.md [alive]
 - atlas/blocks/b.acceptance-verifier-loop/checks.log [alive]
+
+## R-8.10 — previously unowned
+
+These files had no owner in any files.md, so the code-graph check never saw their imports.
+- scripts/cascade_verify.mjs [alive] (re-verifies reverse dependencies after a green run)
+- scripts/semantic_verify.mjs [alive] (the semantic judge (Contract as Arbiter))
+- scripts/subagent_verifier.mjs [alive]
+- tests/desync_restore.selftest.mjs [alive] (R-8.10: the real verifier on a synthetic atlas — every desync restore is a gated transition; idea / legacy marks are left to the operator)

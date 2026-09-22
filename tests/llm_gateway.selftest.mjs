@@ -5,7 +5,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { callLLM, extractBlockSchema, BLOCK_SCHEMA } from '../scripts/llm_gateway.mjs';
+import { callLLM, extractBlockSchema, BLOCK_SCHEMA, describeProvider } from '../scripts/llm_gateway.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(__filename), '..');
@@ -83,9 +83,45 @@ let failures = [];
   }
 }
 
+// ─── Test 6 (R-8.10): the canvas badge says what callLLM will actually use ─
+// describeProvider runs the same resolution as a real call, without calling
+// and without logging. Checked only on mock paths — no live request here.
+{
+  const saved = { force: process.env.ATLAS_FORCE_MOCK_LLM, dflt: process.env.LLM_DEFAULT_PROVIDER };
+  const logs = [];
+  const origLog = console.log, origWarn = console.warn;
+  try {
+    process.env.ATLAS_FORCE_MOCK_LLM = '1';
+    console.log = (...a) => logs.push(a.join(' ')); console.warn = (...a) => logs.push(a.join(' '));
+    const forced = describeProvider();
+    console.log = origLog; console.warn = origWarn;
+    const r1 = await callLLM({ prompt: 'self-test:describe-forced ' + Math.random() });
+    if (forced.provider !== 'mock' || forced.source !== 'forced_mock' || forced.kind !== 'none' || !forced.mock) failures.push(`describe(forced): ${JSON.stringify(forced)}`);
+    if (r1.trace?.provider !== forced.provider) failures.push(`forced: badge says ${forced.provider}, call used ${r1.trace?.provider}`);
+    if (logs.some((l) => l.includes('[llm-gateway]'))) failures.push('describeProvider must not log — the badge polls it');
+
+    delete process.env.ATLAS_FORCE_MOCK_LLM;
+    process.env.LLM_DEFAULT_PROVIDER = 'mock';
+    const explicit = describeProvider();
+    const r2 = await callLLM({ prompt: 'self-test:describe-explicit ' + Math.random() });
+    if (explicit.provider !== 'mock' || explicit.source !== 'explicit' || !/LLM_DEFAULT_PROVIDER=mock/.test(explicit.reason)) failures.push(`describe(explicit): ${JSON.stringify(explicit)}`);
+    if (r2.trace?.provider !== explicit.provider) failures.push(`explicit: badge says ${explicit.provider}, call used ${r2.trace?.provider}`);
+
+    process.env.LLM_DEFAULT_PROVIDER = 'not-a-provider';
+    console.log = (...a) => logs.push(a.join(' ')); console.warn = (...a) => logs.push(a.join(' '));
+    const bogus = describeProvider();
+    console.log = origLog; console.warn = origWarn;
+    if (!/not a known provider/.test(bogus.reason)) failures.push(`a malformed LLM_DEFAULT_PROVIDER must be named in the reason: ${bogus.reason}`);
+  } finally {
+    console.log = origLog; console.warn = origWarn;
+    if (saved.force === undefined) delete process.env.ATLAS_FORCE_MOCK_LLM; else process.env.ATLAS_FORCE_MOCK_LLM = saved.force;
+    if (saved.dflt === undefined) delete process.env.LLM_DEFAULT_PROVIDER; else process.env.LLM_DEFAULT_PROVIDER = saved.dflt;
+  }
+}
+
 if (failures.length) {
   console.error('llm_gateway.selftest: FAIL');
   failures.forEach((f) => console.error(' ✗', f));
   process.exit(1);
 }
-console.log('llm_gateway.selftest: OK (5 cases)');
+console.log('llm_gateway.selftest: OK (6 cases)');

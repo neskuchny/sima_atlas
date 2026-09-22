@@ -222,3 +222,30 @@ b.operator-profile-learner` — настоящий импорт кода. Обр
 хранились как `"b.x: capability"`. Каскад режет по двоеточию, так что для него
 это не баг, но всё, что ищет id дословно, узла не находит. Нормализовано до
 голых id — capability остаётся в `depends_on.md`.
+
+## 2026-09-22 — R-8.10: 58 files without an owner, 2 with two; the check that keeps it so
+
+The code-graph check only sees imports between files some block owns. 58
+scripts and tests were in no files.md, so their imports were never checked.
+They were assigned by meaning, keeping every import on a declared edge:
+block/file/artifact/subsystem APIs and migrations → b.db; the nightly,
+cleanup, project/subschema validators, schema syncer → here; synthesis, chat
+ingestion from conversations, the post-run pipeline, screenshots →
+b.agent-orchestrator; cascade and semantic verification →
+b.acceptance-verifier-loop; wiki/article/hero screenshot → b.docs; the canvas
+payload builder, dev server, demo client → b.ui-control; token economics →
+b.llm-gateway; the operator profile seeder → b.operator-profile-learner.
+
+Assigning them surfaced three undeclared cross-block imports at once:
+b.agent-orchestrator → b.ui-control (screenshots — resolved by ownership,
+the other direction already exists, so it would have been a cycle),
+b.llm-gateway → b.db (accept_proposal — declared), b.ui-control → b.clarify
+(the canvas frame marker — declared). Two files had two live owners:
+`log_transition.mjs` / `transitions.log` (b.db only now — its lifecycle gate
+is the one writer) and `frontend/atlas_sync.js` (here only — it is this
+block's mission).
+
+`scripts/validate_ownership.mjs` is the check that would have caught both:
+every script, test, canvas and desktop file has exactly one live owner, or
+the nightly fails with the fix. It caught itself on its first run — it was
+unowned until listed here.

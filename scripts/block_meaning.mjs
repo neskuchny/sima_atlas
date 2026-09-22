@@ -103,6 +103,43 @@ export function readTrajectory(missionText) {
 }
 
 /**
+ * R-8.10 — write the trajectory section into a mission (the canvas «Set the
+ * trajectory» button). Replaces the body of an existing section, inserts a new
+ * «## Во что это вырастет» before «## Layer» (or at the end), or removes the
+ * section when the body is empty. Headings inside the body would end the
+ * section when it is read back, so they are turned into bold lines — what is
+ * written is exactly what readTrajectory will return.
+ */
+export const DEFAULT_TRAJECTORY_HEADING = 'Во что это вырастет';
+export function setTrajectory(missionText, body, { heading = DEFAULT_TRAJECTORY_HEADING } = {}) {
+  const src = String(missionText || '').replace(/\r\n/g, '\n');
+  const text = String(body || '').replace(/\r\n/g, '\n').trim()
+    .split('\n').map((l) => l.replace(/^#{1,6}\s+(.*)$/, '**$1**')).join('\n');
+  const lines = src.split('\n');
+  let start = -1, level = 0;
+  for (let i = 0; i < lines.length; i++) {
+    const m = lines[i].match(HEADING_RE);
+    if (m) { start = i; level = m[1].length; break; }
+  }
+  let out;
+  if (start >= 0) {
+    const stop = new RegExp(`^#{1,${level}}\\s`);
+    let end = lines.length;
+    for (let i = start + 1; i < lines.length; i++) { if (stop.test(lines[i])) { end = i; break; } }
+    const section = text ? [lines[start], '', text, ''] : [];
+    out = [...lines.slice(0, start), ...section, ...lines.slice(end)];
+  } else {
+    if (!text) return src;
+    const section = [`## ${heading}`, '', text, ''];
+    const layerAt = lines.findIndex((l) => /^##\s+Layer\s*$/i.test(l));
+    out = layerAt >= 0
+      ? [...lines.slice(0, layerAt), ...section, ...lines.slice(layerAt)]
+      : [...lines, '', ...section];
+  }
+  return out.join('\n').replace(/\n{3,}/g, '\n\n').replace(/\s*$/, '\n');
+}
+
+/**
  * Prompt lines for the trajectory section — present or absent. `recordIn` is
  * where the agent writes down a choice between green variants: the declaration
  * while it may still write one, narrative.md once the operator has confirmed
@@ -500,6 +537,9 @@ export function blockMeaningSummary(blockId, atlasRoot = DEFAULT_ATLAS) {
       empty: traj.empty,
       heading: traj.heading,
       text: traj.text,
+      // The canvas sends it back when it writes the trajectory, so an edit
+      // made in the meantime is not silently overwritten.
+      mission_mtime: fs.existsSync(missionPath) ? fs.statSync(missionPath).mtime.toISOString() : null,
     },
     understanding: u.exists
       ? {

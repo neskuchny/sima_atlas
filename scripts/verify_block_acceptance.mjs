@@ -26,6 +26,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { verifyBlock } from './collect_evidence.mjs';
+import { applyTransition, rejectionMessage } from './lifecycle_gate.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(__filename), '..');
@@ -109,21 +110,26 @@ function restoreFromDesyncIfGreen(blockId, checkedAt) {
     return;
   }
 
-  const ts = new Date().toISOString();
-  block.status = target;
-  block.status_reason = `desync cleared: re-verified green at ${checkedAt} (was marked ${markedAt || 'unknown'})`;
-  block.updated_at = ts;
-  delete block.status_before_desync;
-  delete block.desync_marked_at;
-  fs.writeFileSync(graphPath, JSON.stringify(graph, null, 2) + '\n', 'utf8');
-
-  const transitionsPath = path.join(ATLAS, 'transitions.log');
-  if (fs.existsSync(transitionsPath)) {
-    fs.appendFileSync(transitionsPath, `${ts}\t${blockId}\tdesync\t${target}\tactor=verifier\tnote=desync cleared — re-verified green at ${checkedAt}\n`, 'utf8');
+  // R-8.10 — through the lifecycle gate, the one writer of status and both
+  // ledgers. This used to write graph.json, transitions.log and checks.log by
+  // hand, and could move desync → review, which the gate's own table forbade.
+  // The gate now re-checks what this function assumes: the green run is newer
+  // than the mark, and the target is what the block held before (never a
+  // promotion). A target the gate cannot restore to is left to the operator.
+  if (!['done', 'review', 'wip'].includes(target)) {
+    console.log(`  · ${blockId} is desync and verifies green; it was "${target}" before, which is not restored automatically.`);
+    console.log(`    Decide explicitly: node scripts/advance_block_state.mjs ${blockId} wip operator "re-verified green at ${checkedAt}"`);
+    return;
   }
-  fs.appendFileSync(path.join(ATLAS, 'blocks', blockId, 'checks.log'),
-    `${ts}\ttransition\tpass\tdesync->${target}\tactor=verifier\tnote=re-verified green\n`, 'utf8');
-  console.log(`  · ${blockId}: desync cleared → ${target} (re-verified green)`);
+  const r = applyTransition({
+    atlasRoot: ATLAS, blockId, to: target, actor: 'verifier',
+    note: `desync cleared — re-verified green at ${checkedAt} (was marked ${markedAt || 'unknown'})`,
+  });
+  if (!r.ok) {
+    console.log(rejectionMessage(blockId, target, r).split('\n').map((l) => `  · ${l}`).join('\n'));
+    return;
+  }
+  console.log(`  · ${blockId}: desync cleared → ${target} (re-verified green, through the lifecycle gate)`);
 }
 
 if (fileURLToPath(import.meta.url) === process.argv[1]) {

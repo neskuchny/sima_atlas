@@ -1,6 +1,6 @@
 # b.llm-gateway — files
 
-- scripts/llm_gateway.mjs [alive] (PR3 — main implementation, PR4.2 inline-comment-safe .env parser)
+- scripts/llm_gateway.mjs [alive] (PR3 — main implementation, PR4.2 inline-comment-safe .env parser; R-8.10: describeProvider — the provider the next default call would use and why, for the canvas badge)
 - scripts/llm_check.mjs [alive] (PR4.1 — diagnostic for env + provider ping)
 - tests/llm_gateway.selftest.mjs [alive] (4 cases: schema validation, extractBlockSchema, trace write, no-schema fallback)
 - tests/llm_extraction.eval.mjs [alive] (5-case golden eval, target precision >= 0.7)
@@ -22,3 +22,9 @@
 - scripts/seed_llm_mocks.mjs [alive] (PR-Eval: regenerate mock fixtures from golden)
 - atlas/eval_history/.gitkeep [alive] (PR-Eval: per-run snapshots; .gitignored except baseline.json)
 - atlas/eval_history/baseline.json [alive] (PR-Eval: pinned regression baseline)
+
+## R-8.10 — previously unowned
+
+These files had no owner in any files.md, so the code-graph check never saw their imports.
+- scripts/token_economics.mjs [alive] (token/cost roll-up over llm_traces; R-8.10: --since)
+- tests/openai_gemini_providers.selftest.mjs [alive]

@@ -6,3 +6,4 @@
 - b.operator-profile-learner: personal_templates
 - b.clarify: trajectory_reader
 - b.clarify: declared_understanding
+- b.llm-gateway: llm_provider_description

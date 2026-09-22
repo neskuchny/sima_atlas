@@ -92,8 +92,14 @@ function ContextRail({ data, onClose, onUpdateField, onOpenDocs }) {
 
 /* ====================== DETAIL PANEL ====================== */
 function DetailPanel({ data, modules: liveModules, moduleId, onClose, desyncResolved, onSendToAgent, onDrillDown, onSelect, onOpenTz, onClaudeAdvice, onAddEdge }) {
-  const [tab, setTab] = useState2('overview');
-  useEffect2(() => { setTab('overview'); }, [moduleId]);
+  // R-8.10 — the open tab survives the live-refresh re-mount too.
+  const [tab, setTab] = useSticky('detail:tab', 'overview');
+  // Back to Overview when another block is opened — not when the same block
+  // is re-mounted by a live refresh.
+  useEffect2(() => {
+    const st = (window.__SIMA_STICKY = window.__SIMA_STICKY || {});
+    if (st['detail:tabFor'] !== moduleId) { st['detail:tabFor'] = moduleId; setTab('overview'); }
+  }, [moduleId]);
 
   if (!moduleId) {
     const t = window.__SIMA_T || ((_, fb) => fb);
@@ -403,6 +409,80 @@ function TokenSpendWidget({ block_id }) {
   );
 }
 
+// R-8.10 — UI state that must survive a live refresh. index.html re-mounts
+// the whole <App> (new key) whenever the atlas data changes on disk, which
+// wipes every useState below it. For the meaning section that meant: the
+// operator types a correction, the agent writes a file meanwhile, and the
+// draft is gone; a «Saved to mission.md» notice vanished the moment the save
+// itself changed the data (caught by the Playwright spec, 3 runs in 8). This
+// keeps such state in a window-level store keyed per block and tells mounted
+// components when it changes — also when a request started before a re-mount
+// resolves after it.
+const __stickyListeners = new Set();
+function useSticky(key, initial) {
+  const store = (window.__SIMA_STICKY = window.__SIMA_STICKY || {});
+  const [v, setV] = useState2(() => (key in store ? store[key] : initial));
+  useEffect2(() => {
+    const on = (k) => { if (k === key) setV(store[key]); };
+    __stickyListeners.add(on);
+    setV(key in store ? store[key] : initial);
+    return () => { __stickyListeners.delete(on); };
+  }, [key]);
+  const set = (next) => {
+    const prev = key in store ? store[key] : initial;
+    const val = typeof next === 'function' ? next(prev) : next;
+    store[key] = val;
+    __stickyListeners.forEach((fn) => fn(key));
+  };
+  return [v, set];
+}
+
+// R-8.10 — which LLM writes the text the canvas generates. With the
+// subscription-first cascade a machine that has the `claude` CLI installed
+// answers through the operator's Claude subscription without saying so; the
+// operator once saw «fill user story» write about the wrong product and had no
+// way to tell where the text came from. The badge says it, and how to change it.
+function LlmProviderBadge() {
+  const t = window.__SIMA_T || ((_, fb) => fb);
+  const [p, setP] = useState2(null);
+  useEffect2(() => {
+    let alive = true;
+    const load = async () => {
+      const r = await window.SIMA_API?.meta?.llmProvider?.();
+      if (alive) setP(r && r.ok ? r : { ok: false });
+    };
+    load();
+    const id = setInterval(load, 60_000);
+    return () => { alive = false; clearInterval(id); };
+  }, []);
+  if (!p) return null;
+  if (!p.ok) {
+    return <span className="pill llm-badge llm-badge-unknown" title={t('llm.unknown_title', 'The API server did not say which LLM it uses.')}>{t('llm.label', 'LLM')}: ?</span>;
+  }
+  const short = {
+    claude_cli: t('llm.short_claude_cli', 'Claude (subscription)'),
+    anthropic: 'Anthropic API', google: 'Gemini API', openai: 'OpenAI API', ollama: 'Ollama',
+    mock: t('llm.short_mock', 'none — demo answers'),
+  }[p.provider] || p.provider;
+  const long = {
+    claude_cli: t('llm.long_claude_cli', 'Generated text comes from Claude through the claude CLI installed on this machine — your Claude subscription, not an API key. The model is whatever your CLI is set to.'),
+    anthropic: t('llm.long_anthropic', 'Generated text comes from the Anthropic API (ANTHROPIC_API_KEY).'),
+    google: t('llm.long_google', 'Generated text comes from the Gemini API (GOOGLE_API_KEY).'),
+    openai: t('llm.long_openai', 'Generated text comes from the OpenAI API (OPENAI_API_KEY).'),
+    ollama: t('llm.long_ollama', 'Generated text comes from a local Ollama model.'),
+    mock: t('llm.long_mock', 'No LLM is connected: «fill», «suggest» and reviews return deterministic demo answers, and every judge reports «inconclusive».'),
+  }[p.provider] || '';
+  const how = t('llm.how_to_change', 'To change it, set LLM_DEFAULT_PROVIDER in .env (claude_cli, anthropic, google, openai, ollama or mock) and restart the API server.');
+  return (
+    <span
+      className={`pill llm-badge llm-badge-${p.kind}`}
+      title={`${long}\n${t('llm.why', 'Why')}: ${p.reason}${p.model ? `\n${t('llm.model', 'Model')}: ${p.model}` : ''}\n${how}`}
+    >
+      <span className="dot" />{t('llm.label', 'LLM')}: {short}
+    </span>
+  );
+}
+
 // R-8.08 (b.clarify T24) — the line the operator should read first: what the
 // agent took this block to be («Treating this as»), before any of the code.
 // A wrong frame produces code that still verifies green, so this is the one
@@ -417,13 +497,19 @@ function TokenSpendWidget({ block_id }) {
 // re-declares with it. The gate state comes from the server (frameGate).
 function MeaningSection({ meaning, onMeaning }) {
   const t = window.__SIMA_T || ((_, fb) => fb);
-  const [mode, setMode] = useState2('idle');      // idle | correcting | busy
-  const [draft, setDraft] = useState2('');
-  const [notice, setNotice] = useState2(null);    // { kind: 'ok' | 'err', text }
+  // Sticky per block (see useSticky): a live refresh re-mounts the App.
+  const sk = (name) => `meaning:${meaning.block_id}:${name}`;
+  const [mode, setMode] = useSticky(sk('mode'), 'idle');      // idle | correcting | busy
+  const [draft, setDraft] = useSticky(sk('draft'), '');
+  const [notice, setNotice] = useSticky(sk('notice'), null);  // { kind: 'ok' | 'err', text }
   // The gate state in which this panel already started a run. Its «start»
   // button is hidden until the state moves on, so one click cannot become two
   // runs; a new declaration (awaiting) always shows its buttons again.
-  const [startedIn, setStartedIn] = useState2(null);
+  const [startedIn, setStartedIn] = useSticky(sk('startedIn'), null);
+  // R-8.10 — inline editor for the trajectory section.
+  const [trajEdit, setTrajEdit] = useSticky(sk('trajEdit'), false);
+  const [trajDraft, setTrajDraft] = useSticky(sk('trajDraft'), '');
+  const [trajNotice, setTrajNotice] = useSticky(sk('trajNotice'), null);
   const md = (s) => {
     const src = String(s || '');
     if (window.marked?.parse) return { __html: window.marked.parse(src) };
@@ -486,6 +572,23 @@ function MeaningSection({ meaning, onMeaning }) {
     else setNotice({ kind: 'err', text: `${t('meaning.run_failed', 'The run did not start')}: ${r?.error || ''}` });
   };
   const dateOf = (iso) => (iso ? String(iso).slice(0, 10) : '');
+  const saveTrajectory = async () => {
+    setMode('busy'); setTrajNotice(null);
+    const r = await window.SIMA_API?.meta?.setTrajectory?.({ block_id: meaning.block_id, text: trajDraft, if_match_mtime: traj.mission_mtime });
+    setMode('idle');
+    if (!r || !r.ok) {
+      setTrajNotice({ kind: 'err', text: r?.conflict
+        ? t('meaning.traj_conflict', 'mission.md changed since this panel loaded — reopen the block and try again.')
+        : (r?.error || t('meaning.review_failed', 'Could not save the answer — is the API running?')) });
+      return;
+    }
+    const { ok: _ok, ...fresh } = r;
+    if (onMeaning) onMeaning(fresh);
+    setTrajEdit(false);
+    setTrajNotice({ kind: 'ok', text: trajDraft.trim()
+      ? t('meaning.traj_saved', 'Saved to mission.md. The mission changed, so the agent will re-declare its understanding before writing code.')
+      : t('meaning.traj_cleared', 'The trajectory section was removed from mission.md.') });
+  };
   const canStart = startedIn !== (gate.state || 'none');
 
   const reviewBar = (() => {
@@ -617,7 +720,22 @@ function MeaningSection({ meaning, onMeaning }) {
 
       <div className="meaning-card">
         <div className="meaning-label">{t('meaning.trajectory', 'Where this is heading')}</div>
-        {traj.declared ? (
+        {trajEdit ? (
+          <div className="meaning-correct">
+            <textarea
+              value={trajDraft}
+              rows={4}
+              autoFocus
+              onChange={(e) => setTrajDraft(e.target.value)}
+              placeholder={t('meaning.traj_placeholder', 'Two or three sentences: what should this block grow into? E.g. «In half a year this becomes a shared service for three products, so the response format must be versioned from the start».')}
+            />
+            <div className="meaning-note">{t('meaning.traj_hint', 'The agent uses this to choose between implementations that all pass acceptance — not as something to build now. Saving changes mission.md, so the agent will re-declare its understanding.')}</div>
+            <div className="meaning-actions">
+              <button className="pill primary" disabled={busy} onClick={saveTrajectory}>{t('meaning.traj_save', 'Save to mission.md')}</button>
+              <button className="pill" disabled={busy} onClick={() => { setTrajEdit(false); setTrajNotice(null); }}>{t('meaning.btn_cancel', 'Cancel')}</button>
+            </div>
+          </div>
+        ) : traj.declared ? (
           <details>
             <summary>{firstLine(traj.text)}</summary>
             <div className="meaning-body" dangerouslySetInnerHTML={md(traj.text)} />
@@ -626,9 +744,19 @@ function MeaningSection({ meaning, onMeaning }) {
           <div className="meaning-warn" style={{ marginTop: 0 }}>{t('meaning.trajectory_empty', 'The mission has a trajectory heading with nothing under it — the agent treats that as no trajectory.')}</div>
         ) : (
           <div className="meaning-note" style={{ marginTop: 0 }}>
-            {t('meaning.trajectory_absent', 'Not declared. When several implementations pass acceptance, the agent picks one itself and records it as an assumption. To steer that choice, add a «## Во что это вырастет» section to mission.md (Contract tab): two or three sentences on what this block should grow into.')}
+            {t('meaning.trajectory_absent_short', 'Not declared. When several implementations pass acceptance, the agent picks one itself and records it as an assumption.')}
           </div>
         )}
+        {!trajEdit && (
+          <div className="meaning-actions">
+            <button
+              className={traj.declared ? 'meaning-link' : 'pill'}
+              disabled={busy}
+              onClick={() => { setTrajDraft(traj.text || ''); setTrajEdit(true); setTrajNotice(null); }}
+            >{traj.declared ? t('meaning.traj_edit', 'edit the trajectory') : t('meaning.traj_set', '✎ Set the trajectory')}</button>
+          </div>
+        )}
+        {trajNotice && <div className={`meaning-notice meaning-notice-${trajNotice.kind}`}>{trajNotice.text}</div>}
       </div>
     </div>
   );

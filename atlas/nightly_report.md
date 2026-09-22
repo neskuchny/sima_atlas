@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-09-22T18:27:19.578Z_
+_Generated: 2026-09-22T19:57:36.271Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -18,7 +18,7 @@ _Generated: 2026-09-22T18:27:19.578Z_
   - output: build_code_graph --check: code_graph.json up-to-date
 - ✅ code_graph_drift: ok
 - ✅ code_graph_extractor_selftest: ok
-  - output: deterministic — sha256(a65cd1a81a15…) matches across runs
+  - output: deterministic — sha256(1150453abc79…) matches across runs
 - ✅ code_graph_validator_selftest: ok
   - output: code_graph_validator.selftest: OK (6 test groups, all assertions green)
 - ✅ checks_append_endpoint_selftest: ok
@@ -30,9 +30,11 @@ _Generated: 2026-09-22T18:27:19.578Z_
 - ✅ openai_gemini_providers_selftest: ok
   - output: openai_gemini_providers.selftest: OK (5 test groups, all assertions green)
 - ✅ files_registry: ok
-  - output: Files registry validation: OK (alive=234, archived=4, dead=0)
+  - output: Files registry validation: OK (alive=298, archived=4, dead=0)
+- ✅ ownership: ok
+  - output: validate_ownership: OK — 191 files, each owned by exactly one block
 - ✅ housekeeping_sweep: ok
-  - output: housekeeping_sweeper: 1 proposal(s) — see atlas/cleanup_proposals.md
+  - output: housekeeping_sweeper: 0 proposal(s) — see atlas/cleanup_proposals.md
 - ✅ projects_contracts: ok
   - output: validate_projects: OK (1 projects, 5 blocks)
 - ✅ subschemas_contracts: ok
@@ -46,29 +48,33 @@ _Generated: 2026-09-22T18:27:19.578Z_
 - ✅ acceptance_assertions: ok
   - output: Acceptance assertions validation: OK
 - ✅ lifecycle_gate_selftest: ok
-  - output: lifecycle_gate.selftest: OK (7 groups, all assertions green)
+  - output: lifecycle_gate.selftest: OK (8 groups, all assertions green)
+- ✅ desync_restore_selftest: ok
+  - output: desync_restore.selftest: OK (2 groups, all assertions green)
 - ✅ clarify_block_selftest: ok
   - output: clarify_block.selftest: OK (10 groups, all assertions green)
 - ✅ clarifications: ok
   - output: validate_clarifications: 0 open marker(s), 0 question(s) answered on record — OK
 - ✅ block_meaning_selftest: ok
-  - output: block_meaning.selftest: OK (10 groups, all assertions green)
+  - output: block_meaning.selftest: OK (11 groups, all assertions green)
 - ✅ frame_gate_flow_selftest: ok
   - output: frame_gate_flow.selftest: OK (3 groups, all assertions green)
+- ✅ agent_loop_budget_selftest: ok
+  - output: agent_loop_budget.selftest: OK (2 groups, all assertions green)
 - ✅ meaning_report: ok
   - output: · b.clarify (review) — trajectory, understanding: complete, frame: awaiting
 - ✅ atlas_selftest: ok
   - output: atlas_sync.selftest: OK
 - ✅ bootstrap_layered_smoke: ok
-  - output: atlas_bootstrap smoke: OK (layers=7, blocks=21, links=35)
+  - output: atlas_bootstrap smoke: OK (layers=7, blocks=21, links=37)
 - ✅ llm_gateway_selftest: ok
-  - output: llm_gateway.selftest: OK (5 cases)
+  - output: [llm-gateway] using provider=mock (explicit LLM_DEFAULT_PROVIDER)
 - ✅ pick_template_selftest: ok
   - output: pick_template.selftest: OK (8 test groups, all assertions green)
 - ✅ operator_profile_selftest: ok
   - output: operator_profile.selftest: OK (7 test groups, all assertions green)
 - ✅ aggregate_operator_profile: ok
-  - output: operator_profile: live (done=12, invocations=14, traces=3128, proposals=34)
+  - output: operator_profile: live (done=13, invocations=14, traces=3593, proposals=38)
 - ✅ operator_profile_lessons_smoke: ok
   - output: operator_profile_lessons.smoke: OK (6 test groups, all assertions green)
 - ✅ operator_profile_inject_smoke: ok
@@ -80,7 +86,7 @@ _Generated: 2026-09-22T18:27:19.578Z_
 - ✅ validate_dont_use_compliance: ok
   - output: validate_dont_use_compliance: banned=0 (none); checked=21; warnings=0
 - ✅ validate_lifecycle_gates: ok
-  - output: validate_lifecycle_gates — 19 blocks, 1 fail, 0 warn
+  - output: validate_lifecycle_gates — 19 blocks, 2 fail, 0 warn
 - ✅ introspect_block_ui_selftest: ok
   - output: introspect_block_ui.selftest: OK (7 test groups, all assertions green)
 - ✅ user_docs_smoke: ok
@@ -140,7 +146,7 @@ _Generated: 2026-09-22T18:27:19.578Z_
 - ✅ seed_llm_mocks: ok
   - output: seed_llm_mocks: 0 written, 30 unchanged, 30 total
 - ✅ llm_extraction_eval: ok
-  - output: llm_extraction.eval — overall avg=1.000 (cases=30/30)
+  - output: llm_extraction.eval — PLUMBING ONLY (mock provider): the mock answers are the golden set itself, so 1.00 measures the pipeline, not extraction quality (cases=30/30)
 - ✅ simulate_conversation_branches: ok
   - output: PASS: created b.realtime-ingestion in graph.json
 - ✅ validate_cursor_hooks: ok
@@ -172,7 +178,7 @@ _Generated: 2026-09-22T18:27:19.578Z_
 - ✅ rebuild_roadmap: ok
   - output: Rebuilt /home/user/sima_atlas/atlas/roadmap.md
 - ✅ verify_all_acceptance: ok
-  - output: verify_all_acceptance: 14 pass / 0 fail / 7 inconclusive (assertions: 83 pass / 0 fail / 45 skipped)
+  - output: verify_all_acceptance: 13 pass / 1 fail / 7 inconclusive (assertions: 83 pass / 1 fail / 45 skipped)
 - ✅ verify_done_blocks_still_green: ok
   - output: verify_done_blocks_still_green: checked=5 green=5 regressions=0 inconclusive=0
 - ✅ mcp_smoke_e2e: ok
@@ -180,4 +186,4 @@ _Generated: 2026-09-22T18:27:19.578Z_
 - ✅ intelligence_health: ok
   - output: Intelligence health: 0.9524 (20/21)
 
-Summary: PASS (89/89)
+Summary: PASS (92/92)

@@ -342,6 +342,21 @@ html, body {
 .meaning-card details { margin-top: 8px; }
 .meaning-card summary { cursor: pointer; font-size: 12px; color: var(--ink-3); }
 .meaning-card details .meaning-label { margin-top: 8px; }
+/* R-8.10 — which LLM answers */
+.llm-badge { cursor: help; display: inline-flex; align-items: center; gap: 6px; }
+.llm-badge .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-4); display: inline-block; }
+.llm-badge-subscription .dot, .llm-badge-api_key .dot, .llm-badge-local .dot { background: var(--st-done); }
+.llm-badge-none { border-color: var(--st-progress); }
+.llm-badge-none .dot { background: var(--st-progress); }
+/* R-8.09 T25 — frame marker on the graph node */
+.frame-dot {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 16px; height: 16px; padding: 0 3px; border-radius: 8px;
+  font-size: 10px; line-height: 1; margin-left: 4px; cursor: help;
+  background: var(--card-2); color: var(--ink-2); border: 1px solid var(--rule);
+}
+.frame-dot.frame-awaiting { background: var(--st-progress); color: #fff; border-color: var(--st-progress); }
+.frame-dot.frame-stale { border-color: var(--st-progress); color: var(--st-progress); }
 /* R-8.09 — the operator's answer to the declared frame */
 .meaning-review { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--rule); }
 .meaning-review-lead { font-size: 12.5px; line-height: 1.45; color: var(--ink); font-weight: 500; }

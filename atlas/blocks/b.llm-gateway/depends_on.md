@@ -1,3 +1,3 @@
 # b.llm-gateway — depends_on
 
-- none
+- b.db: atlas_state_store

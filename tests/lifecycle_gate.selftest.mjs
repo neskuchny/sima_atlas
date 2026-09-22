@@ -153,6 +153,30 @@ const ledger = () => {
     applyTransition({ atlasRoot, blockId: 'b.r', to: 'wip', actor: 'test' }).ok === false);
 }
 
+// ── Group 8 (R-8.10): desync → review restores review, never promotes ───────
+{
+  seed([
+    { id: 'b.rv', status: 'desync', status_before_desync: 'review', desync_marked_at: '2026-06-20T08:00:00.000Z' },
+    { id: 'b.wp', status: 'desync', status_before_desync: 'wip', desync_marked_at: '2026-06-20T08:00:00.000Z' },
+  ]);
+  seedRun('b.rv', 'pass', { checkedAt: '2026-06-19T08:00:00.000Z' });
+  let r = applyTransition({ atlasRoot, blockId: 'b.rv', to: 'review', actor: 'test' });
+  check('g8: desync → review refused on a green run older than the mark', r.ok === false && /not newer/.test(r.reason || ''), r.reason);
+  seedRun('b.rv', 'fail', { checkedAt: '2026-06-21T08:00:00.000Z' });
+  r = applyTransition({ atlasRoot, blockId: 'b.rv', to: 'review', actor: 'test' });
+  check('g8: desync → review refused on a fresh non-green run', r.ok === false && /verdict is fail/.test(r.reason || ''), r.reason);
+  seedRun('b.rv', 'pass', { checkedAt: '2026-06-21T08:00:00.000Z' });
+  r = applyTransition({ atlasRoot, blockId: 'b.rv', to: 'review', actor: 'test' });
+  check('g8: desync → review accepted for a block that was in review, with a fresh green run', r.ok === true && graphStatus('b.rv') === 'review', r.reason);
+  check('g8: …recorded as a desync clearance in the ledger', /desync\treview\tactor=test\tnote= gate=pass\(desync-cleared/.test(ledger()), ledger());
+
+  seedRun('b.wp', 'pass', { checkedAt: '2026-06-21T08:00:00.000Z' });
+  r = applyTransition({ atlasRoot, blockId: 'b.wp', to: 'review', actor: 'test' });
+  check('g8: desync → review refused for a block that was wip — not a promotion path', r.ok === false && /was "wip"/.test(r.reason || ''), r.reason);
+  check('g8: …its fix points back to wip', /advance_block_state\.mjs b\.wp wip/.test(r.fixHint || ''), r.fixHint);
+  check('g8: TRANSITIONS lists the review recovery', TRANSITIONS.desync.includes('review'));
+}
+
 fs.rmSync(tmp, { recursive: true, force: true });
 
 if (failures.length) {
@@ -160,4 +184,4 @@ if (failures.length) {
   failures.forEach((f) => console.error(' ✗', f));
   process.exit(1);
 }
-console.log('lifecycle_gate.selftest: OK (7 groups, all assertions green)');
+console.log('lifecycle_gate.selftest: OK (8 groups, all assertions green)');

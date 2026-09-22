@@ -433,6 +433,18 @@ function GraphCanvas({
                     title={`Контракт: ${m.contract.filled}/${m.contract.total} заполнено (отсутствует: ${(m.contract.missing || []).join(', ')})`}
                   >!</span>
                 )}
+                {/* R-8.09 T25 — the agent's frame needs the operator. Visible
+                    without opening the block; the answer is on its Overview. */}
+                {m.frame && (() => {
+                  const t = window.__SIMA_T || ((_, fb) => fb);
+                  const f = m.frame;
+                  const mark = f.state === 'awaiting' ? '⏸' : f.state === 'stale' ? '⟳' : f.state === 'corrected' ? '✎' : '◐';
+                  const tip = f.state === 'awaiting' ? t('frame.node_awaiting', 'The agent declared how it understood this block and is waiting for your answer — open Overview.')
+                    : f.state === 'stale' ? `${t('frame.node_stale', 'The contract changed after the agent declared its frame')}: ${(f.changed || []).join(', ')}`
+                    : f.state === 'corrected' ? t('frame.node_corrected', 'You corrected the frame; the agent has not re-declared yet.')
+                    : t('frame.node_incomplete', 'The agent\'s declaration is incomplete.');
+                  return <span className={`frame-dot frame-${f.state}`} title={tip}>{mark}</span>;
+                })()}
                 <span className="lvl">L{m.layer === 'frontend' ? 3 : m.layer === 'logic' ? 2 : m.layer === 'tests' ? 4 : 1}</span>
               </div>
               {detailed && m.progress && (m.progress.tasks.total > 0 || m.progress.kpi.total > 0) && (

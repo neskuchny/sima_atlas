@@ -26,7 +26,10 @@ export default defineConfig({
   // Auto-start the static server before tests; tear down after.
   webServer: process.env.PLAYWRIGHT_NO_SERVER ? undefined : {
     command: 'python3 -m http.server 8000 --directory "frontend"',
-    url: 'http://localhost:8000/index.html',
+    // R-8.10 — frontend/index.html no longer exists; the canvas entry is
+    // atlas_design/index.html. Waiting on the old path timed out, so no spec
+    // could start at all.
+    url: 'http://localhost:8000/atlas_design/index.html',
     timeout: 10_000,
     reuseExistingServer: true,
   },

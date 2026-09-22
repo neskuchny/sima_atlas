@@ -43,6 +43,14 @@ _Each section is built from `atlas/blocks/<id>/mission.md` + `tasks.md`. Regener
 - [x] T9. R-8.09: ответ оператора на объявление прямо на «Обзоре» — «✓ Верно — писать код» (подтверждает и запускает реализацию тем же агентом), «✎ Не так» (поле поправки → агент переобъявляет), «подтвердить, не запуская»; для «поправлено», «контракт изменился», «не объявлено», «подтверждено» — своя строка и своё действие. Кнопки запуска скрываются после запуска, панель обновляется раз в 5 с.
 - [x] T10. «Отправить агенту» передаёт client (раньше запуск из ?client=… уходил в корневой атлас) и пишет в лог, что сделал шлюз.
 
+## R-8.10 — доделано
+- [x] T11. Метка рамки агента на узле графа (⏸ ⟳ ✎ ◐) из построителя данных канваса.
+- [x] T12. Кнопка «✎ Задать траекторию» и редактор на «Обзоре».
+- [x] T13. Значок «LLM: …» в панели инструментов: кто генерирует текст (подписка через claude CLI, API-ключ, локальная модель или «нет — демо-ответы»), почему и как сменить.
+- [x] T14. Живое обновление для `?client=` — хэш считается по атласу клиента.
+- [x] T15. Живое обновление больше не закрывает открытый блок и не стирает черновики и уведомления секции смысла.
+- [x] T16. Автотест в браузере (`npm run test:ui`); починен `playwright.config.js`.
+
 _Sources: [mission](blocks/b.ui-control/mission.md) · [kpi](blocks/b.ui-control/kpi.md) · [acceptance](blocks/b.ui-control/acceptance.md) · [tasks](blocks/b.ui-control/tasks.md)_
 
 ## b.core-sync (done)
@@ -566,7 +574,7 @@ PR-3 (dont-use list) формально не закрыт — но `inject_conte
 
 _Sources: [mission](blocks/b.operator-profile-learner/mission.md) · [kpi](blocks/b.operator-profile-learner/kpi.md) · [acceptance](blocks/b.operator-profile-learner/acceptance.md) · [tasks](blocks/b.operator-profile-learner/tasks.md)_
 
-## b.acceptance-verifier-loop (desync)
+## b.acceptance-verifier-loop (wip)
 
 # b.acceptance-verifier-loop — mission
 
@@ -703,12 +711,12 @@ atlas/blocks/<block_id>/checks.log   ← append: 'acceptance_verifier <pass|fail
 
 # b.acceptance-verifier-loop — KPI
 
-- **KPI-1 (no false done)**: ни один блок не уходит в `done` если хоть один пункт `acceptance.md` не получил `pass`. Сейчас: ✗ (gate отсутствует).
-- **KPI-2 (deterministic evidence first)**: ≥ 70% пунктов acceptance в среднем по репо имеют `evidence_kind ∈ {exit_code, fs_glob, file_diff, log_grep}` — без LLM. LLM-judge только как fallback. Сейчас: ✗.
-- **KPI-3 (gate latency)**: для блока с ≤ 8 пунктами acceptance verifier завершается за < 30 секунд (deterministic) или < 60 секунд (с LLM-judge). Сейчас: ✗.
+- **KPI-1 (no false done)**: ни один блок не уходит в `done` если хоть один пункт `acceptance.md` не получил `pass`. Сейчас (2026-09-22): ✓ — `lifecycle_gate.mjs` отказывает в `→ done` без verdict=pass, покрыто `lifecycle_gate.selftest` (группы 1, 5, 8).
+- **KPI-2 (deterministic evidence first)**: ≥ 70% пунктов acceptance в среднем по репо имеют `evidence_kind ∈ {exit_code, fs_glob, file_diff, log_grep}` — без LLM. LLM-judge только как fallback. Сейчас (2026-09-22): ✗ — 84 из 122 = 68.9% (exit_code 17, log_grep 28, selftest_run 33, fs_glob 6; llm_judge 38). До цели не хватает двух детерминированных пунктов.
+- **KPI-3 (gate latency)**: для блока с ≤ 8 пунктами acceptance verifier завершается за < 30 секунд (deterministic) или < 60 секунд (с LLM-judge). Сейчас (2026-09-22): ✓ — этот блок, 8 пунктов, 1.1 с на моке.
 - **KPI-4 (retry-prompt usefulness)**: ≥ 50% retry-прогонов с `retry_prompt_hint` приводят к verdict=pass на следующей итерации (на горизонте 20 retry). Сейчас: n/a.
 - **KPI-5 (no spurious rollbacks)**: nightly re-verify done блоков даёт `done → broken` rollback **только** когда есть реальная регрессия (новые коммиты после последнего pass либо изменение acceptance.md). Сейчас: ✗.
-- **KPI-6 (cache hit rate)**: при отсутствии новых коммитов / новых traces / новых checks.log — verifier возвращает кэш за < 50 ms. Hit rate ≥ 80% на nightly. Сейчас: ✗.
+- **KPI-6 (cache hit rate)**: при отсутствии новых коммитов / новых traces / новых checks.log — verifier возвращает кэш за < 50 ms. Hit rate ≥ 80% на nightly. Сейчас (2026-09-22): ✗ — кэша нет вовсе (ни в verify_block_acceptance, ни в collect_evidence).
 - **KPI-7 (cost cap)**: LLM-judge на один блок ≤ $0.02; полный nightly re-verify всех done блоков ≤ $0.20. Сейчас: ✗.
 
 # b.acceptance-verifier-loop — tasks
@@ -1792,7 +1800,8 @@ ai
 - [ ] T14. Вторая полоса здоровья блока — «качество формулировки» отдельно от «состояния приёмки».
 - [ ] T15. Отображение `assumptions` как видимого долга на карточке блока.
 - [x] T24. Рамка агента на панели «Обзор» блока — оператор видит «Treating this as», допущения, устаревание и траекторию, не открывая файл. Данные разбирает сервер той же функцией, что и ночной отчёт; канвас только рисует.
-- [ ] T25. Метка на самом узле графа, когда объявление устарело или неполно — чтобы расхождение было видно без клика. Нужна сводка по всем блокам в потоке состояния канваса.
+- [x] T25. Метка на самом узле графа (R-8.10): ⏸ ждёт вашего ответа, ⟳ контракт изменился, ✎ поправлено и не переобъявлено, ◐ объявление неполное. «Не объявлено» и «подтверждено» метки не дают — иначе она стояла бы на каждом блоке. Данные — из построителя данных канваса через frameGate.
+- [x] T33. Кнопка «✎ Задать траекторию» на «Обзоре» (R-8.10): секция «## Во что это вырастет» пишется в mission.md через единственного писателя файлов блока (снимок истории, etag, строка аудита); пустой текст убирает секцию. Изменение миссии честно переводит подтверждённую рамку в «устарело».
 
 ## PR4 — измерение (не начато)
 - [ ] T16. KPI-5: ряд «вопросов на блок» по времени из `clarifications.md`.

@@ -1,26 +1,26 @@
 {
   "operator_id": "default",
-  "updated_at": "2026-09-22T18:27:26.341Z",
+  "updated_at": "2026-09-22T19:57:42.968Z",
   "_status": "live",
   "_min_data": {
-    "done_transitions": 12,
+    "done_transitions": 13,
     "done_required": 5,
     "invocations": 14,
     "invocations_required": 10
   },
   "work_style": {
-    "total_done": 12,
+    "total_done": 13,
     "total_broken": 0,
-    "total_wip_started": 12,
+    "total_wip_started": 13,
     "rollback_rate": 0,
     "median_time_idea_to_done_h": 0.00003138888888888889,
     "common_failure_modes": {
       "acceptance_verifier": 34,
       "semantic_verify": 16,
       "cascade_check": 6,
+      "kpi": 3,
       "drift_guard": 2,
-      "agent_invocation": 3,
-      "kpi": 2
+      "agent_invocation": 3
     }
   },
   "agents_used": {
@@ -325,32 +325,32 @@
   },
   "llm_provider_stats": {
     "claude_cli": {
-      "count": 4,
+      "count": 7,
       "fallback_to_mock_count": 0,
       "total_cost_usd": 0,
-      "schema_ok_count": 4,
+      "schema_ok_count": 7,
       "fallback_rate": 0,
       "schema_ok_rate": 1,
       "avg_cost_usd": 0
     },
     "mock": {
-      "count": 3124,
-      "fallback_to_mock_count": 17,
+      "count": 3586,
+      "fallback_to_mock_count": 19,
       "total_cost_usd": 0,
-      "schema_ok_count": 3124,
+      "schema_ok_count": 3586,
       "fallback_rate": 0.01,
       "schema_ok_rate": 1,
       "avg_cost_usd": 0
     }
   },
   "proposals_stats": {
-    "total": 34,
+    "total": 38,
     "accept_rate": 0,
     "reject_rate": 0,
-    "pending": 34
+    "pending": 38
   },
   "decisions_stats": {
-    "total": 3648,
+    "total": 3657,
     "blocks_with_decisions": 10
   },
   "patterns_stats": {
@@ -447,6 +447,12 @@
       "ts": "2026-06-20T08:31:02.542Z",
       "kind": "cascade_check",
       "note": "broken by parent b.core-sync edit — verifier failed; status auto-set to desync"
+    },
+    {
+      "block_id": "b.acceptance-verifier-loop",
+      "ts": "2026-09-22T19:56:58.000Z",
+      "kind": "kpi",
+      "note": "R-8.10 measured: KPI-1 ✓ (gate refuses done without pass); KPI-2 ✗ 68.9% deterministic < 70%; KPI-3 ✓ 1.1 s for 8 assertions; KPI-6 ✗ no verifier cache exists; KPI-4/5/7 not measurable on mock"
     },
     {
       "block_id": "b.agent-orchestrator",
@@ -739,9 +745,9 @@
   ],
   "invocations_total": 14,
   "_preview": {
-    "total_done": 12,
+    "total_done": 13,
     "total_invocations": 14,
-    "total_traces": 3128,
-    "total_proposals": 34
+    "total_traces": 3593,
+    "total_proposals": 38
   }
 }

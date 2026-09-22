@@ -106,3 +106,30 @@ loop spent. On a busy day it stops before the first block («budget — spent
 ~$1.19 ≥ cap $1.00» with nothing run). The frame-gate test now lifts the cap
 (print-only spends nothing); the guard itself is unchanged and still counts
 other work against the loop — a separate fix.
+
+## 2026-09-22 — R-8.10: the loop's budget is the loop's
+
+Fixed the guard noted above. `token_economics` gained `--since <ISO>` (an
+exact lower bound; an unparsable value falls back to the day window, never to
+«all time»), and `costEquivalentSince(startedAt)` now asks for the traces
+written since this loop started. Before: 2290 traces / ~$1.29 for the day,
+the loop stopped on «budget» with nothing run. After: 0 traces since start,
+the dry-run plans 2 blocks. `tests/agent_loop_budget.selftest.mjs`
+(acceptance A9) covers the bound and that every budget call passes the loop
+start.
+
+## 2026-09-22 — R-8.10: routes for the canvas; took over the unowned orchestration files
+
+New routes on the HTTP facade: `GET /llm/provider` (b.llm-gateway's
+`describeProvider`, cached for a minute because detecting the claude CLI
+spawns `claude --version`), `POST /atlas/blocks/trajectory` (b.clarify's
+`setTrajectory` through `patchBlockFile`, with an etag — a stale one comes
+back as a conflict), and `/atlas/state?client=` (the live-refresh hash of
+the client's own atlas; without it a client canvas never refreshed). All
+three are covered in `tests/frame_gate_flow.selftest.mjs` F2.
+
+This block now owns files that had no owner and are plainly orchestration:
+the synthesis helpers, chat → block proposals and its chat sources, the
+post-run pipeline (distill / reflect / summarize / memory cleanup / drift
+scan), architecture decisions, and the block screenshot helpers its HTTP
+facade imports (under b.ui-control they would have made a cycle).

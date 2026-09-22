@@ -3,13 +3,17 @@
   "by_block": {
     "b.acceptance-verifier-loop": {
       "files": [
+        "scripts/cascade_verify.mjs",
         "scripts/collect_evidence.mjs",
         "scripts/judge_assertion.mjs",
         "scripts/parse_acceptance.mjs",
+        "scripts/semantic_verify.mjs",
+        "scripts/subagent_verifier.mjs",
         "scripts/verify_all_acceptance.mjs",
         "scripts/verify_block_acceptance.mjs",
         "scripts/verify_done_blocks_still_green.mjs",
         "tests/acceptance_verifier.e2e.smoke.mjs",
+        "tests/desync_restore.selftest.mjs",
         "tests/evidence_collectors.selftest.mjs",
         "tests/llm_judge.smoke.mjs",
         "tests/parse_acceptance.selftest.mjs"
@@ -20,10 +24,18 @@
         "scripts/agent_loop_daemon.mjs",
         "scripts/agent_workspace.mjs",
         "scripts/analyze_conversation_to_atlas.mjs",
+        "scripts/architecture_decisions_api.mjs",
         "scripts/atlas_api_server.mjs",
         "scripts/atlas_runs_api.mjs",
+        "scripts/atlas_synthesis_api.mjs",
         "scripts/auto_sync_iteration.mjs",
         "scripts/build_context_pack.mjs",
+        "scripts/chat_sources/_shared.mjs",
+        "scripts/chat_sources/claude.mjs",
+        "scripts/chat_sources/codex.mjs",
+        "scripts/chat_sources/cursor.mjs",
+        "scripts/cleanup_block_memory.mjs",
+        "scripts/distill_run_log.mjs",
         "scripts/finalize_cursor_iteration.mjs",
         "scripts/generate_agent_contracts.mjs",
         "scripts/generate_cursor_hooks.mjs",
@@ -32,17 +44,33 @@
         "scripts/mcp_atlas_server.mjs",
         "scripts/observe_file_edit.mjs",
         "scripts/pipeline_step.mjs",
+        "scripts/reflect_after_run.mjs",
         "scripts/run_block_implementation.mjs",
         "scripts/run_block_process.mjs",
+        "scripts/run_playwright_guarded.mjs",
         "scripts/run_state.mjs",
+        "scripts/scan_run_for_drift.mjs",
+        "scripts/screenshot_block.mjs",
+        "scripts/sima_fill_from_chat.mjs",
+        "scripts/sima_watch_chats.mjs",
         "scripts/simulate_conversation_branches.mjs",
+        "scripts/summarize_block_code.mjs",
         "scripts/sync_context_packs.mjs",
         "scripts/validate_cursor_hooks.mjs",
+        "tests/agent_loop_budget.selftest.mjs",
         "tests/agent_parity_real.smoke.mjs",
         "tests/agent_workspace.selftest.mjs",
+        "tests/atlas_runs_api.selftest.mjs",
+        "tests/atlas_synthesis_api.selftest.mjs",
+        "tests/chat_fill_accept.selftest.mjs",
+        "tests/cleanup_block_memory.selftest.mjs",
+        "tests/codex_source.selftest.mjs",
         "tests/cursor_hooks_actions.test.mjs",
+        "tests/cursor_live.headless.smoke.mjs",
+        "tests/cursor_source.selftest.mjs",
         "tests/frame_gate_flow.selftest.mjs",
-        "tests/run_state.selftest.mjs"
+        "tests/run_state.selftest.mjs",
+        "tests/sima_watch_chats.selftest.mjs"
       ]
     },
     "b.clarify": {
@@ -66,8 +94,12 @@
     "b.core-sync": {
       "files": [
         "frontend/atlas_sync.js",
+        "scripts/apply_cleanup_proposal.mjs",
         "scripts/audit_production_readiness.mjs",
         "scripts/calc_intelligence_health.mjs",
+        "scripts/housekeeping_sweeper.mjs",
+        "scripts/nightly_consolidation.mjs",
+        "scripts/subagent_schema_syncer.mjs",
         "scripts/validate_acceptance_assertions.mjs",
         "scripts/validate_agent_parity.mjs",
         "scripts/validate_block_contracts.mjs",
@@ -80,8 +112,12 @@
         "scripts/validate_ingestion_contracts.mjs",
         "scripts/validate_ingestion_quality.mjs",
         "scripts/validate_no_template_placeholders.mjs",
+        "scripts/validate_ownership.mjs",
         "scripts/validate_parity_matrix.mjs",
+        "scripts/validate_projects.mjs",
         "scripts/validate_stack_mismatch.mjs",
+        "scripts/validate_subschemas.mjs",
+        "scripts/verify_all.mjs",
         "tests/checks_append_endpoint.selftest.mjs",
         "tests/dependency_graph.selftest.mjs"
       ]
@@ -89,16 +125,32 @@
     "b.db": {
       "files": [
         "scripts/advance_block_state.mjs",
+        "scripts/apply_block_template.mjs",
         "scripts/apply_ingestion_queue.mjs",
+        "scripts/atlas_artifacts_api.mjs",
+        "scripts/atlas_blocks_api.mjs",
+        "scripts/atlas_files_api.mjs",
+        "scripts/atlas_subsystems_api.mjs",
+        "scripts/change_set.mjs",
         "scripts/dedup_block_memory.mjs",
         "scripts/enqueue_ingestion_item.mjs",
+        "scripts/get_block_history.mjs",
         "scripts/hook_ingest_recent_chat.mjs",
         "scripts/ingest_chat_batches.mjs",
         "scripts/ingest_chat_distillate.mjs",
         "scripts/lifecycle_gate.mjs",
         "scripts/log_transition.mjs",
         "scripts/manage_block.mjs",
-        "tests/lifecycle_gate.selftest.mjs"
+        "scripts/migrate_subsystems_to_blocks.mjs",
+        "scripts/migrate_v1_v2.mjs",
+        "scripts/validate_lifecycle_gates.mjs",
+        "tests/atlas_artifacts_api.selftest.mjs",
+        "tests/atlas_blocks_api.selftest.mjs",
+        "tests/atlas_files_api.selftest.mjs",
+        "tests/atlas_subsystems_api.selftest.mjs",
+        "tests/lifecycle_gate.selftest.mjs",
+        "tests/multi_tenant_block_routing.selftest.mjs",
+        "tests/validate_lifecycle_gates.selftest.mjs"
       ]
     },
     "b.desktop": {
@@ -117,11 +169,14 @@
     },
     "b.docs": {
       "files": [
+        "scripts/capture_hero_screenshot.mjs",
         "scripts/generate_atlas_bootstrap_js.mjs",
         "scripts/generate_tz_from_atlas.mjs",
         "scripts/generate_wiki.mjs",
         "scripts/rebuild_atlas_roadmap.mjs",
-        "scripts/render_wiki_html.mjs"
+        "scripts/render_wiki_html.mjs",
+        "scripts/subagent_wiki_builder.mjs",
+        "scripts/sync_article_status.mjs"
       ]
     },
     "b.llm-gateway": {
@@ -132,8 +187,10 @@
         "scripts/llm_gateway.mjs",
         "scripts/reject_proposal.mjs",
         "scripts/seed_llm_mocks.mjs",
+        "scripts/token_economics.mjs",
         "tests/llm_extraction.eval.mjs",
         "tests/llm_gateway.selftest.mjs",
+        "tests/openai_gemini_providers.selftest.mjs",
         "tests/proposals_flow.smoke.mjs"
       ]
     },
@@ -143,6 +200,7 @@
         "scripts/analyze_lessons_from_history.mjs",
         "scripts/manage_dont_use.mjs",
         "scripts/pick_template.mjs",
+        "scripts/seed_operator_profile.mjs",
         "scripts/validate_dont_use_compliance.mjs",
         "tests/dont_use_management.selftest.mjs",
         "tests/operator_profile.selftest.mjs",
@@ -181,7 +239,15 @@
         "frontend/atlas_design/i18n.js",
         "frontend/atlas_design/panels.jsx",
         "frontend/atlas_design/tweaks-panel.jsx",
-        "frontend/atlas_design/views.jsx"
+        "frontend/atlas_design/views.jsx",
+        "playwright.config.js",
+        "scripts/build_sima_design_payload.mjs",
+        "scripts/dev_server.mjs",
+        "scripts/seed_example_client.mjs",
+        "tests/atlas_bootstrap.smoke.mjs",
+        "tests/atlas_live_polling.smoke.mjs",
+        "tests/connection_drift.smoke.mjs",
+        "tests/sima_design_payload.selftest.mjs"
       ]
     },
     "b.user-docs-generator": {
@@ -203,9 +269,39 @@
     {
       "examples": [
         {
+          "from_file": "scripts/subagent_verifier.mjs",
+          "kind": "static",
+          "line": 15,
+          "to_file": "scripts/atlas_synthesis_api.mjs"
+        }
+      ],
+      "from_block": "b.acceptance-verifier-loop",
+      "to_block": "b.agent-orchestrator"
+    },
+    {
+      "examples": [
+        {
+          "from_file": "scripts/verify_block_acceptance.mjs",
+          "kind": "static",
+          "line": 29,
+          "to_file": "scripts/lifecycle_gate.mjs"
+        }
+      ],
+      "from_block": "b.acceptance-verifier-loop",
+      "to_block": "b.db"
+    },
+    {
+      "examples": [
+        {
           "from_file": "scripts/judge_assertion.mjs",
           "kind": "static",
           "line": 35,
+          "to_file": "scripts/llm_gateway.mjs"
+        },
+        {
+          "from_file": "scripts/semantic_verify.mjs",
+          "kind": "static",
+          "line": 36,
           "to_file": "scripts/llm_gateway.mjs"
         },
         {
@@ -239,10 +335,52 @@
     {
       "examples": [
         {
+          "from_file": "scripts/atlas_api_server.mjs",
+          "kind": "static",
+          "line": 12,
+          "to_file": "scripts/atlas_subsystems_api.mjs"
+        },
+        {
+          "from_file": "scripts/atlas_api_server.mjs",
+          "kind": "static",
+          "line": 13,
+          "to_file": "scripts/atlas_files_api.mjs"
+        },
+        {
+          "from_file": "scripts/atlas_api_server.mjs",
+          "kind": "static",
+          "line": 8,
+          "to_file": "scripts/atlas_blocks_api.mjs"
+        },
+        {
+          "from_file": "scripts/atlas_api_server.mjs",
+          "kind": "static",
+          "line": 9,
+          "to_file": "scripts/atlas_artifacts_api.mjs"
+        },
+        {
+          "from_file": "scripts/build_context_pack.mjs",
+          "kind": "static",
+          "line": 37,
+          "to_file": "scripts/atlas_files_api.mjs"
+        },
+        {
           "from_file": "scripts/mcp_atlas_server.mjs",
           "kind": "static",
           "line": 6,
           "to_file": "scripts/lifecycle_gate.mjs"
+        },
+        {
+          "from_file": "scripts/sima_fill_from_chat.mjs",
+          "kind": "static",
+          "line": 27,
+          "to_file": "scripts/atlas_blocks_api.mjs"
+        },
+        {
+          "from_file": "scripts/summarize_block_code.mjs",
+          "kind": "static",
+          "line": 25,
+          "to_file": "scripts/atlas_files_api.mjs"
         }
       ],
       "from_block": "b.agent-orchestrator",
@@ -257,9 +395,45 @@
           "to_file": "scripts/llm_gateway.mjs"
         },
         {
+          "from_file": "scripts/atlas_api_server.mjs",
+          "kind": "static",
+          "line": 14,
+          "to_file": "scripts/token_economics.mjs"
+        },
+        {
+          "from_file": "scripts/atlas_api_server.mjs",
+          "kind": "static",
+          "line": 16,
+          "to_file": "scripts/llm_gateway.mjs"
+        },
+        {
           "from_file": "scripts/atlas_runs_api.mjs",
           "kind": "dynamic",
           "line": 419,
+          "to_file": "scripts/llm_gateway.mjs"
+        },
+        {
+          "from_file": "scripts/atlas_synthesis_api.mjs",
+          "kind": "static",
+          "line": 18,
+          "to_file": "scripts/llm_gateway.mjs"
+        },
+        {
+          "from_file": "scripts/distill_run_log.mjs",
+          "kind": "dynamic",
+          "line": 67,
+          "to_file": "scripts/llm_gateway.mjs"
+        },
+        {
+          "from_file": "scripts/reflect_after_run.mjs",
+          "kind": "dynamic",
+          "line": 59,
+          "to_file": "scripts/llm_gateway.mjs"
+        },
+        {
+          "from_file": "scripts/summarize_block_code.mjs",
+          "kind": "dynamic",
+          "line": 58,
           "to_file": "scripts/llm_gateway.mjs"
         }
       ],
@@ -317,6 +491,18 @@
     {
       "examples": [
         {
+          "from_file": "scripts/accept_proposal.mjs",
+          "kind": "static",
+          "line": 25,
+          "to_file": "scripts/atlas_blocks_api.mjs"
+        }
+      ],
+      "from_block": "b.llm-gateway",
+      "to_block": "b.db"
+    },
+    {
+      "examples": [
+        {
           "from_file": "tests/operator_profile_inject.smoke.mjs",
           "kind": "dynamic",
           "line": 72,
@@ -343,6 +529,18 @@
       ],
       "from_block": "b.operator-profile-learner",
       "to_block": "b.llm-gateway"
+    },
+    {
+      "examples": [
+        {
+          "from_file": "scripts/build_sima_design_payload.mjs",
+          "kind": "static",
+          "line": 35,
+          "to_file": "scripts/block_meaning.mjs"
+        }
+      ],
+      "from_block": "b.ui-control",
+      "to_block": "b.clarify"
     },
     {
       "examples": [
@@ -565,6 +763,35 @@
       "exports": [],
       "imports": [],
       "owning_block": "b.core-sync"
+    },
+    "playwright.config.js": {
+      "exports": [
+        {
+          "kind": "default",
+          "line": 13,
+          "name": "default"
+        }
+      ],
+      "imports": [
+        {
+          "external": true,
+          "from": "@playwright/test",
+          "kind": "static",
+          "line": 11,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "defineConfig"
+            },
+            {
+              "kind": "named",
+              "name": "devices"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.ui-control"
     },
     "scripts/accept_proposal.mjs": {
       "exports": [],
@@ -1043,6 +1270,104 @@
       ],
       "owning_block": "b.operator-profile-learner"
     },
+    "scripts/apply_block_template.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": false,
+          "from": "./atlas_blocks_api.mjs",
+          "kind": "dynamic",
+          "line": 125,
+          "resolved_to": "scripts/atlas_blocks_api.mjs",
+          "specifiers": []
+        },
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 27,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 28,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 29,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.db"
+    },
+    "scripts/apply_cleanup_proposal.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 37,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 38,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 39,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.core-sync"
+    },
     "scripts/apply_ingestion_queue.mjs": {
       "exports": [],
       "imports": [
@@ -1100,6 +1425,72 @@
         }
       ],
       "owning_block": "b.db"
+    },
+    "scripts/architecture_decisions_api.mjs": {
+      "exports": [
+        {
+          "kind": "named",
+          "line": 71,
+          "name": "ensureArchitectureDecisionsFile"
+        },
+        {
+          "kind": "named",
+          "line": 79,
+          "name": "readArchitectureDecisions"
+        },
+        {
+          "kind": "named",
+          "line": 88,
+          "name": "listArchitectureDecisions"
+        },
+        {
+          "kind": "named",
+          "line": 96,
+          "name": "addArchitectureDecision"
+        }
+      ],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 33,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 34,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 35,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.agent-orchestrator"
     },
     "scripts/atlas_api_server.mjs": {
       "exports": [],
@@ -1173,16 +1564,8 @@
           "external": false,
           "from": "./sima_fill_from_chat.mjs",
           "kind": "dynamic",
-          "line": 1435,
+          "line": 1484,
           "resolved_to": "scripts/sima_fill_from_chat.mjs",
-          "specifiers": []
-        },
-        {
-          "external": false,
-          "from": "./sima_watch_chats.mjs",
-          "kind": "dynamic",
-          "line": 1451,
-          "resolved_to": "scripts/sima_watch_chats.mjs",
           "specifiers": []
         },
         {
@@ -1199,6 +1582,31 @@
             {
               "kind": "named",
               "name": "recordFrameReview"
+            },
+            {
+              "kind": "named",
+              "name": "setTrajectory"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "./sima_watch_chats.mjs",
+          "kind": "dynamic",
+          "line": 1500,
+          "resolved_to": "scripts/sima_watch_chats.mjs",
+          "specifiers": []
+        },
+        {
+          "external": false,
+          "from": "./llm_gateway.mjs",
+          "kind": "static",
+          "line": 16,
+          "resolved_to": "scripts/llm_gateway.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "describeProvider"
             }
           ]
         },
@@ -1206,7 +1614,7 @@
           "external": false,
           "from": "./screenshot_block.mjs",
           "kind": "dynamic",
-          "line": 1561,
+          "line": 1610,
           "resolved_to": "scripts/screenshot_block.mjs",
           "specifiers": []
         },
@@ -1290,14 +1698,6 @@
         },
         {
           "external": false,
-          "from": "./scripts/regenerate_user_docs_drift.mjs",
-          "kind": "dynamic",
-          "line": 791,
-          "resolved_to": null,
-          "specifiers": []
-        },
-        {
-          "external": false,
           "from": "./atlas_blocks_api.mjs",
           "kind": "static",
           "line": 8,
@@ -1313,7 +1713,15 @@
           "external": false,
           "from": "./scripts/regenerate_user_docs_drift.mjs",
           "kind": "dynamic",
-          "line": 802,
+          "line": 811,
+          "resolved_to": null,
+          "specifiers": []
+        },
+        {
+          "external": false,
+          "from": "./scripts/regenerate_user_docs_drift.mjs",
+          "kind": "dynamic",
+          "line": 822,
           "resolved_to": null,
           "specifiers": []
         },
@@ -1334,12 +1742,283 @@
           "external": false,
           "from": "./architecture_decisions_api.mjs",
           "kind": "dynamic",
-          "line": 937,
+          "line": 957,
           "resolved_to": "scripts/architecture_decisions_api.mjs",
           "specifiers": []
         }
       ],
       "owning_block": "b.agent-orchestrator"
+    },
+    "scripts/atlas_artifacts_api.mjs": {
+      "exports": [
+        {
+          "kind": "named",
+          "line": 107,
+          "name": "createArtifact"
+        },
+        {
+          "kind": "named",
+          "line": 141,
+          "name": "updateArtifact"
+        },
+        {
+          "kind": "named",
+          "line": 157,
+          "name": "deleteArtifact"
+        },
+        {
+          "kind": "named",
+          "line": 166,
+          "name": "insertArtifactToProject"
+        },
+        {
+          "kind": "named",
+          "line": 76,
+          "name": "listArtifacts"
+        },
+        {
+          "kind": "named",
+          "line": 96,
+          "name": "getArtifact"
+        }
+      ],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 30,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 31,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 32,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.db"
+    },
+    "scripts/atlas_blocks_api.mjs": {
+      "exports": [
+        {
+          "kind": "named",
+          "line": 136,
+          "name": "EtagMismatchError"
+        },
+        {
+          "kind": "named",
+          "line": 151,
+          "name": "patchBlock"
+        },
+        {
+          "kind": "named",
+          "line": 246,
+          "name": "deleteBlock"
+        },
+        {
+          "kind": "named",
+          "line": 280,
+          "name": "addEdge"
+        },
+        {
+          "kind": "named",
+          "line": 316,
+          "name": "deleteEdge"
+        },
+        {
+          "kind": "named",
+          "line": 343,
+          "name": "addNote"
+        },
+        {
+          "kind": "named",
+          "line": 361,
+          "name": "patchNote"
+        },
+        {
+          "kind": "named",
+          "line": 374,
+          "name": "deleteNote"
+        },
+        {
+          "kind": "named",
+          "line": 398,
+          "name": "patchBlockFile"
+        },
+        {
+          "kind": "named",
+          "line": 447,
+          "name": "listNotes"
+        },
+        {
+          "kind": "named",
+          "line": 56,
+          "name": "createBlock"
+        }
+      ],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 19,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 20,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "./lifecycle_gate.mjs",
+          "kind": "static",
+          "line": 21,
+          "resolved_to": "scripts/lifecycle_gate.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "checkTransition"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 22,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.db"
+    },
+    "scripts/atlas_files_api.mjs": {
+      "exports": [
+        {
+          "kind": "named",
+          "line": 101,
+          "name": "removeFile"
+        },
+        {
+          "kind": "named",
+          "line": 111,
+          "name": "isAlive"
+        },
+        {
+          "kind": "named",
+          "line": 119,
+          "name": "filterAlive"
+        },
+        {
+          "kind": "named",
+          "line": 127,
+          "name": "syncFromBlockFilesMd"
+        },
+        {
+          "kind": "named",
+          "line": 71,
+          "name": "listFiles"
+        },
+        {
+          "kind": "named",
+          "line": 78,
+          "name": "getFile"
+        },
+        {
+          "kind": "named",
+          "line": 83,
+          "name": "markFile"
+        }
+      ],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 24,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 25,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 26,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.db"
     },
     "scripts/atlas_runs_api.mjs": {
       "exports": [
@@ -1461,6 +2140,181 @@
       ],
       "owning_block": "b.agent-orchestrator"
     },
+    "scripts/atlas_subsystems_api.mjs": {
+      "exports": [
+        {
+          "kind": "named",
+          "line": 124,
+          "name": "deleteSubsystem"
+        },
+        {
+          "kind": "named",
+          "line": 57,
+          "name": "subsystemExists"
+        },
+        {
+          "kind": "named",
+          "line": 61,
+          "name": "getSubsystem"
+        },
+        {
+          "kind": "named",
+          "line": 65,
+          "name": "listSubsystems"
+        },
+        {
+          "kind": "named",
+          "line": 89,
+          "name": "saveSubsystem"
+        }
+      ],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 29,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 30,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 31,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.db"
+    },
+    "scripts/atlas_synthesis_api.mjs": {
+      "exports": [
+        {
+          "kind": "named",
+          "line": 212,
+          "name": "synthesizeBlock"
+        },
+        {
+          "kind": "named",
+          "line": 287,
+          "name": "suggestEdges"
+        },
+        {
+          "kind": "named",
+          "line": 363,
+          "name": "decomposeTasks"
+        },
+        {
+          "kind": "named",
+          "line": 439,
+          "name": "fillField"
+        },
+        {
+          "kind": "named",
+          "line": 504,
+          "name": "reviewArchitecture"
+        },
+        {
+          "kind": "named",
+          "line": 585,
+          "name": "extractInsights"
+        },
+        {
+          "kind": "named",
+          "line": 666,
+          "name": "validateBlock"
+        },
+        {
+          "kind": "named",
+          "line": 751,
+          "name": "expandField"
+        },
+        {
+          "kind": "named",
+          "line": 787,
+          "name": "rewriteField"
+        }
+      ],
+      "imports": [
+        {
+          "external": false,
+          "from": "./llm_gateway.mjs",
+          "kind": "static",
+          "line": 18,
+          "resolved_to": "scripts/llm_gateway.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "callLLM"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 19,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 20,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 21,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.agent-orchestrator"
+    },
     "scripts/audit_production_readiness.mjs": {
       "exports": [],
       "imports": [
@@ -1555,103 +2409,113 @@
       "exports": [
         {
           "kind": "named",
-          "line": 111,
+          "line": 113,
+          "name": "DEFAULT_TRAJECTORY_HEADING"
+        },
+        {
+          "kind": "named",
+          "line": 114,
+          "name": "setTrajectory"
+        },
+        {
+          "kind": "named",
+          "line": 148,
           "name": "trajectoryPromptLines"
         },
         {
           "kind": "named",
-          "line": 140,
+          "line": 177,
           "name": "UNDERSTANDING_FILE"
         },
         {
           "kind": "named",
-          "line": 143,
+          "line": 180,
           "name": "UNDERSTANDING_SECTIONS"
         },
         {
           "kind": "named",
-          "line": 175,
+          "line": 212,
           "name": "operatorLanguage"
         },
         {
           "kind": "named",
-          "line": 194,
+          "line": 231,
           "name": "understandingPromptLines"
         },
         {
           "kind": "named",
-          "line": 216,
+          "line": 253,
           "name": "declarePhasePromptLines"
         },
         {
           "kind": "named",
-          "line": 250,
+          "line": 287,
           "name": "implementPhasePromptLines"
         },
         {
           "kind": "named",
-          "line": 262,
+          "line": 299,
           "name": "parseUnderstanding"
         },
         {
           "kind": "named",
-          "line": 285,
+          "line": 322,
           "name": "readUnderstanding"
         },
         {
           "kind": "named",
-          "line": 299,
+          "line": 336,
           "name": "understandingStaleness"
         },
         {
           "kind": "named",
-          "line": 326,
+          "line": 363,
           "name": "FRAME_REVIEWS_FILE"
         },
         {
           "kind": "named",
-          "line": 332,
+          "line": 369,
           "name": "normalizeContractText"
         },
         {
           "kind": "named",
-          "line": 339,
+          "line": 376,
           "name": "contractFingerprint"
         },
         {
           "kind": "named",
-          "line": 348,
+          "line": 385,
           "name": "understandingSha"
         },
         {
           "kind": "named",
-          "line": 352,
+          "line": 389,
           "name": "readFrameReviews"
         },
         {
           "kind": "named",
-          "line": 382,
+          "line": 419,
           "name": "frameGate"
         },
         {
           "kind": "named",
-          "line": 430,
+          "line": 467,
           "name": "recordDeclared"
-        },
-        {
-          "kind": "named",
-          "line": 447,
-          "name": "recordFrameReview"
-        },
-        {
-          "kind": "named",
-          "line": 476,
-          "name": "blockMeaningSummary"
         },
         {
           "kind": "named",
           "line": 48,
           "name": "TRAJECTORY_HEADINGS"
+        },
+        {
+          "kind": "named",
+          "line": 484,
+          "name": "recordFrameReview"
+        },
+        {
+          "kind": "named",
+          "line": 513,
+          "name": "blockMeaningSummary"
         },
         {
           "kind": "named",
@@ -1820,6 +2684,74 @@
       ],
       "owning_block": "b.agent-orchestrator"
     },
+    "scripts/build_sima_design_payload.mjs": {
+      "exports": [
+        {
+          "kind": "named",
+          "line": 240,
+          "name": "buildSimaDesignPayload"
+        }
+      ],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 32,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 33,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 34,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "./block_meaning.mjs",
+          "kind": "static",
+          "line": 35,
+          "resolved_to": "scripts/block_meaning.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "frameGate"
+            },
+            {
+              "kind": "named",
+              "name": "readUnderstanding"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.ui-control"
+    },
     "scripts/calc_intelligence_health.mjs": {
       "exports": [],
       "imports": [
@@ -1851,6 +2783,433 @@
         }
       ],
       "owning_block": "b.core-sync"
+    },
+    "scripts/capture_hero_screenshot.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "@playwright/test",
+          "kind": "static",
+          "line": 22,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "chromium"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 23,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 24,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 25,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.docs"
+    },
+    "scripts/cascade_verify.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 28,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 29,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:child_process",
+          "kind": "static",
+          "line": 30,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "spawnSync"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 31,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.acceptance-verifier-loop"
+    },
+    "scripts/change_set.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 30,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 31,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:child_process",
+          "kind": "static",
+          "line": 32,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "execFileSync"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 33,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.db"
+    },
+    "scripts/chat_sources/_shared.mjs": {
+      "exports": [
+        {
+          "kind": "named",
+          "line": 22,
+          "name": "isNoise"
+        },
+        {
+          "kind": "named",
+          "line": 37,
+          "name": "extractTextFromContent"
+        }
+      ],
+      "imports": [],
+      "owning_block": "b.agent-orchestrator"
+    },
+    "scripts/chat_sources/claude.mjs": {
+      "exports": [
+        {
+          "kind": "named",
+          "line": 14,
+          "name": "SOURCE_ID"
+        },
+        {
+          "kind": "named",
+          "line": 76,
+          "name": "harvestAll"
+        }
+      ],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 10,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:os",
+          "kind": "static",
+          "line": 11,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "./_shared.mjs",
+          "kind": "static",
+          "line": 12,
+          "resolved_to": "scripts/chat_sources/_shared.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "extractTextFromContent"
+            },
+            {
+              "kind": "named",
+              "name": "isNoise"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 9,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.agent-orchestrator"
+    },
+    "scripts/chat_sources/codex.mjs": {
+      "exports": [
+        {
+          "kind": "named",
+          "line": 107,
+          "name": "harvestAll"
+        },
+        {
+          "kind": "named",
+          "line": 19,
+          "name": "SOURCE_ID"
+        }
+      ],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 14,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 15,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:os",
+          "kind": "static",
+          "line": 16,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "./_shared.mjs",
+          "kind": "static",
+          "line": 17,
+          "resolved_to": "scripts/chat_sources/_shared.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "extractTextFromContent"
+            },
+            {
+              "kind": "named",
+              "name": "isNoise"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.agent-orchestrator"
+    },
+    "scripts/chat_sources/cursor.mjs": {
+      "exports": [
+        {
+          "kind": "named",
+          "line": 161,
+          "name": "_internal"
+        },
+        {
+          "kind": "named",
+          "line": 163,
+          "name": "harvestAll"
+        },
+        {
+          "kind": "named",
+          "line": 36,
+          "name": "SOURCE_ID"
+        }
+      ],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 30,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 31,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:os",
+          "kind": "static",
+          "line": 32,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:child_process",
+          "kind": "static",
+          "line": 33,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "execFileSync"
+            },
+            {
+              "kind": "named",
+              "name": "spawnSync"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "./_shared.mjs",
+          "kind": "static",
+          "line": 34,
+          "resolved_to": "scripts/chat_sources/_shared.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "isNoise"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.agent-orchestrator"
     },
     "scripts/check_user_docs_locked.mjs": {
       "exports": [],
@@ -2019,6 +3378,62 @@
       ],
       "owning_block": "b.clarify"
     },
+    "scripts/cleanup_block_memory.mjs": {
+      "exports": [
+        {
+          "kind": "named",
+          "line": 75,
+          "name": "cleanupBlockMemory"
+        },
+        {
+          "kind": "named",
+          "line": 91,
+          "name": "cleanupAllBlocks"
+        }
+      ],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 16,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 17,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 18,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.agent-orchestrator"
+    },
     "scripts/collect_evidence.mjs": {
       "exports": [
         {
@@ -2145,6 +3560,140 @@
         }
       ],
       "owning_block": "b.db"
+    },
+    "scripts/dev_server.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:child_process",
+          "kind": "static",
+          "line": 20,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "spawn"
+            },
+            {
+              "kind": "named",
+              "name": "spawnSync"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:http",
+          "kind": "static",
+          "line": 21,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "http"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 22,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 23,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 24,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.ui-control"
+    },
+    "scripts/distill_run_log.mjs": {
+      "exports": [
+        {
+          "kind": "named",
+          "line": 119,
+          "name": "distillRunLog"
+        }
+      ],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 29,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 30,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 31,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "./llm_gateway.mjs",
+          "kind": "dynamic",
+          "line": 67,
+          "resolved_to": "scripts/llm_gateway.mjs",
+          "specifiers": []
+        }
+      ],
+      "owning_block": "b.agent-orchestrator"
     },
     "scripts/enqueue_ingestion_item.mjs": {
       "exports": [],
@@ -2525,6 +4074,38 @@
       ],
       "owning_block": "b.docs"
     },
+    "scripts/get_block_history.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 6,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 7,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.db"
+    },
     "scripts/guard_against_drift.mjs": {
       "exports": [],
       "imports": [
@@ -2614,6 +4195,51 @@
         }
       ],
       "owning_block": "b.db"
+    },
+    "scripts/housekeeping_sweeper.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 52,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 53,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 54,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.core-sync"
     },
     "scripts/ingest_chat_batches.mjs": {
       "exports": [],
@@ -2879,12 +4505,12 @@
       "exports": [
         {
           "kind": "named",
-          "line": 170,
+          "line": 182,
           "name": "applyTransition"
         },
         {
           "kind": "named",
-          "line": 206,
+          "line": 218,
           "name": "rejectionMessage"
         },
         {
@@ -2894,7 +4520,7 @@
         },
         {
           "kind": "named",
-          "line": 81,
+          "line": 84,
           "name": "checkTransition"
         }
       ],
@@ -3009,22 +4635,27 @@
       "exports": [
         {
           "kind": "named",
-          "line": 344,
+          "line": 182,
+          "name": "describeProvider"
+        },
+        {
+          "kind": "named",
+          "line": 374,
           "name": "mockHashForPrompt"
         },
         {
           "kind": "named",
-          "line": 785,
+          "line": 815,
           "name": "callLLM"
         },
         {
           "kind": "named",
-          "line": 929,
+          "line": 959,
           "name": "BLOCK_SCHEMA"
         },
         {
           "kind": "named",
-          "line": 943,
+          "line": 973,
           "name": "extractBlockSchema"
         }
       ],
@@ -3370,6 +5001,149 @@
       ],
       "owning_block": "b.smoke-sandbox"
     },
+    "scripts/migrate_subsystems_to_blocks.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 28,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 29,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 30,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "./atlas_blocks_api.mjs",
+          "kind": "static",
+          "line": 31,
+          "resolved_to": "scripts/atlas_blocks_api.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "addEdge"
+            },
+            {
+              "kind": "named",
+              "name": "createBlock"
+            },
+            {
+              "kind": "named",
+              "name": "patchBlock"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.db"
+    },
+    "scripts/migrate_v1_v2.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 6,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 7,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.db"
+    },
+    "scripts/nightly_consolidation.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:child_process",
+          "kind": "static",
+          "line": 2,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "execSync"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 3,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 4,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.core-sync"
+    },
     "scripts/observe_file_edit.mjs": {
       "exports": [],
       "imports": [
@@ -3625,6 +5399,65 @@
         }
       ],
       "owning_block": "b.docs"
+    },
+    "scripts/reflect_after_run.mjs": {
+      "exports": [
+        {
+          "kind": "named",
+          "line": 140,
+          "name": "reflectAfterRun"
+        }
+      ],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 25,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 26,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 27,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "./llm_gateway.mjs",
+          "kind": "dynamic",
+          "line": 59,
+          "resolved_to": "scripts/llm_gateway.mjs",
+          "specifiers": []
+        }
+      ],
+      "owning_block": "b.agent-orchestrator"
     },
     "scripts/regenerate_user_docs_drift.mjs": {
       "exports": [
@@ -4097,6 +5930,38 @@
       ],
       "owning_block": "b.agent-orchestrator"
     },
+    "scripts/run_playwright_guarded.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:child_process",
+          "kind": "static",
+          "line": 19,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "spawnSync"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:module",
+          "kind": "static",
+          "line": 20,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "createRequire"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.agent-orchestrator"
+    },
     "scripts/run_state.mjs": {
       "exports": [
         {
@@ -4188,6 +6053,155 @@
       ],
       "owning_block": "b.agent-orchestrator"
     },
+    "scripts/scan_run_for_drift.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 27,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 28,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 29,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.agent-orchestrator"
+    },
+    "scripts/screenshot_block.mjs": {
+      "exports": [
+        {
+          "kind": "named",
+          "line": 31,
+          "name": "screenshotBlock"
+        }
+      ],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 17,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 18,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 19,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "playwright",
+          "kind": "dynamic",
+          "line": 51,
+          "resolved_to": null,
+          "specifiers": []
+        }
+      ],
+      "owning_block": "b.agent-orchestrator"
+    },
+    "scripts/seed_example_client.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 20,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 21,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 22,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.ui-control"
+    },
     "scripts/seed_llm_mocks.mjs": {
       "exports": [],
       "imports": [
@@ -4246,6 +6260,253 @@
       ],
       "owning_block": "b.llm-gateway"
     },
+    "scripts/seed_operator_profile.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 19,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 20,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 21,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.operator-profile-learner"
+    },
+    "scripts/semantic_verify.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 33,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 34,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 35,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "./llm_gateway.mjs",
+          "kind": "static",
+          "line": 36,
+          "resolved_to": "scripts/llm_gateway.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "callLLM"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.acceptance-verifier-loop"
+    },
+    "scripts/sima_fill_from_chat.mjs": {
+      "exports": [
+        {
+          "kind": "named",
+          "line": 53,
+          "name": "simaFillFromChat"
+        }
+      ],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 23,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 24,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 25,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "./atlas_synthesis_api.mjs",
+          "kind": "static",
+          "line": 26,
+          "resolved_to": "scripts/atlas_synthesis_api.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "extractInsights"
+            },
+            {
+              "kind": "named",
+              "name": "fillField"
+            },
+            {
+              "kind": "named",
+              "name": "synthesizeBlock"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "./atlas_blocks_api.mjs",
+          "kind": "static",
+          "line": 27,
+          "resolved_to": "scripts/atlas_blocks_api.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "patchBlockFile"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.agent-orchestrator"
+    },
+    "scripts/sima_watch_chats.mjs": {
+      "exports": [
+        {
+          "kind": "named",
+          "line": 94,
+          "name": "watchOnce"
+        }
+      ],
+      "imports": [
+        {
+          "external": false,
+          "from": "./sima_fill_from_chat.mjs",
+          "kind": "dynamic",
+          "line": 162,
+          "resolved_to": "scripts/sima_fill_from_chat.mjs",
+          "specifiers": []
+        },
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 35,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 36,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 37,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.agent-orchestrator"
+    },
     "scripts/simulate_conversation_branches.mjs": {
       "exports": [],
       "imports": [
@@ -4303,6 +6564,328 @@
         }
       ],
       "owning_block": "b.agent-orchestrator"
+    },
+    "scripts/subagent_schema_syncer.mjs": {
+      "exports": [
+        {
+          "kind": "named",
+          "line": 69,
+          "name": "runSchemaSyncer"
+        }
+      ],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 25,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 26,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:child_process",
+          "kind": "static",
+          "line": 27,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "spawnSync"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 28,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.core-sync"
+    },
+    "scripts/subagent_verifier.mjs": {
+      "exports": [
+        {
+          "kind": "named",
+          "line": 86,
+          "name": "runVerifier"
+        }
+      ],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 11,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 12,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:child_process",
+          "kind": "static",
+          "line": 13,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "spawnSync"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 14,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "./atlas_synthesis_api.mjs",
+          "kind": "static",
+          "line": 15,
+          "resolved_to": "scripts/atlas_synthesis_api.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "validateBlock"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.acceptance-verifier-loop"
+    },
+    "scripts/subagent_wiki_builder.mjs": {
+      "exports": [
+        {
+          "kind": "named",
+          "line": 34,
+          "name": "runWikiBuilder"
+        }
+      ],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 11,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 12,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:child_process",
+          "kind": "static",
+          "line": 13,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "spawnSync"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 14,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.docs"
+    },
+    "scripts/summarize_block_code.mjs": {
+      "exports": [
+        {
+          "kind": "named",
+          "line": 122,
+          "name": "summarizeBlockCode"
+        }
+      ],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 22,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 23,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 24,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "./atlas_files_api.mjs",
+          "kind": "static",
+          "line": 25,
+          "resolved_to": "scripts/atlas_files_api.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "filterAlive"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "./llm_gateway.mjs",
+          "kind": "dynamic",
+          "line": 58,
+          "resolved_to": "scripts/llm_gateway.mjs",
+          "specifiers": []
+        }
+      ],
+      "owning_block": "b.agent-orchestrator"
+    },
+    "scripts/sync_article_status.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 22,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 23,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 24,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.docs"
     },
     "scripts/sync_context_packs.mjs": {
       "exports": [],
@@ -4450,6 +7033,57 @@
         }
       ],
       "owning_block": "b.user-docs-generator"
+    },
+    "scripts/token_economics.mjs": {
+      "exports": [
+        {
+          "kind": "named",
+          "line": 97,
+          "name": "aggregateTokenEconomics"
+        }
+      ],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 37,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 38,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 39,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.llm-gateway"
     },
     "scripts/validate_acceptance_assertions.mjs": {
       "exports": [],
@@ -5013,6 +7647,51 @@
       ],
       "owning_block": "b.core-sync"
     },
+    "scripts/validate_lifecycle_gates.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 24,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 25,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 26,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.db"
+    },
     "scripts/validate_meaning.mjs": {
       "exports": [],
       "imports": [
@@ -5103,6 +7782,51 @@
       ],
       "owning_block": "b.core-sync"
     },
+    "scripts/validate_ownership.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 22,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 23,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 24,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.core-sync"
+    },
     "scripts/validate_parity_matrix.mjs": {
       "exports": [],
       "imports": [
@@ -5135,6 +7859,51 @@
       ],
       "owning_block": "b.core-sync"
     },
+    "scripts/validate_projects.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 20,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 21,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 22,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.core-sync"
+    },
     "scripts/validate_stack_mismatch.mjs": {
       "exports": [],
       "imports": [
@@ -5161,6 +7930,109 @@
             {
               "kind": "default",
               "name": "path"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.core-sync"
+    },
+    "scripts/validate_subschemas.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 15,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 16,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 17,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.core-sync"
+    },
+    "scripts/verify_all.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 25,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 26,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:child_process",
+          "kind": "static",
+          "line": 27,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "spawnSync"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 28,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
             }
           ]
         }
@@ -5235,7 +8107,7 @@
       "exports": [
         {
           "kind": "named",
-          "line": 34,
+          "line": 35,
           "name": "verifyAndPersist"
         }
       ],
@@ -5289,6 +8161,23 @@
             {
               "kind": "named",
               "name": "verifyBlock"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "./lifecycle_gate.mjs",
+          "kind": "static",
+          "line": 29,
+          "resolved_to": "scripts/lifecycle_gate.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "applyTransition"
+            },
+            {
+              "kind": "named",
+              "name": "rejectionMessage"
             }
           ]
         }
@@ -5425,6 +8314,77 @@
       ],
       "owning_block": "b.acceptance-verifier-loop"
     },
+    "tests/agent_loop_budget.selftest.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 11,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:os",
+          "kind": "static",
+          "line": 12,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 13,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 14,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "../scripts/token_economics.mjs",
+          "kind": "static",
+          "line": 15,
+          "resolved_to": "scripts/token_economics.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "aggregateTokenEconomics"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.agent-orchestrator"
+    },
     "tests/agent_parity_real.smoke.mjs": {
       "exports": [],
       "imports": [
@@ -5547,6 +8507,347 @@
       ],
       "owning_block": "b.agent-orchestrator"
     },
+    "tests/atlas_artifacts_api.selftest.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 12,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:os",
+          "kind": "static",
+          "line": 13,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 14,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.db"
+    },
+    "tests/atlas_blocks_api.selftest.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 14,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:os",
+          "kind": "static",
+          "line": 15,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 16,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 17,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.db"
+    },
+    "tests/atlas_bootstrap.smoke.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 10,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:vm",
+          "kind": "static",
+          "line": 11,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "vm"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 9,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.ui-control"
+    },
+    "tests/atlas_files_api.selftest.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 11,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:os",
+          "kind": "static",
+          "line": 12,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 13,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.db"
+    },
+    "tests/atlas_live_polling.smoke.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 6,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 7,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:child_process",
+          "kind": "static",
+          "line": 8,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "spawn"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 9,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.ui-control"
+    },
+    "tests/atlas_runs_api.selftest.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 10,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:os",
+          "kind": "static",
+          "line": 11,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 12,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.agent-orchestrator"
+    },
+    "tests/atlas_subsystems_api.selftest.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 11,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:os",
+          "kind": "static",
+          "line": 12,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 13,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.db"
+    },
     "tests/atlas_sync.selftest.mjs": {
       "exports": [],
       "imports": [
@@ -5578,6 +8879,68 @@
         }
       ],
       "owning_block": "b.smoke-sandbox"
+    },
+    "tests/atlas_synthesis_api.selftest.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 14,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:os",
+          "kind": "static",
+          "line": 15,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 16,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "../scripts/atlas_blocks_api.mjs",
+          "kind": "static",
+          "line": 20,
+          "resolved_to": "scripts/atlas_blocks_api.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "createBlock"
+            },
+            {
+              "kind": "named",
+              "name": "patchBlockFile"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.agent-orchestrator"
     },
     "tests/block_meaning.selftest.mjs": {
       "exports": [],
@@ -5686,9 +9049,101 @@
           "line": 29,
           "resolved_to": "scripts/clarify_block.mjs",
           "specifiers": []
+        },
+        {
+          "external": false,
+          "from": "../scripts/block_meaning.mjs",
+          "kind": "dynamic",
+          "line": 299,
+          "resolved_to": "scripts/block_meaning.mjs",
+          "specifiers": []
         }
       ],
       "owning_block": "b.clarify"
+    },
+    "tests/chat_fill_accept.selftest.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 16,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:os",
+          "kind": "static",
+          "line": 17,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 18,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:assert",
+          "kind": "static",
+          "line": 19,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "assert"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:child_process",
+          "kind": "static",
+          "line": 20,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "execFileSync"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 21,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.agent-orchestrator"
     },
     "tests/checks_append_endpoint.selftest.mjs": {
       "exports": [],
@@ -5847,6 +9302,51 @@
         }
       ],
       "owning_block": "b.clarify"
+    },
+    "tests/cleanup_block_memory.selftest.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 10,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:os",
+          "kind": "static",
+          "line": 11,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 12,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.agent-orchestrator"
     },
     "tests/code_graph_extractor.selftest.mjs": {
       "exports": [
@@ -6241,6 +9741,143 @@
       ],
       "owning_block": "b.code-graph"
     },
+    "tests/codex_source.selftest.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 16,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:os",
+          "kind": "static",
+          "line": 17,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 18,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:assert",
+          "kind": "static",
+          "line": 19,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "assert"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "../scripts/chat_sources/codex.mjs",
+          "kind": "dynamic",
+          "line": 21,
+          "resolved_to": "scripts/chat_sources/codex.mjs",
+          "specifiers": []
+        }
+      ],
+      "owning_block": "b.agent-orchestrator"
+    },
+    "tests/connection_drift.smoke.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 10,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:child_process",
+          "kind": "static",
+          "line": 11,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "execFileSync"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:vm",
+          "kind": "static",
+          "line": 12,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "vm"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 13,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 9,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.ui-control"
+    },
     "tests/cursor_hooks_actions.test.mjs": {
       "exports": [],
       "imports": [
@@ -6295,6 +9932,147 @@
               "name": "fileURLToPath"
             }
           ]
+        }
+      ],
+      "owning_block": "b.agent-orchestrator"
+    },
+    "tests/cursor_live.headless.smoke.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 21,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 22,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:child_process",
+          "kind": "static",
+          "line": 23,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "spawnSync"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 24,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.agent-orchestrator"
+    },
+    "tests/cursor_source.selftest.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 18,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:os",
+          "kind": "static",
+          "line": 19,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 20,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:assert",
+          "kind": "static",
+          "line": 21,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "assert"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:child_process",
+          "kind": "static",
+          "line": 22,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "execFileSync"
+            },
+            {
+              "kind": "named",
+              "name": "spawnSync"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "../scripts/chat_sources/cursor.mjs",
+          "kind": "dynamic",
+          "line": 24,
+          "resolved_to": "scripts/chat_sources/cursor.mjs",
+          "specifiers": []
         }
       ],
       "owning_block": "b.agent-orchestrator"
@@ -6414,6 +10192,77 @@
         }
       ],
       "owning_block": "b.desktop"
+    },
+    "tests/desync_restore.selftest.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 13,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:os",
+          "kind": "static",
+          "line": 14,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 15,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:child_process",
+          "kind": "static",
+          "line": 16,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "spawnSync"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 17,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.acceptance-verifier-loop"
     },
     "tests/dont_use_management.selftest.mjs": {
       "exports": [],
@@ -6573,7 +10422,7 @@
           "external": true,
           "from": "node:fs",
           "kind": "static",
-          "line": 21,
+          "line": 22,
           "resolved_to": null,
           "specifiers": [
             {
@@ -6586,7 +10435,7 @@
           "external": true,
           "from": "node:os",
           "kind": "static",
-          "line": 22,
+          "line": 23,
           "resolved_to": null,
           "specifiers": [
             {
@@ -6599,7 +10448,7 @@
           "external": true,
           "from": "node:path",
           "kind": "static",
-          "line": 23,
+          "line": 24,
           "resolved_to": null,
           "specifiers": [
             {
@@ -6612,7 +10461,7 @@
           "external": true,
           "from": "node:http",
           "kind": "static",
-          "line": 24,
+          "line": 25,
           "resolved_to": null,
           "specifiers": [
             {
@@ -6625,7 +10474,7 @@
           "external": true,
           "from": "node:child_process",
           "kind": "static",
-          "line": 25,
+          "line": 26,
           "resolved_to": null,
           "specifiers": [
             {
@@ -6642,7 +10491,7 @@
           "external": true,
           "from": "node:url",
           "kind": "static",
-          "line": 26,
+          "line": 27,
           "resolved_to": null,
           "specifiers": [
             {
@@ -6655,7 +10504,7 @@
           "external": false,
           "from": "../scripts/atlas_runs_api.mjs",
           "kind": "static",
-          "line": 30,
+          "line": 31,
           "resolved_to": "scripts/atlas_runs_api.mjs",
           "specifiers": [
             {
@@ -6811,7 +10660,7 @@
           "external": true,
           "from": "node:fs",
           "kind": "static",
-          "line": 16,
+          "line": 30,
           "resolved_to": null,
           "specifiers": [
             {
@@ -6824,7 +10673,7 @@
           "external": true,
           "from": "node:path",
           "kind": "static",
-          "line": 17,
+          "line": 31,
           "resolved_to": null,
           "specifiers": [
             {
@@ -6837,7 +10686,7 @@
           "external": true,
           "from": "node:url",
           "kind": "static",
-          "line": 18,
+          "line": 32,
           "resolved_to": null,
           "specifiers": [
             {
@@ -6850,7 +10699,7 @@
           "external": false,
           "from": "../scripts/llm_gateway.mjs",
           "kind": "static",
-          "line": 19,
+          "line": 33,
           "resolved_to": "scripts/llm_gateway.mjs",
           "specifiers": [
             {
@@ -6918,6 +10767,10 @@
             {
               "kind": "named",
               "name": "callLLM"
+            },
+            {
+              "kind": "named",
+              "name": "describeProvider"
             },
             {
               "kind": "named",
@@ -6998,6 +10851,156 @@
         }
       ],
       "owning_block": "b.acceptance-verifier-loop"
+    },
+    "tests/multi_tenant_block_routing.selftest.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 21,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 22,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:assert",
+          "kind": "static",
+          "line": 23,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "assert"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:child_process",
+          "kind": "static",
+          "line": 24,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "spawn"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 25,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.db"
+    },
+    "tests/openai_gemini_providers.selftest.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 19,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:os",
+          "kind": "static",
+          "line": 20,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 21,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:child_process",
+          "kind": "static",
+          "line": 22,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "spawnSync"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 23,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "./scripts/llm_gateway.mjs",
+          "kind": "dynamic",
+          "line": 78,
+          "resolved_to": null,
+          "specifiers": []
+        }
+      ],
+      "owning_block": "b.llm-gateway"
     },
     "tests/operator_profile.selftest.mjs": {
       "exports": [],
@@ -7608,6 +11611,156 @@
       ],
       "owning_block": "b.user-docs-generator"
     },
+    "tests/sima_design_payload.selftest.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 17,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:os",
+          "kind": "static",
+          "line": 18,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 19,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 20,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "../scripts/build_sima_design_payload.mjs",
+          "kind": "static",
+          "line": 21,
+          "resolved_to": "scripts/build_sima_design_payload.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "buildSimaDesignPayload"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.ui-control"
+    },
+    "tests/sima_watch_chats.selftest.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 17,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:os",
+          "kind": "static",
+          "line": 18,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 19,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:assert",
+          "kind": "static",
+          "line": 20,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "assert"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 21,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "../scripts/sima_watch_chats.mjs",
+          "kind": "dynamic",
+          "line": 26,
+          "resolved_to": "scripts/sima_watch_chats.mjs",
+          "specifiers": []
+        }
+      ],
+      "owning_block": "b.agent-orchestrator"
+    },
     "tests/user_docs.smoke.mjs": {
       "exports": [],
       "imports": [
@@ -7744,24 +11897,80 @@
         }
       ],
       "owning_block": "b.user-docs-generator"
+    },
+    "tests/validate_lifecycle_gates.selftest.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:assert",
+          "kind": "static",
+          "line": 10,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "assert"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:child_process",
+          "kind": "static",
+          "line": 11,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "execFileSync"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 12,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 8,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 9,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.db"
     }
   },
-  "owner_warnings": [
-    {
-      "claimed_by": [
-        "b.ui-control",
-        "b.core-sync"
-      ],
-      "file": "frontend/atlas_sync.js"
-    },
-    {
-      "claimed_by": [
-        "b.core-sync",
-        "b.db"
-      ],
-      "file": "scripts/log_transition.mjs"
-    }
-  ],
+  "owner_warnings": [],
   "supported_extensions": [
     ".js",
     ".jsx",

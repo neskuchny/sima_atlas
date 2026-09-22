@@ -55,7 +55,8 @@
       "subschema_id": "components",
       "depends_on": [
         "b.core-sync",
-        "b.agent-orchestrator"
+        "b.agent-orchestrator",
+        "b.clarify"
       ],
       "tech_stack": [
         "react",
@@ -224,7 +225,9 @@
       "type": "module",
       "mvp": true,
       "subschema_id": null,
-      "depends_on": [],
+      "depends_on": [
+        "b.db"
+      ],
       "tech_stack": [
         "nodejs",
         "anthropic-api",
@@ -291,8 +294,7 @@
     {
       "id": "b.acceptance-verifier-loop",
       "title": "Acceptance Verifier Loop",
-      "status": "desync",
-      "status_reason": "cascade: parent b.core-sync edit at 2026-06-20T08:31:02 broke acceptance",
+      "status": "wip",
       "layer": "testing",
       "type": "module",
       "mvp": false,
@@ -322,7 +324,7 @@
         "scripts/verify_done_blocks_still_green.mjs",
         "tests/acceptance_verifier.e2e.smoke.mjs"
       ],
-      "updated_at": "2026-06-20T08:31:02.542Z"
+      "updated_at": "2026-09-22T19:56:58.408Z"
     },
     {
       "id": "b.user-docs-generator",

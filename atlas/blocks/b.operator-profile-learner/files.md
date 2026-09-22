@@ -48,3 +48,8 @@ PR-6 cross-cutting changes (host blocks own JSX; documented in checks.log + task
 - atlas/blocks/b.operator-profile-learner/provides.md [alive]
 - atlas/blocks/b.operator-profile-learner/files.md [alive]
 - atlas/blocks/b.operator-profile-learner/checks.log [alive]
+
+## R-8.10 — previously unowned
+
+These files had no owner in any files.md, so the code-graph check never saw their imports.
+- scripts/seed_operator_profile.mjs [alive]

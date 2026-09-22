@@ -9,3 +9,10 @@
 - atlas/wiki.html [alive] (auto-generated)
 - atlas/roadmap.md [alive] (auto-generated)
 - atlas/nightly_report.md [alive] (auto-generated)
+
+## R-8.10 — previously unowned
+
+These files had no owner in any files.md, so the code-graph check never saw their imports.
+- scripts/subagent_wiki_builder.mjs [alive]
+- scripts/sync_article_status.mjs [alive]
+- scripts/capture_hero_screenshot.mjs [alive] (README hero image)

@@ -12,7 +12,8 @@ import * as synthApi from './atlas_synthesis_api.mjs';
 import * as subsApi from './atlas_subsystems_api.mjs';
 import * as filesApi from './atlas_files_api.mjs';
 import { aggregateTokenEconomics } from './token_economics.mjs';
-import { blockMeaningSummary, recordFrameReview } from './block_meaning.mjs';
+import { blockMeaningSummary, recordFrameReview, setTrajectory } from './block_meaning.mjs';
+import { describeProvider } from './llm_gateway.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(__filename), '..');
@@ -32,7 +33,7 @@ function runNode(args) {
 // the whole atlas/ tree (that would include llm_traces and runtime checks.log
 // noise that triggers spurious reloads). We hash exactly the artefacts the
 // bootstrap generator reads.
-function computeAtlasStateHash() {
+function computeAtlasStateHash(atlasRoot = ATLAS) {
   const h = crypto.createHash('sha256');
   function add(p) {
     if (!fs.existsSync(p)) return;
@@ -47,15 +48,15 @@ function computeAtlasStateHash() {
     }
   }
   // Top-level project files
-  for (const f of ['graph.json', 'project.md', 'rules.md', 'tech_stack.md']) add(path.join(ATLAS, f));
-  // All blocks under the main atlas
-  add(path.join(ATLAS, 'blocks'));
+  for (const f of ['graph.json', 'project.md', 'rules.md', 'tech_stack.md']) add(path.join(atlasRoot, f));
+  // All blocks under the atlas
+  add(path.join(atlasRoot, 'blocks'));
   // User projects
-  add(path.join(ATLAS, 'projects'));
+  add(path.join(atlasRoot, 'projects'));
   // Pending proposals (for the Proposals UI panel)
-  if (fs.existsSync(path.join(ATLAS, 'proposals'))) {
-    for (const f of fs.readdirSync(path.join(ATLAS, 'proposals')).sort()) {
-      if (f.endsWith('.json')) add(path.join(ATLAS, 'proposals', f));
+  if (fs.existsSync(path.join(atlasRoot, 'proposals'))) {
+    for (const f of fs.readdirSync(path.join(atlasRoot, 'proposals')).sort()) {
+      if (f.endsWith('.json')) add(path.join(atlasRoot, 'proposals', f));
     }
   }
   return h.digest('hex').slice(0, 16);
@@ -89,9 +90,14 @@ const server = http.createServer((req, res) => {
   // when `hash` differs from the last value the UI knew, it pulls /atlas/payload
   // (full bootstrap content) and re-renders. Hash-only path keeps the request
   // tiny so polling is essentially free.
-  if (req.method === 'GET' && req.url === '/atlas/state') {
+  // R-8.10 — `?client=<id>` hashes that client's atlas. Without it a canvas
+  // opened on ?client=… polled the ROOT atlas hash, so edits to the client's
+  // own files (a new declaration, a status change) never refreshed the view.
+  if (req.method === 'GET' && (req.url === '/atlas/state' || req.url.startsWith('/atlas/state?'))) {
     try {
-      const hash = computeAtlasStateHash();
+      const clientArg = new URLSearchParams(req.url.split('?')[1] || '').get('client') || '';
+      if (clientArg && !/^[a-zA-Z0-9_-][a-zA-Z0-9._-]*$/.test(clientArg)) return json(res, 400, { ok: false, error: 'invalid client' });
+      const hash = computeAtlasStateHash(clientArg ? path.join(ROOT, 'atlas', 'clients', clientArg) : ATLAS);
       return json(res, 200, { ok: true, hash, at: new Date().toISOString() });
     } catch (e) {
       return json(res, 500, { ok: false, error: String(e) });
@@ -530,6 +536,20 @@ const server = http.createServer((req, res) => {
     }
   }
   // Phase Q-3: latest architecture review (atlas/architecture_reviews/_latest.json)
+  // R-8.10 — which LLM answers the canvas's «fill / suggest / review» calls,
+  // and why. Cached for a minute: detecting the claude CLI spawns
+  // `claude --version`, which must not happen on every poll.
+  if (req.method === 'GET' && req.url === '/llm/provider') {
+    try {
+      const now = Date.now();
+      if (!globalThis.__simaProviderCache || now - globalThis.__simaProviderCache.at > 60_000) {
+        globalThis.__simaProviderCache = { at: now, value: describeProvider() };
+      }
+      return json(res, 200, { ok: true, ...globalThis.__simaProviderCache.value, checked_at: new Date(globalThis.__simaProviderCache.at).toISOString() });
+    } catch (e) {
+      return json(res, 200, { ok: false, error: String(e.message || e) });
+    }
+  }
   if (req.method === 'GET' && req.url === '/llm/architecture-review/get') {
     try {
       const p = path.join(ATLAS, 'architecture_reviews', '_latest.json');
@@ -1231,6 +1251,35 @@ const server = http.createServer((req, res) => {
           }
         }
         return json(res, 200, { ok: true, ...meaning, run });
+      }
+      // R-8.10 (b.clarify) — write the trajectory section of mission.md from
+      // the canvas. Goes through blocksApi.patchBlockFile (history snapshot,
+      // etag, audit line) — the one writer of block files — and returns the
+      // fresh meaning summary. Changing the mission changes the contract
+      // fingerprint, so a confirmed frame becomes stale: intended, the agent
+      // should re-declare against the new direction.
+      if (req.url === '/atlas/blocks/trajectory') {
+        const SAFE_ID = /^[a-zA-Z0-9_-][a-zA-Z0-9._-]*$/;
+        const blockId = String(body.block_id || '');
+        const clientArg = String(body.client_id || body._client || '');
+        if (!SAFE_ID.test(blockId)) return json(res, 400, { ok: false, error: 'invalid block_id' });
+        if (clientArg && !SAFE_ID.test(clientArg)) return json(res, 400, { ok: false, error: 'invalid client' });
+        const root = clientArg ? path.join(ROOT, 'atlas', 'clients', clientArg) : ATLAS;
+        const missionPath = path.join(root, 'blocks', blockId, 'mission.md');
+        if (!fs.existsSync(path.join(root, 'blocks', blockId))) return json(res, 404, { ok: false, error: 'not_found' });
+        const text = String(body.text || '');
+        if (text.length > 4000) return json(res, 200, { ok: false, error: 'a trajectory is limited to 4000 characters' });
+        try {
+          const current = fs.existsSync(missionPath) ? fs.readFileSync(missionPath, 'utf8') : '';
+          blocksApi.patchBlockFile({
+            atlas_root: root, block_id: blockId, file: 'mission.md',
+            content: setTrajectory(current, text),
+            if_match_mtime: body.if_match_mtime || undefined,
+          });
+        } catch (e) {
+          return json(res, 200, { ok: false, error: String(e.message || e), conflict: e && e.name === 'EtagMismatchError' });
+        }
+        return json(res, 200, { ok: true, ...blockMeaningSummary(blockId, root) });
       }
       // /llm/advice — bridge to b.llm-gateway. Returns ok:true with
       // advice text on success, ok:false with mock fallback if no

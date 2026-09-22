@@ -294,9 +294,29 @@ const MISSION_RU = [
   check('g11: implement lines — confirmation date, frame without its H1', impl.includes('on 2026-09-22') && impl.includes('## Treating this as') && !impl.includes('# b.x — understanding'));
 }
 
+// ── Group 12: writing the trajectory (the canvas «Set the trajectory») ─────
+{
+  const { setTrajectory } = await import('../scripts/block_meaning.mjs');
+  const base = '# b.x — mission\n\nБлок.\n\n## Layer\nlogic\n';
+  const a = setTrajectory(base, 'Станет общим сервисом.');
+  const ta = readTrajectory(a);
+  check('g12: inserted section reads back exactly', ta.text === 'Станет общим сервисом.' && ta.heading === 'Во что это вырастет', JSON.stringify(ta));
+  check('g12: inserted before «## Layer», Layer kept', a.indexOf('## Во что это вырастет') < a.indexOf('## Layer') && ta.missionWithout.includes('## Layer\nlogic'));
+  const b = setTrajectory(a, 'Другое направление.');
+  check('g12: an existing section is replaced, not duplicated', readTrajectory(b).text === 'Другое направление.' && (b.match(/Во что это вырастет/g) || []).length === 1);
+  const eng = setTrajectory('# m\n\nx\n\n## Trajectory\n\nold\n\n## Layer\nai\n', 'new');
+  check('g12: an English heading keeps its own heading', eng.includes('## Trajectory\n\nnew') && !eng.includes('Во что'));
+  const h = setTrajectory(base, 'Первое.\n## Вложенный заголовок\nВторое.');
+  check('g12: a heading inside the body cannot cut the section short', readTrajectory(h).text === 'Первое.\n**Вложенный заголовок**\nВторое.', JSON.stringify(readTrajectory(h).text));
+  const c = setTrajectory(b, '   ');
+  check('g12: empty text removes the section', readTrajectory(c).text === null && !c.includes('Во что это вырастет') && c.includes('## Layer'));
+  check('g12: empty text on a mission without a section changes nothing', setTrajectory(base, '') === base);
+  check('g12: a mission without «## Layer» gets it appended', readTrajectory(setTrajectory('# m\n\nx\n', 'y')).text === 'y');
+}
+
 if (failures.length) {
   console.error('block_meaning.selftest: FAIL');
   failures.forEach((f) => console.error(' ✗', f));
   process.exit(1);
 }
-console.log('block_meaning.selftest: OK (10 groups, all assertions green)');
+console.log('block_meaning.selftest: OK (11 groups, all assertions green)');

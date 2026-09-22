@@ -15,17 +15,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/parse_acceptance.selftest.mjs → exit 0 (61ms); first line: \"parse_acceptance.selftest: OK (10 test groups, all assertions green)\"",
+      "evidence": "node tests/parse_acceptance.selftest.mjs → exit 0 (53ms); first line: \"parse_acceptance.selftest: OK (10 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/parse_acceptance.selftest.mjs",
         "exit_code": 0,
         "stdout": "parse_acceptance.selftest: OK (10 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 61,
+        "duration_ms": 53,
         "timed_out": false
       },
-      "duration_ms": 61
+      "duration_ms": 53
     },
     {
       "id": "A2",
@@ -39,17 +39,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/evidence_collectors.selftest.mjs → exit 0 (213ms); first line: \"evidence_collectors.selftest: OK (14 test groups, all assertions green)\"",
+      "evidence": "node tests/evidence_collectors.selftest.mjs → exit 0 (186ms); first line: \"evidence_collectors.selftest: OK (14 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/evidence_collectors.selftest.mjs",
         "exit_code": 0,
         "stdout": "evidence_collectors.selftest: OK (14 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 213,
+        "duration_ms": 186,
         "timed_out": false
       },
-      "duration_ms": 213
+      "duration_ms": 186
     },
     {
       "id": "A3",
@@ -63,17 +63,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/llm_judge.smoke.mjs → exit 0 (73ms); first line: \"llm_judge.smoke: OK (4 test groups, all assertions green)\"",
+      "evidence": "node tests/llm_judge.smoke.mjs → exit 0 (89ms); first line: \"llm_judge.smoke: OK (4 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/llm_judge.smoke.mjs",
         "exit_code": 0,
         "stdout": "llm_judge.smoke: OK (4 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 73,
+        "duration_ms": 89,
         "timed_out": false
       },
-      "duration_ms": 73
+      "duration_ms": 89
     },
     {
       "id": "A4",
@@ -87,17 +87,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/acceptance_verifier.e2e.smoke.mjs → exit 0 (417ms); first line: \"acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\"",
+      "evidence": "node tests/acceptance_verifier.e2e.smoke.mjs → exit 0 (382ms); first line: \"acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/acceptance_verifier.e2e.smoke.mjs",
         "exit_code": 0,
         "stdout": "acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\n",
         "stderr": "",
-        "duration_ms": 417,
+        "duration_ms": 382,
         "timed_out": false
       },
-      "duration_ms": 417
+      "duration_ms": 382
     },
     {
       "id": "A5",
@@ -123,7 +123,7 @@
           "function AcceptanceSection({ moduleId, onClaudeAdvice, moduleObj }) {"
         ]
       },
-      "duration_ms": 2
+      "duration_ms": 1
     },
     {
       "id": "A6",
@@ -137,17 +137,17 @@
         "expect_in_stdout": "5 phases"
       },
       "verdict": "pass",
-      "evidence": "node tests/acceptance_verifier.e2e.smoke.mjs → exit 0 (465ms); first line: \"acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\"",
+      "evidence": "node tests/acceptance_verifier.e2e.smoke.mjs → exit 0 (372ms); first line: \"acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\"",
       "reasoning": "shell exit code 0 and stdout matches /5 phases/",
       "raw": {
         "cmd": "node tests/acceptance_verifier.e2e.smoke.mjs",
         "exit_code": 0,
         "stdout": "acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\n",
         "stderr": "",
-        "duration_ms": 465,
+        "duration_ms": 372,
         "timed_out": false
       },
-      "duration_ms": 465
+      "duration_ms": 372
     },
     {
       "id": "A7",
@@ -194,7 +194,7 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "09aa79ae174a70bc",
+        "prompt_hash": "e1ffa513b326240c",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
@@ -208,6 +208,6 @@
     "skipped": 1
   },
   "verdict": "pass",
-  "duration_ms": 1236,
-  "checked_at": "2026-09-22T18:27:47.537Z"
+  "duration_ms": 1086,
+  "checked_at": "2026-09-22T19:58:00.575Z"
 }

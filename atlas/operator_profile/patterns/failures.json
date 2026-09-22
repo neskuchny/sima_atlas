@@ -90,6 +90,12 @@
     "note": "broken by parent b.core-sync edit — verifier failed; status auto-set to desync"
   },
   {
+    "block_id": "b.acceptance-verifier-loop",
+    "ts": "2026-09-22T19:56:58.000Z",
+    "kind": "kpi",
+    "note": "R-8.10 measured: KPI-1 ✓ (gate refuses done without pass); KPI-2 ✗ 68.9% deterministic < 70%; KPI-3 ✓ 1.1 s for 8 assertions; KPI-6 ✗ no verifier cache exists; KPI-4/5/7 not measurable on mock"
+  },
+  {
     "block_id": "b.agent-orchestrator",
     "ts": "2026-05-03T17:43:55.320Z",
     "kind": "drift_guard",

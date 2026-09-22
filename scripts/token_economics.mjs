@@ -29,6 +29,8 @@
 // Usage:
 //   node scripts/token_economics.mjs                     (last 30 days, all blocks)
 //   node scripts/token_economics.mjs --days 7
+//   node scripts/token_economics.mjs --since 2026-09-22T18:00:00Z   (exact lower bound;
+//        used by the autonomous loop to count only what IT spent, not the whole repo's day)
 //   node scripts/token_economics.mjs --block b.docs
 //   node scripts/token_economics.mjs --json              (full JSON, no pretty print)
 
@@ -46,10 +48,13 @@ function safeReadJson(p) {
   try { return JSON.parse(fs.readFileSync(p, 'utf8')); } catch { return null; }
 }
 
-function listTraces(atlas, days) {
+function listTraces(atlas, days, since = null) {
   const dir = path.join(atlas, 'llm_traces');
   if (!fs.existsSync(dir)) return [];
-  const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+  const sinceMs = since ? Date.parse(since) : NaN;
+  const cutoff = Number.isFinite(sinceMs)
+    ? new Date(sinceMs).toISOString()
+    : new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
   const out = [];
   for (const f of fs.readdirSync(dir)) {
     if (!f.endsWith('.json')) continue;
@@ -89,9 +94,9 @@ function equivalentCost(trace) {
        + (trace.output_tokens || 0) * EQUIV_PRICE_OUT_PER_MTOK / 1e6;
 }
 
-export function aggregateTokenEconomics({ days = 30, blockFilter = '', root = process.cwd() } = {}) {
+export function aggregateTokenEconomics({ days = 30, since = null, blockFilter = '', root = process.cwd() } = {}) {
   const atlas = path.join(root, 'atlas');
-  const traces = listTraces(atlas, days);
+  const traces = listTraces(atlas, days, since);
   const windows = listRunWindows(atlas);
   const totals = {
     trace_count: 0,
@@ -136,6 +141,7 @@ export function aggregateTokenEconomics({ days = 30, blockFilter = '', root = pr
 
   return {
     window_days: days,
+    since: since || null,
     block_filter: blockFilter || null,
     totals: {
       ...totals,
@@ -172,6 +178,7 @@ if (isCli) {
   const arg = (flag, dflt) => { const i = args.indexOf(flag); return i >= 0 ? args[i + 1] : dflt; };
   const result = aggregateTokenEconomics({
     days: Number(arg('--days', 30)),
+    since: arg('--since', null),
     blockFilter: arg('--block', ''),
     root: arg('--root', process.cwd()),
   });

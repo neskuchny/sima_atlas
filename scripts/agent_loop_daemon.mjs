@@ -226,10 +226,13 @@ function pickNextRunnable(graph, attempted) {
 
 // ── cost (shadow bill) ───────────────────────────────────────────────────────
 
-function costEquivalentSince() {
-  // token_economics rolls up llm_traces; we read the 1-day window total as a
-  // proxy for «spent during this loop». Best-effort — returns 0 if unavailable.
-  const r = nodeRun(['scripts/token_economics.mjs', '--days', '1', '--json']);
+function costEquivalentSince(sinceIso) {
+  // What THIS loop spent: llm_traces written since it started. This used to
+  // read the rolling 1-day total of the whole repo as a proxy, so on a busy
+  // day the loop stopped on «budget» before running a single block — other
+  // work (nightly, tests, the operator's own sessions) was billed to it.
+  // Best-effort — returns 0 if unavailable.
+  const r = nodeRun(['scripts/token_economics.mjs', '--since', sinceIso, '--json']);
   if (!r.ok) return 0;
   try { return JSON.parse(r.stdout).totals?.cost_usd_equivalent || 0; } catch { return 0; }
 }
@@ -302,7 +305,7 @@ function iterate() {
     const block = pickNextRunnable(graph, attempted);
     if (!block) { stopReason = 'complete — no runnable blocks left'; break; }
 
-    const spent = costEquivalentSince();
+    const spent = costEquivalentSince(startedAt);
     if (spent >= MAX_COST_USD) { stopReason = `budget — spent ~$${spent.toFixed(4)} ≥ cap $${MAX_COST_USD.toFixed(2)}`; break; }
     if (consecutiveFails >= FAIL_LIMIT) { stopReason = `circuit-breaker — ${consecutiveFails} consecutive failures`; break; }
 
@@ -345,7 +348,7 @@ function iterate() {
           ? 'agent declared its frame — confirm or correct it on the canvas'
           : 'frame awaits the operator — agent not started';
       }
-      entry.cost_equivalent_so_far = Number(costEquivalentSince().toFixed(5));
+      entry.cost_equivalent_so_far = Number(costEquivalentSince(startedAt).toFixed(5));
       log.push(entry);
       continue;
     }
@@ -512,7 +515,7 @@ function iterate() {
           `\n## ${new Date().toISOString()} · autonomous loop · stalled\n\n### What failed and why\n- ${entry.reason}\n\n### Recommended action\n- Operator review: this block needs a human look (verifier/cascade not green under the autonomous loop).\n`);
       } catch {}
     }
-    entry.cost_equivalent_so_far = Number(costEquivalentSince().toFixed(5));
+    entry.cost_equivalent_so_far = Number(costEquivalentSince(startedAt).toFixed(5));
     log.push(entry);
   }
 

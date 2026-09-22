@@ -55,8 +55,8 @@
       },
       "progress": {
         "tasks": {
-          "done": 3,
-          "total": 10
+          "done": 9,
+          "total": 16
         },
         "kpi": {
           "checked": 0,
@@ -297,12 +297,12 @@
     },
     {
       "id": "b.acceptance-verifier-loop",
-      "_raw_updated_at": "2026-06-20T08:31:02.542Z",
+      "_raw_updated_at": "2026-09-22T19:56:58.408Z",
       "title": "Acceptance Verifier Loop",
       "tag": "acceptance-verifier-loop",
       "layer": "tests",
-      "status": "todo",
-      "priority": 3,
+      "status": "progress",
+      "priority": 2,
       "checked": false,
       "size": "lg",
       "parent_block_id": null,
@@ -327,7 +327,7 @@
         "esm",
         "json-schema"
       ],
-      "x": 400,
+      "x": 80,
       "y": 760
     },
     {
@@ -509,7 +509,7 @@
         }
       },
       "tech_stack": [],
-      "x": 80,
+      "x": 400,
       "y": 760
     },
     {
@@ -703,13 +703,18 @@
       },
       "progress": {
         "tasks": {
-          "done": 25,
-          "total": 32
+          "done": 27,
+          "total": 33
         },
         "kpi": {
           "checked": 0,
           "total": 29
         }
+      },
+      "frame": {
+        "state": "awaiting",
+        "incomplete": false,
+        "changed": []
       },
       "tech_stack": [
         "nodejs",
@@ -733,6 +738,13 @@
       "kind": "data",
       "label": "depends_on",
       "biz": "Зависит от b.agent-orchestrator."
+    },
+    {
+      "from": "b.ui-control",
+      "to": "b.clarify",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.clarify."
     },
     {
       "from": "b.core-sync",
@@ -796,6 +808,13 @@
       "kind": "data",
       "label": "depends_on",
       "biz": "Зависит от b.core-sync."
+    },
+    {
+      "from": "b.llm-gateway",
+      "to": "b.db",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.db."
     },
     {
       "from": "b.operator-profile-learner",
@@ -1052,6 +1071,60 @@
       {
         "id": "T10",
         "title": ". «Отправить агенту» передаёт client (раньше запуск из ?client=… уходил в корневой атлас) и пишет в лог, что сделал шлюз.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T11",
+        "title": ". Метка рамки агента на узле графа (⏸ ⟳ ✎ ◐) из построителя данных канваса.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T12",
+        "title": ". Кнопка «✎ Задать траекторию» и редактор на «Обзоре».",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T13",
+        "title": ". Значок «LLM: …» в панели инструментов: кто генерирует текст (подписка через claude CLI, API-ключ, локальная модель или «нет — демо-ответы»), почему и как сменить.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T14",
+        "title": ". Живое обновление для `?client=` — хэш считается по атласу клиента.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T15",
+        "title": ". Живое обновление больше не закрывает открытый блок и не стирает черновики и уведомления секции смысла.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T16",
+        "title": ". Автотест в браузере (`npm run test:ui`); починен `playwright.config.js`.",
         "status": "done",
         "priority": "P2",
         "agent": null,
@@ -2790,8 +2863,17 @@
       },
       {
         "id": "T25",
-        "title": ". Метка на самом узле графа, когда объявление устарело или неполно — чтобы расхождение было видно без клика. Нужна сводка по всем блокам в потоке состояния канваса.",
-        "status": "todo",
+        "title": ". Метка на самом узле графа (R-8.10): ⏸ ждёт вашего ответа, ⟳ контракт изменился, ✎ поправлено и не переобъявлено, ◐ объявление неполное. «Не объявлено» и «подтверждено» метки не дают — иначе она стоя",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T33",
+        "title": ". Кнопка «✎ Задать траекторию» на «Обзоре» (R-8.10): секция «## Во что это вырастет» пишется в mission.md через единственного писателя файлов блока (снимок истории, etag, строка аудита); пустой текст ",
+        "status": "done",
         "priority": "P2",
         "agent": null,
         "why": "",
@@ -2889,20 +2971,6 @@
       "ts": "07:01",
       "module": "clarify",
       "agent": "sima-core",
-      "kind": "info",
-      "msg": "b.clarify: idea → wip"
-    },
-    {
-      "ts": "07:01",
-      "module": "clarify",
-      "agent": "sima-core",
-      "kind": "info",
-      "msg": "b.clarify: wip → review"
-    },
-    {
-      "ts": "07:01",
-      "module": "clarify",
-      "agent": "sima-core",
       "kind": "ok",
       "msg": "b.clarify: review → done"
     },
@@ -2968,6 +3036,20 @@
       "agent": "sima-core",
       "kind": "info",
       "msg": "b.clarify: wip → review"
+    },
+    {
+      "ts": "19:43",
+      "module": "acceptance-verifier-loop",
+      "agent": "sima-core",
+      "kind": "ok",
+      "msg": "b.acceptance-verifier-loop: desync → done"
+    },
+    {
+      "ts": "19:56",
+      "module": "acceptance-verifier-loop",
+      "agent": "sima-core",
+      "kind": "info",
+      "msg": "b.acceptance-verifier-loop: done → wip"
     }
   ],
   "lessons": [],
@@ -2999,10 +3081,10 @@
     }
   ],
   "_meta": {
-    "generated_at": "2026-09-22T18:27:31.874Z",
+    "generated_at": "2026-09-22T19:57:47.164Z",
     "atlas_root": "atlas",
     "client_id": null,
     "block_count": 21,
-    "edge_count": 35
+    "edge_count": 37
   }
 }

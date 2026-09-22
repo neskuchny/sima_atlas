@@ -54,6 +54,14 @@ evidence_spec:
   expect_in_stdout: "OK"
 ```
 
+- [x] **A9 (loop budget, R-8.10).** Бюджет автономного цикла считает только то, что потратил этот цикл (трассы с момента его старта), а не суточный итог всего репозитория: чужая работа не может остановить цикл «по бюджету» до первого блока.
+```yaml
+evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/agent_loop_budget.selftest.mjs
+  expect_in_stdout: "OK"
+```
+
 ## Что считается NOT acceptance
 - Существование файлов `.cursor/hooks.json` или MCP-сервера.
 - Факт того, что MCP-сервер запускается.

@@ -32,6 +32,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { frameGate, readUnderstanding } from './block_meaning.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(__filename), '..');
@@ -316,6 +317,20 @@ export function buildSimaDesignPayload({ atlas_root, client_id } = {}) {
     };
   }
 
+  // R-8.09 T25 — the agent's declared frame, surfaced on the node itself when
+  // it needs the operator: waiting for an answer, stale against the contract,
+  // corrected and not yet re-declared, or incomplete. «Not declared» and
+  // «confirmed» carry no marker — they would put a badge on every block.
+  function frameMarker(block_id) {
+    try {
+      const g = frameGate(block_id, root);
+      const u = readUnderstanding(block_id, root);
+      const incomplete = Boolean(u.exists && !u.complete);
+      if (!['awaiting', 'stale', 'corrected'].includes(g.state) && !incomplete) return undefined;
+      return { state: g.state, incomplete, changed: g.changed || [] };
+    } catch { return undefined; }
+  }
+
   const modules = (graph.blocks || [])
     .filter((b) => b.status !== 'archived')
     .map((b) => {
@@ -340,6 +355,7 @@ export function buildSimaDesignPayload({ atlas_root, client_id } = {}) {
         warn: (visualStatus === 'fail' || visualStatus === 'desync') ? (b.status_reason || '').slice(0, 140) : undefined,
         contract: contract || undefined,
         progress: progress || undefined,
+        frame: frameMarker(b.id),
         // Phase P-1.5: expose tech_stack for DetailPanel chips
         tech_stack: Array.isArray(b.tech_stack) ? b.tech_stack : [],
         // Canvas coordinates: persisted (canvas_x/canvas_y) win over

@@ -61,3 +61,35 @@ start were verified server-side: a `__declare` prompt containing the
 correction verbatim, an implement prompt containing the confirmed frame),
 and the live refresh. RU, no console errors. Manual — there is still no
 automated UI test.
+
+## 2026-09-22 — R-8.10: marker, badge, trajectory editor; the live refresh stops wiping the panel
+
+New on the canvas: the agent's frame marker on graph nodes (from
+`build_sima_design_payload.mjs`, which this block now owns), the «LLM: …»
+badge in the toolbar, and the trajectory editor on Overview. The badge answers
+the operator's old question «where did this text come from?»: with the
+`claude` CLI installed, the gateway's subscription-first cascade answers
+through the operator's Claude subscription without saying so anywhere.
+
+Two old bugs surfaced while checking them in the browser:
+- `/atlas/state` hashed only the root atlas, so a canvas on `?client=…`
+  never refreshed on the client's own files. Now `?client=` is honoured.
+- index.html re-mounts the whole `<App>` (new key) on every data change.
+  `selectedId` was a plain useState, so any file written by an agent or the
+  nightly closed the block the operator was looking at, and every useState
+  below — a half-typed correction, a «saved» notice — was wiped. The
+  Playwright spec caught it as 3 failures in 8 runs. Fixed without rewriting
+  the mount: the selection and the open tab live on `window`, and the meaning
+  section keeps its state in `useSticky` (a window-level store per block with
+  a subscription, so a request that resolves after a re-mount still lands).
+  The spec now changes a file mid-edit and checks the draft survives; with
+  the sticky draft reverted it fails («Received ""»). 8/8 green after.
+
+`tests/playwright/meaning_panel.spec.ts` runs against a live API on a
+disposable client, clicks only actions that start no agent, and asks the OS
+for a free port (a pid-derived one collided in 1 of 8 runs). It is not in the
+nightly — a missing browser there would look like a skip, not a check; run it
+with `npm run test:ui`. The existing `playwright.config.js` waited for
+`frontend/index.html`, which no longer exists, so `npm run test:e2e` could
+not start at all; fixed. The older canvas specs still point at pages that
+are gone and fail on their own — left as they are.

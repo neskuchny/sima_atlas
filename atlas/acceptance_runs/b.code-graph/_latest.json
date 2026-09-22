@@ -15,17 +15,17 @@
         "expect_in_stdout": "build_code_graph: wrote"
       },
       "verdict": "pass",
-      "evidence": "node scripts/build_code_graph.mjs && node -e \"JSON.parse(require('fs').readFileSync('atlas/code_graph.json','utf8'))\" → exit 0 (264ms); first line: \"build_code_graph: wrote atlas/code_graph.json (126 files, 11 cross-block edges)\"",
+      "evidence": "node scripts/build_code_graph.mjs && node -e \"JSON.parse(require('fs').readFileSync('atlas/code_graph.json','utf8'))\" → exit 0 (236ms); first line: \"build_code_graph: wrote atlas/code_graph.json (192 files, 15 cross-block edges)\"",
       "reasoning": "shell exit code 0 and stdout matches /build_code_graph: wrote/",
       "raw": {
         "cmd": "node scripts/build_code_graph.mjs && node -e \"JSON.parse(require('fs').readFileSync('atlas/code_graph.json','utf8'))\"",
         "exit_code": 0,
-        "stdout": "build_code_graph: wrote atlas/code_graph.json (126 files, 11 cross-block edges)\n",
+        "stdout": "build_code_graph: wrote atlas/code_graph.json (192 files, 15 cross-block edges)\n",
         "stderr": "",
-        "duration_ms": 264,
+        "duration_ms": 236,
         "timed_out": false
       },
-      "duration_ms": 264
+      "duration_ms": 236
     },
     {
       "id": "A2",
@@ -39,17 +39,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/code_graph_extractor.selftest.mjs → exit 0 (548ms); first line: \"  deterministic — sha256(a65cd1a81a15…) matches across runs\"",
+      "evidence": "node tests/code_graph_extractor.selftest.mjs → exit 0 (482ms); first line: \"  deterministic — sha256(1150453abc79…) matches across runs\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/code_graph_extractor.selftest.mjs",
         "exit_code": 0,
-        "stdout": "  deterministic — sha256(a65cd1a81a15…) matches across runs\ncode_graph_extractor.selftest: OK (9 test groups, all assertions green)\n",
+        "stdout": "  deterministic — sha256(1150453abc79…) matches across runs\ncode_graph_extractor.selftest: OK (9 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 548,
+        "duration_ms": 482,
         "timed_out": false
       },
-      "duration_ms": 548
+      "duration_ms": 482
     },
     {
       "id": "A3",
@@ -63,17 +63,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/code_graph_validator.selftest.mjs → exit 0 (93ms); first line: \"code_graph_validator.selftest: OK (6 test groups, all assertions green)\"",
+      "evidence": "node tests/code_graph_validator.selftest.mjs → exit 0 (74ms); first line: \"code_graph_validator.selftest: OK (6 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/code_graph_validator.selftest.mjs",
         "exit_code": 0,
         "stdout": "code_graph_validator.selftest: OK (6 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 93,
+        "duration_ms": 74,
         "timed_out": false
       },
-      "duration_ms": 93
+      "duration_ms": 74
     },
     {
       "id": "A4",
@@ -112,17 +112,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_code_graph_vs_contracts.mjs → exit 0 (80ms); first line: \"Code-graph: OK (31 warning(s) — non-blocking; review atlas/sync_report.json codeGraphDrift)\"",
+      "evidence": "node scripts/validate_code_graph_vs_contracts.mjs → exit 0 (76ms); first line: \"Code-graph: OK (32 warning(s) — non-blocking; review atlas/sync_report.json codeGraphDrift)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_code_graph_vs_contracts.mjs",
         "exit_code": 0,
-        "stdout": "Code-graph: OK (31 warning(s) — non-blocking; review atlas/sync_report.json codeGraphDrift)\n ~ warning: provided_capability_not_exported :: b.acceptance-verifier-loop :: acceptance_gate_decision\n ~ warning: provided_capability_not_exported :: b.acceptance-verifier-loop :: acceptance_run_report\n ~ warning: provided_capability_not_exported :: b.acceptance-verifier-loop :: assertion_parser\n ~ warning: provided_capability_not_exported :: b.acceptance-verifier-loop :: evidence_collector_runtime\n ~ warning: provided_capability_not_exported :: b.agent-orchestrator :: block_meaning_api\n ~ warning: provided_capability_not_exported :: b.agent-orchestrator :: pipeline_execution\n ~ warning: provided_capability_not_exported :: b.clarify :: assumption_registry\n ~ warning: provided_capability_not_exported :: b.clarify :: clarification_questions\n ~ warning: provided_capability_not_exported :: b.clarify :: declared_understanding\n ~ warning: provided_capability_not_exported :: b.clarify :: frame_review_gate\n ~ warning: provided_capability_not_exported :: b.clarify :: trajectory_reader\n ~ warning: provided_capability_not_exported :: b.clarify :: uncertainty_marker_gate\n ~ warning: provided_capability_not_exported :: b.core-sync :: contract_validation\n ~ warning: provided_capability_not_exported :: b.db :: atlas_state_store\n ~ warning: provided_capability_not_exported :: b.db :: file_registry\n ~ warning: provided_capability_not_exported :: b.desktop :: desktop_app\n ~ warning: provided_capability_not_exported :: b.desktop :: electron_main_process\n ~ warning: provided_capability_not_exported :: b.desktop :: platform_installers\n ~ warning: provided_capability_not_exported :: b.diff-review :: blocking_problem_finder\n ~ warning: provided_capability_not_exported :: b.diff-review :: diff_review_verdict\n ~ warning: provided_capability_not_exported :: b.docs :: tz_bundle\n ~ warning: provided_capability_not_exported :: b.docs :: wiki_bundle\n ~ warning: provided_capability_not_exported :: b.llm-gateway :: llm_call_structured\n ~ warning: provided_capability_not_exported :: b.llm-gateway :: llm_extract_block_schema\n ~ warning: provided_capability_not_exported :: b.llm-gateway :: llm_summarize_distillate\n ~ warning: provided_capability_not_exported :: b.llm-gateway :: llm_validate_drift\n ~ warning: provided_capability_not_exported :: b.smoke-sandbox :: e2e_test_target\n ~ warning: provided_capability_not_exported :: b.user-docs-generator :: block_ui_introspection\n ~ warning: provided_capability_not_exported :: b.user-docs-generator :: end_user_docs_set\n ~ warning: provided_capability_not_exported :: b.user-docs-generator :: tutorial_renderer\n ~ warning: provided_capability_not_exported :: b.user-docs-generator :: user_docs_meta\n",
+        "stdout": "Code-graph: OK (32 warning(s) — non-blocking; review atlas/sync_report.json codeGraphDrift)\n ~ warning: provided_capability_not_exported :: b.acceptance-verifier-loop :: acceptance_gate_decision\n ~ warning: provided_capability_not_exported :: b.acceptance-verifier-loop :: acceptance_run_report\n ~ warning: provided_capability_not_exported :: b.acceptance-verifier-loop :: assertion_parser\n ~ warning: provided_capability_not_exported :: b.acceptance-verifier-loop :: evidence_collector_runtime\n ~ warning: provided_capability_not_exported :: b.agent-orchestrator :: block_meaning_api\n ~ warning: provided_capability_not_exported :: b.agent-orchestrator :: pipeline_execution\n ~ warning: provided_capability_not_exported :: b.clarify :: assumption_registry\n ~ warning: provided_capability_not_exported :: b.clarify :: clarification_questions\n ~ warning: provided_capability_not_exported :: b.clarify :: declared_understanding\n ~ warning: provided_capability_not_exported :: b.clarify :: frame_review_gate\n ~ warning: provided_capability_not_exported :: b.clarify :: trajectory_reader\n ~ warning: provided_capability_not_exported :: b.clarify :: uncertainty_marker_gate\n ~ warning: provided_capability_not_exported :: b.core-sync :: contract_validation\n ~ warning: provided_capability_not_exported :: b.db :: atlas_state_store\n ~ warning: provided_capability_not_exported :: b.db :: file_registry\n ~ warning: provided_capability_not_exported :: b.desktop :: desktop_app\n ~ warning: provided_capability_not_exported :: b.desktop :: electron_main_process\n ~ warning: provided_capability_not_exported :: b.desktop :: platform_installers\n ~ warning: provided_capability_not_exported :: b.diff-review :: blocking_problem_finder\n ~ warning: provided_capability_not_exported :: b.diff-review :: diff_review_verdict\n ~ warning: provided_capability_not_exported :: b.docs :: tz_bundle\n ~ warning: provided_capability_not_exported :: b.docs :: wiki_bundle\n ~ warning: provided_capability_not_exported :: b.llm-gateway :: llm_call_structured\n ~ warning: provided_capability_not_exported :: b.llm-gateway :: llm_extract_block_schema\n ~ warning: provided_capability_not_exported :: b.llm-gateway :: llm_provider_description\n ~ warning: provided_capability_not_exported :: b.llm-gateway :: llm_summarize_distillate\n ~ warning: provided_capability_not_exported :: b.llm-gateway :: llm_validate_drift\n ~ warning: provided_capability_not_exported :: b.smoke-sandbox :: e2e_test_target\n ~ warning: provided_capability_not_exported :: b.user-docs-generator :: block_ui_introspection\n ~ warning: provided_capability_not_exported :: b.user-docs-generator :: end_user_docs_set\n ~ warning: provided_capability_not_exported :: b.user-docs-generator :: tutorial_renderer\n ~ warning: provided_capability_not_exported :: b.user-docs-generator :: user_docs_meta\n",
         "stderr": "",
-        "duration_ms": 80,
+        "duration_ms": 76,
         "timed_out": false
       },
-      "duration_ms": 80
+      "duration_ms": 76
     },
     {
       "id": "A6",
@@ -161,17 +161,17 @@
         "expect_in_stdout": "deterministic"
       },
       "verdict": "pass",
-      "evidence": "node tests/code_graph_extractor.selftest.mjs → exit 0 (529ms); first line: \"  deterministic — sha256(a65cd1a81a15…) matches across runs\"",
+      "evidence": "node tests/code_graph_extractor.selftest.mjs → exit 0 (495ms); first line: \"  deterministic — sha256(1150453abc79…) matches across runs\"",
       "reasoning": "shell exit code 0 and stdout matches /deterministic/",
       "raw": {
         "cmd": "node tests/code_graph_extractor.selftest.mjs",
         "exit_code": 0,
-        "stdout": "  deterministic — sha256(a65cd1a81a15…) matches across runs\ncode_graph_extractor.selftest: OK (9 test groups, all assertions green)\n",
+        "stdout": "  deterministic — sha256(1150453abc79…) matches across runs\ncode_graph_extractor.selftest: OK (9 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 529,
+        "duration_ms": 495,
         "timed_out": false
       },
-      "duration_ms": 529
+      "duration_ms": 495
     }
   ],
   "counts": {
@@ -181,6 +181,6 @@
   },
   "verdict": "pass",
   "inconclusive_if_declared": 1,
-  "duration_ms": 1521,
-  "checked_at": "2026-09-22T18:27:49.851Z"
+  "duration_ms": 1368,
+  "checked_at": "2026-09-22T19:58:02.647Z"
 }

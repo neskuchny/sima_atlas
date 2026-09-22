@@ -9,7 +9,8 @@
 //    which must not spawn anything while a frame waits.
 // F2 holds the canvas routes to the library: GET meaning = blockMeaningSummary
 //    verbatim; POST frame-review refuses empty corrections, stale confirmations
-//    and unknown blocks.
+//    and unknown blocks; POST trajectory writes mission.md through the block
+//    writer with an etag; /atlas/state?client= hashes the client's atlas.
 // F3 runs the real autonomous loop: a declare-only run must be reported as
 //    awaiting-frame — never verified, promoted, or counted as a failure. (With
 //    that parse removed, the loop promoted a block wip → review after a run
@@ -237,6 +238,37 @@ const MISSION_RU = [
     check('f2: …and GET agrees afterwards', after.gate?.state === 'confirmed' && after.gate?.confirmations === 1);
     const nf2 = await post('/atlas/frame-review', { block_id: 'b.nope', verdict: 'confirmed' });
     check('f2: POST on an unknown block → 404', nf2.status === 404 && nf2.error === 'not_found', JSON.stringify(nf2));
+
+    // R-8.10 — writing the trajectory from the canvas.
+    const before = await get('/atlas/blocks/b.stale/meaning');
+    const tr = await post('/atlas/blocks/trajectory', { block_id: 'b.stale', text: 'Станет общим сервисом.', if_match_mtime: before.trajectory?.mission_mtime });
+    check('f2: POST trajectory → ok, the summary now carries it', tr.ok === true && tr.trajectory?.declared === true && tr.trajectory?.text === 'Станет общим сервисом.', JSON.stringify(tr).slice(0, 300));
+    const onDisk = fs.readFileSync(path.join(atlas, 'blocks', 'b.stale', 'mission.md'), 'utf8');
+    check('f2: …written into mission.md through the block writer (history snapshot kept)',
+      onDisk.includes('## Trajectory\n\nСтанет общим сервисом.') && fs.readdirSync(path.join(atlas, 'blocks', 'b.stale', 'history')).some((f) => f.startsWith('mission.md.')));
+    const conflict = await post('/atlas/blocks/trajectory', { block_id: 'b.stale', text: 'x', if_match_mtime: before.trajectory?.mission_mtime });
+    check('f2: a stale etag is refused as a conflict, not silently overwritten', conflict.ok === false && conflict.conflict === true, JSON.stringify(conflict));
+    const tooLong = await post('/atlas/blocks/trajectory', { block_id: 'b.stale', text: 'x'.repeat(4001) });
+    check('f2: an oversized trajectory is refused', tooLong.ok === false && /4000/.test(tooLong.error || ''));
+
+    // R-8.10 — the live-refresh hash follows the client the canvas shows.
+    const client = `selftest-state-${process.pid}`;
+    const cdir = path.join(ROOT, 'atlas', 'clients', client);
+    try {
+      fs.mkdirSync(path.join(cdir, 'blocks', 'b.c'), { recursive: true });
+      fs.writeFileSync(path.join(cdir, 'graph.json'), '{"blocks":[]}');
+      fs.writeFileSync(path.join(cdir, 'blocks', 'b.c', 'mission.md'), '# m\n');
+      const rootH1 = (await get('/atlas/state')).hash;
+      const h1 = (await get(`/atlas/state?client=${client}`)).hash;
+      fs.writeFileSync(path.join(cdir, 'blocks', 'b.c', 'understanding.md'), '## Treating this as\n\nx\n');
+      const h2 = (await get(`/atlas/state?client=${client}`)).hash;
+      check('f2: a change in the client atlas changes the client hash', h1 && h2 && h1 !== h2, `${h1} ${h2}`);
+      check('f2: …and not the root hash', (await get('/atlas/state')).hash === rootH1);
+      const badC = await get('/atlas/state?client=..');
+      check('f2: /atlas/state refuses a traversal client', badC.ok === false);
+    } finally {
+      fs.rmSync(cdir, { recursive: true, force: true });
+    }
   } catch (e) {
     check('f2: API reachable', false, String(e.message || e));
   } finally {
@@ -257,9 +289,9 @@ const MISSION_RU = [
     fs.writeFileSync(path.join(d, 'acceptance.md'), '# a\n\n- [ ] **A1.** node runs.\n```yaml\nevidence_kind: exit_code\nevidence_spec:\n  cmd: node --version\n```\n', 'utf8');
     fs.writeFileSync(path.join(d, 'files.md'), '# f\n', 'utf8');
     fs.writeFileSync(path.join(d, 'checks.log'), '', 'utf8');
-    // The budget guard reads the whole day's shadow bill across the repo, so
-    // with the default $1 cap this test failed on busy days for a reason it
-    // does not test. A print-only agent spends nothing; lift the cap.
+    // The budget is not what this test checks (agent_loop_budget.selftest
+    // does); a print-only agent spends nothing, so the cap is lifted to keep
+    // this test independent of any budget logic.
     const daemon = () => spawnSync('node', ['scripts/agent_loop_daemon.mjs', '--client', client, '--agent', 'print-only', '--only', 'b.loop', '--max-iterations', '1', '--max-cost-usd', '1000000', '--json'],
       { cwd: ROOT, encoding: 'utf8', timeout: 120000, env: { ...process.env, ATLAS_FRAME_REVIEW: '', ATLAS_RUN_PHASE: '' } });
     const parse = (r) => { try { return JSON.parse(r.stdout.slice(r.stdout.indexOf('{'))); } catch { return null; } };

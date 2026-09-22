@@ -53,9 +53,12 @@ export const TRANSITIONS = {
   done: ['wip'],
   broken: ['wip'],
   // cascade_verify writes `desync` straight into graph.json. Recovery paths:
-  //   desync → done  (re-verify came back green AND the block was done before)
-  //   desync → wip   (genuinely broken by the upstream change — needs work)
-  desync: ['done', 'wip'],
+  //   desync → done    (re-verify came back green AND the block was done before)
+  //   desync → review  (R-8.10: same, for a block that was in review before —
+  //                     restoring it to wip would silently undo the agent's
+  //                     «ready for the operator» state)
+  //   desync → wip     (genuinely broken by the upstream change — needs work)
+  desync: ['done', 'review', 'wip'],
 };
 
 function defaultAtlasRoot() {
@@ -102,24 +105,33 @@ export function checkTransition({ atlasRoot = defaultAtlasRoot(), blockId, to, a
       return {
         ok: false, from,
         reason: `desync -> done refused: this block was "${before}" before it was marked desync, not done`,
-        fixHint: `node scripts/advance_block_state.mjs ${blockId} ${before === 'review' ? 'wip' : before}`,
+        fixHint: `node scripts/advance_block_state.mjs ${blockId} ${before === 'review' ? 'review' : 'wip'}`,
+      };
+    }
+    // R-8.10 — desync → review restores a block that WAS in review; it is
+    // never a way to promote one that was not.
+    if (to === 'review' && before !== 'review') {
+      return {
+        ok: false, from,
+        reason: `desync -> review refused: this block was "${before || 'unknown (legacy mark)'}" before it was marked desync, not review`,
+        fixHint: `node scripts/advance_block_state.mjs ${blockId} wip`,
       };
     }
     const { exists, run } = latestRun(atlasRoot, blockId);
     const markedAt = block.desync_marked_at || block.updated_at || null;
     const fresh = exists && run && markedAt ? Date.parse(run.checked_at) > Date.parse(markedAt) : false;
-    if (!allowNoVerifier && to === 'done') {
+    if (!allowNoVerifier && (to === 'done' || to === 'review')) {
       if (!exists || !run || run.verdict !== 'pass') {
         return {
           ok: false, from,
-          reason: `desync -> done refused: latest verdict is ${run?.verdict || 'missing'}`,
+          reason: `desync -> ${to} refused: latest verdict is ${run?.verdict || 'missing'}`,
           fixHint: `node scripts/verify_block_acceptance.mjs ${blockId}`,
         };
       }
       if (!fresh) {
         return {
           ok: false, from,
-          reason: `desync -> done refused: the green run (${run.checked_at}) is not newer than the desync mark (${markedAt})`,
+          reason: `desync -> ${to} refused: the green run (${run.checked_at}) is not newer than the desync mark (${markedAt})`,
           fixHint: `node scripts/verify_block_acceptance.mjs ${blockId}`,
         };
       }

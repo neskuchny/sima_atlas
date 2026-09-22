@@ -29,6 +29,9 @@ const checks = [
   ['review_diff_selftest', 'node tests/review_diff.selftest.mjs'],
   ['openai_gemini_providers_selftest', 'node tests/openai_gemini_providers.selftest.mjs'],
   ['files_registry', 'node scripts/validate_files_registry.mjs'],
+  // R-8.10 (b.core-sync) — every code file has exactly one owner, so the
+  // code-graph check sees every import. 58 files had none until R-8.10.
+  ['ownership', 'node scripts/validate_ownership.mjs'],
   // R-7.88 (S-12 MVP) — sweeper writes atlas/cleanup_proposals.{md,json}.
   // Proposes only — never applies. Operator reviews + decides via
   // apply_cleanup_proposal.mjs (which moves with breadcrumb, never deletes).
@@ -44,6 +47,9 @@ const checks = [
   ['dependency_graph_selftest', 'node tests/dependency_graph.selftest.mjs'],
   ['acceptance_assertions', 'node scripts/validate_acceptance_assertions.mjs'],
   ['lifecycle_gate_selftest', 'node tests/lifecycle_gate.selftest.mjs'],
+  // R-8.10 (b.acceptance-verifier-loop) — clearing a stale desync goes
+  // through the gate, and never restores what the gate would not allow.
+  ['desync_restore_selftest', 'node tests/desync_restore.selftest.mjs'],
   ['clarify_block_selftest', 'node tests/clarify_block.selftest.mjs'],
   // R-8.06 (b.clarify) — an unresolved `[NEEDS CLARIFICATION]` marker must not
   // outlive the night unnoticed. Hard only for `done`: claiming a block is
@@ -59,6 +65,8 @@ const checks = [
   // wait → confirm → implement, the canvas routes, and the autonomous loop
   // that must not promote a block after a run that only declared.
   ['frame_gate_flow_selftest', 'node tests/frame_gate_flow.selftest.mjs'],
+  // R-8.10 — the loop's budget counts only what the loop spent.
+  ['agent_loop_budget_selftest', 'node tests/agent_loop_budget.selftest.mjs'],
   ['meaning_report', 'node scripts/validate_meaning.mjs'],
   ['atlas_selftest', 'node tests/atlas_sync.selftest.mjs'],
   ['bootstrap_layered_smoke', 'node tests/atlas_bootstrap.smoke.mjs'],

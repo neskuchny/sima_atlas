@@ -15,7 +15,7 @@
 </style>
 </head><body>
 <h1>Sima Atlas Wiki</h1>
-<p><em>Auto-generated: 2026-09-22T18:27:56.315Z</em></p>
+<p><em>Auto-generated: 2026-09-22T19:58:08.537Z</em></p>
 <h2>Граф продукта</h2>
 <div class="mermaid">flowchart TB
   classDef done    fill:#dcfce7,stroke:#16a34a,color:#15803d;
@@ -56,11 +56,12 @@
     b_user_docs_generator["End-User Docs Generator&lt;br/&gt;&lt;small&gt;wip&lt;/small&gt;"]:::wip
   end
   subgraph testing["Тестирование"]
-    b_acceptance_verifier_loop["Acceptance Verifier Loop&lt;br/&gt;&lt;small&gt;desync&lt;/small&gt;"]:::desync
+    b_acceptance_verifier_loop["Acceptance Verifier Loop&lt;br/&gt;&lt;small&gt;wip&lt;/small&gt;"]:::wip
     b_smoke_sandbox["Smoke Sandbox (test target)&lt;br/&gt;&lt;small&gt;idea&lt;/small&gt;"]:::idea
   end
   b_ui_control --&gt; b_core_sync
   b_ui_control --&gt; b_agent_orchestrator
+  b_ui_control --&gt; b_clarify
   b_core_sync --&gt; b_db
   b_core_sync --&gt; b_code_graph
   b_agent_orchestrator --&gt; b_db
@@ -70,6 +71,7 @@
   b_agent_orchestrator --&gt; b_clarify
   b_docs --&gt; b_db
   b_docs --&gt; b_core_sync
+  b_llm_gateway --&gt; b_db
   b_operator_profile_learner --&gt; b_db
   b_operator_profile_learner --&gt; b_core_sync
   b_operator_profile_learner --&gt; b_agent_orchestrator
@@ -153,8 +155,7 @@
 </ul>
 <h3>Тестирование (<code>testing</code>)</h3>
 <ul>
-<li>⚪ <strong>b.acceptance-verifier-loop</strong> — Acceptance Verifier Loop <em>(desync)</em></li>
-<ul><li>reason: cascade: parent b.core-sync edit at 2026-06-20T08:31:02 broke acceptance</li></ul>
+<li>🟠 <strong>b.acceptance-verifier-loop</strong> — Acceptance Verifier Loop <em>(wip)</em></li>
 <li>🟡 <strong>b.smoke-sandbox</strong> — Smoke Sandbox (test target) <em>(idea)</em></li>
 <ul><li>reason: Reserved write-target for e2e/smoke scripts so they never touch real product blocks</li></ul>
 </ul>
@@ -165,7 +166,7 @@
 <li><strong>type</strong>: module</li>
 <li><strong>status</strong>: <code>wip</code> — HTML loses references to components.jsx/sidecol.jsx/canvas_tools.jsx — UI does not boot in production; multi-layer rendering depends on PR2 (this PR)</li>
 <li><strong>mvp</strong>: yes</li>
-<li><strong>depends_on</strong>: <code>b.core-sync</code>, <code>b.agent-orchestrator</code></li>
+<li><strong>depends_on</strong>: <code>b.core-sync</code>, <code>b.agent-orchestrator</code>, <code>b.clarify</code></li>
 <li><strong>tech_stack</strong>: <code>react</code>, <code>babel-standalone</code></li>
 <li><strong>files</strong>: 17 (<code>atlas/blocks/b.ui-control/files.md</code>)</li>
 </ul>
@@ -230,19 +231,20 @@ evidence_spec:
 <li>b.core-sync: sync_report</li>
 <li>b.agent-orchestrator: pipeline_execution</li>
 <li>b.agent-orchestrator: block<em>meaning</em>api</li>
+<li>b.clarify: frame<em>review</em>gate</li>
+<li>b.clarify: declared_understanding</li>
 </ul>
 <h4>Files</h4>
 <h1>b.ui-control — files</h1>
 <ul>
 <li>index.html [alive] (PR4.1: repo-root redirect to frontend/index.html)</li>
-<li>frontend/atlas_sync.js [alive]</li>
 <li>frontend/atlas_bootstrap.js [alive] (auto-generated)</li>
-<li>frontend/atlas<em>design/index.html [alive] (R-7.30 — current canvas entry; R-8.09: «Send to agent» goes through SIMA</em>API.meta.startRun — client-scoped — and logs what the frame gate did)</li>
-<li>frontend/atlas_design/panels.jsx [alive] (DetailPanel + Overview + AcceptanceSection + Implementation Status + Token Spend + R-8.08 MeaningSection: the agent's frame, assumptions, staleness, trajectory; R-8.09: the operator's answer — «Right — write the code» / «Not quite» with a correction, gate state in words, 5 s refresh)</li>
+<li>frontend/atlas<em>design/index.html [alive] (R-7.30 — current canvas entry; R-8.09: «Send to agent» goes through SIMA</em>API.meta.startRun — client-scoped — and logs what the frame gate did; R-8.10: the LLM badge in the toolbar, the selected block survives the live-refresh re-mount)</li>
+<li>frontend/atlas_design/panels.jsx [alive] (DetailPanel + Overview + AcceptanceSection + Implementation Status + Token Spend + R-8.08 MeaningSection: the agent's frame, assumptions, staleness, trajectory; R-8.09: the operator's answer — «Right — write the code» / «Not quite» with a correction, gate state in words, 5 s refresh; R-8.10: LlmProviderBadge, the trajectory editor, useSticky — per-block UI state and the open tab survive the live-refresh re-mount)</li>
 <li>frontend/atlas_design/views.jsx [alive] (composer, proposals Accept/Reject, modals)</li>
-<li>frontend/atlas_design/graph.jsx [alive] (canvas graph + edges + drill-down)</li>
+<li>frontend/atlas_design/graph.jsx [alive] (canvas graph + edges + drill-down; R-8.10: frame marker on the node)</li>
 <li>frontend/atlas_design/tweaks-panel.jsx [alive]</li>
-<li>frontend/atlas<em>design/data</em>loader.js [alive] (live API loader + write-side SIMA_API; R-8.08: meta.blockMeaning; R-8.09: meta.frameReview, meta.startRun — client-scoped)</li>
+<li>frontend/atlas<em>design/data</em>loader.js [alive] (live API loader + write-side SIMA_API; R-8.08: meta.blockMeaning; R-8.09: meta.frameReview, meta.startRun — client-scoped; R-8.10: meta.llmProvider, meta.setTrajectory, and /atlas/state?client= so a client canvas refreshes on its own files)</li>
 <li>frontend/atlas<em>design/data</em>static.js [alive] (offline fallback demo)</li>
 <li>frontend/atlas_design/i18n.js [alive] (644-key EN/RU dictionary)</li>
 <li>frontend/atlas_design/styles.css [alive]</li>
@@ -250,6 +252,19 @@ evidence_spec:
 <li>frontend/schema_view.jsx [archived] (legacy)</li>
 <li>frontend/data.js [archived] (v1 data, replaced by data_v2.js)</li>
 <li>frontend/app.jsx [archived] (v1 root, replaced by app_v2.jsx)</li>
+</ul>
+<h2>R-8.10 — previously unowned</h2>
+<p>These files had no owner in any files.md, so the code-graph check never saw their imports.</p>
+<ul>
+<li>scripts/build<em>sima</em>design_payload.mjs [alive] (builds the canvas payload (/atlas/design-payload); R-8.10: frame marker per node from b.clarify)</li>
+<li>scripts/dev_server.mjs [alive] (npm run dev: API + canvas)</li>
+<li>scripts/seed<em>example</em>client.mjs [alive] (demo client for a first look at the canvas)</li>
+<li>tests/sima<em>design</em>payload.selftest.mjs [alive]</li>
+<li>tests/atlas_bootstrap.smoke.mjs [alive]</li>
+<li>tests/atlas<em>live</em>polling.smoke.mjs [alive]</li>
+<li>tests/connection_drift.smoke.mjs [alive]</li>
+<li>tests/playwright/meaning_panel.spec.ts [alive] (R-8.10: the meaning panel in Chromium against a live API — LLM badge, node marker, correction draft and notice surviving a live refresh, confirm without a run, trajectory saved to mission.md; <code>npm run test:ui</code>)</li>
+<li>playwright.config.js [alive] (R-8.10: webServer waits for atlas_design/index.html — the old frontend/index.html no longer exists, so no spec could start)</li>
 </ul>
 <p><em>Sources: [mission](blocks/b.ui-control/mission.md) · [kpi](blocks/b.ui-control/kpi.md) · [acceptance](blocks/b.ui-control/acceptance.md) · [depends</em>on](blocks/b.ui-control/depends<em>on.md) · [provides](blocks/b.ui-control/provides.md) · [patterns](blocks/b.ui-control/patterns.md) · [files](blocks/b.ui-control/files.md)</em></p>
 <hr/>
@@ -439,11 +454,21 @@ evidence_spec:
 <li>scripts/validate<em>bootstrap</em>regeneration.mjs [alive]</li>
 <li>scripts/calc<em>intelligence</em>health.mjs [alive]</li>
 <li>scripts/audit<em>production</em>readiness.mjs [alive]</li>
-<li>scripts/log_transition.mjs [alive]</li>
-<li>atlas/transitions.log [alive]</li>
 <li>scripts/validate<em>dependency</em>graph.mjs [alive] (R-8.07: parity graph.json ↔ depends_on.md, bare-id format of the mirror, cycle detection with justified exemptions; every error carries a fix line)</li>
 <li>tests/dependency<em>graph.selftest.mjs [alive] (R-8.07: 11 groups, incl. the R-8.06 regression — an edge added to depends</em>on.md only must fail parity AND report the cycle it creates; an exemption must not cover a larger cycle routed through the exempted pair)</li>
 <li>atlas/dependency<em>cycle</em>exemptions.json [alive] (R-8.07: the only escape hatch for a cycle — what it is, why tolerated, and when the exemption must go; stale entries are reported)</li>
+</ul>
+<h2>R-8.10 — previously unowned</h2>
+<p>These files had no owner in any files.md, so the code-graph check never saw their imports.</p>
+<ul>
+<li>scripts/nightly<em>consolidation.mjs [alive] (the nightly: runs every validator and selftest, writes atlas/nightly</em>report.md)</li>
+<li>scripts/verify_all.mjs [alive]</li>
+<li>scripts/housekeeping_sweeper.mjs [alive] (proposes cleanups, never applies them)</li>
+<li>scripts/apply<em>cleanup</em>proposal.mjs [alive] (applies an operator-approved cleanup by moving with a breadcrumb, never deleting)</li>
+<li>scripts/validate_projects.mjs [alive]</li>
+<li>scripts/validate_subschemas.mjs [alive]</li>
+<li>scripts/subagent<em>schema</em>syncer.mjs [alive]</li>
+<li>scripts/validate_ownership.mjs [alive] (R-8.10: every script / test / canvas / desktop file has exactly one owning block — unowned or doubled is an error)</li>
 </ul>
 <p><em>Sources: [mission](blocks/b.core-sync/mission.md) · [kpi](blocks/b.core-sync/kpi.md) · [acceptance](blocks/b.core-sync/acceptance.md) · [depends</em>on](blocks/b.core-sync/depends<em>on.md) · [provides](blocks/b.core-sync/provides.md) · [patterns](blocks/b.core-sync/patterns.md) · [files](blocks/b.core-sync/files.md)</em></p>
 <hr/>
@@ -562,6 +587,26 @@ evidence_spec:
 <li>scripts/ingest<em>chat</em>batches.mjs [alive]</li>
 <li>scripts/hook<em>ingest</em>recent_chat.mjs [alive] (waiting for PR4 valid hooks)</li>
 </ul>
+<h2>R-8.10 — previously unowned</h2>
+<p>These files had no owner in any files.md, so the code-graph check never saw their imports.</p>
+<ul>
+<li>scripts/atlas<em>blocks</em>api.mjs [alive] (block CRUD + the one writer of block files (patchBlockFile: history snapshot, etag, audit line))</li>
+<li>scripts/atlas<em>files</em>api.mjs [alive] (per-block file registry reads for the canvas)</li>
+<li>scripts/atlas<em>artifacts</em>api.mjs [alive] (artifact storage under atlas/artifacts/)</li>
+<li>scripts/atlas<em>subsystems</em>api.mjs [alive] (subsystem state)</li>
+<li>scripts/change_set.mjs [alive] (transactional change-sets across blocks)</li>
+<li>scripts/get<em>block</em>history.mjs [alive] (list history snapshots of a block)</li>
+<li>scripts/migrate<em>v1</em>v2.mjs [alive] (one-off atlas migration)</li>
+<li>scripts/migrate<em>subsystems</em>to_blocks.mjs [alive] (one-off migration of subsystems into blocks)</li>
+<li>scripts/apply<em>block</em>template.mjs [alive] (create a block from a template through atlas<em>blocks</em>api)</li>
+<li>scripts/validate<em>lifecycle</em>gates.mjs [alive] (validator for the lifecycle gate this block owns)</li>
+<li>tests/atlas<em>blocks</em>api.selftest.mjs [alive]</li>
+<li>tests/atlas<em>files</em>api.selftest.mjs [alive]</li>
+<li>tests/atlas<em>artifacts</em>api.selftest.mjs [alive]</li>
+<li>tests/atlas<em>subsystems</em>api.selftest.mjs [alive]</li>
+<li>tests/multi<em>tenant</em>block_routing.selftest.mjs [alive]</li>
+<li>tests/validate<em>lifecycle</em>gates.selftest.mjs [alive]</li>
+</ul>
 <p><em>Sources: [mission](blocks/b.db/mission.md) · [kpi](blocks/b.db/kpi.md) · [acceptance](blocks/b.db/acceptance.md) · [depends</em>on](blocks/b.db/depends<em>on.md) · [provides](blocks/b.db/provides.md) · [patterns](blocks/b.db/patterns.md) · [files](blocks/b.db/files.md)</em></p>
 <hr/>
 <h3>🔵 b.agent-orchestrator — Agent Orchestrator</h3>
@@ -661,6 +706,13 @@ evidence_spec:
 evidence_spec:
   cmd: node tests/frame_gate_flow.selftest.mjs
   expect_in_stdout: "OK"</code></pre>
+<ul>
+<li>[x] <strong>A9 (loop budget, R-8.10).</strong> Бюджет автономного цикла считает только то, что потратил этот цикл (трассы с момента его старта), а не суточный итог всего репозитория: чужая работа не может остановить цикл «по бюджету» до первого блока.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: selftest_run
+evidence_spec:
+  cmd: node tests/agent_loop_budget.selftest.mjs
+  expect_in_stdout: "OK"</code></pre>
 <h2>Что считается NOT acceptance</h2>
 <ul>
 <li>Существование файлов <code>.cursor/hooks.json</code> или MCP-сервера.</li>
@@ -686,12 +738,13 @@ evidence_spec:
 <li>b.operator-profile-learner: personal_templates</li>
 <li>b.clarify: trajectory_reader</li>
 <li>b.clarify: declared_understanding</li>
+<li>b.llm-gateway: llm<em>provider</em>description</li>
 </ul>
 <h4>Files</h4>
 <h1>b.agent-orchestrator — files</h1>
 <ul>
 <li>scripts/mcp<em>atlas</em>server.mjs [alive] (21+ tools over JSON-RPC stdio)</li>
-<li>scripts/atlas<em>api</em>server.mjs [alive] (HTTP facade for orchestration; R-8.08: GET /atlas/blocks/&lt;id&gt;/meaning — blockMeaningSummary from b.clarify, served verbatim to the canvas; R-8.09: POST /atlas/frame-review — the operator's «right»/«wrong» from the canvas, optionally starting the next phase)</li>
+<li>scripts/atlas<em>api</em>server.mjs [alive] (HTTP facade for orchestration; R-8.08: GET /atlas/blocks/&lt;id&gt;/meaning — blockMeaningSummary from b.clarify, served verbatim to the canvas; R-8.09: POST /atlas/frame-review — the operator's «right»/«wrong» from the canvas, optionally starting the next phase; R-8.10: GET /llm/provider (cached 60 s), POST /atlas/blocks/trajectory, /atlas/state?client=)</li>
 <li>scripts/generate<em>cursor</em>hooks.mjs [alive] (PR4: emits valid Cursor format with real action scripts)</li>
 <li>scripts/validate<em>cursor</em>hooks.mjs [alive] (PR4: gate; fails if hooks.json has wrong shape or missing scripts)</li>
 <li>scripts/observe<em>file</em>edit.mjs [alive] (PR4: afterFileEdit action — files.md → block reverse-map)</li>
@@ -700,6 +753,7 @@ evidence_spec:
 <li>tests/cursor<em>hooks</em>actions.test.mjs [alive] (PR4: 9-case integration test for the three actions)</li>
 <li>scripts/run<em>block</em>implementation.mjs [alive] (PR4.5: build prompt + invoke claude/codex/cursor CLI; R-8.09: two-phase by default through the frame gate — declare → operator confirms → implement; --phase=, --frame-review=skip)</li>
 <li>scripts/atlas<em>runs</em>api.mjs [alive] (async run start for the canvas + run/acceptance read helpers; R-8.09: does not spawn while the frame awaits the operator. Was unowned until R-8.09)</li>
+<li>tests/agent<em>loop</em>budget.selftest.mjs [alive] (R-8.10: the loop's budget counts only traces written since the loop started — token_economics --since)</li>
 <li>tests/frame<em>gate</em>flow.selftest.mjs [alive] (R-8.09: 3 groups — the real two-phase run through every gate state + startRunAsync, the canvas routes vs the library, the autonomous loop on an unconfirmed frame)</li>
 <li>scripts/agent<em>loop</em>daemon.mjs [alive] (V-1 autonomous loop; R-8.09: blocks awaiting the operator's frame answer are reported as awaiting-frame — not verified, promoted or counted as failures. Was unowned until R-8.09)</li>
 <li>tests/agent<em>parity</em>real.smoke.mjs [alive] (PR4.5: real MCP pack ≡ Claude --add-dir disk parity)</li>
@@ -720,6 +774,33 @@ evidence_spec:
 <li>tests/run_state.selftest.mjs [alive] (PR-7; 8 test groups)</li>
 <li>scripts/agent<em>workspace.mjs [alive] (PR-8 sandboxed workspaces under ~/.atlas</em>workspaces/)</li>
 <li>tests/agent_workspace.selftest.mjs [alive] (PR-8; 7 test groups)</li>
+</ul>
+<h2>R-8.10 — previously unowned</h2>
+<p>These files had no owner in any files.md, so the code-graph check never saw their imports.</p>
+<ul>
+<li>scripts/atlas<em>synthesis</em>api.mjs [alive] (LLM «fill / suggest / decompose» helpers served by the HTTP facade)</li>
+<li>scripts/architecture<em>decisions</em>api.mjs [alive] (project-level architecture decisions injected into agent prompts)</li>
+<li>scripts/sima<em>fill</em>from_chat.mjs [alive] (conversation → block proposals (uses the synthesis helpers, so it lives here, not with ingestion in b.db: b.db → orchestrator would be a cycle))</li>
+<li>scripts/sima<em>watch</em>chats.mjs [alive] (scanner for fresh chat transcripts → sima<em>fill</em>from_chat)</li>
+<li>scripts/chat<em>sources/</em>shared.mjs [alive]</li>
+<li>scripts/chat_sources/claude.mjs [alive]</li>
+<li>scripts/chat_sources/codex.mjs [alive]</li>
+<li>scripts/chat_sources/cursor.mjs [alive]</li>
+<li>scripts/distill<em>run</em>log.mjs [alive] (post-run: atomic decisions → decisions.log)</li>
+<li>scripts/reflect<em>after</em>run.mjs [alive] (post-run: short lesson → patterns.md)</li>
+<li>scripts/summarize<em>block</em>code.mjs [alive] (post-run: code_summary.md)</li>
+<li>scripts/cleanup<em>block</em>memory.mjs [alive] (post-run: keeps decisions.log / patterns.md bounded)</li>
+<li>scripts/scan<em>run</em>for<em>drift.mjs [alive] (post-run: content drift against dont</em>use / always_use)</li>
+<li>scripts/screenshot_block.mjs [alive] (block screenshots for the /atlas/blocks/&lt;id&gt;/screenshot route of the HTTP facade)</li>
+<li>scripts/run<em>playwright</em>guarded.mjs [alive] (Playwright launcher used by screenshot_block)</li>
+<li>tests/atlas<em>synthesis</em>api.selftest.mjs [alive]</li>
+<li>tests/atlas<em>runs</em>api.selftest.mjs [alive]</li>
+<li>tests/cleanup<em>block</em>memory.selftest.mjs [alive]</li>
+<li>tests/codex_source.selftest.mjs [alive]</li>
+<li>tests/cursor_source.selftest.mjs [alive]</li>
+<li>tests/sima<em>watch</em>chats.selftest.mjs [alive]</li>
+<li>tests/chat<em>fill</em>accept.selftest.mjs [alive]</li>
+<li>tests/cursor_live.headless.smoke.mjs [alive] ((A5 evidence))</li>
 </ul>
 <p><em>Sources: [mission](blocks/b.agent-orchestrator/mission.md) · [kpi](blocks/b.agent-orchestrator/kpi.md) · [acceptance](blocks/b.agent-orchestrator/acceptance.md) · [depends</em>on](blocks/b.agent-orchestrator/depends<em>on.md) · [provides](blocks/b.agent-orchestrator/provides.md) · [patterns](blocks/b.agent-orchestrator/patterns.md) · [files](blocks/b.agent-orchestrator/files.md)</em></p>
 <hr/>
@@ -843,6 +924,13 @@ evidence_spec:
 <li>atlas/roadmap.md [alive] (auto-generated)</li>
 <li>atlas/nightly_report.md [alive] (auto-generated)</li>
 </ul>
+<h2>R-8.10 — previously unowned</h2>
+<p>These files had no owner in any files.md, so the code-graph check never saw their imports.</p>
+<ul>
+<li>scripts/subagent<em>wiki</em>builder.mjs [alive]</li>
+<li>scripts/sync<em>article</em>status.mjs [alive]</li>
+<li>scripts/capture<em>hero</em>screenshot.mjs [alive] (README hero image)</li>
+</ul>
 <p><em>Sources: [mission](blocks/b.docs/mission.md) · [kpi](blocks/b.docs/kpi.md) · [acceptance](blocks/b.docs/acceptance.md) · [depends</em>on](blocks/b.docs/depends<em>on.md) · [provides](blocks/b.docs/provides.md) · [patterns](blocks/b.docs/patterns.md) · [files](blocks/b.docs/files.md)</em></p>
 <hr/>
 <h3>🔵 b.llm-gateway — LLM Gateway</h3>
@@ -851,6 +939,7 @@ evidence_spec:
 <li><strong>type</strong>: module</li>
 <li><strong>status</strong>: <code>review</code> — Phase I: verifier FAIL on A2 (simulate<em>conversation</em>branches) — test fixture asserts b.core-sync is NOT done, but it legitimately IS done now. Test-state coupling; provider code works. Needs fixture decoupling.</li>
 <li><strong>mvp</strong>: yes</li>
+<li><strong>depends_on</strong>: <code>b.db</code></li>
 <li><strong>tech_stack</strong>: <code>nodejs</code>, <code>anthropic-api</code>, <code>google-genai-api</code></li>
 <li><strong>files</strong>: 13 (<code>atlas/blocks/b.llm-gateway/files.md</code>)</li>
 </ul>
@@ -942,16 +1031,17 @@ evidence_spec:
 <li>llm<em>validate</em>drift</li>
 <li>llm<em>summarize</em>distillate</li>
 <li>openai_provider (R-8.00 — OpenAI Chat Completions, gpt-4o-mini default, strict JSON schema; powers Codex CLI when configured against OpenAI)</li>
+<li>llm<em>provider</em>description</li>
 </ul>
 <h4>Depends on</h4>
 <h1>b.llm-gateway — depends_on</h1>
 <ul>
-<li>none</li>
+<li>b.db: atlas<em>state</em>store</li>
 </ul>
 <h4>Files</h4>
 <h1>b.llm-gateway — files</h1>
 <ul>
-<li>scripts/llm_gateway.mjs [alive] (PR3 — main implementation, PR4.2 inline-comment-safe .env parser)</li>
+<li>scripts/llm_gateway.mjs [alive] (PR3 — main implementation, PR4.2 inline-comment-safe .env parser; R-8.10: describeProvider — the provider the next default call would use and why, for the canvas badge)</li>
 <li>scripts/llm_check.mjs [alive] (PR4.1 — diagnostic for env + provider ping)</li>
 <li>tests/llm_gateway.selftest.mjs [alive] (4 cases: schema validation, extractBlockSchema, trace write, no-schema fallback)</li>
 <li>tests/llm_extraction.eval.mjs [alive] (5-case golden eval, target precision &gt;= 0.7)</li>
@@ -973,6 +1063,12 @@ evidence_spec:
 <li>scripts/seed<em>llm</em>mocks.mjs [alive] (PR-Eval: regenerate mock fixtures from golden)</li>
 <li>atlas/eval_history/.gitkeep [alive] (PR-Eval: per-run snapshots; .gitignored except baseline.json)</li>
 <li>atlas/eval_history/baseline.json [alive] (PR-Eval: pinned regression baseline)</li>
+</ul>
+<h2>R-8.10 — previously unowned</h2>
+<p>These files had no owner in any files.md, so the code-graph check never saw their imports.</p>
+<ul>
+<li>scripts/token<em>economics.mjs [alive] (token/cost roll-up over llm</em>traces; R-8.10: --since)</li>
+<li>tests/openai<em>gemini</em>providers.selftest.mjs [alive]</li>
 </ul>
 <p><em>Sources: [mission](blocks/b.llm-gateway/mission.md) · [kpi](blocks/b.llm-gateway/kpi.md) · [acceptance](blocks/b.llm-gateway/acceptance.md) · [depends</em>on](blocks/b.llm-gateway/depends<em>on.md) · [provides](blocks/b.llm-gateway/provides.md) · [patterns](blocks/b.llm-gateway/patterns.md) · [files](blocks/b.llm-gateway/files.md)</em></p>
 <hr/>
@@ -1276,13 +1372,18 @@ evidence_spec:
 <li>atlas/blocks/b.operator-profile-learner/files.md [alive]</li>
 <li>atlas/blocks/b.operator-profile-learner/checks.log [alive]</li>
 </ul>
+<h2>R-8.10 — previously unowned</h2>
+<p>These files had no owner in any files.md, so the code-graph check never saw their imports.</p>
+<ul>
+<li>scripts/seed<em>operator</em>profile.mjs [alive]</li>
+</ul>
 <p><em>Sources: [mission](blocks/b.operator-profile-learner/mission.md) · [kpi](blocks/b.operator-profile-learner/kpi.md) · [acceptance](blocks/b.operator-profile-learner/acceptance.md) · [depends</em>on](blocks/b.operator-profile-learner/depends<em>on.md) · [provides](blocks/b.operator-profile-learner/provides.md) · [patterns](blocks/b.operator-profile-learner/patterns.md) · [files](blocks/b.operator-profile-learner/files.md)</em></p>
 <hr/>
-<h3>⚪ b.acceptance-verifier-loop — Acceptance Verifier Loop</h3>
+<h3>🟠 b.acceptance-verifier-loop — Acceptance Verifier Loop</h3>
 <ul>
 <li><strong>layer</strong>: <code>testing</code></li>
 <li><strong>type</strong>: module</li>
-<li><strong>status</strong>: <code>desync</code> — cascade: parent b.core-sync edit at 2026-06-20T08:31:02 broke acceptance</li>
+<li><strong>status</strong>: <code>wip</code></li>
 <li><strong>mvp</strong>: no</li>
 <li><strong>depends_on</strong>: <code>b.db</code>, <code>b.core-sync</code>, <code>b.agent-orchestrator</code>, <code>b.llm-gateway</code></li>
 <li><strong>tech_stack</strong>: <code>nodejs</code>, <code>esm</code>, <code>json-schema</code></li>
@@ -1395,12 +1496,12 @@ atlas/blocks/&lt;block_id&gt;/checks.log   ← append: 'acceptance_verifier &lt;
 <h4>KPI</h4>
 <h1>b.acceptance-verifier-loop — KPI</h1>
 <ul>
-<li><strong>KPI-1 (no false done)</strong>: ни один блок не уходит в <code>done</code> если хоть один пункт <code>acceptance.md</code> не получил <code>pass</code>. Сейчас: ✗ (gate отсутствует).</li>
-<li><strong>KPI-2 (deterministic evidence first)</strong>: ≥ 70% пунктов acceptance в среднем по репо имеют <code>evidence<em>kind ∈ {exit</em>code, fs<em>glob, file</em>diff, log_grep}</code> — без LLM. LLM-judge только как fallback. Сейчас: ✗.</li>
-<li><strong>KPI-3 (gate latency)</strong>: для блока с ≤ 8 пунктами acceptance verifier завершается за &lt; 30 секунд (deterministic) или &lt; 60 секунд (с LLM-judge). Сейчас: ✗.</li>
+<li><strong>KPI-1 (no false done)</strong>: ни один блок не уходит в <code>done</code> если хоть один пункт <code>acceptance.md</code> не получил <code>pass</code>. Сейчас (2026-09-22): ✓ — <code>lifecycle<em>gate.mjs</code> отказывает в <code>→ done</code> без verdict=pass, покрыто <code>lifecycle</em>gate.selftest</code> (группы 1, 5, 8).</li>
+<li><strong>KPI-2 (deterministic evidence first)</strong>: ≥ 70% пунктов acceptance в среднем по репо имеют <code>evidence<em>kind ∈ {exit</em>code, fs<em>glob, file</em>diff, log<em>grep}</code> — без LLM. LLM-judge только как fallback. Сейчас (2026-09-22): ✗ — 84 из 122 = 68.9% (exit</em>code 17, log<em>grep 28, selftest</em>run 33, fs<em>glob 6; llm</em>judge 38). До цели не хватает двух детерминированных пунктов.</li>
+<li><strong>KPI-3 (gate latency)</strong>: для блока с ≤ 8 пунктами acceptance verifier завершается за &lt; 30 секунд (deterministic) или &lt; 60 секунд (с LLM-judge). Сейчас (2026-09-22): ✓ — этот блок, 8 пунктов, 1.1 с на моке.</li>
 <li><strong>KPI-4 (retry-prompt usefulness)</strong>: ≥ 50% retry-прогонов с <code>retry<em>prompt</em>hint</code> приводят к verdict=pass на следующей итерации (на горизонте 20 retry). Сейчас: n/a.</li>
 <li><strong>KPI-5 (no spurious rollbacks)</strong>: nightly re-verify done блоков даёт <code>done → broken</code> rollback <strong>только</strong> когда есть реальная регрессия (новые коммиты после последнего pass либо изменение acceptance.md). Сейчас: ✗.</li>
-<li><strong>KPI-6 (cache hit rate)</strong>: при отсутствии новых коммитов / новых traces / новых checks.log — verifier возвращает кэш за &lt; 50 ms. Hit rate ≥ 80% на nightly. Сейчас: ✗.</li>
+<li><strong>KPI-6 (cache hit rate)</strong>: при отсутствии новых коммитов / новых traces / новых checks.log — verifier возвращает кэш за &lt; 50 ms. Hit rate ≥ 80% на nightly. Сейчас (2026-09-22): ✗ — кэша нет вовсе (ни в verify<em>block</em>acceptance, ни в collect_evidence).</li>
 <li><strong>KPI-7 (cost cap)</strong>: LLM-judge на один блок ≤ $0.02; полный nightly re-verify всех done блоков ≤ $0.20. Сейчас: ✗.</li>
 </ul>
 <h4>Acceptance</h4>
@@ -1536,6 +1637,14 @@ evidence_spec:
 <li>atlas/blocks/b.acceptance-verifier-loop/provides.md [alive]</li>
 <li>atlas/blocks/b.acceptance-verifier-loop/files.md [alive]</li>
 <li>atlas/blocks/b.acceptance-verifier-loop/checks.log [alive]</li>
+</ul>
+<h2>R-8.10 — previously unowned</h2>
+<p>These files had no owner in any files.md, so the code-graph check never saw their imports.</p>
+<ul>
+<li>scripts/cascade_verify.mjs [alive] (re-verifies reverse dependencies after a green run)</li>
+<li>scripts/semantic_verify.mjs [alive] (the semantic judge (Contract as Arbiter))</li>
+<li>scripts/subagent_verifier.mjs [alive]</li>
+<li>tests/desync_restore.selftest.mjs [alive] (R-8.10: the real verifier on a synthetic atlas — every desync restore is a gated transition; idea / legacy marks are left to the operator)</li>
 </ul>
 <p><em>Sources: [mission](blocks/b.acceptance-verifier-loop/mission.md) · [kpi](blocks/b.acceptance-verifier-loop/kpi.md) · [acceptance](blocks/b.acceptance-verifier-loop/acceptance.md) · [depends</em>on](blocks/b.acceptance-verifier-loop/depends<em>on.md) · [provides](blocks/b.acceptance-verifier-loop/provides.md) · [patterns](blocks/b.acceptance-verifier-loop/patterns.md) · [files](blocks/b.acceptance-verifier-loop/files.md)</em></p>
 <hr/>
@@ -6129,6 +6238,14 @@ evidence_spec:
 <li>2026-09-22T18:27:51.401Z: smoke e2e distillate</li>
 <li>2026-09-22T18:27:56.155Z: smoke e2e queued insight</li>
 <li>2026-09-22T18:27:56.202Z: smoke e2e distillate</li>
+<li>2026-09-22T19:55:55.102Z: smoke e2e queued insight</li>
+<li>2026-09-22T19:55:55.144Z: smoke e2e distillate</li>
+<li>2026-09-22T19:56:00.470Z: smoke e2e queued insight</li>
+<li>2026-09-22T19:56:00.515Z: smoke e2e distillate</li>
+<li>2026-09-22T19:58:03.938Z: smoke e2e queued insight</li>
+<li>2026-09-22T19:58:03.986Z: smoke e2e distillate</li>
+<li>2026-09-22T19:58:08.368Z: smoke e2e queued insight</li>
+<li>2026-09-22T19:58:08.415Z: smoke e2e distillate</li>
 </ul>
 <h4>Files</h4>
 <h1>b.smoke-sandbox — files</h1>
@@ -6773,13 +6890,13 @@ evidence_spec:
 <ul>
 <li>scripts/clarify_block.mjs [alive] (R-8.06: протокол вопроса + маркеры неопределённости + append-only Q→A лог + снятие маркера без остатка. Экспортирует clarifyBlock / normalizeQuestions / findMarkers / blockMarkers / appendAnswers / resolveMarker)</li>
 <li>scripts/validate_clarifications.mjs [alive] (R-8.06: гейт — done-блок не может нести открытый маркер; review → warning; idea/wip → info, чтобы черновик оставался свободным)</li>
-<li>scripts/block_meaning.mjs [alive] (R-8.08: направление «человек → модель». Экспортирует readTrajectory / trajectoryPromptLines — секция «Во что это вырастет» в mission.md и её подача агенту; understandingPromptLines / parseUnderstanding / readUnderstanding / understandingStaleness — объявление понимания агентом до кода; blockMeaningSummary — единый читатель для ночного отчёта и канваса; R-8.09: frameGate / recordDeclared / recordFrameReview / contractFingerprint — шлюз «объявил → человек подтвердил → код», declarePhasePromptLines / implementPhasePromptLines / operatorLanguage — промпты двух фаз на языке миссии)</li>
+<li>scripts/block_meaning.mjs [alive] (R-8.08: направление «человек → модель». Экспортирует readTrajectory / trajectoryPromptLines — секция «Во что это вырастет» в mission.md и её подача агенту; understandingPromptLines / parseUnderstanding / readUnderstanding / understandingStaleness — объявление понимания агентом до кода; blockMeaningSummary — единый читатель для ночного отчёта и канваса; R-8.09: frameGate / recordDeclared / recordFrameReview / contractFingerprint — шлюз «объявил → человек подтвердил → код», declarePhasePromptLines / implementPhasePromptLines / operatorLanguage — промпты двух фаз на языке миссии; R-8.10: setTrajectory — запись секции траектории, которую readTrajectory прочитает ровно так же)</li>
 <li>scripts/validate_meaning.mjs [alive] (R-8.08: отчёт, не гейт — траектория, наличие/полнота/устаревание understanding.md по блокам. Условия повышения до гейта и снятия — в шапке файла)</li>
 </ul>
 <h2>Тесты</h2>
 <ul>
 <li>tests/clarify_block.selftest.mjs [alive] (R-8.06: 10 групп — порядок enum, честная деградация на mock, пустой контракт, отбраковка ярлыка, отбраковка вопроса без выбора, сортировка по impact, поиск маркеров, append-only лог, снятие маркера, срабатывание done-гейта)</li>
-<li>tests/block<em>meaning.selftest.mjs [alive] (R-8.08/R-8.09: 10 групп — кириллические заголовки траектории, границы секции, пустой против отсутствующего, строки промпта, разбор understanding.md, устаревание по mtime, operative</em>frame на mock, один читатель для отчёта и библиотеки, шлюз как машина состояний, язык объявления и промпты двух фаз. Сквозные проверки оркестратора — в tests/frame<em>gate</em>flow.selftest.mjs, у b.agent-orchestrator)</li>
+<li>tests/block<em>meaning.selftest.mjs [alive] (R-8.08/R-8.10: 11 групп — кириллические заголовки траектории, границы секции, пустой против отсутствующего, строки промпта, разбор understanding.md, устаревание по mtime, operative</em>frame на mock, один читатель для отчёта и библиотеки, шлюз как машина состояний, язык объявления и промпты двух фаз, запись траектории. Сквозные проверки оркестратора — в tests/frame<em>gate</em>flow.selftest.mjs, у b.agent-orchestrator)</li>
 </ul>
 <h2>Контракт</h2>
 <ul>

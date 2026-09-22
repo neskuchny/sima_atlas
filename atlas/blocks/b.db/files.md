@@ -27,3 +27,23 @@
 - scripts/ingest_chat_distillate.mjs [alive]
 - scripts/ingest_chat_batches.mjs [alive]
 - scripts/hook_ingest_recent_chat.mjs [alive] (waiting for PR4 valid hooks)
+
+## R-8.10 — previously unowned
+
+These files had no owner in any files.md, so the code-graph check never saw their imports.
+- scripts/atlas_blocks_api.mjs [alive] (block CRUD + the one writer of block files (patchBlockFile: history snapshot, etag, audit line))
+- scripts/atlas_files_api.mjs [alive] (per-block file registry reads for the canvas)
+- scripts/atlas_artifacts_api.mjs [alive] (artifact storage under atlas/artifacts/)
+- scripts/atlas_subsystems_api.mjs [alive] (subsystem state)
+- scripts/change_set.mjs [alive] (transactional change-sets across blocks)
+- scripts/get_block_history.mjs [alive] (list history snapshots of a block)
+- scripts/migrate_v1_v2.mjs [alive] (one-off atlas migration)
+- scripts/migrate_subsystems_to_blocks.mjs [alive] (one-off migration of subsystems into blocks)
+- scripts/apply_block_template.mjs [alive] (create a block from a template through atlas_blocks_api)
+- scripts/validate_lifecycle_gates.mjs [alive] (validator for the lifecycle gate this block owns)
+- tests/atlas_blocks_api.selftest.mjs [alive]
+- tests/atlas_files_api.selftest.mjs [alive]
+- tests/atlas_artifacts_api.selftest.mjs [alive]
+- tests/atlas_subsystems_api.selftest.mjs [alive]
+- tests/multi_tenant_block_routing.selftest.mjs [alive]
+- tests/validate_lifecycle_gates.selftest.mjs [alive]

@@ -62,7 +62,9 @@
 
   async function fetchHash() {
     try {
-      const r = await fetch(API_BASE.replace(/\/$/, '') + '/atlas/state', { cache: 'no-store' });
+      // R-8.10 — hash the atlas this canvas shows (the client's, if any).
+      const qs = client ? `?client=${encodeURIComponent(client)}` : '';
+      const r = await fetch(API_BASE.replace(/\/$/, '') + '/atlas/state' + qs, { cache: 'no-store' });
       if (!r.ok) return null;
       const j = await r.json();
       return j && j.hash ? j.hash : null;
@@ -300,6 +302,13 @@
       await postJson('/atlas/frame-review', withClient({ block_id, verdict, correction, start_run: !!start_run, ...(agent ? { agent } : {}) })),
     // Non-blocking run start, client-scoped. The server applies the frame
     // gate first: { started: false, frame_gate } when the frame awaits you.
+    // R-8.10 — which LLM answers the canvas's generation calls, and why.
+    llmProvider: async () => await getJson('/llm/provider'),
+    // R-8.10 — write the «## Во что это вырастет» section of mission.md
+    // (empty text removes it). if_match_mtime guards against overwriting an
+    // edit made since the panel loaded.
+    setTrajectory: async ({ block_id, text, if_match_mtime }) =>
+      await postJson('/atlas/blocks/trajectory', withClient({ block_id, text, ...(if_match_mtime ? { if_match_mtime } : {}) })),
     startRun: async ({ block_id, agent, profile }) =>
       await postJson('/runs/start', withClient({ block_id, ...(agent ? { agent } : {}), ...(profile ? { profile } : {}) })),
     clientsList:   async ()                => await getJson('/atlas/clients/list'),

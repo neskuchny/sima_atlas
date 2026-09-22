@@ -20,3 +20,17 @@
 
 ### Recommended action
 - Operator review: this block needs a human look (verifier/cascade not green under the autonomous loop).
+
+## 2026-09-22 — R-8.10: desync → review in the gate; sole owner of the transition ledger
+
+`TRANSITIONS.desync` gained `review`, guarded like `done`: allowed only for a
+block that was in review before the desync mark, and only with a green run
+newer than the mark — a restore, never a promotion (lifecycle_gate.selftest
+group 8). The verifier's desync restore now goes through `applyTransition`
+instead of writing status itself.
+
+`scripts/log_transition.mjs` and `atlas/transitions.log` were listed [alive]
+by both b.core-sync and b.db. Since R-8.07 the gate here is the one writer of
+the ledger, so both now belong to b.db only. This block also took the block /
+file / artifact / subsystem APIs and the migration scripts that had no owner
+(see b.core-sync's R-8.10 entry for the whole reassignment).

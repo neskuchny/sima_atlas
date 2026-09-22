@@ -72,15 +72,18 @@ try {
       env: {
         ...process.env,
         // R-7.89 (Phase II) — was frontend/app_v2.jsx, cleaned from
-        // b.ui-control/files.md in PR #43. Repointed to a file it owns.
-        CURSOR_FILE_PATH: 'frontend/atlas_sync.js',
+        // b.ui-control/files.md in PR #43. R-8.10 — was frontend/atlas_sync.js,
+        // which was listed by two blocks; it belongs to b.core-sync now, so
+        // this points at a file only b.ui-control owns.
+        CURSOR_FILE_PATH: 'frontend/atlas_design/panels.jsx',
       },
     });
     // observe_file_edit may exit 0 with a line written, or skip if it can't
     // resolve the owner. We tolerate both but check log contents.
     const checks = fs.readFileSync(path.join(ROOT, 'atlas', 'blocks', 'b.ui-control', 'checks.log'), 'utf8');
-    check('phase3:b.ui-control got cursor_edit line OR observe exited 0',
-      r.status === 0 && /cursor_edit/.test(checks),
+    // R-8.10 — the line for THIS file; any old cursor_edit line used to pass.
+    check('phase3:b.ui-control got the cursor_edit line for this edit',
+      r.status === 0 && /cursor_edit\tpass\t.*atlas_design\/panels\.jsx/.test(checks),
       `status=${r.status}, last line: ${checks.trim().split(/\r?\n/).slice(-1)[0]}`);
   }
 

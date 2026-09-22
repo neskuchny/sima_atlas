@@ -1,6 +1,6 @@
 # Roadmap (auto-generated, PR2 topo-sort)
 
-_Generated: 2026-09-22T18:27:56.707Z_
+_Generated: 2026-09-22T19:58:08.914Z_
 
 Приоритет внутри уровня: 🔴 broken → 🟣 drift → 🟠 wip → 🔵 review → 🟡 idea → 🟢 done.
 Каждый следующий уровень зависит от предыдущих — реализовывать сверху вниз.
@@ -9,8 +9,6 @@ _Generated: 2026-09-22T18:27:56.707Z_
 
 ### Level 0 — без зависимостей
 
-- 🔵 **b.llm-gateway** (review) — LLM Gateway · _ai_
-  - Phase I: verifier FAIL on A2 (simulate_conversation_branches) — test fixture asserts b.core-sync is NOT done, but it legitimately IS done now. Test-state coupling; provider code works. Needs fixture decoupling.
 - 🟡 **b.db** (idea) — Atlas Database · _data_
   - Storage is markdown + localStorage; no real DB layer yet
 - 🟡 **b.product-billing** (idea) — Billing · _logic_
@@ -26,8 +24,8 @@ _Generated: 2026-09-22T18:27:56.707Z_
 
 ### Level 1 — требует Level 0
 
-- 🔵 **b.clarify** (review) — Clarification Arbiter · _ai_ · deps: `b.llm-gateway`
-  - R-8.06 + R-8.08 — meaning transfer in both directions around the contract. Model to human: questions, uncertainty markers, assumption registry. Human to model: the trajectory in mission.md as the rule for choosing between green implementations, and the executing agent declaring its operative frame in understanding.md before code.
+- 🔵 **b.llm-gateway** (review) — LLM Gateway · _ai_ · deps: `b.db`
+  - Phase I: verifier FAIL on A2 (simulate_conversation_branches) — test fixture asserts b.core-sync is NOT done, but it legitimately IS done now. Test-state coupling; provider code works. Needs fixture decoupling.
 - 🟡 **b.code-graph** (idea) — Code Graph · _data_ · deps: `b.db`
   - New block scoped — extracts deterministic imports/exports map from alive files; consumed by b.core-sync PR4. R-7.99.
 - 🟡 **b.product-dashboard** (idea) — Dashboard · _front_ · deps: `b.product-warehouse`
@@ -37,6 +35,8 @@ _Generated: 2026-09-22T18:27:56.707Z_
 
 ### Level 2 — требует Level 1
 
+- 🔵 **b.clarify** (review) — Clarification Arbiter · _ai_ · deps: `b.llm-gateway`
+  - R-8.06 + R-8.08 — meaning transfer in both directions around the contract. Model to human: questions, uncertainty markers, assumption registry. Human to model: the trajectory in mission.md as the rule for choosing between green implementations, and the executing agent declaring its operative frame in understanding.md before code.
 - 🟡 **b.product-auth** (idea) — Auth · _logic_ · deps: `b.product-dashboard`, `b.product-ingest`
   - Created via design UI at 2026-05-05T20:57:52.201Z
 - 🟢 **b.core-sync** (done) — Sync Engine · _logic_ · deps: `b.db`, `b.code-graph`
@@ -49,14 +49,13 @@ _Generated: 2026-09-22T18:27:56.707Z_
 
 ### Level 4 — требует Level 3
 
-- 🟠 **b.ui-control** (wip) — UI Control Plane · _front_ · deps: `b.core-sync`, `b.agent-orchestrator`
+- 🟠 **b.ui-control** (wip) — UI Control Plane · _front_ · deps: `b.core-sync`, `b.agent-orchestrator`, `b.clarify`
   - HTML loses references to components.jsx/sidecol.jsx/canvas_tools.jsx — UI does not boot in production; multi-layer rendering depends on PR2 (this PR)
 - 🔵 **b.agent-orchestrator** (review) — Agent Orchestrator · _ai_ · deps: `b.db`, `b.core-sync`, `b.llm-gateway`, `b.operator-profile-learner`, `b.clarify`
   - Phase I: verifier FAIL on A5 (cursor_live.headless.smoke) — needs a live cursor-agent CLI, not installed in this env. Env-blocked, not code-blocked. A1-A4+A7 pass.
 - 🟢 **b.operator-profile-learner** (done) — Operator Profile Learner · _ai_ · deps: `b.db`, `b.core-sync`, `b.agent-orchestrator`, `b.llm-gateway`, `b.docs`
   - Phase I: verifier FAIL on A6 — profile-compliance UI badge (complianceWithProfile) was lost in the R-7.30 single-file→atlas_design refactor and not reimplemented. Genuine feature gap, honestly not done.
-- ⚪ **b.acceptance-verifier-loop** (desync) — Acceptance Verifier Loop · _testing_ · deps: `b.db`, `b.core-sync`, `b.agent-orchestrator`, `b.llm-gateway`
-  - cascade: parent b.core-sync edit at 2026-06-20T08:31:02 broke acceptance
+- 🟠 **b.acceptance-verifier-loop** (wip) — Acceptance Verifier Loop · _testing_ · deps: `b.db`, `b.core-sync`, `b.agent-orchestrator`, `b.llm-gateway`
 - 🟠 **b.user-docs-generator** (wip) — End-User Docs Generator · _content_ · deps: `b.db`, `b.docs`, `b.agent-orchestrator`, `b.llm-gateway`
   - R-8.07: демонтирован из done по rules.md #4. Acceptance зелёная (8/8) — машинерия генерации работает и покрыта selftest. KPI-1 (coverage) измерен и провален: atlas/docs/end-user/ пуста при двух user-facing блоках, покрытие 0/2. До done: произвести документы хотя бы для одного user-facing блока ЛИБО переформулировать KPI-1 на done-блоки (решение оператора, см. narrative).
 - 🟢 **b.desktop** (done) — Desktop App · _ext_ · deps: `b.db`, `b.ui-control`, `b.agent-orchestrator`
@@ -105,5 +104,5 @@ _Generated: 2026-09-22T18:27:56.707Z_
 
 ### Тестирование (`testing`)
 
-- ⚪ **b.acceptance-verifier-loop** — Acceptance Verifier Loop _(desync)_
+- 🟠 **b.acceptance-verifier-loop** — Acceptance Verifier Loop _(wip)_
 - 🟡 **b.smoke-sandbox** — Smoke Sandbox (test target) _(idea)_
