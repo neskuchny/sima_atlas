@@ -15,17 +15,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/parse_acceptance.selftest.mjs → exit 0 (56ms); first line: \"parse_acceptance.selftest: OK (10 test groups, all assertions green)\"",
+      "evidence": "node tests/parse_acceptance.selftest.mjs → exit 0 (78ms); first line: \"parse_acceptance.selftest: OK (10 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/parse_acceptance.selftest.mjs",
         "exit_code": 0,
         "stdout": "parse_acceptance.selftest: OK (10 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 56,
+        "duration_ms": 78,
         "timed_out": false
       },
-      "duration_ms": 56
+      "duration_ms": 78
     },
     {
       "id": "A2",
@@ -39,17 +39,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/evidence_collectors.selftest.mjs → exit 0 (191ms); first line: \"evidence_collectors.selftest: OK (14 test groups, all assertions green)\"",
+      "evidence": "node tests/evidence_collectors.selftest.mjs → exit 0 (258ms); first line: \"evidence_collectors.selftest: OK (14 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/evidence_collectors.selftest.mjs",
         "exit_code": 0,
         "stdout": "evidence_collectors.selftest: OK (14 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 191,
+        "duration_ms": 258,
         "timed_out": false
       },
-      "duration_ms": 191
+      "duration_ms": 258
     },
     {
       "id": "A3",
@@ -63,17 +63,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/llm_judge.smoke.mjs → exit 0 (73ms); first line: \"llm_judge.smoke: OK (4 test groups, all assertions green)\"",
+      "evidence": "node tests/llm_judge.smoke.mjs → exit 0 (104ms); first line: \"llm_judge.smoke: OK (4 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/llm_judge.smoke.mjs",
         "exit_code": 0,
         "stdout": "llm_judge.smoke: OK (4 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 73,
+        "duration_ms": 104,
         "timed_out": false
       },
-      "duration_ms": 73
+      "duration_ms": 104
     },
     {
       "id": "A4",
@@ -87,17 +87,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/acceptance_verifier.e2e.smoke.mjs → exit 0 (409ms); first line: \"acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\"",
+      "evidence": "node tests/acceptance_verifier.e2e.smoke.mjs → exit 0 (589ms); first line: \"acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/acceptance_verifier.e2e.smoke.mjs",
         "exit_code": 0,
         "stdout": "acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\n",
         "stderr": "",
-        "duration_ms": 409,
+        "duration_ms": 589,
         "timed_out": false
       },
-      "duration_ms": 409
+      "duration_ms": 589
     },
     {
       "id": "A5",
@@ -137,17 +137,17 @@
         "expect_in_stdout": "5 phases"
       },
       "verdict": "pass",
-      "evidence": "node tests/acceptance_verifier.e2e.smoke.mjs → exit 0 (440ms); first line: \"acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\"",
+      "evidence": "node tests/acceptance_verifier.e2e.smoke.mjs → exit 0 (618ms); first line: \"acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\"",
       "reasoning": "shell exit code 0 and stdout matches /5 phases/",
       "raw": {
         "cmd": "node tests/acceptance_verifier.e2e.smoke.mjs",
         "exit_code": 0,
         "stdout": "acceptance_verifier.e2e.smoke: OK (5 phases — verifier writes report; gate rejects fail; gate accepts pass; regression detected; proposal created)\n",
         "stderr": "",
-        "duration_ms": 440,
+        "duration_ms": 618,
         "timed_out": false
       },
-      "duration_ms": 440
+      "duration_ms": 618
     },
     {
       "id": "A7",
@@ -177,7 +177,7 @@
           "/home/user/sima_atlas/atlas/acceptance_runs/b.product-ingest/_latest.json"
         ]
       },
-      "duration_ms": 0
+      "duration_ms": 3
     },
     {
       "id": "A8",
@@ -199,7 +199,7 @@
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 0
+      "duration_ms": 1
     },
     {
       "id": "A9",
@@ -213,17 +213,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/convergence_log.selftest.mjs → exit 0 (51ms); first line: \"convergence_log.selftest: OK (4 groups, all assertions green)\"",
+      "evidence": "node tests/convergence_log.selftest.mjs → exit 0 (76ms); first line: \"convergence_log.selftest: OK (4 groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/convergence_log.selftest.mjs",
         "exit_code": 0,
         "stdout": "convergence_log.selftest: OK (4 groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 51,
+        "duration_ms": 76,
         "timed_out": false
       },
-      "duration_ms": 51
+      "duration_ms": 76
     }
   ],
   "counts": {
@@ -232,11 +232,11 @@
     "skipped": 1
   },
   "verdict": "pass",
-  "duration_ms": 1224,
-  "checked_at": "2026-09-22T20:56:34.450Z",
+  "duration_ms": 1730,
+  "checked_at": "2026-09-29T04:53:30.239Z",
   "cache": {
     "hit": false,
-    "reason": "code changed (a commit, or a changed / new file outside atlas/); a contract, graph.json or project rules changed; another block's verdict or kpi result changed; a file this block's assertions read changed",
-    "lookup_ms": 29.515284
+    "reason": "cached pass expired (152 h old)",
+    "lookup_ms": 0.483996
   }
 }

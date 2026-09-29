@@ -131,6 +131,10 @@ test('meaning panel: marker, badge, answer without a run, trajectory', async ({ 
     });
   }
 
+  // Nothing done on a client's canvas may land in this repository's atlas.
+  const rootLog = path.join(ROOT, 'atlas', 'activity_log.jsonl');
+  const rootLogBefore = fs.existsSync(rootLog) ? fs.readFileSync(rootLog, 'utf8') : null;
+
   await page.goto(`/atlas_design/index.html?client=${CLIENT}`);
   await page.waitForSelector('[data-mid="b.await"]', { timeout: 30_000 });
   if (await page.locator('.onb-skip').count()) await page.click('.onb-skip');
@@ -203,6 +207,44 @@ test('meaning panel: marker, badge, answer without a run, trajectory', async ({ 
   await expect(plain.locator('.meaning-notice-ok')).toContainText('Сохранено в mission.md');
   expect(fs.readFileSync(path.join(CDIR, 'blocks', 'b.plain', 'mission.md'), 'utf8'))
     .toContain('## Во что это вырастет\n\nСтанет общим сервисом выгрузок для трёх продуктов.');
+
+  // R-8.13 — the contract editor shows what writing a draft changes BEFORE
+  // «write»: a removed acceptance item is named, and so is the button.
+  await page.locator('.tabs button', { hasText: 'Контракт' }).click();
+  const accRow = page.locator('.contract-row', { hasText: 'acceptance.md' });
+  await accRow.getByRole('button', { name: '✎ Руками' }).click();
+  const modal = page.locator('.contract-modal');
+  await modal.locator('textarea').fill('- [ ] **A2.** Отчёт строится быстрее 2 с');
+  await expect(modal.locator('.draft-review')).toContainText('Удаляет «A1»', { timeout: 10_000 });
+  await expect(modal.locator('.sysdocs-foot .pill.primary')).toContainText('Записать — удаляет 1');
+  const accBefore = fs.readFileSync(path.join(CDIR, 'blocks', 'b.plain', 'acceptance.md'), 'utf8');
+  await modal.getByRole('button', { name: 'Отмена' }).click();
+  await expect(modal).toHaveCount(0);
+  expect(fs.readFileSync(path.join(CDIR, 'blocks', 'b.plain', 'acceptance.md'), 'utf8'), 'the review writes nothing').toBe(accBefore);
+
+  // Manual edit of mission.md: the «## Layer» tail is hidden from the textarea
+  // and kept on save (it used to be dropped silently); the audit line says
+  // the text is the operator's.
+  await page.locator('.contract-row', { hasText: 'mission.md' }).getByRole('button', { name: '✎ Руками' }).click();
+  const ta = modal.locator('textarea');
+  expect(await ta.inputValue()).not.toContain('## Layer');
+  await expect(modal).toContainText('Раздел «## Layer» и всё ниже него сохраняются как есть.');
+  await ta.fill((await ta.inputValue()).replace('Экспорт месячного отчёта в CSV', 'Экспорт месячного отчёта в CSV и XLSX'));
+  await expect(modal.locator('.draft-counts')).toContainText('~1', { timeout: 10_000 });
+  await expect(modal.locator('.draft-risk')).toHaveCount(0);
+  const g3 = await generatedAt(page);
+  await modal.locator('.sysdocs-foot .pill.primary').click();
+  await expect(modal).toHaveCount(0);
+  await waitForRemount(page, g3);
+  const mission = fs.readFileSync(path.join(CDIR, 'blocks', 'b.plain', 'mission.md'), 'utf8');
+  expect(mission).toContain('CSV и XLSX');
+  expect(mission).toContain('## Во что это вырастет');
+  expect(mission).toContain('## Layer\nlogic');
+  const audit = fs.readFileSync(path.join(CDIR, 'blocks', 'b.plain', 'checks.log'), 'utf8').trimEnd().split('\n').pop();
+  expect(audit).toMatch(/\tdesign_patch\tpass\tatlas\/blocks\/b\.plain\/mission\.md by=manual$/);
+  // The «saved» line of the activity log went to the client's log, not root's.
+  expect(fs.readFileSync(path.join(CDIR, 'activity_log.jsonl'), 'utf8')).toContain('b.plain · mission.md');
+  expect(fs.existsSync(rootLog) ? fs.readFileSync(rootLog, 'utf8') : null, 'root activity log untouched').toBe(rootLogBefore);
 
   expect(errors, errors.join('\n')).toEqual([]);
 });

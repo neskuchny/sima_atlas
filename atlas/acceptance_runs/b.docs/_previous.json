@@ -15,17 +15,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_no_template_placeholders.mjs → exit 0 (58ms); first line: \"Template-placeholder validation: OK (21 blocks scanned)\"",
+      "evidence": "node scripts/validate_no_template_placeholders.mjs → exit 0 (79ms); first line: \"Template-placeholder validation: OK (21 blocks scanned)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_no_template_placeholders.mjs",
         "exit_code": 0,
         "stdout": "Template-placeholder validation: OK (21 blocks scanned)\n",
         "stderr": "Template-placeholder validation warnings:\n ⚠ b.smoke-sandbox: tasks.md is suspiciously short (28 chars)\n",
-        "duration_ms": 58,
+        "duration_ms": 79,
         "timed_out": false
       },
-      "duration_ms": 58
+      "duration_ms": 79
     },
     {
       "id": "A2",
@@ -51,7 +51,7 @@
           "<li>[x] <strong>A2.</strong> В <code>wiki.html</code> присутствует <code>&lt;div class=\"mermaid\"&gt;</code> с актуальным графом по <code>graph.json</code>.</li>"
         ]
       },
-      "duration_ms": 4
+      "duration_ms": 6
     },
     {
       "id": "A3",
@@ -65,17 +65,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/docs_generators.selftest.mjs → exit 0 (232ms); first line: \"docs_generators.selftest: OK (3 groups, all assertions green)\"",
+      "evidence": "node tests/docs_generators.selftest.mjs → exit 0 (296ms); first line: \"docs_generators.selftest: OK (3 groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/docs_generators.selftest.mjs",
         "exit_code": 0,
         "stdout": "docs_generators.selftest: OK (3 groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 232,
+        "duration_ms": 296,
         "timed_out": false
       },
-      "duration_ms": 232
+      "duration_ms": 296
     },
     {
       "id": "A4",
@@ -101,7 +101,7 @@
           "/home/user/sima_atlas/atlas/auto_tz.md"
         ]
       },
-      "duration_ms": 1
+      "duration_ms": 0
     },
     {
       "id": "A5",
@@ -115,17 +115,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/docs_generators.selftest.mjs → exit 0 (225ms); first line: \"docs_generators.selftest: OK (3 groups, all assertions green)\"",
+      "evidence": "node tests/docs_generators.selftest.mjs → exit 0 (295ms); first line: \"docs_generators.selftest: OK (3 groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/docs_generators.selftest.mjs",
         "exit_code": 0,
         "stdout": "docs_generators.selftest: OK (3 groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 225,
+        "duration_ms": 295,
         "timed_out": false
       },
-      "duration_ms": 225
+      "duration_ms": 295
     }
   ],
   "counts": {
@@ -134,11 +134,11 @@
     "skipped": 0
   },
   "verdict": "pass",
-  "duration_ms": 521,
-  "checked_at": "2026-09-22T20:56:31.524Z",
+  "duration_ms": 677,
+  "checked_at": "2026-09-29T04:53:26.362Z",
   "cache": {
     "hit": false,
-    "reason": "code changed (a commit, or a changed / new file outside atlas/); a contract, graph.json or project rules changed; another block's verdict or kpi result changed; a file this block's assertions read changed",
-    "lookup_ms": 30.013474
+    "reason": "cached pass expired (152 h old)",
+    "lookup_ms": 0.472841
   }
 }

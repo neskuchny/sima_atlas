@@ -11,6 +11,8 @@
 //    verbatim; POST frame-review refuses empty corrections, stale confirmations
 //    and unknown blocks; POST trajectory writes mission.md through the block
 //    writer with an etag; /atlas/state?client= hashes the client's atlas.
+//    R-8.13: POST draft-review = reviewDraft verbatim and writes nothing;
+//    patch-file records who wrote the text (`by=`) in one unforgeable line.
 // F3 runs the real autonomous loop: a declare-only run must be reported as
 //    awaiting-frame — never verified, promoted, or counted as a failure. (With
 //    that parse removed, the loop promoted a block wip → review after a run
@@ -29,6 +31,7 @@ import {
   UNDERSTANDING_SECTIONS, blockMeaningSummary, recordFrameReview, frameGate,
 } from '../scripts/block_meaning.mjs';
 import { startRunAsync } from '../scripts/atlas_runs_api.mjs';
+import { reviewDraft } from '../scripts/contract_draft_review.mjs';
 
 process.env.ATLAS_FORCE_MOCK_LLM = '1';
 
@@ -253,6 +256,48 @@ const MISSION_RU = [
     check('f2: a stale etag is refused as a conflict, not silently overwritten', conflict.ok === false && conflict.conflict === true, JSON.stringify(conflict));
     const tooLong = await post('/atlas/blocks/trajectory', { block_id: 'b.stale', text: 'x'.repeat(4001) });
     check('f2: an oversized trajectory is refused', tooLong.ok === false && /4000/.test(tooLong.error || ''));
+    const checksLog = () => fs.readFileSync(path.join(atlas, 'blocks', 'b.stale', 'checks.log'), 'utf8');
+    check('f2: the trajectory write is attributed to the operator in the audit line',
+      /\tdesign_patch\tpass\tatlas\/blocks\/b\.stale\/mission\.md by=manual trajectory\n/.test(checksLog()), checksLog().slice(-300));
+
+    // R-8.13 — a contract draft is reviewed before it is written: the route
+    // returns the library's answer verbatim and writes nothing.
+    const accPath = path.join(atlas, 'blocks', 'b.stale', 'acceptance.md');
+    const acc0 = '# b.stale — acceptance\n\n- [ ] **A1.** Отчёт строится < 2 с.\n- [ ] **A2.** CSV открывается в Excel.\n';
+    fs.writeFileSync(accPath, acc0);
+    const draft = '# b.stale — acceptance\n\n- [ ] **A1.** Отчёт строится < 5 с.\n';
+    const logBefore = checksLog();
+    const rv = await post('/atlas/blocks/draft-review', { block_id: 'b.stale', file: 'acceptance.md', draft, mode: 'rewrite' });
+    const { ok: _rvOk, status: _rvStatus, ...rvBody } = rv;
+    const lib = reviewDraft({ file: 'acceptance.md', current: acc0, draft, mode: 'rewrite',
+      mission: fs.readFileSync(path.join(atlas, 'blocks', 'b.stale', 'mission.md'), 'utf8'), project: '' });
+    check('f2: draft-review returns the library\'s review verbatim — no second parser', rv.ok === true && JSON.stringify(rvBody) === JSON.stringify(lib), JSON.stringify(rv).slice(0, 300));
+    check('f2: …naming the removal and the changed threshold', rv.risks?.some((x) => x.kind === 'removed' && x.key === 'A2') && rv.risks?.some((x) => x.kind === 'numbers' && x.key === 'A1'), JSON.stringify(rv.risks));
+    check('f2: …and writing nothing', fs.readFileSync(accPath, 'utf8') === acc0 && checksLog() === logBefore);
+    const badFile = await post('/atlas/blocks/draft-review', { block_id: 'b.stale', file: '../graph.json', draft });
+    check('f2: draft-review refuses a file outside the block', badFile.status === 400 && badFile.error === 'invalid file', JSON.stringify(badFile));
+    const nfDraft = await post('/atlas/blocks/draft-review', { block_id: 'b.nope', file: 'acceptance.md', draft });
+    check('f2: draft-review on an unknown block → 404', nfDraft.status === 404, JSON.stringify(nfDraft));
+    const badClientDraft = await post('/atlas/blocks/draft-review', { block_id: 'b.stale', file: 'acceptance.md', draft, _client: '..' });
+    check('f2: draft-review refuses a traversal client', badClientDraft.status === 400, JSON.stringify(badClientDraft));
+
+    // …and the save says who wrote the text, in one safe line.
+    const saved = await post('/atlas/blocks/patch-file', { block_id: 'b.stale', file: 'acceptance.md', content: draft, source: 'sima-rewrite provider=mock model=mock edited' });
+    check('f2: patch-file records the source of the text', saved.ok === true && checksLog().endsWith('\tdesign_patch\tpass\tatlas/blocks/b.stale/acceptance.md by=sima-rewrite provider=mock model=mock edited\n'), checksLog().slice(-200));
+    await post('/atlas/blocks/patch-file', { block_id: 'b.stale', file: 'acceptance.md', content: draft, source: 'x\tfail\tforged\n2026-01-01T00:00:00Z\tacceptance\tpass' });
+    const lastLines = checksLog().trimEnd().split('\n');
+    check('f2: a source cannot forge a column or a line', lastLines[lastLines.length - 1].split('\t').length === 4 && !/\tacceptance\tpass/.test(checksLog()), lastLines.slice(-2).join(' | '));
+    // A traversal client used to be scaffolded (graph.json, project.md, …)
+    // by every POST before any route could refuse it — into the repo root.
+    const probe = `.sima-traversal-probe-${process.pid}`;
+    try {
+      const badClientPatch = await post('/atlas/blocks/patch-file', { block_id: 'b.stale', file: 'acceptance.md', content: draft, _client: `../../${probe}` });
+      check('f2: patch-file refuses a traversal client', badClientPatch.status === 400, JSON.stringify(badClientPatch));
+      const badCreate = await post('/atlas/blocks/create', { id: 'b.x', title: 'x', _client: `../../${probe}` });
+      check('f2: …and no POST scaffolds a client outside atlas/clients/', badCreate.status === 400 && !fs.existsSync(path.join(ROOT, probe)), JSON.stringify(badCreate));
+    } finally {
+      fs.rmSync(path.join(ROOT, probe), { recursive: true, force: true });
+    }
 
     // R-8.10 — the live-refresh hash follows the client the canvas shows.
     const client = `selftest-state-${process.pid}`;
@@ -269,6 +314,18 @@ const MISSION_RU = [
       check('f2: …and not the root hash', (await get('/atlas/state')).hash === rootH1);
       const badC = await get('/atlas/state?client=..');
       check('f2: /atlas/state refuses a traversal client', badC.ok === false);
+
+      // R-8.13 — the activity log is the client's own: a client's canvas used
+      // to write its «saved» lines into this repository's atlas.
+      const rootLog = path.join(atlas, 'activity_log.jsonl');
+      const rootLogBefore = fs.existsSync(rootLog) ? fs.readFileSync(rootLog, 'utf8') : null;
+      const ap = await post('/atlas/activity-log/append', { agent: 'SIMA Core', kind: 'ok', msg: `client line ${process.pid}`, _client: client });
+      const clientLog = path.join(cdir, 'activity_log.jsonl');
+      check('f2: activity-log append lands in the client atlas', ap.ok === true && fs.existsSync(clientLog) && fs.readFileSync(clientLog, 'utf8').includes(`client line ${process.pid}`), JSON.stringify(ap));
+      check('f2: …not in the root one', (fs.existsSync(rootLog) ? fs.readFileSync(rootLog, 'utf8') : null) === rootLogBefore);
+      const tail = await get(`/atlas/activity-log/tail?limit=5&client=${client}`);
+      check('f2: the client\'s tail reads the client\'s log', tail.ok === true && tail.entries.some((e) => e.msg === `client line ${process.pid}`), JSON.stringify(tail).slice(0, 200));
+      check('f2: tail refuses a traversal client', (await get('/atlas/activity-log/tail?client=..')).ok === false);
     } finally {
       fs.rmSync(cdir, { recursive: true, force: true });
     }

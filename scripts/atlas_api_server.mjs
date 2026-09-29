@@ -13,6 +13,7 @@ import * as subsApi from './atlas_subsystems_api.mjs';
 import * as filesApi from './atlas_files_api.mjs';
 import { aggregateTokenEconomics } from './token_economics.mjs';
 import { blockMeaningSummary, recordFrameReview, setTrajectory } from './block_meaning.mjs';
+import { reviewDraft } from './contract_draft_review.mjs';
 import { describeProvider } from './llm_gateway.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -209,7 +210,11 @@ const server = http.createServer((req, res) => {
     try {
       const u = new URL(req.url, `http://localhost:${port}`);
       const limit = Math.max(1, Math.min(500, Number(u.searchParams.get('limit') || 100)));
-      const p = path.join(ATLAS, 'activity_log.jsonl');
+      // R-8.13 — per client: a client's canvas used to read (and write) the
+      // root atlas's log, mixing its activity into this repository's.
+      const c = u.searchParams.get('client') || '';
+      if (c && !/^[a-zA-Z0-9_-][a-zA-Z0-9._-]*$/.test(c)) return json(res, 400, { ok: false, error: 'invalid client' });
+      const p = path.join(c ? path.join(ROOT, 'atlas', 'clients', c) : ATLAS, 'activity_log.jsonl');
       if (!fs.existsSync(p)) return json(res, 200, { ok: true, entries: [] });
       const lines = fs.readFileSync(p, 'utf8').split(/\n/).filter(Boolean);
       const entries = lines.slice(-limit).map((ln) => { try { return JSON.parse(ln); } catch { return null; } }).filter(Boolean);
@@ -683,6 +688,16 @@ const server = http.createServer((req, res) => {
   req.on('end', async () => {
     let body = {};
     try { body = raw ? JSON.parse(raw) : {}; } catch { return json(res, 400, { ok: false, error: 'invalid json' }); }
+    // R-8.13 — one check for every POST: a client id is a directory name
+    // under atlas/clients/. «../..» used to reach the client auto-scaffold
+    // below and write graph.json / project.md / rules.md / tech_stack.md into
+    // the repository root, before any route could refuse it (found by the
+    // draft-review selftest).
+    for (const k of ['_client', 'client_id']) {
+      if (body[k] != null && body[k] !== '' && !/^[a-zA-Z0-9_-][a-zA-Z0-9._-]*$/.test(String(body[k]))) {
+        return json(res, 400, { ok: false, error: 'invalid client' });
+      }
+    }
     try {
       // R-7.99 (b.core-sync T8) — unify the UI's check log with the
       // filesystem one. atlas_sync.js used to write block.checks to
@@ -1076,9 +1091,9 @@ const server = http.createServer((req, res) => {
             ids[b.id_suffix] = id;
             try {
               blocksApi.createBlock({ body: { id, title: b.title, layer: b.layer || tpl.default_layer || 'logic', x: cx, y: cy } });
-              if (b.mission)         blocksApi.patchBlockFile({ block_id: id, file: 'mission.md',    content: `# ${id} — mission\n\n${b.mission}\n` });
-              if (b.kpi?.length)     blocksApi.patchBlockFile({ block_id: id, file: 'kpi.md',        content: `# ${id} — KPI\n\n${b.kpi.map((k) => `- ${k}`).join('\n')}\n` });
-              if (b.acceptance?.length) blocksApi.patchBlockFile({ block_id: id, file: 'acceptance.md', content: `# ${id} — acceptance\n\n${b.acceptance.map((a, i) => `- [ ] **A${i+1}.** ${a}`).join('\n')}\n` });
+              if (b.mission)         blocksApi.patchBlockFile({ block_id: id, file: 'mission.md',    content: `# ${id} — mission\n\n${b.mission}\n`, source: `template ${tid}` });
+              if (b.kpi?.length)     blocksApi.patchBlockFile({ block_id: id, file: 'kpi.md',        content: `# ${id} — KPI\n\n${b.kpi.map((k) => `- ${k}`).join('\n')}\n`, source: `template ${tid}` });
+              if (b.acceptance?.length) blocksApi.patchBlockFile({ block_id: id, file: 'acceptance.md', content: `# ${id} — acceptance\n\n${b.acceptance.map((a, i) => `- [ ] **A${i+1}.** ${a}`).join('\n')}\n`, source: `template ${tid}` });
               created.push(id);
             } catch (e) {
               if (/already exists/.test(String(e.message || e))) skipped.push(id);
@@ -1164,7 +1179,7 @@ const server = http.createServer((req, res) => {
             kind: body.kind || 'note',
             msg: String(body.msg || '').slice(0, 1000),
           };
-          const p = path.join(ATLAS, 'activity_log.jsonl');
+          const p = path.join(clientRoot || ATLAS, 'activity_log.jsonl'); // R-8.13: per client
           fs.appendFileSync(p, JSON.stringify(entry) + '\n', 'utf8');
           // Cap at ~5000 lines to keep file manageable; rotate when bigger.
           const stat = fs.statSync(p);
@@ -1275,11 +1290,42 @@ const server = http.createServer((req, res) => {
             atlas_root: root, block_id: blockId, file: 'mission.md',
             content: setTrajectory(current, text),
             if_match_mtime: body.if_match_mtime || undefined,
+            source: 'manual trajectory',
           });
         } catch (e) {
           return json(res, 200, { ok: false, error: String(e.message || e), conflict: e && e.name === 'EtagMismatchError' });
         }
         return json(res, 200, { ok: true, ...blockMeaningSummary(blockId, root) });
+      }
+      // R-8.13 (b.clarify) — what a draft of a contract file would change,
+      // BEFORE it is written: delta by units of meaning and the risky parts
+      // (a requirement removed, a threshold changed, facts added by
+      // «rewrite», a draft about another product). Read-only; the save stays
+      // the operator's, through /atlas/blocks/patch-file.
+      if (req.url === '/atlas/blocks/draft-review') {
+        const SAFE_ID = /^[a-zA-Z0-9_-][a-zA-Z0-9._-]*$/;
+        const blockId = String(body.block_id || '');
+        const clientArg = String(body.client_id || body._client || '');
+        const file = String(body.file || '');
+        if (!SAFE_ID.test(blockId)) return json(res, 400, { ok: false, error: 'invalid block_id' });
+        if (clientArg && !SAFE_ID.test(clientArg)) return json(res, 400, { ok: false, error: 'invalid client' });
+        if (!/^[a-z][a-z_]*\.md$/.test(file)) return json(res, 400, { ok: false, error: 'invalid file' });
+        const root = clientArg ? path.join(ROOT, 'atlas', 'clients', clientArg) : ATLAS;
+        const dir = path.join(root, 'blocks', blockId);
+        if (!fs.existsSync(dir)) return json(res, 404, { ok: false, error: 'not_found' });
+        const draft = String(body.draft || '');
+        if (draft.length > 100_000) return json(res, 200, { ok: false, error: 'draft too large' });
+        const read = (p) => { try { return fs.readFileSync(p, 'utf8'); } catch { return ''; } };
+        const mode = ['fill', 'rewrite', 'expand', 'manual'].includes(body.mode) ? body.mode : 'manual';
+        return json(res, 200, {
+          ok: true,
+          ...reviewDraft({
+            file, draft, mode,
+            current: read(path.join(dir, file)),
+            mission: file === 'mission.md' ? '' : read(path.join(dir, 'mission.md')),
+            project: read(path.join(root, 'project.md')),
+          }),
+        });
       }
       // /llm/advice — bridge to b.llm-gateway. Returns ok:true with
       // advice text on success, ok:false with mock fallback if no
@@ -1635,6 +1681,7 @@ const server = http.createServer((req, res) => {
           file: String(body.file || ''),
           content: String(body.content || ''),
           if_match_mtime: body.if_match_mtime || undefined,
+          source: body.source ? String(body.source) : undefined, // R-8.13
         }));
       }
 

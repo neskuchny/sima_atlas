@@ -77,6 +77,15 @@ try {
   {
     const log = fs.readFileSync(path.join(atlas, 'blocks', 'b.synth-x', 'checks.log'), 'utf8');
     check('group4:audit line present', /design_patch\s+pass/.test(log));
+    // R-8.13 — who wrote the text rides on the same line, reduced to a safe
+    // charset: it can neither add a column nor start a forged line.
+    patchBlockFile({ atlas_root: atlas, block_id: 'b.synth-x', file: 'kpi.md', content: '# k\n', source: 'sima-fill provider=mock' });
+    patchBlockFile({ atlas_root: atlas, block_id: 'b.synth-x', file: 'kpi.md', content: '# k2\n', source: 'x\tfail\n2026-01-01T00:00:00Z\tacceptance\tpass' });
+    patchBlockFile({ atlas_root: atlas, block_id: 'b.synth-x', file: 'kpi.md', content: '# k3\n' });
+    const lines = fs.readFileSync(path.join(atlas, 'blocks', 'b.synth-x', 'checks.log'), 'utf8').trimEnd().split('\n').slice(-3);
+    check('group4:source recorded as by=', lines[0].endsWith('\tatlas/blocks/b.synth-x/kpi.md by=sima-fill provider=mock'), lines[0]);
+    check('group4:forged source stays one line, four columns', lines[1].split('\t').length === 4 && !lines.some((l) => /\tacceptance\t/.test(l)), lines[1]);
+    check('group4:no source → no by=', lines[2].endsWith('\tatlas/blocks/b.synth-x/kpi.md'), lines[2]);
   }
 
   // ─── Group 5: deleteBlock soft-archives

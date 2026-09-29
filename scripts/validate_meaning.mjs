@@ -36,6 +36,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { blockMeaningSummary } from './block_meaning.mjs';
+import { draftWriteStats } from './contract_draft_review.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT = path.resolve(path.dirname(__filename), '..');
@@ -77,10 +78,18 @@ const warned = rows.filter((r) => r.warnings.length);
 const awaiting = rows.filter((r) => r.frame_gate === 'awaiting');
 const corrections = rows.reduce((n, r) => n + (r.corrections || 0), 0);
 const confirmations = rows.reduce((n, r) => n + (r.confirmations || 0), 0);
+// R-8.13 — KPI-9 source: who wrote the contract text (audit lines `by=`).
+const writes = { manual: 0, model: 0, model_edited: 0, other: 0, unattributed: 0 };
+for (const r of rows) {
+  const p = path.join(ATLAS, 'blocks', r.block_id, 'checks.log');
+  if (!fs.existsSync(p)) continue;
+  const w = draftWriteStats(fs.readFileSync(p, 'utf8'));
+  for (const k of Object.keys(writes)) writes[k] += w[k];
+}
 
 if (asJson) {
   console.log(JSON.stringify({ ok: true, gate: false, blocks: rows.length, with_trajectory: withTrajectory, declared,
-    awaiting_operator: awaiting.map((r) => r.block_id), confirmations, corrections, rows }, null, 2));
+    awaiting_operator: awaiting.map((r) => r.block_id), confirmations, corrections, contract_writes: writes, rows }, null, 2));
   process.exit(0);
 }
 
@@ -93,5 +102,7 @@ for (const r of rows.filter((x) => x.trajectory || x.understanding !== 'absent')
 }
 for (const r of warned) for (const w of r.warnings) console.warn(` ⚠ ${r.block_id}: ${w}`);
 if (awaiting.length) console.log(` ⏸ waiting for your answer on the canvas: ${awaiting.map((r) => r.block_id).join(', ')}`);
+// KPI-9 source: model drafts the operator changed before writing them.
+console.log(` ✎ contract writes: ${writes.manual} by the operator, ${writes.model} model drafts (${writes.model_edited} edited before writing), ${writes.other} other, ${writes.unattributed} unattributed (written before R-8.13)`);
 // KPI-7/8 source: every «right» and «wrong» the operator gave, across blocks.
 console.log(`validate_meaning: ${rows.length} blocks — ${withTrajectory} with a declared trajectory, ${declared} with a declared understanding, ${awaiting.length} awaiting the operator, frame answers: ${confirmations} confirmed / ${corrections} corrected, ${warned.length} with warnings (report only, not a gate)`);

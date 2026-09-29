@@ -8,3 +8,4 @@
 - frame_review_gate
 - contract_delta
 - contract_quality_lint
+- contract_draft_review

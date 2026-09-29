@@ -133,3 +133,18 @@ the synthesis helpers, chat → block proposals and its chat sources, the
 post-run pipeline (distill / reflect / summarize / memory cleanup / drift
 scan), architecture decisions, and the block screenshot helpers its HTTP
 facade imports (under b.ui-control they would have made a cycle).
+
+## R-8.13 — draft review route; a traversal hole closed
+
+`POST /atlas/blocks/draft-review` returns b.clarify's `reviewDraft` verbatim
+for a contract draft (current file, the block's mission and project.md as the
+topic reference) and writes nothing. `patch-file` passes the text's source
+through to the audit line (`by=`); the trajectory route and schema templates
+say who they are.
+
+The route's own test found an older hole: every POST ran the client
+auto-scaffold before any route could refuse, so `_client: "../.."` wrote
+graph.json, project.md, rules.md and tech_stack.md into the repository root
+(and a create would put a block there). Client ids are now checked once, right
+after the body is parsed, for every POST. The activity log is per client too:
+a client's canvas used to read and append to this repository's log.

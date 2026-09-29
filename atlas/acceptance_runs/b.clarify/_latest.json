@@ -40,17 +40,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/clarify_block.selftest.mjs → exit 0 (291ms); first line: \"clarify_block.selftest: OK (10 groups, all assertions green)\"",
+      "evidence": "node tests/clarify_block.selftest.mjs → exit 0 (422ms); first line: \"clarify_block.selftest: OK (10 groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/clarify_block.selftest.mjs",
         "exit_code": 0,
         "stdout": "clarify_block.selftest: OK (10 groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 291,
+        "duration_ms": 422,
         "timed_out": false
       },
-      "duration_ms": 291
+      "duration_ms": 422
     },
     {
       "id": "A3",
@@ -63,17 +63,17 @@
         "cmd": "ATLAS_FORCE_MOCK_LLM=1 node scripts/clarify_block.mjs b.desktop --json | grep -q '\"verdict\": \"inconclusive\"'"
       },
       "verdict": "pass",
-      "evidence": "ATLAS_FORCE_MOCK_LLM=1 node scripts/clarify_block.mjs b.desktop --json | grep -q '\"verdict\": \"inconclusive\"' → exit 0 (67ms); first line: \"\"",
+      "evidence": "ATLAS_FORCE_MOCK_LLM=1 node scripts/clarify_block.mjs b.desktop --json | grep -q '\"verdict\": \"inconclusive\"' → exit 0 (99ms); first line: \"\"",
       "reasoning": "shell exit code 0",
       "raw": {
         "cmd": "ATLAS_FORCE_MOCK_LLM=1 node scripts/clarify_block.mjs b.desktop --json | grep -q '\"verdict\": \"inconclusive\"'",
         "exit_code": 0,
         "stdout": "",
         "stderr": "",
-        "duration_ms": 67,
+        "duration_ms": 99,
         "timed_out": false
       },
-      "duration_ms": 67
+      "duration_ms": 99
     },
     {
       "id": "A4",
@@ -98,7 +98,7 @@
           "export async function clarifyBlock({ block_id, atlas_root = ATLAS } = {}) {"
         ]
       },
-      "duration_ms": 0
+      "duration_ms": 1
     },
     {
       "id": "A5",
@@ -123,7 +123,7 @@
           "  ['clarifications', 'node scripts/validate_clarifications.mjs'],"
         ]
       },
-      "duration_ms": 1
+      "duration_ms": 0
     },
     {
       "id": "A6",
@@ -137,17 +137,17 @@
         "expect_in_stdout": "open marker"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_clarifications.mjs → exit 0 (85ms); first line: \"validate_clarifications: 0 open marker(s), 0 question(s) answered on record — OK\"",
+      "evidence": "node scripts/validate_clarifications.mjs → exit 0 (90ms); first line: \"validate_clarifications: 0 open marker(s), 0 question(s) answered on record — OK\"",
       "reasoning": "shell exit code 0 and stdout matches /open marker/",
       "raw": {
         "cmd": "node scripts/validate_clarifications.mjs",
         "exit_code": 0,
         "stdout": "validate_clarifications: 0 open marker(s), 0 question(s) answered on record — OK\n",
         "stderr": "",
-        "duration_ms": 85,
+        "duration_ms": 90,
         "timed_out": false
       },
-      "duration_ms": 85
+      "duration_ms": 90
     },
     {
       "id": "A7",
@@ -186,17 +186,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/block_meaning.selftest.mjs → exit 0 (189ms); first line: \"block_meaning.selftest: OK (13 groups, all assertions green)\"",
+      "evidence": "node tests/block_meaning.selftest.mjs → exit 0 (257ms); first line: \"block_meaning.selftest: OK (13 groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/block_meaning.selftest.mjs",
         "exit_code": 0,
         "stdout": "block_meaning.selftest: OK (13 groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 189,
+        "duration_ms": 257,
         "timed_out": false
       },
-      "duration_ms": 189
+      "duration_ms": 257
     },
     {
       "id": "A9",
@@ -221,7 +221,7 @@
           "    ...declarePhasePromptLines(blockDirRelForPrompt, {"
         ]
       },
-      "duration_ms": 1
+      "duration_ms": 0
     },
     {
       "id": "A10",
@@ -235,17 +235,17 @@
         "expect_in_stdout": "not a gate"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_meaning.mjs → exit 0 (107ms); first line: \" · b.acceptance-verifier-loop (review) — understanding: complete, frame: awaiting\"",
+      "evidence": "node scripts/validate_meaning.mjs → exit 0 (154ms); first line: \" · b.acceptance-verifier-loop (review) — understanding: complete, frame: awaiting\"",
       "reasoning": "shell exit code 0 and stdout matches /not a gate/",
       "raw": {
         "cmd": "node scripts/validate_meaning.mjs",
         "exit_code": 0,
-        "stdout": " · b.acceptance-verifier-loop (review) — understanding: complete, frame: awaiting\n     treating as: Кэш сборки с консервативным ключом, как у инкрементальных систем сборки: результат проверки блока переиспользуется, только если не изменилось ничего, от чего он\n · b.clarify (review) — trajectory, understanding: complete, frame: awaiting\n     treating as: Две вещи, которые показывают человеку смысл контракта, а не его файлы: «что изменилось в требованиях с момента, когда вы сказали „верно“» — как просмотр изменен\n ⏸ waiting for your answer on the canvas: b.acceptance-verifier-loop, b.clarify\nvalidate_meaning: 19 blocks — 1 with a declared trajectory, 2 with a declared understanding, 2 awaiting the operator, frame answers: 0 confirmed / 0 corrected, 0 with warnings (report only, not a gate)\n",
+        "stdout": " · b.acceptance-verifier-loop (review) — understanding: complete, frame: awaiting\n     treating as: Кэш сборки с консервативным ключом, как у инкрементальных систем сборки: результат проверки блока переиспользуется, только если не изменилось ничего, от чего он\n · b.clarify (review) — trajectory, understanding: complete, frame: awaiting\n     treating as: Предпросмотр изменения перед записью, как `terraform plan` перед `apply`: когда модель предлагает текст контрактного файла, человек сначала видит, что именно из\n ⏸ waiting for your answer on the canvas: b.acceptance-verifier-loop, b.clarify\n ✎ contract writes: 0 by the operator, 0 model drafts (0 edited before writing), 0 other, 36 unattributed (written before R-8.13)\nvalidate_meaning: 19 blocks — 1 with a declared trajectory, 2 with a declared understanding, 2 awaiting the operator, frame answers: 0 confirmed / 0 corrected, 0 with warnings (report only, not a gate)\n",
         "stderr": "",
-        "duration_ms": 107,
+        "duration_ms": 154,
         "timed_out": false
       },
-      "duration_ms": 107
+      "duration_ms": 154
     },
     {
       "id": "A11",
@@ -270,7 +270,7 @@
           "  ['meaning_report', 'node scripts/validate_meaning.mjs'],"
         ]
       },
-      "duration_ms": 0
+      "duration_ms": 1
     },
     {
       "id": "A12",
@@ -308,17 +308,17 @@
         "cmd": "! grep -q recordFrameReview scripts/mcp_atlas_server.mjs"
       },
       "verdict": "pass",
-      "evidence": "! grep -q recordFrameReview scripts/mcp_atlas_server.mjs → exit 0 (5ms); first line: \"\"",
+      "evidence": "! grep -q recordFrameReview scripts/mcp_atlas_server.mjs → exit 0 (6ms); first line: \"\"",
       "reasoning": "shell exit code 0",
       "raw": {
         "cmd": "! grep -q recordFrameReview scripts/mcp_atlas_server.mjs",
         "exit_code": 0,
         "stdout": "",
         "stderr": "",
-        "duration_ms": 5,
+        "duration_ms": 6,
         "timed_out": false
       },
-      "duration_ms": 5
+      "duration_ms": 6
     },
     {
       "id": "A14",
@@ -332,31 +332,79 @@
         "expect_in_stdout": "not a gate"
       },
       "verdict": "pass",
-      "evidence": "node scripts/contract_lint.mjs → exit 0 (83ms); first line: \" · b.ui-control (wip) — 7 to fix\"",
+      "evidence": "node scripts/contract_lint.mjs → exit 0 (134ms); first line: \" · b.ui-control (wip) — 7 to fix\"",
       "reasoning": "shell exit code 0 and stdout matches /not a gate/",
       "raw": {
         "cmd": "node scripts/contract_lint.mjs",
         "exit_code": 0,
         "stdout": " · b.ui-control (wip) — 7 to fix\n     kpi.md KPI-1: its own text says it is not met (✗) — fix the KPI or update the note\n     kpi.md KPI-2: its own text says it is not met (✗) — fix the KPI or update the note\n     kpi.md KPI-1: acceptance.md never mentions it and no kpi line names it\n     kpi.md KPI-2: acceptance.md never mentions it and no kpi line names it\n     kpi.md KPI-3: acceptance.md never mentions it and no kpi line names it\n     kpi.md KPI-4: acceptance.md never mentions it and no kpi line names it\n     kpi.md KPI-5: acceptance.md never mentions it and no kpi line names it\n · b.core-sync (done) — 2 to fix\n     kpi.md KPI-3: its own text says it is not met (✗) — fix the KPI or update the note\n     checks.log 1 kpi line(s) record a result but none names a KPI — which of KPI-1, KPI-2, KPI-3, KPI-4, KPI-5 were measured is not on record\n · b.db (idea) — 8 to fix\n     kpi.md KPI-1: its own text says it is not met (✗) — fix the KPI or update the note\n     kpi.md KPI-3: its own text says it is not met (✗) — fix the KPI or update the note\n     kpi.md KPI-5: its own text says it is not met (✗) — fix the KPI or update the note\n     kpi.md KPI-1: acceptance.md never mentions it and no kpi line names it\n     kpi.md KPI-2: acceptance.md never mentions it and no kpi line names it\n     kpi.md KPI-3: acceptance.md never mentions it and no kpi line names it\n     kpi.md KPI-4: acceptance.md never mentions it and no kpi line names it\n     kpi.md KPI-5: acceptance.md never mentions it and no kpi line names it\n · b.agent-orchestrator (review) — 5 to fix\n     kpi.md KPI-1: its own text says it is not met (✗) — fix the KPI or update the note\n     kpi.md KPI-2: its own text says it is not met (✗) — fix the KPI or update the note\n     kpi.md KPI-3: its own text says it is not met (✗) — fix the KPI or update the note\n     kpi.md KPI-2: acceptance.md never mentions it and no kpi line names it\n     kpi.md KPI-4: acceptance.md never mentions it and no kpi line names it\n · b.docs (done) — 5 to fix\n     kpi.md KPI-1: its own text says it is not met (✗) — fix the KPI or update the note\n     kpi.md KPI-2: its own text says it is not met (✗) — fix the KPI or update the note\n     kpi.md KPI-3: its own text says it is not met (✗) — fix the KPI or update the note\n     kpi.md KPI-4: its own text says it is not met (✗) — fix the KPI or update the note\n     checks.log 1 kpi line(s) record a result but none names a KPI — which of KPI-1, KPI-2, KPI-3, KPI-4, KPI-5 were measured is not on record\n · b.llm-gateway (review) — 5 to fix\n     kpi.md KPI-1: its own text says it is not met (✗) — fix the KPI or update the note\n     kpi.md KPI-2: its own text says it is not met (✗) — fix the KPI or update the note\n     kpi.md KPI-3: its own text says it is not met (✗) — fix the KPI or update the note\n     kpi.md KPI-5: its own text says it is not met (✗) — fix the KPI or update the note\n     acceptance.md A3: «понятную» with no measure — the judge has to guess what counts\n · b.acceptance-verifier-loop (review) — 2 to fix\n     kpi.md KPI-5: its own text says it is not met (✗) — fix the KPI or update the note\n     kpi.md KPI-7: its own text says it is not met (✗) — fix the KPI or update the note\n · b.user-docs-generator (wip) — 1 to fix\n     kpi.md KPI-1: its own text says it is not met (✗) — fix the KPI or update the note\n · b.code-graph (idea) — 8 to fix\n     kpi.md KPI-3: «корректно» with no measure next to it\n     kpi.md KPI-1: acceptance.md never mentions it and no kpi line names it\n     kpi.md KPI-2: acceptance.md never mentions it and no kpi line names it\n     kpi.md KPI-3: acceptance.md never mentions it and no kpi line names it\n     kpi.md KPI-4: acceptance.md never mentions it and no kpi line names it\n     kpi.md KPI-5: acceptance.md never mentions it and no kpi line names it\n     kpi.md KPI-6: acceptance.md never mentions it and no kpi line names it\n     kpi.md KPI-7: acceptance.md never mentions it and no kpi line names it\n · b.desktop (done) — 5 to fix\n     kpi.md KPI-1: acceptance.md never mentions it and no kpi line names it\n     kpi.md KPI-2: acceptan… [truncated]",
         "stderr": "",
-        "duration_ms": 83,
+        "duration_ms": 134,
         "timed_out": false
       },
-      "duration_ms": 83
+      "duration_ms": 134
+    },
+    {
+      "id": "A15",
+      "label": null,
+      "text": "Черновик контрактного файла разбирается до записи: удалённое требование, изменившийся порог, требование, добавленное «переписыванием», и черновик не про этот продукт названы; при недостатке текста для сравнения тревоги нет; подсчёт авторов записи для KPI-9 верен.",
+      "checked": true,
+      "line": 126,
+      "evidence_kind": "exit_code",
+      "evidence_spec": {
+        "cmd": "node tests/contract_draft_review.selftest.mjs",
+        "expect_in_stdout": "OK [(]7 groups[)]"
+      },
+      "verdict": "pass",
+      "evidence": "node tests/contract_draft_review.selftest.mjs → exit 0 (105ms); first line: \"contract_draft_review.selftest: OK (7 groups)\"",
+      "reasoning": "shell exit code 0 and stdout matches /OK [(]7 groups[)]/",
+      "raw": {
+        "cmd": "node tests/contract_draft_review.selftest.mjs",
+        "exit_code": 0,
+        "stdout": "contract_draft_review.selftest: OK (7 groups)\n",
+        "stderr": "",
+        "duration_ms": 105,
+        "timed_out": false
+      },
+      "duration_ms": 105
+    },
+    {
+      "id": "A16",
+      "label": null,
+      "text": "Источники KPI-7, KPI-8 и KPI-9 печатаются каждую ночь: `validate_meaning` выводит авторов записей контракта (оператор / черновики модели / из них правленные до записи) и ответы оператора на рамки (подтверждено / поправлено).",
+      "checked": true,
+      "line": 134,
+      "evidence_kind": "exit_code",
+      "evidence_spec": {
+        "cmd": "node scripts/validate_meaning.mjs",
+        "expect_in_stdout": "contract writes: [0-9]+ by the operator, [0-9]+ model drafts [(][0-9]+ edited before writing[)][^]*frame answers: [0-9]+ confirmed / [0-9]+ corrected"
+      },
+      "verdict": "pass",
+      "evidence": "node scripts/validate_meaning.mjs → exit 0 (149ms); first line: \" · b.acceptance-verifier-loop (review) — understanding: complete, frame: awaiting\"",
+      "reasoning": "shell exit code 0 and stdout matches /contract writes: [0-9]+ by the operator, [0-9]+ model drafts [(][0-9]+ edited before writing[)][^]*frame answers: [0-9]+ confirmed / [0-9]+ corrected/",
+      "raw": {
+        "cmd": "node scripts/validate_meaning.mjs",
+        "exit_code": 0,
+        "stdout": " · b.acceptance-verifier-loop (review) — understanding: complete, frame: awaiting\n     treating as: Кэш сборки с консервативным ключом, как у инкрементальных систем сборки: результат проверки блока переиспользуется, только если не изменилось ничего, от чего он\n · b.clarify (review) — trajectory, understanding: complete, frame: awaiting\n     treating as: Предпросмотр изменения перед записью, как `terraform plan` перед `apply`: когда модель предлагает текст контрактного файла, человек сначала видит, что именно из\n ⏸ waiting for your answer on the canvas: b.acceptance-verifier-loop, b.clarify\n ✎ contract writes: 0 by the operator, 0 model drafts (0 edited before writing), 0 other, 36 unattributed (written before R-8.13)\nvalidate_meaning: 19 blocks — 1 with a declared trajectory, 2 with a declared understanding, 2 awaiting the operator, frame answers: 0 confirmed / 0 corrected, 0 with warnings (report only, not a gate)\n",
+        "stderr": "",
+        "duration_ms": 149,
+        "timed_out": false
+      },
+      "duration_ms": 149
     }
   ],
   "counts": {
-    "pass": 14,
+    "pass": 16,
     "fail": 0,
     "skipped": 0
   },
   "verdict": "pass",
   "inconclusive_if_declared": 1,
-  "duration_ms": 833,
-  "checked_at": "2026-09-22T20:56:40.568Z",
+  "duration_ms": 1424,
+  "checked_at": "2026-09-29T04:53:38.892Z",
   "cache": {
     "hit": false,
-    "reason": "code changed (a commit, or a changed / new file outside atlas/); a contract, graph.json or project rules changed; another block's verdict or kpi result changed; a file this block's assertions read changed",
-    "lookup_ms": 28.492191
+    "reason": "cached pass expired (152 h old)",
+    "lookup_ms": 0.477955
   }
 }

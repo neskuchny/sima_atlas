@@ -1,6 +1,6 @@
 {
   "operator_id": "default",
-  "updated_at": "2026-09-22T20:56:14.130Z",
+  "updated_at": "2026-09-29T04:53:02.919Z",
   "_status": "live",
   "_min_data": {
     "done_transitions": 13,
@@ -11,11 +11,11 @@
   "work_style": {
     "total_done": 13,
     "total_broken": 0,
-    "total_wip_started": 15,
+    "total_wip_started": 16,
     "rollback_rate": 0,
     "median_time_idea_to_done_h": 0.00003138888888888889,
     "common_failure_modes": {
-      "acceptance_verifier": 35,
+      "acceptance_verifier": 36,
       "semantic_verify": 16,
       "cascade_check": 6,
       "kpi": 3,
@@ -334,23 +334,23 @@
       "avg_cost_usd": 0
     },
     "mock": {
-      "count": 5247,
-      "fallback_to_mock_count": 28,
+      "count": 5431,
+      "fallback_to_mock_count": 29,
       "total_cost_usd": 0,
-      "schema_ok_count": 5247,
+      "schema_ok_count": 5431,
       "fallback_rate": 0.01,
       "schema_ok_rate": 1,
       "avg_cost_usd": 0
     }
   },
   "proposals_stats": {
-    "total": 59,
+    "total": 61,
     "accept_rate": 0,
     "reject_rate": 0,
-    "pending": 59
+    "pending": 61
   },
   "decisions_stats": {
-    "total": 3706,
+    "total": 3714,
     "blocks_with_decisions": 10
   },
   "patterns_stats": {
@@ -507,6 +507,12 @@
       "ts": "2026-09-22T18:22:05.354Z",
       "kind": "acceptance_verifier",
       "note": "verdict=fail pass=12 fail=1 skipped=0 fails=[A9:grep /understandingPromptLines[(]blockDirRelForPrompt[)]/ sc]"
+    },
+    {
+      "block_id": "b.clarify",
+      "ts": "2026-09-29T04:51:39.469Z",
+      "kind": "acceptance_verifier",
+      "note": "verdict=fail pass=15 fail=1 skipped=0 fails=[A15:node tests/contract_draft_review.selftest.mjs → exit 0; expe]"
     },
     {
       "block_id": "b.core-sync",
@@ -753,7 +759,7 @@
   "_preview": {
     "total_done": 13,
     "total_invocations": 14,
-    "total_traces": 5254,
-    "total_proposals": 59
+    "total_traces": 5438,
+    "total_proposals": 61
   }
 }

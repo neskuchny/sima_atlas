@@ -1,6 +1,6 @@
 # Sima Atlas Wiki
 
-_Auto-generated: 2026-09-22T20:56:42.905Z_
+_Auto-generated: 2026-09-29T04:53:42.325Z_
 
 ## Граф продукта
 
@@ -232,6 +232,7 @@ evidence_spec:
 - b.agent-orchestrator: block_meaning_api
 - b.clarify: frame_review_gate
 - b.clarify: declared_understanding
+- b.clarify: contract_draft_review
 
 #### Files
 
@@ -792,6 +793,7 @@ evidence_spec:
 - b.clarify: trajectory_reader
 - b.clarify: declared_understanding
 - b.llm-gateway: llm_provider_description
+- b.clarify: contract_draft_review
 
 #### Files
 
@@ -6585,6 +6587,10 @@ _no summary_
 - 2026-09-22T20:56:38.497Z: smoke e2e distillate
 - 2026-09-22T20:56:42.537Z: smoke e2e queued insight
 - 2026-09-22T20:56:42.585Z: smoke e2e distillate
+- 2026-09-29T04:53:35.925Z: smoke e2e queued insight
+- 2026-09-29T04:53:35.986Z: smoke e2e distillate
+- 2026-09-29T04:53:41.740Z: smoke e2e queued insight
+- 2026-09-29T04:53:41.812Z: smoke e2e distillate
 
 #### Files
 
@@ -7155,6 +7161,13 @@ ai
   ответа.
   Ноль после месяца живых прогонов — повод не гордиться, а проверить, читает
   ли кто-нибудь эти файлы.
+- **KPI-9 (черновик модели расходится с замыслом)**: доля записанных
+  черновиков модели («✨ Заполнить», «✏ Переписать», «✨ Развернуть»), которые
+  оператор правил до записи. Источник с R-8.13 — строки аудита `by=sima-… edited`
+  в checks.log блоков (A15 проверяет подсчёт); `validate_meaning.mjs` печатает
+  сумму по атласу каждую ночь. Сейчас: 0 записей с автором — все 36 записей
+  сделаны до R-8.13. Высокая доля — не провал модели, а замер того, насколько
+  часто она понимает не так; падение доли со временем — цель.
 
 #### Acceptance
 
@@ -7283,6 +7296,22 @@ evidence_spec:
   expect_in_stdout: "not a gate"
 ```
 
+- [x] **A15.** Черновик контрактного файла разбирается до записи: удалённое требование, изменившийся порог, требование, добавленное «переписыванием», и черновик не про этот продукт названы; при недостатке текста для сравнения тревоги нет; подсчёт авторов записи для KPI-9 верен.
+```yaml
+evidence_kind: exit_code
+evidence_spec:
+  cmd: node tests/contract_draft_review.selftest.mjs
+  expect_in_stdout: "OK [(]7 groups[)]"
+```
+
+- [x] **A16.** Источники KPI-7, KPI-8 и KPI-9 печатаются каждую ночь: `validate_meaning` выводит авторов записей контракта (оператор / черновики модели / из них правленные до записи) и ответы оператора на рамки (подтверждено / поправлено).
+```yaml
+evidence_kind: exit_code
+evidence_spec:
+  cmd: node scripts/validate_meaning.mjs
+  expect_in_stdout: "contract writes: [0-9]+ by the operator, [0-9]+ model drafts [(][0-9]+ edited before writing[)][^]*frame answers: [0-9]+ confirmed / [0-9]+ corrected"
+```
+
 ## inconclusive_if
 
 - Нет живого LLM-провайдера — качество вопросов операторски не проверяемо в
@@ -7316,6 +7345,7 @@ evidence_spec:
 - frame_review_gate
 - contract_delta
 - contract_quality_lint
+- contract_draft_review
 
 #### Depends on
 
@@ -7362,11 +7392,14 @@ evidence_spec:
 - scripts/validate_clarifications.mjs [alive] (R-8.06: гейт — done-блок не может нести открытый маркер; review → warning; idea/wip → info, чтобы черновик оставался свободным)
 - scripts/block_meaning.mjs [alive] (R-8.08: направление «человек → модель». Экспортирует readTrajectory / trajectoryPromptLines — секция «Во что это вырастет» в mission.md и её подача агенту; understandingPromptLines / parseUnderstanding / readUnderstanding / understandingStaleness — объявление понимания агентом до кода; blockMeaningSummary — единый читатель для ночного отчёта и канваса (R-8.12: плюс delta и quality); R-8.09: frameGate / recordDeclared / recordFrameReview / contractFingerprint — шлюз «объявил → человек подтвердил → код», declarePhasePromptLines / implementPhasePromptLines / operatorLanguage — промпты двух фаз на языке миссии; R-8.10: setTrajectory — запись секции траектории, которую readTrajectory прочитает ровно так же)
 - scripts/contract_lint.mjs [alive] (R-8.12: детерминированная проверка формулировок — размытые слова без меры, KPI без проверки и замера, KPI с «✗» в своём тексте, KPI без номеров; отчёт, не гейт)
+- scripts/contract_draft_review.mjs [alive] (R-8.13: разбор черновика контрактного файла ДО записи — разница по единицам смысла и риски: удалённое требование, изменившееся число или порог, требование, добавленное «переписыванием», черновик не про этот продукт (доля общих основ слов с миссией и project.md). Экспортирует reviewDraft / stems / numbersOf; draftWriteStats — источник KPI-9 из строк аудита `by=`)
 - scripts/validate_meaning.mjs [alive] (R-8.08: отчёт, не гейт — траектория, наличие/полнота/устаревание understanding.md по блокам. Условия повышения до гейта и снятия — в шапке файла)
 
 ## Тесты
 - tests/clarify_block.selftest.mjs [alive] (R-8.06: 10 групп — порядок enum, честная деградация на mock, пустой контракт, отбраковка ярлыка, отбраковка вопроса без выбора, сортировка по impact, поиск маркеров, append-only лог, снятие маркера, срабатывание done-гейта)
 - tests/block_meaning.selftest.mjs [alive] (R-8.08/R-8.12: 13 групп — кириллические заголовки траектории, границы секции, пустой против отсутствующего, строки промпта, разбор understanding.md, устаревание по mtime, operative_frame на mock, один читатель для отчёта и библиотеки, шлюз как машина состояний, язык объявления и промпты двух фаз, запись траектории, снимки и разница контракта по единицам смысла, правила проверки формулировок. Сквозные проверки оркестратора — в tests/frame_gate_flow.selftest.mjs, у b.agent-orchestrator)
+
+- tests/contract_draft_review.selftest.mjs [alive] (R-8.13: 7 групп — «переписать» с удалением, порогом и новым требованием; числа без подписей A2/KPI-3; «не про тот продукт» только когда обе стороны достаточно длинные; отметки и хвостовые пробелы — не изменение; заполнение пустого файла и шаблона без рисков; сохранённый и потерянный раздел «## Layer»; подсчёт авторов записи. HTTP-маршрут и строка аудита — в tests/frame_gate_flow.selftest.mjs, F2)
 
 ## Контракт
 - atlas/blocks/b.clarify/mission.md [alive]

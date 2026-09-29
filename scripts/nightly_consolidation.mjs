@@ -78,6 +78,9 @@ const checks = [
   // R-8.12 (b.clarify) — can each contract be checked as written (Spec Kit's
   // checklist / analyze, deterministic). Report only; conditions in its header.
   ['contract_lint', 'node scripts/contract_lint.mjs'],
+  // R-8.13 (b.clarify) — a contract draft is reviewed before it is written
+  // (OpenSpec: both sides see the delta, then it is applied).
+  ['contract_draft_review_selftest', 'node tests/contract_draft_review.selftest.mjs'],
   // R-8.12 (b.acceptance-verifier-loop) — judge gaps become append-only tasks.
   ['convergence_log_selftest', 'node tests/convergence_log.selftest.mjs'],
   ['atlas_selftest', 'node tests/atlas_sync.selftest.mjs'],

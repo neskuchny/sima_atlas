@@ -15,7 +15,7 @@
 </style>
 </head><body>
 <h1>Sima Atlas Wiki</h1>
-<p><em>Auto-generated: 2026-09-22T20:56:42.697Z</em></p>
+<p><em>Auto-generated: 2026-09-29T04:53:41.989Z</em></p>
 <h2>Граф продукта</h2>
 <div class="mermaid">flowchart TB
   classDef done    fill:#dcfce7,stroke:#16a34a,color:#15803d;
@@ -233,6 +233,7 @@ evidence_spec:
 <li>b.agent-orchestrator: block<em>meaning</em>api</li>
 <li>b.clarify: frame<em>review</em>gate</li>
 <li>b.clarify: declared_understanding</li>
+<li>b.clarify: contract<em>draft</em>review</li>
 </ul>
 <h4>Files</h4>
 <h1>b.ui-control — files</h1>
@@ -747,6 +748,7 @@ evidence_spec:
 <li>b.clarify: trajectory_reader</li>
 <li>b.clarify: declared_understanding</li>
 <li>b.llm-gateway: llm<em>provider</em>description</li>
+<li>b.clarify: contract<em>draft</em>review</li>
 </ul>
 <h4>Files</h4>
 <h1>b.agent-orchestrator — files</h1>
@@ -6338,6 +6340,10 @@ evidence_spec:
 <li>2026-09-22T20:56:38.497Z: smoke e2e distillate</li>
 <li>2026-09-22T20:56:42.537Z: smoke e2e queued insight</li>
 <li>2026-09-22T20:56:42.585Z: smoke e2e distillate</li>
+<li>2026-09-29T04:53:35.925Z: smoke e2e queued insight</li>
+<li>2026-09-29T04:53:35.986Z: smoke e2e distillate</li>
+<li>2026-09-29T04:53:41.740Z: smoke e2e queued insight</li>
+<li>2026-09-29T04:53:41.812Z: smoke e2e distillate</li>
 </ul>
 <h4>Files</h4>
 <h1>b.smoke-sandbox — files</h1>
@@ -6815,6 +6821,13 @@ evidence_spec:
 <p>  ответа.</p>
 <p>  Ноль после месяца живых прогонов — повод не гордиться, а проверить, читает</p>
 <p>  ли кто-нибудь эти файлы.</p>
+<li><strong>KPI-9 (черновик модели расходится с замыслом)</strong>: доля записанных</li>
+<p>  черновиков модели («✨ Заполнить», «✏ Переписать», «✨ Развернуть»), которые</p>
+<p>  оператор правил до записи. Источник с R-8.13 — строки аудита <code>by=sima-… edited</code></p>
+<p>  в checks.log блоков (A15 проверяет подсчёт); <code>validate_meaning.mjs</code> печатает</p>
+<p>  сумму по атласу каждую ночь. Сейчас: 0 записей с автором — все 36 записей</p>
+<p>  сделаны до R-8.13. Высокая доля — не провал модели, а замер того, насколько</p>
+<p>  часто она понимает не так; падение доли со временем — цель.</p>
 </ul>
 <h4>Acceptance</h4>
 <h1>b.clarify — acceptance</h1>
@@ -6926,6 +6939,20 @@ evidence_spec:
 evidence_spec:
   cmd: node scripts/contract_lint.mjs
   expect_in_stdout: "not a gate"</code></pre>
+<ul>
+<li>[x] <strong>A15.</strong> Черновик контрактного файла разбирается до записи: удалённое требование, изменившийся порог, требование, добавленное «переписыванием», и черновик не про этот продукт названы; при недостатке текста для сравнения тревоги нет; подсчёт авторов записи для KPI-9 верен.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: exit_code
+evidence_spec:
+  cmd: node tests/contract_draft_review.selftest.mjs
+  expect_in_stdout: "OK [(]7 groups[)]"</code></pre>
+<ul>
+<li>[x] <strong>A16.</strong> Источники KPI-7, KPI-8 и KPI-9 печатаются каждую ночь: <code>validate_meaning</code> выводит авторов записей контракта (оператор / черновики модели / из них правленные до записи) и ответы оператора на рамки (подтверждено / поправлено).</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: exit_code
+evidence_spec:
+  cmd: node scripts/validate_meaning.mjs
+  expect_in_stdout: "contract writes: [0-9]+ by the operator, [0-9]+ model drafts [(][0-9]+ edited before writing[)][^]*frame answers: [0-9]+ confirmed / [0-9]+ corrected"</code></pre>
 <h2>inconclusive_if</h2>
 <ul>
 <li>Нет живого LLM-провайдера — качество вопросов операторски не проверяемо в</li>
@@ -6956,6 +6983,7 @@ evidence_spec:
 <li>frame<em>review</em>gate</li>
 <li>contract_delta</li>
 <li>contract<em>quality</em>lint</li>
+<li>contract<em>draft</em>review</li>
 </ul>
 <h4>Depends on</h4>
 <h1>b.clarify — depends_on</h1>
@@ -6993,12 +7021,16 @@ evidence_spec:
 <li>scripts/validate_clarifications.mjs [alive] (R-8.06: гейт — done-блок не может нести открытый маркер; review → warning; idea/wip → info, чтобы черновик оставался свободным)</li>
 <li>scripts/block_meaning.mjs [alive] (R-8.08: направление «человек → модель». Экспортирует readTrajectory / trajectoryPromptLines — секция «Во что это вырастет» в mission.md и её подача агенту; understandingPromptLines / parseUnderstanding / readUnderstanding / understandingStaleness — объявление понимания агентом до кода; blockMeaningSummary — единый читатель для ночного отчёта и канваса (R-8.12: плюс delta и quality); R-8.09: frameGate / recordDeclared / recordFrameReview / contractFingerprint — шлюз «объявил → человек подтвердил → код», declarePhasePromptLines / implementPhasePromptLines / operatorLanguage — промпты двух фаз на языке миссии; R-8.10: setTrajectory — запись секции траектории, которую readTrajectory прочитает ровно так же)</li>
 <li>scripts/contract_lint.mjs [alive] (R-8.12: детерминированная проверка формулировок — размытые слова без меры, KPI без проверки и замера, KPI с «✗» в своём тексте, KPI без номеров; отчёт, не гейт)</li>
+<li>scripts/contract<em>draft</em>review.mjs [alive] (R-8.13: разбор черновика контрактного файла ДО записи — разница по единицам смысла и риски: удалённое требование, изменившееся число или порог, требование, добавленное «переписыванием», черновик не про этот продукт (доля общих основ слов с миссией и project.md). Экспортирует reviewDraft / stems / numbersOf; draftWriteStats — источник KPI-9 из строк аудита <code>by=</code>)</li>
 <li>scripts/validate_meaning.mjs [alive] (R-8.08: отчёт, не гейт — траектория, наличие/полнота/устаревание understanding.md по блокам. Условия повышения до гейта и снятия — в шапке файла)</li>
 </ul>
 <h2>Тесты</h2>
 <ul>
 <li>tests/clarify_block.selftest.mjs [alive] (R-8.06: 10 групп — порядок enum, честная деградация на mock, пустой контракт, отбраковка ярлыка, отбраковка вопроса без выбора, сортировка по impact, поиск маркеров, append-only лог, снятие маркера, срабатывание done-гейта)</li>
 <li>tests/block<em>meaning.selftest.mjs [alive] (R-8.08/R-8.12: 13 групп — кириллические заголовки траектории, границы секции, пустой против отсутствующего, строки промпта, разбор understanding.md, устаревание по mtime, operative</em>frame на mock, один читатель для отчёта и библиотеки, шлюз как машина состояний, язык объявления и промпты двух фаз, запись траектории, снимки и разница контракта по единицам смысла, правила проверки формулировок. Сквозные проверки оркестратора — в tests/frame<em>gate</em>flow.selftest.mjs, у b.agent-orchestrator)</li>
+</ul>
+<ul>
+<li>tests/contract<em>draft</em>review.selftest.mjs [alive] (R-8.13: 7 групп — «переписать» с удалением, порогом и новым требованием; числа без подписей A2/KPI-3; «не про тот продукт» только когда обе стороны достаточно длинные; отметки и хвостовые пробелы — не изменение; заполнение пустого файла и шаблона без рисков; сохранённый и потерянный раздел «## Layer»; подсчёт авторов записи. HTTP-маршрут и строка аудита — в tests/frame<em>gate</em>flow.selftest.mjs, F2)</li>
 </ul>
 <h2>Контракт</h2>
 <ul>

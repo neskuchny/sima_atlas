@@ -43,3 +43,5 @@
 2026-09-22T20:45:14.608Z	b.acceptance-verifier-loop	review	wip	actor=operator-R8.12	note=R-8.12: scope extension — append-only convergence log of the semantic judge's todo (Spec Kit converge)
 2026-09-22T20:56:02.774Z	b.clarify	wip	review	actor=operator-R8.12	note=R-8.12 implemented: contract delta since confirmation + contract wording lint; acceptance 14/14; frame awaits the operator
 2026-09-22T20:56:02.826Z	b.acceptance-verifier-loop	wip	review	actor=operator-R8.12	note=R-8.12: append-only convergence log; acceptance 8/8 (1 judge skipped); frame awaits the operator
+2026-09-29T04:33:40.749Z	b.clarify	review	wip	actor=operator-R8.13	note=R-8.13: scope extension — review an LLM draft of a contract file as a delta with risks before it is written (OpenSpec: agree on the delta, then apply)
+2026-09-29T04:52:44.056Z	b.clarify	wip	review	actor=operator-R8.13	note=R-8.13: draft review before write, provenance, KPI-9 source; acceptance 16/16

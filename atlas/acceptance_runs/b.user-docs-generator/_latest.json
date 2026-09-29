@@ -15,17 +15,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/introspect_block_ui.selftest.mjs → exit 0 (123ms); first line: \"introspect_block_ui.selftest: OK (7 test groups, all assertions green)\"",
+      "evidence": "node tests/introspect_block_ui.selftest.mjs → exit 0 (162ms); first line: \"introspect_block_ui.selftest: OK (7 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/introspect_block_ui.selftest.mjs",
         "exit_code": 0,
         "stdout": "introspect_block_ui.selftest: OK (7 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 123,
+        "duration_ms": 162,
         "timed_out": false
       },
-      "duration_ms": 123
+      "duration_ms": 162
     },
     {
       "id": "A2",
@@ -39,17 +39,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/user_docs.smoke.mjs → exit 0 (114ms); first line: \"user_docs.smoke: OK (5 test groups, all assertions green)\"",
+      "evidence": "node tests/user_docs.smoke.mjs → exit 0 (142ms); first line: \"user_docs.smoke: OK (5 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/user_docs.smoke.mjs",
         "exit_code": 0,
         "stdout": "user_docs.smoke: OK (5 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 114,
+        "duration_ms": 142,
         "timed_out": false
       },
-      "duration_ms": 114
+      "duration_ms": 142
     },
     {
       "id": "A3",
@@ -63,17 +63,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/screenshots_integration.selftest.mjs → exit 0 (81ms); first line: \"screenshots_integration.selftest: OK (7 test groups, all assertions green)\"",
+      "evidence": "node tests/screenshots_integration.selftest.mjs → exit 0 (117ms); first line: \"screenshots_integration.selftest: OK (7 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/screenshots_integration.selftest.mjs",
         "exit_code": 0,
         "stdout": "screenshots_integration.selftest: OK (7 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 81,
+        "duration_ms": 117,
         "timed_out": false
       },
-      "duration_ms": 81
+      "duration_ms": 117
     },
     {
       "id": "A4",
@@ -87,17 +87,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/user_docs_drift.selftest.mjs → exit 0 (436ms); first line: \"user_docs_drift.selftest: OK (5 test groups, all assertions green)\"",
+      "evidence": "node tests/user_docs_drift.selftest.mjs → exit 0 (643ms); first line: \"user_docs_drift.selftest: OK (5 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/user_docs_drift.selftest.mjs",
         "exit_code": 0,
         "stdout": "user_docs_drift.selftest: OK (5 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 436,
+        "duration_ms": 643,
         "timed_out": false
       },
-      "duration_ms": 436
+      "duration_ms": 643
     },
     {
       "id": "A5",
@@ -202,7 +202,7 @@
           "const DEFAULT_LANG = process.env.ATLAS_USER_DOCS_LANG || 'ru';"
         ]
       },
-      "duration_ms": 0
+      "duration_ms": 1
     }
   ],
   "counts": {
@@ -211,11 +211,11 @@
     "skipped": 0
   },
   "verdict": "pass",
-  "duration_ms": 754,
-  "checked_at": "2026-09-22T20:56:35.260Z",
+  "duration_ms": 1065,
+  "checked_at": "2026-09-29T04:53:31.359Z",
   "cache": {
     "hit": false,
-    "reason": "code changed (a commit, or a changed / new file outside atlas/); a contract, graph.json or project rules changed; another block's verdict or kpi result changed",
-    "lookup_ms": 26.254162
+    "reason": "cached pass expired (152 h old)",
+    "lookup_ms": 0.409753
   }
 }

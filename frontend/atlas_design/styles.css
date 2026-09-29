@@ -2471,6 +2471,15 @@ html, body {
   padding: 14px 18px; overflow: auto; flex: 1;
 }
 .contract-modal-body > div:only-child { grid-column: 1 / -1; }
+/* R-8.13 — what writing the draft changes, before «write» */
+.contract-modal-body > .contract-modal-wide,
+.contract-modal-body > .draft-review { grid-column: 1 / -1; }
+.draft-review { border: 1px solid var(--rule); border-radius: 8px; background: var(--card); padding: 10px 12px; }
+.draft-review.has-risks { border-color: var(--st-progress); }
+.draft-counts { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--ink-2); }
+.draft-risks { margin: 8px 0 0; padding-left: 0; list-style: none; }
+.draft-risk { font-size: 12.5px; line-height: 1.45; color: var(--ink); margin: 4px 0; padding-left: 8px; border-left: 3px solid var(--st-progress); }
+.draft-risk.risk-removed, .draft-risk.risk-off_topic { border-left-color: var(--st-fail); }
 .contract-modal-pre {
   font-family: 'JetBrains Mono', monospace; font-size: 11px; line-height: 1.5;
   white-space: pre-wrap; word-wrap: break-word;

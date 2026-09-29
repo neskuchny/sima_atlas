@@ -264,7 +264,9 @@
     // через UI ✏ кнопку шла в ROOT atlas, а не в client. UI на
     // ?client=my-product потом читал из client пути — пустой файл — и
     // operator видел «ничего не подтягивается».
-    patchBlockFile: async (block_id, file, content) => { const r = await postJson('/atlas/blocks/patch-file', withClient({ block_id, file, content })); if (r.ok) await refresh(); return r; },
+    // R-8.13 — `source` says who wrote the text (manual | sima-<mode> …); it
+    // lands in the block's audit line next to the file.
+    patchBlockFile: async (block_id, file, content, source) => { const r = await postJson('/atlas/blocks/patch-file', withClient({ block_id, file, content, ...(source ? { source } : {}) })); if (r.ok) await refresh(); return r; },
   };
 
   // ─── "Совет Клода" — bridge to b.llm-gateway ─────────────────────
@@ -307,6 +309,9 @@
     // R-8.10 — write the «## Во что это вырастет» section of mission.md
     // (empty text removes it). if_match_mtime guards against overwriting an
     // edit made since the panel loaded.
+    // R-8.13 — what a draft of a contract file would change, before writing.
+    draftReview: async ({ block_id, file, draft, mode }) =>
+      await postJson('/atlas/blocks/draft-review', withClient({ block_id, file, draft, mode })),
     setTrajectory: async ({ block_id, text, if_match_mtime }) =>
       await postJson('/atlas/blocks/trajectory', withClient({ block_id, text, ...(if_match_mtime ? { if_match_mtime } : {}) })),
     startRun: async ({ block_id, agent, profile }) =>
@@ -321,8 +326,9 @@
     proposalsList: async ()                => await getJson('/atlas/proposals/list' + (client ? `?client=${encodeURIComponent(client)}` : '')),
     // R-7.98 — operator locks for proposal compliance badges (A6).
     profileHints:  async ()                => await getJson('/atlas/operator-profile/hints'),
-    activityLogTail:   async (limit = 100) => await getJson('/atlas/activity-log/tail?limit=' + limit),
-    activityLogAppend: async (entry)       => await postJson('/atlas/activity-log/append', entry),
+    // R-8.13 — the log of the atlas on screen (a client's, not always root's).
+    activityLogTail:   async (limit = 100) => await getJson('/atlas/activity-log/tail?limit=' + limit + (client ? '&client=' + encodeURIComponent(client) : '')),
+    activityLogAppend: async (entry)       => await postJson('/atlas/activity-log/append', withClient(entry)),
     // R-7.87 (S-9) — token economics roll-up (LLM trace aggregator).
     tokenEconomics: async ({ days = 30, block = '' } = {}) => {
       const qs = new URLSearchParams({ days: String(days) });

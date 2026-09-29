@@ -1,6 +1,6 @@
 {
   "contractValidation": {
-    "checkedAt": "2026-09-22T20:56:26.062Z",
+    "checkedAt": "2026-09-29T04:53:19.117Z",
     "total": 21,
     "broken": 0,
     "details": []
@@ -11,7 +11,7 @@
     "details": []
   },
   "codeGraphDrift": {
-    "checkedAt": "2026-09-22T20:56:36.333Z",
+    "checkedAt": "2026-09-29T04:53:33.023Z",
     "driftCount": 33,
     "details": [
       {
@@ -444,11 +444,13 @@
         "scanned_files": [
           "scripts/block_meaning.mjs",
           "scripts/clarify_block.mjs",
+          "scripts/contract_draft_review.mjs",
           "scripts/contract_lint.mjs",
           "scripts/validate_clarifications.mjs",
           "scripts/validate_meaning.mjs",
           "tests/block_meaning.selftest.mjs",
-          "tests/clarify_block.selftest.mjs"
+          "tests/clarify_block.selftest.mjs",
+          "tests/contract_draft_review.selftest.mjs"
         ],
         "exported_names_in_block": [
           "CATEGORY_ENUM",
@@ -469,6 +471,7 @@
           "contractUnits",
           "declarePhasePromptLines",
           "deltaPromptLines",
+          "draftWriteStats",
           "findMarkers",
           "frameGate",
           "implementPhasePromptLines",
@@ -477,6 +480,7 @@
           "normalizeContractText",
           "normalizeFrame",
           "normalizeQuestions",
+          "numbersOf",
           "operatorLanguage",
           "parseUnderstanding",
           "readFrameReviews",
@@ -485,8 +489,10 @@
           "recordDeclared",
           "recordFrameReview",
           "resolveMarker",
+          "reviewDraft",
           "setTrajectory",
           "snapshotContract",
+          "stems",
           "trajectoryPromptLines",
           "understandingPromptLines",
           "understandingSha",
@@ -502,11 +508,13 @@
         "scanned_files": [
           "scripts/block_meaning.mjs",
           "scripts/clarify_block.mjs",
+          "scripts/contract_draft_review.mjs",
           "scripts/contract_lint.mjs",
           "scripts/validate_clarifications.mjs",
           "scripts/validate_meaning.mjs",
           "tests/block_meaning.selftest.mjs",
-          "tests/clarify_block.selftest.mjs"
+          "tests/clarify_block.selftest.mjs",
+          "tests/contract_draft_review.selftest.mjs"
         ],
         "exported_names_in_block": [
           "CATEGORY_ENUM",
@@ -527,6 +535,7 @@
           "contractUnits",
           "declarePhasePromptLines",
           "deltaPromptLines",
+          "draftWriteStats",
           "findMarkers",
           "frameGate",
           "implementPhasePromptLines",
@@ -535,6 +544,7 @@
           "normalizeContractText",
           "normalizeFrame",
           "normalizeQuestions",
+          "numbersOf",
           "operatorLanguage",
           "parseUnderstanding",
           "readFrameReviews",
@@ -543,8 +553,10 @@
           "recordDeclared",
           "recordFrameReview",
           "resolveMarker",
+          "reviewDraft",
           "setTrajectory",
           "snapshotContract",
+          "stems",
           "trajectoryPromptLines",
           "understandingPromptLines",
           "understandingSha",
@@ -560,11 +572,13 @@
         "scanned_files": [
           "scripts/block_meaning.mjs",
           "scripts/clarify_block.mjs",
+          "scripts/contract_draft_review.mjs",
           "scripts/contract_lint.mjs",
           "scripts/validate_clarifications.mjs",
           "scripts/validate_meaning.mjs",
           "tests/block_meaning.selftest.mjs",
-          "tests/clarify_block.selftest.mjs"
+          "tests/clarify_block.selftest.mjs",
+          "tests/contract_draft_review.selftest.mjs"
         ],
         "exported_names_in_block": [
           "CATEGORY_ENUM",
@@ -585,6 +599,7 @@
           "contractUnits",
           "declarePhasePromptLines",
           "deltaPromptLines",
+          "draftWriteStats",
           "findMarkers",
           "frameGate",
           "implementPhasePromptLines",
@@ -593,6 +608,7 @@
           "normalizeContractText",
           "normalizeFrame",
           "normalizeQuestions",
+          "numbersOf",
           "operatorLanguage",
           "parseUnderstanding",
           "readFrameReviews",
@@ -601,8 +617,10 @@
           "recordDeclared",
           "recordFrameReview",
           "resolveMarker",
+          "reviewDraft",
           "setTrajectory",
           "snapshotContract",
+          "stems",
           "trajectoryPromptLines",
           "understandingPromptLines",
           "understandingSha",
@@ -618,11 +636,13 @@
         "scanned_files": [
           "scripts/block_meaning.mjs",
           "scripts/clarify_block.mjs",
+          "scripts/contract_draft_review.mjs",
           "scripts/contract_lint.mjs",
           "scripts/validate_clarifications.mjs",
           "scripts/validate_meaning.mjs",
           "tests/block_meaning.selftest.mjs",
-          "tests/clarify_block.selftest.mjs"
+          "tests/clarify_block.selftest.mjs",
+          "tests/contract_draft_review.selftest.mjs"
         ],
         "exported_names_in_block": [
           "CATEGORY_ENUM",
@@ -643,6 +663,7 @@
           "contractUnits",
           "declarePhasePromptLines",
           "deltaPromptLines",
+          "draftWriteStats",
           "findMarkers",
           "frameGate",
           "implementPhasePromptLines",
@@ -651,6 +672,7 @@
           "normalizeContractText",
           "normalizeFrame",
           "normalizeQuestions",
+          "numbersOf",
           "operatorLanguage",
           "parseUnderstanding",
           "readFrameReviews",
@@ -659,8 +681,10 @@
           "recordDeclared",
           "recordFrameReview",
           "resolveMarker",
+          "reviewDraft",
           "setTrajectory",
           "snapshotContract",
+          "stems",
           "trajectoryPromptLines",
           "understandingPromptLines",
           "understandingSha",
@@ -676,11 +700,13 @@
         "scanned_files": [
           "scripts/block_meaning.mjs",
           "scripts/clarify_block.mjs",
+          "scripts/contract_draft_review.mjs",
           "scripts/contract_lint.mjs",
           "scripts/validate_clarifications.mjs",
           "scripts/validate_meaning.mjs",
           "tests/block_meaning.selftest.mjs",
-          "tests/clarify_block.selftest.mjs"
+          "tests/clarify_block.selftest.mjs",
+          "tests/contract_draft_review.selftest.mjs"
         ],
         "exported_names_in_block": [
           "CATEGORY_ENUM",
@@ -701,6 +727,7 @@
           "contractUnits",
           "declarePhasePromptLines",
           "deltaPromptLines",
+          "draftWriteStats",
           "findMarkers",
           "frameGate",
           "implementPhasePromptLines",
@@ -709,6 +736,7 @@
           "normalizeContractText",
           "normalizeFrame",
           "normalizeQuestions",
+          "numbersOf",
           "operatorLanguage",
           "parseUnderstanding",
           "readFrameReviews",
@@ -717,8 +745,10 @@
           "recordDeclared",
           "recordFrameReview",
           "resolveMarker",
+          "reviewDraft",
           "setTrajectory",
           "snapshotContract",
+          "stems",
           "trajectoryPromptLines",
           "understandingPromptLines",
           "understandingSha",
@@ -734,11 +764,13 @@
         "scanned_files": [
           "scripts/block_meaning.mjs",
           "scripts/clarify_block.mjs",
+          "scripts/contract_draft_review.mjs",
           "scripts/contract_lint.mjs",
           "scripts/validate_clarifications.mjs",
           "scripts/validate_meaning.mjs",
           "tests/block_meaning.selftest.mjs",
-          "tests/clarify_block.selftest.mjs"
+          "tests/clarify_block.selftest.mjs",
+          "tests/contract_draft_review.selftest.mjs"
         ],
         "exported_names_in_block": [
           "CATEGORY_ENUM",
@@ -759,6 +791,7 @@
           "contractUnits",
           "declarePhasePromptLines",
           "deltaPromptLines",
+          "draftWriteStats",
           "findMarkers",
           "frameGate",
           "implementPhasePromptLines",
@@ -767,6 +800,7 @@
           "normalizeContractText",
           "normalizeFrame",
           "normalizeQuestions",
+          "numbersOf",
           "operatorLanguage",
           "parseUnderstanding",
           "readFrameReviews",
@@ -775,8 +809,10 @@
           "recordDeclared",
           "recordFrameReview",
           "resolveMarker",
+          "reviewDraft",
           "setTrajectory",
           "snapshotContract",
+          "stems",
           "trajectoryPromptLines",
           "understandingPromptLines",
           "understandingSha",
@@ -792,11 +828,13 @@
         "scanned_files": [
           "scripts/block_meaning.mjs",
           "scripts/clarify_block.mjs",
+          "scripts/contract_draft_review.mjs",
           "scripts/contract_lint.mjs",
           "scripts/validate_clarifications.mjs",
           "scripts/validate_meaning.mjs",
           "tests/block_meaning.selftest.mjs",
-          "tests/clarify_block.selftest.mjs"
+          "tests/clarify_block.selftest.mjs",
+          "tests/contract_draft_review.selftest.mjs"
         ],
         "exported_names_in_block": [
           "CATEGORY_ENUM",
@@ -817,6 +855,7 @@
           "contractUnits",
           "declarePhasePromptLines",
           "deltaPromptLines",
+          "draftWriteStats",
           "findMarkers",
           "frameGate",
           "implementPhasePromptLines",
@@ -825,6 +864,7 @@
           "normalizeContractText",
           "normalizeFrame",
           "normalizeQuestions",
+          "numbersOf",
           "operatorLanguage",
           "parseUnderstanding",
           "readFrameReviews",
@@ -833,8 +873,10 @@
           "recordDeclared",
           "recordFrameReview",
           "resolveMarker",
+          "reviewDraft",
           "setTrajectory",
           "snapshotContract",
+          "stems",
           "trajectoryPromptLines",
           "understandingPromptLines",
           "understandingSha",
@@ -948,6 +990,7 @@
           "patchNote",
           "rejectionMessage",
           "removeFile",
+          "sanitizeSource",
           "saveSubsystem",
           "subsystemExists",
           "syncFromBlockFilesMd",
@@ -1020,6 +1063,7 @@
           "patchNote",
           "rejectionMessage",
           "removeFile",
+          "sanitizeSource",
           "saveSubsystem",
           "subsystemExists",
           "syncFromBlockFilesMd",
@@ -1434,8 +1478,8 @@
     ]
   },
   "dependencyValidation": {
-    "checkedAt": "2026-09-22T20:56:25.167Z",
-    "totalDepsChecked": 43,
+    "checkedAt": "2026-09-29T04:53:17.867Z",
+    "totalDepsChecked": 45,
     "broken": 0,
     "details": []
   }

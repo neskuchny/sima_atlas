@@ -81,11 +81,13 @@
       "files": [
         "scripts/block_meaning.mjs",
         "scripts/clarify_block.mjs",
+        "scripts/contract_draft_review.mjs",
         "scripts/contract_lint.mjs",
         "scripts/validate_clarifications.mjs",
         "scripts/validate_meaning.mjs",
         "tests/block_meaning.selftest.mjs",
-        "tests/clarify_block.selftest.mjs"
+        "tests/clarify_block.selftest.mjs",
+        "tests/contract_draft_review.selftest.mjs"
       ]
     },
     "b.code-graph": {
@@ -331,10 +333,22 @@
           "to_file": "scripts/block_meaning.mjs"
         },
         {
+          "from_file": "scripts/atlas_api_server.mjs",
+          "kind": "static",
+          "line": 16,
+          "to_file": "scripts/contract_draft_review.mjs"
+        },
+        {
           "from_file": "scripts/atlas_runs_api.mjs",
           "kind": "static",
           "line": 26,
           "to_file": "scripts/block_meaning.mjs"
+        },
+        {
+          "from_file": "tests/frame_gate_flow.selftest.mjs",
+          "kind": "static",
+          "line": 34,
+          "to_file": "scripts/contract_draft_review.mjs"
         }
       ],
       "from_block": "b.agent-orchestrator",
@@ -411,7 +425,7 @@
         {
           "from_file": "scripts/atlas_api_server.mjs",
           "kind": "static",
-          "line": 16,
+          "line": 17,
           "to_file": "scripts/llm_gateway.mjs"
         },
         {
@@ -1570,14 +1584,6 @@
         },
         {
           "external": false,
-          "from": "./sima_fill_from_chat.mjs",
-          "kind": "dynamic",
-          "line": 1484,
-          "resolved_to": "scripts/sima_fill_from_chat.mjs",
-          "specifiers": []
-        },
-        {
-          "external": false,
           "from": "./block_meaning.mjs",
           "kind": "static",
           "line": 15,
@@ -1599,22 +1605,30 @@
         },
         {
           "external": false,
+          "from": "./sima_fill_from_chat.mjs",
+          "kind": "dynamic",
+          "line": 1530,
+          "resolved_to": "scripts/sima_fill_from_chat.mjs",
+          "specifiers": []
+        },
+        {
+          "external": false,
           "from": "./sima_watch_chats.mjs",
           "kind": "dynamic",
-          "line": 1500,
+          "line": 1546,
           "resolved_to": "scripts/sima_watch_chats.mjs",
           "specifiers": []
         },
         {
           "external": false,
-          "from": "./llm_gateway.mjs",
+          "from": "./contract_draft_review.mjs",
           "kind": "static",
           "line": 16,
-          "resolved_to": "scripts/llm_gateway.mjs",
+          "resolved_to": "scripts/contract_draft_review.mjs",
           "specifiers": [
             {
               "kind": "named",
-              "name": "describeProvider"
+              "name": "reviewDraft"
             }
           ]
         },
@@ -1622,9 +1636,22 @@
           "external": false,
           "from": "./screenshot_block.mjs",
           "kind": "dynamic",
-          "line": 1610,
+          "line": 1656,
           "resolved_to": "scripts/screenshot_block.mjs",
           "specifiers": []
+        },
+        {
+          "external": false,
+          "from": "./llm_gateway.mjs",
+          "kind": "static",
+          "line": 17,
+          "resolved_to": "scripts/llm_gateway.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "describeProvider"
+            }
+          ]
         },
         {
           "external": true,
@@ -1721,7 +1748,7 @@
           "external": false,
           "from": "./scripts/regenerate_user_docs_drift.mjs",
           "kind": "dynamic",
-          "line": 811,
+          "line": 826,
           "resolved_to": null,
           "specifiers": []
         },
@@ -1729,7 +1756,7 @@
           "external": false,
           "from": "./scripts/regenerate_user_docs_drift.mjs",
           "kind": "dynamic",
-          "line": 822,
+          "line": 837,
           "resolved_to": null,
           "specifiers": []
         },
@@ -1750,7 +1777,7 @@
           "external": false,
           "from": "./architecture_decisions_api.mjs",
           "kind": "dynamic",
-          "line": 957,
+          "line": 972,
           "resolved_to": "scripts/architecture_decisions_api.mjs",
           "specifiers": []
         }
@@ -1877,12 +1904,17 @@
         },
         {
           "kind": "named",
-          "line": 398,
+          "line": 401,
+          "name": "sanitizeSource"
+        },
+        {
+          "kind": "named",
+          "line": 404,
           "name": "patchBlockFile"
         },
         {
           "kind": "named",
-          "line": 447,
+          "line": 454,
           "name": "listNotes"
         },
         {
@@ -3592,6 +3624,50 @@
         }
       ],
       "owning_block": "b.acceptance-verifier-loop"
+    },
+    "scripts/contract_draft_review.mjs": {
+      "exports": [
+        {
+          "kind": "named",
+          "line": 121,
+          "name": "draftWriteStats"
+        },
+        {
+          "kind": "named",
+          "line": 45,
+          "name": "stems"
+        },
+        {
+          "kind": "named",
+          "line": 56,
+          "name": "numbersOf"
+        },
+        {
+          "kind": "named",
+          "line": 78,
+          "name": "reviewDraft"
+        }
+      ],
+      "imports": [
+        {
+          "external": false,
+          "from": "./block_meaning.mjs",
+          "kind": "static",
+          "line": 32,
+          "resolved_to": "scripts/block_meaning.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "contractUnits"
+            },
+            {
+              "kind": "named",
+              "name": "normalizeContractText"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.clarify"
     },
     "scripts/contract_lint.mjs": {
       "exports": [
@@ -7935,6 +8011,19 @@
               "name": "blockMeaningSummary"
             }
           ]
+        },
+        {
+          "external": false,
+          "from": "./contract_draft_review.mjs",
+          "kind": "static",
+          "line": 39,
+          "resolved_to": "scripts/contract_draft_review.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "draftWriteStats"
+            }
+          ]
         }
       ],
       "owning_block": "b.clarify"
@@ -10255,6 +10344,37 @@
       ],
       "owning_block": "b.ui-control"
     },
+    "tests/contract_draft_review.selftest.mjs": {
+      "exports": [],
+      "imports": [
+        {
+          "external": false,
+          "from": "../scripts/contract_draft_review.mjs",
+          "kind": "static",
+          "line": 16,
+          "resolved_to": "scripts/contract_draft_review.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "draftWriteStats"
+            },
+            {
+              "kind": "named",
+              "name": "numbersOf"
+            },
+            {
+              "kind": "named",
+              "name": "reviewDraft"
+            },
+            {
+              "kind": "named",
+              "name": "stems"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.clarify"
+    },
     "tests/convergence_log.selftest.mjs": {
       "exports": [],
       "imports": [
@@ -10932,7 +11052,7 @@
           "external": true,
           "from": "node:fs",
           "kind": "static",
-          "line": 22,
+          "line": 24,
           "resolved_to": null,
           "specifiers": [
             {
@@ -10945,7 +11065,7 @@
           "external": true,
           "from": "node:os",
           "kind": "static",
-          "line": 23,
+          "line": 25,
           "resolved_to": null,
           "specifiers": [
             {
@@ -10958,7 +11078,7 @@
           "external": true,
           "from": "node:path",
           "kind": "static",
-          "line": 24,
+          "line": 26,
           "resolved_to": null,
           "specifiers": [
             {
@@ -10971,7 +11091,7 @@
           "external": true,
           "from": "node:http",
           "kind": "static",
-          "line": 25,
+          "line": 27,
           "resolved_to": null,
           "specifiers": [
             {
@@ -10984,7 +11104,7 @@
           "external": true,
           "from": "node:child_process",
           "kind": "static",
-          "line": 26,
+          "line": 28,
           "resolved_to": null,
           "specifiers": [
             {
@@ -11001,7 +11121,7 @@
           "external": true,
           "from": "node:url",
           "kind": "static",
-          "line": 27,
+          "line": 29,
           "resolved_to": null,
           "specifiers": [
             {
@@ -11014,12 +11134,25 @@
           "external": false,
           "from": "../scripts/atlas_runs_api.mjs",
           "kind": "static",
-          "line": 31,
+          "line": 33,
           "resolved_to": "scripts/atlas_runs_api.mjs",
           "specifiers": [
             {
               "kind": "named",
               "name": "startRunAsync"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "../scripts/contract_draft_review.mjs",
+          "kind": "static",
+          "line": 34,
+          "resolved_to": "scripts/contract_draft_review.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "reviewDraft"
             }
           ]
         }

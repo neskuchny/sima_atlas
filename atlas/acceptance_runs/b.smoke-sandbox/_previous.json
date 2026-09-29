@@ -65,17 +65,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/mcp_smoke_e2e.mjs → exit 0 (1866ms); first line: \"mcp_smoke_e2e: OK (32 tools exercised)\"",
+      "evidence": "node scripts/mcp_smoke_e2e.mjs → exit 0 (1994ms); first line: \"mcp_smoke_e2e: OK (32 tools exercised)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/mcp_smoke_e2e.mjs",
         "exit_code": 0,
         "stdout": "mcp_smoke_e2e: OK (32 tools exercised)\n",
         "stderr": "",
-        "duration_ms": 1866,
+        "duration_ms": 1994,
         "timed_out": false
       },
-      "duration_ms": 1866
+      "duration_ms": 1994
     }
   ],
   "counts": {
@@ -84,11 +84,11 @@
     "skipped": 0
   },
   "verdict": "pass",
-  "duration_ms": 1871,
-  "checked_at": "2026-09-22T20:22:14.526Z",
+  "duration_ms": 1999,
+  "checked_at": "2026-09-22T20:56:39.269Z",
   "cache": {
     "hit": false,
     "reason": "code changed (a commit, or a changed / new file outside atlas/); a contract, graph.json or project rules changed; another block's verdict or kpi result changed",
-    "lookup_ms": 23.876509
+    "lookup_ms": 27.1947
   }
 }

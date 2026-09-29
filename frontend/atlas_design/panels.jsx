@@ -487,12 +487,14 @@ function LlmProviderBadge() {
 // frame was confirmed (or declared), unit by unit: acceptance items by id,
 // KPIs by number, mission sections by heading. «mission.md changed» told the
 // operator where to look; this tells them what to read.
-function ContractDelta({ delta }) {
+function ContractDelta({ delta, title }) {
   const t = window.__SIMA_T || ((_, fb) => fb);
   if (!delta || !Array.isArray(delta.files) || !delta.files.length) return null;
   const since = delta.since?.event === 'confirmed'
     ? t('meaning.delta_since_confirmed', 'since you confirmed')
     : t('meaning.delta_since_declared', 'since the declaration');
+  // The text before the first heading / item has no name of its own.
+  const unit = (k) => (k === '(начало)' ? t('meaning.delta_intro', 'opening text') : `«${k}»`);
   // The unit's label (A1, KPI-1) is already in the summary line; show the
   // wording without the markdown label and bold markers.
   const clean = (s) => String(s || '').trim()
@@ -502,23 +504,23 @@ function ContractDelta({ delta }) {
   const pre = (s) => <div className="delta-text">{clean(s)}</div>;
   return (
     <div className="meaning-delta">
-      <div className="meaning-label">{t('meaning.delta_title', 'What changed in the contract')} {since}{delta.since?.ts ? ` (${String(delta.since.ts).slice(0, 10)})` : ''}</div>
+      <div className="meaning-label">{title || <>{t('meaning.delta_title', 'What changed in the contract')} {since}{delta.since?.ts ? ` (${String(delta.since.ts).slice(0, 10)})` : ''}</>}</div>
       {delta.files.map((f) => !f.available ? (
         <div key={f.file} className="meaning-note">{f.file}: {t('meaning.delta_unavailable', 'changed — the earlier version was not saved (declared before snapshots existed), open the file')}</div>
       ) : (
         <React.Fragment key={f.file}>
           {f.added.map((a) => (
-            <details key={`a-${a.key}`} className="delta-item delta-added"><summary>+ {f.file} «{a.key}» — {t('meaning.delta_added', 'added')}</summary>{pre(a.text)}</details>
+            <details key={`a-${a.key}`} className="delta-item delta-added"><summary>+ {f.file} {unit(a.key)} — {t('meaning.delta_added', 'added')}</summary>{pre(a.text)}</details>
           ))}
           {f.modified.map((m) => (
             <details key={`m-${m.key}`} className="delta-item delta-modified">
-              <summary>~ {f.file} «{m.key}» — {t('meaning.delta_modified', 'changed')}</summary>
+              <summary>~ {f.file} {unit(m.key)} — {t('meaning.delta_modified', 'changed')}</summary>
               <div className="delta-caption">{t('meaning.delta_before', 'was')}</div>{pre(m.before)}
               <div className="delta-caption">{t('meaning.delta_after', 'now')}</div>{pre(m.after)}
             </details>
           ))}
           {f.removed.map((r) => (
-            <details key={`r-${r.key}`} className="delta-item delta-removed"><summary>− {f.file} «{r.key}» — {t('meaning.delta_removed', 'removed')}</summary>{pre(r.text)}</details>
+            <details key={`r-${r.key}`} className="delta-item delta-removed"><summary>− {f.file} {unit(r.key)} — {t('meaning.delta_removed', 'removed')}</summary>{pre(r.text)}</details>
           ))}
         </React.Fragment>
       ))}
@@ -2573,13 +2575,116 @@ function FilesSection({ moduleId }) {
   );
 }
 
+// R-8.13 — the metadata tail of a contract file («## Layer», parent note,
+// provenance). The manual editor hides it from the textarea; it used to be
+// dropped on save, silently deleting the section.
+function contractTail(text) {
+  const m = String(text || '').match(/\n+(##\s+Layer\s*\n[\s\S]*)$/i);
+  return m ? m[1].trim() : '';
+}
+
+// The exact text «write» puts on disk: the draft under the file's H1, plus
+// the tail when the draft does not carry it itself. The review and the save
+// both use it, so what is reviewed is what is written.
+function composeContractContent(moduleId, editing) {
+  const heading = `# ${moduleId} — ${editing.file.replace(/\.md$/, '')}`;
+  const body = String(editing.draft || '').trim();
+  const main = body.startsWith('#') ? body : `${heading}\n\n${body}`;
+  const tail = editing.tail || '';
+  const tailHead = tail.split('\n')[0].trim();
+  const hasTail = tail && body.split('\n').some((l) => l.trim().toLowerCase() === tailHead.toLowerCase());
+  return `${main}${tail && !hasTail ? `\n\n${tail}` : ''}\n`;
+}
+
+// Who wrote the text, for the block's audit line: `manual`, or the Sima
+// action with the provider and model that answered, and `edited` when the
+// operator changed the model's draft before writing.
+function contractSource(editing) {
+  if (editing.mode === 'manual') return 'manual';
+  const parts = [`sima-${editing.mode}`];
+  if (editing.provider) parts.push(`provider=${editing.provider}`);
+  if (editing.model) parts.push(`model=${editing.model}`);
+  if (editing.llmDraft != null && editing.draft !== editing.llmDraft) parts.push('edited');
+  return parts.join(' ');
+}
+
+// R-8.13 (OpenSpec: both sides see the delta, then it is applied) — before
+// «write»: what this draft changes in the requirements, unit by unit, and
+// which changes are risky. Computed on the server
+// (scripts/contract_draft_review.mjs); it never blocks the save.
+function DraftReview({ review }) {
+  const t = window.__SIMA_T || ((_, fb) => fb);
+  if (!review || (!review.data && !review.error && !review.pending)) return null;
+  if (review.error) {
+    return (
+      <div className="draft-review">
+        <div className="meaning-note">{t('draft.unavailable', 'Could not compute what writing changes:')} {review.error}</div>
+      </div>
+    );
+  }
+  const r = review.data;
+  if (!r) return <div className="draft-review"><div className="meaning-note">{t('draft.pending', 'Comparing with the file on disk…')}</div></div>;
+  const unit = (k) => (k === '(начало)' ? t('meaning.delta_intro', 'opening text') : `«${k}»`);
+  const d = r.delta || { added: [], modified: [], removed: [] };
+  const risks = r.risks || [];
+  const riskText = (x) => {
+    if (x.kind === 'removed') return <>{t('draft.risk_removed', 'Removes')} {unit(x.key)} — {t('draft.risk_removed_tail', 'this requirement will no longer be checked.')}</>;
+    if (x.kind === 'numbers') return <>{unit(x.key)}: {t('draft.risk_numbers', 'numbers change')} <b>{(x.before || []).join(', ') || '—'}</b> → <b>{(x.after || []).join(', ') || '—'}</b></>;
+    if (x.kind === 'rewrite_added') return <>{t('draft.risk_rewrite_added', '«Rewrite» added')} {unit(x.key)} — {t('draft.risk_rewrite_added_tail', 'rewriting was not supposed to add requirements.')}</>;
+    if (x.kind === 'off_topic') return <>{t('draft.risk_off_topic', 'Words in common with this block\'s mission and the project:')} {x.shared} {t('draft.of', 'of')} {x.total}. {t('draft.risk_off_topic_tail', 'The draft may be about another product — read it before writing.')}</>;
+    return x.kind;
+  };
+  return (
+    <div className={`draft-review${risks.length ? ' has-risks' : ''}`}>
+      <div className="meaning-label">{t('draft.title', 'What writing this changes')}{review.pending ? ` · ${t('draft.updating', 'updating…')}` : ''}</div>
+      {r.unchanged
+        ? <div className="meaning-note">{t('draft.unchanged', 'The requirements stay the same — only formatting or ticks differ.')}</div>
+        : <div className="draft-counts">+{d.added.length} {t('draft.added', 'added')} · ~{d.modified.length} {t('draft.modified', 'changed')} · −{d.removed.length} {t('draft.removed', 'removed')}</div>}
+      {risks.length > 0 && (
+        <ul className="draft-risks">
+          {risks.map((x, i) => <li key={i} className={`draft-risk risk-${x.kind}`}>⚠ {riskText(x)}</li>)}
+        </ul>
+      )}
+      {!r.unchanged && (
+        <ContractDelta
+          title={t('draft.delta_title', 'Unit by unit (click to open)')}
+          delta={{ since: null, files: [{ file: r.file, available: true, ...d }] }}
+        />
+      )}
+    </div>
+  );
+}
+
 function ContractSection({ moduleId, layer }) {
   const t = window.__SIMA_T || ((_, fb) => fb);
   const [files, setFiles] = useState2({});
   const [loading, setLoading] = useState2(true);
-  const [editing, setEditing] = useState2(null); // { file, mode, draft, original }
-  const [busy, setBusy] = useState2(false);
-  const [error, setError] = useState2(null);
+  // R-8.13 — sticky per block, like the meaning panel's drafts: a live
+  // refresh (any file changed on disk) re-mounts the whole App and used to
+  // close this modal with the draft in it.
+  const sk = (k) => `contract:${moduleId}:${k}`;
+  const [editing, setEditing] = useSticky(sk('editing'), null); // { file, mode, draft, original, tail, provider, model, llmDraft, mock }
+  const [busy, setBusy] = useSticky(sk('busy'), false);
+  const [error, setError] = useSticky(sk('error'), null);
+  const [review, setReview] = useState2(null); // { data, error, pending, content }
+
+  // Review the exact text «write» would put on disk, a moment after typing stops.
+  const composed = editing ? composeContractContent(moduleId, editing) : '';
+  useEffect2(() => {
+    if (!editing || busy || !String(editing.draft || '').trim()) { setReview(null); return undefined; }
+    if (!window.SIMA_API?.meta?.draftReview) { setReview({ error: 'SIMA_API.meta.draftReview unavailable' }); return undefined; }
+    let alive = true;
+    setReview((prev) => ({ ...(prev || {}), error: null, pending: true }));
+    const h = setTimeout(async () => {
+      const r = await window.SIMA_API.meta.draftReview({ block_id: moduleId, file: editing.file, draft: composed, mode: editing.mode });
+      if (!alive) return;
+      setReview(r?.ok ? { data: r, content: composed, pending: false } : { error: r?.error || 'review failed', pending: false });
+    }, 450);
+    return () => { alive = false; clearTimeout(h); };
+    // eslint-disable-next-line
+  }, [moduleId, editing?.file, editing?.mode, composed, busy]);
+  const freshReview = review?.data && review.content === composed ? review.data : null;
+  const removals = (freshReview?.risks || []).filter((x) => x.kind === 'removed').length;
 
   const fetchAll = async () => {
     if (!moduleId || !moduleId.startsWith('b.')) { setFiles({}); setLoading(false); return; }
@@ -2613,7 +2718,7 @@ function ContractSection({ moduleId, layer }) {
     try { console.log('[panels] fillField response', { ok: r?.ok, mock: r?.mock, contentLen: (r?.content || '').length, error: r?.error }); } catch {}
     setBusy(false);
     if (!r?.ok) { setError(r?.error || 'fill failed'); setEditing(null); return; }
-    setEditing({ file, mode: 'fill', draft: r.content, original: files[file] || '', mock: r.mock });
+    setEditing({ file, mode: 'fill', draft: r.content, original: files[file] || '', tail: contractTail(files[file]), mock: r.mock, provider: r.provider, model: r.model, llmDraft: r.content });
   };
 
   const startRewrite = async (file) => {
@@ -2636,7 +2741,7 @@ function ContractSection({ moduleId, layer }) {
     try { console.log('[panels] rewriteField response', { ok: r?.ok, mock: r?.mock, contentLen: (r?.content || '').length, error: r?.error }); } catch {}
     setBusy(false);
     if (!r?.ok) { setError(r?.error || 'rewrite failed'); setEditing(null); return; }
-    setEditing({ file, mode: 'rewrite', draft: r.content, original: files[file] || '', mock: r.mock });
+    setEditing({ file, mode: 'rewrite', draft: r.content, original: files[file] || '', tail: contractTail(files[file]), mock: r.mock, provider: r.provider, model: r.model, llmDraft: r.content });
   };
 
   // R-7.42 — «✨ Развернуть»: добавляет контекст к черновику (актеры, edge
@@ -2659,7 +2764,7 @@ function ContractSection({ moduleId, layer }) {
     try { console.log('[panels] expandField response', { ok: r?.ok, mock: r?.mock, contentLen: (r?.content || '').length, error: r?.error }); } catch {}
     setBusy(false);
     if (!r?.ok) { setError(r?.error || 'expand failed'); setEditing(null); return; }
-    setEditing({ file, mode: 'expand', draft: r.content, original: files[file] || '', mock: r.mock });
+    setEditing({ file, mode: 'expand', draft: r.content, original: files[file] || '', tail: contractTail(files[file]), mock: r.mock, provider: r.provider, model: r.model, llmDraft: r.content });
   };
 
   // Phase R-7.7 — manual edit без LLM-вызова. До этого все три действия
@@ -2675,24 +2780,23 @@ function ContractSection({ moduleId, layer }) {
     // в файле получалась мешанина. Чистый старт значит «напиши свою
     // миссию с нуля». Если контент НЕ template — оставляем как есть для
     // правки.
-    const stripHeading = (s) => s.replace(/^#[^\n]*\n+/, '').replace(/\n+##\s+Layer[\s\S]*$/i, '').trim();
+    // The «## Layer» tail is hidden here and put back on save (contractTail).
+    const stripHeading = (s) => s.replace(/^#[^\n]*\n+/, '').replace(/\n+##\s+Layer\s*\n[\s\S]*$/i, '').trim();
     const body = stripHeading(current);
     const isTemplate =
       /Заполни через детальную панель|добавь конкретную метрику|^- none\s*$/im.test(body) ||
       body.length < 20;
-    setEditing({ file, mode: 'manual', draft: isTemplate ? '' : body, original: current });
+    setEditing({ file, mode: 'manual', draft: isTemplate ? '' : body, original: current, tail: contractTail(current) });
     setError(null);
   };
 
   const approve = async () => {
     if (!editing) return;
     setBusy(true);
-    // Wrap content with the standard H1 if missing (each file's first line
-    // is `# <block_id> — <file basename>`).
-    const heading = `# ${moduleId} — ${editing.file.replace(/\.md$/, '')}`;
-    const body = editing.draft.trim();
-    const content = body.startsWith('#') ? body + '\n' : `${heading}\n\n${body}\n`;
-    const r = await window.SIMA_API.synthesis.patchBlockFile(moduleId, editing.file, content);
+    // The standard H1 (`# <block_id> — <file basename>`) when missing, and
+    // the kept «## Layer» tail — see composeContractContent.
+    const content = composeContractContent(moduleId, editing);
+    const r = await window.SIMA_API.synthesis.patchBlockFile(moduleId, editing.file, content, contractSource(editing));
     setBusy(false);
     if (r?.ok) {
       setFiles((F) => ({ ...F, [editing.file]: content }));
@@ -2797,7 +2901,7 @@ function ContractSection({ moduleId, layer }) {
                   <pre className="contract-modal-pre dim">{editing.original}</pre>
                 </div>
               )}
-              <div>
+              <div className={(editing.mode === 'rewrite' || editing.mode === 'expand') && editing.original ? '' : 'contract-modal-wide'}>
                 <div className="meta" style={{ fontSize: 10.5, marginBottom: 4, letterSpacing: '0.06em' }}>
                   {editing.mode === 'rewrite' ? t('contract.became_rewrite', 'BECAME (you can fix it)') :
                    editing.mode === 'expand' ? t('contract.became_expand', 'EXPANDED (you can fix it)') :
@@ -2811,12 +2915,18 @@ function ContractSection({ moduleId, layer }) {
                   disabled={busy}
                   rows={14}
                 />
+                {editing.tail && (
+                  <div className="meaning-note">{t('contract.tail_kept', 'The «## Layer» section and everything below it are kept as they are.')}</div>
+                )}
               </div>
+              <DraftReview review={review} />
             </div>
             <div className="sysdocs-foot" style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
               <button className="pill" onClick={() => setEditing(null)} disabled={busy}>{t('contract.cancel', 'Cancel')}</button>
               <button className="pill primary" onClick={approve} disabled={busy || !editing.draft.trim()}>
-                {busy ? t('contract.saving', 'saving…') : t('contract.approve', '💾 Accept and write')}
+                {busy ? t('contract.saving', 'saving…')
+                  : removals ? `${t('contract.approve_removing', '💾 Write — removes')} ${removals}`
+                  : t('contract.approve', '💾 Accept and write')}
               </button>
             </div>
           </div>

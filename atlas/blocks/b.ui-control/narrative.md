@@ -105,3 +105,19 @@ text says ✗), and «Contract wording» is the second health row in
 Implementation Status. Both come in the same meaning summary; the canvas does
 not parse contract files. The Playwright spec now changes a confirmed
 block's acceptance and checks the delta on screen (4/4 stable).
+
+## R-8.13 — «What writing this changes», before «write»
+
+The contract edit modal (Fill / Rewrite / Expand / Edit) reviews the exact
+text it would write, a moment after typing stops: counts of added / changed /
+removed units, the risky ones spelled out (a removed requirement, numbers
+before → after, a requirement added by «rewrite», «words in common with the
+mission and the project: 1 of 24»), and the units themselves. The write button
+names a removal («💾 Write — removes 1»); nothing is blocked. The save sends
+who wrote the text (manual, or the Sima action with provider, model and
+`edited`). The manual editor keeps the «## Layer» tail it hides — it used to
+drop it on every save. The modal's draft survives a live refresh (sticky, like
+the meaning panel's), and the activity log follows the client on screen. The
+Playwright spec covers the removal warning, the kept tail, the audit line and
+an untouched root log (4/4 stable); without the kept tail it fails at the
+review step — the panel itself names the removal.

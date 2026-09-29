@@ -5,3 +5,4 @@
 - b.agent-orchestrator: block_meaning_api
 - b.clarify: frame_review_gate
 - b.clarify: declared_understanding
+- b.clarify: contract_draft_review

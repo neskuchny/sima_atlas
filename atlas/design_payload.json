@@ -689,7 +689,7 @@
     },
     {
       "id": "b.clarify",
-      "_raw_updated_at": "2026-09-22T20:56:02.774Z",
+      "_raw_updated_at": "2026-09-29T04:52:44.056Z",
       "title": "Clarification Arbiter",
       "tag": "clarify",
       "layer": "logic",
@@ -708,12 +708,12 @@
       },
       "progress": {
         "tasks": {
-          "done": 31,
-          "total": 36
+          "done": 35,
+          "total": 40
         },
         "kpi": {
           "checked": 0,
-          "total": 29
+          "total": 36
         }
       },
       "frame": {
@@ -2858,6 +2858,42 @@
         "accept": ""
       },
       {
+        "id": "T37",
+        "title": ". `contract_draft_review.mjs`: разбор черновика контрактного файла до записи — разница по единицам смысла и риски (удалено требование, изменилось число или порог, «переписать» добавило требование, чер",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T38",
+        "title": ". Окно правки контракта показывает «Что изменит запись» до кнопки; кнопка называет удаление («💾 Записать — удаляет N»). Разбирается ровно тот текст, который будет записан.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T39",
+        "title": ". Автор записанного текста — в строке аудита (`by=manual`, `by=sima-rewrite provider=… model=… edited`); KPI-9 считается из этих строк каждую ночь.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T40",
+        "title": ". Ручная правка миссии больше не теряет раздел «## Layer» и всё ниже него (раньше молча удаляла при каждом сохранении).",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
         "id": "T12",
         "title": ". Подсветка блока с открытыми маркерами на графе.",
         "status": "todo",
@@ -3009,20 +3045,6 @@
   "lanes": [],
   "history": [
     {
-      "ts": "17:31",
-      "module": "clarify",
-      "agent": "sima-core",
-      "kind": "info",
-      "msg": "b.clarify: done → wip"
-    },
-    {
-      "ts": "17:40",
-      "module": "clarify",
-      "agent": "sima-core",
-      "kind": "info",
-      "msg": "b.clarify: wip → review"
-    },
-    {
       "ts": "17:40",
       "module": "clarify",
       "agent": "sima-core",
@@ -3091,6 +3113,20 @@
       "agent": "sima-core",
       "kind": "info",
       "msg": "b.acceptance-verifier-loop: wip → review"
+    },
+    {
+      "ts": "04:33",
+      "module": "clarify",
+      "agent": "sima-core",
+      "kind": "info",
+      "msg": "b.clarify: review → wip"
+    },
+    {
+      "ts": "04:52",
+      "module": "clarify",
+      "agent": "sima-core",
+      "kind": "info",
+      "msg": "b.clarify: wip → review"
     }
   ],
   "lessons": [],
@@ -3122,7 +3158,7 @@
     }
   ],
   "_meta": {
-    "generated_at": "2026-09-22T20:56:18.695Z",
+    "generated_at": "2026-09-29T04:53:09.234Z",
     "atlas_root": "atlas",
     "client_id": null,
     "block_count": 21,

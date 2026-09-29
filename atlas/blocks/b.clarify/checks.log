@@ -32,3 +32,7 @@
 2026-09-22T20:45:14.522Z	transition	pass	review->wip	actor=operator-R8.12	note=R-8.12: scope extension — contract delta since confirmation (OpenSpec deltas), deterministic contract-quality lint (Spec Kit checklist/analyze)
 2026-09-22T20:55:50.266Z	acceptance_verifier	pass	verdict=pass pass=14 fail=0 skipped=0
 2026-09-22T20:56:02.774Z	transition	pass	wip->review	actor=operator-R8.12	note=R-8.12 implemented: contract delta since confirmation + contract wording lint; acceptance 14/14; frame awaits the operator
+2026-09-29T04:33:40.749Z	transition	pass	review->wip	actor=operator-R8.13	note=R-8.13: scope extension — review an LLM draft of a contract file as a delta with risks before it is written (OpenSpec: agree on the delta, then apply)
+2026-09-29T04:51:39.469Z	acceptance_verifier	fail	verdict=fail pass=15 fail=1 skipped=0 fails=[A15:node tests/contract_draft_review.selftest.mjs → exit 0; expe]
+2026-09-29T04:51:44.563Z	acceptance_verifier	pass	verdict=pass pass=16 fail=0 skipped=0
+2026-09-29T04:52:44.056Z	transition	pass	wip->review	actor=operator-R8.13	note=R-8.13: draft review before write, provenance, KPI-9 source; acceptance 16/16

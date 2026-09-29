@@ -9,7 +9,7 @@ window.SIMA_BOOTSTRAP = {
         "taskKind": "продукт",
         "taskTitle": "Живая схема Atlas",
         "taskNote": "Блоки, слои, статусы и зависимости автогенерируются из /atlas",
-        "created": "2026-09-22",
+        "created": "2026-09-29",
         "owner": "Cursor / Claude / Codex",
         "canvas": {
           "task": {
@@ -851,7 +851,7 @@ window.SIMA_BOOTSTRAP = {
                   "scripts/validate_clarifications.mjs [alive] (R-8.06: гейт — done-блок не может нести открытый маркер; review → warning; idea/wip → info, чтобы черновик оставался свободным)",
                   "scripts/block_meaning.mjs [alive] (R-8.08: направление «человек → модель». Экспортирует readTrajectory / trajectoryPromptLines — секция «Во что это вырастет» в mission.md и её подача агенту; understandingPromptLines / parseUnderstanding / readUnderstanding / understandingStaleness — объявление понимания агентом до кода; blockMeaningSummary — единый читатель для ночного отчёта и канваса (R-8.12: плюс delta и quality); R-8.09: frameGate / recordDeclared / recordFrameReview / contractFingerprint — шлюз «объявил → человек подтвердил → код», declarePhasePromptLines / implementPhasePromptLines / operatorLanguage — промпты двух фаз на языке миссии; R-8.10: setTrajectory — запись секции траектории, которую readTrajectory прочитает ровно так же)",
                   "scripts/contract_lint.mjs [alive] (R-8.12: детерминированная проверка формулировок — размытые слова без меры, KPI без проверки и замера, KPI с «✗» в своём тексте, KPI без номеров; отчёт, не гейт)",
-                  "scripts/validate_meaning.mjs [alive] (R-8.08: отчёт, не гейт — траектория, наличие/полнота/устаревание understanding.md по блокам. Условия повышения до гейта и снятия — в шапке файла)"
+                  "scripts/contract_draft_review.mjs [alive] (R-8.13: разбор черновика контрактного файла ДО записи — разница по единицам смысла и риски: удалённое требование, изменившееся число или порог, требование, добавленное «переписыванием», черновик не про этот продукт (доля общих основ слов с миссией и project.md). Экспортирует reviewDraft / stems / numbersOf; draftWriteStats — источник KPI-9 из строк аудита `by=`)"
                 ]
               },
               {
@@ -1473,7 +1473,7 @@ window.SIMA_BOOTSTRAP = {
         "taskKind": "продукт",
         "taskTitle": "Минимальный пример пользовательского продукта в Атласе, чтобы показать: Сима умеет вести **любой** продукт, не только сама себя.",
         "taskNote": "Project under atlas/projects/demo-todo",
-        "created": "2026-09-22",
+        "created": "2026-09-29",
         "owner": "demo",
         "canvas": {
           "task": {
@@ -1825,7 +1825,7 @@ window.SIMA_BOOTSTRAP = {
         "taskKind": "продукт",
         "taskTitle": "Подсхема блока b.ui-control",
         "taskNote": "Subschema \"components\" of atlas-live/b.ui-control",
-        "created": "2026-09-22",
+        "created": "2026-09-29",
         "owner": "Cursor / Claude / Codex",
         "canvas": {
           "task": {
@@ -2488,7 +2488,7 @@ window.SIMA_BOOTSTRAP = {
             "scripts/validate_clarifications.mjs [alive] (R-8.06: гейт — done-блок не может нести открытый маркер; review → warning; idea/wip → info, чтобы черновик оставался свободным)",
             "scripts/block_meaning.mjs [alive] (R-8.08: направление «человек → модель». Экспортирует readTrajectory / trajectoryPromptLines — секция «Во что это вырастет» в mission.md и её подача агенту; understandingPromptLines / parseUnderstanding / readUnderstanding / understandingStaleness — объявление понимания агентом до кода; blockMeaningSummary — единый читатель для ночного отчёта и канваса (R-8.12: плюс delta и quality); R-8.09: frameGate / recordDeclared / recordFrameReview / contractFingerprint — шлюз «объявил → человек подтвердил → код», declarePhasePromptLines / implementPhasePromptLines / operatorLanguage — промпты двух фаз на языке миссии; R-8.10: setTrajectory — запись секции траектории, которую readTrajectory прочитает ровно так же)",
             "scripts/contract_lint.mjs [alive] (R-8.12: детерминированная проверка формулировок — размытые слова без меры, KPI без проверки и замера, KPI с «✗» в своём тексте, KPI без номеров; отчёт, не гейт)",
-            "scripts/validate_meaning.mjs [alive] (R-8.08: отчёт, не гейт — траектория, наличие/полнота/устаревание understanding.md по блокам. Условия повышения до гейта и снятия — в шапке файла)"
+            "scripts/contract_draft_review.mjs [alive] (R-8.13: разбор черновика контрактного файла ДО записи — разница по единицам смысла и риски: удалённое требование, изменившееся число или порог, требование, добавленное «переписыванием», черновик не про этот продукт (доля общих основ слов с миссией и project.md). Экспортирует reviewDraft / stems / numbersOf; draftWriteStats — источник KPI-9 из строк аудита `by=`)"
           ],
           "tech_stack": [
             "nodejs",
@@ -3884,11 +3884,11 @@ window.SIMA_BOOTSTRAP = {
     "b.clarify": {
       "verdict": "pass",
       "counts": {
-        "pass": 14,
+        "pass": 16,
         "fail": 0,
         "skipped": 0
       },
-      "checked_at": "2026-09-22T20:56:40.568Z",
+      "checked_at": "2026-09-29T04:51:44.563Z",
       "assertions": [
         {
           "id": "A1",
@@ -3907,7 +3907,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/clarify_block.selftest.mjs → exit 0 (291ms); first line: \"clarify_block.selftest: OK (10 groups, all assertions green)\"",
+          "evidence": "node tests/clarify_block.selftest.mjs → exit 0 (380ms); first line: \"clarify_block.selftest: OK (10 groups, all assertions green)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -3917,7 +3917,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "exit_code",
-          "evidence": "ATLAS_FORCE_MOCK_LLM=1 node scripts/clarify_block.mjs b.desktop --json | grep -q '\"verdict\": \"inconclusive\"' → exit 0 (67ms); first line: \"\"",
+          "evidence": "ATLAS_FORCE_MOCK_LLM=1 node scripts/clarify_block.mjs b.desktop --json | grep -q '\"verdict\": \"inconclusive\"' → exit 0 (96ms); first line: \"\"",
           "reasoning": "shell exit code 0"
         },
         {
@@ -3947,7 +3947,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "exit_code",
-          "evidence": "node scripts/validate_clarifications.mjs → exit 0 (85ms); first line: \"validate_clarifications: 0 open marker(s), 0 question(s) answered on record — OK\"",
+          "evidence": "node scripts/validate_clarifications.mjs → exit 0 (119ms); first line: \"validate_clarifications: 0 open marker(s), 0 question(s) answered on record — OK\"",
           "reasoning": "shell exit code 0 and stdout matches /open marker/"
         },
         {
@@ -3967,7 +3967,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "selftest_run",
-          "evidence": "node tests/block_meaning.selftest.mjs → exit 0 (189ms); first line: \"block_meaning.selftest: OK (13 groups, all assertions green)\"",
+          "evidence": "node tests/block_meaning.selftest.mjs → exit 0 (236ms); first line: \"block_meaning.selftest: OK (13 groups, all assertions green)\"",
           "reasoning": "shell exit code 0 and stdout matches /OK/"
         },
         {
@@ -3987,7 +3987,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "exit_code",
-          "evidence": "node scripts/validate_meaning.mjs → exit 0 (107ms); first line: \" · b.acceptance-verifier-loop (review) — understanding: complete, frame: awaiting\"",
+          "evidence": "node scripts/validate_meaning.mjs → exit 0 (146ms); first line: \" · b.acceptance-verifier-loop (review) — understanding: complete, frame: awaiting\"",
           "reasoning": "shell exit code 0 and stdout matches /not a gate/"
         },
         {
@@ -4017,7 +4017,7 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "exit_code",
-          "evidence": "! grep -q recordFrameReview scripts/mcp_atlas_server.mjs → exit 0 (5ms); first line: \"\"",
+          "evidence": "! grep -q recordFrameReview scripts/mcp_atlas_server.mjs → exit 0 (6ms); first line: \"\"",
           "reasoning": "shell exit code 0"
         },
         {
@@ -4027,8 +4027,28 @@ window.SIMA_BOOTSTRAP = {
           "checked": true,
           "verdict": "pass",
           "evidence_kind": "exit_code",
-          "evidence": "node scripts/contract_lint.mjs → exit 0 (83ms); first line: \" · b.ui-control (wip) — 7 to fix\"",
+          "evidence": "node scripts/contract_lint.mjs → exit 0 (105ms); first line: \" · b.ui-control (wip) — 7 to fix\"",
           "reasoning": "shell exit code 0 and stdout matches /not a gate/"
+        },
+        {
+          "id": "A15",
+          "label": null,
+          "text": "Черновик контрактного файла разбирается до записи: удалённое требование, изменившийся порог, требование, добавленное «переписыванием», и черновик не про этот продукт названы; при недостатке текста для сравнения тревоги нет; подсчёт авторов записи для KPI-9 верен.",
+          "checked": true,
+          "verdict": "pass",
+          "evidence_kind": "exit_code",
+          "evidence": "node tests/contract_draft_review.selftest.mjs → exit 0 (103ms); first line: \"contract_draft_review.selftest: OK (7 groups)\"",
+          "reasoning": "shell exit code 0 and stdout matches /OK [(]7 groups[)]/"
+        },
+        {
+          "id": "A16",
+          "label": null,
+          "text": "Источники KPI-7, KPI-8 и KPI-9 печатаются каждую ночь: `validate_meaning` выводит авторов записей контракта (оператор / черновики модели / из них правленные до записи) и ответы оператора на рамки (подтверждено / поправлено).",
+          "checked": true,
+          "verdict": "pass",
+          "evidence_kind": "exit_code",
+          "evidence": "node scripts/validate_meaning.mjs → exit 0 (141ms); first line: \" · b.acceptance-verifier-loop (review) — understanding: complete, frame: awaiting\"",
+          "reasoning": "shell exit code 0 and stdout matches /contract writes: [0-9]+ by the operator, [0-9]+ model drafts [(][0-9]+ edited before writing[)][^]*frame answers: [0-9]+ confirmed / [0-9]+ corrected/"
         }
       ]
     },
@@ -5131,7 +5151,7 @@ window.SIMA_BOOTSTRAP = {
   },
   "operatorProfile": {
     "operator_id": "default",
-    "updated_at": "2026-09-22T20:56:14.130Z",
+    "updated_at": "2026-09-29T04:53:02.919Z",
     "_status": "live",
     "_min_data": {
       "done_transitions": 13,
@@ -5142,11 +5162,11 @@ window.SIMA_BOOTSTRAP = {
     "work_style": {
       "total_done": 13,
       "total_broken": 0,
-      "total_wip_started": 15,
+      "total_wip_started": 16,
       "rollback_rate": 0,
       "median_time_idea_to_done_h": 0.00003138888888888889,
       "common_failure_modes": {
-        "acceptance_verifier": 35,
+        "acceptance_verifier": 36,
         "semantic_verify": 16,
         "cascade_check": 6,
         "kpi": 3,
@@ -5465,23 +5485,23 @@ window.SIMA_BOOTSTRAP = {
         "avg_cost_usd": 0
       },
       "mock": {
-        "count": 5247,
-        "fallback_to_mock_count": 28,
+        "count": 5431,
+        "fallback_to_mock_count": 29,
         "total_cost_usd": 0,
-        "schema_ok_count": 5247,
+        "schema_ok_count": 5431,
         "fallback_rate": 0.01,
         "schema_ok_rate": 1,
         "avg_cost_usd": 0
       }
     },
     "proposals_stats": {
-      "total": 59,
+      "total": 61,
       "accept_rate": 0,
       "reject_rate": 0,
-      "pending": 59
+      "pending": 61
     },
     "decisions_stats": {
-      "total": 3706,
+      "total": 3714,
       "blocks_with_decisions": 10
     },
     "patterns_stats": {
@@ -5638,6 +5658,12 @@ window.SIMA_BOOTSTRAP = {
         "ts": "2026-09-22T18:22:05.354Z",
         "kind": "acceptance_verifier",
         "note": "verdict=fail pass=12 fail=1 skipped=0 fails=[A9:grep /understandingPromptLines[(]blockDirRelForPrompt[)]/ sc]"
+      },
+      {
+        "block_id": "b.clarify",
+        "ts": "2026-09-29T04:51:39.469Z",
+        "kind": "acceptance_verifier",
+        "note": "verdict=fail pass=15 fail=1 skipped=0 fails=[A15:node tests/contract_draft_review.selftest.mjs → exit 0; expe]"
       },
       {
         "block_id": "b.core-sync",
@@ -5884,8 +5910,8 @@ window.SIMA_BOOTSTRAP = {
     "_preview": {
       "total_done": 13,
       "total_invocations": 14,
-      "total_traces": 5254,
-      "total_proposals": 59
+      "total_traces": 5438,
+      "total_proposals": 61
     }
   },
   "operatorLessons": [],

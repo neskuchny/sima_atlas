@@ -40,3 +40,9 @@ file / artifact / subsystem APIs and the migration scripts that had no owner
 `tests/migrate_v1_v2.selftest.mjs` migrates a v1 graph with custom top-level
 and block fields: everything survives unchanged, v2 fields are added without
 overwriting values a block already had, and a second run writes nothing.
+
+## 2026-09-29 — R-8.13: who wrote the text
+
+`patchBlockFile` takes an optional `source` and appends it to the audit line
+as `by=…`, reduced to a safe charset (`sanitizeSource`): a source can neither
+add a column nor start a forged line. No source → the line is as before.

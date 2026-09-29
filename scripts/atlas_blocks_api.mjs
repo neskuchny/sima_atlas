@@ -395,7 +395,13 @@ const WRITABLE_BLOCK_FILES = new Set([
 // Optional `if_match_mtime`: ISO mtime of the file when the caller read it.
 // If the on-disk mtime has advanced past it, throws EtagMismatchError so
 // the UI can offer to reload the latest content before overwriting.
-export function patchBlockFile({ atlas_root, block_id, file, content, if_match_mtime } = {}) {
+// R-8.13 — optional `source`: who wrote the text (`manual`, `sima-rewrite
+// provider=… model=… edited`). Appended to the audit line as `by=…`, reduced
+// to a safe charset so it can never forge a second line or column.
+export function sanitizeSource(source) {
+  return String(source || '').replace(/[^A-Za-z0-9_:+/.=\- ]/g, '').replace(/\s+/g, ' ').trim().slice(0, 120);
+}
+export function patchBlockFile({ atlas_root, block_id, file, content, if_match_mtime, source } = {}) {
   if (!block_id) throw new Error('patchBlockFile: block_id required');
   if (!WRITABLE_BLOCK_FILES.has(file)) throw new Error(`patchBlockFile: forbidden file "${file}"`);
   if (typeof content !== 'string') throw new Error('patchBlockFile: content must be string');
@@ -440,8 +446,9 @@ export function patchBlockFile({ atlas_root, block_id, file, content, if_match_m
   const newMtime = fs.statSync(p).mtime.toISOString();
   // Audit line in checks.log so the run-files extractor can pick it up.
   const log = path.join(dir, 'checks.log');
-  fs.appendFileSync(log, `${ts()}\tdesign_patch\tpass\tatlas/blocks/${block_id}/${file}\n`);
-  return { ok: true, block_id, file, bytes: content.length, mtime: newMtime };
+  const by = sanitizeSource(source);
+  fs.appendFileSync(log, `${ts()}\tdesign_patch\tpass\tatlas/blocks/${block_id}/${file}${by ? ` by=${by}` : ''}\n`);
+  return { ok: true, block_id, file, bytes: content.length, mtime: newMtime, ...(by ? { source: by } : {}) };
 }
 
 export function listNotes({ atlas_root } = {}) {

@@ -150,6 +150,12 @@
     "note": "verdict=fail pass=12 fail=1 skipped=0 fails=[A9:grep /understandingPromptLines[(]blockDirRelForPrompt[)]/ sc]"
   },
   {
+    "block_id": "b.clarify",
+    "ts": "2026-09-29T04:51:39.469Z",
+    "kind": "acceptance_verifier",
+    "note": "verdict=fail pass=15 fail=1 skipped=0 fails=[A15:node tests/contract_draft_review.selftest.mjs → exit 0; expe]"
+  },
+  {
     "block_id": "b.core-sync",
     "ts": "2026-06-09T18:05:53.718Z",
     "kind": "semantic_verify",
