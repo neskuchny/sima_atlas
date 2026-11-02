@@ -72,7 +72,10 @@ function lineOf(src, off) {
 }
 
 const STATIC_IMPORT_RE = /\bimport\b(?:\s+([^'"\n;]+?))?\s+from\s*['"]([^'"\n]+)['"]/g;
-const SIDE_EFFECT_IMPORT_RE = /\bimport\s*['"]([^'"\n]+)['"]/g;
+// R-8.16: a side-effect import opens its line — `tag('import'), …` or
+// `[['import', f.imports]` in code is a string, not a package (the map shows
+// packages in a file's stack, so this noise became visible).
+const SIDE_EFFECT_IMPORT_RE = /^[ \t]*import\s*['"]([^'"\n]+)['"]/gm;
 const DYNAMIC_IMPORT_RE = /\bimport\s*\(\s*['"]([^'"\n]+)['"]\s*\)/g;
 const REEXPORT_RE = /\bexport\b[^'"\n;]*?from\s*['"]([^'"\n]+)['"]/g;
 

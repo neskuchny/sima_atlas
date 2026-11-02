@@ -5,10 +5,14 @@
 // directly with that atlas root, and asserts both detectors fire on the
 // positive cases and are silent on the negative ones.
 //
-// 7 test groups: clean case · undeclared_code_dependency · declared dep
+// 8 test groups: clean case · undeclared_code_dependency · declared dep
 // satisfies · provided_capability_not_exported (real) · capability with
 // parenthetical annotation skipped (non-code) · severity split (errors
-// vs warnings) · runtime calls declared in calls.md (R-8.15).
+// vs warnings) · runtime calls declared in calls.md (R-8.15) · data links:
+// atlas files another block owns (R-8.16).
+//
+// The verdict is printed once, after every group (R-8.16: group 7 used to
+// run after the verdict, so its failures could not fail the run).
 
 import fs from 'node:fs';
 import os from 'node:os';
@@ -189,11 +193,6 @@ function writeCodeGraphForMini(atlas, { files, edges, byBlock }) {
   fs.rmSync(tmp, { recursive: true, force: true });
 }
 
-if (failures.length) {
-  console.error('code_graph_validator.selftest: FAIL');
-  failures.forEach((f) => console.error(' ✗', f));
-  process.exit(1);
-}
 // ── Group 7 (R-8.15): runtime calls — a started script or an API call to
 // another block is declared in calls.md, not in depends_on.md; undeclared,
 // stale and unknown calls are warnings.
@@ -232,4 +231,58 @@ if (failures.length) {
   fs.rmSync(tmp, { recursive: true, force: true });
 }
 
-console.log('code_graph_validator.selftest: OK (7 test groups, all assertions green)');
+// ── Group 8 (R-8.16): data links — reading or writing an atlas file another
+// block owns is a connection; undeclared ones are warnings, not runtime calls;
+// a file nobody owns is reported, not guessed.
+{
+  const { tmp, atlas } = setupMiniAtlas();
+  writeBlock(atlas, 'b.alpha', { files: ['scripts/alpha.mjs'] });
+  writeBlock(atlas, 'b.beta', { files: ['scripts/beta.mjs', 'atlas/beta_data.json'] });
+  writeBlock(atlas, 'b.gamma', { files: ['scripts/gamma.mjs'] });
+  fs.writeFileSync(path.join(atlas, 'beta_data.json'), '{}\n');
+  fs.writeFileSync(path.join(atlas, 'shared.log'), '');
+  fs.mkdirSync(path.join(tmp, 'scripts'), { recursive: true });
+  fs.writeFileSync(path.join(tmp, 'scripts', 'alpha.mjs'), [
+    "import fs from 'node:fs';",
+    "import path from 'node:path';",
+    "const ATLAS = path.join(process.cwd(), 'atlas');",
+    "const data = JSON.parse(fs.readFileSync(path.join(ATLAS, 'beta_data.json'), 'utf8'));",
+    "fs.appendFileSync(path.join(ATLAS, 'shared.log'), JSON.stringify(data));",
+  ].join('\n'));
+  fs.writeFileSync(path.join(tmp, 'scripts', 'beta.mjs'), "import fs from 'node:fs';\nfs.writeFileSync('atlas/beta_data.json', '{}');\n");
+  fs.writeFileSync(path.join(tmp, 'scripts', 'gamma.mjs'), "import fs from 'node:fs';\nfs.appendFileSync('atlas/shared.log', 'x');\n");
+  const ext = (line) => ({ from: 'node:fs', external: true, resolved_to: null, kind: 'static', line, specifiers: [] });
+  writeCodeGraphForMini(atlas, {
+    files: {
+      'scripts/alpha.mjs': { owning_block: 'b.alpha', imports: [ext(1)], exports: [] },
+      'scripts/beta.mjs': { owning_block: 'b.beta', imports: [ext(1)], exports: [] },
+      'scripts/gamma.mjs': { owning_block: 'b.gamma', imports: [ext(1)], exports: [] },
+    },
+    edges: [],
+    byBlock: { 'b.alpha': { files: ['scripts/alpha.mjs'] }, 'b.beta': { files: ['scripts/beta.mjs'] }, 'b.gamma': { files: ['scripts/gamma.mjs'] } },
+  });
+  const run = () => validate({ atlasRoot: atlas, sourceRoot: tmp });
+  const r1 = run();
+  const d1 = r1.drifts.filter((d) => d.kind === 'undeclared_data_link');
+  check('g8: reading a file another block registers is an undeclared data link', d1.length === 1 && d1[0].block === 'b.alpha' && d1[0].data_of_block === 'b.beta'
+    && d1[0].severity === 'warning' && d1[0].files.join() === 'atlas/beta_data.json' && d1[0].examples[0].line === 4 && d1[0].examples[0].mode === 'read'
+    && /depends_on\.md/.test(d1[0].hint), JSON.stringify(d1));
+  check('g8: a data link is not a runtime call', !r1.drifts.some((d) => /runtime_call/.test(d.kind)), JSON.stringify(r1.drifts.map((d) => d.kind)));
+  check('g8: a file two blocks write and nobody registers has no owner', r1.unowned_data.join() === 'shared.log', JSON.stringify(r1.unowned_data));
+  check('g8: no link is guessed toward a file without an owner', !d1.some((d) => d.data_of_block === 'b.gamma'));
+  check('g8: data links never fail the run on their own', r1.ok === true);
+  // the map reads dependencies from graph.json, which mirrors depends_on.md
+  writeBlock(atlas, 'b.alpha', { deps: ['b.beta: beta_data'], files: ['scripts/alpha.mjs'] });
+  const g = JSON.parse(fs.readFileSync(path.join(atlas, 'graph.json'), 'utf8'));
+  g.blocks.find((x) => x.id === 'b.alpha').depends_on = ['b.beta'];
+  fs.writeFileSync(path.join(atlas, 'graph.json'), JSON.stringify(g, null, 2));
+  check('g8: declared in depends_on.md → no warning', run().drifts.filter((d) => d.kind === 'undeclared_data_link').length === 0, JSON.stringify(run().drifts));
+  fs.rmSync(tmp, { recursive: true, force: true });
+}
+
+if (failures.length) {
+  console.error('code_graph_validator.selftest: FAIL');
+  failures.forEach((f) => console.error(' ✗', f));
+  process.exit(1);
+}
+console.log('code_graph_validator.selftest: OK (8 test groups, all assertions green)');

@@ -50,6 +50,16 @@ const W = {
   part: ['часть', 'части', 'частей'], imp: ['импорт', 'импорта', 'импортов'], route: ['маршрут', 'маршрута', 'маршрутов'],
   start: ['запуск', 'запуска', 'запусков'],
 };
+// R-8.16 — an atlas file as the code names it: «atlas/blocks/…/mission.md»
+// is that file in every block's folder.
+const dataPath = (key) => `atlas/${String(key).replace('/*/', '/…/')}`;
+const dataName = (key) => (key === 'blocks/' ? 'atlas/blocks/' : base(String(key).replace(/\/$/, '')));
+const modeText = (m) => tr(`map.dm_${m}`, { read: 'reads', write: 'writes', both: 'reads and writes' }[m] || m);
+// «Somewhere in the block folders» says nothing more when the file names which ones.
+const shownData = (f) => {
+  const all = f.data || [];
+  return all.some((d) => d.key.startsWith('blocks/*/')) ? all.filter((d) => d.key !== 'blocks/') : all;
+};
 const fmtLines = (n) => (n >= 1000 ? `${(n / 1000).toFixed(1).replace('.', ',')} ${tr('map.thousand_lines', 'k lines')}` : plural(n, W.line));
 const STATUS = {
   done: { icon: '✓', key: 'map.st_done', fb: 'done', color: 'var(--st-done)' },
@@ -72,7 +82,10 @@ const LINK_KIND = {
   import: { icon: '⇢', key: 'map.lk_import', fb: 'import' },
   http: { icon: '⌁', key: 'map.lk_http', fb: 'API call' },
   start: { icon: '▶', key: 'map.lk_start', fb: 'starts a process' },
+  file: { icon: '▤', key: 'map.lk_file', fb: 'its data: an atlas file' },
+  via: { icon: '⇉', key: 'map.lk_via', fb: 'through the server' },
 };
+const LINK_KINDS = ['import', 'http', 'start', 'file', 'via'];
 const dateRu = (d) => {
   const [, m, dd] = String(d || '').split('-');
   return m ? `${+dd} ${['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'][+m - 1]}` : '';
@@ -148,12 +161,19 @@ const linkStateText = (l) => ({
   'contract-only': tr('map.ls_contract_only', 'only in the contract — no code uses it'),
 }[linkState(l)]);
 function linkSummary(l) {
-  const n = { import: 0, http: 0, start: 0 };
+  const n = { import: 0, http: 0, start: 0, file: 0, via: 0 };
   for (const c of l.code) n[c.kind] = (n[c.kind] || 0) + 1;
+  const distinct = (kind) => new Set(l.code.filter((c) => c.kind === kind).flatMap((c) => c.names)).size;
   const parts = [];
   if (n.import) parts.push(plural(n.import, W.imp));
-  if (n.http) parts.push(`${tr('map.calls', 'calls')} ${plural(new Set(l.code.filter((c) => c.kind === 'http').flatMap((c) => c.names)).size, W.route)}`);
+  if (n.http) parts.push(`${tr('map.calls', 'calls')} ${plural(distinct('http'), W.route)}`);
   if (n.start) parts.push(plural(n.start, W.start));
+  if (n.file) {
+    const fc = l.code.filter((c) => c.kind === 'file');
+    const r = fc.some((c) => c.mode !== 'write'), w = fc.some((c) => c.mode !== 'read');
+    parts.push(`${r && w ? tr('map.data_rw', 'reads and writes its data') : w ? tr('map.data_w', 'writes into its data') : tr('map.data_r', 'reads its data')}: ${plural(distinct('file'), W.file)}`);
+  }
+  if (n.via) parts.push(`${tr('map.via_short', 'through the server')}: ${plural(new Set(l.code.filter((c) => c.kind === 'via').map((c) => c.route)).size, W.route)}`);
   return parts.length ? parts.join(' · ') : tr('map.contract_only_short', 'only in the contract');
 }
 
@@ -276,6 +296,15 @@ function relatedForSelection(ix, sel) {
           }
           lines.push({ from: { type: 'tile', id: dir === 'out' ? f.path : g.path }, to: { type: 'tile', id: dir === 'out' ? g.path : f.path }, state: x.kind });
         }
+      }
+      // R-8.16 — the blocks whose atlas files it reads or writes
+      for (const d of shownData(f)) {
+        if (!d.owner || d.owner === f.block) continue;
+        const r = rooms.get(d.owner) || { dir: 'out', n: 0, links: [] };
+        r.dir = r.dir !== 'out' ? 'both' : 'out';
+        r.n += 1;
+        rooms.set(d.owner, r);
+        lines.push({ from: { type: 'tile', id: f.path }, to: { type: 'room', id: d.owner }, state: 'file' });
       }
     }
   }
@@ -700,7 +729,7 @@ function CodePane({ text, path, segs = [], sel, jumps = new Map(), onJump, scrol
             <div className={`cm-ln ${range && n >= range.start && n <= range.end ? 'sel' : ''}`} data-n={n}>
               <span className="no">{n}</span>
               <span dangerouslySetInnerHTML={{ __html: html || ' ' }} />
-              {j && <button type="button" className="cm-jump" onClick={() => onJump(j)} title={tr('map.jump_title', 'Open the file this line connects to')}>{LINK_KIND[j.kind].icon} {base(j.file)}</button>}
+              {j && <button type="button" className="cm-jump" onClick={() => onJump(j)} title={j.title || tr('map.jump_title', 'Open the file this line connects to')}>{LINK_KIND[j.kind].icon} {j.label || base(j.file)}</button>}
             </div>
           </React.Fragment>
         );
@@ -715,6 +744,13 @@ function FileView({ ix, f, seg, setSeg, go }) {
   const fl = fileLinks(f);
   const jumps = new Map();
   for (const x of fl.out) if (x.line && ix.fileByPath.has(x.file) && !jumps.has(x.line)) jumps.set(x.line, x);
+  // R-8.16 — a line naming another block's atlas file leads to that block
+  for (const d of shownData(f)) {
+    if (!d.owner || d.owner === f.block) continue;
+    const owner = ix.blockById.get(d.owner)?.title || d.owner;
+    for (const n of d.lines) if (!jumps.has(n)) jumps.set(n, { kind: 'file', block: d.owner, label: `${dataName(d.key)} · ${owner}`, title: tr('map.jump_data_title', 'This file belongs to another block — open it') });
+  }
+  const dataLine = shownData(f).filter((d) => d.owner && d.owner !== f.block);
   const secBefore = new Map();
   for (const sec of f.sections) {
     const i = f.segments.findIndex((x) => x.start >= sec.line);
@@ -735,6 +771,7 @@ function FileView({ ix, f, seg, setSeg, go }) {
           <dt>{tr('map.does', 'What it does')}</dt><dd>{f.meaning || <span className="cm-muted">{tr('map.no_meaning', 'not described — neither in files.md nor in the file header')}</span>}</dd>
           <dt>{tr('map.why_exists', 'Why it exists')}</dt><dd>{f.purpose.text}{f.purpose.from === 'derived' && <span className="cm-muted"> · {tr('map.derived', 'derived from its connections')}</span>}</dd>
           <dt>{tr('map.stack', 'stack')}</dt><dd>{f.stack.runtime}{f.stack.packages.length ? ` · ${f.stack.packages.join(', ')}` : ''}{f.stack.abilities.length ? ` · ${tr('map.touches', 'touches')}: ${f.stack.abilities.join(', ')}` : ''}</dd>
+          {dataLine.length > 0 && <><dt>{tr('map.others_data', 'others\' data')}</dt><dd>{dataLine.slice(0, 6).map((d, i) => <React.Fragment key={d.key}>{i > 0 && ', '}{modeText(d.mode)} <button type="button" className="cm-link mono" onClick={() => go({ level: 'block', block: d.owner })}>{dataName(d.key)}</button> <span className="cm-muted">({ix.blockById.get(d.owner)?.title || d.owner})</span></React.Fragment>)}{dataLine.length > 6 ? ` +${dataLine.length - 6}` : ''}</dd></>}
         </dl>
       </header>
       <div className="cm-fbody">
@@ -763,7 +800,7 @@ function FileView({ ix, f, seg, setSeg, go }) {
         <div className="cm-code">
           <div className="cm-code-head"><span>{f.base}</span><span>{code?.error ? `${tr('map.code_failed', 'code did not load')}: ${code.error}` : !code ? tr('map.loading', 'loading…') : seg != null && f.segments[seg] ? `${tr('map.lines', 'lines')} ${f.segments[seg].start}–${f.segments[seg].end}` : plural(f.lines, W.line)}</span></div>
           <div className="cm-code-scroll" ref={scrollRef}>
-            {code?.text != null && <CodePane text={code.text} path={f.path} segs={f.segments} sel={seg} jumps={jumps} scrollRef={scrollRef} onJump={(j) => go({ level: 'file', file: j.file })} />}
+            {code?.text != null && <CodePane text={code.text} path={f.path} segs={f.segments} sel={seg} jumps={jumps} scrollRef={scrollRef} onJump={(j) => (j.kind === 'file' ? go({ level: 'block', block: j.block }) : go({ level: 'file', file: j.file }))} />}
           </div>
         </div>
       </div>
@@ -813,19 +850,27 @@ function Legend({ level, lens, commit }) {
 // ── inspector ───────────────────────────────────────────────────────────────
 function CodeRow({ c, ix, go, dir }) {
   const from = ix.fileByPath.get(c.from_file), to = ix.fileByPath.get(c.to_file);
+  const names = c.names?.length ? <span className="nm">{c.names.slice(0, 6).join(', ')}{c.names.length > 6 ? ` +${c.names.length - 6}` : ''}</span> : null;
+  // R-8.16 — an atlas file: what the line does with it; through the server:
+  // the route, then what the route's code uses.
+  const target = c.kind === 'file'
+    ? <><span className={`cm-dm m-${c.mode}`}>{modeText(c.mode)}</span> <span className="mono">{dataPath(c.names[0])}</span></>
+    : c.kind === 'via'
+      ? <><span className="mono">{c.route}</span> → <span className="mono">{c.to_file.startsWith('atlas/') ? dataPath(c.to_file.slice(6)) : to?.base || base(c.to_file)}</span>{c.to_file.startsWith('atlas/') ? null : names}</>
+      : <><span className="mono">{to?.base || base(c.to_file)}</span>{names}</>;
   return (
     <li>
       <button type="button" onClick={() => go({ level: 'file', file: c.from_file })} title={tr('map.open_file', 'Open the file')}>
         <span className="lk">{LINK_KIND[c.kind].icon}</span>
-        <span className="t"><b className="mono">{from?.base || base(c.from_file)}{c.line ? `:${c.line}` : ''}</b> → <span className="mono">{to?.base || base(c.to_file)}</span>{c.names?.length ? <span className="nm">{c.names.slice(0, 6).join(', ')}{c.names.length > 6 ? ` +${c.names.length - 6}` : ''}</span> : null}</span>
+        <span className="t"><b className="mono">{from?.base || base(c.from_file)}{c.line ? `:${c.line}` : ''}</b> → {target}</span>
       </button>
     </li>
   );
 }
 function LinkCard({ ix, l, go, setSel, jump }) {
   const a = ix.blockById.get(l.from), z = ix.blockById.get(l.to);
-  const byKind = { import: [], http: [], start: [] };
-  for (const c of l.code) byKind[c.kind].push(c);
+  const byKind = Object.fromEntries(LINK_KINDS.map((k) => [k, []]));
+  for (const c of l.code) (byKind[c.kind] || (byKind[c.kind] = [])).push(c);
   return (
     <div className="cm-isec">
       <span className="cm-label">{tr('map.link', 'Connection')}</span>
@@ -835,13 +880,15 @@ function LinkCard({ ix, l, go, setSel, jump }) {
         <p className="cm-itext cm-muted">{tr('map.declared_in', 'Written in')}: {(l.declared_in || []).map((d) => (d === 'calls' ? tr('map.declared_calls', 'calls.md — a call while it works (not the build order)') : tr('map.declared_deps', 'depends_on.md — a dependency (it orders building)'))).join('; ')}.</p>
       )}
       <p className="cm-itext">{tr('map.link_read', 'Reads as')}: «{a?.title} {tr('map.link_uses', 'uses')} {z?.title}». {linkSummary(l)}.</p>
-      {['import', 'http', 'start'].map((k) => byKind[k].length > 0 && (
+      {LINK_KINDS.map((k) => byKind[k].length > 0 && (
         <div key={k}>
           <span className="cm-label">{LINK_KIND[k].icon} {tr(LINK_KIND[k].key, LINK_KIND[k].fb)}</span>
+          {k === 'file' && <p className="cm-itext cm-muted">{tr('map.file_note', 'The file belongs to the block the connection leads to: it is listed in that block\'s files.md, lies in a block folder (the block store), or only that block\'s code writes it.')}</p>}
+          {k === 'via' && <p className="cm-itext cm-muted">{tr('map.via_note', 'A call to a server route whose code uses this block — the server carries the connection, the contract names it.')}</p>}
           <ul className="cm-list">{byKind[k].map((c, i) => <CodeRow key={i} c={c} ix={ix} go={go} />)}</ul>
         </div>
       ))}
-      {!l.code.length && <p className="cm-itext cm-muted">{tr('map.link_no_code', 'No import, API call or started script backs this dependency. Either the code does not need it yet, or the connection goes another way (files on disk, a shared format) — worth checking the contract.')}</p>}
+      {!l.code.length && <p className="cm-itext cm-muted">{tr('map.link_no_code', 'No import, API call, started script or shared atlas file backs this dependency. Either the code does not need it yet, or the connection goes a way the map does not see (a shared format, a person) — worth checking the contract.')}</p>}
       <div className="cm-row" style={{ marginTop: 8 }}>
         <button type="button" className="cm-btn" onClick={() => jump(l.from)}>{a?.title}</button>
         <button type="button" className="cm-btn" onClick={() => jump(l.to)}>{z?.title}</button>
@@ -915,7 +962,51 @@ function FileCard({ ix, f, go, setSel, compact }) {
         <span className="cm-label">{tr('map.taken_by', 'Who takes from it')} · {uniq(fl.in).length}</span>
         {fl.in.length ? <ul className="cm-list">{uniq(fl.in).map(row)}</ul> : <p className="cm-itext cm-muted">{f.runs.length ? tr('map.taken_by_runner', 'No file — it is started directly (see «started by»).') : tr('map.taken_by_none', 'Nobody.')}</p>}
       </div>
+      {shownData(f).length > 0 && <DataSection ix={ix} f={f} setSel={setSel} />}
     </>
+  );
+}
+// R-8.16 — the atlas files a file reads and writes, each with its owner: a
+// file another block owns is a connection to that block.
+function DataSection({ ix, f, setSel }) {
+  const owned = (d) => d.owner && d.owner !== f.block;
+  const rows = [...shownData(f)].sort((x, y) => Number(owned(y)) - Number(owned(x)) || x.key.localeCompare(y.key));
+  return (
+    <div className="cm-isec">
+      <span className="cm-label">{tr('map.data_title', 'Atlas files it reads and writes')} · {rows.length}</span>
+      <ul className="cm-list">
+        {rows.map((d) => (
+          <li key={d.key}>
+            <button type="button" disabled={!owned(d)} onClick={() => owned(d) && setSel({ type: 'link', from: f.block, to: d.owner })} title={owned(d) ? tr('map.data_link_title', 'Show the connection to the block that owns this file') : ''}>
+              <span className="lk">▤</span>
+              <span className="t"><span className={`cm-dm m-${d.mode}`}>{modeText(d.mode)}</span> <span className="mono">{dataPath(d.key)}</span>
+                <span className="nm">{!d.owner ? tr('map.no_owner', 'no owner') : d.owner === f.block ? tr('map.this_block', 'this block') : ix.blockById.get(d.owner)?.title || d.owner} · {tr('map.line_short', 'l.')} {d.line}</span></span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+// R-8.16 — the atlas files a block owns and who else uses them.
+function BlockData({ ix, b }) {
+  const others = (d) => [...new Set([...d.writers, ...d.readers])].filter((x) => x !== b.id);
+  const mine = (ix.map.data || []).filter((d) => d.owner === b.id && others(d).length > 0);
+  if (!mine.length) return null;
+  return (
+    <div className="cm-isec">
+      <span className="cm-label">▤ {tr('map.block_data', 'Its data other blocks use')} · {mine.length}</span>
+      <ul className="cm-list">
+        {mine.map((d) => (
+          <li key={d.key}>
+            <div className="row">
+              <span className="t mono">{dataPath(d.key)}</span>
+              <span className="s">{others(d).map((x) => ix.blockById.get(x)?.title || x).slice(0, 3).join(', ')}{others(d).length > 3 ? ` +${others(d).length - 3}` : ''}</span>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 function BlockCard({ ix, b, sel, setSel, go, full }) {
@@ -935,6 +1026,7 @@ function BlockCard({ ix, b, sel, setSel, go, full }) {
         </div>
       </div>
       <BlockConnections ix={ix} b={b} sel={sel} setSel={setSel} />
+      <BlockData ix={ix} b={b} />
       {b.frame && b.frame.state === 'awaiting' && (
         <div className="cm-isec"><span className="cm-label">⏸ {tr('map.att_ask', 'waiting for your answer')}</span><p className="cm-itext">{tr('map.ask_text', 'The agent declared how it understood the block and writes no code until you answer «right» or «not quite» on the block\'s Overview.')}</p>{b.frame.treating && <p className="cm-itext"><i>«{b.frame.treating}»</i></p>}</div>
       )}
@@ -982,7 +1074,9 @@ function ProductCard({ ix, setLens, setCommit, go }) {
           <li><div className="row"><i className="cm-ln-sw ok" /><span className="t">{tr('map.ls_ok', 'in the code and in the contract')}</span><span className="s">{ls.ok}</span></div></li>
           <li><div className="row"><i className="cm-ln-sw code-only" /><span className="t">{tr('map.ls_code_only', 'in the code, but not written in the contract')}</span><span className="s">{ls['code-only']}</span></div></li>
           <li><div className="row"><i className="cm-ln-sw contract-only" /><span className="t">{tr('map.ls_contract_only', 'only in the contract — no code uses it')}</span><span className="s">{ls['contract-only']}</span></div></li>
+          <li><div className="row"><span className="lk">▤</span><span className="t">{tr('map.ls_data', 'of the ones in code — through atlas files')}</span><span className="s">{m.links.filter((l) => l.code.some((c) => c.kind === 'file')).length}</span></div></li>
         </ul>
+        {(m.data || []).some((d) => !d.owner) && <p className="cm-itext cm-muted">▤ {tr('map.unowned', 'Atlas files nobody owns — no files.md lists them, and several blocks or none write them')}: <span className="mono">{m.data.filter((d) => !d.owner).map((d) => dataPath(d.key)).join(', ')}</span>.</p>}
       </div>
       {m.history.length > 0 && (
         <div className="cm-isec">

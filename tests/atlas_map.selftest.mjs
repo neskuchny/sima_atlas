@@ -16,6 +16,11 @@
 //       files on the map
 //   g8  the real atlas: every file of a live block is on the map, has a role,
 //       a purpose and parts that add up
+//   g9  connections through atlas files (R-8.16): which atlas files a file
+//       names and whether it writes them (through a name, one more name, a
+//       path function), who owns each one (files.md / the block store / the
+//       only writer / nobody), regex routes and the most specific route of a
+//       call, and a call through the server backing a declared link
 
 import fs from 'node:fs';
 import os from 'node:os';
@@ -24,6 +29,7 @@ import { fileURLToPath } from 'node:url';
 import {
   segmentsOf, fileStack, entryPoints, httpCalls, spawnedScripts, generatedBy,
   fileRole, filePurpose, blockLinks, buildCodeMap, readMapFile, wantLine, missionLine,
+  routeFromRegex, atlasVocabulary, dataRefs, dataOwners, artefactOwners,
 } from '../scripts/atlas_map.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -228,9 +234,159 @@ try {
   check('g8: links are classified', map.links.every((l) => l.contract || l.code.length));
 }
 
+// ── g9: connections through atlas files (R-8.16) ──────────────────────────
+{
+  const t9 = fs.mkdtempSync(path.join(os.tmpdir(), 'sima-map-data-'));
+  try {
+    const w = (p, t) => { fs.mkdirSync(path.dirname(path.join(t9, p)), { recursive: true }); fs.writeFileSync(path.join(t9, p), t); };
+    const atlas = path.join(t9, 'atlas');
+    // routes: a regex route, a «(req.url» route, a prefix route; a call goes to the most specific one
+    check('g9: a regex route reads as a path with :id', routeFromRegex('\\/atlas\\/blocks\\/([^/]+)\\/meaning$') === '/atlas/blocks/:id/meaning' && routeFromRegex('\\/runs\\/(?:a|b)\\/([\\w.-]+)') === '/runs/:id/:id', routeFromRegex('\\/atlas\\/blocks\\/([^/]+)\\/meaning$'));
+    const srv = [
+      'const handle = async (req, res) => {',
+      "  if (req.method === 'GET' && (req.url === '/atlas/map' || req.url.startsWith('/atlas/map?'))) { return map(); }",
+      "  if (req.method === 'GET' && req.url.match(/^\\/atlas\\/blocks\\/([^/]+)\\/meaning$/)) { return meaning(); }",
+      "  if (req.url.startsWith('/atlas/blocks/')) { return block(); }",
+      '};',
+    ].join('\n');
+    const rts = segmentsOf(srv, 'scripts/srv.mjs').segments.filter((x) => x.kind === 'route');
+    check('g9: three kinds of route are parts of the server', rts.map((r) => r.name).join() === 'GET /atlas/map,GET /atlas/blocks/:id/meaning,POST /atlas/blocks/', rts.map((r) => r.name).join());
+    const hc = httpCalls(["getJson('/atlas/blocks/' + encodeURIComponent(id) + '/meaning');", "getJson('/atlas/blocks/' + id);", "getJson('/atlas/map');"].join('\n'), rts);
+    check('g9: a call goes to the most specific route', hc.map((c) => c.route).join() === 'GET /atlas/blocks/:id/meaning,POST /atlas/blocks/,GET /atlas/map', JSON.stringify(hc));
+
+    // what a file does with atlas files
+    w('atlas/graph.json', '{}'); w('atlas/project.md', ''); w('atlas/tech_stack.md', ''); w('atlas/rules.md', ''); w('atlas/decisions.md', '');
+    w('atlas/sync_report.json', '{}'); w('atlas/operator_profile/x.json', '{}'); w('atlas/templates/a.md', ''); w('atlas/clients/c1/graph.json', '{}');
+    w('atlas/blocks/b.x/mission.md', ''); w('atlas/blocks/b.x/checks.log', ''); w('atlas/blocks/b.x/notes.bin', '');
+    const vocab = atlasVocabulary(atlas);
+    check('g9: the vocabulary is the atlas top level and the data files of block folders', vocab.top.has('graph.json') && vocab.top.has('blocks') && !vocab.top.has('clients')
+      && vocab.perBlock.has('checks.log') && !vocab.perBlock.has('notes.bin'), JSON.stringify([[...vocab.top], [...vocab.perBlock]]));
+    const src = [
+      "import fs from 'node:fs';",                                                              // 1
+      "const ATLAS = path.join(ROOT, 'atlas');",                                                 // 2
+      "const graph = JSON.parse(fs.readFileSync(path.join(ATLAS, 'graph.json'), 'utf8'));",     // 3
+      "// fs.writeFileSync(path.join(ATLAS, 'graph.json'), '{}');",                              // 4
+      "const prof = path.join(ATLAS, 'operator_profile', 'templates');",                         // 5
+      "const NAME = 'checks.log';",                                                              // 6
+      'function log(id) {',                                                                       // 7
+      "  const p = path.join(ATLAS, 'blocks', id, NAME);",                                       // 8
+      "  fs.appendFileSync(p, 'x');",                                                             // 9
+      '}',                                                                                        // 10
+      'function readProject() {',                                                                 // 11
+      "  const p = path.join(ATLAS, 'project.md');",                                             // 12
+      '  return fs.readFileSync(p, \'utf8\');',                                                   // 13
+      '}',                                                                                        // 14
+      'function scratch() {',                                                                     // 15
+      "  const p = path.join(os.tmpdir(), 'x');",                                                 // 16
+      "  fs.writeFileSync(p, 'y');",                                                              // 17
+      '}',                                                                                        // 18
+      'function decisionsPath() {',                                                               // 19
+      "  return path.join(ATLAS, 'decisions.md');",                                              // 20
+      '}',                                                                                        // 21
+      "const out = path.join(ATLAS, 'sync_report.json');",                                       // 22
+      "fs.writeFileSync(out, '{}');",                                                             // 23
+      "writeIfMissing(path.join(ATLAS, 'rules.md'), '');",                                       // 24
+      "res.writeHead(200); res.end(fs.readFileSync(path.join(ATLAS, 'tech_stack.md')));",        // 25
+      'function add() {',                                                                         // 26
+      '  const d = decisionsPath();',                                                             // 27
+      "  fs.appendFileSync(d, '- x');",                                                           // 28
+      '}',                                                                                        // 29
+    ].join('\n');
+    const segs = segmentsOf(src, 'scripts/data.mjs').segments;
+    const refs = dataRefs(src, vocab, segs);
+    const R = (key) => refs.filter((r) => r.key === key).map((r) => `${r.line}:${r.mode}`).join();
+    check('g9: a read; a commented write is not code', R('graph.json') === '3:read', JSON.stringify(refs));
+    check('g9: a later segment of path.join is not an atlas file of its own', R('operator_profile') === '5:read' && !R('templates'), JSON.stringify(refs));
+    check('g9: written through a name and one more name, in its own function', R('blocks/*/checks.log') === '6:write' && R('blocks/') === '8:write', JSON.stringify(refs));
+    check('g9: another function\'s «p» does not make a read a write', R('project.md') === '12:read', JSON.stringify(refs));
+    check('g9: written through a path function', R('decisions.md') === '20:write', JSON.stringify(refs));
+    check('g9: written by a variable and by a write helper; writeHead is not a write', R('sync_report.json') === '22:write' && R('rules.md') === '24:write' && R('tech_stack.md') === '25:read', JSON.stringify(refs));
+
+    // owners
+    w('atlas/blocks/b.db/files.md', '# f\n\n- atlas/graph.json [alive]\n- atlas/blocks/ [alive] (the store)\n- atlas/blocks/b.db/mission.md [alive]\n- atlas/templates/ [alive]\n');
+    const reg = artefactOwners(atlas, ['b.db']);
+    check('g9: files.md registers atlas files, a folder, the block store — not a block\'s own contract', [...reg].map(([k, v]) => `${k}=${v}`).join() === 'graph.json=b.db,blocks/=b.db,templates=b.db', JSON.stringify([...reg]));
+    const own = dataOwners([
+      { block: 'b.a', key: 'graph.json', mode: 'write' },
+      { block: 'b.a', key: 'blocks/*/mission.md', mode: 'write' }, { block: 'b.db', key: 'blocks/*/mission.md', mode: 'read' },
+      { block: 'b.r', key: 'blocks/*/review.json', mode: 'write' }, { block: 'b.a', key: 'blocks/*/review.json', mode: 'read' },
+      { block: 'b.a', key: 'blocks/*/log.md', mode: 'write' }, { block: 'b.b', key: 'blocks/*/log.md', mode: 'write' },
+      { block: 'b.a', key: 'shared.json', mode: 'write' }, { block: 'b.b', key: 'shared.json', mode: 'write' },
+      { block: 'b.c', key: 'report.md', mode: 'write' }, { block: 'b.a', key: 'report.md', mode: 'read' },
+    ], reg);
+    const O = (k) => `${own.get(k)?.owner}/${own.get(k)?.from}`;
+    check('g9: owner — files.md first, even when others write it', O('graph.json') === 'b.db/files.md');
+    check('g9: owner — a block-folder file the store names is the store\'s', O('blocks/*/mission.md') === 'b.db/store');
+    check('g9: owner — a block-folder file only one block writes is that block\'s', O('blocks/*/review.json') === 'b.r/writes');
+    check('g9: owner — a block-folder file several blocks write is the store\'s', O('blocks/*/log.md') === 'b.db/store');
+    check('g9: owner — the only writer; readers are listed', O('report.md') === 'b.c/writes' && own.get('report.md').readers.join() === 'b.a');
+    check('g9: no owner — several write it and nobody lists it', O('shared.json') === 'null/' && own.get('shared.json').writers.join() === 'b.a,b.b');
+
+    // links: a file another block owns; «somewhere in the block folders» gives way to the named file; through the server
+    const files9 = [
+      { path: 'scripts/a.mjs', block: 'b.a', imports: [], calls: [], starts: [], data: [{ key: 'graph.json', line: 3, lines: [3], mode: 'read', owner: 'b.db' }, { key: 'blocks/', line: 8, lines: [8], mode: 'write', owner: 'b.db' }, { key: 'blocks/*/mission.md', line: 9, lines: [9], mode: 'write', owner: 'b.db' }, { key: 'report.md', line: 4, lines: [4], mode: 'read', owner: 'b.a' }] },
+      { path: 'frontend/ui.js', block: 'b.ui', imports: [], calls: [], starts: [], data: [], via: [{ line: 7, route: 'GET /atlas/map', server: 'scripts/srv.mjs', to_file: 'scripts/map.mjs', to_block: 'b.cg', names: ['buildMap'] }, { line: 9, route: 'GET /x', server: 'scripts/srv.mjs', to_file: 'scripts/z.mjs', to_block: 'b.zz', names: [] }, { line: 11, route: 'GET /y', server: 'scripts/srv.mjs', to_file: 'scripts/q.mjs', to_block: 'b.qq', names: [] }] },
+      { path: 'frontend/ui2.js', block: 'b.ui', imports: [{ file: 'scripts/q.mjs', line: 1, names: ['q'] }], calls: [], starts: [], data: [] },
+      { path: 'scripts/q.mjs', block: 'b.qq', imports: [], calls: [], starts: [], data: [] },
+    ];
+    const links9 = blockLinks(files9, [{ id: 'b.a', depends_on: [] }, { id: 'b.db', depends_on: [] }, { id: 'b.ui', depends_on: ['b.cg'] }, { id: 'b.cg', depends_on: [] }, { id: 'b.zz', depends_on: [] }, { id: 'b.qq', depends_on: [] }]);
+    const N = (a, b) => links9.find((l) => l.from === a && l.to === b);
+    check('g9: reading another block\'s atlas file is a link, with line and mode', N('b.a', 'b.db')?.contract === false && N('b.a', 'b.db').code.map((c) => `${c.kind}:${c.to_file}:${c.mode}`).join() === 'file:atlas/graph.json:read,file:atlas/blocks/*/mission.md:write', JSON.stringify(N('b.a', 'b.db')));
+    check('g9: a file of its own block is not a link', !N('b.a', 'b.a'));
+    check('g9: a call through the server backs a declared link', N('b.ui', 'b.cg')?.contract === true && N('b.ui', 'b.cg').code[0].kind === 'via' && N('b.ui', 'b.cg').code[0].route === 'GET /atlas/map');
+    check('g9: …but makes no link the contract does not name', !N('b.ui', 'b.zz'), JSON.stringify(links9.map((l) => `${l.from}->${l.to}`)));
+    check('g9: …and does not join an undeclared link the code already shows', N('b.ui', 'b.qq')?.code.map((c) => c.kind).join() === 'import', JSON.stringify(N('b.ui', 'b.qq')));
+
+    // a whole map: data with owners, unowned files, the server carrying a call
+    w('scripts/srv.mjs', [
+      "import { buildMap } from './map.mjs';",
+      'const handle = async (req, res) => {',
+      "  if (req.method === 'GET' && req.url === '/atlas/map') { return res.end(JSON.stringify(buildMap())); }",
+      "  if (req.method === 'GET' && req.url === '/atlas/sync') { return res.end(fs.readFileSync(path.join(ATLAS, 'sync_report.json'))); }",
+      "  if (req.url === '/health') { return res.end('ok'); }",
+      '};',
+    ].join('\n'));
+    w('scripts/map.mjs', "export function buildMap() { return JSON.parse(fs.readFileSync(path.join(ATLAS, 'graph.json'), 'utf8')); }\n");
+    w('scripts/sync.mjs', "fs.writeFileSync(path.join(ATLAS, 'sync_report.json'), '{}');\nfs.appendFileSync(path.join(ATLAS, 'shared.log'), 'a');\n");
+    w('scripts/other.mjs', "fs.appendFileSync(path.join(ATLAS, 'shared.log'), 'b');\n");
+    w('tests/t.selftest.mjs', "fs.writeFileSync(path.join(ATLAS, 'graph.json'), '{}');\n");
+    w('frontend/ui.js', "getJson('/atlas/map');\ngetJson('/atlas/sync');\n");
+    w('atlas/shared.log', '');
+    w('atlas/graph.json', JSON.stringify({ layers: [{ id: 'l', name: 'L', order: 0 }], blocks: [
+      { id: 'b.db', title: 'DB', layer: 'l', status: 'done', depends_on: [] },
+      { id: 'b.cg', title: 'CG', layer: 'l', status: 'done', depends_on: ['b.db'] },
+      { id: 'b.srv', title: 'Server', layer: 'l', status: 'done', depends_on: ['b.cg'] },
+      { id: 'b.sync', title: 'Sync', layer: 'l', status: 'done', depends_on: [] },
+      { id: 'b.ui', title: 'UI', layer: 'l', status: 'done', depends_on: ['b.srv', 'b.cg', 'b.sync'] },
+    ] }));
+    const imp = (from, to, names) => ({ external: false, from, resolved_to: to, line: 1, kind: 'static', specifiers: names.map((n) => ({ kind: 'named', name: n })) });
+    w('atlas/code_graph.json', JSON.stringify({ files: {
+      'scripts/srv.mjs': { owning_block: 'b.srv', exports: [], imports: [imp('./map.mjs', 'scripts/map.mjs', ['buildMap'])] },
+      'scripts/map.mjs': { owning_block: 'b.cg', exports: [{ name: 'buildMap', line: 1 }], imports: [] },
+      'scripts/sync.mjs': { owning_block: 'b.sync', exports: [], imports: [] },
+      'scripts/other.mjs': { owning_block: 'b.cg', exports: [], imports: [] },
+      'tests/t.selftest.mjs': { owning_block: 'b.cg', exports: [], imports: [] },
+      'frontend/ui.js': { owning_block: 'b.ui', exports: [], imports: [] },
+    } }));
+    const m9 = buildCodeMap({ repoRoot: t9, atlasRoot: atlas, history: false });
+    const F = (p) => m9.files.find((f) => f.path === p);
+    check('g9: map — a file\'s data with its owner', F('scripts/map.mjs').data.map((d) => `${d.key}:${d.mode}:${d.owner}/${d.ownerFrom}`).join() === 'graph.json:read:b.db/files.md', JSON.stringify(F('scripts/map.mjs').data));
+    check('g9: map — the only writer owns a file nobody lists', m9.data.find((d) => d.key === 'sync_report.json')?.owner === 'b.sync');
+    check('g9: map — two writers and no files.md: no owner, reported', m9.data.find((d) => d.key === 'shared.log')?.owner === null, JSON.stringify(m9.data));
+    check('g9: map — tests build their own atlases: their files are not data links', F('tests/t.selftest.mjs').data.length === 0 && !m9.data.find((d) => d.key === 'graph.json').writers.includes('b.cg'));
+    const viaCg = m9.links.find((l) => l.from === 'b.ui' && l.to === 'b.cg');
+    check('g9: map — the canvas reaches the code graph through the server', viaCg?.code.some((c) => c.kind === 'via' && c.route === 'GET /atlas/map' && c.to_file === 'scripts/map.mjs' && c.names.join() === 'buildMap'), JSON.stringify(viaCg));
+    const viaSync = m9.links.find((l) => l.from === 'b.ui' && l.to === 'b.sync');
+    check('g9: map — …and a route reading another block\'s file reaches that block', viaSync?.code.some((c) => c.kind === 'via' && c.route === 'GET /atlas/sync' && c.to_file === 'atlas/sync_report.json'), JSON.stringify(viaSync));
+    check('g9: map — through-the-server entries do not stay on the files', m9.files.every((f) => !('via' in f)));
+  } finally {
+    fs.rmSync(t9, { recursive: true, force: true });
+  }
+}
+
 if (failures.length) {
   console.error('atlas_map.selftest: FAIL');
   failures.forEach((f) => console.error(' ✗', f));
   process.exit(1);
 }
-console.log('atlas_map.selftest: OK (8 groups)');
+console.log('atlas_map.selftest: OK (9 groups)');

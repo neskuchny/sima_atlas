@@ -33,3 +33,13 @@ These files had no owner in any files.md, so the code-graph check never saw thei
 - scripts/subagent_schema_syncer.mjs [alive]
 - scripts/validate_ownership.mjs [alive] (R-8.10: every script / test / canvas / desktop file has exactly one owning block — unowned or doubled is an error)
 - atlas/blocks/b.core-sync/calls.md [alive] (R-8.15: что блок вызывает во время работы — запускает процессом или по HTTP; не порядок сборки, поэтому может идти «вверх»)
+
+## R-8.16 — данные, которые пишет ночная проверка
+
+- atlas/nightly_report.md [alive] (итог ночной проверки — пишет nightly_consolidation.mjs)
+- atlas/sync_report.json [alive] (отчёт расхождений атласа и кода — пишут валидаторы ночной проверки)
+- atlas/intelligence_health.json [alive] (здоровье «интеллекта» атласа — пишет calc_intelligence_health.mjs)
+- atlas/intelligence_health.md [alive] (то же для человека)
+- atlas/production_audit_report.md [alive] (аудит готовности — пишет audit_production_readiness.mjs)
+- atlas/cleanup_proposals.json [alive] (предложения уборки — пишет housekeeping_sweeper.mjs)
+- atlas/cleanup_proposals.md [alive] (то же для человека)

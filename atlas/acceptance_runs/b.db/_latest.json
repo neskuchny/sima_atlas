@@ -15,17 +15,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (61ms); first line: \"Block contract validation: OK\"",
+      "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (54ms); first line: \"Block contract validation: OK\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_block_contracts.mjs",
         "exit_code": 0,
         "stdout": "Block contract validation: OK\n",
         "stderr": "",
-        "duration_ms": 61,
+        "duration_ms": 54,
         "timed_out": false
       },
-      "duration_ms": 61
+      "duration_ms": 54
     },
     {
       "id": "A2",
@@ -51,7 +51,7 @@
           "/home/user/sima_atlas/atlas/transitions.log"
         ]
       },
-      "duration_ms": 0
+      "duration_ms": 1
     },
     {
       "id": "A3",
@@ -65,14 +65,14 @@
         "min_count": 1
       },
       "verdict": "pass",
-      "evidence": "glob atlas/db_schema.json → 1 files (min=1); newest 564min ago",
+      "evidence": "glob atlas/db_schema.json → 1 files (min=1); newest 750min ago",
       "reasoning": "1 files match (≥1)",
       "raw": {
         "pattern": "atlas/db_schema.json",
         "count": 1,
         "min_count": 1,
         "max_age_min": null,
-        "newest_minutes_ago": 564,
+        "newest_minutes_ago": 750,
         "sample": [
           "/home/user/sima_atlas/atlas/db_schema.json"
         ]
@@ -91,17 +91,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/migrate_v1_v2.selftest.mjs → exit 0 (207ms); first line: \"migrate_v1_v2.selftest: OK (3 groups, all assertions green)\"",
+      "evidence": "node tests/migrate_v1_v2.selftest.mjs → exit 0 (169ms); first line: \"migrate_v1_v2.selftest: OK (3 groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/migrate_v1_v2.selftest.mjs",
         "exit_code": 0,
         "stdout": "migrate_v1_v2.selftest: OK (3 groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 207,
+        "duration_ms": 169,
         "timed_out": false
       },
-      "duration_ms": 207
+      "duration_ms": 169
     },
     {
       "id": "A5",
@@ -115,17 +115,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_files_registry.mjs → exit 0 (67ms); first line: \"Files registry validation: OK (alive=322, archived=4, dead=0)\"",
+      "evidence": "node scripts/validate_files_registry.mjs → exit 0 (55ms); first line: \"Files registry validation: OK (alive=339, archived=4, dead=0)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_files_registry.mjs",
         "exit_code": 0,
-        "stdout": "Files registry validation: OK (alive=322, archived=4, dead=0)\n",
+        "stdout": "Files registry validation: OK (alive=339, archived=4, dead=0)\n",
         "stderr": "",
-        "duration_ms": 67,
+        "duration_ms": 55,
         "timed_out": false
       },
-      "duration_ms": 67
+      "duration_ms": 55
     }
   ],
   "counts": {
@@ -134,11 +134,11 @@
     "skipped": 0
   },
   "verdict": "pass",
-  "duration_ms": 336,
-  "checked_at": "2026-11-02T09:11:24.458Z",
+  "duration_ms": 279,
+  "checked_at": "2026-11-02T12:17:45.991Z",
   "cache": {
     "hit": false,
-    "reason": "code changed (a commit, or a changed / new file outside atlas/); a contract, graph.json or project rules changed; another block's verdict or kpi result changed",
-    "lookup_ms": 39.930515
+    "reason": "code changed (a commit, or a changed / new file outside atlas/); a contract, graph.json or project rules changed",
+    "lookup_ms": 23.506768
   }
 }

@@ -8,7 +8,7 @@
 - atlas/WIKI.md [alive] (auto-generated)
 - atlas/wiki.html [alive] (auto-generated)
 - atlas/roadmap.md [alive] (auto-generated)
-- atlas/nightly_report.md [alive] (auto-generated)
+- atlas/auto_tz.md [alive] (R-8.16: автоТЗ — пишет generate_tz_from_atlas.mjs)
 
 ## R-8.10 — previously unowned
 

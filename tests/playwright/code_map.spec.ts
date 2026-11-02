@@ -11,6 +11,11 @@
 //   * inside a block every tile says what the file is for; a file opens into
 //     its parts and its code, and an import line jumps to the imported file;
 //   * the map and the graph open each other at the same block;
+//   * R-8.16: a connection through atlas files (the code graph reads the
+//     database's graph.json) and through the server (the canvas asks for the
+//     map, the server builds it with the code graph) shows what crosses it; a
+//     file lists the atlas files it reads and writes; a code line naming
+//     another block's file leads to that block;
 //   * no console errors.
 //
 // Run: npm run test:ui (SIMA_UI_TEST_CDN_DIR=<dir> serves react.js,
@@ -113,6 +118,22 @@ test('code map: building, pinned connections, file anatomy, back to the graph', 
   await expect(page.locator('.cm-insp')).toContainText('change_set.mjs:78');
   await expect(page.locator('.cm-insp')).toContainText('calls.md — вызов во время работы');
 
+  // R-8.16 — a connection through atlas files: the code graph reads the database's files
+  await page.locator('[data-room="b.code-graph"] .cm-room-title').click();
+  await page.locator('.cm-insp .cm-list button', { hasText: 'Atlas Database' }).first().click();
+  await expect(page.locator('.cm-insp')).toContainText('данные: файл атласа');
+  await expect(page.locator('.cm-insp')).toContainText('atlas/graph.json');
+  await expect(page.locator('.cm-insp')).toContainText('и в коде, и в контракте');
+  // … and through the server: the canvas asks the server for the map, the server builds it with the code graph
+  await page.locator('[data-room="b.ui-control"] .cm-room-title').click();
+  await page.locator('.cm-insp .cm-list button', { hasText: 'Code Graph' }).first().click();
+  await expect(page.locator('.cm-insp')).toContainText('через сервер');
+  await expect(page.locator('.cm-insp')).toContainText('GET /atlas/map');
+  // a file lists the atlas files it reads and writes, with their owners
+  await page.locator('[data-tile="scripts/atlas_map.mjs"]').click();
+  await expect(page.locator('.cm-insp')).toContainText('Файлы атласа, которые он читает и пишет');
+  await expect(page.locator('.cm-insp')).toContainText('atlas/code_graph.json');
+
   // pin a file: its connections in other blocks light up
   await page.evaluate(() => { (document.querySelector('.cm-building .cm-scroll') as HTMLElement).scrollTop = 0; });
   await page.locator('[data-tile="scripts/block_meaning.mjs"]').click();
@@ -149,6 +170,12 @@ test('code map: building, pinned connections, file anatomy, back to the graph', 
   await expect(page.locator('aside.detail h1')).toContainText('Clarification Arbiter');
   await page.locator('aside.detail button', { hasText: 'На карте' }).click();
   await expect(page.locator('.cm-btitle')).toHaveText('Clarification Arbiter');
+
+  // R-8.16 — a code line naming another block's atlas file leads to that block
+  await page.locator('.cm-ftile[data-tile="scripts/block_meaning.mjs"]').dblclick();
+  await expect(page.locator('.cm-file .cm-what')).toContainText('чужие данные');
+  await page.locator('.cm-jump', { hasText: 'Atlas Database' }).first().click();
+  await expect(page.locator('.cm-btitle')).toHaveText('Atlas Database');
 
   expect(errors, errors.join('\n')).toEqual([]);
 });

@@ -25,7 +25,8 @@ evidence_spec:
 
 - [ ] **A3.** Selftest валидатора зелёный: на синтетическом мини-атласе
   показывает `undeclared_code_dependency` и `provided_capability_not_exported`,
-  и НЕ показывает drift'ов когда контракт совпадает с кодом.
+  незаписанные вызовы во время работы (R-8.15) и связи через файлы атласа
+  (R-8.16), и НЕ показывает drift'ов когда контракт совпадает с кодом.
 ```yaml
 evidence_kind: selftest_run
 evidence_spec:
@@ -72,12 +73,12 @@ evidence_spec:
   expect_in_stdout: "deterministic"
 ```
 
-- [x] **A8.** Карта кода говорит правду о коде: части файла покрывают каждую строку ровно раз; связи-не-импорты (вызовы API, запуск скриптов) находятся без комментариев и спецификаторов модулей; у каждого файла есть роль и «зачем»; связь блоков показывает, что по ней проходит, или что её нет в коде; файл вне карты не отдаётся.
+- [x] **A8.** Карта кода говорит правду о коде: части файла покрывают каждую строку ровно раз; связи-не-импорты (вызовы API, запуск скриптов, чтение и запись чужих файлов атласа, вызов через сервер) находятся без комментариев и спецификаторов модулей; у каждого файла есть роль и «зачем»; связь блоков показывает, что по ней проходит, или что её нет в коде; файл вне карты не отдаётся.
 ```yaml
 evidence_kind: exit_code
 evidence_spec:
   cmd: node tests/atlas_map.selftest.mjs
-  expect_in_stdout: "OK [(]8 groups[)]"
+  expect_in_stdout: "OK [(]9 groups[)]"
 ```
 
 - [x] **A9.** Карта строится на настоящем атласе из графа кода, и каждая связь блоков в ней классифицирована.
@@ -94,6 +95,14 @@ evidence_kind: exit_code
 evidence_spec:
   cmd: node scripts/validate_code_graph_vs_contracts.mjs --runtime-calls
   expect_in_stdout: "runtime calls: 0 undeclared, 0 stale, 0 unknown"
+```
+
+- [ ] **A11.** Связи через файлы атласа видны и сосчитаны: валидатор называет каждую пару блоков, где один читает или пишет файл атласа другого, а контракт об этом молчит, и каждый файл атласа без владельца. Это отчёт: какой файл контракта подходит (`depends_on.md` или `calls.md`), решает оператор.
+```yaml
+evidence_kind: exit_code
+evidence_spec:
+  cmd: node scripts/validate_code_graph_vs_contracts.mjs --data-links
+  expect_in_stdout: "data links: [0-9]+ undeclared, [0-9]+ atlas files without an owner"
 ```
 
 ## inconclusive_if

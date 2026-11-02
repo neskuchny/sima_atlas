@@ -275,6 +275,16 @@ gate in `b.db` runs the verifier that imports the gate). The code-graph
 validator warns about a start or call that `calls.md` does not declare, and
 about a declared call no code makes; the code map shows both.
 
+**Atlas files have owners (R-8.16).** A file under `atlas/` belongs to the
+block whose `files.md` lists it (`- atlas/sync_report.json [alive]`); files
+inside block folders belong to the block store (`b.db`). When your code reads
+or writes another block's atlas file, that is a connection to that block: name
+it in `depends_on.md` when you need the data to work (and the edge closes no
+cycle), in `calls.md` when you only write into it while you work. When you add
+a new atlas file, register it in your block's `files.md` — an unregistered
+file several blocks write has no owner, and the code map reports it. Check with
+`node scripts/validate_code_graph_vs_contracts.mjs --data-links`.
+
 ---
 
 ## Stop-signals — when to stop and ask

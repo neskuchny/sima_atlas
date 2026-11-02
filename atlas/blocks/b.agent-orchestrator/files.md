@@ -59,3 +59,15 @@ These files had no owner in any files.md, so the code-graph check never saw thei
 - tests/chat_fill_accept.selftest.mjs [alive]
 - tests/cursor_live.headless.smoke.mjs [alive] ((A5 evidence))
 - atlas/blocks/b.agent-orchestrator/calls.md [alive] (R-8.15: что блок вызывает во время работы — запускает процессом или по HTTP; не порядок сборки, поэтому может идти «вверх»)
+
+## R-8.16 — данные агентов и сервера
+
+- atlas/activity_log.jsonl [alive] (лента действий — дописывает сервер)
+- atlas/architecture_decisions.md [alive] (архитектурные решения, только дописываются — architecture_decisions_api.mjs)
+- atlas/architecture_reviews/ [alive] (разборы архитектуры — пишет сервер)
+- atlas/autonomous_runs/.gitkeep [alive] (папка автономных прогонов — пишет agent_loop_daemon.mjs)
+- atlas/run_logs/.gitkeep [alive] (папка журналов прогонов — atlas_runs_api.mjs)
+- atlas/process_runs/ [alive] (записи процессов по блокам)
+- atlas/context_packs/ [alive] (пакеты контекста для агента — build_context_pack.mjs)
+- atlas/schema_templates/ [alive] (шаблоны схем — отдаёт сервер)
+- atlas/ingestion_scratch/ [alive] (черновики разбора чатов — auto_sync_iteration.mjs)

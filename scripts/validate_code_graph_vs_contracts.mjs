@@ -23,6 +23,12 @@
 //      calls and argument arrays, server routes) — a heuristic, hence a
 //      warning, not an error.
 //
+//   4. undeclared_data_link (R-8.16) — a block reads or writes an atlas file
+//      another block owns (files.md lists it there, it lies in the block
+//      store, or only that block writes it), and neither depends_on.md nor
+//      calls.md names the other block. Found the way the code map finds them
+//      (string literals naming atlas files) — a heuristic, hence a warning.
+//
 // Reads atlas/code_graph.json (built by build_code_graph.mjs). On a clean
 // tree exits 0 with «OK». On drift exits 1 and emits a structured report
 // AND merges findings into atlas/sync_report.json under `codeGraphDrift`
@@ -33,6 +39,7 @@
 //   node scripts/validate_code_graph_vs_contracts.mjs --json    # machine-readable
 //   node scripts/validate_code_graph_vs_contracts.mjs --silent  # exit-code only
 //   node scripts/validate_code_graph_vs_contracts.mjs --runtime-calls  # R-8.15: calls.md vs code
+//   node scripts/validate_code_graph_vs_contracts.mjs --data-links     # R-8.16: atlas files other blocks own
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -145,12 +152,18 @@ function detectProvidedCapabilityNotExported(graph, atlasRoot, sourceRoot) {
   return drifts.sort((a, b) => `${a.block}-${a.capability}`.localeCompare(`${b.block}-${b.capability}`));
 }
 
-function detectRuntimeCalls(atlasRoot, sourceRoot) {
-  let map;
-  try { map = buildCodeMap({ repoRoot: sourceRoot, atlasRoot, history: false }); } catch { return []; }
+// A process start or an HTTP call is a runtime call. Reading another
+// block's atlas file is data (R-8.16, its own finding), and a call through
+// the server only backs a declared link — neither belongs to calls.md.
+const RUNTIME = new Set(['start', 'http']);
+function codeMapOf(atlasRoot, sourceRoot) {
+  try { return buildCodeMap({ repoRoot: sourceRoot, atlasRoot, history: false }); } catch { return null; }
+}
+function detectRuntimeCalls(atlasRoot, sourceRoot, map = codeMapOf(atlasRoot, sourceRoot)) {
+  if (!map) return [];
   const drifts = [];
   for (const l of map.links) {
-    const runtime = l.code.filter((c) => c.kind !== 'import' && !c.from_file.startsWith('tests/'));
+    const runtime = l.code.filter((c) => RUNTIME.has(c.kind) && !c.from_file.startsWith('tests/'));
     if (runtime.length && !l.contract && !l.tests_only) {
       drifts.push({
         kind: 'undeclared_runtime_call',
@@ -161,7 +174,7 @@ function detectRuntimeCalls(atlasRoot, sourceRoot) {
         hint: `Add «- ${l.to}: <what it starts or calls, and why>» to atlas/blocks/${l.from}/calls.md — or to depends_on.md if ${l.from} cannot work without it and the edge forms no cycle.`,
       });
     }
-    if (l.declared_in.includes('calls') && !l.code.some((c) => c.kind !== 'import')) {
+    if (l.declared_in.includes('calls') && !l.code.some((c) => RUNTIME.has(c.kind))) {
       drifts.push({
         kind: 'stale_runtime_call',
         severity: 'warning',
@@ -180,6 +193,26 @@ function detectRuntimeCalls(atlasRoot, sourceRoot) {
   return drifts.sort((a, b) => `${a.kind}:${a.block}->${a.calls_block}`.localeCompare(`${b.kind}:${b.block}->${b.calls_block}`));
 }
 
+function detectDataLinks(map) {
+  if (!map) return [];
+  const drifts = [];
+  for (const l of map.links) {
+    const data = l.code.filter((c) => c.kind === 'file');
+    if (!data.length || l.contract) continue;
+    const writes = data.some((c) => c.mode !== 'read');
+    drifts.push({
+      kind: 'undeclared_data_link',
+      severity: 'warning',
+      block: l.from,
+      data_of_block: l.to,
+      files: [...new Set(data.map((c) => c.to_file))].sort(),
+      examples: data.slice(0, 4).map((c) => ({ from_file: c.from_file, line: c.line, to_file: c.to_file, mode: c.mode })),
+      hint: `${l.from} ${writes ? 'writes into' : 'reads'} atlas files that belong to ${l.to}. Name ${l.to} in atlas/blocks/${l.from}/depends_on.md if ${l.from} needs that data to work and the edge forms no cycle; in calls.md if it only writes into it while it works; or move the file to the block that really owns it (files.md).`,
+    });
+  }
+  return drifts.sort((a, b) => `${a.block}->${a.data_of_block}`.localeCompare(`${b.block}->${b.data_of_block}`));
+}
+
 export function validate({ atlasRoot, sourceRoot } = {}) {
   const atlas = atlasRoot || ATLAS;
   // sourceRoot is where the validator reads ACTUAL source files for the
@@ -196,10 +229,12 @@ export function validate({ atlasRoot, sourceRoot } = {}) {
     };
   }
   const graph = JSON.parse(fs.readFileSync(graphPath, 'utf8'));
+  const map = codeMapOf(atlas, src);
   const drifts = [
     ...detectUndeclaredCodeDependency(graph, atlas),
     ...detectProvidedCapabilityNotExported(graph, atlas, src),
-    ...detectRuntimeCalls(atlas, src),
+    ...detectRuntimeCalls(atlas, src, map),
+    ...detectDataLinks(map),
   ];
   const errors = drifts.filter((d) => d.severity === 'error');
   const warnings = drifts.filter((d) => d.severity === 'warning');
@@ -208,6 +243,7 @@ export function validate({ atlasRoot, sourceRoot } = {}) {
     error_count: errors.length,
     warning_count: warnings.length,
     drifts,
+    unowned_data: map ? (map.data || []).filter((d) => !d.owner).map((d) => d.key) : [],
     checked_at: new Date().toISOString(),
   };
 }
@@ -243,6 +279,16 @@ if (fileURLToPath(import.meta.url) === process.argv[1]) {
     console.log(`runtime calls: ${counts.undeclared} undeclared, ${counts.stale} stale, ${counts.unknown} unknown`);
     process.exit(counts.undeclared + counts.stale + counts.unknown ? 1 : 0);
   }
+  // R-8.16 — `--data-links`: atlas files a block reads or writes that belong
+  // to a block its contract does not name, and files nobody owns. A report:
+  // which contract file fits (depends_on or calls) is the operator's call.
+  if (argv.includes('--data-links')) {
+    const found = result.drifts.filter((d) => d.kind === 'undeclared_data_link');
+    for (const d of found) console.log(` ~ ${d.block} → ${d.data_of_block} :: ${d.files.join(', ')}`);
+    if (result.unowned_data.length) console.log(` ? no owner: ${result.unowned_data.join(', ')}`);
+    console.log(`data links: ${found.length} undeclared, ${result.unowned_data.length} atlas files without an owner`);
+    process.exit(0);
+  }
   // --strict-provides escalates warnings → errors (fails the validator on
   // unbacked capability promises).
   if (strict) {
@@ -261,7 +307,7 @@ if (fileURLToPath(import.meta.url) === process.argv[1]) {
     else console.log(`Code-graph: OK (${result.warning_count} warning(s) — non-blocking; review atlas/sync_report.json codeGraphDrift)`);
     for (const d of result.drifts) {
       const stream = d.severity === 'error' ? console.error : console.log;
-      stream(` ${label(d)} ${d.severity}: ${d.kind} :: ${d.block}` + (d.imports_from_block ? ` → ${d.imports_from_block}` : '') + (d.calls_block ? ` → ${d.calls_block}` : '') + (d.capability ? ` :: ${d.capability}` : ''));
+      stream(` ${label(d)} ${d.severity}: ${d.kind} :: ${d.block}` + (d.imports_from_block ? ` → ${d.imports_from_block}` : '') + (d.calls_block ? ` → ${d.calls_block}` : '') + (d.data_of_block ? ` → ${d.data_of_block}` : '') + (d.capability ? ` :: ${d.capability}` : ''));
       if (d.examples) for (const ex of d.examples.slice(0, 2)) stream(`     ${ex.from_file}:${ex.line} → ${ex.to_file}`);
     }
     process.exit(exitCode);

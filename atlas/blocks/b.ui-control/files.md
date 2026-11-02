@@ -31,3 +31,7 @@ These files had no owner in any files.md, so the code-graph check never saw thei
 - tests/playwright/meaning_panel.spec.ts [alive] (R-8.10/R-8.12: + the contract delta after a change, the wording section; the meaning panel in Chromium against a live API — LLM badge, node marker, correction draft and notice surviving a live refresh, confirm without a run, trajectory saved to mission.md; `npm run test:ui`)
 - playwright.config.js [alive] (R-8.10: webServer waits for atlas_design/index.html — the old frontend/index.html no longer exists, so no spec could start)
 - atlas/blocks/b.ui-control/calls.md [alive] (R-8.15: что блок вызывает во время работы — запускает процессом или по HTTP; не порядок сборки, поэтому может идти «вверх»)
+
+## R-8.16 — данные интерфейса
+
+- atlas/design_payload.json [alive] (данные для канваса — пишет build_sima_design_payload.mjs)

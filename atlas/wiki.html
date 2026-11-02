@@ -15,7 +15,7 @@
 </style>
 </head><body>
 <h1>Sima Atlas Wiki</h1>
-<p><em>Auto-generated: 2026-11-02T09:11:44.383Z</em></p>
+<p><em>Auto-generated: 2026-11-02T12:18:07.495Z</em></p>
 <h2>Граф продукта</h2>
 <div class="mermaid">flowchart TB
   classDef done    fill:#dcfce7,stroke:#16a34a,color:#15803d;
@@ -281,6 +281,10 @@ evidence_spec:
 <li>playwright.config.js [alive] (R-8.10: webServer waits for atlas_design/index.html — the old frontend/index.html no longer exists, so no spec could start)</li>
 <li>atlas/blocks/b.ui-control/calls.md [alive] (R-8.15: что блок вызывает во время работы — запускает процессом или по HTTP; не порядок сборки, поэтому может идти «вверх»)</li>
 </ul>
+<h2>R-8.16 — данные интерфейса</h2>
+<ul>
+<li>atlas/design<em>payload.json [alive] (данные для канваса — пишет build</em>sima<em>design</em>payload.mjs)</li>
+</ul>
 <p><em>Sources: [mission](blocks/b.ui-control/mission.md) · [kpi](blocks/b.ui-control/kpi.md) · [acceptance](blocks/b.ui-control/acceptance.md) · [depends</em>on](blocks/b.ui-control/depends<em>on.md) · [provides](blocks/b.ui-control/provides.md) · [patterns](blocks/b.ui-control/patterns.md) · [files](blocks/b.ui-control/files.md)</em></p>
 <hr/>
 <h3>🟢 b.core-sync — Sync Engine</h3>
@@ -486,6 +490,16 @@ evidence_spec:
 <li>scripts/validate_ownership.mjs [alive] (R-8.10: every script / test / canvas / desktop file has exactly one owning block — unowned or doubled is an error)</li>
 <li>atlas/blocks/b.core-sync/calls.md [alive] (R-8.15: что блок вызывает во время работы — запускает процессом или по HTTP; не порядок сборки, поэтому может идти «вверх»)</li>
 </ul>
+<h2>R-8.16 — данные, которые пишет ночная проверка</h2>
+<ul>
+<li>atlas/nightly<em>report.md [alive] (итог ночной проверки — пишет nightly</em>consolidation.mjs)</li>
+<li>atlas/sync_report.json [alive] (отчёт расхождений атласа и кода — пишут валидаторы ночной проверки)</li>
+<li>atlas/intelligence<em>health.json [alive] (здоровье «интеллекта» атласа — пишет calc</em>intelligence_health.mjs)</li>
+<li>atlas/intelligence_health.md [alive] (то же для человека)</li>
+<li>atlas/production<em>audit</em>report.md [alive] (аудит готовности — пишет audit<em>production</em>readiness.mjs)</li>
+<li>atlas/cleanup<em>proposals.json [alive] (предложения уборки — пишет housekeeping</em>sweeper.mjs)</li>
+<li>atlas/cleanup_proposals.md [alive] (то же для человека)</li>
+</ul>
 <p><em>Sources: [mission](blocks/b.core-sync/mission.md) · [kpi](blocks/b.core-sync/kpi.md) · [acceptance](blocks/b.core-sync/acceptance.md) · [depends</em>on](blocks/b.core-sync/depends<em>on.md) · [provides](blocks/b.core-sync/provides.md) · [patterns](blocks/b.core-sync/patterns.md) · [files](blocks/b.core-sync/files.md)</em></p>
 <hr/>
 <h3>🟡 b.db — Atlas Database</h3>
@@ -590,14 +604,14 @@ evidence_spec:
 <li>atlas/operator_profile.json [alive]</li>
 <li>atlas/transitions.log [alive]</li>
 <li>atlas/ingestion_queue.jsonl [alive]</li>
-<li>atlas/intelligence_health.json [alive]</li>
-<li>atlas/intelligence_health.md [alive]</li>
 <li>atlas/STATUS_REPORT.md [alive]</li>
 <li>atlas/STOPPOINT.md [alive]</li>
 <li>atlas/progress<em>tz</em>checklist.md [alive]</li>
 <li>atlas/IMPLEMENTATION_PROGRESS.md [alive]</li>
-<li>atlas/production<em>audit</em>report.md [alive]</li>
 <li>atlas/tasks_master.md [alive]</li>
+<li>atlas/blocks/ [alive] (R-8.16: хранилище блоков — файлы в папках блоков (mission.md, checks.log, …) принадлежат ему, кто бы их ни читал)</li>
+<li>atlas/templates/ [alive] (R-8.16: шаблоны блоков, из которых apply<em>block</em>template.mjs создаёт новые)</li>
+<li>atlas/change<em>sets/.gitkeep [alive] (R-8.16: папка наборов изменений, которые пишет change</em>set.mjs)</li>
 <li>scripts/log_transition.mjs [alive]</li>
 <li>scripts/manage<em>block.mjs [alive] (R-8.14: ранняя ручная команда для блока — init / set-status / set-mission; меняет статус без проверки и без записи в transitions.log. Её никто не вызывает: статусы меняет шлюз жизненного цикла, advance</em>block_state.mjs)</li>
 <li>scripts/advance<em>block</em>state.mjs [alive]</li>
@@ -830,6 +844,18 @@ evidence_spec:
 <li>tests/cursor_live.headless.smoke.mjs [alive] ((A5 evidence))</li>
 <li>atlas/blocks/b.agent-orchestrator/calls.md [alive] (R-8.15: что блок вызывает во время работы — запускает процессом или по HTTP; не порядок сборки, поэтому может идти «вверх»)</li>
 </ul>
+<h2>R-8.16 — данные агентов и сервера</h2>
+<ul>
+<li>atlas/activity_log.jsonl [alive] (лента действий — дописывает сервер)</li>
+<li>atlas/architecture<em>decisions.md [alive] (архитектурные решения, только дописываются — architecture</em>decisions_api.mjs)</li>
+<li>atlas/architecture_reviews/ [alive] (разборы архитектуры — пишет сервер)</li>
+<li>atlas/autonomous<em>runs/.gitkeep [alive] (папка автономных прогонов — пишет agent</em>loop_daemon.mjs)</li>
+<li>atlas/run<em>logs/.gitkeep [alive] (папка журналов прогонов — atlas</em>runs_api.mjs)</li>
+<li>atlas/process_runs/ [alive] (записи процессов по блокам)</li>
+<li>atlas/context<em>packs/ [alive] (пакеты контекста для агента — build</em>context_pack.mjs)</li>
+<li>atlas/schema_templates/ [alive] (шаблоны схем — отдаёт сервер)</li>
+<li>atlas/ingestion<em>scratch/ [alive] (черновики разбора чатов — auto</em>sync_iteration.mjs)</li>
+</ul>
 <p><em>Sources: [mission](blocks/b.agent-orchestrator/mission.md) · [kpi](blocks/b.agent-orchestrator/kpi.md) · [acceptance](blocks/b.agent-orchestrator/acceptance.md) · [depends</em>on](blocks/b.agent-orchestrator/depends<em>on.md) · [provides](blocks/b.agent-orchestrator/provides.md) · [patterns](blocks/b.agent-orchestrator/patterns.md) · [files](blocks/b.agent-orchestrator/files.md)</em></p>
 <hr/>
 <h3>🟢 b.docs — Docs Builder</h3>
@@ -962,7 +988,7 @@ evidence_spec:
 <li>atlas/WIKI.md [alive] (auto-generated)</li>
 <li>atlas/wiki.html [alive] (auto-generated)</li>
 <li>atlas/roadmap.md [alive] (auto-generated)</li>
-<li>atlas/nightly_report.md [alive] (auto-generated)</li>
+<li>atlas/auto<em>tz.md [alive] (R-8.16: автоТЗ — пишет generate</em>tz<em>from</em>atlas.mjs)</li>
 </ul>
 <h2>R-8.10 — previously unowned</h2>
 <p>These files had no owner in any files.md, so the code-graph check never saw their imports.</p>
@@ -2030,6 +2056,17 @@ evidence_spec:
 <p>(шлюз статусов в <code>b.db</code> запускает проверку приёмки, которая сама импортирует</p>
 <p>шлюз). Такие связи записываются в <code>calls.md</code> блока; валидатор графа кода</p>
 <p>предупреждает о незаписанном вызове и о записи, за которой нет кода.</p>
+<p><strong>Связи через файлы атласа (R-8.16).</strong> Блок может зависеть от другого, ничего</p>
+<p>у него не импортируя: он читает или пишет файл атласа, который принадлежит</p>
+<p>другому (<code>graph.json</code> хранилища, <code>acceptance_runs</code> проверки приёмки,</p>
+<p><code>sync_report.json</code> ночной проверки). Карта находит файлы атласа, которые</p>
+<p>называет код, и отличает чтение от записи. У каждого такого файла есть</p>
+<p>владелец: блок, который записал его в свой <code>files.md</code>; для файлов в папках</p>
+<p>блоков — хранилище блоков; иначе единственный блок, чей код его пишет.</p>
+<p>Файл, у которого владельца нет, карта называет, а не угадывает. Вызов</p>
+<p>маршрута сервера доходит до того, что использует код маршрута, — так видно,</p>
+<p>что стоит за заявленной связью интерфейса с блоком, до которого он</p>
+<p>добирается через сервер.</p>
 <h2>Layer</h2>
 <p>data</p>
 <h2>Out of scope (что блок НЕ делает)</h2>
@@ -2125,7 +2162,8 @@ evidence_spec:
 <ul>
 <li>[ ] <strong>A3.</strong> Selftest валидатора зелёный: на синтетическом мини-атласе</li>
 <p>  показывает <code>undeclared<em>code</em>dependency</code> и <code>provided<em>capability</em>not_exported</code>,</p>
-<p>  и НЕ показывает drift'ов когда контракт совпадает с кодом.</p>
+<p>  незаписанные вызовы во время работы (R-8.15) и связи через файлы атласа</p>
+<p>  (R-8.16), и НЕ показывает drift'ов когда контракт совпадает с кодом.</p>
 </ul>
 <pre><code class="lang-yaml">evidence_kind: selftest_run
 evidence_spec:
@@ -2167,12 +2205,12 @@ evidence_spec:
   cmd: node tests/code_graph_extractor.selftest.mjs
   expect_in_stdout: "deterministic"</code></pre>
 <ul>
-<li>[x] <strong>A8.</strong> Карта кода говорит правду о коде: части файла покрывают каждую строку ровно раз; связи-не-импорты (вызовы API, запуск скриптов) находятся без комментариев и спецификаторов модулей; у каждого файла есть роль и «зачем»; связь блоков показывает, что по ней проходит, или что её нет в коде; файл вне карты не отдаётся.</li>
+<li>[x] <strong>A8.</strong> Карта кода говорит правду о коде: части файла покрывают каждую строку ровно раз; связи-не-импорты (вызовы API, запуск скриптов, чтение и запись чужих файлов атласа, вызов через сервер) находятся без комментариев и спецификаторов модулей; у каждого файла есть роль и «зачем»; связь блоков показывает, что по ней проходит, или что её нет в коде; файл вне карты не отдаётся.</li>
 </ul>
 <pre><code class="lang-yaml">evidence_kind: exit_code
 evidence_spec:
   cmd: node tests/atlas_map.selftest.mjs
-  expect_in_stdout: "OK [(]8 groups[)]"</code></pre>
+  expect_in_stdout: "OK [(]9 groups[)]"</code></pre>
 <ul>
 <li>[x] <strong>A9.</strong> Карта строится на настоящем атласе из графа кода, и каждая связь блоков в ней классифицирована.</li>
 </ul>
@@ -2187,6 +2225,13 @@ evidence_spec:
 evidence_spec:
   cmd: node scripts/validate_code_graph_vs_contracts.mjs --runtime-calls
   expect_in_stdout: "runtime calls: 0 undeclared, 0 stale, 0 unknown"</code></pre>
+<ul>
+<li>[ ] <strong>A11.</strong> Связи через файлы атласа видны и сосчитаны: валидатор называет каждую пару блоков, где один читает или пишет файл атласа другого, а контракт об этом молчит, и каждый файл атласа без владельца. Это отчёт: какой файл контракта подходит (<code>depends_on.md</code> или <code>calls.md</code>), решает оператор.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: exit_code
+evidence_spec:
+  cmd: node scripts/validate_code_graph_vs_contracts.mjs --data-links
+  expect_in_stdout: "data links: [0-9]+ undeclared, [0-9]+ atlas files without an owner"</code></pre>
 <h2>inconclusive_if</h2>
 <ul>
 <li>репозиторий не является git-репозиторием (например, при первом git clone</li>
@@ -6417,6 +6462,10 @@ evidence_spec:
 <li>2026-11-02T09:11:39.564Z: smoke e2e distillate</li>
 <li>2026-11-02T09:11:44.200Z: smoke e2e queued insight</li>
 <li>2026-11-02T09:11:44.257Z: smoke e2e distillate</li>
+<li>2026-11-02T12:18:00.798Z: smoke e2e queued insight</li>
+<li>2026-11-02T12:18:00.843Z: smoke e2e distillate</li>
+<li>2026-11-02T12:18:07.303Z: smoke e2e queued insight</li>
+<li>2026-11-02T12:18:07.359Z: smoke e2e distillate</li>
 </ul>
 <h4>Files</h4>
 <h1>b.smoke-sandbox — files</h1>

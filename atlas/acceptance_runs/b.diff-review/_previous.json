@@ -15,17 +15,17 @@
         "expect_in_stdout": "inconclusive"
       },
       "verdict": "pass",
-      "evidence": "printf '' | node scripts/review_diff.mjs --block b.nonexistent-empty --json → exit 0 (57ms); first line: \"{\"",
+      "evidence": "printf '' | node scripts/review_diff.mjs --block b.nonexistent-empty --json → exit 0 (65ms); first line: \"{\"",
       "reasoning": "shell exit code 0 and stdout matches /inconclusive/",
       "raw": {
         "cmd": "printf '' | node scripts/review_diff.mjs --block b.nonexistent-empty --json",
         "exit_code": 0,
-        "stdout": "{\n  \"ok\": true,\n  \"verdict\": \"inconclusive\",\n  \"summary\": \"empty diff — nothing to review\",\n  \"findings\": [],\n  \"mock\": false,\n  \"reason\": \"empty_diff\",\n  \"checked_at\": \"2026-11-02T01:08:01.509Z\",\n  \"source_note\": \"no diff proposal for block\"\n}\n",
+        "stdout": "{\n  \"ok\": true,\n  \"verdict\": \"inconclusive\",\n  \"summary\": \"empty diff — nothing to review\",\n  \"findings\": [],\n  \"mock\": false,\n  \"reason\": \"empty_diff\",\n  \"checked_at\": \"2026-11-02T09:11:38.122Z\",\n  \"source_note\": \"no diff proposal for block\"\n}\n",
         "stderr": "",
-        "duration_ms": 57,
+        "duration_ms": 65,
         "timed_out": false
       },
-      "duration_ms": 57
+      "duration_ms": 65
     },
     {
       "id": "A2",
@@ -39,17 +39,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/review_diff.selftest.mjs → exit 0 (69ms); first line: \"review_diff.selftest: OK (7 test groups, all assertions green)\"",
+      "evidence": "node tests/review_diff.selftest.mjs → exit 0 (81ms); first line: \"review_diff.selftest: OK (7 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/review_diff.selftest.mjs",
         "exit_code": 0,
         "stdout": "review_diff.selftest: OK (7 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 69,
+        "duration_ms": 81,
         "timed_out": false
       },
-      "duration_ms": 69
+      "duration_ms": 81
     },
     {
       "id": "A3",
@@ -159,11 +159,11 @@
   },
   "verdict": "pass",
   "inconclusive_if_declared": 1,
-  "duration_ms": 130,
-  "checked_at": "2026-11-02T01:08:01.586Z",
+  "duration_ms": 151,
+  "checked_at": "2026-11-02T09:11:38.212Z",
   "cache": {
     "hit": false,
-    "reason": "code changed (a commit, or a changed / new file outside atlas/); a file this block's assertions read changed",
-    "lookup_ms": 26.639453
+    "reason": "code changed (a commit, or a changed / new file outside atlas/); a contract, graph.json or project rules changed; another block's verdict or kpi result changed",
+    "lookup_ms": 23.609369
   }
 }

@@ -81,14 +81,18 @@ export { default as Main } from './main.mjs';
 // ── Group 4: side-effect import
 {
   const f = path.join(tmp, 'g4.mjs');
+  // R-8.16: the word 'import' inside a string is not an import of a package
   fs.writeFileSync(f, `import './polyfills.mjs';
 import './another.mjs';
+const kinds = [['import', f.imports], ['http', f.calls]];
+const tags = f.imports.map(tag('import')), more = (f.calls || []).map(tag('http'));
 `, 'utf8');
   fs.writeFileSync(path.join(tmp, 'polyfills.mjs'), '// noop\n');
   fs.writeFileSync(path.join(tmp, 'another.mjs'), '// noop\n');
   const r = extractModule(f);
   const sideEffect = r.imports.filter((i) => i.kind === 'side_effect');
   check('g4: 2 side-effect imports', sideEffect.length === 2, `got=${sideEffect.length} of ${r.imports.length}: kinds=${r.imports.map((i) => i.kind).join(',')}`);
+  check('g4: a string «import» is not a package', r.imports.length === 2, `got ${r.imports.map((i) => JSON.stringify(i.from)).join(' ')}`);
 }
 
 // ── Group 5: named / default / list exports

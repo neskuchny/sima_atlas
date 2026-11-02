@@ -770,32 +770,7 @@
     },
     "frontend/atlas_design/code_map.jsx": {
       "exports": [],
-      "imports": [
-        {
-          "external": true,
-          "from": ")), ...(f.calls || []).map(tag(",
-          "kind": "side_effect",
-          "line": 140,
-          "resolved_to": null,
-          "specifiers": []
-        },
-        {
-          "external": true,
-          "from": ")), ...(f.calledBy || []).map(tag(",
-          "kind": "side_effect",
-          "line": 141,
-          "resolved_to": null,
-          "specifiers": []
-        },
-        {
-          "external": true,
-          "from": ", ",
-          "kind": "side_effect",
-          "line": 838,
-          "resolved_to": null,
-          "specifiers": []
-        }
-      ],
+      "imports": [],
       "owning_block": "b.ui-control"
     },
     "frontend/atlas_design/data_loader.js": {
@@ -2138,48 +2113,43 @@
       "exports": [
         {
           "kind": "named",
-          "line": 140,
+          "line": 121,
+          "name": "routeFromRegex"
+        },
+        {
+          "kind": "named",
+          "line": 153,
           "name": "segmentsOf"
         },
         {
           "kind": "named",
-          "line": 222,
+          "line": 242,
           "name": "fileStack"
         },
         {
           "kind": "named",
-          "line": 244,
+          "line": 264,
           "name": "techName"
         },
         {
           "kind": "named",
-          "line": 248,
+          "line": 268,
           "name": "entryPoints"
         },
         {
           "kind": "named",
-          "line": 279,
+          "line": 299,
           "name": "httpCalls"
         },
         {
           "kind": "named",
-          "line": 300,
-          "name": "spawnedScripts"
-        },
-        {
-          "kind": "named",
-          "line": 324,
-          "name": "generatedBy"
-        },
-        {
-          "kind": "named",
-          "line": 335,
-          "name": "fileRole"
+          "line": 334,
+          "name": "atlasVocabulary"
         },
         {
           "kind": "named",
           "line": 359,
-          "name": "filePurpose"
+          "name": "dataRefs"
         },
         {
           "kind": "named",
@@ -2188,23 +2158,38 @@
         },
         {
           "kind": "named",
+          "line": 416,
+          "name": "dataOwners"
+        },
+        {
+          "kind": "named",
+          "line": 438,
+          "name": "artefactOwners"
+        },
+        {
+          "kind": "named",
           "line": 44,
           "name": "cut"
         },
         {
           "kind": "named",
-          "line": 474,
-          "name": "blockLinks"
+          "line": 462,
+          "name": "spawnedScripts"
         },
         {
           "kind": "named",
-          "line": 501,
-          "name": "readCalls"
+          "line": 486,
+          "name": "generatedBy"
         },
         {
           "kind": "named",
-          "line": 511,
-          "name": "buildCodeMap"
+          "line": 497,
+          "name": "fileRole"
+        },
+        {
+          "kind": "named",
+          "line": 521,
+          "name": "filePurpose"
         },
         {
           "kind": "named",
@@ -2213,8 +2198,18 @@
         },
         {
           "kind": "named",
-          "line": 672,
-          "name": "readMapFile"
+          "line": 636,
+          "name": "blockLinks"
+        },
+        {
+          "kind": "named",
+          "line": 679,
+          "name": "readCalls"
+        },
+        {
+          "kind": "named",
+          "line": 689,
+          "name": "buildCodeMap"
         },
         {
           "kind": "named",
@@ -2225,6 +2220,11 @@
           "kind": "named",
           "line": 87,
           "name": "wantLine"
+        },
+        {
+          "kind": "named",
+          "line": 917,
+          "name": "readMapFile"
         }
       ],
       "imports": [
@@ -2292,14 +2292,6 @@
               "name": "blockMeaningSummary"
             }
           ]
-        },
-        {
-          "external": true,
-          "from": ", f.imports], [",
-          "kind": "side_effect",
-          "line": 479,
-          "resolved_to": null,
-          "specifiers": []
         }
       ],
       "owning_block": "b.code-graph"
@@ -2905,12 +2897,12 @@
       "exports": [
         {
           "kind": "named",
-          "line": 140,
+          "line": 143,
           "name": "extractModule"
         },
         {
           "kind": "named",
-          "line": 217,
+          "line": 220,
           "name": "buildGraph"
         }
       ],
@@ -4500,14 +4492,6 @@
               "name": "tryCapture"
             }
           ]
-        },
-        {
-          "external": true,
-          "from": ", ",
-          "kind": "side_effect",
-          "line": 52,
-          "resolved_to": null,
-          "specifiers": []
         }
       ],
       "owning_block": "b.user-docs-generator"
@@ -7835,24 +7819,16 @@
       "exports": [
         {
           "kind": "named",
-          "line": 183,
+          "line": 216,
           "name": "validate"
         }
       ],
       "imports": [
         {
           "external": true,
-          "from": " && !c.from_file.startsWith(",
-          "kind": "side_effect",
-          "line": 153,
-          "resolved_to": null,
-          "specifiers": []
-        },
-        {
-          "external": true,
           "from": "node:fs",
           "kind": "static",
-          "line": 37,
+          "line": 44,
           "resolved_to": null,
           "specifiers": [
             {
@@ -7865,7 +7841,7 @@
           "external": true,
           "from": "node:path",
           "kind": "static",
-          "line": 38,
+          "line": 45,
           "resolved_to": null,
           "specifiers": [
             {
@@ -7878,7 +7854,7 @@
           "external": true,
           "from": "node:url",
           "kind": "static",
-          "line": 39,
+          "line": 46,
           "resolved_to": null,
           "specifiers": [
             {
@@ -7891,7 +7867,7 @@
           "external": false,
           "from": "./atlas_map.mjs",
           "kind": "static",
-          "line": 40,
+          "line": 47,
           "resolved_to": "scripts/atlas_map.mjs",
           "specifiers": [
             {
@@ -9481,12 +9457,17 @@
       "exports": [
         {
           "kind": "named",
-          "line": 209,
+          "line": 215,
           "name": "one"
         },
         {
           "kind": "named",
-          "line": 41,
+          "line": 349,
+          "name": "buildMap"
+        },
+        {
+          "kind": "named",
+          "line": 47,
           "name": "BIG"
         }
       ],
@@ -9495,7 +9476,7 @@
           "external": false,
           "from": "../scripts/lib.mjs",
           "kind": "static",
-          "line": 107,
+          "line": 113,
           "resolved_to": null,
           "specifiers": [
             {
@@ -9508,7 +9489,7 @@
           "external": true,
           "from": "node:fs",
           "kind": "static",
-          "line": 20,
+          "line": 25,
           "resolved_to": null,
           "specifiers": [
             {
@@ -9521,7 +9502,7 @@
           "external": true,
           "from": "node:os",
           "kind": "static",
-          "line": 21,
+          "line": 26,
           "resolved_to": null,
           "specifiers": [
             {
@@ -9532,9 +9513,22 @@
         },
         {
           "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 265,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
           "from": "node:path",
           "kind": "static",
-          "line": 22,
+          "line": 27,
           "resolved_to": null,
           "specifiers": [
             {
@@ -9547,7 +9541,7 @@
           "external": true,
           "from": "node:url",
           "kind": "static",
-          "line": 23,
+          "line": 28,
           "resolved_to": null,
           "specifiers": [
             {
@@ -9557,10 +9551,23 @@
           ]
         },
         {
+          "external": false,
+          "from": "./map.mjs",
+          "kind": "static",
+          "line": 342,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "buildMap"
+            }
+          ]
+        },
+        {
           "external": true,
           "from": "node:http",
           "kind": "static",
-          "line": 53,
+          "line": 59,
           "resolved_to": null,
           "specifiers": [
             {
@@ -10182,57 +10189,57 @@
       "exports": [
         {
           "kind": "named",
-          "line": 105,
+          "line": 109,
           "name": "PI"
         },
         {
           "kind": "named",
-          "line": 106,
+          "line": 110,
           "name": "compute"
         },
         {
           "kind": "named",
-          "line": 107,
+          "line": 111,
           "name": "fetchIt"
         },
         {
           "kind": "named",
-          "line": 108,
+          "line": 112,
           "name": "Widget"
         },
         {
           "kind": "named",
-          "line": 110,
+          "line": 114,
           "name": "a"
         },
         {
           "kind": "named",
-          "line": 110,
+          "line": 114,
           "name": "B"
         },
         {
           "kind": "named",
-          "line": 110,
+          "line": 114,
           "name": "c"
         },
         {
           "kind": "default",
-          "line": 111,
+          "line": 115,
           "name": "default"
         },
         {
           "kind": "named",
-          "line": 130,
+          "line": 134,
           "name": "real"
         },
         {
           "kind": "default",
-          "line": 140,
+          "line": 144,
           "name": "default"
         },
         {
           "kind": "default",
-          "line": 141,
+          "line": 145,
           "name": "default"
         },
         {
@@ -10317,19 +10324,6 @@
           ]
         },
         {
-          "external": false,
-          "from": "./real.mjs",
-          "kind": "static",
-          "line": 128,
-          "resolved_to": null,
-          "specifiers": [
-            {
-              "kind": "named",
-              "name": "real"
-            }
-          ]
-        },
-        {
           "external": true,
           "from": "node:crypto",
           "kind": "static",
@@ -10339,6 +10333,19 @@
             {
               "kind": "default",
               "name": "crypto"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "./real.mjs",
+          "kind": "static",
+          "line": 132,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "real"
             }
           ]
         },
@@ -10367,14 +10374,6 @@
               "name": "fileURLToPath"
             }
           ]
-        },
-        {
-          "external": false,
-          "from": "./styles.css",
-          "kind": "side_effect",
-          "line": 151,
-          "resolved_to": null,
-          "specifiers": []
         },
         {
           "external": false,
@@ -10447,14 +10446,6 @@
           ]
         },
         {
-          "external": true,
-          "from": ", osImp.specifiers.some((s) => s.kind === ",
-          "kind": "side_effect",
-          "line": 46,
-          "resolved_to": null,
-          "specifiers": []
-        },
-        {
           "external": false,
           "from": "./util.mjs",
           "kind": "dynamic",
@@ -10496,17 +10487,9 @@
         },
         {
           "external": false,
-          "from": "./polyfills.mjs",
-          "kind": "side_effect",
-          "line": 84,
-          "resolved_to": null,
-          "specifiers": []
-        },
-        {
-          "external": false,
           "from": "./another.mjs",
           "kind": "side_effect",
-          "line": 85,
+          "line": 86,
           "resolved_to": null,
           "specifiers": []
         }
@@ -10520,7 +10503,7 @@
           "external": true,
           "from": "node:fs",
           "kind": "static",
-          "line": 13,
+          "line": 17,
           "resolved_to": null,
           "specifiers": [
             {
@@ -10533,7 +10516,7 @@
           "external": true,
           "from": "node:os",
           "kind": "static",
-          "line": 14,
+          "line": 18,
           "resolved_to": null,
           "specifiers": [
             {
@@ -10546,7 +10529,7 @@
           "external": true,
           "from": "node:path",
           "kind": "static",
-          "line": 15,
+          "line": 19,
           "resolved_to": null,
           "specifiers": [
             {
@@ -10559,7 +10542,7 @@
           "external": false,
           "from": "../scripts/validate_code_graph_vs_contracts.mjs",
           "kind": "static",
-          "line": 16,
+          "line": 20,
           "resolved_to": "scripts/validate_code_graph_vs_contracts.mjs",
           "specifiers": [
             {
@@ -10572,12 +10555,64 @@
           "external": true,
           "from": "node:child_process",
           "kind": "static",
-          "line": 207,
+          "line": 206,
           "resolved_to": null,
           "specifiers": [
             {
               "kind": "named",
               "name": "spawnSync"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 246,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 247,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 252,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 253,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
             }
           ]
         }
@@ -12990,14 +13025,6 @@
               "name": "mockHashForPrompt"
             }
           ]
-        },
-        {
-          "external": true,
-          "from": ", ",
-          "kind": "side_effect",
-          "line": 50,
-          "resolved_to": null,
-          "specifiers": []
         }
       ],
       "owning_block": "b.user-docs-generator"

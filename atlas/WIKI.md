@@ -1,6 +1,6 @@
 # Sima Atlas Wiki
 
-_Auto-generated: 2026-11-02T09:11:44.672Z_
+_Auto-generated: 2026-11-02T12:18:07.716Z_
 
 ## Граф продукта
 
@@ -282,6 +282,10 @@ These files had no owner in any files.md, so the code-graph check never saw thei
 - playwright.config.js [alive] (R-8.10: webServer waits for atlas_design/index.html — the old frontend/index.html no longer exists, so no spec could start)
 - atlas/blocks/b.ui-control/calls.md [alive] (R-8.15: что блок вызывает во время работы — запускает процессом или по HTTP; не порядок сборки, поэтому может идти «вверх»)
 
+## R-8.16 — данные интерфейса
+
+- atlas/design_payload.json [alive] (данные для канваса — пишет build_sima_design_payload.mjs)
+
 _Sources: [mission](blocks/b.ui-control/mission.md) · [kpi](blocks/b.ui-control/kpi.md) · [acceptance](blocks/b.ui-control/acceptance.md) · [depends_on](blocks/b.ui-control/depends_on.md) · [provides](blocks/b.ui-control/provides.md) · [patterns](blocks/b.ui-control/patterns.md) · [files](blocks/b.ui-control/files.md)_
 
 ---
@@ -505,6 +509,16 @@ These files had no owner in any files.md, so the code-graph check never saw thei
 - scripts/validate_ownership.mjs [alive] (R-8.10: every script / test / canvas / desktop file has exactly one owning block — unowned or doubled is an error)
 - atlas/blocks/b.core-sync/calls.md [alive] (R-8.15: что блок вызывает во время работы — запускает процессом или по HTTP; не порядок сборки, поэтому может идти «вверх»)
 
+## R-8.16 — данные, которые пишет ночная проверка
+
+- atlas/nightly_report.md [alive] (итог ночной проверки — пишет nightly_consolidation.mjs)
+- atlas/sync_report.json [alive] (отчёт расхождений атласа и кода — пишут валидаторы ночной проверки)
+- atlas/intelligence_health.json [alive] (здоровье «интеллекта» атласа — пишет calc_intelligence_health.mjs)
+- atlas/intelligence_health.md [alive] (то же для человека)
+- atlas/production_audit_report.md [alive] (аудит готовности — пишет audit_production_readiness.mjs)
+- atlas/cleanup_proposals.json [alive] (предложения уборки — пишет housekeeping_sweeper.mjs)
+- atlas/cleanup_proposals.md [alive] (то же для человека)
+
 _Sources: [mission](blocks/b.core-sync/mission.md) · [kpi](blocks/b.core-sync/kpi.md) · [acceptance](blocks/b.core-sync/acceptance.md) · [depends_on](blocks/b.core-sync/depends_on.md) · [provides](blocks/b.core-sync/provides.md) · [patterns](blocks/b.core-sync/patterns.md) · [files](blocks/b.core-sync/files.md)_
 
 ---
@@ -624,14 +638,14 @@ do/don't notes live in `narrative.md`._
 - atlas/operator_profile.json [alive]
 - atlas/transitions.log [alive]
 - atlas/ingestion_queue.jsonl [alive]
-- atlas/intelligence_health.json [alive]
-- atlas/intelligence_health.md [alive]
 - atlas/STATUS_REPORT.md [alive]
 - atlas/STOPPOINT.md [alive]
 - atlas/progress_tz_checklist.md [alive]
 - atlas/IMPLEMENTATION_PROGRESS.md [alive]
-- atlas/production_audit_report.md [alive]
 - atlas/tasks_master.md [alive]
+- atlas/blocks/ [alive] (R-8.16: хранилище блоков — файлы в папках блоков (mission.md, checks.log, …) принадлежат ему, кто бы их ни читал)
+- atlas/templates/ [alive] (R-8.16: шаблоны блоков, из которых apply_block_template.mjs создаёт новые)
+- atlas/change_sets/.gitkeep [alive] (R-8.16: папка наборов изменений, которые пишет change_set.mjs)
 - scripts/log_transition.mjs [alive]
 - scripts/manage_block.mjs [alive] (R-8.14: ранняя ручная команда для блока — init / set-status / set-mission; меняет статус без проверки и без записи в transitions.log. Её никто не вызывает: статусы меняет шлюз жизненного цикла, advance_block_state.mjs)
 - scripts/advance_block_state.mjs [alive]
@@ -877,6 +891,18 @@ These files had no owner in any files.md, so the code-graph check never saw thei
 - tests/cursor_live.headless.smoke.mjs [alive] ((A5 evidence))
 - atlas/blocks/b.agent-orchestrator/calls.md [alive] (R-8.15: что блок вызывает во время работы — запускает процессом или по HTTP; не порядок сборки, поэтому может идти «вверх»)
 
+## R-8.16 — данные агентов и сервера
+
+- atlas/activity_log.jsonl [alive] (лента действий — дописывает сервер)
+- atlas/architecture_decisions.md [alive] (архитектурные решения, только дописываются — architecture_decisions_api.mjs)
+- atlas/architecture_reviews/ [alive] (разборы архитектуры — пишет сервер)
+- atlas/autonomous_runs/.gitkeep [alive] (папка автономных прогонов — пишет agent_loop_daemon.mjs)
+- atlas/run_logs/.gitkeep [alive] (папка журналов прогонов — atlas_runs_api.mjs)
+- atlas/process_runs/ [alive] (записи процессов по блокам)
+- atlas/context_packs/ [alive] (пакеты контекста для агента — build_context_pack.mjs)
+- atlas/schema_templates/ [alive] (шаблоны схем — отдаёт сервер)
+- atlas/ingestion_scratch/ [alive] (черновики разбора чатов — auto_sync_iteration.mjs)
+
 _Sources: [mission](blocks/b.agent-orchestrator/mission.md) · [kpi](blocks/b.agent-orchestrator/kpi.md) · [acceptance](blocks/b.agent-orchestrator/acceptance.md) · [depends_on](blocks/b.agent-orchestrator/depends_on.md) · [provides](blocks/b.agent-orchestrator/provides.md) · [patterns](blocks/b.agent-orchestrator/patterns.md) · [files](blocks/b.agent-orchestrator/files.md)_
 
 ---
@@ -1023,7 +1049,7 @@ evidence_spec:
 - atlas/WIKI.md [alive] (auto-generated)
 - atlas/wiki.html [alive] (auto-generated)
 - atlas/roadmap.md [alive] (auto-generated)
-- atlas/nightly_report.md [alive] (auto-generated)
+- atlas/auto_tz.md [alive] (R-8.16: автоТЗ — пишет generate_tz_from_atlas.mjs)
 
 ## R-8.10 — previously unowned
 
@@ -2215,6 +2241,18 @@ Sima Atlas сейчас знает граф продукта на уровне *
 шлюз). Такие связи записываются в `calls.md` блока; валидатор графа кода
 предупреждает о незаписанном вызове и о записи, за которой нет кода.
 
+**Связи через файлы атласа (R-8.16).** Блок может зависеть от другого, ничего
+у него не импортируя: он читает или пишет файл атласа, который принадлежит
+другому (`graph.json` хранилища, `acceptance_runs` проверки приёмки,
+`sync_report.json` ночной проверки). Карта находит файлы атласа, которые
+называет код, и отличает чтение от записи. У каждого такого файла есть
+владелец: блок, который записал его в свой `files.md`; для файлов в папках
+блоков — хранилище блоков; иначе единственный блок, чей код его пишет.
+Файл, у которого владельца нет, карта называет, а не угадывает. Вызов
+маршрута сервера доходит до того, что использует код маршрута, — так видно,
+что стоит за заявленной связью интерфейса с блоком, до которого он
+добирается через сервер.
+
 ## Layer
 data
 
@@ -2310,7 +2348,8 @@ evidence_spec:
 
 - [ ] **A3.** Selftest валидатора зелёный: на синтетическом мини-атласе
   показывает `undeclared_code_dependency` и `provided_capability_not_exported`,
-  и НЕ показывает drift'ов когда контракт совпадает с кодом.
+  незаписанные вызовы во время работы (R-8.15) и связи через файлы атласа
+  (R-8.16), и НЕ показывает drift'ов когда контракт совпадает с кодом.
 ```yaml
 evidence_kind: selftest_run
 evidence_spec:
@@ -2357,12 +2396,12 @@ evidence_spec:
   expect_in_stdout: "deterministic"
 ```
 
-- [x] **A8.** Карта кода говорит правду о коде: части файла покрывают каждую строку ровно раз; связи-не-импорты (вызовы API, запуск скриптов) находятся без комментариев и спецификаторов модулей; у каждого файла есть роль и «зачем»; связь блоков показывает, что по ней проходит, или что её нет в коде; файл вне карты не отдаётся.
+- [x] **A8.** Карта кода говорит правду о коде: части файла покрывают каждую строку ровно раз; связи-не-импорты (вызовы API, запуск скриптов, чтение и запись чужих файлов атласа, вызов через сервер) находятся без комментариев и спецификаторов модулей; у каждого файла есть роль и «зачем»; связь блоков показывает, что по ней проходит, или что её нет в коде; файл вне карты не отдаётся.
 ```yaml
 evidence_kind: exit_code
 evidence_spec:
   cmd: node tests/atlas_map.selftest.mjs
-  expect_in_stdout: "OK [(]8 groups[)]"
+  expect_in_stdout: "OK [(]9 groups[)]"
 ```
 
 - [x] **A9.** Карта строится на настоящем атласе из графа кода, и каждая связь блоков в ней классифицирована.
@@ -2379,6 +2418,14 @@ evidence_kind: exit_code
 evidence_spec:
   cmd: node scripts/validate_code_graph_vs_contracts.mjs --runtime-calls
   expect_in_stdout: "runtime calls: 0 undeclared, 0 stale, 0 unknown"
+```
+
+- [ ] **A11.** Связи через файлы атласа видны и сосчитаны: валидатор называет каждую пару блоков, где один читает или пишет файл атласа другого, а контракт об этом молчит, и каждый файл атласа без владельца. Это отчёт: какой файл контракта подходит (`depends_on.md` или `calls.md`), решает оператор.
+```yaml
+evidence_kind: exit_code
+evidence_spec:
+  cmd: node scripts/validate_code_graph_vs_contracts.mjs --data-links
+  expect_in_stdout: "data links: [0-9]+ undeclared, [0-9]+ atlas files without an owner"
 ```
 
 ## inconclusive_if
@@ -6670,6 +6717,10 @@ _no summary_
 - 2026-11-02T09:11:39.564Z: smoke e2e distillate
 - 2026-11-02T09:11:44.200Z: smoke e2e queued insight
 - 2026-11-02T09:11:44.257Z: smoke e2e distillate
+- 2026-11-02T12:18:00.798Z: smoke e2e queued insight
+- 2026-11-02T12:18:00.843Z: smoke e2e distillate
+- 2026-11-02T12:18:07.303Z: smoke e2e queued insight
+- 2026-11-02T12:18:07.359Z: smoke e2e distillate
 
 #### Files
 

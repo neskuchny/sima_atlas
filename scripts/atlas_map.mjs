@@ -113,7 +113,20 @@ const DECL = [
 const TEST = /^(?:test|it|describe)(?:\.(?:describe|only|skip|serial))?\(\s*(['"`])(.+?)\1/;
 const HOOK = /^test\.(beforeAll|afterAll|beforeEach|afterEach)\(/;
 const SECTION = /^\s*\/\/\s*[─━—–=-]{2,}\s*(.+?)\s*[─━—–=-]*\s*$/;
-const ROUTE = /^\s*if\s*\(\s*(?:req\.method\s*===\s*'(\w+)'\s*&&\s*)?req\.url(?:\s*===\s*'([^']+)'|\.startsWith\('([^']+)'\)|\.match\(|\s*&&)/;
+const ROUTE = /^\s*if\s*\(\s*(?:req\.method\s*===\s*'(\w+)'\s*&&\s*)?\(?\s*req\.url(?:\s*===\s*'([^']+)'|\.startsWith\('([^']+)'\))/;
+// R-8.16 — a route matched by a regular expression («req.url.match(/^\/atlas\/blocks\/([^/]+)\/meaning$/)»)
+// (a «/» inside a character class — «([^/]+)» — does not end the expression)
+const ROUTE_RX = /(?:req\.method\s*===\s*'(\w+)'\s*&&\s*)?req\.url\.match\(\/\^((?:\\.|\[(?:\\.|[^\]\\])*\]|[^/\\[])+)\//;
+/** «\/atlas\/blocks\/([a-z]+)\/meaning(?:\?(.*))?$» → «/atlas/blocks/:id/meaning». */
+export function routeFromRegex(src) {
+  return String(src)
+    .replace(/\(\?:[^()]*(?:\([^()]*\)[^()]*)*\)\?/g, '') // an optional group (a query string, a suffix)
+    .replace(/\(\?:[^()]*(?:\([^()]*\)[^()]*)*\)/g, ':id') // a required choice («(?:a|b)») is a value too
+    .replace(/\([^()]*\)/g, ':id') // a captured parameter
+    .replace(/\$$/, '')
+    .replace(/\\\//g, '/')
+    .replace(/\\(.)/g, '$1');
+}
 const isComment = (l) => /^\s*(\/\/|\/\*|\*|\*\/)/.test(l);
 const uncomment = (l) => l.replace(/^\s*(\/\/+|\/\*+|\*\/|\*)\s?/, '').replace(/\*\/\s*$/, '');
 
@@ -186,11 +199,18 @@ export function segmentsOf(src, file, exportedNames = new Set()) {
   // HTTP routes inside one big handler.
   for (let i = 0; i < lines.length; i++) {
     const r = lines[i].match(ROUTE);
-    if (!r) continue;
-    const route = r[2] || r[3];
-    if (!route) continue;
-    const method = r[1] || 'POST';
-    marks.push({ line: i + 1, name: `${method} ${route}`, kind: 'route', exported: false, doc: docAbove(lines, i), route: { method, path: route, prefix: !r[2] } });
+    if (r && (r[2] || r[3])) {
+      const route = r[2] || r[3];
+      const method = r[1] || 'POST';
+      marks.push({ line: i + 1, name: `${method} ${route}`, kind: 'route', exported: false, doc: docAbove(lines, i), route: { method, path: route, prefix: !r[2] } });
+      continue;
+    }
+    const rx = lines[i].match(ROUTE_RX);
+    if (rx && !isComment(lines[i])) {
+      const pattern = routeFromRegex(rx[2]);
+      const method = rx[1] || 'POST';
+      marks.push({ line: i + 1, name: `${method} ${pattern}`, kind: 'route', exported: false, doc: docAbove(lines, i), route: { method, path: pattern, prefix: false, parts: pattern.split(':id').filter(Boolean) } });
+    }
   }
   marks.sort((a, b) => a.line - b.line);
   const uniq = marks.filter((m, k) => k === 0 || m.line !== marks[k - 1].line);
@@ -280,12 +300,154 @@ export function httpCalls(src, routes) {
   if (!routes.length) return [];
   const code = stripComments(src);
   const out = [];
-  for (const m of code.matchAll(/['"`](\/[a-z][\w\-/.]*)/g)) {
-    const lit = m[1];
-    const hit = routes.find((r) => r.route.path === lit) || routes.find((r) => r.route.prefix && lit.startsWith(r.route.path));
-    if (hit) out.push({ line: lineAt(code, m.index), route: hit.name });
+  const size = (r) => (r.route.parts ? r.route.parts.join('') : r.route.path).length;
+  code.split('\n').forEach((text, i) => {
+    const lits = [...text.matchAll(/['"`](\/[a-z][\w\-/.]*)/g)].map((m) => m[1]);
+    if (!lits.length) return;
+    const hits = routes.filter((r) => {
+      if (r.route.parts) {
+        // every static part of a «/x/:id/y» route, in order, among the line's strings
+        let k = 0;
+        for (const l of lits) if (k < r.route.parts.length && l.startsWith(r.route.parts[k])) k++;
+        return k === r.route.parts.length;
+      }
+      return lits.some((l) => l === r.route.path || l.startsWith(`${r.route.path}?`) || (r.route.prefix && l.startsWith(r.route.path)));
+    });
+    if (!hits.length) return;
+    const best = hits.reduce((a, b) => (size(b) > size(a) ? b : a));
+    out.push({ line: i + 1, route: best.name });
+  });
+  return out;
+}
+
+// ── data: the atlas files a block reads and writes (R-8.16) ────────────────
+// A block can depend on another without importing or calling it: it reads a
+// file the other one writes (core-sync reads code_graph.json, the lifecycle
+// gate reads the verifier's acceptance_runs). The map finds the atlas files
+// each file names and gives every one an owner:
+//   1. the block that lists it in its files.md («atlas/sync_report.json»),
+//   2. else the only block whose code writes it,
+//   3. files inside a block's folder (mission.md, checks.log, …) belong to
+//      the block store — the block that lists «atlas/blocks/».
+// A file nobody owns is reported, not guessed.
+const DATA_EXT = /\.(?:md|log|jsonl?|txt)$/;
+export function atlasVocabulary(atlasRoot) {
+  const top = new Set();
+  const perBlock = new Set();
+  try { for (const n of fs.readdirSync(atlasRoot)) if (n !== 'clients') top.add(n); } catch { /* no atlas */ }
+  try {
+    for (const d of fs.readdirSync(path.join(atlasRoot, 'blocks'), { withFileTypes: true })) {
+      if (!d.isDirectory()) continue;
+      for (const n of fs.readdirSync(path.join(atlasRoot, 'blocks', d.name))) if (DATA_EXT.test(n)) perBlock.add(n);
+    }
+  } catch { /* no blocks */ }
+  return { top, perBlock };
+}
+// writeFileSync, writeIfMissing, writeJsonAtomic, appendLine … — not a bare
+// `res.write(` and not `res.writeHead(`.
+const WRITE_VERB = '(?:write(?!Head\\b)[A-Z]\\w*|append(?:[A-Z]\\w*)?|copyFileSync|createWriteStream|atomicWrite\\w*)';
+const WRITES = new RegExp(`\\b${WRITE_VERB}\\s*\\(`);
+const reEsc = (x) => x.replace(/[$]/g, '\\$');
+const DECLARED = /(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=/;
+/**
+ * The atlas files a source names: [{ key, line, mode: 'read'|'write' }].
+ * A path is written when the line writes, or when the name holding it — or
+ * one more name built from that one (`const p = path.join(dir, FILE)`) — is
+ * the target of a write. A name declared inside a function is looked up in
+ * that function only, so two different `p`s in one file do not mix.
+ */
+export function dataRefs(src, vocab, segments = []) {
+  const code = stripComments(src);
+  const lines = code.split('\n');
+  const out = [];
+  const seen = new Set();
+  const scopeOf = (lineNo) => {
+    if (!/^\s/.test(lines[lineNo - 1] || '')) return code;
+    const s = segments.find((x) => lineNo >= x.start && lineNo <= x.end && x.kind !== 'head');
+    return s ? lines.slice(s.start - 1, s.end).join('\n') : code;
+  };
+  const writesTo = (n, scope) => new RegExp(`\\b${WRITE_VERB}\\s*\\(\\s*(?:${n}\\b|${n}\\s*\\(|path\\.(?:join|resolve)\\([^)]*\\b${n}\\b)|renameSync\\([^,]+,\\s*(?:${n}\\b|path\\.(?:join|resolve)\\([^)]*\\b${n}\\b)`).test(scope);
+  const written = (name, lineNo, wholeFile = false) => {
+    const n = reEsc(name);
+    const scope = wholeFile ? code : scopeOf(lineNo);
+    if (writesTo(n, scope)) return true;
+    // one more hop: a name built from this one, in the scope where it is declared
+    const startLine = scope === code ? 1 : segments.find((x) => lineNo >= x.start && lineNo <= x.end && x.kind !== 'head').start;
+    const builtFrom = new RegExp(`=[^;]*\\b${n}\\b`);
+    return scope.split('\n').some((t, k) => {
+      const h = t.match(DECLARED);
+      return Boolean(h && h[1] !== name && builtFrom.test(t) && writesTo(reEsc(h[1]), scopeOf(startLine + k)));
+    });
+  };
+  lines.forEach((text, i) => {
+    for (const m of text.matchAll(/['"`]([^'"`\n]{2,120})['"`]/g)) {
+      // a later segment of «path.join(atlas, 'operator_profile', 'templates')» is not an atlas file of its own
+      if (/['"`][^'"`]*['"`]\s*,\s*$/.test(text.slice(0, m.index))) continue;
+      const lit = m[1].replace(/^\.?\/?atlas\//, '');
+      const first = lit.split('/')[0];
+      let key = null;
+      if (vocab.top.has(first) && (lit.includes('.') || /path\.(?:join|resolve)|ATLAS|atlas|[Rr]oot\b/.test(text))) key = first === 'blocks' ? 'blocks/' : first;
+      else if (vocab.perBlock.has(lit)) key = `blocks/*/${lit}`;
+      if (!key || seen.has(`${key}|${i}`)) continue;
+      seen.add(`${key}|${i}`);
+      // written on this line, or through the variable / function holding the path
+      let write = WRITES.test(text);
+      if (!write) {
+        const decl = (text.match(DECLARED) || text.match(/^\s*([A-Za-z_$][\w$]*)\s*=\s*path\./) || [])[1];
+        if (decl && written(decl, i + 1)) write = true;
+        // `function decisionsPath() { return path.join(…) }` — the callers write
+        const fn = /^\s*return\b/.test(text) && segments.find((s) => i + 1 >= s.start && i + 1 <= s.end && s.kind === 'fn')?.name;
+        if (!write && fn && written(fn, i + 1, true)) write = true;
+      }
+      out.push({ key, line: i + 1, mode: write ? 'write' : 'read' });
+    }
+  });
+  return out;
+}
+/**
+ * Who owns each atlas file the code names: Map(key → { owner, from, writers }).
+ * `refs` are [{ block, key, mode }] for every file on the map.
+ *   files.md — a block lists it («- atlas/sync_report.json [alive]»);
+ *   store    — a file in the block folders that the block store's own code
+ *              names (mission.md, checks.log …), or that several blocks write;
+ *   writes   — the only block whose code writes it (diff_review.json);
+ *   no owner — nobody lists it and several blocks, or none, write it.
+ */
+export function dataOwners(refs, registered) {
+  const add = (m, k, v) => (m.get(k) || m.set(k, new Set()).get(k)).add(v);
+  const writers = new Map(), namers = new Map();
+  for (const r of refs) {
+    add(namers, r.key, r.block);
+    if (r.mode !== 'read') add(writers, r.key, r.block);
+  }
+  const store = registered.get('blocks/') || null;
+  const out = new Map();
+  for (const [key, who] of namers) {
+    const w = [...(writers.get(key) || [])].sort();
+    const perBlock = key.startsWith('blocks/*/');
+    let owner = null, from = '';
+    if (registered.has(key)) { owner = registered.get(key); from = 'files.md'; }
+    else if (perBlock && store && who.has(store)) { owner = store; from = 'store'; }
+    else if (w.length === 1) { owner = w[0]; from = 'writes'; }
+    else if (perBlock && store) { owner = store; from = 'store'; }
+    out.set(key, { owner, from, writers: w, readers: [...who].filter((b) => !w.includes(b)).sort() });
   }
   return out;
+}
+/** Owners the atlas declares: «- atlas/<x> [alive]» in a block's files.md → x → block. */
+export function artefactOwners(atlasRoot, blockIds) {
+  const owners = new Map();
+  for (const id of blockIds) {
+    for (const l of read(path.join(atlasRoot, 'blocks', id, 'files.md')).split('\n')) {
+      const m = l.match(/^- atlas\/(\S+?)\/?\s+\[alive\]/);
+      if (!m) continue;
+      const parts = m[1].split('/');
+      if (parts[0] === 'blocks' && parts.length > 1) continue; // a block's own contract files
+      const key = parts[0] === 'blocks' ? 'blocks/' : parts[0];
+      if (!owners.has(key)) owners.set(key, id);
+    }
+  }
+  return owners;
 }
 /**
  * Scripts a file starts as a separate process: [{ line, file }]. A script
@@ -484,12 +646,28 @@ export function blockLinks(files, blocks) {
         get(f.block, g.block).code.push({ kind, from_file: f.path, line: x.line, to_file: g.path, names: x.names });
       }
     }
+    // R-8.16 — reading or writing an atlas file another block owns. «Somewhere
+    // in the block folders» says nothing more when the file names which ones.
+    const named = (f.data || []).some((d) => d.key.startsWith('blocks/*/'));
+    for (const d of f.data || []) {
+      if (!d.owner || d.owner === f.block || (named && d.key === 'blocks/')) continue;
+      get(f.block, d.owner).code.push({ kind: 'file', from_file: f.path, line: d.line, to_file: `atlas/${d.key}`, names: [d.key], mode: d.mode });
+    }
   }
   const ids = new Set(blocks.map((b) => b.id));
   const testBlock = new Set(blocks.filter((b) => b.type === 'test').map((b) => b.id));
   for (const b of blocks) {
     for (const d of b.depends_on || []) if (ids.has(d)) { const l = get(b.id, d); l.contract = true; l.declared_in.push('depends_on'); }
     for (const c of b.calls || []) if (ids.has(c.to)) { const l = get(b.id, c.to); l.contract = true; l.declared_in.push('calls'); }
+  }
+  // R-8.16 — through the server: a call to a route reaches what the route's
+  // code uses. That alone is not a link of its own (the server's links carry
+  // it), but it shows what in code stands behind a declared one.
+  for (const f of files) {
+    for (const v of f.via || []) {
+      const l = links.get(`${f.block}→${v.to_block}`);
+      if (l && l.contract) l.code.push({ kind: 'via', from_file: f.path, line: v.line, to_file: v.to_file, names: v.names, server: v.server, route: v.route });
+    }
   }
   for (const l of links.values()) {
     l.tests_only = l.code.length > 0 && (testBlock.has(l.from) || testBlock.has(l.to) || l.code.every((c) => c.from_file.startsWith('tests/')));
@@ -548,6 +726,7 @@ export function buildCodeMap({ repoRoot = ROOT, atlasRoot = ATLAS, history = tru
     if (segs.length >= 3) serverRoutes.set(p, segs);
   }
   const callsOf = new Map(), calledBy = new Map(), startsOf = new Map(), startedBy = new Map();
+  const routeCalls = new Map(); // file -> [{ line, route, server }], every call
   const push = (m, k, v) => (m.get(k) || m.set(k, []).get(k)).push(v);
   const generated = new Map([...known].map((p) => [p, generatedBy(sources.get(p))]));
   for (const p of known) {
@@ -561,6 +740,7 @@ export function buildCodeMap({ repoRoot = ROOT, atlasRoot = ATLAS, history = tru
       const names = [...new Set(calls.map((c) => c.route))].sort();
       push(callsOf, p, { file: server, line: calls[0].line, names });
       push(calledBy, server, { file: p, line: calls[0].line, names });
+      for (const c of calls) push(routeCalls, p, { ...c, server });
     }
     // Only Node code can start a process; a browser file naming a script is
     // showing a command to the operator.
@@ -584,11 +764,19 @@ export function buildCodeMap({ repoRoot = ROOT, atlasRoot = ATLAS, history = tru
   const touches = {};
   (commits || []).forEach((c, i) => { for (const f of c.files) { if (!(f in lastIdx)) lastIdx[f] = i; touches[f] = (touches[f] || 0) + 1; } });
 
+  // R-8.16 — the atlas files each file reads and writes. Tests build their
+  // own throwaway atlases and the canvas reads through the server, so
+  // neither names the atlas's files for real.
+  const vocab = atlasVocabulary(atlasRoot);
+  const registered = artefactOwners(atlasRoot, blocks.map((b) => b.id));
+  const dataRaw = new Map();
+
   const files = [];
   for (const [p, info] of Object.entries(cgFiles).sort(([a], [b]) => a.localeCompare(b))) {
     if (!blockIds.has(info.owning_block)) continue;
     const src = sources.get(p) ?? read(path.join(repoRoot, p));
     const anat = segmentsOf(src, p, new Set((info.exports || []).map((e) => e.name)));
+    if (!generated.get(p) && !p.startsWith('tests/') && !p.startsWith('frontend/')) dataRaw.set(p, dataRefs(src, vocab, anat.segments));
     const byName = usersOfName.get(p) || new Map();
     for (const s of anat.segments) s.users = [...new Set(byName.get(s.name) || [])];
     const d = desc[p];
@@ -613,6 +801,59 @@ export function buildCodeMap({ repoRoot = ROOT, atlasRoot = ATLAS, history = tru
   }
   const blockOfFile = new Map(files.map((f) => [f.path, f.block]));
   for (const f of files) { f.purpose = filePurpose(f, (x) => blockOfFile.get(x)); delete f.purposeWritten; }
+
+  // R-8.16 — owners of the atlas files, and every file's data with them.
+  const owners = dataOwners(files.flatMap((f) => (dataRaw.get(f.path) || []).map((d) => ({ block: f.block, key: d.key, mode: d.mode }))), registered);
+  for (const f of files) {
+    const byKey = new Map();
+    for (const d of dataRaw.get(f.path) || []) {
+      const e = byKey.get(d.key) || byKey.set(d.key, { key: d.key, line: d.line, lines: [], writes: [] }).get(d.key);
+      e.lines.push(d.line);
+      if (d.mode === 'write') e.writes.push(d.line);
+    }
+    f.data = [...byKey.values()].map((e) => {
+      const o = owners.get(e.key) || {};
+      const mode = !e.writes.length ? 'read' : e.writes.length === e.lines.length ? 'write' : 'both';
+      return { key: e.key, line: e.writes[0] || e.line, lines: e.lines, mode, owner: o.owner || null, ownerFrom: o.from || '' };
+    });
+  }
+
+  // R-8.16 — through the server: what each route's code uses (the imports it
+  // names, the atlas files it touches), so a call to the route reaches them.
+  const reach = new Map(); // `${server}|${route}` -> [{ to_file, to_block, names }]
+  for (const [server, routes] of serverRoutes) {
+    const sf = files.find((f) => f.path === server);
+    if (!sf) continue;
+    const lines = stripComments(sources.get(server)).split('\n');
+    const imps = (cgFiles[server]?.imports || []).filter((i) => !i.external && i.resolved_to && blockOfFile.has(i.resolved_to));
+    for (const r of routes) {
+      const body = lines.slice(r.start - 1, r.end).join('\n');
+      const hits = [];
+      for (const imp of imps) {
+        const used = (imp.specifiers || []).map((s) => s.alias || s.name).filter((n) => new RegExp(`\\b${reEsc(n)}\\b`).test(body));
+        if (used.length || (imp.kind === 'dynamic' && imp.line >= r.start && imp.line <= r.end)) hits.push({ to_file: imp.resolved_to, to_block: blockOfFile.get(imp.resolved_to), names: used });
+      }
+      const touched = sf.data.filter((d) => d.owner && d.lines.some((l) => l >= r.start && l <= r.end));
+      const named = touched.some((d) => d.key.startsWith('blocks/*/'));
+      for (const d of touched) if (!(named && d.key === 'blocks/')) hits.push({ to_file: `atlas/${d.key}`, to_block: d.owner, names: [d.key] });
+      reach.set(`${server}|${r.name}`, hits);
+    }
+  }
+  for (const f of files) {
+    if (f.path.startsWith('tests/')) continue;
+    const seen = new Set();
+    f.via = [];
+    for (const c of routeCalls.get(f.path) || []) {
+      const serverBlock = blockOfFile.get(c.server);
+      for (const h of reach.get(`${c.server}|${c.route}`) || []) {
+        if (h.to_block === f.block || h.to_block === serverBlock) continue;
+        const k = `${c.route}|${h.to_file}`;
+        if (seen.has(k)) continue;
+        seen.add(k);
+        f.via.push({ line: c.line, route: c.route, server: c.server, to_file: h.to_file, to_block: h.to_block, names: h.names });
+      }
+    }
+  }
 
   const outBlocks = blocks.map((b) => {
     const dir = path.join(atlasRoot, 'blocks', b.id);
@@ -651,6 +892,8 @@ export function buildCodeMap({ repoRoot = ROOT, atlasRoot = ATLAS, history = tru
 
   const projectMd = read(path.join(atlasRoot, 'project.md'));
   const goal = (projectMd.match(/^Цель:\s*(.+)$/m) || [])[1] || missionLine(projectMd);
+  const links = blockLinks(files, outBlocks);
+  for (const f of files) delete f.via; // carried by the links they back
   return {
     ok: true,
     generated_at: new Date().toISOString(),
@@ -660,7 +903,9 @@ export function buildCodeMap({ repoRoot = ROOT, atlasRoot = ATLAS, history = tru
     blocks: outBlocks,
     archived: blocksAll.filter((b) => b.status === 'archived').map((b) => b.id),
     files,
-    links: blockLinks(files, outBlocks),
+    links,
+    // R-8.16 — every atlas file the code names, its owner and who uses it
+    data: [...owners].map(([key, o]) => ({ key, owner: o.owner, from: o.from, writers: o.writers, readers: o.readers })).sort((a, b) => a.key.localeCompare(b.key)),
     history: recent,
   };
 }
@@ -694,6 +939,8 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
       code_links: map.links.filter((l) => l.code.length).length, contract_only: map.links.filter((l) => !l.code.length).length,
       code_only: map.links.filter((l) => l.code.length && !l.contract && !l.tests_only).length,
       tests_only: map.links.filter((l) => l.tests_only).length, roles, source: map.source,
+      by_kind: map.links.flatMap((l) => l.code).reduce((m, c) => ({ ...m, [c.kind]: (m[c.kind] || 0) + 1 }), {}),
+      data: { files: map.data.length, unowned: map.data.filter((d) => !d.owner).map((d) => d.key) },
     }, null, 2));
   } else {
     process.stdout.write(JSON.stringify(map));
