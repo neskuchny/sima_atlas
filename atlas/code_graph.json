@@ -92,8 +92,10 @@
     },
     "b.code-graph": {
       "files": [
+        "scripts/atlas_map.mjs",
         "scripts/build_code_graph.mjs",
         "scripts/validate_code_graph_vs_contracts.mjs",
+        "tests/atlas_map.selftest.mjs",
         "tests/code_graph_extractor.selftest.mjs",
         "tests/code_graph_validator.selftest.mjs"
       ]
@@ -243,6 +245,7 @@
     "b.ui-control": {
       "files": [
         "frontend/atlas_bootstrap.js",
+        "frontend/atlas_design/code_map.jsx",
         "frontend/atlas_design/data_loader.js",
         "frontend/atlas_design/data_static.js",
         "frontend/atlas_design/graph.jsx",
@@ -347,12 +350,24 @@
         {
           "from_file": "tests/frame_gate_flow.selftest.mjs",
           "kind": "static",
-          "line": 34,
+          "line": 36,
           "to_file": "scripts/contract_draft_review.mjs"
         }
       ],
       "from_block": "b.agent-orchestrator",
       "to_block": "b.clarify"
+    },
+    {
+      "examples": [
+        {
+          "from_file": "scripts/atlas_api_server.mjs",
+          "kind": "static",
+          "line": 17,
+          "to_file": "scripts/atlas_map.mjs"
+        }
+      ],
+      "from_block": "b.agent-orchestrator",
+      "to_block": "b.code-graph"
     },
     {
       "examples": [
@@ -425,7 +440,7 @@
         {
           "from_file": "scripts/atlas_api_server.mjs",
           "kind": "static",
-          "line": 17,
+          "line": 18,
           "to_file": "scripts/llm_gateway.mjs"
         },
         {
@@ -485,6 +500,18 @@
       ],
       "from_block": "b.clarify",
       "to_block": "b.llm-gateway"
+    },
+    {
+      "examples": [
+        {
+          "from_file": "scripts/atlas_map.mjs",
+          "kind": "static",
+          "line": 31,
+          "to_file": "scripts/block_meaning.mjs"
+        }
+      ],
+      "from_block": "b.code-graph",
+      "to_block": "b.clarify"
     },
     {
       "examples": [
@@ -739,6 +766,36 @@
     "frontend/atlas_bootstrap.js": {
       "exports": [],
       "imports": [],
+      "owning_block": "b.ui-control"
+    },
+    "frontend/atlas_design/code_map.jsx": {
+      "exports": [],
+      "imports": [
+        {
+          "external": true,
+          "from": ")), ...(f.calls || []).map(tag(",
+          "kind": "side_effect",
+          "line": 140,
+          "resolved_to": null,
+          "specifiers": []
+        },
+        {
+          "external": true,
+          "from": ")), ...(f.calledBy || []).map(tag(",
+          "kind": "side_effect",
+          "line": 141,
+          "resolved_to": null,
+          "specifiers": []
+        },
+        {
+          "external": true,
+          "from": ", ",
+          "kind": "side_effect",
+          "line": 835,
+          "resolved_to": null,
+          "specifiers": []
+        }
+      ],
       "owning_block": "b.ui-control"
     },
     "frontend/atlas_design/data_loader.js": {
@@ -1532,6 +1589,14 @@
         },
         {
           "external": false,
+          "from": "./architecture_decisions_api.mjs",
+          "kind": "dynamic",
+          "line": 1007,
+          "resolved_to": "scripts/architecture_decisions_api.mjs",
+          "specifiers": []
+        },
+        {
+          "external": false,
           "from": "./atlas_synthesis_api.mjs",
           "kind": "static",
           "line": 11,
@@ -1607,7 +1672,7 @@
           "external": false,
           "from": "./sima_fill_from_chat.mjs",
           "kind": "dynamic",
-          "line": 1530,
+          "line": 1565,
           "resolved_to": "scripts/sima_fill_from_chat.mjs",
           "specifiers": []
         },
@@ -1615,7 +1680,7 @@
           "external": false,
           "from": "./sima_watch_chats.mjs",
           "kind": "dynamic",
-          "line": 1546,
+          "line": 1581,
           "resolved_to": "scripts/sima_watch_chats.mjs",
           "specifiers": []
         },
@@ -1636,15 +1701,32 @@
           "external": false,
           "from": "./screenshot_block.mjs",
           "kind": "dynamic",
-          "line": 1656,
+          "line": 1691,
           "resolved_to": "scripts/screenshot_block.mjs",
           "specifiers": []
         },
         {
           "external": false,
-          "from": "./llm_gateway.mjs",
+          "from": "./atlas_map.mjs",
           "kind": "static",
           "line": 17,
+          "resolved_to": "scripts/atlas_map.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "buildCodeMap"
+            },
+            {
+              "kind": "named",
+              "name": "readMapFile"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "./llm_gateway.mjs",
+          "kind": "static",
+          "line": 18,
           "resolved_to": "scripts/llm_gateway.mjs",
           "specifiers": [
             {
@@ -1748,7 +1830,7 @@
           "external": false,
           "from": "./scripts/regenerate_user_docs_drift.mjs",
           "kind": "dynamic",
-          "line": 826,
+          "line": 861,
           "resolved_to": null,
           "specifiers": []
         },
@@ -1756,7 +1838,7 @@
           "external": false,
           "from": "./scripts/regenerate_user_docs_drift.mjs",
           "kind": "dynamic",
-          "line": 837,
+          "line": 872,
           "resolved_to": null,
           "specifiers": []
         },
@@ -1772,14 +1854,6 @@
               "name": "artifactsApi"
             }
           ]
-        },
-        {
-          "external": false,
-          "from": "./architecture_decisions_api.mjs",
-          "kind": "dynamic",
-          "line": 972,
-          "resolved_to": "scripts/architecture_decisions_api.mjs",
-          "specifiers": []
         }
       ],
       "owning_block": "b.agent-orchestrator"
@@ -2059,6 +2133,171 @@
         }
       ],
       "owning_block": "b.db"
+    },
+    "scripts/atlas_map.mjs": {
+      "exports": [
+        {
+          "kind": "named",
+          "line": 140,
+          "name": "segmentsOf"
+        },
+        {
+          "kind": "named",
+          "line": 222,
+          "name": "fileStack"
+        },
+        {
+          "kind": "named",
+          "line": 244,
+          "name": "techName"
+        },
+        {
+          "kind": "named",
+          "line": 248,
+          "name": "entryPoints"
+        },
+        {
+          "kind": "named",
+          "line": 279,
+          "name": "httpCalls"
+        },
+        {
+          "kind": "named",
+          "line": 291,
+          "name": "spawnedScripts"
+        },
+        {
+          "kind": "named",
+          "line": 302,
+          "name": "generatedBy"
+        },
+        {
+          "kind": "named",
+          "line": 313,
+          "name": "fileRole"
+        },
+        {
+          "kind": "named",
+          "line": 337,
+          "name": "filePurpose"
+        },
+        {
+          "kind": "named",
+          "line": 40,
+          "name": "stripMd"
+        },
+        {
+          "kind": "named",
+          "line": 44,
+          "name": "cut"
+        },
+        {
+          "kind": "named",
+          "line": 446,
+          "name": "blockLinks"
+        },
+        {
+          "kind": "named",
+          "line": 465,
+          "name": "buildCodeMap"
+        },
+        {
+          "kind": "named",
+          "line": 54,
+          "name": "dropTag"
+        },
+        {
+          "kind": "named",
+          "line": 625,
+          "name": "readMapFile"
+        },
+        {
+          "kind": "named",
+          "line": 79,
+          "name": "missionLine"
+        },
+        {
+          "kind": "named",
+          "line": 87,
+          "name": "wantLine"
+        }
+      ],
+      "imports": [
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 27,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 28,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:child_process",
+          "kind": "static",
+          "line": 29,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "execFileSync"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 30,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "./block_meaning.mjs",
+          "kind": "static",
+          "line": 31,
+          "resolved_to": "scripts/block_meaning.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "blockMeaningSummary"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": ", f.imports], [",
+          "kind": "side_effect",
+          "line": 451,
+          "resolved_to": null,
+          "specifiers": []
+        }
+      ],
+      "owning_block": "b.code-graph"
     },
     "scripts/atlas_runs_api.mjs": {
       "exports": [
@@ -9208,6 +9447,101 @@
       ],
       "owning_block": "b.ui-control"
     },
+    "tests/atlas_map.selftest.mjs": {
+      "exports": [
+        {
+          "kind": "named",
+          "line": 179,
+          "name": "one"
+        },
+        {
+          "kind": "named",
+          "line": 40,
+          "name": "BIG"
+        }
+      ],
+      "imports": [
+        {
+          "external": false,
+          "from": "../scripts/lib.mjs",
+          "kind": "static",
+          "line": 106,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "a"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 19,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:os",
+          "kind": "static",
+          "line": 20,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:path",
+          "kind": "static",
+          "line": 21,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "path"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:url",
+          "kind": "static",
+          "line": 22,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "fileURLToPath"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:http",
+          "kind": "static",
+          "line": 52,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "http"
+            }
+          ]
+        }
+      ],
+      "owning_block": "b.code-graph"
+    },
     "tests/atlas_runs_api.selftest.mjs": {
       "exports": [],
       "imports": [
@@ -11052,7 +11386,7 @@
           "external": true,
           "from": "node:fs",
           "kind": "static",
-          "line": 24,
+          "line": 26,
           "resolved_to": null,
           "specifiers": [
             {
@@ -11065,7 +11399,7 @@
           "external": true,
           "from": "node:os",
           "kind": "static",
-          "line": 25,
+          "line": 27,
           "resolved_to": null,
           "specifiers": [
             {
@@ -11078,7 +11412,7 @@
           "external": true,
           "from": "node:path",
           "kind": "static",
-          "line": 26,
+          "line": 28,
           "resolved_to": null,
           "specifiers": [
             {
@@ -11091,7 +11425,7 @@
           "external": true,
           "from": "node:http",
           "kind": "static",
-          "line": 27,
+          "line": 29,
           "resolved_to": null,
           "specifiers": [
             {
@@ -11104,7 +11438,7 @@
           "external": true,
           "from": "node:child_process",
           "kind": "static",
-          "line": 28,
+          "line": 30,
           "resolved_to": null,
           "specifiers": [
             {
@@ -11121,7 +11455,7 @@
           "external": true,
           "from": "node:url",
           "kind": "static",
-          "line": 29,
+          "line": 31,
           "resolved_to": null,
           "specifiers": [
             {
@@ -11134,7 +11468,7 @@
           "external": false,
           "from": "../scripts/atlas_runs_api.mjs",
           "kind": "static",
-          "line": 33,
+          "line": 35,
           "resolved_to": "scripts/atlas_runs_api.mjs",
           "specifiers": [
             {
@@ -11147,7 +11481,7 @@
           "external": false,
           "from": "../scripts/contract_draft_review.mjs",
           "kind": "static",
-          "line": 34,
+          "line": 36,
           "resolved_to": "scripts/contract_draft_review.mjs",
           "specifiers": [
             {

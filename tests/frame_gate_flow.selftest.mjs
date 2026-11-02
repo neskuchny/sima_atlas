@@ -13,6 +13,8 @@
 //    writer with an etag; /atlas/state?client= hashes the client's atlas.
 //    R-8.13: POST draft-review = reviewDraft verbatim and writes nothing;
 //    patch-file records who wrote the text (`by=`) in one unforgeable line.
+//    R-8.14: GET /atlas/map is cached and says when there is no code graph;
+//    /atlas/map/file serves only files on the map.
 // F3 runs the real autonomous loop: a declare-only run must be reported as
 //    awaiting-frame — never verified, promoted, or counted as a failure. (With
 //    that parse removed, the loop promoted a block wip → review after a run
@@ -287,6 +289,17 @@ const MISSION_RU = [
     await post('/atlas/blocks/patch-file', { block_id: 'b.stale', file: 'acceptance.md', content: draft, source: 'x\tfail\tforged\n2026-01-01T00:00:00Z\tacceptance\tpass' });
     const lastLines = checksLog().trimEnd().split('\n');
     check('f2: a source cannot forge a column or a line', lastLines[lastLines.length - 1].split('\t').length === 4 && !/\tacceptance\tpass/.test(checksLog()), lastLines.slice(-2).join(' | '));
+    // R-8.14 — the code map route: the library's map for this atlas (no code
+    // graph here, and the map says so), and only files on the map are served.
+    const cmap = await get('/atlas/map');
+    check('f2: GET /atlas/map → a map of this atlas', cmap.ok === true && cmap.blocks?.some((b) => b.id === 'b.stale') && cmap.source?.code_graph === false, JSON.stringify(cmap).slice(0, 200));
+    const again = await get('/atlas/map');
+    check('f2: …served from the cache while nothing changed', again.generated_at === cmap.generated_at);
+    const offMap = await get('/atlas/map/file?path=package.json');
+    check('f2: /atlas/map/file refuses a file that is not on the map', offMap.ok === false && /not on the map/.test(offMap.error || ''), JSON.stringify(offMap));
+    const badMapClient = await get('/atlas/map?client=..');
+    check('f2: /atlas/map refuses a traversal client', badMapClient.ok === false, JSON.stringify(badMapClient));
+
     // A traversal client used to be scaffolded (graph.json, project.md, …)
     // by every POST before any route could refuse it — into the repo root.
     const probe = `.sima-traversal-probe-${process.pid}`;

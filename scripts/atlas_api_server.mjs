@@ -14,6 +14,7 @@ import * as filesApi from './atlas_files_api.mjs';
 import { aggregateTokenEconomics } from './token_economics.mjs';
 import { blockMeaningSummary, recordFrameReview, setTrajectory } from './block_meaning.mjs';
 import { reviewDraft } from './contract_draft_review.mjs';
+import { buildCodeMap, readMapFile } from './atlas_map.mjs';
 import { describeProvider } from './llm_gateway.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -34,6 +35,8 @@ function runNode(args) {
 // the whole atlas/ tree (that would include llm_traces and runtime checks.log
 // noise that triggers spurious reloads). We hash exactly the artefacts the
 // bootstrap generator reads.
+const codeMapCache = new Map(); // atlas root -> { key, map } (R-8.14)
+
 function computeAtlasStateHash(atlasRoot = ATLAS) {
   const h = crypto.createHash('sha256');
   function add(p) {
@@ -538,6 +541,38 @@ const server = http.createServer((req, res) => {
       } catch (e) {
         return json(res, 200, { ok: false, error: String(e.message || e) });
       }
+    }
+  }
+  // R-8.14 (b.code-graph) — the code map: blocks, files, their parts and
+  // every connection with what crosses it. Built from the atlas, the code
+  // graph and git; cached until any of them changes (the canvas re-mounts on
+  // every refresh, and a rebuild reads every source file).
+  if (req.method === 'GET' && (req.url === '/atlas/map' || req.url.startsWith('/atlas/map?') || req.url.startsWith('/atlas/map/file?'))) {
+    try {
+      const u = new URL(req.url, `http://localhost:${port}`);
+      const SAFE_ID = /^[a-zA-Z0-9_-][a-zA-Z0-9._-]*$/;
+      const clientArg = u.searchParams.get('client') || '';
+      if (clientArg && !SAFE_ID.test(clientArg)) return json(res, 400, { ok: false, error: 'invalid client' });
+      const root = clientArg ? path.join(ROOT, 'atlas', 'clients', clientArg) : ATLAS;
+      if (!fs.existsSync(path.join(root, 'graph.json'))) return json(res, 404, { ok: false, error: 'not_found' });
+      if (u.pathname === '/atlas/map/file') {
+        const r = readMapFile({ repoRoot: ROOT, atlasRoot: root, file: u.searchParams.get('path') || '' });
+        return json(res, r.ok ? 200 : 404, r);
+      }
+      const mtime = (p) => { try { return fs.statSync(p).mtimeMs; } catch { return 0; } };
+      let head = '';
+      try {
+        const h = fs.readFileSync(path.join(ROOT, '.git', 'HEAD'), 'utf8').trim();
+        head = h.startsWith('ref: ') ? `${h}:${mtime(path.join(ROOT, '.git', h.slice(5)))}` : h;
+      } catch { /* no git */ }
+      const key = [computeAtlasStateHash(root), mtime(path.join(root, 'code_graph.json')), head].join('|');
+      const hit = codeMapCache.get(root);
+      if (hit && hit.key === key) return json(res, 200, hit.map);
+      const map = buildCodeMap({ repoRoot: ROOT, atlasRoot: root });
+      codeMapCache.set(root, { key, map });
+      return json(res, 200, map);
+    } catch (e) {
+      return json(res, 200, { ok: false, error: String(e.message || e) });
     }
   }
   // Phase Q-3: latest architecture review (atlas/architecture_reviews/_latest.json)

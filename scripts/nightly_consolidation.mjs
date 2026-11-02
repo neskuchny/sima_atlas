@@ -53,8 +53,6 @@ const checks = [
   // R-8.11 (b.acceptance-verifier-loop) — KPI-6: the verifier cache never
   // serves a verdict it should not (every key part invalidates on its own).
   ['verify_cache_selftest', 'node tests/verify_cache.selftest.mjs'],
-  // R-8.11 — KPI-2: five acceptance assertions moved off the LLM judge.
-  ['docs_generators_selftest', 'node tests/docs_generators.selftest.mjs'],
   ['migrate_v1_v2_selftest', 'node tests/migrate_v1_v2.selftest.mjs'],
   ['operator_profile_privacy_selftest', 'node tests/operator_profile_privacy.selftest.mjs'],
   ['clarify_block_selftest', 'node tests/clarify_block.selftest.mjs'],
@@ -81,6 +79,10 @@ const checks = [
   // R-8.13 (b.clarify) — a contract draft is reviewed before it is written
   // (OpenSpec: both sides see the delta, then it is applied).
   ['contract_draft_review_selftest', 'node tests/contract_draft_review.selftest.mjs'],
+  // R-8.14 (b.code-graph) — the code map tells the truth about the code:
+  // parts cover every line, every file has a role and a purpose, every link
+  // says what crosses it.
+  ['atlas_map_selftest', 'node tests/atlas_map.selftest.mjs'],
   // R-8.12 (b.acceptance-verifier-loop) — judge gaps become append-only tasks.
   ['convergence_log_selftest', 'node tests/convergence_log.selftest.mjs'],
   ['atlas_selftest', 'node tests/atlas_sync.selftest.mjs'],
@@ -140,6 +142,11 @@ const checks = [
   ['render_wiki_html', 'node scripts/render_wiki_html.mjs'],
   ['generate_tz', 'node scripts/generate_tz_from_atlas.mjs'],
   ['rebuild_roadmap', 'node scripts/rebuild_atlas_roadmap.mjs'],
+  // R-8.11 — KPI-2: five acceptance assertions moved off the LLM judge.
+  // R-8.14: after rebuild_roadmap — it checks the generated roadmap.md, and
+  // before it the step read last night's file: changing a dependency failed
+  // the first nightly although the new roadmap was right.
+  ['docs_generators_selftest', 'node tests/docs_generators.selftest.mjs'],
   // Acceptance verifier runs LAST among artefact-producing steps so it
   // sees the freshest wiki.html / auto_tz.md / roadmap.md when checking
   // assertions about them (b.docs A2/A4, b.core-sync A5).

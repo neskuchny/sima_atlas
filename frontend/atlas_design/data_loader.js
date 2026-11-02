@@ -309,6 +309,14 @@
     // R-8.10 — write the «## Во что это вырастет» section of mission.md
     // (empty text removes it). if_match_mtime guards against overwriting an
     // edit made since the panel loaded.
+    // R-8.14 — the code map (blocks, files, parts, every connection) and the
+    // text of one file on it.
+    codeMap: async () => await getJson('/atlas/map' + (client ? '?client=' + encodeURIComponent(client) : '')),
+    codeMapFile: async (p) => {
+      const qs = new URLSearchParams({ path: p });
+      if (client) qs.set('client', client);
+      return await getJson('/atlas/map/file?' + qs.toString());
+    },
     // R-8.13 — what a draft of a contract file would change, before writing.
     draftReview: async ({ block_id, file, draft, mode }) =>
       await postJson('/atlas/blocks/draft-review', withClient({ block_id, file, draft, mode })),

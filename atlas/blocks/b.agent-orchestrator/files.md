@@ -16,10 +16,10 @@
 - tests/agent_parity_real.smoke.mjs [alive] (PR4.5: real MCP pack ≡ Claude --add-dir disk parity)
 - scripts/generate_agent_contracts.mjs [alive] (writes AGENTS.md / CLAUDE.md)
 - scripts/build_context_pack.mjs [alive]
-- scripts/sync_context_packs.mjs [alive]
-- scripts/finalize_cursor_iteration.mjs [alive]
-- scripts/run_block_process.mjs [alive]
-- scripts/pipeline_step.mjs [alive]
+- scripts/sync_context_packs.mjs [alive] (R-8.14: пересобирает context pack каждого блока — то, что агент читает перед работой: по одному запуску build_context_pack.mjs на блок)
+- scripts/finalize_cursor_iteration.mjs [alive] (R-8.14: закрывает итерацию работы агента: раскладывает транскрипт по памяти блока, если он дан, затем прогоняет процесс блока, nightly, вики и ТЗ и пишет отчёт)
+- scripts/run_block_process.mjs [alive] (R-8.14: процесс блока по имени: собирает context pack и, если в имени есть sync или audit, запускает сверку контрактов и аудит готовности; отчёт пишет в atlas/process_runs/)
+- scripts/pipeline_step.mjs [alive] (R-8.14: один шаг конвейера для блока: переводит статус через advance_block_state.mjs, затем гоняет сверку, проверки контрактов, зависимостей и приёмки и пересобирает дорожную карту. Сейчас его никто не вызывает)
 - scripts/auto_sync_iteration.mjs [alive] (regex-only flow; will be replaced after PR3 wiring)
 - scripts/analyze_conversation_to_atlas.mjs [alive] (PR3: replaced regex with extractBlockSchema via b.llm-gateway)
 - scripts/simulate_conversation_branches.mjs [alive] (PR3: rewritten as smoke for the LLM extraction + safe-upsert flow)

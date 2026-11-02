@@ -43,3 +43,10 @@
 ## PR3 — known flake (R-7.99 follow-up)
 
 - [ ] T11: Investigate `code_graph_extractor.selftest` Group 9 (determinism via sha256) intermittently failing in nightly while passing on isolation. Suspect: subprocess spawn race with concurrent filesystem writes from other nightly validators touching block files. Hypothesis test: serialize G9 differently or run on a frozen tmp copy of atlas/blocks/.
+
+## R-8.14 — карта кода (сделано)
+- [x] T12. `scripts/atlas_map.mjs`: блоки, файлы, части файлов, импорты с именами, связи блоков «в коде и в контракте / только в контракте / в коде, не в контракте».
+- [x] T13. Связи, которые не импорты: вызовы HTTP-маршрутов сервера и запуск скриптов; «дирижёры» (nightly, MCP) запускают проверки всех блоков и зависимостями не считаются.
+- [x] T14. У каждого файла: что делает (files.md или шапка), зачем нужен (кто от него зависит, что его запускает; «Зачем:» в files.md побеждает), стек и что он трогает.
+- [x] T15. След изменений из git: какие файлы и контракты задело каждое из последних изменений.
+- [x] T16. Маршруты сервера: GET /atlas/map (кэш до изменения атласа, графа кода или HEAD), GET /atlas/map/file — только файлы на карте.

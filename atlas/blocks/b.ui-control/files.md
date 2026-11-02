@@ -26,5 +26,7 @@ These files had no owner in any files.md, so the code-graph check never saw thei
 - tests/atlas_bootstrap.smoke.mjs [alive]
 - tests/atlas_live_polling.smoke.mjs [alive]
 - tests/connection_drift.smoke.mjs [alive]
+- frontend/atlas_design/code_map.jsx [alive] (R-8.14: вид «Карта» — этажи-слои, комнаты-блоки, плитки-файлы; закреплённые связи блока, файла или одной связи со стрелками, подписями на концах и метками у края вида для концов за экраном; внутри блока — файлы с ролью и смыслом, соседи и «что именно?»; файл — анатомия и код с переходом по строке импорта; линзы «Состояние» и «Изменения»; поиск; переживает живое обновление. Данные — GET /atlas/map)
+- tests/playwright/code_map.spec.ts [alive] (R-8.14: карта в Chromium на настоящем атласе, только чтение — закреплённые связи, метки у края, что проходит по связи, файлы других блоков, живое обновление, анатомия и код, переход по импорту, карта ↔ граф; `npm run test:ui`)
 - tests/playwright/meaning_panel.spec.ts [alive] (R-8.10/R-8.12: + the contract delta after a change, the wording section; the meaning panel in Chromium against a live API — LLM badge, node marker, correction draft and notice surviving a live refresh, confirm without a run, trajectory saved to mission.md; `npm run test:ui`)
 - playwright.config.js [alive] (R-8.10: webServer waits for atlas_design/index.html — the old frontend/index.html no longer exists, so no spec could start)

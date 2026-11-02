@@ -17,15 +17,15 @@
 - atlas/production_audit_report.md [alive]
 - atlas/tasks_master.md [alive]
 - scripts/log_transition.mjs [alive]
-- scripts/manage_block.mjs [alive]
+- scripts/manage_block.mjs [alive] (R-8.14: ранняя ручная команда для блока — init / set-status / set-mission; меняет статус без проверки и без записи в transitions.log. Её никто не вызывает: статусы меняет шлюз жизненного цикла, advance_block_state.mjs)
 - scripts/advance_block_state.mjs [alive]
 - scripts/lifecycle_gate.mjs [alive] (R-8.05, owner fixed in R-8.07: the single writer of block status + transitions.log + checks.log. Extracted core of advance_block_state/log_transition, so it belongs to the storage layer that owns the transitions journal. First filed under b.acceptance-verifier-loop, which created two dependency cycles — every status writer had to import «upward» into a block that itself depends on them.)
 - tests/lifecycle_gate.selftest.mjs [alive] (R-8.05: 7 groups — → done refused without a passing verdict / on fail / on inconclusive; logged override; adjacency; desync cannot invent a done; desync→done needs a green run newer than the mark; checkTransition is pure)
-- scripts/dedup_block_memory.mjs [alive]
-- scripts/enqueue_ingestion_item.mjs [alive]
-- scripts/apply_ingestion_queue.mjs [alive]
-- scripts/ingest_chat_distillate.mjs [alive]
-- scripts/ingest_chat_batches.mjs [alive]
+- scripts/dedup_block_memory.mjs [alive] (R-8.14: убирает повторы из памяти блоков: одинаковые записи в decisions.log и patterns.md каждого блока остаются по одному разу)
+- scripts/enqueue_ingestion_item.mjs [alive] (R-8.14: ставит заметку в очередь памяти: node scripts/enqueue_ingestion_item.mjs <блок> "<заметка>" дописывает строку в atlas/ingestion_queue.jsonl)
+- scripts/apply_ingestion_queue.mjs [alive] (R-8.14: переносит заметки из очереди памяти atlas/ingestion_queue.jsonl в память их блоков — decisions.log и patterns.md; заметку с приложенным разговором отдаёт на разбор в предложения блоков; применённое из очереди убирает)
+- scripts/ingest_chat_distillate.mjs [alive] (R-8.14: записывает выжимку из чата в память блока: decisions.log, patterns.md и строку в checks.log)
+- scripts/ingest_chat_batches.mjs [alive] (R-8.14: режет транскрипт чата в JSONL на пачки по N сообщений и ставит каждую пачку в очередь памяти блока)
 - scripts/hook_ingest_recent_chat.mjs [alive] (waiting for PR4 valid hooks)
 
 ## R-8.10 — previously unowned

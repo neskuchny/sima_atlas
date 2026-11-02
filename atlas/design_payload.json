@@ -145,7 +145,7 @@
         "json",
         "markdown"
       ],
-      "x": 400,
+      "x": 720,
       "y": 100
     },
     {
@@ -373,12 +373,12 @@
     },
     {
       "id": "b.code-graph",
-      "_raw_updated_at": null,
+      "_raw_updated_at": "2026-11-02T01:06:05.502Z",
       "title": "Code Graph",
       "tag": "code-graph",
       "layer": "backend",
-      "status": "todo",
-      "priority": 3,
+      "status": "progress",
+      "priority": 2,
       "checked": false,
       "size": "md",
       "parent_block_id": null,
@@ -393,19 +393,24 @@
       },
       "progress": {
         "tasks": {
-          "done": 0,
-          "total": 11
+          "done": 5,
+          "total": 16
         },
         "kpi": {
           "checked": 1,
           "total": 29
         }
       },
+      "frame": {
+        "state": "awaiting",
+        "incomplete": false,
+        "changed": []
+      },
       "tech_stack": [
         "nodejs",
         "esm"
       ],
-      "x": 720,
+      "x": 400,
       "y": 100
     },
     {
@@ -752,6 +757,13 @@
       "biz": "Зависит от b.clarify."
     },
     {
+      "from": "b.ui-control",
+      "to": "b.code-graph",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.code-graph."
+    },
+    {
       "from": "b.core-sync",
       "to": "b.db",
       "kind": "data",
@@ -799,6 +811,13 @@
       "kind": "data",
       "label": "depends_on",
       "biz": "Зависит от b.clarify."
+    },
+    {
+      "from": "b.agent-orchestrator",
+      "to": "b.code-graph",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.code-graph."
     },
     {
       "from": "b.docs",
@@ -918,6 +937,13 @@
       "kind": "data",
       "label": "depends_on",
       "biz": "Зависит от b.db."
+    },
+    {
+      "from": "b.code-graph",
+      "to": "b.clarify",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.clarify."
     },
     {
       "from": "b.desktop",
@@ -2323,6 +2349,51 @@
         "agent": null,
         "why": "",
         "accept": ""
+      },
+      {
+        "id": "T12",
+        "title": ". `scripts/atlas_map.mjs`: блоки, файлы, части файлов, импорты с именами, связи блоков «в коде и в контракте / только в контракте / в коде, не в контракте».",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T13",
+        "title": ". Связи, которые не импорты: вызовы HTTP-маршрутов сервера и запуск скриптов; «дирижёры» (nightly, MCP) запускают проверки всех блоков и зависимостями не считаются.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T14",
+        "title": ". У каждого файла: что делает (files.md или шапка), зачем нужен (кто от него зависит, что его запускает; «Зачем:» в files.md побеждает), стек и что он трогает.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T15",
+        "title": ". След изменений из git: какие файлы и контракты задело каждое из последних изменений.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T16",
+        "title": ". Маршруты сервера: GET /atlas/map (кэш до изменения атласа, графа кода или HEAD), GET /atlas/map/file — только файлы на карте.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
       }
     ],
     "b.desktop": [
@@ -3045,20 +3116,6 @@
   "lanes": [],
   "history": [
     {
-      "ts": "17:40",
-      "module": "clarify",
-      "agent": "sima-core",
-      "kind": "ok",
-      "msg": "b.clarify: review → done"
-    },
-    {
-      "ts": "18:07",
-      "module": "clarify",
-      "agent": "sima-core",
-      "kind": "info",
-      "msg": "b.clarify: done → wip"
-    },
-    {
       "ts": "18:25",
       "module": "clarify",
       "agent": "sima-core",
@@ -3127,6 +3184,20 @@
       "agent": "sima-core",
       "kind": "info",
       "msg": "b.clarify: wip → review"
+    },
+    {
+      "ts": "01:06",
+      "module": "code-graph",
+      "agent": "sima-core",
+      "kind": "info",
+      "msg": "b.code-graph: idea → wip"
+    },
+    {
+      "ts": "01:06",
+      "module": "code-graph",
+      "agent": "sima-core",
+      "kind": "info",
+      "msg": "b.code-graph: wip → review"
     }
   ],
   "lessons": [],
@@ -3158,10 +3229,10 @@
     }
   ],
   "_meta": {
-    "generated_at": "2026-09-29T04:53:09.234Z",
+    "generated_at": "2026-11-02T01:07:42.257Z",
     "atlas_root": "atlas",
     "client_id": null,
     "block_count": 21,
-    "edge_count": 37
+    "edge_count": 40
   }
 }

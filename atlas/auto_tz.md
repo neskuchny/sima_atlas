@@ -57,6 +57,13 @@ _Each section is built from `atlas/blocks/<id>/mission.md` + `tasks.md`. Regener
 - [x] Автор текста уходит в строку аудита; хвост «## Layer» сохраняется при ручной правке.
 - [x] Черновик в окне переживает живое обновление; журнал активности — клиентский.
 
+## R-8.14 — вид «Карта» (сделано)
+- [x] Этажи, комнаты, плитки файлов с подписями; линзы «Состояние» и «Изменения» со следом изменения.
+- [x] Закреплённые связи блока, файла и одной связи: стрелки, подписи на концах, метки у края вида для концов за экраном, «что именно?» — каждый импорт, вызов API и запуск.
+- [x] Внутри блока: файлы с ролью и смыслом, соседи; файл: анатомия, код, переход по строке импорта.
+- [x] Настройки вида, панели и место на карте переживают живое обновление; вход в карту сворачивает боковые панели, выход возвращает.
+- [x] Статусные цвета проверены валидатором цветового зрения; вкладка «Файлы» показывает files.md, пока реестр пуст.
+
 _Sources: [mission](blocks/b.ui-control/mission.md) · [kpi](blocks/b.ui-control/kpi.md) · [acceptance](blocks/b.ui-control/acceptance.md) · [tasks](blocks/b.ui-control/tasks.md)_
 
 ## b.core-sync (done)
@@ -982,7 +989,7 @@ PR-4 закрыт. tests/user_docs_drift.selftest.mjs 5 групп зелёны�
 
 _Sources: [mission](blocks/b.user-docs-generator/mission.md) · [kpi](blocks/b.user-docs-generator/kpi.md) · [acceptance](blocks/b.user-docs-generator/acceptance.md) · [tasks](blocks/b.user-docs-generator/tasks.md)_
 
-## b.code-graph (idea)
+## b.code-graph (review)
 
 # b.code-graph — mission
 
@@ -1009,6 +1016,17 @@ Sima Atlas сейчас знает граф продукта на уровне *
 - симметрично — «блок declares `provides: X`, но ни в одном из его файлов нет
   экспортируемого символа с именем `X` или соответствующей capability» → drift
   с `reason: provided_capability_not_exported`.
+
+**Карта кода (R-8.14).** Тот же граф, повёрнутый к человеку.
+`scripts/atlas_map.mjs` собирает из атласа, `code_graph.json` и git здание
+продукта: этажи — слои, комнаты — блоки, плитки — файлы; файл делится на части
+(функции, компоненты, маршруты API) по объявлениям верхнего уровня, так что
+части покрывают каждую строку. К каждой связи блоков прикладывается то, что по
+ней реально проходит: импорт (файл, строка, имена), вызов HTTP-маршрута, запуск
+скрипта — или «только в контракте», когда код её не использует. У каждого файла
+— что он делает (files.md или шапка), зачем нужен (кто от него зависит и что
+его запускает) и на чём работает. Канвас это только рисует — вид «Карта»
+в `b.ui-control`.
 
 ## Layer
 data
@@ -1119,6 +1137,13 @@ data
 ## PR3 — known flake (R-7.99 follow-up)
 
 - [ ] T11: Investigate `code_graph_extractor.selftest` Group 9 (determinism via sha256) intermittently failing in nightly while passing on isolation. Suspect: subprocess spawn race with concurrent filesystem writes from other nightly validators touching block files. Hypothesis test: serialize G9 differently or run on a frozen tmp copy of atlas/blocks/.
+
+## R-8.14 — карта кода (сделано)
+- [x] T12. `scripts/atlas_map.mjs`: блоки, файлы, части файлов, импорты с именами, связи блоков «в коде и в контракте / только в контракте / в коде, не в контракте».
+- [x] T13. Связи, которые не импорты: вызовы HTTP-маршрутов сервера и запуск скриптов; «дирижёры» (nightly, MCP) запускают проверки всех блоков и зависимостями не считаются.
+- [x] T14. У каждого файла: что делает (files.md или шапка), зачем нужен (кто от него зависит, что его запускает; «Зачем:» в files.md побеждает), стек и что он трогает.
+- [x] T15. След изменений из git: какие файлы и контракты задело каждое из последних изменений.
+- [x] T16. Маршруты сервера: GET /atlas/map (кэш до изменения атласа, графа кода или HEAD), GET /atlas/map/file — только файлы на карте.
 
 _Sources: [mission](blocks/b.code-graph/mission.md) · [kpi](blocks/b.code-graph/kpi.md) · [acceptance](blocks/b.code-graph/acceptance.md) · [tasks](blocks/b.code-graph/tasks.md)_
 

@@ -2,3 +2,4 @@
 
 - code_graph
 - code_graph_validator
+- code_map

@@ -148,3 +148,11 @@ graph.json, project.md, rules.md and tech_stack.md into the repository root
 (and a create would put a block there). Client ids are now checked once, right
 after the body is parsed, for every POST. The activity log is per client too:
 a client's canvas used to read and append to this repository's log.
+
+## R-8.14 — the code map routes
+
+`GET /atlas/map` serves `buildCodeMap` (b.code-graph) for the atlas on
+screen, cached until the atlas state, the code graph or git HEAD change: a cold
+build reads every source file (~0.5 s), a cached answer takes ~20 ms, and the
+canvas re-mounts on every refresh. `GET /atlas/map/file` serves the text of a
+file only if it is on the map.

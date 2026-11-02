@@ -4,14 +4,14 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Sima Atlas — visual contract-first development for AI agents</title>
-<link rel="stylesheet" href="styles.css?v=r8-13" />
+<link rel="stylesheet" href="styles.css?v=r8-14" />
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 <!-- R-7.28: markdown renderer for contract bodies (mission.md / kpi.md / acceptance.md etc.) -->
 <script src="https://cdn.jsdelivr.net/npm/marked@13.0.3/marked.min.js"></script>
 <!-- R-7.52: i18n must load BEFORE jsx components so window.__SIMA_T is defined when React renders -->
-<script src="i18n.js?v=r8-13"></script>
+<script src="i18n.js?v=r8-14"></script>
 </head>
 <body>
 <div id="root"></div>
@@ -27,11 +27,15 @@
        window.SIMA_API_BASE before this script loads to point at a
        remote backend in production. -->
 <script src="data_static.js?v=r7-94"></script>
-<script src="data_loader.js?v=r8-13"></script>
-<script type="text/babel" src="tweaks-panel.jsx?v=r7-94"></script>
+<script src="data_loader.js?v=r8-14"></script>
+<script type="text/babel" src="tweaks-panel.jsx?v=r8-14"></script>
 <script type="text/babel" src="graph.jsx?v=r8-10b"></script>
-<script type="text/babel" src="panels.jsx?v=r8-13"></script>
+<script type="text/babel" src="panels.jsx?v=r8-14"></script>
 <script type="text/babel" src="views.jsx?v=r7-94"></script>
+<!-- R-8.14 (b.ui-control) — the code map view; highlight.js colours its code
+     pane (without it the code shows as plain text). -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha384-F/bZzf7p3Joyp5psL90p/p89AZJsndkSoGwRpXcZhleCWhd8SnRuoYo4d0yirjJp" crossorigin="anonymous"></script>
+<script type="text/babel" src="code_map.jsx?v=r8-14"></script>
 <!-- R-7.99 (b.desktop T12) — Project Picker. Only active inside the
      Electron shell (window.sima exposed by extensions/desktop/preload.mjs);
      silently no-ops in a plain browser. -->
@@ -77,7 +81,9 @@ function App() {
   const [desyncResolved, setDesyncResolved] = useState(false);
   const [activeFlash, setActiveFlash] = useState(null);
   const [cmdOpen, setCmdOpen] = useState(false);
-  const [dockCollapsed, setDockCollapsed] = useState(false);
+  // R-8.14 — sticky across the re-mount on every live refresh (see detailOpen).
+  const [dockCollapsed, setDockCollapsedRaw] = useState(() => { const st = window.__SIMA_STICKY || {}; return 'dockCollapsed' in st ? st.dockCollapsed : false; });
+  const setDockCollapsed = (v) => { const st = (window.__SIMA_STICKY = window.__SIMA_STICKY || {}); const val = typeof v === 'function' ? v('dockCollapsed' in st ? st.dockCollapsed : false) : v; st.dockCollapsed = val; setDockCollapsedRaw(val); };
   const [activeAgent, setActiveAgent] = useState('all');
   const [toast, setToast] = useState(null);
 
@@ -106,8 +112,12 @@ function App() {
   useEffect(() => {
     try { if (localStorage.getItem('sima_onb_seen') === '1') setOnboarding(false); } catch {}
   }, []);
-  const [railOpen, setRailOpen] = useState(true);
-  const [detailOpen, setDetailOpen] = useState(true);
+  const [railOpen, setRailOpenRaw] = useState(() => { const st = window.__SIMA_STICKY || {}; return 'railOpen' in st ? st.railOpen : true; });
+  const setRailOpen = (v) => { const st = (window.__SIMA_STICKY = window.__SIMA_STICKY || {}); const val = typeof v === 'function' ? v('railOpen' in st ? st.railOpen : true) : v; st.railOpen = val; setRailOpenRaw(val); };
+  // R-8.14 — survives the re-mount on every live refresh, like the view: the
+  // map closes the panel to get room, and a refresh used to re-open it.
+  const [detailOpen, setDetailOpenRaw] = useState(() => { const st = window.__SIMA_STICKY || {}; return 'detailOpen' in st ? st.detailOpen : true; });
+  const setDetailOpen = (v) => { const st = (window.__SIMA_STICKY = window.__SIMA_STICKY || {}); st.detailOpen = v; setDetailOpenRaw(v); };
   const [laneOverrides, setLaneOverrides] = useState({}); // { laneId: { y, height } }
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [libraryOpen, setLibraryOpen] = useState(false);
@@ -484,6 +494,16 @@ function App() {
     return () => window.removeEventListener('sima-log-push', onPush);
   }, []);
 
+  // R-8.14 — the map and the graph open each other at the same block: «On the
+  // graph» in the map's inspector, «🗺 On the map» in the block panel.
+  useEffect(() => {
+    const onGraph = (ev) => { const id = ev?.detail?.id; if (!id) return; setSelectedId(id); setTweak('primaryView', 'split'); setDetailOpen(true); };
+    const onMap = (ev) => { if (window.__SIMA_MAP_OPEN) window.__SIMA_MAP_OPEN(ev?.detail?.id || null); setTweak('primaryView', 'map'); setDetailOpen(false); };
+    window.addEventListener('sima-map-show-on-graph', onGraph);
+    window.addEventListener('sima-open-map', onMap);
+    return () => { window.removeEventListener('sima-map-show-on-graph', onGraph); window.removeEventListener('sima-open-map', onMap); };
+  }, []);
+
   // Load last 100 persisted entries on mount so reloading doesn't lose
   // recent activity. We replace the editorial demo lines with the real
   // history when the backend has any.
@@ -818,6 +838,26 @@ function App() {
 
   const view = tweaks.primaryView;
 
+  // R-8.14 — the map needs the room: entering it folds the context rail, the
+  // dock and the block panel; leaving it puts them back as they were. Keyed
+  // on the last view seen, so a re-mount on a live refresh changes nothing.
+  useEffect(() => {
+    const st = (window.__SIMA_STICKY = window.__SIMA_STICKY || {});
+    const prev = st.lastView;
+    st.lastView = view;
+    if (prev === view) return;
+    if (view === 'map') {
+      if (!st.preMapLayout) st.preMapLayout = { rail: railOpen, dock: dockCollapsed, detail: detailOpen };
+      setRailOpen(false); setDockCollapsed(true); setDetailOpen(false);
+    } else if (prev === 'map' && st.preMapLayout) {
+      const p = st.preMapLayout;
+      delete st.preMapLayout;
+      setRailOpen(p.rail); setDockCollapsed(p.dock);
+      if (!st.detailOpen) setDetailOpen(p.detail); // a caller that opened the panel wins
+    }
+  }, [view]);
+
+
   // Resolve current subsystem (drilled-into) — gives modules/edges/lanes for the active graph
   // R-7.34 — drill-down работает ДЛЯ ЛЮБОГО блока, даже если у него
   // ещё нет подсистемы. Раньше fallback'или в drillId (single-focus
@@ -1131,6 +1171,8 @@ function App() {
           <button className={view === 'graph' ? 'active' : ''} onClick={() => setTweak('primaryView', 'graph')}>{(window.__SIMA_T||((_,fb)=>fb))('view.graph','Graph')}</button>
           <button className={view === 'layered' ? 'active' : ''} onClick={() => setTweak('primaryView', 'layered')}>{(window.__SIMA_T||((_,fb)=>fb))('view.layered','3D layers')}</button>
           <button className={view === 'split' ? 'active' : ''} onClick={() => setTweak('primaryView', 'split')}>{(window.__SIMA_T||((_,fb)=>fb))('view.split','Graph + details')}</button>
+          {/* R-8.14 — the code map: the product as a building, down to the code. */}
+          <button className={view === 'map' ? 'active' : ''} onClick={() => { setTweak('primaryView', 'map'); setDetailOpen(false); }}>{(window.__SIMA_T||((_,fb)=>fb))('view.map','Map')}</button>
         </div>
 
         <button
@@ -1255,7 +1297,9 @@ function App() {
           </div>
         </div>
       )}
-      {view !== 'layered' ? (
+      {view === 'map' ? (
+        window.CodeMap ? <window.CodeMap /> : <div className="client-missing-banner">code_map.jsx did not load</div>
+      ) : view !== 'layered' ? (
         <>
           <GraphCanvas
             data={{ ...data, lanes: effectiveLanes, subsystem: activeSub }}
@@ -1356,7 +1400,7 @@ function App() {
       )}
 
       {/* Canvas tools — only over graph */}
-      {view !== 'layered' && (
+      {view !== 'layered' && view !== 'map' && (
         <>
           <div className={`canvas-tools ${canvasToolsOpen ? 'open' : 'collapsed'}`}>
             {/* R-7.29 — chevron toggle. Свёрнуто = только бейдж активных
@@ -1684,6 +1728,7 @@ function App() {
               { value: 'graph', label: 'Graph' },
               { value: 'split', label: 'Graph + details' },
               { value: 'layered', label: '3D layers' },
+              { value: 'map', label: 'Map' },
             ]}
           />
         </TweakSection>

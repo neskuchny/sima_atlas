@@ -8,3 +8,4 @@
 - b.clarify: declared_understanding
 - b.llm-gateway: llm_provider_description
 - b.clarify: contract_draft_review
+- b.code-graph: code_map

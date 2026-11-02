@@ -173,6 +173,10 @@ function DetailPanel({ data, modules: liveModules, moduleId, onClose, desyncReso
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
           <div className="layer-tag mono">@{m.tag} · layer:{m.layer}</div>
           <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+            {/* R-8.14 — the same block on the code map: its files, parts and connections. */}
+            {String(m.id).startsWith('b.') && (
+              <button className="pill" onClick={() => window.dispatchEvent(new CustomEvent('sima-open-map', { detail: { id: m.id } }))} title={t('detail.on_map_title', 'Open this block on the code map: its files, their parts and every connection')}>{t('detail.on_map', '🗺 On the map')}</button>
+            )}
             {/* R-7.25 — кнопка удаления вынесена из спрятанного context-menu
                 в шапку панели (UX: основной way для оператора). hard delete
                 с confirm, после ok закрываем панель и обновляем canvas. */}
@@ -2488,12 +2492,26 @@ function FilesSection({ moduleId }) {
   const [loading, setLoading] = useState2(true);
   const [busy, setBusy] = useState2({}); // by path
   const [newPath, setNewPath] = useState2('');
+  // R-8.14 — the registry (atlas/files_registry.json) is filled only by an
+  // import, so a block with nine files said «No files». Its files.md is the
+  // source of ownership; when the registry has nothing, the tab lists that.
+  const [declared, setDeclared] = useState2([]);
 
   const load = async () => {
-    if (!moduleId || !moduleId.startsWith('b.')) { setFiles([]); setLoading(false); return; }
+    if (!moduleId || !moduleId.startsWith('b.')) { setFiles([]); setDeclared([]); setLoading(false); return; }
     setLoading(true);
     const r = await window.SIMA_API?.meta?.filesList(moduleId);
-    setFiles(r?.ok ? r.files : []);
+    const reg = r?.ok ? r.files : [];
+    setFiles(reg);
+    if (!reg.length) {
+      const fm = await window.SIMA_API?.meta?.blockFile(moduleId, 'files.md');
+      const rows = [];
+      for (const l of String(fm?.ok ? fm.content : '').split('\n')) {
+        const m = l.match(/^- (\S+) \[(alive|dead|archived)\](?:\s*\((.*)\))?\s*$/);
+        if (m && !m[1].startsWith('atlas/')) rows.push({ path: m[1], status: m[2], reason: m[3] || '' });
+      }
+      setDeclared(rows);
+    } else setDeclared([]);
     setLoading(false);
   };
   useEffect2(() => { load(); /* eslint-disable-next-line */ }, [moduleId]);
@@ -2552,8 +2570,27 @@ function FilesSection({ moduleId }) {
         <button onClick={addFile} disabled={!newPath.trim()}>{t('files.add_alive', '＋ alive')}</button>
       </div>
       {loading && <p style={{ color: 'var(--ink-3)' }}>{t('files.loading', 'Loading…')}</p>}
-      {!loading && !files.length && (
+      {!loading && !files.length && !declared.length && (
         <p style={{ color: 'var(--ink-3)' }}>{t('files.empty', 'No files in registry. Import from block\'s files.md or add manually.')}</p>
+      )}
+      {!loading && !files.length && declared.length > 0 && (
+        <>
+          <p style={{ color: 'var(--ink-3)', fontSize: 12.5 }}>
+            {t('files.from_files_md', 'The registry has no entries for this block yet; below is the block\'s files.md — the code it owns. Import it to mark files alive / dead / archived.')}{' '}
+            <button className="pill" onClick={() => window.dispatchEvent(new CustomEvent('sima-open-map', { detail: { id: moduleId } }))}>{t('detail.on_map', '🗺 On the map')}</button>
+          </p>
+          <div className="files-list">
+            {declared.map((f) => (
+              <div key={f.path} className={`files-row file-${f.status}`}>
+                <span className="files-status">{f.status === 'alive' ? '✓' : f.status === 'dead' ? '✗' : '⊘'}</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="mono files-path">{f.path}</div>
+                  {f.reason && <div className="meta" style={{ fontSize: 10.5, marginTop: 2 }}>{f.reason}</div>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       )}
       <div className="files-list">
         {files.map((f) => (

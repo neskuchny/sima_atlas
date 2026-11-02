@@ -23,7 +23,7 @@
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 1
+      "duration_ms": 0
     },
     {
       "id": "A2",
@@ -89,7 +89,7 @@
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 1
+      "duration_ms": 0
     },
     {
       "id": "A5",
@@ -133,7 +133,7 @@
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 0
+      "duration_ms": 1
     }
   ],
   "counts": {
@@ -142,11 +142,11 @@
     "skipped": 6
   },
   "verdict": "inconclusive",
-  "duration_ms": 2,
-  "checked_at": "2026-09-22T20:56:39.447Z",
+  "duration_ms": 1,
+  "checked_at": "2026-11-02T01:06:50.681Z",
   "cache": {
     "hit": false,
-    "reason": "code changed (a commit, or a changed / new file outside atlas/); a contract, graph.json or project rules changed; another block's verdict or kpi result changed",
-    "lookup_ms": 33.112235
+    "reason": "no cached pass yet",
+    "lookup_ms": 0.039803
   }
 }

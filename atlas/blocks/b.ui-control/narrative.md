@@ -121,3 +121,20 @@ the meaning panel's), and the activity log follows the client on screen. The
 Playwright spec covers the removal warning, the kept tail, the audit line and
 an untouched root log (4/4 stable); without the kept tail it fails at the
 review step — the panel itself names the removal.
+
+## R-8.14 — the code map view
+
+«Map» is a fourth view next to the graphs: the product as a building, floors
+for layers, rooms for blocks, tiles for files. Click a block (or a file, or one
+connection in the inspector) and its connections stay pinned while you scroll:
+arrows lead to the other ends, the rooms there say how they are connected
+(«uses the selection», «the selection uses it», with counts), and any end that
+has scrolled out of view appears as a chip at the edge of the map — click it
+and the map scrolls there. «What exactly?» lists every import (file, line,
+names), API call and started script behind a connection, or says that only the
+contract declares it. Inside a block every tile says what its file is for;
+a file opens into its parts and its code, and an import line jumps to the
+imported file. Found on the way: the view, the theme and the side panels reset
+on every live refresh (the App re-mounts) — they are kept now; the top bar's
+second row covered the canvas below 1700 px; the Files tab said «No files» for
+blocks with code; the status colours failed a colour-vision check.

@@ -18,12 +18,12 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "8f430d283c0dcdae",
+        "prompt_hash": "26558e8b04640f12",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 2
+      "duration_ms": 1
     },
     {
       "id": "A2",
@@ -40,7 +40,7 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "15a71d7b50357ae8",
+        "prompt_hash": "ff005c64f37fe67c",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
@@ -62,12 +62,12 @@
         "judge_verdict": "inconclusive",
         "provider": "mock",
         "model": "mock-1",
-        "prompt_hash": "5ff5c4e38a3e48ce",
+        "prompt_hash": "610472456a7dd0a1",
         "cost_usd": 0,
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 1
+      "duration_ms": 0
     },
     {
       "id": "A4",
@@ -81,17 +81,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (79ms); first line: \"Block contract validation: OK\"",
+      "evidence": "node scripts/validate_block_contracts.mjs → exit 0 (53ms); first line: \"Block contract validation: OK\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_block_contracts.mjs",
         "exit_code": 0,
         "stdout": "Block contract validation: OK\n",
         "stderr": "",
-        "duration_ms": 79,
+        "duration_ms": 53,
         "timed_out": false
       },
-      "duration_ms": 79
+      "duration_ms": 53
     },
     {
       "id": "A5",
@@ -116,20 +116,45 @@
           "    if (latest && latest.verdict !== 'pass') {"
         ]
       },
+      "duration_ms": 0
+    },
+    {
+      "id": "A6",
+      "label": null,
+      "text": "Вид «Карта» подключён к канвасу: страница грузит `code_map.jsx`, а вкладка видов переключает на него.",
+      "checked": true,
+      "line": 23,
+      "evidence_kind": "log_grep",
+      "evidence_spec": {
+        "file": "frontend/atlas_design/index.html",
+        "pattern": "view === 'map' [?] [(]"
+      },
+      "verdict": "pass",
+      "evidence": "grep /view === 'map' [?] [(]/ frontend/atlas_design/index.html → 1 matches; first: \"      {view === 'map' ? (\"",
+      "reasoning": "1 matching lines found",
+      "raw": {
+        "file": "/home/user/sima_atlas/frontend/atlas_design/index.html",
+        "pattern": "view === 'map' [?] [(]",
+        "since_time": null,
+        "match_count": 1,
+        "sample": [
+          "      {view === 'map' ? ("
+        ]
+      },
       "duration_ms": 1
     }
   ],
   "counts": {
-    "pass": 2,
+    "pass": 3,
     "fail": 0,
     "skipped": 3
   },
   "verdict": "pass",
-  "duration_ms": 86,
-  "checked_at": "2026-09-29T04:53:17.668Z",
+  "duration_ms": 56,
+  "checked_at": "2026-11-02T01:07:48.449Z",
   "cache": {
     "hit": false,
-    "reason": "cached pass expired (152 h old)",
-    "lookup_ms": 0.778483
+    "reason": "code changed (a commit, or a changed / new file outside atlas/); another block's verdict or kpi result changed",
+    "lookup_ms": 26.989459
   }
 }

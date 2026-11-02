@@ -1,6 +1,6 @@
 # Roadmap (auto-generated, PR2 topo-sort)
 
-_Generated: 2026-09-29T04:53:42.580Z_
+_Generated: 2026-11-02T01:08:07.279Z_
 
 Приоритет внутри уровня: 🔴 broken → 🟣 drift → 🟠 wip → 🔵 review → 🟡 idea → 🟢 done.
 Каждый следующий уровень зависит от предыдущих — реализовывать сверху вниз.
@@ -26,8 +26,6 @@ _Generated: 2026-09-29T04:53:42.580Z_
 
 - 🔵 **b.llm-gateway** (review) — LLM Gateway · _ai_ · deps: `b.db`
   - Phase I: verifier FAIL on A2 (simulate_conversation_branches) — test fixture asserts b.core-sync is NOT done, but it legitimately IS done now. Test-state coupling; provider code works. Needs fixture decoupling.
-- 🟡 **b.code-graph** (idea) — Code Graph · _data_ · deps: `b.db`
-  - New block scoped — extracts deterministic imports/exports map from alive files; consumed by b.core-sync PR4. R-7.99.
 - 🟡 **b.product-dashboard** (idea) — Dashboard · _front_ · deps: `b.product-warehouse`
   - Created via design UI at 2026-05-05T20:57:52.242Z
 - 🟡 **b.product-ingest** (idea) — Ingest · _logic_ · deps: `b.product-warehouse`
@@ -39,24 +37,32 @@ _Generated: 2026-09-29T04:53:42.580Z_
   - R-8.06 + R-8.08 — meaning transfer in both directions around the contract. Model to human: questions, uncertainty markers, assumption registry. Human to model: the trajectory in mission.md as the rule for choosing between green implementations, and the executing agent declaring its operative frame in understanding.md before code.
 - 🟡 **b.product-auth** (idea) — Auth · _logic_ · deps: `b.product-dashboard`, `b.product-ingest`
   - Created via design UI at 2026-05-05T20:57:52.201Z
+
+### Level 3 — требует Level 2
+
+- 🔵 **b.code-graph** (review) — Code Graph · _data_ · deps: `b.db`, `b.clarify`
+  - New block scoped — extracts deterministic imports/exports map from alive files; consumed by b.core-sync PR4. R-7.99.
+
+### Level 4 — требует Level 3
+
 - 🟢 **b.core-sync** (done) — Sync Engine · _logic_ · deps: `b.db`, `b.code-graph`
   - syncCheck only validates file presence, not mission/KPI semantics
 
-### Level 3 — требует Level 2
+### Level 5 — требует Level 4
 
 - 🟢 **b.docs** (done) — Docs Builder · _content_ · deps: `b.db`, `b.core-sync`
   - Generators run but feed on template missions; needs layer-aware wiki and mermaid (PR2)
 
-### Level 4 — требует Level 3 · цикл зависимостей: эти блоки зависят друг от друга, порядок внутри не определён
+### Level 6 — требует Level 5 · цикл зависимостей: эти блоки зависят друг от друга, порядок внутри не определён
 
-- 🔵 **b.agent-orchestrator** (review) — Agent Orchestrator · _ai_ · deps: `b.db`, `b.core-sync`, `b.llm-gateway`, `b.operator-profile-learner`, `b.clarify`
+- 🔵 **b.agent-orchestrator** (review) — Agent Orchestrator · _ai_ · deps: `b.db`, `b.core-sync`, `b.llm-gateway`, `b.operator-profile-learner`, `b.clarify`, `b.code-graph`
   - Phase I: verifier FAIL on A5 (cursor_live.headless.smoke) — needs a live cursor-agent CLI, not installed in this env. Env-blocked, not code-blocked. A1-A4+A7 pass.
 - 🟢 **b.operator-profile-learner** (done) — Operator Profile Learner · _ai_ · deps: `b.db`, `b.core-sync`, `b.agent-orchestrator`, `b.llm-gateway`, `b.docs`
   - Phase I: verifier FAIL on A6 — profile-compliance UI badge (complianceWithProfile) was lost in the R-7.30 single-file→atlas_design refactor and not reimplemented. Genuine feature gap, honestly not done.
 
-### Level 5 — требует Level 4
+### Level 7 — требует Level 6
 
-- 🟠 **b.ui-control** (wip) — UI Control Plane · _front_ · deps: `b.core-sync`, `b.agent-orchestrator`, `b.clarify`
+- 🟠 **b.ui-control** (wip) — UI Control Plane · _front_ · deps: `b.core-sync`, `b.agent-orchestrator`, `b.clarify`, `b.code-graph`
   - HTML loses references to components.jsx/sidecol.jsx/canvas_tools.jsx — UI does not boot in production; multi-layer rendering depends on PR2 (this PR)
 - 🟠 **b.user-docs-generator** (wip) — End-User Docs Generator · _content_ · deps: `b.db`, `b.docs`, `b.agent-orchestrator`, `b.llm-gateway`
   - R-8.07: демонтирован из done по rules.md #4. Acceptance зелёная (8/8) — машинерия генерации работает и покрыта selftest. KPI-1 (coverage) измерен и провален: atlas/docs/end-user/ пуста при двух user-facing блоках, покрытие 0/2. До done: произвести документы хотя бы для одного user-facing блока ЛИБО переформулировать KPI-1 на done-блоки (решение оператора, см. narrative).
@@ -64,7 +70,7 @@ _Generated: 2026-09-29T04:53:42.580Z_
 - 🟢 **b.diff-review** (done) — Diff Review Arbiter · _ai_ · deps: `b.llm-gateway`, `b.agent-orchestrator`
   - Fourth V-1 arbiter — independent LLM review of the git diff for BLOCKING problems (correctness/security/regression/perf). Imported from loop-engineer-template. R-8.01.
 
-### Level 6 — требует Level 5
+### Level 8 — требует Level 7
 
 - 🟢 **b.desktop** (done) — Desktop App · _ext_ · deps: `b.db`, `b.ui-control`, `b.agent-orchestrator`
   - Electron-based installable desktop app — wraps the existing browser UI; R-7.99 scoping, PR1 implementation following in this commit.
@@ -96,7 +102,7 @@ _Generated: 2026-09-29T04:53:42.580Z_
 ### Данные / хранилище (`data`)
 
 - 🟡 **b.db** — Atlas Database _(idea)_
-- 🟡 **b.code-graph** — Code Graph _(idea)_
+- 🔵 **b.code-graph** — Code Graph _(review)_
 - 🟡 **b.product-warehouse** — Warehouse _(idea)_
 
 ### Внешние интеграции (`ext`)

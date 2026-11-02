@@ -56,7 +56,8 @@
       "depends_on": [
         "b.core-sync",
         "b.agent-orchestrator",
-        "b.clarify"
+        "b.clarify",
+        "b.code-graph"
       ],
       "tech_stack": [
         "react",
@@ -157,7 +158,8 @@
         "b.core-sync",
         "b.llm-gateway",
         "b.operator-profile-learner",
-        "b.clarify"
+        "b.clarify",
+        "b.code-graph"
       ],
       "tech_stack": [
         "nodejs",
@@ -366,14 +368,15 @@
     {
       "id": "b.code-graph",
       "title": "Code Graph",
-      "status": "idea",
+      "status": "review",
       "status_reason": "New block scoped — extracts deterministic imports/exports map from alive files; consumed by b.core-sync PR4. R-7.99.",
       "layer": "data",
       "type": "module",
       "mvp": false,
       "subschema_id": null,
       "depends_on": [
-        "b.db"
+        "b.db",
+        "b.clarify"
       ],
       "tech_stack": [
         "nodejs",
@@ -385,7 +388,8 @@
         "tests/code_graph_extractor.selftest.mjs",
         "tests/code_graph_validator.selftest.mjs",
         "atlas/code_graph.json"
-      ]
+      ],
+      "updated_at": "2026-11-02T01:06:05.502Z"
     },
     {
       "id": "b.desktop",

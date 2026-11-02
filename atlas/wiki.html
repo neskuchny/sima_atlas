@@ -15,7 +15,7 @@
 </style>
 </head><body>
 <h1>Sima Atlas Wiki</h1>
-<p><em>Auto-generated: 2026-09-29T04:53:41.989Z</em></p>
+<p><em>Auto-generated: 2026-11-02T01:08:06.902Z</em></p>
 <h2>Граф продукта</h2>
 <div class="mermaid">flowchart TB
   classDef done    fill:#dcfce7,stroke:#16a34a,color:#15803d;
@@ -45,7 +45,7 @@
   end
   subgraph data["Данные / хранилище"]
     b_db["Atlas Database&lt;br/&gt;&lt;small&gt;idea&lt;/small&gt;"]:::idea
-    b_code_graph["Code Graph&lt;br/&gt;&lt;small&gt;idea&lt;/small&gt;"]:::idea
+    b_code_graph["Code Graph&lt;br/&gt;&lt;small&gt;review&lt;/small&gt;"]:::review
     b_product_warehouse["Warehouse&lt;br/&gt;&lt;small&gt;idea&lt;/small&gt;"]:::idea
   end
   subgraph ext["Внешние интеграции"]
@@ -62,6 +62,7 @@
   b_ui_control --&gt; b_core_sync
   b_ui_control --&gt; b_agent_orchestrator
   b_ui_control --&gt; b_clarify
+  b_ui_control --&gt; b_code_graph
   b_core_sync --&gt; b_db
   b_core_sync --&gt; b_code_graph
   b_agent_orchestrator --&gt; b_db
@@ -69,6 +70,7 @@
   b_agent_orchestrator --&gt; b_llm_gateway
   b_agent_orchestrator --&gt; b_operator_profile_learner
   b_agent_orchestrator --&gt; b_clarify
+  b_agent_orchestrator --&gt; b_code_graph
   b_docs --&gt; b_db
   b_docs --&gt; b_core_sync
   b_llm_gateway --&gt; b_db
@@ -86,6 +88,7 @@
   b_user_docs_generator --&gt; b_agent_orchestrator
   b_user_docs_generator --&gt; b_llm_gateway
   b_code_graph --&gt; b_db
+  b_code_graph --&gt; b_clarify
   b_desktop --&gt; b_db
   b_desktop --&gt; b_ui_control
   b_desktop --&gt; b_agent_orchestrator
@@ -136,7 +139,7 @@
 <ul>
 <li>🟡 <strong>b.db</strong> — Atlas Database <em>(idea)</em></li>
 <ul><li>reason: Storage is markdown + localStorage; no real DB layer yet</li></ul>
-<li>🟡 <strong>b.code-graph</strong> — Code Graph <em>(idea)</em></li>
+<li>🔵 <strong>b.code-graph</strong> — Code Graph <em>(review)</em></li>
 <ul><li>reason: New block scoped — extracts deterministic imports/exports map from alive files; consumed by b.core-sync PR4. R-7.99.</li></ul>
 <li>🟡 <strong>b.product-warehouse</strong> — Warehouse <em>(idea)</em></li>
 <ul><li>reason: Created via design UI at 2026-05-05T20:57:52.230Z</li></ul>
@@ -166,7 +169,7 @@
 <li><strong>type</strong>: module</li>
 <li><strong>status</strong>: <code>wip</code> — HTML loses references to components.jsx/sidecol.jsx/canvas_tools.jsx — UI does not boot in production; multi-layer rendering depends on PR2 (this PR)</li>
 <li><strong>mvp</strong>: yes</li>
-<li><strong>depends_on</strong>: <code>b.core-sync</code>, <code>b.agent-orchestrator</code>, <code>b.clarify</code></li>
+<li><strong>depends_on</strong>: <code>b.core-sync</code>, <code>b.agent-orchestrator</code>, <code>b.clarify</code>, <code>b.code-graph</code></li>
 <li><strong>tech_stack</strong>: <code>react</code>, <code>babel-standalone</code></li>
 <li><strong>files</strong>: 17 (<code>atlas/blocks/b.ui-control/files.md</code>)</li>
 </ul>
@@ -214,6 +217,13 @@ evidence_spec:
 evidence_spec:
   file: scripts/log_transition.mjs
   pattern: "verdict !== 'pass'"</code></pre>
+<ul>
+<li>[x] <strong>A6.</strong> Вид «Карта» подключён к канвасу: страница грузит <code>code_map.jsx</code>, а вкладка видов переключает на него.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: log_grep
+evidence_spec:
+  file: frontend/atlas_design/index.html
+  pattern: "view === 'map' [?] [(]"</code></pre>
 <h2>Не считается acceptance:</h2>
 <ul>
 <li>наличие файлов;</li>
@@ -234,6 +244,7 @@ evidence_spec:
 <li>b.clarify: frame<em>review</em>gate</li>
 <li>b.clarify: declared_understanding</li>
 <li>b.clarify: contract<em>draft</em>review</li>
+<li>b.code-graph: code_map</li>
 </ul>
 <h4>Files</h4>
 <h1>b.ui-control — files</h1>
@@ -264,6 +275,8 @@ evidence_spec:
 <li>tests/atlas_bootstrap.smoke.mjs [alive]</li>
 <li>tests/atlas<em>live</em>polling.smoke.mjs [alive]</li>
 <li>tests/connection_drift.smoke.mjs [alive]</li>
+<li>frontend/atlas<em>design/code</em>map.jsx [alive] (R-8.14: вид «Карта» — этажи-слои, комнаты-блоки, плитки-файлы; закреплённые связи блока, файла или одной связи со стрелками, подписями на концах и метками у края вида для концов за экраном; внутри блока — файлы с ролью и смыслом, соседи и «что именно?»; файл — анатомия и код с переходом по строке импорта; линзы «Состояние» и «Изменения»; поиск; переживает живое обновление. Данные — GET /atlas/map)</li>
+<li>tests/playwright/code_map.spec.ts [alive] (R-8.14: карта в Chromium на настоящем атласе, только чтение — закреплённые связи, метки у края, что проходит по связи, файлы других блоков, живое обновление, анатомия и код, переход по импорту, карта ↔ граф; <code>npm run test:ui</code>)</li>
 <li>tests/playwright/meaning_panel.spec.ts [alive] (R-8.10/R-8.12: + the contract delta after a change, the wording section; the meaning panel in Chromium against a live API — LLM badge, node marker, correction draft and notice surviving a live refresh, confirm without a run, trajectory saved to mission.md; <code>npm run test:ui</code>)</li>
 <li>playwright.config.js [alive] (R-8.10: webServer waits for atlas_design/index.html — the old frontend/index.html no longer exists, so no spec could start)</li>
 </ul>
@@ -440,21 +453,21 @@ evidence_spec:
 <ul>
 <li>frontend/atlas_sync.js [alive] (client-side syncCheck + transitions; T8: logCheck now POSTs /atlas/checks/append → checks.log on disk)</li>
 <li>tests/checks<em>append</em>endpoint.selftest.mjs [alive] (T8 — selftest for the unified-checks-log endpoint)</li>
-<li>scripts/validate<em>block</em>contracts.mjs [alive]</li>
-<li>scripts/validate<em>dependency</em>contracts.mjs [alive]</li>
+<li>scripts/validate<em>block</em>contracts.mjs [alive] (R-8.14: проверяет, что у каждого блока есть обязательные файлы контракта — mission, kpi, acceptance, tasks, checks.log — и указывает строку блока в graph.json)</li>
+<li>scripts/validate<em>dependency</em>contracts.mjs [alive] (R-8.14: сверяет зависимости: каждая строка depends_on блока должна совпасть с capability в provides.md соседа)</li>
 <li>scripts/validate<em>acceptance</em>assertions.mjs [alive]</li>
 <li>scripts/validate<em>no</em>template_placeholders.mjs [alive] (PR1)</li>
 <li>scripts/validate<em>files</em>registry.mjs [alive] (PR2 — checks files in files.md exist on disk)</li>
 <li>scripts/validate<em>stack</em>mismatch.mjs [alive] (PR2 — detects cross-language stack mismatches, writes sync_report.json)</li>
 <li>scripts/validate<em>code</em>graph<em>sync.mjs [alive] (PR2 — consumes b.code-graph: code</em>graph; writes codeGraphSummary to sync_report.json)</li>
-<li>scripts/validate<em>ingestion</em>contracts.mjs [alive]</li>
-<li>scripts/validate<em>ingestion</em>quality.mjs [alive]</li>
-<li>scripts/validate<em>agent</em>parity.mjs [alive]</li>
-<li>scripts/validate<em>parity</em>matrix.mjs [alive]</li>
-<li>scripts/validate<em>bootstrap</em>projection.mjs [alive]</li>
-<li>scripts/validate<em>bootstrap</em>regeneration.mjs [alive]</li>
-<li>scripts/calc<em>intelligence</em>health.mjs [alive]</li>
-<li>scripts/audit<em>production</em>readiness.mjs [alive]</li>
+<li>scripts/validate<em>ingestion</em>contracts.mjs [alive] (R-8.14: проверяет формат очереди памяти atlas/ingestion_queue.jsonl: у каждой записи есть блок и заметка, флаги правильного типа)</li>
+<li>scripts/validate<em>ingestion</em>quality.mjs [alive] (R-8.14: проверяет, что каждая выжимка из чата, попавшая в decisions.log блока, отражена и в его patterns.md)</li>
+<li>scripts/validate<em>agent</em>parity.mjs [alive] (R-8.14: проверяет, что AGENTS.md и CLAUDE.md учат агентов одному и тому же — project.md, rules.md, build<em>context</em>pack, sync_check, — а MCP-сервер даёт нужные инструменты)</li>
+<li>scripts/validate<em>parity</em>matrix.mjs [alive] (R-8.14: проверяет, что AGENTS.md и CLAUDE.md упоминают ключевые инструменты агентов, а у каждого блока есть context pack)</li>
+<li>scripts/validate<em>bootstrap</em>projection.mjs [alive] (R-8.14: проверяет, что сгенерированный frontend/atlas<em>bootstrap.js содержит всё, что ждёт канвас: SIMA</em>BOOTSTRAP, источники, user story)</li>
+<li>scripts/validate<em>bootstrap</em>regeneration.mjs [alive] (R-8.14: пересобирает frontend/atlas_bootstrap.js и сразу проверяет результат — ловит сломавшийся генератор)</li>
+<li>scripts/calc<em>intelligence</em>health.mjs [alive] (R-8.14: считает здоровье атласа: у каких блоков нет обязательных файлов контракта и где depends<em>on не совпадает с provides соседа; пишет intelligence</em>health.json и .md)</li>
+<li>scripts/audit<em>production</em>readiness.mjs [alive] (R-8.14: аудит готовности: запускает пять проверок — контракты блоков, зависимости, очередь памяти, её качество, симуляцию разговоров — и пишет отчёт PASS/FAIL в markdown)</li>
 <li>scripts/validate<em>dependency</em>graph.mjs [alive] (R-8.07: parity graph.json ↔ depends_on.md, bare-id format of the mirror, cycle detection with justified exemptions; every error carries a fix line)</li>
 <li>tests/dependency<em>graph.selftest.mjs [alive] (R-8.07: 11 groups, incl. the R-8.06 regression — an edge added to depends</em>on.md only must fail parity AND report the cycle it creates; an exemption must not cover a larger cycle routed through the exempted pair)</li>
 <li>atlas/dependency<em>cycle</em>exemptions.json [alive] (R-8.07: the only escape hatch for a cycle — what it is, why tolerated, and when the exemption must go; stale entries are reported)</li>
@@ -584,15 +597,15 @@ evidence_spec:
 <li>atlas/production<em>audit</em>report.md [alive]</li>
 <li>atlas/tasks_master.md [alive]</li>
 <li>scripts/log_transition.mjs [alive]</li>
-<li>scripts/manage_block.mjs [alive]</li>
+<li>scripts/manage<em>block.mjs [alive] (R-8.14: ранняя ручная команда для блока — init / set-status / set-mission; меняет статус без проверки и без записи в transitions.log. Её никто не вызывает: статусы меняет шлюз жизненного цикла, advance</em>block_state.mjs)</li>
 <li>scripts/advance<em>block</em>state.mjs [alive]</li>
 <li>scripts/lifecycle<em>gate.mjs [alive] (R-8.05, owner fixed in R-8.07: the single writer of block status + transitions.log + checks.log. Extracted core of advance</em>block<em>state/log</em>transition, so it belongs to the storage layer that owns the transitions journal. First filed under b.acceptance-verifier-loop, which created two dependency cycles — every status writer had to import «upward» into a block that itself depends on them.)</li>
 <li>tests/lifecycle_gate.selftest.mjs [alive] (R-8.05: 7 groups — → done refused without a passing verdict / on fail / on inconclusive; logged override; adjacency; desync cannot invent a done; desync→done needs a green run newer than the mark; checkTransition is pure)</li>
-<li>scripts/dedup<em>block</em>memory.mjs [alive]</li>
-<li>scripts/enqueue<em>ingestion</em>item.mjs [alive]</li>
-<li>scripts/apply<em>ingestion</em>queue.mjs [alive]</li>
-<li>scripts/ingest<em>chat</em>distillate.mjs [alive]</li>
-<li>scripts/ingest<em>chat</em>batches.mjs [alive]</li>
+<li>scripts/dedup<em>block</em>memory.mjs [alive] (R-8.14: убирает повторы из памяти блоков: одинаковые записи в decisions.log и patterns.md каждого блока остаются по одному разу)</li>
+<li>scripts/enqueue<em>ingestion</em>item.mjs [alive] (R-8.14: ставит заметку в очередь памяти: node scripts/enqueue<em>ingestion</em>item.mjs &lt;блок&gt; "&lt;заметка&gt;" дописывает строку в atlas/ingestion_queue.jsonl)</li>
+<li>scripts/apply<em>ingestion</em>queue.mjs [alive] (R-8.14: переносит заметки из очереди памяти atlas/ingestion_queue.jsonl в память их блоков — decisions.log и patterns.md; заметку с приложенным разговором отдаёт на разбор в предложения блоков; применённое из очереди убирает)</li>
+<li>scripts/ingest<em>chat</em>distillate.mjs [alive] (R-8.14: записывает выжимку из чата в память блока: decisions.log, patterns.md и строку в checks.log)</li>
+<li>scripts/ingest<em>chat</em>batches.mjs [alive] (R-8.14: режет транскрипт чата в JSONL на пачки по N сообщений и ставит каждую пачку в очередь памяти блока)</li>
 <li>scripts/hook<em>ingest</em>recent_chat.mjs [alive] (waiting for PR4 valid hooks)</li>
 </ul>
 <h2>R-8.10 — previously unowned</h2>
@@ -624,7 +637,7 @@ evidence_spec:
 <li><strong>type</strong>: module</li>
 <li><strong>status</strong>: <code>review</code> — Phase I: verifier FAIL on A5 (cursor_live.headless.smoke) — needs a live cursor-agent CLI, not installed in this env. Env-blocked, not code-blocked. A1-A4+A7 pass.</li>
 <li><strong>mvp</strong>: yes</li>
-<li><strong>depends_on</strong>: <code>b.db</code>, <code>b.core-sync</code>, <code>b.llm-gateway</code>, <code>b.operator-profile-learner</code>, <code>b.clarify</code></li>
+<li><strong>depends_on</strong>: <code>b.db</code>, <code>b.core-sync</code>, <code>b.llm-gateway</code>, <code>b.operator-profile-learner</code>, <code>b.clarify</code>, <code>b.code-graph</code></li>
 <li><strong>tech_stack</strong>: <code>nodejs</code>, <code>esm</code>, <code>mcp</code></li>
 <li><strong>files</strong>: 19 (<code>atlas/blocks/b.agent-orchestrator/files.md</code>)</li>
 </ul>
@@ -749,6 +762,7 @@ evidence_spec:
 <li>b.clarify: declared_understanding</li>
 <li>b.llm-gateway: llm<em>provider</em>description</li>
 <li>b.clarify: contract<em>draft</em>review</li>
+<li>b.code-graph: code_map</li>
 </ul>
 <h4>Files</h4>
 <h1>b.agent-orchestrator — files</h1>
@@ -769,10 +783,10 @@ evidence_spec:
 <li>tests/agent<em>parity</em>real.smoke.mjs [alive] (PR4.5: real MCP pack ≡ Claude --add-dir disk parity)</li>
 <li>scripts/generate<em>agent</em>contracts.mjs [alive] (writes AGENTS.md / CLAUDE.md)</li>
 <li>scripts/build<em>context</em>pack.mjs [alive]</li>
-<li>scripts/sync<em>context</em>packs.mjs [alive]</li>
-<li>scripts/finalize<em>cursor</em>iteration.mjs [alive]</li>
-<li>scripts/run<em>block</em>process.mjs [alive]</li>
-<li>scripts/pipeline_step.mjs [alive]</li>
+<li>scripts/sync<em>context</em>packs.mjs [alive] (R-8.14: пересобирает context pack каждого блока — то, что агент читает перед работой: по одному запуску build<em>context</em>pack.mjs на блок)</li>
+<li>scripts/finalize<em>cursor</em>iteration.mjs [alive] (R-8.14: закрывает итерацию работы агента: раскладывает транскрипт по памяти блока, если он дан, затем прогоняет процесс блока, nightly, вики и ТЗ и пишет отчёт)</li>
+<li>scripts/run<em>block</em>process.mjs [alive] (R-8.14: процесс блока по имени: собирает context pack и, если в имени есть sync или audit, запускает сверку контрактов и аудит готовности; отчёт пишет в atlas/process_runs/)</li>
+<li>scripts/pipeline<em>step.mjs [alive] (R-8.14: один шаг конвейера для блока: переводит статус через advance</em>block_state.mjs, затем гоняет сверку, проверки контрактов, зависимостей и приёмки и пересобирает дорожную карту. Сейчас его никто не вызывает)</li>
 <li>scripts/auto<em>sync</em>iteration.mjs [alive] (regex-only flow; will be replaced after PR3 wiring)</li>
 <li>scripts/analyze<em>conversation</em>to_atlas.mjs [alive] (PR3: replaced regex with extractBlockSchema via b.llm-gateway)</li>
 <li>scripts/simulate<em>conversation</em>branches.mjs [alive] (PR3: rewritten as smoke for the LLM extraction + safe-upsert flow)</li>
@@ -1963,13 +1977,13 @@ evidence_spec:
 </ul>
 <p><em>Sources: [mission](blocks/b.user-docs-generator/mission.md) · [kpi](blocks/b.user-docs-generator/kpi.md) · [acceptance](blocks/b.user-docs-generator/acceptance.md) · [depends</em>on](blocks/b.user-docs-generator/depends<em>on.md) · [provides](blocks/b.user-docs-generator/provides.md) · [patterns](blocks/b.user-docs-generator/patterns.md) · [files](blocks/b.user-docs-generator/files.md)</em></p>
 <hr/>
-<h3>🟡 b.code-graph — Code Graph</h3>
+<h3>🔵 b.code-graph — Code Graph</h3>
 <ul>
 <li><strong>layer</strong>: <code>data</code></li>
 <li><strong>type</strong>: module</li>
-<li><strong>status</strong>: <code>idea</code> — New block scoped — extracts deterministic imports/exports map from alive files; consumed by b.core-sync PR4. R-7.99.</li>
+<li><strong>status</strong>: <code>review</code> — New block scoped — extracts deterministic imports/exports map from alive files; consumed by b.core-sync PR4. R-7.99.</li>
 <li><strong>mvp</strong>: no</li>
-<li><strong>depends_on</strong>: <code>b.db</code></li>
+<li><strong>depends_on</strong>: <code>b.db</code>, <code>b.clarify</code></li>
 <li><strong>tech_stack</strong>: <code>nodejs</code>, <code>esm</code></li>
 <li><strong>files</strong>: 5 (<code>atlas/blocks/b.code-graph/files.md</code>)</li>
 </ul>
@@ -1996,6 +2010,16 @@ evidence_spec:
 <p>  экспортируемого символа с именем <code>X</code> или соответствующей capability» → drift</p>
 <p>  с <code>reason: provided<em>capability</em>not_exported</code>.</p>
 </ul>
+<p><strong>Карта кода (R-8.14).</strong> Тот же граф, повёрнутый к человеку.</p>
+<p><code>scripts/atlas<em>map.mjs</code> собирает из атласа, <code>code</em>graph.json</code> и git здание</p>
+<p>продукта: этажи — слои, комнаты — блоки, плитки — файлы; файл делится на части</p>
+<p>(функции, компоненты, маршруты API) по объявлениям верхнего уровня, так что</p>
+<p>части покрывают каждую строку. К каждой связи блоков прикладывается то, что по</p>
+<p>ней реально проходит: импорт (файл, строка, имена), вызов HTTP-маршрута, запуск</p>
+<p>скрипта — или «только в контракте», когда код её не использует. У каждого файла</p>
+<p>— что он делает (files.md или шапка), зачем нужен (кто от него зависит и что</p>
+<p>его запускает) и на чём работает. Канвас это только рисует — вид «Карта»</p>
+<p>в <code>b.ui-control</code>.</p>
 <h2>Layer</h2>
 <p>data</p>
 <h2>Out of scope (что блок НЕ делает)</h2>
@@ -2132,6 +2156,20 @@ evidence_spec:
 evidence_spec:
   cmd: node tests/code_graph_extractor.selftest.mjs
   expect_in_stdout: "deterministic"</code></pre>
+<ul>
+<li>[x] <strong>A8.</strong> Карта кода говорит правду о коде: части файла покрывают каждую строку ровно раз; связи-не-импорты (вызовы API, запуск скриптов) находятся без комментариев и спецификаторов модулей; у каждого файла есть роль и «зачем»; связь блоков показывает, что по ней проходит, или что её нет в коде; файл вне карты не отдаётся.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: exit_code
+evidence_spec:
+  cmd: node tests/atlas_map.selftest.mjs
+  expect_in_stdout: "OK [(]8 groups[)]"</code></pre>
+<ul>
+<li>[x] <strong>A9.</strong> Карта строится на настоящем атласе из графа кода, и каждая связь блоков в ней классифицирована.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: exit_code
+evidence_spec:
+  cmd: node scripts/atlas_map.mjs --summary
+  expect_in_stdout: "\"code_graph\": true"</code></pre>
 <h2>inconclusive_if</h2>
 <ul>
 <li>репозиторий не является git-репозиторием (например, при первом git clone</li>
@@ -2150,11 +2188,13 @@ evidence_spec:
 <ul>
 <li>code_graph</li>
 <li>code<em>graph</em>validator</li>
+<li>code_map</li>
 </ul>
 <h4>Depends on</h4>
 <h1>b.code-graph — depends_on</h1>
 <ul>
 <li>b.db: file_registry</li>
+<li>b.clarify: frame<em>review</em>gate</li>
 </ul>
 <h4>Patterns</h4>
 <h1>b.code-graph — patterns</h1>
@@ -2168,7 +2208,10 @@ evidence_spec:
 <li>scripts/validate<em>code</em>graph<em>vs</em>contracts.mjs [alive] (PR2 — детектор drift'ов)</li>
 <li>tests/code<em>graph</em>extractor.selftest.mjs [alive]</li>
 <li>tests/code<em>graph</em>validator.selftest.mjs [alive]</li>
+<li>scripts/atlas_map.mjs [alive] (R-8.14: карта кода — продукт как здание: блоки, файлы, их части, каждая связь с тем, что по ней проходит — импорт с именами, вызов HTTP-маршрута, запуск скрипта — или «только в контракте»; у файла: что делает, зачем нужен, стек; след каждого изменения из git. Экспортирует buildCodeMap / readMapFile и правила разбора. Зачем: чтобы канвас показывал реальный код, а не рисовал его сам)</li>
+<li>tests/atlas_map.selftest.mjs [alive] (R-8.14: 8 групп — части файла покрывают каждую строку, стек, что запускает файл, связи не-импорты без комментариев и спецификаторов модулей, зачем нужен файл, связи блоков по видам, карта на одноразовом репо и отказ отдавать файлы вне карты, реальный атлас)</li>
 <li>atlas/code_graph.json [alive] (auto-generated артефакт)</li>
+<li>atlas/blocks/b.code-graph/understanding.md [alive] (R-8.14: объявленная рамка блока — как агент понял задачу карты кода; ждёт ответа оператора)</li>
 </ul>
 <p><em>Sources: [mission](blocks/b.code-graph/mission.md) · [kpi](blocks/b.code-graph/kpi.md) · [acceptance](blocks/b.code-graph/acceptance.md) · [depends</em>on](blocks/b.code-graph/depends<em>on.md) · [provides](blocks/b.code-graph/provides.md) · [patterns](blocks/b.code-graph/patterns.md) · [files](blocks/b.code-graph/files.md)</em></p>
 <hr/>
@@ -6344,12 +6387,20 @@ evidence_spec:
 <li>2026-09-29T04:53:35.986Z: smoke e2e distillate</li>
 <li>2026-09-29T04:53:41.740Z: smoke e2e queued insight</li>
 <li>2026-09-29T04:53:41.812Z: smoke e2e distillate</li>
+<li>2026-11-02T01:06:49.783Z: smoke e2e queued insight</li>
+<li>2026-11-02T01:06:49.833Z: smoke e2e distillate</li>
+<li>2026-11-02T01:06:54.516Z: smoke e2e queued insight</li>
+<li>2026-11-02T01:06:54.564Z: smoke e2e distillate</li>
+<li>2026-11-02T01:08:02.786Z: smoke e2e queued insight</li>
+<li>2026-11-02T01:08:02.829Z: smoke e2e distillate</li>
+<li>2026-11-02T01:08:06.744Z: smoke e2e queued insight</li>
+<li>2026-11-02T01:08:06.789Z: smoke e2e distillate</li>
 </ul>
 <h4>Files</h4>
 <h1>b.smoke-sandbox — files</h1>
 <ul>
 <li>scripts/mcp<em>smoke</em>e2e.mjs [alive] (writes only into b.smoke-sandbox)</li>
-<li>tests/atlas_sync.selftest.mjs [alive]</li>
+<li>tests/atlas<em>sync.selftest.mjs [alive] (R-8.14: самотест браузерного синка frontend/atlas</em>sync.js: гоняет его в песочнице с поддельным localStorage)</li>
 </ul>
 <p><em>Sources: [mission](blocks/b.smoke-sandbox/mission.md) · [kpi](blocks/b.smoke-sandbox/kpi.md) · [acceptance](blocks/b.smoke-sandbox/acceptance.md) · [depends</em>on](blocks/b.smoke-sandbox/depends<em>on.md) · [provides](blocks/b.smoke-sandbox/provides.md) · [patterns](blocks/b.smoke-sandbox/patterns.md) · [files](blocks/b.smoke-sandbox/files.md)</em></p>
 <hr/>

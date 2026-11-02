@@ -137,7 +137,20 @@ const __TWEAKS_STYLE = `
 // Single source of truth for tweak values. setTweak persists via the host
 // (__edit_mode_set_keys → host rewrites the EDITMODE block on disk).
 function useTweaks(defaults) {
-  const [values, setValues] = React.useState(defaults);
+  // R-8.14 — the App re-mounts on every live refresh (a file changed on
+  // disk), and useState(defaults) put the view and the theme back each time:
+  // pick «Map», an agent edits a file, and you are on «Graph + details»
+  // again. The values now live in the window store and localStorage.
+  const [values, setValues] = React.useState(() => {
+    const st = window.__SIMA_STICKY || {};
+    if (st.tweaks) return { ...defaults, ...st.tweaks };
+    try { return { ...defaults, ...JSON.parse(localStorage.getItem('sima.tweaks') || '{}') }; } catch { return defaults; }
+  });
+  React.useEffect(() => {
+    const st = (window.__SIMA_STICKY = window.__SIMA_STICKY || {});
+    st.tweaks = values;
+    try { localStorage.setItem('sima.tweaks', JSON.stringify(values)); } catch { /* storage may be off */ }
+  }, [values]);
   // Accepts either setTweak('key', value) or setTweak({ key: value, ... }) so a
   // useState-style call doesn't write a "[object Object]" key into the persisted
   // JSON block.

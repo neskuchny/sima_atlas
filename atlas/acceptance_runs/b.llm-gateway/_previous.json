@@ -15,17 +15,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/llm_gateway.selftest.mjs → exit 0 (95ms); first line: \"[llm-gateway] using provider=mock (explicit LLM_DEFAULT_PROVIDER)\"",
+      "evidence": "node tests/llm_gateway.selftest.mjs → exit 0 (78ms); first line: \"[llm-gateway] using provider=mock (explicit LLM_DEFAULT_PROVIDER)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/llm_gateway.selftest.mjs",
         "exit_code": 0,
         "stdout": "[llm-gateway] using provider=mock (explicit LLM_DEFAULT_PROVIDER)\nllm_gateway.selftest: OK (6 cases)\n",
         "stderr": "",
-        "duration_ms": 95,
+        "duration_ms": 78,
         "timed_out": false
       },
-      "duration_ms": 95
+      "duration_ms": 78
     },
     {
       "id": "A2",
@@ -39,17 +39,17 @@
         "expect_in_stdout": "simulate_conversation_branches: OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/simulate_conversation_branches.mjs → exit 0 (339ms); first line: \"PASS: created b.realtime-ingestion in graph.json\"",
+      "evidence": "node scripts/simulate_conversation_branches.mjs → exit 0 (319ms); first line: \"PASS: created b.realtime-ingestion in graph.json\"",
       "reasoning": "shell exit code 0 and stdout matches /simulate_conversation_branches: OK/",
       "raw": {
         "cmd": "node scripts/simulate_conversation_branches.mjs",
         "exit_code": 0,
         "stdout": "PASS: created b.realtime-ingestion in graph.json\nPASS: b.realtime-ingestion has layer=logic (LLM classification)\nPASS: b.realtime-ingestion folder seeded with mission.md\nPASS: b.core-sync mission preserved (LLM proposal is not auto-applied)\nPASS: b.core-sync status NOT silently changed by extraction\nPASS: b.agent-orchestrator/checks.log has new llm_extraction lines\nsimulate_conversation_branches: OK (state restored)\n",
         "stderr": "",
-        "duration_ms": 339,
+        "duration_ms": 319,
         "timed_out": false
       },
-      "duration_ms": 339
+      "duration_ms": 319
     },
     {
       "id": "A3",
@@ -71,7 +71,7 @@
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 1
+      "duration_ms": 0
     },
     {
       "id": "A4",
@@ -85,23 +85,23 @@
         "min_count": 1
       },
       "verdict": "pass",
-      "evidence": "glob atlas/llm_traces/*.json → 5333 files (min=1); newest 0min ago",
-      "reasoning": "5333 files match (≥1)",
+      "evidence": "glob atlas/llm_traces/*.json → 96 files (min=1); newest 0min ago",
+      "reasoning": "96 files match (≥1)",
       "raw": {
         "pattern": "atlas/llm_traces/*.json",
-        "count": 5333,
+        "count": 96,
         "min_count": 1,
         "max_age_min": null,
         "newest_minutes_ago": 0,
         "sample": [
-          "/home/user/sima_atlas/atlas/llm_traces/2026-09-04T22-06-03-686Z__claude_cli__466caf39b95d190f.json",
-          "/home/user/sima_atlas/atlas/llm_traces/2026-09-04T22-06-11-547Z__mock__36195948acf62ba8.json",
-          "/home/user/sima_atlas/atlas/llm_traces/2026-09-04T22-06-11-634Z__mock__9bf2a062afc4d305.json",
-          "/home/user/sima_atlas/atlas/llm_traces/2026-09-04T22-06-11-637Z__mock__0cc7ebf4d87889e0.json",
-          "/home/user/sima_atlas/atlas/llm_traces/2026-09-04T22-06-11-638Z__mock__c4a31474fb0a6420.json"
+          "/home/user/sima_atlas/atlas/llm_traces/2026-11-02T01-04-46-100Z__claude_cli__596557a940ad6f2e.json",
+          "/home/user/sima_atlas/atlas/llm_traces/2026-11-02T01-04-55-889Z__claude_cli__bc64c3de15eca4e2.json",
+          "/home/user/sima_atlas/atlas/llm_traces/2026-11-02T01-05-27-940Z__claude_cli__ea76b3cda12b320c.json",
+          "/home/user/sima_atlas/atlas/llm_traces/2026-11-02T01-05-41-586Z__claude_cli__fa5a024eb7947ae2.json",
+          "/home/user/sima_atlas/atlas/llm_traces/2026-11-02T01-06-16-612Z__mock__f36f9a371a61bd03.json"
         ]
       },
-      "duration_ms": 63
+      "duration_ms": 10
     },
     {
       "id": "A5",
@@ -115,17 +115,17 @@
         "expect_in_stdout": "llm_extraction.eval: (plumbing OK|OK)"
       },
       "verdict": "pass",
-      "evidence": "node tests/llm_extraction.eval.mjs → exit 0 (85ms); first line: \"llm_extraction.eval — PLUMBING ONLY (mock provider): the mock answers are the golden set itself, so 1.00 measures the pipeline, not extraction quality (cases=30/30)\"",
+      "evidence": "node tests/llm_extraction.eval.mjs → exit 0 (68ms); first line: \"llm_extraction.eval — PLUMBING ONLY (mock provider): the mock answers are the golden set itself, so 1.00 measures the pipeline, not extraction quality (cases=30/30)\"",
       "reasoning": "shell exit code 0 and stdout matches /llm_extraction.eval: (plumbing OK|OK)/",
       "raw": {
         "cmd": "node tests/llm_extraction.eval.mjs",
         "exit_code": 0,
-        "stdout": "llm_extraction.eval — PLUMBING ONLY (mock provider): the mock answers are the golden set itself, so 1.00 measures the pipeline, not extraction quality (cases=30/30)\n  A_single_block               1.00\n  B_multi_block                1.00\n  C_no_block                   1.00\n  D_layer_classification       1.00\n  E_dependency                 1.00\n  F_confidence                 1.00\n  snapshot=atlas/eval_history/2026-09-22T20-56-32-235Z.json\n\nllm_extraction.eval: plumbing OK on 30 cases — extraction quality NOT measured (mock provider; run with a live LLM to measure it)\n",
+        "stdout": "llm_extraction.eval — PLUMBING ONLY (mock provider): the mock answers are the golden set itself, so 1.00 measures the pipeline, not extraction quality (cases=30/30)\n  A_single_block               1.00\n  B_multi_block                1.00\n  C_no_block                   1.00\n  D_layer_classification       1.00\n  E_dependency                 1.00\n  F_confidence                 1.00\n  snapshot=atlas/eval_history/2026-11-02T01-06-43-056Z.json\n\nllm_extraction.eval: plumbing OK on 30 cases — extraction quality NOT measured (mock provider; run with a live LLM to measure it)\n",
         "stderr": "",
-        "duration_ms": 85,
+        "duration_ms": 68,
         "timed_out": false
       },
-      "duration_ms": 85
+      "duration_ms": 68
     }
   ],
   "counts": {
@@ -134,11 +134,11 @@
     "skipped": 1
   },
   "verdict": "pass",
-  "duration_ms": 583,
-  "checked_at": "2026-09-22T20:56:32.244Z",
+  "duration_ms": 476,
+  "checked_at": "2026-11-02T01:06:43.062Z",
   "cache": {
     "hit": false,
-    "reason": "code changed (a commit, or a changed / new file outside atlas/); a contract, graph.json or project rules changed; another block's verdict or kpi result changed; a file this block's assertions read changed",
-    "lookup_ms": 100.299055
+    "reason": "no cached pass yet",
+    "lookup_ms": 0.044343
   }
 }

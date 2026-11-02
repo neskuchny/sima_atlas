@@ -1,3 +1,6 @@
 2026-06-09T20:30:00Z	sync	pass	create_block (R-7.99 scoping)
 2026-06-20T08:06:14.294Z	acceptance_verifier	pass	verdict=inconclusive pass=0 fail=0 skipped=7
 2026-06-20T08:07:48.218Z	acceptance_verifier	pass	verdict=inconclusive pass=0 fail=0 skipped=7
+2026-11-02T01:04:45.996Z	acceptance_verifier	pass	verdict=pass pass=9 fail=0 skipped=0
+2026-11-02T01:06:05.454Z	transition	pass	idea->wip	actor=operator-R8.14	note=R-8.14: code map — buildCodeMap, map routes, every link with what crosses it
+2026-11-02T01:06:05.502Z	transition	pass	wip->review	actor=operator-R8.14	note=R-8.14: acceptance 9/9 (A8 map selftest, A9 map on the real atlas)

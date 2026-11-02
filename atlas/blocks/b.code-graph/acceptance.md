@@ -72,6 +72,22 @@ evidence_spec:
   expect_in_stdout: "deterministic"
 ```
 
+- [x] **A8.** Карта кода говорит правду о коде: части файла покрывают каждую строку ровно раз; связи-не-импорты (вызовы API, запуск скриптов) находятся без комментариев и спецификаторов модулей; у каждого файла есть роль и «зачем»; связь блоков показывает, что по ней проходит, или что её нет в коде; файл вне карты не отдаётся.
+```yaml
+evidence_kind: exit_code
+evidence_spec:
+  cmd: node tests/atlas_map.selftest.mjs
+  expect_in_stdout: "OK [(]8 groups[)]"
+```
+
+- [x] **A9.** Карта строится на настоящем атласе из графа кода, и каждая связь блоков в ней классифицирована.
+```yaml
+evidence_kind: exit_code
+evidence_spec:
+  cmd: node scripts/atlas_map.mjs --summary
+  expect_in_stdout: "\"code_graph\": true"
+```
+
 ## inconclusive_if
 
 - репозиторий не является git-репозиторием (например, при первом git clone

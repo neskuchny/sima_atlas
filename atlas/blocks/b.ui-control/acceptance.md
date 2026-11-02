@@ -20,6 +20,14 @@ evidence_spec:
   pattern: "verdict !== 'pass'"
 ```
 
+- [x] **A6.** Вид «Карта» подключён к канвасу: страница грузит `code_map.jsx`, а вкладка видов переключает на него.
+```yaml
+evidence_kind: log_grep
+evidence_spec:
+  file: frontend/atlas_design/index.html
+  pattern: "view === 'map' [?] [(]"
+```
+
 ## Не считается acceptance:
 - наличие файлов;
 - прохождение `validate_block_contracts.mjs` (это контрактный gate, не приёмка);

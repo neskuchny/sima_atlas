@@ -1,6 +1,6 @@
 {
   "operator_id": "default",
-  "updated_at": "2026-09-29T04:53:02.919Z",
+  "updated_at": "2026-11-02T01:07:37.997Z",
   "_status": "live",
   "_min_data": {
     "done_transitions": 13,
@@ -11,7 +11,7 @@
   "work_style": {
     "total_done": 13,
     "total_broken": 0,
-    "total_wip_started": 16,
+    "total_wip_started": 17,
     "rollback_rate": 0,
     "median_time_idea_to_done_h": 0.00003138888888888889,
     "common_failure_modes": {
@@ -325,32 +325,32 @@
   },
   "llm_provider_stats": {
     "claude_cli": {
-      "count": 7,
+      "count": 4,
       "fallback_to_mock_count": 0,
       "total_cost_usd": 0,
-      "schema_ok_count": 7,
+      "schema_ok_count": 4,
       "fallback_rate": 0,
       "schema_ok_rate": 1,
       "avg_cost_usd": 0
     },
     "mock": {
-      "count": 5431,
-      "fallback_to_mock_count": 29,
+      "count": 192,
+      "fallback_to_mock_count": 2,
       "total_cost_usd": 0,
-      "schema_ok_count": 5431,
+      "schema_ok_count": 192,
       "fallback_rate": 0.01,
       "schema_ok_rate": 1,
       "avg_cost_usd": 0
     }
   },
   "proposals_stats": {
-    "total": 61,
+    "total": 2,
     "accept_rate": 0,
     "reject_rate": 0,
-    "pending": 61
+    "pending": 2
   },
   "decisions_stats": {
-    "total": 3714,
+    "total": 3722,
     "blocks_with_decisions": 10
   },
   "patterns_stats": {
@@ -759,7 +759,7 @@
   "_preview": {
     "total_done": 13,
     "total_invocations": 14,
-    "total_traces": 5438,
-    "total_proposals": 61
+    "total_traces": 196,
+    "total_proposals": 2
   }
 }
