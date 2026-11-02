@@ -48,3 +48,4 @@ These files had no owner in any files.md, so the code-graph check never saw thei
 - tests/multi_tenant_block_routing.selftest.mjs [alive]
 - tests/validate_lifecycle_gates.selftest.mjs [alive]
 - tests/migrate_v1_v2.selftest.mjs [alive] (R-8.11: acceptance A4 — v1 graph with custom fields migrated without loss, v2 fields added without overwriting, idempotent)
+- atlas/blocks/b.db/calls.md [alive] (R-8.15: что блок вызывает во время работы — запускает процессом или по HTTP; не порядок сборки, поэтому может идти «вверх»)

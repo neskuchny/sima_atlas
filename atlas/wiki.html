@@ -15,7 +15,7 @@
 </style>
 </head><body>
 <h1>Sima Atlas Wiki</h1>
-<p><em>Auto-generated: 2026-11-02T01:08:06.902Z</em></p>
+<p><em>Auto-generated: 2026-11-02T09:11:44.383Z</em></p>
 <h2>Граф продукта</h2>
 <div class="mermaid">flowchart TB
   classDef done    fill:#dcfce7,stroke:#16a34a,color:#15803d;
@@ -279,6 +279,7 @@ evidence_spec:
 <li>tests/playwright/code_map.spec.ts [alive] (R-8.14: карта в Chromium на настоящем атласе, только чтение — закреплённые связи, метки у края, что проходит по связи, файлы других блоков, живое обновление, анатомия и код, переход по импорту, карта ↔ граф; <code>npm run test:ui</code>)</li>
 <li>tests/playwright/meaning_panel.spec.ts [alive] (R-8.10/R-8.12: + the contract delta after a change, the wording section; the meaning panel in Chromium against a live API — LLM badge, node marker, correction draft and notice surviving a live refresh, confirm without a run, trajectory saved to mission.md; <code>npm run test:ui</code>)</li>
 <li>playwright.config.js [alive] (R-8.10: webServer waits for atlas_design/index.html — the old frontend/index.html no longer exists, so no spec could start)</li>
+<li>atlas/blocks/b.ui-control/calls.md [alive] (R-8.15: что блок вызывает во время работы — запускает процессом или по HTTP; не порядок сборки, поэтому может идти «вверх»)</li>
 </ul>
 <p><em>Sources: [mission](blocks/b.ui-control/mission.md) · [kpi](blocks/b.ui-control/kpi.md) · [acceptance](blocks/b.ui-control/acceptance.md) · [depends</em>on](blocks/b.ui-control/depends<em>on.md) · [provides](blocks/b.ui-control/provides.md) · [patterns](blocks/b.ui-control/patterns.md) · [files](blocks/b.ui-control/files.md)</em></p>
 <hr/>
@@ -483,6 +484,7 @@ evidence_spec:
 <li>scripts/validate_subschemas.mjs [alive]</li>
 <li>scripts/subagent<em>schema</em>syncer.mjs [alive]</li>
 <li>scripts/validate_ownership.mjs [alive] (R-8.10: every script / test / canvas / desktop file has exactly one owning block — unowned or doubled is an error)</li>
+<li>atlas/blocks/b.core-sync/calls.md [alive] (R-8.15: что блок вызывает во время работы — запускает процессом или по HTTP; не порядок сборки, поэтому может идти «вверх»)</li>
 </ul>
 <p><em>Sources: [mission](blocks/b.core-sync/mission.md) · [kpi](blocks/b.core-sync/kpi.md) · [acceptance](blocks/b.core-sync/acceptance.md) · [depends</em>on](blocks/b.core-sync/depends<em>on.md) · [provides](blocks/b.core-sync/provides.md) · [patterns](blocks/b.core-sync/patterns.md) · [files](blocks/b.core-sync/files.md)</em></p>
 <hr/>
@@ -628,6 +630,7 @@ evidence_spec:
 <li>tests/multi<em>tenant</em>block_routing.selftest.mjs [alive]</li>
 <li>tests/validate<em>lifecycle</em>gates.selftest.mjs [alive]</li>
 <li>tests/migrate<em>v1</em>v2.selftest.mjs [alive] (R-8.11: acceptance A4 — v1 graph with custom fields migrated without loss, v2 fields added without overwriting, idempotent)</li>
+<li>atlas/blocks/b.db/calls.md [alive] (R-8.15: что блок вызывает во время работы — запускает процессом или по HTTP; не порядок сборки, поэтому может идти «вверх»)</li>
 </ul>
 <p><em>Sources: [mission](blocks/b.db/mission.md) · [kpi](blocks/b.db/kpi.md) · [acceptance](blocks/b.db/acceptance.md) · [depends</em>on](blocks/b.db/depends<em>on.md) · [provides](blocks/b.db/provides.md) · [patterns](blocks/b.db/patterns.md) · [files](blocks/b.db/files.md)</em></p>
 <hr/>
@@ -825,6 +828,7 @@ evidence_spec:
 <li>tests/sima<em>watch</em>chats.selftest.mjs [alive]</li>
 <li>tests/chat<em>fill</em>accept.selftest.mjs [alive]</li>
 <li>tests/cursor_live.headless.smoke.mjs [alive] ((A5 evidence))</li>
+<li>atlas/blocks/b.agent-orchestrator/calls.md [alive] (R-8.15: что блок вызывает во время работы — запускает процессом или по HTTP; не порядок сборки, поэтому может идти «вверх»)</li>
 </ul>
 <p><em>Sources: [mission](blocks/b.agent-orchestrator/mission.md) · [kpi](blocks/b.agent-orchestrator/kpi.md) · [acceptance](blocks/b.agent-orchestrator/acceptance.md) · [depends</em>on](blocks/b.agent-orchestrator/depends<em>on.md) · [provides](blocks/b.agent-orchestrator/provides.md) · [patterns](blocks/b.agent-orchestrator/patterns.md) · [files](blocks/b.agent-orchestrator/files.md)</em></p>
 <hr/>
@@ -2020,6 +2024,12 @@ evidence_spec:
 <p>— что он делает (files.md или шапка), зачем нужен (кто от него зависит и что</p>
 <p>его запускает) и на чём работает. Канвас это только рисует — вид «Карта»</p>
 <p>в <code>b.ui-control</code>.</p>
+<p><strong>Вызовы во время работы (R-8.15).</strong> Запуск чужого скрипта отдельным</p>
+<p>процессом или вызов чужого HTTP-маршрута — не зависимость: <code>depends_on.md</code></p>
+<p>задаёт порядок сборки и не может замыкать цикл, а вызов может идти «вверх»</p>
+<p>(шлюз статусов в <code>b.db</code> запускает проверку приёмки, которая сама импортирует</p>
+<p>шлюз). Такие связи записываются в <code>calls.md</code> блока; валидатор графа кода</p>
+<p>предупреждает о незаписанном вызове и о записи, за которой нет кода.</p>
 <h2>Layer</h2>
 <p>data</p>
 <h2>Out of scope (что блок НЕ делает)</h2>
@@ -2170,6 +2180,13 @@ evidence_spec:
 evidence_spec:
   cmd: node scripts/atlas_map.mjs --summary
   expect_in_stdout: "\"code_graph\": true"</code></pre>
+<ul>
+<li>[x] <strong>A10.</strong> Каждый вызов во время работы между блоками записан в контракте: всё, что один блок запускает отдельным процессом или вызывает по HTTP у другого, стоит в его <code>calls.md</code>, а каждая строка <code>calls.md</code> подтверждена кодом.</li>
+</ul>
+<pre><code class="lang-yaml">evidence_kind: exit_code
+evidence_spec:
+  cmd: node scripts/validate_code_graph_vs_contracts.mjs --runtime-calls
+  expect_in_stdout: "runtime calls: 0 undeclared, 0 stale, 0 unknown"</code></pre>
 <h2>inconclusive_if</h2>
 <ul>
 <li>репозиторий не является git-репозиторием (например, при первом git clone</li>
@@ -2435,6 +2452,7 @@ evidence_spec:
 <li>extensions/desktop/README.md [alive] (PR1 — operator docs)</li>
 <li>tests/desktop_structure.selftest.mjs [alive] (PR2 — structural validator)</li>
 <li>.github/workflows/desktop-build.yml [alive] (PR3 — CI three-OS matrix)</li>
+<li>atlas/blocks/b.desktop/calls.md [alive] (R-8.15: что блок вызывает во время работы — запускает процессом или по HTTP; не порядок сборки, поэтому может идти «вверх»)</li>
 </ul>
 <p><em>Sources: [mission](blocks/b.desktop/mission.md) · [kpi](blocks/b.desktop/kpi.md) · [acceptance](blocks/b.desktop/acceptance.md) · [depends</em>on](blocks/b.desktop/depends<em>on.md) · [provides](blocks/b.desktop/provides.md) · [patterns](blocks/b.desktop/patterns.md) · [files](blocks/b.desktop/files.md)</em></p>
 <hr/>
@@ -6395,6 +6413,10 @@ evidence_spec:
 <li>2026-11-02T01:08:02.829Z: smoke e2e distillate</li>
 <li>2026-11-02T01:08:06.744Z: smoke e2e queued insight</li>
 <li>2026-11-02T01:08:06.789Z: smoke e2e distillate</li>
+<li>2026-11-02T09:11:39.517Z: smoke e2e queued insight</li>
+<li>2026-11-02T09:11:39.564Z: smoke e2e distillate</li>
+<li>2026-11-02T09:11:44.200Z: smoke e2e queued insight</li>
+<li>2026-11-02T09:11:44.257Z: smoke e2e distillate</li>
 </ul>
 <h4>Files</h4>
 <h1>b.smoke-sandbox — files</h1>

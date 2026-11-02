@@ -1,6 +1,6 @@
 # Atlas Nightly Consolidation Report
 
-_Generated: 2026-11-02T01:07:27.542Z_
+_Generated: 2026-11-02T09:10:57.062Z_
 
 - ✅ ingestion_queue: ok
   - output: ingestion_queue: empty
@@ -18,9 +18,9 @@ _Generated: 2026-11-02T01:07:27.542Z_
   - output: build_code_graph --check: code_graph.json up-to-date
 - ✅ code_graph_drift: ok
 - ✅ code_graph_extractor_selftest: ok
-  - output: deterministic — sha256(917d9b51d4c2…) matches across runs
+  - output: deterministic — sha256(b7c17fb6729e…) matches across runs
 - ✅ code_graph_validator_selftest: ok
-  - output: code_graph_validator.selftest: OK (6 test groups, all assertions green)
+  - output: code_graph_validator.selftest: OK (7 test groups, all assertions green)
 - ✅ checks_append_endpoint_selftest: ok
   - output: checks_append_endpoint.selftest: OK (6 test groups, all assertions green)
 - ✅ desktop_structure_selftest: ok
@@ -30,7 +30,7 @@ _Generated: 2026-11-02T01:07:27.542Z_
 - ✅ openai_gemini_providers_selftest: ok
   - output: openai_gemini_providers.selftest: OK (5 test groups, all assertions green)
 - ✅ files_registry: ok
-  - output: Files registry validation: OK (alive=317, archived=4, dead=0)
+  - output: Files registry validation: OK (alive=322, archived=4, dead=0)
 - ✅ ownership: ok
   - output: validate_ownership: OK — 204 files, each owned by exactly one block
 - ✅ housekeeping_sweep: ok
@@ -52,7 +52,7 @@ _Generated: 2026-11-02T01:07:27.542Z_
 - ✅ desync_restore_selftest: ok
   - output: desync_restore.selftest: OK (2 groups, all assertions green)
 - ✅ verify_cache_selftest: ok
-  - output: (median hit lookup 15.8 ms)
+  - output: (median hit lookup 20.7 ms)
 - ✅ migrate_v1_v2_selftest: ok
   - output: migrate_v1_v2.selftest: OK (3 groups, all assertions green)
 - ✅ operator_profile_privacy_selftest: ok
@@ -88,7 +88,7 @@ _Generated: 2026-11-02T01:07:27.542Z_
 - ✅ operator_profile_selftest: ok
   - output: operator_profile.selftest: OK (7 test groups, all assertions green)
 - ✅ aggregate_operator_profile: ok
-  - output: operator_profile: live (done=13, invocations=14, traces=196, proposals=2)
+  - output: operator_profile: live (done=13, invocations=14, traces=374, proposals=4)
 - ✅ operator_profile_lessons_smoke: ok
   - output: operator_profile_lessons.smoke: OK (6 test groups, all assertions green)
 - ✅ operator_profile_inject_smoke: ok
@@ -194,7 +194,7 @@ _Generated: 2026-11-02T01:07:27.542Z_
 - ✅ docs_generators_selftest: ok
   - output: docs_generators.selftest: OK (3 groups, all assertions green)
 - ✅ verify_all_acceptance: ok
-  - output: verify_all_acceptance: 14 pass / 0 fail / 7 inconclusive (assertions: 96 pass / 0 fail / 40 skipped; cache 0 hit / 21 miss)
+  - output: verify_all_acceptance: 14 pass / 0 fail / 7 inconclusive (assertions: 97 pass / 0 fail / 40 skipped; cache 0 hit / 21 miss)
 - ✅ verify_done_blocks_still_green: ok
   - output: verify_done_blocks_still_green: checked=5 green=5 regressions=0 inconclusive=0
 - ✅ mcp_smoke_e2e: ok

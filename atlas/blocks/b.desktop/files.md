@@ -10,3 +10,4 @@
 - extensions/desktop/README.md [alive] (PR1 — operator docs)
 - tests/desktop_structure.selftest.mjs [alive] (PR2 — structural validator)
 - .github/workflows/desktop-build.yml [alive] (PR3 — CI three-OS matrix)
+- atlas/blocks/b.desktop/calls.md [alive] (R-8.15: что блок вызывает во время работы — запускает процессом или по HTTP; не порядок сборки, поэтому может идти «вверх»)

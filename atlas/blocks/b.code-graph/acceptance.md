@@ -88,6 +88,14 @@ evidence_spec:
   expect_in_stdout: "\"code_graph\": true"
 ```
 
+- [x] **A10.** Каждый вызов во время работы между блоками записан в контракте: всё, что один блок запускает отдельным процессом или вызывает по HTTP у другого, стоит в его `calls.md`, а каждая строка `calls.md` подтверждена кодом.
+```yaml
+evidence_kind: exit_code
+evidence_spec:
+  cmd: node scripts/validate_code_graph_vs_contracts.mjs --runtime-calls
+  expect_in_stdout: "runtime calls: 0 undeclared, 0 stale, 0 unknown"
+```
+
 ## inconclusive_if
 
 - репозиторий не является git-репозиторием (например, при первом git clone

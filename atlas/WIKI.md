@@ -1,6 +1,6 @@
 # Sima Atlas Wiki
 
-_Auto-generated: 2026-11-02T01:08:07.097Z_
+_Auto-generated: 2026-11-02T09:11:44.672Z_
 
 ## Граф продукта
 
@@ -280,6 +280,7 @@ These files had no owner in any files.md, so the code-graph check never saw thei
 - tests/playwright/code_map.spec.ts [alive] (R-8.14: карта в Chromium на настоящем атласе, только чтение — закреплённые связи, метки у края, что проходит по связи, файлы других блоков, живое обновление, анатомия и код, переход по импорту, карта ↔ граф; `npm run test:ui`)
 - tests/playwright/meaning_panel.spec.ts [alive] (R-8.10/R-8.12: + the contract delta after a change, the wording section; the meaning panel in Chromium against a live API — LLM badge, node marker, correction draft and notice surviving a live refresh, confirm without a run, trajectory saved to mission.md; `npm run test:ui`)
 - playwright.config.js [alive] (R-8.10: webServer waits for atlas_design/index.html — the old frontend/index.html no longer exists, so no spec could start)
+- atlas/blocks/b.ui-control/calls.md [alive] (R-8.15: что блок вызывает во время работы — запускает процессом или по HTTP; не порядок сборки, поэтому может идти «вверх»)
 
 _Sources: [mission](blocks/b.ui-control/mission.md) · [kpi](blocks/b.ui-control/kpi.md) · [acceptance](blocks/b.ui-control/acceptance.md) · [depends_on](blocks/b.ui-control/depends_on.md) · [provides](blocks/b.ui-control/provides.md) · [patterns](blocks/b.ui-control/patterns.md) · [files](blocks/b.ui-control/files.md)_
 
@@ -502,6 +503,7 @@ These files had no owner in any files.md, so the code-graph check never saw thei
 - scripts/validate_subschemas.mjs [alive]
 - scripts/subagent_schema_syncer.mjs [alive]
 - scripts/validate_ownership.mjs [alive] (R-8.10: every script / test / canvas / desktop file has exactly one owning block — unowned or doubled is an error)
+- atlas/blocks/b.core-sync/calls.md [alive] (R-8.15: что блок вызывает во время работы — запускает процессом или по HTTP; не порядок сборки, поэтому может идти «вверх»)
 
 _Sources: [mission](blocks/b.core-sync/mission.md) · [kpi](blocks/b.core-sync/kpi.md) · [acceptance](blocks/b.core-sync/acceptance.md) · [depends_on](blocks/b.core-sync/depends_on.md) · [provides](blocks/b.core-sync/provides.md) · [patterns](blocks/b.core-sync/patterns.md) · [files](blocks/b.core-sync/files.md)_
 
@@ -662,6 +664,7 @@ These files had no owner in any files.md, so the code-graph check never saw thei
 - tests/multi_tenant_block_routing.selftest.mjs [alive]
 - tests/validate_lifecycle_gates.selftest.mjs [alive]
 - tests/migrate_v1_v2.selftest.mjs [alive] (R-8.11: acceptance A4 — v1 graph with custom fields migrated without loss, v2 fields added without overwriting, idempotent)
+- atlas/blocks/b.db/calls.md [alive] (R-8.15: что блок вызывает во время работы — запускает процессом или по HTTP; не порядок сборки, поэтому может идти «вверх»)
 
 _Sources: [mission](blocks/b.db/mission.md) · [kpi](blocks/b.db/kpi.md) · [acceptance](blocks/b.db/acceptance.md) · [depends_on](blocks/b.db/depends_on.md) · [provides](blocks/b.db/provides.md) · [patterns](blocks/b.db/patterns.md) · [files](blocks/b.db/files.md)_
 
@@ -872,6 +875,7 @@ These files had no owner in any files.md, so the code-graph check never saw thei
 - tests/sima_watch_chats.selftest.mjs [alive]
 - tests/chat_fill_accept.selftest.mjs [alive]
 - tests/cursor_live.headless.smoke.mjs [alive] ((A5 evidence))
+- atlas/blocks/b.agent-orchestrator/calls.md [alive] (R-8.15: что блок вызывает во время работы — запускает процессом или по HTTP; не порядок сборки, поэтому может идти «вверх»)
 
 _Sources: [mission](blocks/b.agent-orchestrator/mission.md) · [kpi](blocks/b.agent-orchestrator/kpi.md) · [acceptance](blocks/b.agent-orchestrator/acceptance.md) · [depends_on](blocks/b.agent-orchestrator/depends_on.md) · [provides](blocks/b.agent-orchestrator/provides.md) · [patterns](blocks/b.agent-orchestrator/patterns.md) · [files](blocks/b.agent-orchestrator/files.md)_
 
@@ -2204,6 +2208,13 @@ Sima Atlas сейчас знает граф продукта на уровне *
 его запускает) и на чём работает. Канвас это только рисует — вид «Карта»
 в `b.ui-control`.
 
+**Вызовы во время работы (R-8.15).** Запуск чужого скрипта отдельным
+процессом или вызов чужого HTTP-маршрута — не зависимость: `depends_on.md`
+задаёт порядок сборки и не может замыкать цикл, а вызов может идти «вверх»
+(шлюз статусов в `b.db` запускает проверку приёмки, которая сама импортирует
+шлюз). Такие связи записываются в `calls.md` блока; валидатор графа кода
+предупреждает о незаписанном вызове и о записи, за которой нет кода.
+
 ## Layer
 data
 
@@ -2360,6 +2371,14 @@ evidence_kind: exit_code
 evidence_spec:
   cmd: node scripts/atlas_map.mjs --summary
   expect_in_stdout: "\"code_graph\": true"
+```
+
+- [x] **A10.** Каждый вызов во время работы между блоками записан в контракте: всё, что один блок запускает отдельным процессом или вызывает по HTTP у другого, стоит в его `calls.md`, а каждая строка `calls.md` подтверждена кодом.
+```yaml
+evidence_kind: exit_code
+evidence_spec:
+  cmd: node scripts/validate_code_graph_vs_contracts.mjs --runtime-calls
+  expect_in_stdout: "runtime calls: 0 undeclared, 0 stale, 0 unknown"
 ```
 
 ## inconclusive_if
@@ -2655,6 +2674,7 @@ do/don't notes live in `narrative.md`._
 - extensions/desktop/README.md [alive] (PR1 — operator docs)
 - tests/desktop_structure.selftest.mjs [alive] (PR2 — structural validator)
 - .github/workflows/desktop-build.yml [alive] (PR3 — CI three-OS matrix)
+- atlas/blocks/b.desktop/calls.md [alive] (R-8.15: что блок вызывает во время работы — запускает процессом или по HTTP; не порядок сборки, поэтому может идти «вверх»)
 
 _Sources: [mission](blocks/b.desktop/mission.md) · [kpi](blocks/b.desktop/kpi.md) · [acceptance](blocks/b.desktop/acceptance.md) · [depends_on](blocks/b.desktop/depends_on.md) · [provides](blocks/b.desktop/provides.md) · [patterns](blocks/b.desktop/patterns.md) · [files](blocks/b.desktop/files.md)_
 
@@ -6646,6 +6666,10 @@ _no summary_
 - 2026-11-02T01:08:02.829Z: smoke e2e distillate
 - 2026-11-02T01:08:06.744Z: smoke e2e queued insight
 - 2026-11-02T01:08:06.789Z: smoke e2e distillate
+- 2026-11-02T09:11:39.517Z: smoke e2e queued insight
+- 2026-11-02T09:11:39.564Z: smoke e2e distillate
+- 2026-11-02T09:11:44.200Z: smoke e2e queued insight
+- 2026-11-02T09:11:44.257Z: smoke e2e distillate
 
 #### Files
 

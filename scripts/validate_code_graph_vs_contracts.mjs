@@ -13,6 +13,16 @@
 //      exports any symbol named X (default export name 'default' does not
 //      count). Drift record names the capability and the scanned files.
 //
+//   3. undeclared_runtime_call / stale_runtime_call / unknown_call_target
+//      (R-8.15) — a block starts another block's script or calls its HTTP
+//      routes while it works, and calls.md does not say so; or calls.md
+//      declares a call no code makes; or names a block that does not exist.
+//      A runtime call is not a dependency (depends_on.md orders building and
+//      must stay acyclic), so it has its own contract file. Found the way the
+//      code map finds them (scripts/atlas_map.mjs: string literals in launch
+//      calls and argument arrays, server routes) — a heuristic, hence a
+//      warning, not an error.
+//
 // Reads atlas/code_graph.json (built by build_code_graph.mjs). On a clean
 // tree exits 0 with «OK». On drift exits 1 and emits a structured report
 // AND merges findings into atlas/sync_report.json under `codeGraphDrift`
@@ -22,10 +32,12 @@
 //   node scripts/validate_code_graph_vs_contracts.mjs           # nightly mode
 //   node scripts/validate_code_graph_vs_contracts.mjs --json    # machine-readable
 //   node scripts/validate_code_graph_vs_contracts.mjs --silent  # exit-code only
+//   node scripts/validate_code_graph_vs_contracts.mjs --runtime-calls  # R-8.15: calls.md vs code
 
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { buildCodeMap, readCalls } from './atlas_map.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ATLAS = path.join(ROOT, 'atlas');
@@ -133,6 +145,41 @@ function detectProvidedCapabilityNotExported(graph, atlasRoot, sourceRoot) {
   return drifts.sort((a, b) => `${a.block}-${a.capability}`.localeCompare(`${b.block}-${b.capability}`));
 }
 
+function detectRuntimeCalls(atlasRoot, sourceRoot) {
+  let map;
+  try { map = buildCodeMap({ repoRoot: sourceRoot, atlasRoot, history: false }); } catch { return []; }
+  const drifts = [];
+  for (const l of map.links) {
+    const runtime = l.code.filter((c) => c.kind !== 'import' && !c.from_file.startsWith('tests/'));
+    if (runtime.length && !l.contract && !l.tests_only) {
+      drifts.push({
+        kind: 'undeclared_runtime_call',
+        severity: 'warning',
+        block: l.from,
+        calls_block: l.to,
+        examples: runtime.slice(0, 4).map((c) => ({ from_file: c.from_file, line: c.line, to_file: c.to_file, kind: c.kind })),
+        hint: `Add «- ${l.to}: <what it starts or calls, and why>» to atlas/blocks/${l.from}/calls.md — or to depends_on.md if ${l.from} cannot work without it and the edge forms no cycle.`,
+      });
+    }
+    if (l.declared_in.includes('calls') && !l.code.some((c) => c.kind !== 'import')) {
+      drifts.push({
+        kind: 'stale_runtime_call',
+        severity: 'warning',
+        block: l.from,
+        calls_block: l.to,
+        hint: `atlas/blocks/${l.from}/calls.md declares a call to ${l.to}, but no code of ${l.from} starts its scripts or calls its routes. Remove the line, or point it at the code that does.`,
+      });
+    }
+  }
+  const live = new Set(map.blocks.map((b) => b.id));
+  for (const id of live) {
+    for (const c of readCalls(atlasRoot, id)) {
+      if (!live.has(c.to)) drifts.push({ kind: 'unknown_call_target', severity: 'warning', block: id, calls_block: c.to, hint: `atlas/blocks/${id}/calls.md names ${c.to}, which is not a live block.` });
+    }
+  }
+  return drifts.sort((a, b) => `${a.kind}:${a.block}->${a.calls_block}`.localeCompare(`${b.kind}:${b.block}->${b.calls_block}`));
+}
+
 export function validate({ atlasRoot, sourceRoot } = {}) {
   const atlas = atlasRoot || ATLAS;
   // sourceRoot is where the validator reads ACTUAL source files for the
@@ -152,6 +199,7 @@ export function validate({ atlasRoot, sourceRoot } = {}) {
   const drifts = [
     ...detectUndeclaredCodeDependency(graph, atlas),
     ...detectProvidedCapabilityNotExported(graph, atlas, src),
+    ...detectRuntimeCalls(atlas, src),
   ];
   const errors = drifts.filter((d) => d.severity === 'error');
   const warnings = drifts.filter((d) => d.severity === 'warning');
@@ -185,6 +233,16 @@ if (fileURLToPath(import.meta.url) === process.argv[1]) {
   const silent = argv.includes('--silent');
   const strict = argv.includes('--strict-provides');
   const result = validate();
+  // R-8.15 — `--runtime-calls`: only the runtime-call findings, as one line
+  // an acceptance check can read; exit 1 when any call is undeclared, stale
+  // or names an unknown block.
+  if (argv.includes('--runtime-calls')) {
+    const n = (k) => result.drifts.filter((d) => d.kind === k).length;
+    const counts = { undeclared: n('undeclared_runtime_call'), stale: n('stale_runtime_call'), unknown: n('unknown_call_target') };
+    for (const d of result.drifts.filter((x) => /runtime_call|call_target/.test(x.kind))) console.log(` ~ ${d.kind} :: ${d.block} → ${d.calls_block}`);
+    console.log(`runtime calls: ${counts.undeclared} undeclared, ${counts.stale} stale, ${counts.unknown} unknown`);
+    process.exit(counts.undeclared + counts.stale + counts.unknown ? 1 : 0);
+  }
   // --strict-provides escalates warnings → errors (fails the validator on
   // unbacked capability promises).
   if (strict) {
@@ -203,7 +261,7 @@ if (fileURLToPath(import.meta.url) === process.argv[1]) {
     else console.log(`Code-graph: OK (${result.warning_count} warning(s) — non-blocking; review atlas/sync_report.json codeGraphDrift)`);
     for (const d of result.drifts) {
       const stream = d.severity === 'error' ? console.error : console.log;
-      stream(` ${label(d)} ${d.severity}: ${d.kind} :: ${d.block}` + (d.imports_from_block ? ` → ${d.imports_from_block}` : '') + (d.capability ? ` :: ${d.capability}` : ''));
+      stream(` ${label(d)} ${d.severity}: ${d.kind} :: ${d.block}` + (d.imports_from_block ? ` → ${d.imports_from_block}` : '') + (d.calls_block ? ` → ${d.calls_block}` : '') + (d.capability ? ` :: ${d.capability}` : ''));
       if (d.examples) for (const ex of d.examples.slice(0, 2)) stream(`     ${ex.from_file}:${ex.line} → ${ex.to_file}`);
     }
     process.exit(exitCode);

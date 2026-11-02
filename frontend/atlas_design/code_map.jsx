@@ -831,6 +831,9 @@ function LinkCard({ ix, l, go, setSel, jump }) {
       <span className="cm-label">{tr('map.link', 'Connection')}</span>
       <h3 className="cm-ititle">{a?.title} → {z?.title}</h3>
       <p className={`cm-lstate ls-${linkState(l)}`}>{linkStateText(l)}{l.tests_only ? ` · ${tr('map.tests_only', 'only tests use it')}` : ''}</p>
+      {(l.declared_in || []).length > 0 && (
+        <p className="cm-itext cm-muted">{tr('map.declared_in', 'Written in')}: {(l.declared_in || []).map((d) => (d === 'calls' ? tr('map.declared_calls', 'calls.md — a call while it works (not the build order)') : tr('map.declared_deps', 'depends_on.md — a dependency (it orders building)'))).join('; ')}.</p>
+      )}
       <p className="cm-itext">{tr('map.link_read', 'Reads as')}: «{a?.title} {tr('map.link_uses', 'uses')} {z?.title}». {linkSummary(l)}.</p>
       {['import', 'http', 'start'].map((k) => byKind[k].length > 0 && (
         <div key={k}>

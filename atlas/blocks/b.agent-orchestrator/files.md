@@ -58,3 +58,4 @@ These files had no owner in any files.md, so the code-graph check never saw thei
 - tests/sima_watch_chats.selftest.mjs [alive]
 - tests/chat_fill_accept.selftest.mjs [alive]
 - tests/cursor_live.headless.smoke.mjs [alive] ((A5 evidence))
+- atlas/blocks/b.agent-orchestrator/calls.md [alive] (R-8.15: что блок вызывает во время работы — запускает процессом или по HTTP; не порядок сборки, поэтому может идти «вверх»)

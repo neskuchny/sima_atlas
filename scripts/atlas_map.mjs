@@ -287,14 +287,36 @@ export function httpCalls(src, routes) {
   }
   return out;
 }
-/** Scripts a file starts as a separate process: [{ line, file }]. */
+/**
+ * Scripts a file starts as a separate process: [{ line, file }]. A script
+ * path counts when the line launches something (spawn / exec / fork / the
+ * repo's run helpers) or the path sits in an argument array or a
+ * `{ rel, args }` table. A command shown to a person — a console message, a
+ * `fix:` hint — is not a start, and neither is `path.join(…, 'scripts',
+ * 'x.mjs')` read as a file.
+ */
+const LAUNCH = /\b(?:spawn|spawnSync|execFile|execFileSync|execSync|exec|fork|nodeRun|runNode|runScript\w*|run|step)\s*\(/;
+const SHOWN = /console\.(?:log|error|warn|info)\s*\(|\b(?:fix|fixHint|tip|hint|usage)\b\s*[:=]|Usage:/i;
 export function spawnedScripts(src) {
   const code = stripComments(src);
+  const lines = code.split('\n');
   const out = [];
+  const at = (idx) => {
+    const line = lineAt(code, idx);
+    return { line, text: lines[line - 1] || '', col: idx - (code.lastIndexOf('\n', idx - 1) + 1) };
+  };
   // The path opens the string or follows a space («node scripts/x.mjs»); a
   // module specifier («../scripts/x.mjs») is an import, not a process.
-  for (const m of code.matchAll(/['"`](?:[^'"`\n]*?\s)?((?:scripts|tests)\/[\w./-]+\.mjs)/g)) out.push({ line: lineAt(code, m.index), file: m[1] });
-  for (const m of code.matchAll(/['"`]scripts['"`]\s*,\s*['"`]([\w.-]+\.mjs)['"`]/g)) out.push({ line: lineAt(code, m.index), file: `scripts/${m[1]}` });
+  for (const m of code.matchAll(/['"`](?:[^'"`\n]*?\s)?((?:scripts|tests)\/[\w./-]+\.mjs)/g)) {
+    const { line, text, col } = at(m.index);
+    if (SHOWN.test(text)) continue;
+    const before = text.slice(0, col);
+    if (LAUNCH.test(text) || /\[\s*(?:['"`][^'"`]*['"`]\s*,\s*)*$/.test(before) || /\bargs\s*:/.test(text)) out.push({ line, file: m[1] });
+  }
+  for (const m of code.matchAll(/['"`]scripts['"`]\s*,\s*['"`]([\w.-]+\.mjs)['"`]/g)) {
+    const { line, text } = at(m.index);
+    if (!SHOWN.test(text) && LAUNCH.test(text)) out.push({ line, file: `scripts/${m[1]}` });
+  }
   return out;
 }
 
@@ -439,26 +461,50 @@ function gitHistory(repoRoot) {
 /**
  * Block-to-block links: what actually crosses block borders in code — an
  * import (file, line, names), an HTTP call (the routes), a started script —
- * and the dependencies the contracts declare. A declared link with nothing
- * in code behind it is «contract only»; code with no declared link is «code
- * only» (the drift b.core-sync reports for imports).
+ * and what the contracts declare. Two contract files declare links:
+ *   depends_on.md — a dependency: needed first, it orders building and
+ *                   cascading, so it must not form a cycle;
+ *   calls.md      — a runtime call: this block starts or calls the other
+ *                   one while it works, which may go «up» (the lifecycle
+ *                   gate in b.db runs the verifier that imports the gate).
+ * A declared link with nothing in code behind it is «contract only»; code
+ * with no declared link is «code only». Starting a test is running a check,
+ * not depending on it, and a test-target block's links are test links.
  */
 export function blockLinks(files, blocks) {
   const byPath = new Map(files.map((f) => [f.path, f]));
   const links = new Map();
-  const get = (from, to) => { const k = `${from}→${to}`; if (!links.has(k)) links.set(k, { from, to, contract: false, code: [] }); return links.get(k); };
+  const get = (from, to) => { const k = `${from}→${to}`; if (!links.has(k)) links.set(k, { from, to, contract: false, declared_in: [], code: [] }); return links.get(k); };
   for (const f of files) {
     for (const [kind, list] of [['import', f.imports], ['http', f.calls || []], ['start', f.runner ? [] : f.starts || []]]) {
       for (const x of list) {
         const g = byPath.get(x.file);
-        if (g && g.block !== f.block) get(f.block, g.block).code.push({ kind, from_file: f.path, line: x.line, to_file: g.path, names: x.names });
+        if (!g || g.block === f.block) continue;
+        if (kind === 'start' && g.path.startsWith('tests/')) continue; // running a check
+        get(f.block, g.block).code.push({ kind, from_file: f.path, line: x.line, to_file: g.path, names: x.names });
       }
     }
   }
   const ids = new Set(blocks.map((b) => b.id));
-  for (const b of blocks) for (const d of b.depends_on || []) if (ids.has(d)) get(b.id, d).contract = true;
-  for (const l of links.values()) l.tests_only = l.code.length > 0 && l.code.every((c) => c.from_file.startsWith('tests/'));
+  const testBlock = new Set(blocks.filter((b) => b.type === 'test').map((b) => b.id));
+  for (const b of blocks) {
+    for (const d of b.depends_on || []) if (ids.has(d)) { const l = get(b.id, d); l.contract = true; l.declared_in.push('depends_on'); }
+    for (const c of b.calls || []) if (ids.has(c.to)) { const l = get(b.id, c.to); l.contract = true; l.declared_in.push('calls'); }
+  }
+  for (const l of links.values()) {
+    l.tests_only = l.code.length > 0 && (testBlock.has(l.from) || testBlock.has(l.to) || l.code.every((c) => c.from_file.startsWith('tests/')));
+  }
   return [...links.values()].sort((a, b) => a.from.localeCompare(b.from) || a.to.localeCompare(b.to));
+}
+
+/** The runtime calls a block declares in calls.md: [{ to, text }]. */
+export function readCalls(atlasRoot, id) {
+  const out = [];
+  for (const l of read(path.join(atlasRoot, 'blocks', id, 'calls.md')).split('\n')) {
+    const m = l.match(/^- (b\.[\w.-]+):\s*(.*)$/);
+    if (m) out.push({ to: m[1], text: stripMd(m[2]) });
+  }
+  return out;
 }
 
 // ── the map ─────────────────────────────────────────────────────────────────
@@ -584,6 +630,7 @@ export function buildCodeMap({ repoRoot = ROOT, atlasRoot = ATLAS, history = tru
       kpis: kpisOf(atlasRoot, b.id),
       tasks: tasksOf(atlasRoot, b.id),
       depends_on: (b.depends_on || []).filter((x) => blockIds.has(x)),
+      calls: readCalls(atlasRoot, b.id).filter((c) => blockIds.has(c.to)),
       stack: (b.tech_stack || []).map(techName),
       lines: bf.reduce((n, f) => n + f.lines, 0),
       files: bf.length,

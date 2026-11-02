@@ -105,6 +105,13 @@ test('code map: building, pinned connections, file anatomy, back to the graph', 
   await expect(page.locator('.cm-insp')).toContainText('atlas_api_server.mjs:15');
   await expect(page.locator('.cm-insp')).toContainText('blockMeaningSummary');
   await expect(page.locator('.cm-insp')).toContainText('и в коде, и в контракте');
+  await expect(page.locator('.cm-insp')).toContainText('depends_on.md — зависимость');
+
+  // R-8.15 — a runtime call «up» the layers is written in calls.md, not depends_on.md
+  await page.locator('[data-room="b.db"] .cm-room-title').click();
+  await page.locator('.cm-insp .cm-list button', { hasText: 'Acceptance Verifier Loop' }).first().click();
+  await expect(page.locator('.cm-insp')).toContainText('change_set.mjs:78');
+  await expect(page.locator('.cm-insp')).toContainText('calls.md — вызов во время работы');
 
   // pin a file: its connections in other blocks light up
   await page.evaluate(() => { (document.querySelector('.cm-building .cm-scroll') as HTMLElement).scrollTop = 0; });

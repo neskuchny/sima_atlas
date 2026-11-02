@@ -26,7 +26,8 @@ For "implement / fix block X":
 3. `atlas/tech_stack.md` — locked stack choices
 4. `atlas/blocks/<X>/mission.md` — intent
 5. `atlas/blocks/<X>/acceptance.md` — how «done» is verified
-6. `atlas/blocks/<X>/depends_on.md` — upstream blocks
+6. `atlas/blocks/<X>/depends_on.md` — upstream blocks (`calls.md` — what X
+   starts or calls at runtime; not a dependency, write runtime calls there)
 7. For each dep `<D>`: only `atlas/blocks/<D>/provides.md`
 8. `atlas/blocks/<X>/tasks.md` — decomposed work
 9. **`atlas/blocks/<X>/narrative.md` — human-readable run history** (R-7.80)

@@ -32,3 +32,4 @@ These files had no owner in any files.md, so the code-graph check never saw thei
 - scripts/validate_subschemas.mjs [alive]
 - scripts/subagent_schema_syncer.mjs [alive]
 - scripts/validate_ownership.mjs [alive] (R-8.10: every script / test / canvas / desktop file has exactly one owning block — unowned or doubled is an error)
+- atlas/blocks/b.core-sync/calls.md [alive] (R-8.15: что блок вызывает во время работы — запускает процессом или по HTTP; не порядок сборки, поэтому может идти «вверх»)

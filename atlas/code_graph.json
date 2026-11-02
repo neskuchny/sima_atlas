@@ -791,7 +791,7 @@
           "external": true,
           "from": ", ",
           "kind": "side_effect",
-          "line": 835,
+          "line": 838,
           "resolved_to": null,
           "specifiers": []
         }
@@ -2163,22 +2163,22 @@
         },
         {
           "kind": "named",
-          "line": 291,
+          "line": 300,
           "name": "spawnedScripts"
         },
         {
           "kind": "named",
-          "line": 302,
+          "line": 324,
           "name": "generatedBy"
         },
         {
           "kind": "named",
-          "line": 313,
+          "line": 335,
           "name": "fileRole"
         },
         {
           "kind": "named",
-          "line": 337,
+          "line": 359,
           "name": "filePurpose"
         },
         {
@@ -2193,12 +2193,17 @@
         },
         {
           "kind": "named",
-          "line": 446,
+          "line": 474,
           "name": "blockLinks"
         },
         {
           "kind": "named",
-          "line": 465,
+          "line": 501,
+          "name": "readCalls"
+        },
+        {
+          "kind": "named",
+          "line": 511,
           "name": "buildCodeMap"
         },
         {
@@ -2208,7 +2213,7 @@
         },
         {
           "kind": "named",
-          "line": 625,
+          "line": 672,
           "name": "readMapFile"
         },
         {
@@ -2292,7 +2297,7 @@
           "external": true,
           "from": ", f.imports], [",
           "kind": "side_effect",
-          "line": 451,
+          "line": 479,
           "resolved_to": null,
           "specifiers": []
         }
@@ -7830,16 +7835,24 @@
       "exports": [
         {
           "kind": "named",
-          "line": 136,
+          "line": 183,
           "name": "validate"
         }
       ],
       "imports": [
         {
           "external": true,
+          "from": " && !c.from_file.startsWith(",
+          "kind": "side_effect",
+          "line": 153,
+          "resolved_to": null,
+          "specifiers": []
+        },
+        {
+          "external": true,
           "from": "node:fs",
           "kind": "static",
-          "line": 26,
+          "line": 37,
           "resolved_to": null,
           "specifiers": [
             {
@@ -7852,7 +7865,7 @@
           "external": true,
           "from": "node:path",
           "kind": "static",
-          "line": 27,
+          "line": 38,
           "resolved_to": null,
           "specifiers": [
             {
@@ -7865,12 +7878,29 @@
           "external": true,
           "from": "node:url",
           "kind": "static",
-          "line": 28,
+          "line": 39,
           "resolved_to": null,
           "specifiers": [
             {
               "kind": "named",
               "name": "fileURLToPath"
+            }
+          ]
+        },
+        {
+          "external": false,
+          "from": "./atlas_map.mjs",
+          "kind": "static",
+          "line": 40,
+          "resolved_to": "scripts/atlas_map.mjs",
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "buildCodeMap"
+            },
+            {
+              "kind": "named",
+              "name": "readCalls"
             }
           ]
         }
@@ -9451,12 +9481,12 @@
       "exports": [
         {
           "kind": "named",
-          "line": 179,
+          "line": 209,
           "name": "one"
         },
         {
           "kind": "named",
-          "line": 40,
+          "line": 41,
           "name": "BIG"
         }
       ],
@@ -9465,7 +9495,7 @@
           "external": false,
           "from": "../scripts/lib.mjs",
           "kind": "static",
-          "line": 106,
+          "line": 107,
           "resolved_to": null,
           "specifiers": [
             {
@@ -9478,7 +9508,7 @@
           "external": true,
           "from": "node:fs",
           "kind": "static",
-          "line": 19,
+          "line": 20,
           "resolved_to": null,
           "specifiers": [
             {
@@ -9491,7 +9521,7 @@
           "external": true,
           "from": "node:os",
           "kind": "static",
-          "line": 20,
+          "line": 21,
           "resolved_to": null,
           "specifiers": [
             {
@@ -9504,7 +9534,7 @@
           "external": true,
           "from": "node:path",
           "kind": "static",
-          "line": 21,
+          "line": 22,
           "resolved_to": null,
           "specifiers": [
             {
@@ -9517,7 +9547,7 @@
           "external": true,
           "from": "node:url",
           "kind": "static",
-          "line": 22,
+          "line": 23,
           "resolved_to": null,
           "specifiers": [
             {
@@ -9530,7 +9560,7 @@
           "external": true,
           "from": "node:http",
           "kind": "static",
-          "line": 52,
+          "line": 53,
           "resolved_to": null,
           "specifiers": [
             {
@@ -10535,6 +10565,19 @@
             {
               "kind": "named",
               "name": "validate"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:child_process",
+          "kind": "static",
+          "line": 207,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "spawnSync"
             }
           ]
         }

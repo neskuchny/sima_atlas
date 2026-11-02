@@ -266,6 +266,15 @@ Reverse direction: who consumes my block? `grep` for `<your-id>:` across
 `atlas/blocks/*/depends_on.md` (one shell command, ~50 ms). Or
 `list_dependencies` with reverse=true if your MCP server supports it.
 
+**Runtime calls are not dependencies (R-8.15).** When your block *starts*
+another block's script or *calls* its HTTP routes while it works, write it in
+`atlas/blocks/<X>/calls.md` — `- <block_id>: <what it starts or calls> — <why>` —
+not in `depends_on.md`. `depends_on` orders building, cascading and the
+autonomous loop, so it must stay acyclic; a call may go «up» (the lifecycle
+gate in `b.db` runs the verifier that imports the gate). The code-graph
+validator warns about a start or call that `calls.md` does not declare, and
+about a declared call no code makes; the code map shows both.
+
 ---
 
 ## Stop-signals — when to stop and ask

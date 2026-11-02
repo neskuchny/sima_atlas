@@ -393,8 +393,8 @@
       },
       "progress": {
         "tasks": {
-          "done": 5,
-          "total": 16
+          "done": 9,
+          "total": 20
         },
         "kpi": {
           "checked": 1,
@@ -2394,6 +2394,42 @@
         "agent": null,
         "why": "",
         "accept": ""
+      },
+      {
+        "id": "T17",
+        "title": ". `calls.md` — второй вид связи в контракте: что блок запускает или вызывает по HTTP; карта считает такую связь записанной и показывает, где она записана.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T18",
+        "title": ". Детектор запусков точнее: команда, показанная человеку (сообщение, подсказка `fix:`), и чтение файла через `path.join` — не запуск; запуск теста — проверка, а не связь; связи блока-песочницы для тес",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T19",
+        "title": ". Валидатор графа кода: `undeclared_runtime_call`, `stale_runtime_call`, `unknown_call_target` — предупреждения; режим `--runtime-calls` для приёмки (A10).",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T20",
+        "title": ". 13 настоящих вызовов записаны в `calls.md` пяти блоков; 9 из них в `depends_on.md` замкнули бы циклы.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
       }
     ],
     "b.desktop": [
@@ -3229,7 +3265,7 @@
     }
   ],
   "_meta": {
-    "generated_at": "2026-11-02T01:07:42.257Z",
+    "generated_at": "2026-11-02T09:11:15.788Z",
     "atlas_root": "atlas",
     "client_id": null,
     "block_count": 21,

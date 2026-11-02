@@ -5,10 +5,10 @@
 // directly with that atlas root, and asserts both detectors fire on the
 // positive cases and are silent on the negative ones.
 //
-// 6 test groups: clean case · undeclared_code_dependency · declared dep
+// 7 test groups: clean case · undeclared_code_dependency · declared dep
 // satisfies · provided_capability_not_exported (real) · capability with
 // parenthetical annotation skipped (non-code) · severity split (errors
-// vs warnings).
+// vs warnings) · runtime calls declared in calls.md (R-8.15).
 
 import fs from 'node:fs';
 import os from 'node:os';
@@ -194,4 +194,42 @@ if (failures.length) {
   failures.forEach((f) => console.error(' ✗', f));
   process.exit(1);
 }
-console.log('code_graph_validator.selftest: OK (6 test groups, all assertions green)');
+// ── Group 7 (R-8.15): runtime calls — a started script or an API call to
+// another block is declared in calls.md, not in depends_on.md; undeclared,
+// stale and unknown calls are warnings.
+{
+  const { tmp, atlas } = setupMiniAtlas();
+  writeBlock(atlas, 'b.alpha', { files: ['scripts/alpha.mjs'] });
+  writeBlock(atlas, 'b.beta', { files: ['scripts/beta.mjs'] });
+  writeBlock(atlas, 'b.gamma', { files: [] });
+  fs.mkdirSync(path.join(tmp, 'scripts'), { recursive: true });
+  fs.writeFileSync(path.join(tmp, 'scripts', 'alpha.mjs'), [
+    "import { spawnSync } from 'node:child_process';",
+    "spawnSync('node', ['scripts/beta.mjs', '--json']);",
+    "console.log('fix: node scripts/beta.mjs');",
+  ].join('\n'));
+  fs.writeFileSync(path.join(tmp, 'scripts', 'beta.mjs'), 'console.log(1);\n');
+  writeCodeGraphForMini(atlas, {
+    files: {
+      'scripts/alpha.mjs': { owning_block: 'b.alpha', imports: [{ from: 'node:child_process', external: true, resolved_to: null, kind: 'static', line: 1, specifiers: [] }], exports: [] },
+      'scripts/beta.mjs': { owning_block: 'b.beta', imports: [], exports: [] },
+    },
+    edges: [],
+    byBlock: { 'b.alpha': { files: ['scripts/alpha.mjs'] }, 'b.beta': { files: ['scripts/beta.mjs'] }, 'b.gamma': { files: [] } },
+  });
+  const v = () => validate({ atlasRoot: atlas, sourceRoot: tmp }).drifts.filter((d) => /runtime_call|call_target/.test(d.kind));
+  const r1 = v();
+  check('g7: an undeclared started script is a warning that points at calls.md', r1.length === 1 && r1[0].kind === 'undeclared_runtime_call' && r1[0].severity === 'warning'
+    && r1[0].calls_block === 'b.beta' && r1[0].examples[0].line === 2 && /calls\.md/.test(r1[0].hint), JSON.stringify(r1));
+  fs.writeFileSync(path.join(atlas, 'blocks', 'b.alpha', 'calls.md'), '# b.alpha — calls\n\n- b.beta: alpha.mjs запускает beta.mjs — чтобы пересобрать данные\n');
+  check('g7: declared in calls.md → no warning', v().length === 0, JSON.stringify(v()));
+  fs.writeFileSync(path.join(atlas, 'blocks', 'b.alpha', 'calls.md'), '# b.alpha — calls\n\n- b.beta: запуск\n- b.gamma: ничего не запускает\n- b.nope: такого блока нет\n');
+  const r3 = v();
+  check('g7: a declared call no code makes is stale', r3.some((d) => d.kind === 'stale_runtime_call' && d.calls_block === 'b.gamma'), JSON.stringify(r3));
+  check('g7: a call to a block that does not exist is reported', r3.some((d) => d.kind === 'unknown_call_target' && d.calls_block === 'b.nope'), JSON.stringify(r3));
+  check('g7: a command shown to a person (fix: …) is not a call', r3.filter((d) => d.calls_block === 'b.beta').length === 0);
+  check('g7: runtime calls never fail the run on their own', validate({ atlasRoot: atlas, sourceRoot: tmp }).ok === true);
+  fs.rmSync(tmp, { recursive: true, force: true });
+}
+
+console.log('code_graph_validator.selftest: OK (7 test groups, all assertions green)');

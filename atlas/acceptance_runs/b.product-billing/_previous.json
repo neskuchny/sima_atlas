@@ -142,11 +142,11 @@
     "skipped": 6
   },
   "verdict": "inconclusive",
-  "duration_ms": 2,
-  "checked_at": "2026-11-02T01:06:50.727Z",
+  "duration_ms": 1,
+  "checked_at": "2026-11-02T01:08:03.793Z",
   "cache": {
     "hit": false,
-    "reason": "no cached pass yet",
-    "lookup_ms": 0.060026
+    "reason": "code changed (a commit, or a changed / new file outside atlas/)",
+    "lookup_ms": 19.113544
   }
 }
