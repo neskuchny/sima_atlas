@@ -3016,6 +3016,7 @@ svg.cm-wires path.w-file { stroke: var(--cm-out); stroke-dasharray: 9 3 2 3; }
 .cm-list .lk { font-size: 12px; color: var(--ink-3); flex: 0 0 auto; }
 .cm-list .nm { display: block; font: 10.5px 'JetBrains Mono', monospace; color: var(--ink-3); margin-top: 1px; overflow-wrap: anywhere; }
 .cm-list button:disabled { cursor: default; }
+.cm-more { display: inline-block; margin: 4px 6px 2px; font-size: 12px; color: var(--ink-2); }
 .cm-list button:disabled:hover { background: none; }
 /* R-8.16 — what a line does with an atlas file: reads (blue, like «takes from»), writes (amber) */
 .cm-dm { display: inline-block; font: 500 10.5px/1.35 'Inter', system-ui, sans-serif; padding: 0 5px; border-radius: 4px; background: var(--card-2); color: var(--ink); white-space: nowrap; margin-right: 2px; }

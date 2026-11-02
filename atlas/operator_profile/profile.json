@@ -1,6 +1,6 @@
 {
   "operator_id": "default",
-  "updated_at": "2026-11-02T12:17:33.574Z",
+  "updated_at": "2026-11-02T13:10:49.544Z",
   "_status": "live",
   "_min_data": {
     "done_transitions": 13,
@@ -334,24 +334,24 @@
       "avg_cost_usd": 0
     },
     "mock": {
-      "count": 548,
-      "fallback_to_mock_count": 4,
+      "count": 730,
+      "fallback_to_mock_count": 5,
       "total_cost_usd": 0,
-      "schema_ok_count": 548,
+      "schema_ok_count": 730,
       "fallback_rate": 0.01,
       "schema_ok_rate": 1,
       "avg_cost_usd": 0
     }
   },
   "proposals_stats": {
-    "total": 6,
+    "total": 8,
     "accept_rate": 0,
     "reject_rate": 0,
-    "pending": 6
+    "pending": 8
   },
   "decisions_stats": {
-    "total": 3736,
-    "blocks_with_decisions": 10
+    "total": 3748,
+    "blocks_with_decisions": 11
   },
   "patterns_stats": {
     "with_patterns": 8,
@@ -759,7 +759,7 @@
   "_preview": {
     "total_done": 13,
     "total_invocations": 14,
-    "total_traces": 552,
-    "total_proposals": 6
+    "total_traces": 734,
+    "total_proposals": 8
   }
 }

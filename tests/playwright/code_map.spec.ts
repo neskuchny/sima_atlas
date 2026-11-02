@@ -16,6 +16,8 @@
 //     map, the server builds it with the code graph) shows what crosses it; a
 //     file lists the atlas files it reads and writes; a code line naming
 //     another block's file leads to that block;
+//   * R-8.17: a data link that would close a cycle is written in calls.md;
+//     a long group of a connection folds and opens;
 //   * no console errors.
 //
 // Run: npm run test:ui (SIMA_UI_TEST_CDN_DIR=<dir> serves react.js,
@@ -116,7 +118,7 @@ test('code map: building, pinned connections, file anatomy, back to the graph', 
   await page.locator('[data-room="b.db"] .cm-room-title').click();
   await page.locator('.cm-insp .cm-list button', { hasText: 'Acceptance Verifier Loop' }).first().click();
   await expect(page.locator('.cm-insp')).toContainText('change_set.mjs:78');
-  await expect(page.locator('.cm-insp')).toContainText('calls.md — вызов во время работы');
+  await expect(page.locator('.cm-insp')).toContainText('calls.md — использует во время работы');
 
   // R-8.16 — a connection through atlas files: the code graph reads the database's files
   await page.locator('[data-room="b.code-graph"] .cm-room-title').click();
@@ -133,6 +135,19 @@ test('code map: building, pinned connections, file anatomy, back to the graph', 
   await page.locator('[data-tile="scripts/atlas_map.mjs"]').click();
   await expect(page.locator('.cm-insp')).toContainText('Файлы атласа, которые он читает и пишет');
   await expect(page.locator('.cm-insp')).toContainText('atlas/code_graph.json');
+
+  // R-8.17 — a data link that would close a cycle is written in calls.md
+  await page.locator('[data-room="b.docs"] .cm-room-title').click();
+  await page.locator('.cm-insp .cm-list button', { hasText: 'End-User Docs Generator' }).first().click();
+  await expect(page.locator('.cm-insp')).toContainText('atlas/docs');
+  await expect(page.locator('.cm-insp')).toContainText('calls.md — использует во время работы');
+  await expect(page.locator('.cm-insp')).toContainText('и в коде, и в контракте');
+  // … and a long group folds: the first rows, then «show N more»
+  await page.locator('[data-room="b.agent-orchestrator"] .cm-room-title').click();
+  await page.locator('.cm-insp .cm-list button', { hasText: 'Atlas Database' }).first().click();
+  const folded = await page.locator('.cm-insp .cm-list li').count();
+  await page.locator('.cm-insp .cm-more').first().click();
+  expect(await page.locator('.cm-insp .cm-list li').count()).toBeGreaterThan(folded);
 
   // pin a file: its connections in other blocks light up
   await page.evaluate(() => { (document.querySelector('.cm-building .cm-scroll') as HTMLElement).scrollTop = 0; });

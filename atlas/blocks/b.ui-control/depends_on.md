@@ -7,3 +7,4 @@
 - b.clarify: declared_understanding
 - b.clarify: contract_draft_review
 - b.code-graph: code_map
+- b.db: atlas_state_store

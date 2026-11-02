@@ -16,6 +16,7 @@
 - atlas/blocks/ [alive] (R-8.16: хранилище блоков — файлы в папках блоков (mission.md, checks.log, …) принадлежат ему, кто бы их ни читал)
 - atlas/templates/ [alive] (R-8.16: шаблоны блоков, из которых apply_block_template.mjs создаёт новые)
 - atlas/change_sets/.gitkeep [alive] (R-8.16: папка наборов изменений, которые пишет change_set.mjs)
+- atlas/projects/ [alive] (R-8.17: атласы других проектов — тот же формат хранилища блоков; код их не пишет, читают оркестратор, ночная проверка, документация и ученик профиля)
 - scripts/log_transition.mjs [alive]
 - scripts/manage_block.mjs [alive] (R-8.14: ранняя ручная команда для блока — init / set-status / set-mission; меняет статус без проверки и без записи в transitions.log. Её никто не вызывает: статусы меняет шлюз жизненного цикла, advance_block_state.mjs)
 - scripts/advance_block_state.mjs [alive]

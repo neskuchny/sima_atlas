@@ -17,3 +17,4 @@ These files had no owner in any files.md, so the code-graph check never saw thei
 - scripts/sync_article_status.mjs [alive]
 - scripts/capture_hero_screenshot.mjs [alive] (README hero image)
 - tests/docs_generators.selftest.mjs [alive] (R-8.11: acceptance A3/A5 — the real roadmap.md respects dependencies; a synthetic atlas where status and dependencies disagree; a block without a layer gets «Без слоя»)
+- atlas/blocks/b.docs/calls.md [alive] (R-8.17: что блок использует во время работы — чужие данные, которые он читает или пишет; не порядок сборки)

@@ -2143,13 +2143,18 @@
         },
         {
           "kind": "named",
-          "line": 334,
+          "line": 340,
+          "name": "trackedAtlas"
+        },
+        {
+          "kind": "named",
+          "line": 361,
           "name": "atlasVocabulary"
         },
         {
           "kind": "named",
-          "line": 359,
-          "name": "dataRefs"
+          "line": 381,
+          "name": "atlasNamesInCode"
         },
         {
           "kind": "named",
@@ -2158,13 +2163,8 @@
         },
         {
           "kind": "named",
-          "line": 416,
-          "name": "dataOwners"
-        },
-        {
-          "kind": "named",
-          "line": 438,
-          "name": "artefactOwners"
+          "line": 407,
+          "name": "dataRefs"
         },
         {
           "kind": "named",
@@ -2173,23 +2173,18 @@
         },
         {
           "kind": "named",
-          "line": 462,
+          "line": 482,
+          "name": "dataOwners"
+        },
+        {
+          "kind": "named",
+          "line": 504,
+          "name": "artefactOwners"
+        },
+        {
+          "kind": "named",
+          "line": 528,
           "name": "spawnedScripts"
-        },
-        {
-          "kind": "named",
-          "line": 486,
-          "name": "generatedBy"
-        },
-        {
-          "kind": "named",
-          "line": 497,
-          "name": "fileRole"
-        },
-        {
-          "kind": "named",
-          "line": 521,
-          "name": "filePurpose"
         },
         {
           "kind": "named",
@@ -2198,17 +2193,32 @@
         },
         {
           "kind": "named",
-          "line": 636,
+          "line": 552,
+          "name": "generatedBy"
+        },
+        {
+          "kind": "named",
+          "line": 563,
+          "name": "fileRole"
+        },
+        {
+          "kind": "named",
+          "line": 587,
+          "name": "filePurpose"
+        },
+        {
+          "kind": "named",
+          "line": 702,
           "name": "blockLinks"
         },
         {
           "kind": "named",
-          "line": 679,
+          "line": 745,
           "name": "readCalls"
         },
         {
           "kind": "named",
-          "line": 689,
+          "line": 755,
           "name": "buildCodeMap"
         },
         {
@@ -2223,7 +2233,7 @@
         },
         {
           "kind": "named",
-          "line": 917,
+          "line": 993,
           "name": "readMapFile"
         }
       ],
@@ -7819,7 +7829,7 @@
       "exports": [
         {
           "kind": "named",
-          "line": 216,
+          "line": 221,
           "name": "validate"
         }
       ],
@@ -7828,7 +7838,7 @@
           "external": true,
           "from": "node:fs",
           "kind": "static",
-          "line": 44,
+          "line": 46,
           "resolved_to": null,
           "specifiers": [
             {
@@ -7841,7 +7851,7 @@
           "external": true,
           "from": "node:path",
           "kind": "static",
-          "line": 45,
+          "line": 47,
           "resolved_to": null,
           "specifiers": [
             {
@@ -7854,7 +7864,7 @@
           "external": true,
           "from": "node:url",
           "kind": "static",
-          "line": 46,
+          "line": 48,
           "resolved_to": null,
           "specifiers": [
             {
@@ -7867,7 +7877,7 @@
           "external": false,
           "from": "./atlas_map.mjs",
           "kind": "static",
-          "line": 47,
+          "line": 49,
           "resolved_to": "scripts/atlas_map.mjs",
           "specifiers": [
             {
@@ -9457,17 +9467,17 @@
       "exports": [
         {
           "kind": "named",
-          "line": 215,
+          "line": 218,
           "name": "one"
         },
         {
           "kind": "named",
-          "line": 349,
+          "line": 365,
           "name": "buildMap"
         },
         {
           "kind": "named",
-          "line": 47,
+          "line": 50,
           "name": "BIG"
         }
       ],
@@ -9476,7 +9486,7 @@
           "external": false,
           "from": "../scripts/lib.mjs",
           "kind": "static",
-          "line": 113,
+          "line": 116,
           "resolved_to": null,
           "specifiers": [
             {
@@ -9489,7 +9499,20 @@
           "external": true,
           "from": "node:fs",
           "kind": "static",
-          "line": 25,
+          "line": 27,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "default",
+              "name": "fs"
+            }
+          ]
+        },
+        {
+          "external": true,
+          "from": "node:fs",
+          "kind": "static",
+          "line": 270,
           "resolved_to": null,
           "specifiers": [
             {
@@ -9502,7 +9525,7 @@
           "external": true,
           "from": "node:os",
           "kind": "static",
-          "line": 26,
+          "line": 28,
           "resolved_to": null,
           "specifiers": [
             {
@@ -9513,22 +9536,9 @@
         },
         {
           "external": true,
-          "from": "node:fs",
-          "kind": "static",
-          "line": 265,
-          "resolved_to": null,
-          "specifiers": [
-            {
-              "kind": "default",
-              "name": "fs"
-            }
-          ]
-        },
-        {
-          "external": true,
           "from": "node:path",
           "kind": "static",
-          "line": 27,
+          "line": 29,
           "resolved_to": null,
           "specifiers": [
             {
@@ -9541,7 +9551,7 @@
           "external": true,
           "from": "node:url",
           "kind": "static",
-          "line": 28,
+          "line": 30,
           "resolved_to": null,
           "specifiers": [
             {
@@ -9551,10 +9561,23 @@
           ]
         },
         {
+          "external": true,
+          "from": "node:child_process",
+          "kind": "static",
+          "line": 31,
+          "resolved_to": null,
+          "specifiers": [
+            {
+              "kind": "named",
+              "name": "execFileSync"
+            }
+          ]
+        },
+        {
           "external": false,
           "from": "./map.mjs",
           "kind": "static",
-          "line": 342,
+          "line": 358,
           "resolved_to": null,
           "specifiers": [
             {
@@ -9567,7 +9590,7 @@
           "external": true,
           "from": "node:http",
           "kind": "static",
-          "line": 59,
+          "line": 62,
           "resolved_to": null,
           "specifiers": [
             {

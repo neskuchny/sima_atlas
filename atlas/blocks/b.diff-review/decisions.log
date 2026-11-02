@@ -3,3 +3,4 @@
 2026-06-20T20:00:00Z | blocking_only_blocks | verdict=fail iff >=1 finding severity:blocking. warnings surface but pass. empty diff = inconclusive (nothing to review).
 2026-06-20T20:00:00Z | no_simplify_stage | loop-engineer ships a Simplify stage (refactor working code for clarity). Deliberately NOT imported — tension with Kanon Principle II (counter-force to simplification).
 2026-06-20T20:00:00Z | diff_only_not_whole_file | reviewer sees unified diff, not full files; judges what the agent changed, not the file's pre-existing debt (User Story 4).
+2026-11-02T13:00:00Z | data_dependency_declared | R-8.17: depends_on — данные другого блока, найденные картой кода (R-8.16): review_diff.mjs читает mission.md блока — ревьюер сверяет дифф с миссией.

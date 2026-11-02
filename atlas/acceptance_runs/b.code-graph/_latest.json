@@ -15,17 +15,17 @@
         "expect_in_stdout": "build_code_graph: wrote"
       },
       "verdict": "pass",
-      "evidence": "node scripts/build_code_graph.mjs && node -e \"JSON.parse(require('fs').readFileSync('atlas/code_graph.json','utf8'))\" → exit 0 (311ms); first line: \"build_code_graph: wrote atlas/code_graph.json (205 files, 17 cross-block edges)\"",
+      "evidence": "node scripts/build_code_graph.mjs && node -e \"JSON.parse(require('fs').readFileSync('atlas/code_graph.json','utf8'))\" → exit 0 (341ms); first line: \"build_code_graph: wrote atlas/code_graph.json (205 files, 17 cross-block edges)\"",
       "reasoning": "shell exit code 0 and stdout matches /build_code_graph: wrote/",
       "raw": {
         "cmd": "node scripts/build_code_graph.mjs && node -e \"JSON.parse(require('fs').readFileSync('atlas/code_graph.json','utf8'))\"",
         "exit_code": 0,
         "stdout": "build_code_graph: wrote atlas/code_graph.json (205 files, 17 cross-block edges)\n",
         "stderr": "",
-        "duration_ms": 311,
+        "duration_ms": 341,
         "timed_out": false
       },
-      "duration_ms": 311
+      "duration_ms": 341
     },
     {
       "id": "A2",
@@ -39,17 +39,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/code_graph_extractor.selftest.mjs → exit 0 (521ms); first line: \"  deterministic — sha256(428736f8ee1a…) matches across runs\"",
+      "evidence": "node tests/code_graph_extractor.selftest.mjs → exit 0 (554ms); first line: \"  deterministic — sha256(54339af612c7…) matches across runs\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/code_graph_extractor.selftest.mjs",
         "exit_code": 0,
-        "stdout": "  deterministic — sha256(428736f8ee1a…) matches across runs\ncode_graph_extractor.selftest: OK (9 test groups, all assertions green)\n",
+        "stdout": "  deterministic — sha256(54339af612c7…) matches across runs\ncode_graph_extractor.selftest: OK (9 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 521,
+        "duration_ms": 554,
         "timed_out": false
       },
-      "duration_ms": 521
+      "duration_ms": 554
     },
     {
       "id": "A3",
@@ -63,17 +63,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/code_graph_validator.selftest.mjs → exit 0 (180ms); first line: \"code_graph_validator.selftest: OK (8 test groups, all assertions green)\"",
+      "evidence": "node tests/code_graph_validator.selftest.mjs → exit 0 (255ms); first line: \"code_graph_validator.selftest: OK (8 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/code_graph_validator.selftest.mjs",
         "exit_code": 0,
         "stdout": "code_graph_validator.selftest: OK (8 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 180,
+        "duration_ms": 255,
         "timed_out": false
       },
-      "duration_ms": 180
+      "duration_ms": 255
     },
     {
       "id": "A4",
@@ -112,17 +112,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_code_graph_vs_contracts.mjs → exit 0 (485ms); first line: \"Code-graph: OK (43 warning(s) — non-blocking; review atlas/sync_report.json codeGraphDrift)\"",
+      "evidence": "node scripts/validate_code_graph_vs_contracts.mjs → exit 0 (639ms); first line: \"Code-graph: OK (33 warning(s) — non-blocking; review atlas/sync_report.json codeGraphDrift)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node scripts/validate_code_graph_vs_contracts.mjs",
         "exit_code": 0,
-        "stdout": "Code-graph: OK (43 warning(s) — non-blocking; review atlas/sync_report.json codeGraphDrift)\n ~ warning: provided_capability_not_exported :: b.acceptance-verifier-loop :: acceptance_gate_decision\n ~ warning: provided_capability_not_exported :: b.acceptance-verifier-loop :: acceptance_run_report\n ~ warning: provided_capability_not_exported :: b.acceptance-verifier-loop :: assertion_parser\n ~ warning: provided_capability_not_exported :: b.acceptance-verifier-loop :: evidence_collector_runtime\n ~ warning: provided_capability_not_exported :: b.agent-orchestrator :: block_meaning_api\n ~ warning: provided_capability_not_exported :: b.agent-orchestrator :: pipeline_execution\n ~ warning: provided_capability_not_exported :: b.clarify :: assumption_registry\n ~ warning: provided_capability_not_exported :: b.clarify :: clarification_questions\n ~ warning: provided_capability_not_exported :: b.clarify :: contract_quality_lint\n ~ warning: provided_capability_not_exported :: b.clarify :: declared_understanding\n ~ warning: provided_capability_not_exported :: b.clarify :: frame_review_gate\n ~ warning: provided_capability_not_exported :: b.clarify :: trajectory_reader\n ~ warning: provided_capability_not_exported :: b.clarify :: uncertainty_marker_gate\n ~ warning: provided_capability_not_exported :: b.core-sync :: contract_validation\n ~ warning: provided_capability_not_exported :: b.db :: atlas_state_store\n ~ warning: provided_capability_not_exported :: b.db :: file_registry\n ~ warning: provided_capability_not_exported :: b.desktop :: desktop_app\n ~ warning: provided_capability_not_exported :: b.desktop :: electron_main_process\n ~ warning: provided_capability_not_exported :: b.desktop :: platform_installers\n ~ warning: provided_capability_not_exported :: b.diff-review :: blocking_problem_finder\n ~ warning: provided_capability_not_exported :: b.diff-review :: diff_review_verdict\n ~ warning: provided_capability_not_exported :: b.docs :: tz_bundle\n ~ warning: provided_capability_not_exported :: b.docs :: wiki_bundle\n ~ warning: provided_capability_not_exported :: b.llm-gateway :: llm_call_structured\n ~ warning: provided_capability_not_exported :: b.llm-gateway :: llm_extract_block_schema\n ~ warning: provided_capability_not_exported :: b.llm-gateway :: llm_provider_description\n ~ warning: provided_capability_not_exported :: b.llm-gateway :: llm_summarize_distillate\n ~ warning: provided_capability_not_exported :: b.llm-gateway :: llm_validate_drift\n ~ warning: provided_capability_not_exported :: b.smoke-sandbox :: e2e_test_target\n ~ warning: provided_capability_not_exported :: b.user-docs-generator :: block_ui_introspection\n ~ warning: provided_capability_not_exported :: b.user-docs-generator :: end_user_docs_set\n ~ warning: provided_capability_not_exported :: b.user-docs-generator :: tutorial_renderer\n ~ warning: provided_capability_not_exported :: b.user-docs-generator :: user_docs_meta\n ~ warning: undeclared_data_link :: b.acceptance-verifier-loop → b.operator-profile-learner\n     scripts/semantic_verify.mjs:98 → atlas/operator_profile\n     scripts/verify_cache.mjs:62 → atlas/operator_profile\n ~ warning: undeclared_data_link :: b.clarify → b.db\n     scripts/block_meaning.mjs:149 → atlas/blocks/*/understanding.md\n     scripts/block_meaning.mjs:321 → atlas/blocks/*/mission.md\n ~ warning: undeclared_data_link :: b.code-graph → b.acceptance-verifier-loop\n     scripts/atlas_map.mjs:599 → atlas/acceptance_runs\n ~ warning: undeclared_data_link :: b.code-graph → b.core-sync\n     scripts/validate_code_graph_vs_contracts.mjs:255 → atlas/sync_report.json\n ~ warning: undeclared_data_link :: b.core-sync → b.llm-gateway\n     scripts/housekeeping_sweeper.mjs:69 → atlas/llm_traces\n ~ warning: undeclared_data_link :: b.core-sync → b.operator-profile-learner\n     scripts/housekeeping_sweeper.mjs:71 → atlas/operator_profile\n ~ warning: undeclared_data_link :: b.desktop → b.operator-profile-learner\n     extensions/desktop/main.mjs:344 → atlas/operator_profile\n ~ warning: undeclared_data_link :: b.diff-review → b.db\n     scripts/review_diff.mjs:305 → atlas/blocks/… [truncated]",
+        "stdout": "Code-graph: OK (33 warning(s) — non-blocking; review atlas/sync_report.json codeGraphDrift)\n ~ warning: provided_capability_not_exported :: b.acceptance-verifier-loop :: acceptance_gate_decision\n ~ warning: provided_capability_not_exported :: b.acceptance-verifier-loop :: acceptance_run_report\n ~ warning: provided_capability_not_exported :: b.acceptance-verifier-loop :: assertion_parser\n ~ warning: provided_capability_not_exported :: b.acceptance-verifier-loop :: evidence_collector_runtime\n ~ warning: provided_capability_not_exported :: b.agent-orchestrator :: block_meaning_api\n ~ warning: provided_capability_not_exported :: b.agent-orchestrator :: pipeline_execution\n ~ warning: provided_capability_not_exported :: b.clarify :: assumption_registry\n ~ warning: provided_capability_not_exported :: b.clarify :: clarification_questions\n ~ warning: provided_capability_not_exported :: b.clarify :: contract_quality_lint\n ~ warning: provided_capability_not_exported :: b.clarify :: declared_understanding\n ~ warning: provided_capability_not_exported :: b.clarify :: frame_review_gate\n ~ warning: provided_capability_not_exported :: b.clarify :: trajectory_reader\n ~ warning: provided_capability_not_exported :: b.clarify :: uncertainty_marker_gate\n ~ warning: provided_capability_not_exported :: b.core-sync :: contract_validation\n ~ warning: provided_capability_not_exported :: b.db :: atlas_state_store\n ~ warning: provided_capability_not_exported :: b.db :: file_registry\n ~ warning: provided_capability_not_exported :: b.desktop :: desktop_app\n ~ warning: provided_capability_not_exported :: b.desktop :: electron_main_process\n ~ warning: provided_capability_not_exported :: b.desktop :: platform_installers\n ~ warning: provided_capability_not_exported :: b.diff-review :: blocking_problem_finder\n ~ warning: provided_capability_not_exported :: b.diff-review :: diff_review_verdict\n ~ warning: provided_capability_not_exported :: b.docs :: tz_bundle\n ~ warning: provided_capability_not_exported :: b.docs :: wiki_bundle\n ~ warning: provided_capability_not_exported :: b.llm-gateway :: llm_call_structured\n ~ warning: provided_capability_not_exported :: b.llm-gateway :: llm_extract_block_schema\n ~ warning: provided_capability_not_exported :: b.llm-gateway :: llm_provider_description\n ~ warning: provided_capability_not_exported :: b.llm-gateway :: llm_summarize_distillate\n ~ warning: provided_capability_not_exported :: b.llm-gateway :: llm_validate_drift\n ~ warning: provided_capability_not_exported :: b.smoke-sandbox :: e2e_test_target\n ~ warning: provided_capability_not_exported :: b.user-docs-generator :: block_ui_introspection\n ~ warning: provided_capability_not_exported :: b.user-docs-generator :: end_user_docs_set\n ~ warning: provided_capability_not_exported :: b.user-docs-generator :: tutorial_renderer\n ~ warning: provided_capability_not_exported :: b.user-docs-generator :: user_docs_meta\n",
         "stderr": "",
-        "duration_ms": 485,
+        "duration_ms": 639,
         "timed_out": false
       },
-      "duration_ms": 485
+      "duration_ms": 639
     },
     {
       "id": "A6",
@@ -147,7 +147,7 @@
           "  \"codeGraphDrift\": {"
         ]
       },
-      "duration_ms": 1
+      "duration_ms": 0
     },
     {
       "id": "A7",
@@ -161,17 +161,17 @@
         "expect_in_stdout": "deterministic"
       },
       "verdict": "pass",
-      "evidence": "node tests/code_graph_extractor.selftest.mjs → exit 0 (655ms); first line: \"  deterministic — sha256(428736f8ee1a…) matches across runs\"",
+      "evidence": "node tests/code_graph_extractor.selftest.mjs → exit 0 (563ms); first line: \"  deterministic — sha256(54339af612c7…) matches across runs\"",
       "reasoning": "shell exit code 0 and stdout matches /deterministic/",
       "raw": {
         "cmd": "node tests/code_graph_extractor.selftest.mjs",
         "exit_code": 0,
-        "stdout": "  deterministic — sha256(428736f8ee1a…) matches across runs\ncode_graph_extractor.selftest: OK (9 test groups, all assertions green)\n",
+        "stdout": "  deterministic — sha256(54339af612c7…) matches across runs\ncode_graph_extractor.selftest: OK (9 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 655,
+        "duration_ms": 563,
         "timed_out": false
       },
-      "duration_ms": 655
+      "duration_ms": 563
     },
     {
       "id": "A8",
@@ -185,17 +185,17 @@
         "expect_in_stdout": "OK [(]9 groups[)]"
       },
       "verdict": "pass",
-      "evidence": "node tests/atlas_map.selftest.mjs → exit 0 (585ms); first line: \"atlas_map.selftest: OK (9 groups)\"",
+      "evidence": "node tests/atlas_map.selftest.mjs → exit 0 (626ms); first line: \"atlas_map.selftest: OK (9 groups)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK [(]9 groups[)]/",
       "raw": {
         "cmd": "node tests/atlas_map.selftest.mjs",
         "exit_code": 0,
         "stdout": "atlas_map.selftest: OK (9 groups)\n",
         "stderr": "",
-        "duration_ms": 585,
+        "duration_ms": 626,
         "timed_out": false
       },
-      "duration_ms": 585
+      "duration_ms": 626
     },
     {
       "id": "A9",
@@ -209,22 +209,22 @@
         "expect_in_stdout": "\\\"code_graph\\\": true"
       },
       "verdict": "pass",
-      "evidence": "node scripts/atlas_map.mjs --summary → exit 0 (784ms); first line: \"{\"",
+      "evidence": "node scripts/atlas_map.mjs --summary → exit 0 (827ms); first line: \"{\"",
       "reasoning": "shell exit code 0 and stdout matches /\\\"code_graph\\\": true/",
       "raw": {
         "cmd": "node scripts/atlas_map.mjs --summary",
         "exit_code": 0,
-        "stdout": "{\n  \"blocks\": 19,\n  \"files\": 205,\n  \"lines\": 54184,\n  \"parts\": 1935,\n  \"links\": 67,\n  \"code_links\": 57,\n  \"contract_only\": 10,\n  \"code_only\": 10,\n  \"tests_only\": 5,\n  \"roles\": {\n    \"app\": 2,\n    \"generated\": 1,\n    \"page\": 10,\n    \"config\": 1,\n    \"command\": 60,\n    \"library\": 44,\n    \"server\": 1,\n    \"orphan\": 3,\n    \"validator\": 23,\n    \"test\": 60\n  },\n  \"source\": {\n    \"commit\": \"f271888\",\n    \"date\": \"2026-11-02\",\n    \"code_graph\": true,\n    \"git\": true\n  },\n  \"by_kind\": {\n    \"file\": 350,\n    \"import\": 40,\n    \"start\": 53,\n    \"http\": 8,\n    \"via\": 7\n  },\n  \"data\": {\n    \"files\": 56,\n    \"unowned\": [\n      \"projects\",\n      \"run_state\"\n    ]\n  }\n}\n",
+        "stdout": "{\n  \"blocks\": 19,\n  \"files\": 205,\n  \"lines\": 54445,\n  \"parts\": 1940,\n  \"links\": 69,\n  \"code_links\": 59,\n  \"contract_only\": 10,\n  \"code_only\": 0,\n  \"tests_only\": 5,\n  \"roles\": {\n    \"app\": 2,\n    \"generated\": 1,\n    \"page\": 10,\n    \"config\": 1,\n    \"command\": 60,\n    \"library\": 44,\n    \"server\": 1,\n    \"orphan\": 3,\n    \"validator\": 23,\n    \"test\": 60\n  },\n  \"source\": {\n    \"commit\": \"6d14e65\",\n    \"date\": \"2026-11-02\",\n    \"code_graph\": true,\n    \"git\": true\n  },\n  \"by_kind\": {\n    \"file\": 403,\n    \"import\": 40,\n    \"start\": 53,\n    \"http\": 8,\n    \"via\": 70\n  },\n  \"data\": {\n    \"files\": 60,\n    \"unowned\": []\n  }\n}\n",
         "stderr": "",
-        "duration_ms": 784,
+        "duration_ms": 827,
         "timed_out": false
       },
-      "duration_ms": 784
+      "duration_ms": 827
     },
     {
       "id": "A10",
       "label": null,
-      "text": "Каждый вызов во время работы между блоками записан в контракте: всё, что один блок запускает отдельным процессом или вызывает по HTTP у другого, стоит в его `calls.md`, а каждая строка `calls.md` подтверждена кодом.",
+      "text": "Каждый вызов во время работы между блоками записан в контракте: всё, что один блок запускает отдельным процессом или вызывает по HTTP у другого, стоит в его `calls.md`, а каждая строка `calls.md` подтверждена кодом — запуском, вызовом или чужими данными, которые код трогает.",
       "checked": true,
       "line": 92,
       "evidence_kind": "exit_code",
@@ -233,41 +233,41 @@
         "expect_in_stdout": "runtime calls: 0 undeclared, 0 stale, 0 unknown"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_code_graph_vs_contracts.mjs --runtime-calls → exit 0 (566ms); first line: \"runtime calls: 0 undeclared, 0 stale, 0 unknown\"",
+      "evidence": "node scripts/validate_code_graph_vs_contracts.mjs --runtime-calls → exit 0 (684ms); first line: \"runtime calls: 0 undeclared, 0 stale, 0 unknown\"",
       "reasoning": "shell exit code 0 and stdout matches /runtime calls: 0 undeclared, 0 stale, 0 unknown/",
       "raw": {
         "cmd": "node scripts/validate_code_graph_vs_contracts.mjs --runtime-calls",
         "exit_code": 0,
         "stdout": "runtime calls: 0 undeclared, 0 stale, 0 unknown\n",
         "stderr": "",
-        "duration_ms": 566,
+        "duration_ms": 684,
         "timed_out": false
       },
-      "duration_ms": 566
+      "duration_ms": 684
     },
     {
       "id": "A11",
       "label": null,
-      "text": "Связи через файлы атласа видны и сосчитаны: валидатор называет каждую пару блоков, где один читает или пишет файл атласа другого, а контракт об этом молчит, и каждый файл атласа без владельца. Это отчёт: какой файл контракта подходит (`depends_on.md` или `calls.md`), решает оператор.",
+      "text": "Каждая связь через файлы атласа записана в контракте, и у каждого файла атласа, который называет код, есть владелец: блок, который читает данные другого и без них не работает, называет его в `depends_on.md`; блок, который пишет в чужие данные во время работы или читает их там, где зависимость замкнула бы цикл, — в `calls.md`.",
       "checked": false,
       "line": 100,
       "evidence_kind": "exit_code",
       "evidence_spec": {
         "cmd": "node scripts/validate_code_graph_vs_contracts.mjs --data-links",
-        "expect_in_stdout": "data links: [0-9]+ undeclared, [0-9]+ atlas files without an owner"
+        "expect_in_stdout": "data links: 0 undeclared, 0 atlas files without an owner"
       },
       "verdict": "pass",
-      "evidence": "node scripts/validate_code_graph_vs_contracts.mjs --data-links → exit 0 (587ms); first line: \" ~ b.acceptance-verifier-loop → b.operator-profile-learner :: atlas/operator_profile\"",
-      "reasoning": "shell exit code 0 and stdout matches /data links: [0-9]+ undeclared, [0-9]+ atlas files without an owner/",
+      "evidence": "node scripts/validate_code_graph_vs_contracts.mjs --data-links → exit 0 (593ms); first line: \"data links: 0 undeclared, 0 atlas files without an owner\"",
+      "reasoning": "shell exit code 0 and stdout matches /data links: 0 undeclared, 0 atlas files without an owner/",
       "raw": {
         "cmd": "node scripts/validate_code_graph_vs_contracts.mjs --data-links",
         "exit_code": 0,
-        "stdout": " ~ b.acceptance-verifier-loop → b.operator-profile-learner :: atlas/operator_profile\n ~ b.clarify → b.db :: atlas/blocks/, atlas/blocks/*/acceptance.md, atlas/blocks/*/checks.log, atlas/blocks/*/kpi.md, atlas/blocks/*/mission.md, atlas/blocks/*/tasks.md, atlas/blocks/*/understanding.md, atlas/blocks/*/user_story.md, atlas/graph.json\n ~ b.code-graph → b.acceptance-verifier-loop :: atlas/acceptance_runs\n ~ b.code-graph → b.core-sync :: atlas/sync_report.json\n ~ b.core-sync → b.llm-gateway :: atlas/llm_traces\n ~ b.core-sync → b.operator-profile-learner :: atlas/operator_profile\n ~ b.desktop → b.operator-profile-learner :: atlas/operator_profile\n ~ b.diff-review → b.db :: atlas/blocks/*/mission.md\n ~ b.docs → b.user-docs-generator :: atlas/docs\n ~ b.ui-control → b.db :: atlas/blocks/*/acceptance.md, atlas/blocks/*/checks.log, atlas/blocks/*/decisions.log, atlas/blocks/*/depends_on.md, atlas/blocks/*/files.md, atlas/blocks/*/kpi.md, atlas/blocks/*/mission.md, atlas/blocks/*/patterns.md, atlas/blocks/*/provides.md, atlas/blocks/*/tasks.md, atlas/graph.json, atlas/project.md, atlas/rules.md, atlas/tech_stack.md, atlas/transitions.log\n ? no owner: projects, run_state\ndata links: 10 undeclared, 2 atlas files without an owner\n",
+        "stdout": "data links: 0 undeclared, 0 atlas files without an owner\n",
         "stderr": "",
-        "duration_ms": 587,
+        "duration_ms": 593,
         "timed_out": false
       },
-      "duration_ms": 587
+      "duration_ms": 593
     }
   ],
   "counts": {
@@ -277,11 +277,11 @@
   },
   "verdict": "pass",
   "inconclusive_if_declared": 1,
-  "duration_ms": 4681,
-  "checked_at": "2026-11-02T12:17:59.219Z",
+  "duration_ms": 5089,
+  "checked_at": "2026-11-02T13:11:17.789Z",
   "cache": {
     "hit": false,
     "reason": "code changed (a commit, or a changed / new file outside atlas/); a contract, graph.json or project rules changed; a file this block's assertions read changed",
-    "lookup_ms": 25.117189
+    "lookup_ms": 34.384709
   }
 }

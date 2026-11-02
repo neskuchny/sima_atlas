@@ -35,3 +35,4 @@ These files had no owner in any files.md, so the code-graph check never saw thei
 ## R-8.16 — данные интерфейса
 
 - atlas/design_payload.json [alive] (данные для канваса — пишет build_sima_design_payload.mjs)
+- atlas/blocks/b.ui-control/decisions.log [alive] (R-8.17: почему у блока такие связи и решения — не отменять молча)

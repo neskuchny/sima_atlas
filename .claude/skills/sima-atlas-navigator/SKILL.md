@@ -27,9 +27,10 @@ For "implement / fix block X":
 4. `atlas/blocks/<X>/mission.md` — intent
 5. `atlas/blocks/<X>/acceptance.md` — how «done» is verified
 6. `atlas/blocks/<X>/depends_on.md` — upstream blocks (`calls.md` — what X
-   starts or calls at runtime; not a dependency, write runtime calls there).
+   uses at runtime without it ordering the build: starts, HTTP calls, other
+   blocks' data it writes into or reads where depends_on would close a cycle).
    An atlas file belongs to the block whose `files.md` lists it; reading or
-   writing another block's atlas file is a connection to that block (R-8.16)
+   writing another block's atlas file is a connection to that block (R-8.16, R-8.17)
 7. For each dep `<D>`: only `atlas/blocks/<D>/provides.md`
 8. `atlas/blocks/<X>/tasks.md` — decomposed work
 9. **`atlas/blocks/<X>/narrative.md` — human-readable run history** (R-7.80)

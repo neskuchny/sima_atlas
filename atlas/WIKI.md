@@ -1,6 +1,6 @@
 # Sima Atlas Wiki
 
-_Auto-generated: 2026-11-02T12:18:07.716Z_
+_Auto-generated: 2026-11-02T13:11:24.386Z_
 
 ## Граф продукта
 
@@ -51,6 +51,7 @@ flowchart TB
   b_ui_control --> b_agent_orchestrator
   b_ui_control --> b_clarify
   b_ui_control --> b_code_graph
+  b_ui_control --> b_db
   b_core_sync --> b_db
   b_core_sync --> b_code_graph
   b_agent_orchestrator --> b_db
@@ -71,6 +72,7 @@ flowchart TB
   b_acceptance_verifier_loop --> b_core_sync
   b_acceptance_verifier_loop --> b_agent_orchestrator
   b_acceptance_verifier_loop --> b_llm_gateway
+  b_acceptance_verifier_loop --> b_operator_profile_learner
   b_user_docs_generator --> b_db
   b_user_docs_generator --> b_docs
   b_user_docs_generator --> b_agent_orchestrator
@@ -82,11 +84,13 @@ flowchart TB
   b_desktop --> b_agent_orchestrator
   b_diff_review --> b_llm_gateway
   b_diff_review --> b_agent_orchestrator
+  b_diff_review --> b_db
   b_product_auth --> b_product_dashboard
   b_product_auth --> b_product_ingest
   b_product_ingest --> b_product_warehouse
   b_product_dashboard --> b_product_warehouse
   b_clarify --> b_llm_gateway
+  b_clarify --> b_db
 ```
 
 ## Слои
@@ -161,7 +165,7 @@ flowchart TB
 - **type**: module
 - **status**: `wip` — HTML loses references to components.jsx/sidecol.jsx/canvas_tools.jsx — UI does not boot in production; multi-layer rendering depends on PR2 (this PR)
 - **mvp**: yes
-- **depends_on**: `b.core-sync`, `b.agent-orchestrator`, `b.clarify`, `b.code-graph`
+- **depends_on**: `b.core-sync`, `b.agent-orchestrator`, `b.clarify`, `b.code-graph`, `b.db`
 - **tech_stack**: `react`, `babel-standalone`
 - **files**: 17 (`atlas/blocks/b.ui-control/files.md`)
 
@@ -245,6 +249,7 @@ evidence_spec:
 - b.clarify: declared_understanding
 - b.clarify: contract_draft_review
 - b.code-graph: code_map
+- b.db: atlas_state_store
 
 #### Files
 
@@ -285,6 +290,7 @@ These files had no owner in any files.md, so the code-graph check never saw thei
 ## R-8.16 — данные интерфейса
 
 - atlas/design_payload.json [alive] (данные для канваса — пишет build_sima_design_payload.mjs)
+- atlas/blocks/b.ui-control/decisions.log [alive] (R-8.17: почему у блока такие связи и решения — не отменять молча)
 
 _Sources: [mission](blocks/b.ui-control/mission.md) · [kpi](blocks/b.ui-control/kpi.md) · [acceptance](blocks/b.ui-control/acceptance.md) · [depends_on](blocks/b.ui-control/depends_on.md) · [provides](blocks/b.ui-control/provides.md) · [patterns](blocks/b.ui-control/patterns.md) · [files](blocks/b.ui-control/files.md)_
 
@@ -646,6 +652,7 @@ do/don't notes live in `narrative.md`._
 - atlas/blocks/ [alive] (R-8.16: хранилище блоков — файлы в папках блоков (mission.md, checks.log, …) принадлежат ему, кто бы их ни читал)
 - atlas/templates/ [alive] (R-8.16: шаблоны блоков, из которых apply_block_template.mjs создаёт новые)
 - atlas/change_sets/.gitkeep [alive] (R-8.16: папка наборов изменений, которые пишет change_set.mjs)
+- atlas/projects/ [alive] (R-8.17: атласы других проектов — тот же формат хранилища блоков; код их не пишет, читают оркестратор, ночная проверка, документация и ученик профиля)
 - scripts/log_transition.mjs [alive]
 - scripts/manage_block.mjs [alive] (R-8.14: ранняя ручная команда для блока — init / set-status / set-mission; меняет статус без проверки и без записи в transitions.log. Её никто не вызывает: статусы меняет шлюз жизненного цикла, advance_block_state.mjs)
 - scripts/advance_block_state.mjs [alive]
@@ -1058,6 +1065,7 @@ These files had no owner in any files.md, so the code-graph check never saw thei
 - scripts/sync_article_status.mjs [alive]
 - scripts/capture_hero_screenshot.mjs [alive] (README hero image)
 - tests/docs_generators.selftest.mjs [alive] (R-8.11: acceptance A3/A5 — the real roadmap.md respects dependencies; a synthetic atlas where status and dependencies disagree; a block without a layer gets «Без слоя»)
+- atlas/blocks/b.docs/calls.md [alive] (R-8.17: что блок использует во время работы — чужие данные, которые он читает или пишет; не порядок сборки)
 
 _Sources: [mission](blocks/b.docs/mission.md) · [kpi](blocks/b.docs/kpi.md) · [acceptance](blocks/b.docs/acceptance.md) · [depends_on](blocks/b.docs/depends_on.md) · [provides](blocks/b.docs/provides.md) · [patterns](blocks/b.docs/patterns.md) · [files](blocks/b.docs/files.md)_
 
@@ -1211,6 +1219,7 @@ evidence_spec:
 These files had no owner in any files.md, so the code-graph check never saw their imports.
 - scripts/token_economics.mjs [alive] (token/cost roll-up over llm_traces; R-8.10: --since)
 - tests/openai_gemini_providers.selftest.mjs [alive]
+- atlas/blocks/b.llm-gateway/calls.md [alive] (R-8.17: что блок использует во время работы — чужие данные, которые он читает или пишет; не порядок сборки)
 
 _Sources: [mission](blocks/b.llm-gateway/mission.md) · [kpi](blocks/b.llm-gateway/kpi.md) · [acceptance](blocks/b.llm-gateway/acceptance.md) · [depends_on](blocks/b.llm-gateway/depends_on.md) · [provides](blocks/b.llm-gateway/provides.md) · [patterns](blocks/b.llm-gateway/patterns.md) · [files](blocks/b.llm-gateway/files.md)_
 
@@ -1571,7 +1580,7 @@ _Sources: [mission](blocks/b.operator-profile-learner/mission.md) · [kpi](block
 - **type**: module
 - **status**: `review`
 - **mvp**: no
-- **depends_on**: `b.db`, `b.core-sync`, `b.agent-orchestrator`, `b.llm-gateway`
+- **depends_on**: `b.db`, `b.core-sync`, `b.agent-orchestrator`, `b.llm-gateway`, `b.operator-profile-learner`
 - **tech_stack**: `nodejs`, `esm`, `json-schema`
 - **files**: 12 (`atlas/blocks/b.acceptance-verifier-loop/files.md`)
 
@@ -1817,6 +1826,8 @@ evidence_spec:
 - b.core-sync: sync_report
 - b.agent-orchestrator: pipeline_execution
 - b.llm-gateway: llm_call_structured
+- b.operator-profile-learner: personal_dont_use
+- b.operator-profile-learner: personal_always_use
 
 #### Files
 
@@ -2251,7 +2262,10 @@ Sima Atlas сейчас знает граф продукта на уровне *
 Файл, у которого владельца нет, карта называет, а не угадывает. Вызов
 маршрута сервера доходит до того, что использует код маршрута, — так видно,
 что стоит за заявленной связью интерфейса с блоком, до которого он
-добирается через сервер.
+добирается через сервер. Связь через данные записывается в `depends_on.md`,
+когда блоку нужны эти данные и цикла нет; иначе — в `calls.md` (R-8.17).
+Карта видит одно и то же на любой машине: файлы атласа берутся из git и из
+того, что создаёт код, а не из того, что оставили на диске прошлые запуски.
 
 ## Layer
 data
@@ -2412,7 +2426,7 @@ evidence_spec:
   expect_in_stdout: "\"code_graph\": true"
 ```
 
-- [x] **A10.** Каждый вызов во время работы между блоками записан в контракте: всё, что один блок запускает отдельным процессом или вызывает по HTTP у другого, стоит в его `calls.md`, а каждая строка `calls.md` подтверждена кодом.
+- [x] **A10.** Каждый вызов во время работы между блоками записан в контракте: всё, что один блок запускает отдельным процессом или вызывает по HTTP у другого, стоит в его `calls.md`, а каждая строка `calls.md` подтверждена кодом — запуском, вызовом или чужими данными, которые код трогает.
 ```yaml
 evidence_kind: exit_code
 evidence_spec:
@@ -2420,12 +2434,12 @@ evidence_spec:
   expect_in_stdout: "runtime calls: 0 undeclared, 0 stale, 0 unknown"
 ```
 
-- [ ] **A11.** Связи через файлы атласа видны и сосчитаны: валидатор называет каждую пару блоков, где один читает или пишет файл атласа другого, а контракт об этом молчит, и каждый файл атласа без владельца. Это отчёт: какой файл контракта подходит (`depends_on.md` или `calls.md`), решает оператор.
+- [ ] **A11.** Каждая связь через файлы атласа записана в контракте, и у каждого файла атласа, который называет код, есть владелец: блок, который читает данные другого и без них не работает, называет его в `depends_on.md`; блок, который пишет в чужие данные во время работы или читает их там, где зависимость замкнула бы цикл, — в `calls.md`.
 ```yaml
 evidence_kind: exit_code
 evidence_spec:
   cmd: node scripts/validate_code_graph_vs_contracts.mjs --data-links
-  expect_in_stdout: "data links: [0-9]+ undeclared, [0-9]+ atlas files without an owner"
+  expect_in_stdout: "data links: 0 undeclared, 0 atlas files without an owner"
 ```
 
 ## inconclusive_if
@@ -2478,6 +2492,7 @@ do/don't notes live in `narrative.md`._
 - tests/atlas_map.selftest.mjs [alive] (R-8.14: 8 групп — части файла покрывают каждую строку, стек, что запускает файл, связи не-импорты без комментариев и спецификаторов модулей, зачем нужен файл, связи блоков по видам, карта на одноразовом репо и отказ отдавать файлы вне карты, реальный атлас)
 - atlas/code_graph.json [alive] (auto-generated артефакт)
 - atlas/blocks/b.code-graph/understanding.md [alive] (R-8.14: объявленная рамка блока — как агент понял задачу карты кода; ждёт ответа оператора)
+- atlas/blocks/b.code-graph/calls.md [alive] (R-8.17: что блок использует во время работы — чужие данные, которые он читает или пишет; не порядок сборки)
 
 _Sources: [mission](blocks/b.code-graph/mission.md) · [kpi](blocks/b.code-graph/kpi.md) · [acceptance](blocks/b.code-graph/acceptance.md) · [depends_on](blocks/b.code-graph/depends_on.md) · [provides](blocks/b.code-graph/provides.md) · [patterns](blocks/b.code-graph/patterns.md) · [files](blocks/b.code-graph/files.md)_
 
@@ -2733,7 +2748,7 @@ _Sources: [mission](blocks/b.desktop/mission.md) · [kpi](blocks/b.desktop/kpi.m
 - **type**: module
 - **status**: `done` — Fourth V-1 arbiter — independent LLM review of the git diff for BLOCKING problems (correctness/security/regression/perf). Imported from loop-engineer-template. R-8.01.
 - **mvp**: no
-- **depends_on**: `b.llm-gateway`, `b.agent-orchestrator`
+- **depends_on**: `b.llm-gateway`, `b.agent-orchestrator`, `b.db`
 - **tech_stack**: `nodejs`, `esm`
 - **files**: 2 (`atlas/blocks/b.diff-review/files.md`)
 
@@ -2921,6 +2936,7 @@ evidence_spec:
 
 - b.llm-gateway: llm_call_structured
 - b.agent-orchestrator: pipeline_execution
+- b.db: atlas_state_store
 
 #### Patterns
 
@@ -6721,6 +6737,10 @@ _no summary_
 - 2026-11-02T12:18:00.843Z: smoke e2e distillate
 - 2026-11-02T12:18:07.303Z: smoke e2e queued insight
 - 2026-11-02T12:18:07.359Z: smoke e2e distillate
+- 2026-11-02T13:11:19.393Z: smoke e2e queued insight
+- 2026-11-02T13:11:19.446Z: smoke e2e distillate
+- 2026-11-02T13:11:23.937Z: smoke e2e queued insight
+- 2026-11-02T13:11:23.996Z: smoke e2e distillate
 
 #### Files
 
@@ -7122,7 +7142,7 @@ _Sources: [mission](blocks/b.block-2/mission.md) · [kpi](blocks/b.block-2/kpi.m
 - **type**: module
 - **status**: `review` — R-8.06 + R-8.08 — meaning transfer in both directions around the contract. Model to human: questions, uncertainty markers, assumption registry. Human to model: the trajectory in mission.md as the rule for choosing between green implementations, and the executing agent declaring its operative frame in understanding.md before code.
 - **mvp**: no
-- **depends_on**: `b.llm-gateway`
+- **depends_on**: `b.llm-gateway`, `b.db`
 - **tech_stack**: `nodejs`, `esm`
 - **files**: 3 (`atlas/blocks/b.clarify/files.md`)
 
@@ -7482,6 +7502,7 @@ evidence_spec:
 # b.clarify — depends_on
 
 - b.llm-gateway: llm_call_structured
+- b.db: atlas_state_store
 
 #### Patterns
 

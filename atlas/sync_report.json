@@ -1,6 +1,6 @@
 {
   "contractValidation": {
-    "checkedAt": "2026-11-02T12:18:03.657Z",
+    "checkedAt": "2026-11-02T13:11:03.091Z",
     "total": 21,
     "broken": 0,
     "details": []
@@ -11,8 +11,8 @@
     "details": []
   },
   "codeGraphDrift": {
-    "checkedAt": "2026-11-02T12:17:56.026Z",
-    "driftCount": 43,
+    "checkedAt": "2026-11-02T13:11:14.479Z",
+    "driftCount": 33,
     "details": [
       {
         "kind": "provided_capability_not_exported",
@@ -1474,261 +1474,17 @@
           "tryCapture"
         ],
         "hint": "«user_docs_meta» looks like a code symbol but the block neither exports it nor mentions it anywhere in source. Either implement it, or revise atlas/blocks/b.user-docs-generator/provides.md."
-      },
-      {
-        "kind": "undeclared_data_link",
-        "severity": "warning",
-        "block": "b.acceptance-verifier-loop",
-        "data_of_block": "b.operator-profile-learner",
-        "files": [
-          "atlas/operator_profile"
-        ],
-        "examples": [
-          {
-            "from_file": "scripts/semantic_verify.mjs",
-            "line": 98,
-            "to_file": "atlas/operator_profile",
-            "mode": "read"
-          },
-          {
-            "from_file": "scripts/verify_cache.mjs",
-            "line": 62,
-            "to_file": "atlas/operator_profile",
-            "mode": "read"
-          }
-        ],
-        "hint": "b.acceptance-verifier-loop reads atlas files that belong to b.operator-profile-learner. Name b.operator-profile-learner in atlas/blocks/b.acceptance-verifier-loop/depends_on.md if b.acceptance-verifier-loop needs that data to work and the edge forms no cycle; in calls.md if it only writes into it while it works; or move the file to the block that really owns it (files.md)."
-      },
-      {
-        "kind": "undeclared_data_link",
-        "severity": "warning",
-        "block": "b.clarify",
-        "data_of_block": "b.db",
-        "files": [
-          "atlas/blocks/",
-          "atlas/blocks/*/acceptance.md",
-          "atlas/blocks/*/checks.log",
-          "atlas/blocks/*/kpi.md",
-          "atlas/blocks/*/mission.md",
-          "atlas/blocks/*/tasks.md",
-          "atlas/blocks/*/understanding.md",
-          "atlas/blocks/*/user_story.md",
-          "atlas/graph.json"
-        ],
-        "examples": [
-          {
-            "from_file": "scripts/block_meaning.mjs",
-            "line": 149,
-            "to_file": "atlas/blocks/*/understanding.md",
-            "mode": "read"
-          },
-          {
-            "from_file": "scripts/block_meaning.mjs",
-            "line": 321,
-            "to_file": "atlas/blocks/*/mission.md",
-            "mode": "read"
-          },
-          {
-            "from_file": "scripts/block_meaning.mjs",
-            "line": 553,
-            "to_file": "atlas/blocks/*/acceptance.md",
-            "mode": "read"
-          },
-          {
-            "from_file": "scripts/block_meaning.mjs",
-            "line": 554,
-            "to_file": "atlas/blocks/*/kpi.md",
-            "mode": "read"
-          }
-        ],
-        "hint": "b.clarify reads atlas files that belong to b.db. Name b.db in atlas/blocks/b.clarify/depends_on.md if b.clarify needs that data to work and the edge forms no cycle; in calls.md if it only writes into it while it works; or move the file to the block that really owns it (files.md)."
-      },
-      {
-        "kind": "undeclared_data_link",
-        "severity": "warning",
-        "block": "b.code-graph",
-        "data_of_block": "b.acceptance-verifier-loop",
-        "files": [
-          "atlas/acceptance_runs"
-        ],
-        "examples": [
-          {
-            "from_file": "scripts/atlas_map.mjs",
-            "line": 599,
-            "to_file": "atlas/acceptance_runs",
-            "mode": "read"
-          }
-        ],
-        "hint": "b.code-graph reads atlas files that belong to b.acceptance-verifier-loop. Name b.acceptance-verifier-loop in atlas/blocks/b.code-graph/depends_on.md if b.code-graph needs that data to work and the edge forms no cycle; in calls.md if it only writes into it while it works; or move the file to the block that really owns it (files.md)."
-      },
-      {
-        "kind": "undeclared_data_link",
-        "severity": "warning",
-        "block": "b.code-graph",
-        "data_of_block": "b.core-sync",
-        "files": [
-          "atlas/sync_report.json"
-        ],
-        "examples": [
-          {
-            "from_file": "scripts/validate_code_graph_vs_contracts.mjs",
-            "line": 255,
-            "to_file": "atlas/sync_report.json",
-            "mode": "write"
-          }
-        ],
-        "hint": "b.code-graph writes into atlas files that belong to b.core-sync. Name b.core-sync in atlas/blocks/b.code-graph/depends_on.md if b.code-graph needs that data to work and the edge forms no cycle; in calls.md if it only writes into it while it works; or move the file to the block that really owns it (files.md)."
-      },
-      {
-        "kind": "undeclared_data_link",
-        "severity": "warning",
-        "block": "b.core-sync",
-        "data_of_block": "b.llm-gateway",
-        "files": [
-          "atlas/llm_traces"
-        ],
-        "examples": [
-          {
-            "from_file": "scripts/housekeeping_sweeper.mjs",
-            "line": 69,
-            "to_file": "atlas/llm_traces",
-            "mode": "read"
-          }
-        ],
-        "hint": "b.core-sync reads atlas files that belong to b.llm-gateway. Name b.llm-gateway in atlas/blocks/b.core-sync/depends_on.md if b.core-sync needs that data to work and the edge forms no cycle; in calls.md if it only writes into it while it works; or move the file to the block that really owns it (files.md)."
-      },
-      {
-        "kind": "undeclared_data_link",
-        "severity": "warning",
-        "block": "b.core-sync",
-        "data_of_block": "b.operator-profile-learner",
-        "files": [
-          "atlas/operator_profile"
-        ],
-        "examples": [
-          {
-            "from_file": "scripts/housekeeping_sweeper.mjs",
-            "line": 71,
-            "to_file": "atlas/operator_profile",
-            "mode": "read"
-          }
-        ],
-        "hint": "b.core-sync reads atlas files that belong to b.operator-profile-learner. Name b.operator-profile-learner in atlas/blocks/b.core-sync/depends_on.md if b.core-sync needs that data to work and the edge forms no cycle; in calls.md if it only writes into it while it works; or move the file to the block that really owns it (files.md)."
-      },
-      {
-        "kind": "undeclared_data_link",
-        "severity": "warning",
-        "block": "b.desktop",
-        "data_of_block": "b.operator-profile-learner",
-        "files": [
-          "atlas/operator_profile"
-        ],
-        "examples": [
-          {
-            "from_file": "extensions/desktop/main.mjs",
-            "line": 344,
-            "to_file": "atlas/operator_profile",
-            "mode": "read"
-          }
-        ],
-        "hint": "b.desktop reads atlas files that belong to b.operator-profile-learner. Name b.operator-profile-learner in atlas/blocks/b.desktop/depends_on.md if b.desktop needs that data to work and the edge forms no cycle; in calls.md if it only writes into it while it works; or move the file to the block that really owns it (files.md)."
-      },
-      {
-        "kind": "undeclared_data_link",
-        "severity": "warning",
-        "block": "b.diff-review",
-        "data_of_block": "b.db",
-        "files": [
-          "atlas/blocks/*/mission.md"
-        ],
-        "examples": [
-          {
-            "from_file": "scripts/review_diff.mjs",
-            "line": 305,
-            "to_file": "atlas/blocks/*/mission.md",
-            "mode": "read"
-          }
-        ],
-        "hint": "b.diff-review reads atlas files that belong to b.db. Name b.db in atlas/blocks/b.diff-review/depends_on.md if b.diff-review needs that data to work and the edge forms no cycle; in calls.md if it only writes into it while it works; or move the file to the block that really owns it (files.md)."
-      },
-      {
-        "kind": "undeclared_data_link",
-        "severity": "warning",
-        "block": "b.docs",
-        "data_of_block": "b.user-docs-generator",
-        "files": [
-          "atlas/docs"
-        ],
-        "examples": [
-          {
-            "from_file": "scripts/generate_atlas_bootstrap_js.mjs",
-            "line": 424,
-            "to_file": "atlas/docs",
-            "mode": "read"
-          }
-        ],
-        "hint": "b.docs reads atlas files that belong to b.user-docs-generator. Name b.user-docs-generator in atlas/blocks/b.docs/depends_on.md if b.docs needs that data to work and the edge forms no cycle; in calls.md if it only writes into it while it works; or move the file to the block that really owns it (files.md)."
-      },
-      {
-        "kind": "undeclared_data_link",
-        "severity": "warning",
-        "block": "b.ui-control",
-        "data_of_block": "b.db",
-        "files": [
-          "atlas/blocks/*/acceptance.md",
-          "atlas/blocks/*/checks.log",
-          "atlas/blocks/*/decisions.log",
-          "atlas/blocks/*/depends_on.md",
-          "atlas/blocks/*/files.md",
-          "atlas/blocks/*/kpi.md",
-          "atlas/blocks/*/mission.md",
-          "atlas/blocks/*/patterns.md",
-          "atlas/blocks/*/provides.md",
-          "atlas/blocks/*/tasks.md",
-          "atlas/graph.json",
-          "atlas/project.md",
-          "atlas/rules.md",
-          "atlas/tech_stack.md",
-          "atlas/transitions.log"
-        ],
-        "examples": [
-          {
-            "from_file": "scripts/build_sima_design_payload.mjs",
-            "line": 164,
-            "to_file": "atlas/transitions.log",
-            "mode": "read"
-          },
-          {
-            "from_file": "scripts/build_sima_design_payload.mjs",
-            "line": 199,
-            "to_file": "atlas/project.md",
-            "mode": "read"
-          },
-          {
-            "from_file": "scripts/build_sima_design_payload.mjs",
-            "line": 206,
-            "to_file": "atlas/tech_stack.md",
-            "mode": "read"
-          },
-          {
-            "from_file": "scripts/build_sima_design_payload.mjs",
-            "line": 245,
-            "to_file": "atlas/graph.json",
-            "mode": "read"
-          }
-        ],
-        "hint": "b.ui-control writes into atlas files that belong to b.db. Name b.db in atlas/blocks/b.ui-control/depends_on.md if b.ui-control needs that data to work and the edge forms no cycle; in calls.md if it only writes into it while it works; or move the file to the block that really owns it (files.md)."
       }
     ]
   },
   "dependencyValidation": {
-    "checkedAt": "2026-11-02T12:18:03.509Z",
-    "totalDepsChecked": 48,
+    "checkedAt": "2026-11-02T13:11:02.090Z",
+    "totalDepsChecked": 53,
     "broken": 0,
     "details": []
   },
   "codeGraphSummary": {
-    "checkedAt": "2026-11-02T12:16:27.052Z",
+    "checkedAt": "2026-11-02T13:07:50.118Z",
     "available": true,
     "backend": "pure-node-esm-v1",
     "blockCount": 19,

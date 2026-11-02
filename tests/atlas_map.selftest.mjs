@@ -20,16 +20,19 @@
 //       names and whether it writes them (through a name, one more name, a
 //       path function), who owns each one (files.md / the block store / the
 //       only writer / nobody), regex routes and the most specific route of a
-//       call, and a call through the server backing a declared link
+//       call, and a call through the server backing a declared link; the
+//       vocabulary comes from git and from what the code makes, not from what
+//       runs left on disk (R-8.17)
 
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { execFileSync } from 'node:child_process';
 import {
   segmentsOf, fileStack, entryPoints, httpCalls, spawnedScripts, generatedBy,
   fileRole, filePurpose, blockLinks, buildCodeMap, readMapFile, wantLine, missionLine,
-  routeFromRegex, atlasVocabulary, dataRefs, dataOwners, artefactOwners,
+  routeFromRegex, atlasVocabulary, dataRefs, dataOwners, artefactOwners, trackedAtlas, atlasNamesInCode,
 } from '../scripts/atlas_map.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -258,6 +261,8 @@ try {
     w('atlas/graph.json', '{}'); w('atlas/project.md', ''); w('atlas/tech_stack.md', ''); w('atlas/rules.md', ''); w('atlas/decisions.md', '');
     w('atlas/sync_report.json', '{}'); w('atlas/operator_profile/x.json', '{}'); w('atlas/templates/a.md', ''); w('atlas/clients/c1/graph.json', '{}');
     w('atlas/blocks/b.x/mission.md', ''); w('atlas/blocks/b.x/checks.log', ''); w('atlas/blocks/b.x/notes.bin', '');
+    w('atlas/roadmap.md', ''); w('atlas/llm_traces/t.json', '{}'); w('atlas/proposals/p.json', '{}'); w('atlas/context_packs/c.json', '{}');
+    w('atlas/eval_history/e.json', '{}'); w('atlas/run_logs/r.log', ''); w('atlas/artifacts/a.json', '{}');
     const vocab = atlasVocabulary(atlas);
     check('g9: the vocabulary is the atlas top level and the data files of block folders', vocab.top.has('graph.json') && vocab.top.has('blocks') && !vocab.top.has('clients')
       && vocab.perBlock.has('checks.log') && !vocab.perBlock.has('notes.bin'), JSON.stringify([[...vocab.top], [...vocab.perBlock]]));
@@ -291,6 +296,13 @@ try {
       '  const d = decisionsPath();',                                                             // 27
       "  fs.appendFileSync(d, '- x');",                                                           // 28
       '}',                                                                                        // 29
+      "const road = fs.readFileSync(path.join(ROOT, 'atlas', 'roadmap.md'), 'utf8');",           // 30
+      "const SWEPT = ['atlas/llm_traces', 'atlas/proposals'];",                                  // 31
+      "fs.mkdirSync(path.join(ATLAS, 'context_packs'), { recursive: true });",                   // 32
+      'const FOREVER_SKIP_DIRS = [',                                                              // 33
+      "  'atlas/eval_history', 'atlas/run_logs',",                                                // 34
+      '];',                                                                                       // 35
+      "const IGNORE = new Set(['atlas/artifacts']);",                                             // 36
     ].join('\n');
     const segs = segmentsOf(src, 'scripts/data.mjs').segments;
     const refs = dataRefs(src, vocab, segs);
@@ -300,6 +312,10 @@ try {
     check('g9: written through a name and one more name, in its own function', R('blocks/*/checks.log') === '6:write' && R('blocks/') === '8:write', JSON.stringify(refs));
     check('g9: another function\'s «p» does not make a read a write', R('project.md') === '12:read', JSON.stringify(refs));
     check('g9: written through a path function', R('decisions.md') === '20:write', JSON.stringify(refs));
+    check('g9: «atlas» before a file is the atlas root, not a folder (R-8.17)', R('roadmap.md') === '30:read', JSON.stringify(refs));
+    check('g9: every item of a list is a file of its own (R-8.17)', R('llm_traces') === '31:read' && R('proposals') === '31:read', JSON.stringify(refs));
+    check('g9: creating a folder is a write (R-8.17)', R('context_packs') === '32:write', JSON.stringify(refs));
+    check('g9: a path in a list of what to leave alone is not a use (R-8.17)', !R('eval_history') && !R('run_logs') && !R('artifacts'), JSON.stringify(refs));
     check('g9: written by a variable and by a write helper; writeHead is not a write', R('sync_report.json') === '22:write' && R('rules.md') === '24:write' && R('tech_stack.md') === '25:read', JSON.stringify(refs));
 
     // owners
@@ -381,6 +397,44 @@ try {
     check('g9: map — through-the-server entries do not stay on the files', m9.files.every((f) => !('via' in f)));
   } finally {
     fs.rmSync(t9, { recursive: true, force: true });
+  }
+
+  // the vocabulary does not depend on what runs left on disk (R-8.17)
+  const t10 = fs.mkdtempSync(path.join(os.tmpdir(), 'sima-map-git-'));
+  try {
+    const w = (p, t) => { fs.mkdirSync(path.dirname(path.join(t10, p)), { recursive: true }); fs.writeFileSync(path.join(t10, p), t); };
+    const atlas = path.join(t10, 'atlas');
+    w('atlas/graph.json', JSON.stringify({ layers: [{ id: 'l', name: 'L', order: 0 }], blocks: [
+      { id: 'b.a', title: 'A', layer: 'l', status: 'wip', depends_on: [] },
+      { id: 'b.u', title: 'U', layer: 'l', status: 'wip', depends_on: [] },
+    ] }));
+    w('atlas/blocks/b.a/mission.md', '# m\n');
+    w('atlas/code_graph.json', JSON.stringify({ files: {
+      'scripts/a.mjs': { owning_block: 'b.a', exports: [], imports: [] },
+      'scripts/u.mjs': { owning_block: 'b.u', exports: [], imports: [] },
+    } }));
+    w('atlas/stray/left.json', '{}');   // a run left it; nothing makes it; git does not know it
+    w('docs/article.md', '');           // the repository's docs, next to the atlas
+    w('scripts/a.mjs', [
+      "const s = fs.readdirSync(path.join(ATLAS, 'stray'));",
+      "fs.mkdirSync(path.join(ATLAS, 'run_state'), { recursive: true });",
+      "const g = fs.readFileSync(path.join(ATLAS, 'graph.json'), 'utf8');",
+      "const art = fs.readFileSync('docs/article.md', 'utf8');",
+      "const ud = fs.readdirSync(path.join(root, 'atlas', 'docs'));",
+    ].join('\n'));
+    w('scripts/u.mjs', "fs.writeFileSync(path.join(root, 'atlas', 'docs', 'x.md'), '');\n");
+    execFileSync('git', ['init', '-q'], { cwd: t10 });
+    execFileSync('git', ['add', 'atlas/graph.json', 'atlas/code_graph.json', 'atlas/blocks/b.a/mission.md'], { cwd: t10 });
+    const tr = trackedAtlas(t10, atlas);
+    check('g9: the tracked atlas is what git knows', tr && [...tr.top].sort().join() === 'blocks,code_graph.json,graph.json' && [...tr.perBlock].join() === 'mission.md', JSON.stringify(tr && [[...tr.top], [...tr.perBlock]]));
+    check('g9: names the code joins onto the atlas root', [...atlasNamesInCode("fs.mkdirSync(path.join(ATLAS, 'run_state'));\nconst d = path.join(root, 'atlas', 'docs', 'end-user');\nconst x = 'atlas/llm_traces';\n// path.join(ATLAS, 'nope')\n")].sort().join() === 'docs,llm_traces,run_state');
+    const m10 = buildCodeMap({ repoRoot: t10, atlasRoot: atlas, history: false });
+    const a = m10.files.find((f) => f.path === 'scripts/a.mjs');
+    const keys = a.data.map((d) => `${d.key}:${d.mode}:${d.owner}`).sort().join();
+    check('g9: a folder only read, left by a run, is not an atlas file; one the code makes is', keys === 'docs:read:b.u,graph.json:read:null,run_state:write:b.a', keys);
+    check('g9: «docs/…» without «atlas» on the line is the repository\'s docs', !a.data.some((d) => d.line === 4), JSON.stringify(a.data));
+  } finally {
+    fs.rmSync(t10, { recursive: true, force: true });
   }
 }
 

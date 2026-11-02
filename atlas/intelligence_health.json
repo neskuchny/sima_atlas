@@ -1,14 +1,22 @@
 {
-  "generated_at": "2026-11-02T12:18:08.168Z",
+  "generated_at": "2026-11-02T13:11:24.944Z",
   "total_blocks": 21,
-  "synchronized_blocks": 20,
-  "intelligence_health": 0.9524,
+  "synchronized_blocks": 19,
+  "intelligence_health": 0.9048,
   "unsynchronized": [
     {
       "block_id": "b.agent-orchestrator",
       "status": "review",
       "issues": [
         "depends/provides mismatch: b.operator-profile-learner:personal_templates"
+      ]
+    },
+    {
+      "block_id": "b.acceptance-verifier-loop",
+      "status": "review",
+      "issues": [
+        "depends/provides mismatch: b.operator-profile-learner:personal_dont_use",
+        "depends/provides mismatch: b.operator-profile-learner:personal_always_use"
       ]
     }
   ]

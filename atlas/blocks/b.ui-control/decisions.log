@@ -1,0 +1,1 @@
+2026-11-02T13:00:00Z | data_dependency_declared | R-8.17: depends_on — данные другого блока, найденные картой кода (R-8.16): build_sima_design_payload.mjs читает graph.json, project.md, tech_stack.md, transitions.log и контракты блоков; seed_example_client.mjs пишет атлас примера в том же формате — интерфейс стоит на хранилище блоков.

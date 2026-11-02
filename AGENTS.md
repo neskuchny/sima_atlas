@@ -11,12 +11,15 @@ stop-signals.
 1. **Block = directory of contracts**, not code. Each block is
    `atlas/blocks/<id>/` containing `mission.md`, `kpi.md`, `acceptance.md`,
    `depends_on.md`, `provides.md`, `tasks.md`, `files.md`, `code_summary.md`,
-   `checks.log`, and optionally `calls.md` — what the block starts or calls
-   at runtime (not a dependency: it does not order building and may go «up»). Multi-tenant: `atlas/clients/<client>/blocks/<id>/`.
+   `checks.log`, and optionally `calls.md` — what the block uses at runtime
+   without it ordering the build: starts, HTTP calls, another block's atlas
+   data it writes into or reads where `depends_on` would close a cycle (it may
+   go «up»). Multi-tenant: `atlas/clients/<client>/blocks/<id>/`.
    An atlas file belongs to the block whose `files.md` lists it (files in
    block folders — to the block store); reading or writing another block's
-   atlas file is a connection to that block, and a new atlas file goes into
-   your `files.md` (R-8.16).
+   atlas file is a connection to that block — `depends_on.md` when you need
+   the data and there is no cycle, else `calls.md` — and a new atlas file goes
+   into your `files.md` (R-8.16, R-8.17).
 
 2. **Read mission before code.** Standard order: `/atlas/project.md` →
    `/atlas/rules.md` → tech_stack → mission → acceptance → depends_on →

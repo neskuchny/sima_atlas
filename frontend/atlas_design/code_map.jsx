@@ -867,8 +867,10 @@ function CodeRow({ c, ix, go, dir }) {
     </li>
   );
 }
+const LIST_MAX = 12; // a long group folds: the first rows and «show N more»
 function LinkCard({ ix, l, go, setSel, jump }) {
   const a = ix.blockById.get(l.from), z = ix.blockById.get(l.to);
+  const [open, setOpen] = useState({});
   const byKind = Object.fromEntries(LINK_KINDS.map((k) => [k, []]));
   for (const c of l.code) (byKind[c.kind] || (byKind[c.kind] = [])).push(c);
   return (
@@ -877,7 +879,7 @@ function LinkCard({ ix, l, go, setSel, jump }) {
       <h3 className="cm-ititle">{a?.title} → {z?.title}</h3>
       <p className={`cm-lstate ls-${linkState(l)}`}>{linkStateText(l)}{l.tests_only ? ` · ${tr('map.tests_only', 'only tests use it')}` : ''}</p>
       {(l.declared_in || []).length > 0 && (
-        <p className="cm-itext cm-muted">{tr('map.declared_in', 'Written in')}: {(l.declared_in || []).map((d) => (d === 'calls' ? tr('map.declared_calls', 'calls.md — a call while it works (not the build order)') : tr('map.declared_deps', 'depends_on.md — a dependency (it orders building)'))).join('; ')}.</p>
+        <p className="cm-itext cm-muted">{tr('map.declared_in', 'Written in')}: {(l.declared_in || []).map((d) => (d === 'calls' ? tr('map.declared_calls', 'calls.md — used while it works: a start, a call, another block\'s data (not the build order)') : tr('map.declared_deps', 'depends_on.md — a dependency (it orders building)'))).join('; ')}.</p>
       )}
       <p className="cm-itext">{tr('map.link_read', 'Reads as')}: «{a?.title} {tr('map.link_uses', 'uses')} {z?.title}». {linkSummary(l)}.</p>
       {LINK_KINDS.map((k) => byKind[k].length > 0 && (
@@ -885,7 +887,8 @@ function LinkCard({ ix, l, go, setSel, jump }) {
           <span className="cm-label">{LINK_KIND[k].icon} {tr(LINK_KIND[k].key, LINK_KIND[k].fb)}</span>
           {k === 'file' && <p className="cm-itext cm-muted">{tr('map.file_note', 'The file belongs to the block the connection leads to: it is listed in that block\'s files.md, lies in a block folder (the block store), or only that block\'s code writes it.')}</p>}
           {k === 'via' && <p className="cm-itext cm-muted">{tr('map.via_note', 'A call to a server route whose code uses this block — the server carries the connection, the contract names it.')}</p>}
-          <ul className="cm-list">{byKind[k].map((c, i) => <CodeRow key={i} c={c} ix={ix} go={go} />)}</ul>
+          <ul className="cm-list">{(open[k] ? byKind[k] : byKind[k].slice(0, LIST_MAX)).map((c, i) => <CodeRow key={i} c={c} ix={ix} go={go} />)}</ul>
+          {!open[k] && byKind[k].length > LIST_MAX && <button type="button" className="cm-link cm-more" onClick={() => setOpen({ ...open, [k]: true })}>{tr('map.show_more', 'show')} {byKind[k].length - LIST_MAX} {tr('map.more_rows', 'more')}</button>}
         </div>
       ))}
       {!l.code.length && <p className="cm-itext cm-muted">{tr('map.link_no_code', 'No import, API call, started script or shared atlas file backs this dependency. Either the code does not need it yet, or the connection goes a way the map does not see (a shared format, a person) — worth checking the contract.')}</p>}
@@ -1227,13 +1230,13 @@ function CodeMap() {
 
   let inspector;
   if (level === 'product') {
-    if (sel?.type === 'link') { const l = ix.map.links.find((x) => x.from === sel.from && x.to === sel.to); inspector = l ? <LinkCard ix={ix} l={l} go={go} setSel={setSel} jump={scrollToRoom} /> : null; }
+    if (sel?.type === 'link') { const l = ix.map.links.find((x) => x.from === sel.from && x.to === sel.to); inspector = l ? <LinkCard key={`${l.from}→${l.to}`} ix={ix} l={l} go={go} setSel={setSel} jump={scrollToRoom} /> : null; }
     else if (sel?.type === 'block') inspector = <BlockCard ix={ix} b={ix.blockById.get(sel.id)} sel={sel} setSel={setSel} go={go} />;
     else if (sel?.type === 'file' && ix.fileByPath.get(sel.id)) inspector = <FileCard ix={ix} f={ix.fileByPath.get(sel.id)} go={go} setSel={setSel} compact />;
     else if (commit) inspector = <CommitCard ix={ix} c={commit} go={go} />;
     else inspector = <ProductCard ix={ix} setLens={setLens} setCommit={setCommit} go={go} />;
   } else if (level === 'block') {
-    if (sel?.type === 'link') { const l = ix.map.links.find((x) => x.from === sel.from && x.to === sel.to); inspector = l ? <LinkCard ix={ix} l={l} go={go} setSel={setSel} jump={(id) => go({ level: 'block', block: id })} /> : null; }
+    if (sel?.type === 'link') { const l = ix.map.links.find((x) => x.from === sel.from && x.to === sel.to); inspector = l ? <LinkCard key={`${l.from}→${l.to}`} ix={ix} l={l} go={go} setSel={setSel} jump={(id) => go({ level: 'block', block: id })} /> : null; }
     else if (sel?.type === 'file' && ix.fileByPath.get(sel.id)) inspector = <FileCard ix={ix} f={ix.fileByPath.get(sel.id)} go={go} setSel={setSel} compact />;
     else inspector = <BlockCard ix={ix} b={block} sel={sel} setSel={setSel} go={go} full />;
   } else if (level === 'file') {

@@ -16,7 +16,9 @@
 //   3. undeclared_runtime_call / stale_runtime_call / unknown_call_target
 //      (R-8.15) — a block starts another block's script or calls its HTTP
 //      routes while it works, and calls.md does not say so; or calls.md
-//      declares a call no code makes; or names a block that does not exist.
+//      declares a call no code makes (R-8.17: a line is confirmed by a start,
+//      an HTTP call, or the other block's atlas data the code touches); or
+//      names a block that does not exist.
 //      A runtime call is not a dependency (depends_on.md orders building and
 //      must stay acyclic), so it has its own contract file. Found the way the
 //      code map finds them (scripts/atlas_map.mjs: string literals in launch
@@ -154,8 +156,11 @@ function detectProvidedCapabilityNotExported(graph, atlasRoot, sourceRoot) {
 
 // A process start or an HTTP call is a runtime call. Reading another
 // block's atlas file is data (R-8.16, its own finding), and a call through
-// the server only backs a declared link — neither belongs to calls.md.
+// the server only backs a declared link. A calls.md line is confirmed by any
+// of them (R-8.17): calls.md also holds the data a block writes into, sweeps
+// or reads where depends_on would close a cycle.
 const RUNTIME = new Set(['start', 'http']);
+const CONFIRMS_CALL = new Set(['start', 'http', 'file', 'via']);
 function codeMapOf(atlasRoot, sourceRoot) {
   try { return buildCodeMap({ repoRoot: sourceRoot, atlasRoot, history: false }); } catch { return null; }
 }
@@ -174,13 +179,13 @@ function detectRuntimeCalls(atlasRoot, sourceRoot, map = codeMapOf(atlasRoot, so
         hint: `Add «- ${l.to}: <what it starts or calls, and why>» to atlas/blocks/${l.from}/calls.md — or to depends_on.md if ${l.from} cannot work without it and the edge forms no cycle.`,
       });
     }
-    if (l.declared_in.includes('calls') && !l.code.some((c) => RUNTIME.has(c.kind))) {
+    if (l.declared_in.includes('calls') && !l.code.some((c) => CONFIRMS_CALL.has(c.kind))) {
       drifts.push({
         kind: 'stale_runtime_call',
         severity: 'warning',
         block: l.from,
         calls_block: l.to,
-        hint: `atlas/blocks/${l.from}/calls.md declares a call to ${l.to}, but no code of ${l.from} starts its scripts or calls its routes. Remove the line, or point it at the code that does.`,
+        hint: `atlas/blocks/${l.from}/calls.md declares a call to ${l.to}, but no code of ${l.from} starts its scripts, calls its routes or touches its atlas files. Remove the line, or point it at the code that does.`,
       });
     }
   }
@@ -280,14 +285,15 @@ if (fileURLToPath(import.meta.url) === process.argv[1]) {
     process.exit(counts.undeclared + counts.stale + counts.unknown ? 1 : 0);
   }
   // R-8.16 — `--data-links`: atlas files a block reads or writes that belong
-  // to a block its contract does not name, and files nobody owns. A report:
-  // which contract file fits (depends_on or calls) is the operator's call.
+  // to a block its contract does not name, and files nobody owns. R-8.17:
+  // every one is written in a contract, so a new one fails the check (exit 1)
+  // the way an undeclared runtime call does.
   if (argv.includes('--data-links')) {
     const found = result.drifts.filter((d) => d.kind === 'undeclared_data_link');
     for (const d of found) console.log(` ~ ${d.block} → ${d.data_of_block} :: ${d.files.join(', ')}`);
     if (result.unowned_data.length) console.log(` ? no owner: ${result.unowned_data.join(', ')}`);
     console.log(`data links: ${found.length} undeclared, ${result.unowned_data.length} atlas files without an owner`);
-    process.exit(0);
+    process.exit(found.length + result.unowned_data.length ? 1 : 0);
   }
   // --strict-provides escalates warnings → errors (fails the validator on
   // unbacked capability promises).

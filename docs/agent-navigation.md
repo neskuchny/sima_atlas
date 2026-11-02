@@ -277,13 +277,18 @@ about a declared call no code makes; the code map shows both.
 
 **Atlas files have owners (R-8.16).** A file under `atlas/` belongs to the
 block whose `files.md` lists it (`- atlas/sync_report.json [alive]`); files
-inside block folders belong to the block store (`b.db`). When your code reads
-or writes another block's atlas file, that is a connection to that block: name
-it in `depends_on.md` when you need the data to work (and the edge closes no
-cycle), in `calls.md` when you only write into it while you work. When you add
-a new atlas file, register it in your block's `files.md` — an unregistered
-file several blocks write has no owner, and the code map reports it. Check with
-`node scripts/validate_code_graph_vs_contracts.mjs --data-links`.
+inside block folders belong to the block store (`b.db`); a file nobody lists
+and only one block writes belongs to that block. When your code reads or writes
+another block's atlas file, that is a connection to that block: name it in
+`depends_on.md` when you need the data to work and the edge closes no cycle;
+in `calls.md` when you write into it, sweep it or lay out its folder while you
+work, or when `depends_on` would close a cycle (R-8.17: the code map's
+`atlas_map.mjs` reads the verifier's runs, while the verifier itself stands on
+the code graph). A path you only name in a skip list is not a use. When you add a new
+atlas file, register it in your block's `files.md` — an unregistered file
+several blocks write has no owner. Check with
+`node scripts/validate_code_graph_vs_contracts.mjs --data-links`: it fails on
+an undeclared data link or a file without an owner.
 
 ---
 

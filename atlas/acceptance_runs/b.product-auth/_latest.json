@@ -23,7 +23,7 @@
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 0
+      "duration_ms": 1
     },
     {
       "id": "A2",
@@ -55,10 +55,10 @@
   },
   "verdict": "inconclusive",
   "duration_ms": 1,
-  "checked_at": "2026-11-02T12:18:01.661Z",
+  "checked_at": "2026-11-02T13:11:20.295Z",
   "cache": {
     "hit": false,
-    "reason": "code changed (a commit, or a changed / new file outside atlas/); a contract, graph.json or project rules changed; another block's verdict or kpi result changed",
-    "lookup_ms": 30.174775
+    "reason": "code changed (a commit, or a changed / new file outside atlas/); a contract, graph.json or project rules changed",
+    "lookup_ms": 25.972883
   }
 }

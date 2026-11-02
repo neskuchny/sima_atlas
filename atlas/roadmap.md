@@ -1,6 +1,6 @@
 # Roadmap (auto-generated, PR2 topo-sort)
 
-_Generated: 2026-11-02T12:18:07.899Z_
+_Generated: 2026-11-02T13:11:24.622Z_
 
 Приоритет внутри уровня: 🔴 broken → 🟣 drift → 🟠 wip → 🔵 review → 🟡 idea → 🟢 done.
 Каждый следующий уровень зависит от предыдущих — реализовывать сверху вниз.
@@ -33,7 +33,7 @@ _Generated: 2026-11-02T12:18:07.899Z_
 
 ### Level 2 — требует Level 1
 
-- 🔵 **b.clarify** (review) — Clarification Arbiter · _ai_ · deps: `b.llm-gateway`
+- 🔵 **b.clarify** (review) — Clarification Arbiter · _ai_ · deps: `b.llm-gateway`, `b.db`
   - R-8.06 + R-8.08 — meaning transfer in both directions around the contract. Model to human: questions, uncertainty markers, assumption registry. Human to model: the trajectory in mission.md as the rule for choosing between green implementations, and the executing agent declaring its operative frame in understanding.md before code.
 - 🟡 **b.product-auth** (idea) — Auth · _logic_ · deps: `b.product-dashboard`, `b.product-ingest`
   - Created via design UI at 2026-05-05T20:57:52.201Z
@@ -62,12 +62,12 @@ _Generated: 2026-11-02T12:18:07.899Z_
 
 ### Level 7 — требует Level 6
 
-- 🟠 **b.ui-control** (wip) — UI Control Plane · _front_ · deps: `b.core-sync`, `b.agent-orchestrator`, `b.clarify`, `b.code-graph`
+- 🟠 **b.ui-control** (wip) — UI Control Plane · _front_ · deps: `b.core-sync`, `b.agent-orchestrator`, `b.clarify`, `b.code-graph`, `b.db`
   - HTML loses references to components.jsx/sidecol.jsx/canvas_tools.jsx — UI does not boot in production; multi-layer rendering depends on PR2 (this PR)
 - 🟠 **b.user-docs-generator** (wip) — End-User Docs Generator · _content_ · deps: `b.db`, `b.docs`, `b.agent-orchestrator`, `b.llm-gateway`
   - R-8.07: демонтирован из done по rules.md #4. Acceptance зелёная (8/8) — машинерия генерации работает и покрыта selftest. KPI-1 (coverage) измерен и провален: atlas/docs/end-user/ пуста при двух user-facing блоках, покрытие 0/2. До done: произвести документы хотя бы для одного user-facing блока ЛИБО переформулировать KPI-1 на done-блоки (решение оператора, см. narrative).
-- 🔵 **b.acceptance-verifier-loop** (review) — Acceptance Verifier Loop · _testing_ · deps: `b.db`, `b.core-sync`, `b.agent-orchestrator`, `b.llm-gateway`
-- 🟢 **b.diff-review** (done) — Diff Review Arbiter · _ai_ · deps: `b.llm-gateway`, `b.agent-orchestrator`
+- 🔵 **b.acceptance-verifier-loop** (review) — Acceptance Verifier Loop · _testing_ · deps: `b.db`, `b.core-sync`, `b.agent-orchestrator`, `b.llm-gateway`, `b.operator-profile-learner`
+- 🟢 **b.diff-review** (done) — Diff Review Arbiter · _ai_ · deps: `b.llm-gateway`, `b.agent-orchestrator`, `b.db`
   - Fourth V-1 arbiter — independent LLM review of the git diff for BLOCKING problems (correctness/security/regression/perf). Imported from loop-engineer-template. R-8.01.
 
 ### Level 8 — требует Level 7

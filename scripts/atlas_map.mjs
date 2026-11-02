@@ -331,24 +331,72 @@ export function httpCalls(src, routes) {
 //      the block store — the block that lists «atlas/blocks/».
 // A file nobody owns is reported, not guessed.
 const DATA_EXT = /\.(?:md|log|jsonl?|txt)$/;
-export function atlasVocabulary(atlasRoot) {
-  const top = new Set();
-  const perBlock = new Set();
-  try { for (const n of fs.readdirSync(atlasRoot)) if (n !== 'clients') top.add(n); } catch { /* no atlas */ }
-  try {
-    for (const d of fs.readdirSync(path.join(atlasRoot, 'blocks'), { withFileTypes: true })) {
-      if (!d.isDirectory()) continue;
-      for (const n of fs.readdirSync(path.join(atlasRoot, 'blocks', d.name))) if (DATA_EXT.test(n)) perBlock.add(n);
-    }
-  } catch { /* no blocks */ }
+/**
+ * The atlas's own files as git knows them: { top, perBlock } — or null when
+ * the atlas is not tracked (a scratch atlas, a fresh client folder). What the
+ * runs leave on disk (atlas/run_state, atlas/docs) differs from machine to
+ * machine; the map must not (R-8.17).
+ */
+export function trackedAtlas(repoRoot, atlasRoot) {
+  const rel = path.relative(repoRoot, atlasRoot).split(path.sep).join('/');
+  if (!rel || rel.startsWith('..') || path.isAbsolute(rel)) return null;
+  let out = '';
+  try { out = execFileSync('git', ['ls-files', '-z', '--', rel], { cwd: repoRoot, maxBuffer: 64 << 20, stdio: ['ignore', 'pipe', 'ignore'] }).toString(); } catch { return null; }
+  const files = out.split('\0').filter((f) => f.startsWith(`${rel}/`)).map((f) => f.slice(rel.length + 1));
+  if (!files.length) return null;
+  const top = new Set(), perBlock = new Set();
+  for (const f of files) {
+    const parts = f.split('/');
+    if (parts[0] !== 'clients') top.add(parts[0]);
+    if (parts[0] === 'blocks' && parts.length === 3 && DATA_EXT.test(parts[2])) perBlock.add(parts[2]);
+  }
   return { top, perBlock };
 }
+/**
+ * Names the map recognises as atlas files: the atlas's top level and the data
+ * files of block folders — from git when the atlas is tracked, else from disk —
+ * and the names the repository root has too («docs»), which count only when
+ * the line says «atlas».
+ */
+export function atlasVocabulary(atlasRoot, tracked = null) {
+  let top = new Set();
+  let perBlock = new Set();
+  if (tracked) { top = new Set(tracked.top); perBlock = new Set(tracked.perBlock); } else {
+    try { for (const n of fs.readdirSync(atlasRoot)) if (n !== 'clients') top.add(n); } catch { /* no atlas */ }
+    try {
+      for (const d of fs.readdirSync(path.join(atlasRoot, 'blocks'), { withFileTypes: true })) {
+        if (!d.isDirectory()) continue;
+        for (const n of fs.readdirSync(path.join(atlasRoot, 'blocks', d.name))) if (DATA_EXT.test(n)) perBlock.add(n);
+      }
+    } catch { /* no blocks */ }
+  }
+  let parent = new Set();
+  try { parent = new Set(fs.readdirSync(path.dirname(atlasRoot)).filter((n) => n !== path.basename(atlasRoot))); } catch { /* no parent */ }
+  return { top, perBlock, parent };
+}
+// R-8.17 — a folder the code makes right under the atlas root is an atlas
+// file before the first run makes it: «path.join(ATLAS, 'run_state')»,
+// «path.join(root, 'atlas', 'docs')», «'atlas/llm_traces'».
+const AT_ROOT = /path\.(?:join|resolve)\(\s*(?:[\w$.]*atlas[\w$]*(?:\([^()]*\))?|[\w$.]+(?:\([^()]*\))?\s*,\s*['"`]atlas['"`])\s*,\s*['"`]([\w.-]+)['"`]|['"`](?:\.\/)?atlas\/([\w.-]+)/gi;
+export function atlasNamesInCode(src) {
+  const out = new Set();
+  for (const m of stripComments(src).matchAll(AT_ROOT)) {
+    const n = m[1] || m[2];
+    if (n && n !== 'atlas' && n !== 'clients') out.add(n);
+  }
+  return out;
+}
 // writeFileSync, writeIfMissing, writeJsonAtomic, appendLine … — not a bare
-// `res.write(` and not `res.writeHead(`.
-const WRITE_VERB = '(?:write(?!Head\\b)[A-Z]\\w*|append(?:[A-Z]\\w*)?|copyFileSync|createWriteStream|atomicWrite\\w*)';
+// `res.write(` and not `res.writeHead(`. Creating a folder, moving and
+// deleting a file change the atlas too (R-8.17).
+const WRITE_VERB = '(?:write(?!Head\\b)[A-Z]\\w*|append(?:[A-Z]\\w*)?|copyFileSync|createWriteStream|atomicWrite\\w*'
+  + '|(?:mkdir|rm|rmdir|unlink|rename|cp)Sync|fs\\.(?:promises\\.)?(?:mkdir|rm|rmdir|unlink|rename|cp|copyFile))';
 const WRITES = new RegExp(`\\b${WRITE_VERB}\\s*\\(`);
 const reEsc = (x) => x.replace(/[$]/g, '\\$');
 const DECLARED = /(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=/;
+// R-8.17 — a path in a list of what to leave alone («FOREVER_SKIP_DIRS»,
+// «IGNORE», «EXCLUDE») is the opposite of using it.
+const SKIP_LIST = /skip|ignore|exclude|never|deny|forbid|untouch|protect/i;
 /**
  * The atlas files a source names: [{ key, line, mode: 'read'|'write' }].
  * A path is written when the line writes, or when the name holding it — or
@@ -379,14 +427,32 @@ export function dataRefs(src, vocab, segments = []) {
       return Boolean(h && h[1] !== name && builtFrom.test(t) && writesTo(reEsc(h[1]), scopeOf(startLine + k)));
     });
   };
+  // the name of the list a line sits in: «const FOREVER_SKIP_DIRS = [» above it
+  const listName = (i) => {
+    for (let j = i; j >= Math.max(0, i - 40); j--) {
+      const t = lines[j];
+      if (j < i && /\]\s*\)?\s*[;,]?\s*$/.test(t)) return '';
+      const d = t.match(/(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*(?:new\s+Set\s*\(\s*)?\[/);
+      if (d) return d[1];
+      if (j < i && !/^\s*(?:['"`]|\/\/|$)/.test(t)) return '';
+    }
+    return '';
+  };
   lines.forEach((text, i) => {
+    const inSkipList = /['"`]/.test(text) && SKIP_LIST.test(listName(i));
     for (const m of text.matchAll(/['"`]([^'"`\n]{2,120})['"`]/g)) {
-      // a later segment of «path.join(atlas, 'operator_profile', 'templates')» is not an atlas file of its own
-      if (/['"`][^'"`]*['"`]\s*,\s*$/.test(text.slice(0, m.index))) continue;
+      if (inSkipList) break;
+      // a later segment of «path.join(atlas, 'operator_profile', 'templates')» is not an atlas file of its
+      // own — but the one after «'atlas'» is, and so is every item of a list (R-8.17)
+      const before = text.slice(0, m.index);
+      const prevLit = before.match(/['"`]([^'"`]*)['"`]\s*,\s*$/);
+      if (prevLit && !/^(?:\.?\/)?atlas\/?$/.test(prevLit[1]) && /path\.(?:join|resolve)\((?:[^()]|\([^()]*\))*$/.test(before)) continue;
       const lit = m[1].replace(/^\.?\/?atlas\//, '');
       const first = lit.split('/')[0];
+      // «docs/article.en.md» is the repository's docs, not atlas/docs, unless the line says «atlas»
+      const shadowed = vocab.parent?.has(first) && lit === m[1] && !/atlas/i.test(text);
       let key = null;
-      if (vocab.top.has(first) && (lit.includes('.') || /path\.(?:join|resolve)|ATLAS|atlas|[Rr]oot\b/.test(text))) key = first === 'blocks' ? 'blocks/' : first;
+      if (vocab.top.has(first) && !shadowed && (lit.includes('.') || /path\.(?:join|resolve)|ATLAS|atlas|[Rr]oot\b/.test(text))) key = first === 'blocks' ? 'blocks/' : first;
       else if (vocab.perBlock.has(lit)) key = `blocks/*/${lit}`;
       if (!key || seen.has(`${key}|${i}`)) continue;
       seen.add(`${key}|${i}`);
@@ -767,7 +833,13 @@ export function buildCodeMap({ repoRoot = ROOT, atlasRoot = ATLAS, history = tru
   // R-8.16 — the atlas files each file reads and writes. Tests build their
   // own throwaway atlases and the canvas reads through the server, so
   // neither names the atlas's files for real.
-  const vocab = atlasVocabulary(atlasRoot);
+  const vocab = atlasVocabulary(atlasRoot, trackedAtlas(repoRoot, atlasRoot));
+  const isDataSource = (p) => !generated.get(p) && !p.startsWith('tests/') && !p.startsWith('frontend/');
+  // R-8.17 — names the code joins right onto the atlas root count while we
+  // look; they stay only if some code makes them (a folder written at run time)
+  const madeHere = new Set();
+  for (const p of known) if (isDataSource(p)) for (const n of atlasNamesInCode(sources.get(p))) if (!vocab.top.has(n)) madeHere.add(n);
+  for (const n of madeHere) vocab.top.add(n);
   const registered = artefactOwners(atlasRoot, blocks.map((b) => b.id));
   const dataRaw = new Map();
 
@@ -776,7 +848,7 @@ export function buildCodeMap({ repoRoot = ROOT, atlasRoot = ATLAS, history = tru
     if (!blockIds.has(info.owning_block)) continue;
     const src = sources.get(p) ?? read(path.join(repoRoot, p));
     const anat = segmentsOf(src, p, new Set((info.exports || []).map((e) => e.name)));
-    if (!generated.get(p) && !p.startsWith('tests/') && !p.startsWith('frontend/')) dataRaw.set(p, dataRefs(src, vocab, anat.segments));
+    if (isDataSource(p)) dataRaw.set(p, dataRefs(src, vocab, anat.segments));
     const byName = usersOfName.get(p) || new Map();
     for (const s of anat.segments) s.users = [...new Set(byName.get(s.name) || [])];
     const d = desc[p];
@@ -801,6 +873,10 @@ export function buildCodeMap({ repoRoot = ROOT, atlasRoot = ATLAS, history = tru
   }
   const blockOfFile = new Map(files.map((f) => [f.path, f.block]));
   for (const f of files) { f.purpose = filePurpose(f, (x) => blockOfFile.get(x)); delete f.purposeWritten; }
+
+  // A name only read, never made, is not an atlas file (a guess, a typo, another project's path).
+  const made = new Set([...dataRaw.values()].flat().filter((d) => madeHere.has(d.key) && d.mode === 'write').map((d) => d.key));
+  for (const [p, refs] of dataRaw) dataRaw.set(p, refs.filter((d) => !madeHere.has(d.key) || made.has(d.key)));
 
   // R-8.16 — owners of the atlas files, and every file's data with them.
   const owners = dataOwners(files.flatMap((f) => (dataRaw.get(f.path) || []).map((d) => ({ block: f.block, key: d.key, mode: d.mode }))), registered);

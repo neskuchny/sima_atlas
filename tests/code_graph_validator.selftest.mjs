@@ -277,6 +277,14 @@ function writeCodeGraphForMini(atlas, { files, edges, byBlock }) {
   g.blocks.find((x) => x.id === 'b.alpha').depends_on = ['b.beta'];
   fs.writeFileSync(path.join(atlas, 'graph.json'), JSON.stringify(g, null, 2));
   check('g8: declared in depends_on.md → no warning', run().drifts.filter((d) => d.kind === 'undeclared_data_link').length === 0, JSON.stringify(run().drifts));
+  // R-8.17 — or in calls.md (a write into the other's data, a read that would
+  // close a cycle): a line the data confirms is not a stale call
+  writeBlock(atlas, 'b.alpha', { files: ['scripts/alpha.mjs'] });
+  g.blocks.find((x) => x.id === 'b.alpha').depends_on = [];
+  fs.writeFileSync(path.join(atlas, 'graph.json'), JSON.stringify(g, null, 2));
+  fs.writeFileSync(path.join(atlas, 'blocks', 'b.alpha', 'calls.md'), '# b.alpha — calls\n\n- b.beta: alpha.mjs читает atlas/beta_data.json — чтобы взять данные беты\n');
+  const r8 = run().drifts;
+  check('g8: declared in calls.md → no data warning, and the data confirms the line', !r8.some((d) => d.kind === 'undeclared_data_link' || d.kind === 'stale_runtime_call'), JSON.stringify(r8));
   fs.rmSync(tmp, { recursive: true, force: true });
 }
 

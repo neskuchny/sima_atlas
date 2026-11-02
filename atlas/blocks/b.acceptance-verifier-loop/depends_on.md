@@ -4,3 +4,5 @@
 - b.core-sync: sync_report
 - b.agent-orchestrator: pipeline_execution
 - b.llm-gateway: llm_call_structured
+- b.operator-profile-learner: personal_dont_use
+- b.operator-profile-learner: personal_always_use

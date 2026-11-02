@@ -57,7 +57,8 @@
         "b.core-sync",
         "b.agent-orchestrator",
         "b.clarify",
-        "b.code-graph"
+        "b.code-graph",
+        "b.db"
       ],
       "tech_stack": [
         "react",
@@ -305,7 +306,8 @@
         "b.db",
         "b.core-sync",
         "b.agent-orchestrator",
-        "b.llm-gateway"
+        "b.llm-gateway",
+        "b.operator-profile-learner"
       ],
       "tech_stack": [
         "nodejs",
@@ -431,7 +433,8 @@
       "subschema_id": null,
       "depends_on": [
         "b.llm-gateway",
-        "b.agent-orchestrator"
+        "b.agent-orchestrator",
+        "b.db"
       ],
       "tech_stack": [
         "nodejs",
@@ -604,7 +607,8 @@
       "mvp": false,
       "subschema_id": null,
       "depends_on": [
-        "b.llm-gateway"
+        "b.llm-gateway",
+        "b.db"
       ],
       "tech_stack": [
         "nodejs",

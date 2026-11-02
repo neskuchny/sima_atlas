@@ -28,3 +28,4 @@
 These files had no owner in any files.md, so the code-graph check never saw their imports.
 - scripts/token_economics.mjs [alive] (token/cost roll-up over llm_traces; R-8.10: --since)
 - tests/openai_gemini_providers.selftest.mjs [alive]
+- atlas/blocks/b.llm-gateway/calls.md [alive] (R-8.17: что блок использует во время работы — чужие данные, которые он читает или пишет; не порядок сборки)

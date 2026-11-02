@@ -15,17 +15,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/introspect_block_ui.selftest.mjs → exit 0 (153ms); first line: \"introspect_block_ui.selftest: OK (7 test groups, all assertions green)\"",
+      "evidence": "node tests/introspect_block_ui.selftest.mjs → exit 0 (111ms); first line: \"introspect_block_ui.selftest: OK (7 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/introspect_block_ui.selftest.mjs",
         "exit_code": 0,
         "stdout": "introspect_block_ui.selftest: OK (7 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 153,
+        "duration_ms": 111,
         "timed_out": false
       },
-      "duration_ms": 153
+      "duration_ms": 111
     },
     {
       "id": "A2",
@@ -39,17 +39,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/user_docs.smoke.mjs → exit 0 (116ms); first line: \"user_docs.smoke: OK (5 test groups, all assertions green)\"",
+      "evidence": "node tests/user_docs.smoke.mjs → exit 0 (98ms); first line: \"user_docs.smoke: OK (5 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/user_docs.smoke.mjs",
         "exit_code": 0,
         "stdout": "user_docs.smoke: OK (5 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 116,
+        "duration_ms": 98,
         "timed_out": false
       },
-      "duration_ms": 116
+      "duration_ms": 98
     },
     {
       "id": "A3",
@@ -63,17 +63,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/screenshots_integration.selftest.mjs → exit 0 (83ms); first line: \"screenshots_integration.selftest: OK (7 test groups, all assertions green)\"",
+      "evidence": "node tests/screenshots_integration.selftest.mjs → exit 0 (68ms); first line: \"screenshots_integration.selftest: OK (7 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/screenshots_integration.selftest.mjs",
         "exit_code": 0,
         "stdout": "screenshots_integration.selftest: OK (7 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 83,
+        "duration_ms": 68,
         "timed_out": false
       },
-      "duration_ms": 83
+      "duration_ms": 68
     },
     {
       "id": "A4",
@@ -87,17 +87,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/user_docs_drift.selftest.mjs → exit 0 (604ms); first line: \"user_docs_drift.selftest: OK (5 test groups, all assertions green)\"",
+      "evidence": "node tests/user_docs_drift.selftest.mjs → exit 0 (469ms); first line: \"user_docs_drift.selftest: OK (5 test groups, all assertions green)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/user_docs_drift.selftest.mjs",
         "exit_code": 0,
         "stdout": "user_docs_drift.selftest: OK (5 test groups, all assertions green)\n",
         "stderr": "",
-        "duration_ms": 604,
+        "duration_ms": 469,
         "timed_out": false
       },
-      "duration_ms": 604
+      "duration_ms": 469
     },
     {
       "id": "A5",
@@ -149,7 +149,7 @@
           "function detectJargon(tutorial) {"
         ]
       },
-      "duration_ms": 1
+      "duration_ms": 0
     },
     {
       "id": "A7",
@@ -211,11 +211,11 @@
     "skipped": 0
   },
   "verdict": "pass",
-  "duration_ms": 957,
-  "checked_at": "2026-11-02T09:11:34.159Z",
+  "duration_ms": 746,
+  "checked_at": "2026-11-02T12:17:54.485Z",
   "cache": {
     "hit": false,
-    "reason": "code changed (a commit, or a changed / new file outside atlas/); a contract, graph.json or project rules changed; another block's verdict or kpi result changed",
-    "lookup_ms": 23.851808
+    "reason": "code changed (a commit, or a changed / new file outside atlas/); a contract, graph.json or project rules changed",
+    "lookup_ms": 21.728054
   }
 }

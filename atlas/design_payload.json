@@ -393,8 +393,8 @@
       },
       "progress": {
         "tasks": {
-          "done": 16,
-          "total": 27
+          "done": 21,
+          "total": 32
         },
         "kpi": {
           "checked": 1,
@@ -463,11 +463,10 @@
       "size": "md",
       "parent_block_id": null,
       "contract": {
-        "score": 0.6,
-        "filled": 3,
+        "score": 0.8,
+        "filled": 4,
         "total": 5,
         "missing": [
-          "depends_on.md",
           "provides.md"
         ]
       },
@@ -764,6 +763,13 @@
       "biz": "Зависит от b.code-graph."
     },
     {
+      "from": "b.ui-control",
+      "to": "b.db",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.db."
+    },
+    {
       "from": "b.core-sync",
       "to": "b.db",
       "kind": "data",
@@ -904,6 +910,13 @@
       "biz": "Зависит от b.llm-gateway."
     },
     {
+      "from": "b.acceptance-verifier-loop",
+      "to": "b.operator-profile-learner",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.operator-profile-learner."
+    },
+    {
       "from": "b.user-docs-generator",
       "to": "b.db",
       "kind": "data",
@@ -981,6 +994,13 @@
       "biz": "Зависит от b.agent-orchestrator."
     },
     {
+      "from": "b.diff-review",
+      "to": "b.db",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.db."
+    },
+    {
       "from": "b.product-auth",
       "to": "b.product-dashboard",
       "kind": "data",
@@ -1014,6 +1034,13 @@
       "kind": "data",
       "label": "depends_on",
       "biz": "Зависит от b.llm-gateway."
+    },
+    {
+      "from": "b.clarify",
+      "to": "b.db",
+      "kind": "data",
+      "label": "depends_on",
+      "biz": "Зависит от b.db."
     }
   ],
   "tasks": {
@@ -2493,6 +2520,51 @@
         "agent": null,
         "why": "",
         "accept": ""
+      },
+      {
+        "id": "T28",
+        "title": ". Словарь файлов атласа не зависит от диска: что знает git, плюс папки, которые код сам создаёт в атласе (`run_state`, `docs`); имя, которое есть и в корне репозитория (`docs/…`), — файл атласа, тольк",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T29",
+        "title": ". Детектор точнее: после `'atlas'` в `path.join` идёт файл атласа, каждый элемент списка — отдельный файл; создание папки, перенос и удаление — запись; путь в списке исключений («FOREVER_SKIP_DIRS») —",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T30",
+        "title": ". Двенадцать связей через данные записаны: четыре в `depends_on.md` (+`graph.json`) — чтение, без которого блок не работает и которое не замыкает цикл; восемь в `calls.md` — запись в чужие данные и чт",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T31",
+        "title": ". Строку `calls.md` подтверждают и чужие данные, а не только запуск и HTTP; `--data-links` падает на незаписанной связи и на файле без владельца (A11).",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
+      },
+      {
+        "id": "T32",
+        "title": ". `atlas/projects/` записан за хранилищем блоков — последний файл атласа без владельца.",
+        "status": "done",
+        "priority": "P2",
+        "agent": null,
+        "why": "",
+        "accept": ""
       }
     ],
     "b.desktop": [
@@ -3328,10 +3400,10 @@
     }
   ],
   "_meta": {
-    "generated_at": "2026-11-02T12:17:38.218Z",
+    "generated_at": "2026-11-02T13:10:54.703Z",
     "atlas_root": "atlas",
     "client_id": null,
     "block_count": 21,
-    "edge_count": 40
+    "edge_count": 44
   }
 }

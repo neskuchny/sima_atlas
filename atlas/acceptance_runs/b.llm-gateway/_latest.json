@@ -15,17 +15,17 @@
         "expect_in_stdout": "OK"
       },
       "verdict": "pass",
-      "evidence": "node tests/llm_gateway.selftest.mjs → exit 0 (81ms); first line: \"[llm-gateway] using provider=mock (explicit LLM_DEFAULT_PROVIDER)\"",
+      "evidence": "node tests/llm_gateway.selftest.mjs → exit 0 (75ms); first line: \"[llm-gateway] using provider=mock (explicit LLM_DEFAULT_PROVIDER)\"",
       "reasoning": "shell exit code 0 and stdout matches /OK/",
       "raw": {
         "cmd": "node tests/llm_gateway.selftest.mjs",
         "exit_code": 0,
         "stdout": "[llm-gateway] using provider=mock (explicit LLM_DEFAULT_PROVIDER)\nllm_gateway.selftest: OK (6 cases)\n",
         "stderr": "",
-        "duration_ms": 81,
+        "duration_ms": 75,
         "timed_out": false
       },
-      "duration_ms": 81
+      "duration_ms": 75
     },
     {
       "id": "A2",
@@ -39,17 +39,17 @@
         "expect_in_stdout": "simulate_conversation_branches: OK"
       },
       "verdict": "pass",
-      "evidence": "node scripts/simulate_conversation_branches.mjs → exit 0 (324ms); first line: \"PASS: created b.realtime-ingestion in graph.json\"",
+      "evidence": "node scripts/simulate_conversation_branches.mjs → exit 0 (430ms); first line: \"PASS: created b.realtime-ingestion in graph.json\"",
       "reasoning": "shell exit code 0 and stdout matches /simulate_conversation_branches: OK/",
       "raw": {
         "cmd": "node scripts/simulate_conversation_branches.mjs",
         "exit_code": 0,
         "stdout": "PASS: created b.realtime-ingestion in graph.json\nPASS: b.realtime-ingestion has layer=logic (LLM classification)\nPASS: b.realtime-ingestion folder seeded with mission.md\nPASS: b.core-sync mission preserved (LLM proposal is not auto-applied)\nPASS: b.core-sync status NOT silently changed by extraction\nPASS: b.agent-orchestrator/checks.log has new llm_extraction lines\nsimulate_conversation_branches: OK (state restored)\n",
         "stderr": "",
-        "duration_ms": 324,
+        "duration_ms": 430,
         "timed_out": false
       },
-      "duration_ms": 324
+      "duration_ms": 430
     },
     {
       "id": "A3",
@@ -71,7 +71,7 @@
         "cost_capped": false,
         "evidence_quote": ""
       },
-      "duration_ms": 0
+      "duration_ms": 1
     },
     {
       "id": "A4",
@@ -85,11 +85,11 @@
         "min_count": 1
       },
       "verdict": "pass",
-      "evidence": "glob atlas/llm_traces/*.json → 631 files (min=1); newest 0min ago",
-      "reasoning": "631 files match (≥1)",
+      "evidence": "glob atlas/llm_traces/*.json → 813 files (min=1); newest 0min ago",
+      "reasoning": "813 files match (≥1)",
       "raw": {
         "pattern": "atlas/llm_traces/*.json",
-        "count": 631,
+        "count": 813,
         "min_count": 1,
         "max_age_min": null,
         "newest_minutes_ago": 0,
@@ -101,7 +101,7 @@
           "/home/user/sima_atlas/atlas/llm_traces/2026-11-02T01-06-16-612Z__mock__f36f9a371a61bd03.json"
         ]
       },
-      "duration_ms": 10
+      "duration_ms": 12
     },
     {
       "id": "A5",
@@ -115,17 +115,17 @@
         "expect_in_stdout": "llm_extraction.eval: (plumbing OK|OK)"
       },
       "verdict": "pass",
-      "evidence": "node tests/llm_extraction.eval.mjs → exit 0 (66ms); first line: \"llm_extraction.eval — PLUMBING ONLY (mock provider): the mock answers are the golden set itself, so 1.00 measures the pipeline, not extraction quality (cases=30/30)\"",
+      "evidence": "node tests/llm_extraction.eval.mjs → exit 0 (71ms); first line: \"llm_extraction.eval — PLUMBING ONLY (mock provider): the mock answers are the golden set itself, so 1.00 measures the pipeline, not extraction quality (cases=30/30)\"",
       "reasoning": "shell exit code 0 and stdout matches /llm_extraction.eval: (plumbing OK|OK)/",
       "raw": {
         "cmd": "node tests/llm_extraction.eval.mjs",
         "exit_code": 0,
-        "stdout": "llm_extraction.eval — PLUMBING ONLY (mock provider): the mock answers are the golden set itself, so 1.00 measures the pipeline, not extraction quality (cases=30/30)\n  A_single_block               1.00\n  B_multi_block                1.00\n  C_no_block                   1.00\n  D_layer_classification       1.00\n  E_dependency                 1.00\n  F_confidence                 1.00\n  snapshot=atlas/eval_history/2026-11-02T12-17-51-472Z.json\n\nllm_extraction.eval: plumbing OK on 30 cases — extraction quality NOT measured (mock provider; run with a live LLM to measure it)\n",
+        "stdout": "llm_extraction.eval — PLUMBING ONLY (mock provider): the mock answers are the golden set itself, so 1.00 measures the pipeline, not extraction quality (cases=30/30)\n  A_single_block               1.00\n  B_multi_block                1.00\n  C_no_block                   1.00\n  D_layer_classification       1.00\n  E_dependency                 1.00\n  F_confidence                 1.00\n  snapshot=atlas/eval_history/2026-11-02T13-11-09-462Z.json\n\nllm_extraction.eval: plumbing OK on 30 cases — extraction quality NOT measured (mock provider; run with a live LLM to measure it)\n",
         "stderr": "",
-        "duration_ms": 66,
+        "duration_ms": 71,
         "timed_out": false
       },
-      "duration_ms": 66
+      "duration_ms": 71
     }
   ],
   "counts": {
@@ -134,11 +134,11 @@
     "skipped": 1
   },
   "verdict": "pass",
-  "duration_ms": 481,
-  "checked_at": "2026-11-02T12:17:51.478Z",
+  "duration_ms": 589,
+  "checked_at": "2026-11-02T13:11:09.469Z",
   "cache": {
     "hit": false,
-    "reason": "code changed (a commit, or a changed / new file outside atlas/); a contract, graph.json or project rules changed; a file this block's assertions read changed",
-    "lookup_ms": 35.840658
+    "reason": "code changed (a commit, or a changed / new file outside atlas/); a contract, graph.json or project rules changed; another block's verdict or kpi result changed; a file this block's assertions read changed",
+    "lookup_ms": 36.742126
   }
 }
